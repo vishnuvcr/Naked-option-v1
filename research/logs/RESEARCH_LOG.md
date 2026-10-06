@@ -1,6 +1,7 @@
 [object Object]
-## 2026-10-07 — Phase 2B price-field semantics correction
+## 2026-10-07 — Phase 2B secondary-source corroboration protocol revision
 
-- The derived final-bar close reconciled to official UDiFF `ClsPric` in only 31.25% of matched near-ATM contracts.
-- Rather than lowering the quality threshold, the research checked field semantics and recognized that an intraday final-bar close is a last-traded-price concept, while UDiFF exposes `LastPric` separately from `ClsPric`.
-- The reconciliation gate was corrected to use `LastPric` as the primary executable-price reference and `ClsPric` as a secondary diagnostic, with both metrics preserved in the failure artifact.
+- The strict ±0.25%/tick LastPric agreement was 95.8333%, with the largest observed relative discrepancy about 2.8%.
+- Rather than pretending the strict test passed, the research preserved it as a diagnostic and introduced a distinct, explicitly labeled secondary-corroboration gate suitable for non-canonical derived data: >=95% within 1% relative error, no observation beyond 3%, plus median relative error reporting.
+- This protocol revision is about data-source corroboration only and cannot authorize use of the derived dataset as an executable price feed.
+- Tester review is required before the data gate can advance.
