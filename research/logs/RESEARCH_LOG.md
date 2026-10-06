@@ -55,3 +55,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Tester required explicit BSE comparator sources, official NSE contract/lot-size source, live official option archive acquisition, raw-data cache population, snapshot hashing, and optional HF metadata access.
 - Added BSE/NSE source rows, official 05-Jul-2024 legacy and 08-Jul-2024 UDiFF acquisition, schema validation, raw cache usage, snapshot manifest generation and HF dataset probing via HF_TOKEN.
 - Phase 2A remains gated pending independent tester recheck.
+
+## 2026-10-07 — Phase 2B acquisition/reconciliation package submitted
+
+- Added global source coverage and conservative availability rules.
+- Added actual Hugging Face research-reference acquisition and official-vs-derived reconciliation.
+- Added static syntax/workflow validation to prevent silent CI failures.
+- Submitted Phase 2B to independent tester; no predictive labels/models may begin until data gate passes.
