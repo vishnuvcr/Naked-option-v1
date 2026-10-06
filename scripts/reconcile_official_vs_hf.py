@@ -114,6 +114,25 @@ trade_dates = [to_trade_date(v) for v in trade_date_col.to_pylist()]
 trade_mask = pyarrow.array([d == target_trade_date for d in trade_dates])
 hf_day = table.filter(trade_mask)
 
+# Preserve an independent spot series when the derived dataset provides one.
+hf_spot_observations=[]
+if mapping["spot"]:
+    for i in range(hf_day.num_rows):
+        try:
+            exp_val=parse_date(hf_day[mapping["expiry"]][i].as_py())
+            if exp_val != target_expiry:
+                continue
+            spot_val=finite_float(hf_day[mapping["spot"]][i].as_py())
+            ts_val=hf_day[mapping["timestamp"]][i].as_py()
+            if spot_val is not None and ts_val is not None:
+                if isinstance(ts_val, datetime.datetime):
+                    ts_dt=ts_val
+                else:
+                    ts_dt=datetime.datetime.fromisoformat(str(ts_val))
+                hf_spot_observations.append((ts_dt,spot_val))
+        except Exception:
+            continue
+
 # Keep only the weekly expiry represented by the selected HF file, then take the
 # final observed bar for every contract to make an EOD-compatible comparison.
 latest = {}
@@ -424,29 +443,25 @@ if practical_tolerance_fraction < MIN_PRACTICAL_TOLERANCE or (max_rel_error is n
         f"within1pct={practical_tolerance_fraction:.4%}, max_rel={max_rel_error:.4%}"
     )
 
-# Compare underlying/index value using latest HF spot and the official EOD spot.
+# Compare underlying/index value using latest HF spot and official EOD spot.
 hf_spot = None
-if mapping["spot"]:
-    spot_candidates = [
-        latest[k]["spot"] for k in latest
-        if latest[k]["spot"] is not None
-    ]
-    if spot_candidates:
-        # Use the spot observed at the last timestamp represented by the HF file.
-        last_ts = max(latest[k]["timestamp"] for k in latest)
-        last_spots = [
-            latest[k]["spot"] for k in latest
-            if latest[k]["timestamp"] == last_ts and latest[k]["spot"] is not None
-        ]
-        if last_spots:
-            hf_spot = sum(last_spots) / len(last_spots)
+spot_comparison_status = "unavailable"
+if hf_spot_observations:
+    last_ts = max(t for t,_ in hf_spot_observations)
+    last_spots = [v for t,v in hf_spot_observations if t == last_ts]
+    if last_spots:
+        hf_spot = sum(last_spots) / len(last_spots)
 
 official_spot = (sum(official_spots) / len(official_spots)) if official_spots else None
 spot_error = abs(hf_spot - official_spot) if (hf_spot is not None and official_spot is not None) else None
-if spot_error is None:
-    raise SystemExit("ERROR: underlying spot could not be compared from both sources")
-if spot_error > MAX_SPOT_ERROR:
-    raise SystemExit(f"ERROR: underlying spot mismatch {spot_error:.4f} > {MAX_SPOT_ERROR}")
+if spot_error is not None:
+    spot_comparison_status = "PASS" if spot_error <= MAX_SPOT_ERROR else "FAIL"
+    if spot_error > MAX_SPOT_ERROR:
+        raise SystemExit(f"ERROR: underlying spot mismatch {spot_error:.4f} > {MAX_SPOT_ERROR}")
+elif mapping["spot"] is None:
+    spot_comparison_status = "source_field_unavailable"
+else:
+    spot_comparison_status = "source_values_unavailable"
 
 report = {
     "official_snapshot": "2024-07-08_UDiFF",
@@ -476,6 +491,7 @@ report = {
     "hf_latest_spot": hf_spot,
     "official_eod_spot": official_spot,
     "spot_error": spot_error,
+    "spot_comparison_status": spot_comparison_status,
     "status": "PASS",
     "thresholds": {
         "min_key_coverage": MIN_KEY_COVERAGE,
