@@ -28,3 +28,9 @@
 - Added effective-dated NIFTY lot-size validation using the official UDiFF sample.
 - Added live official NSE India VIX and FII/DII snapshot acquisition with explicit availability rules.
 - Phase 2 final gate remains pending tester review and hosted execution of these new source checks.
+
+## 2026-10-07 — Phase 2C workflow wiring
+
+- Wired global reference acquisition, effective-dated lot-size validation, India VIX snapshot acquisition and FII/DII snapshot acquisition into the automatic/manual Phase 2 audit workflow.
+- Extended the static validator and Phase 2 exit criteria to cover these source-completion checks.
+- Next hosted run is the formal Phase 2C execution gate.
