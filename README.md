@@ -5,14 +5,15 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 ## Research status
 ### Latest Phase 2 execution
 
-- Hosted GitHub Actions is now executing the real data-audit workflow with cached raw data and the repository HF_TOKEN secret.
-- Official NSE legacy/UDiFF archive acquisition, schema validation, snapshot hashing and HF reference acquisition have all completed successfully in the observed runs.
-- Reconciliation has so far failed on real data twice for legitimate engineering reasons: a fixed-offset timezone parsing issue, then an over-broad full-expiry coverage denominator (84.16%). Both failures are logged and corrected; the latest run is testing a pre-declared near-ATM validation universe.
-- Full official NSE data remains canonical; derived Hugging Face data is only a validation source and is not being promoted to canonical.
+- Final hosted Phase 2 audit run #104 completed successfully after real-data failures were diagnosed and corrected.
+- Official NSE legacy/UDiFF archives were acquired, schema-checked, hashed and cached; global reference series, official lot-size validation, India VIX/FII-DII source checks and cross-source reconciliations also completed.
+- The S08 derived option dataset passed the pre-declared secondary corroboration gate on 96 near-ATM contracts, while its strict 0.25%/tick metric remains visible as a diagnostic; it is not canonical.
+- S31 remains quarantined because its ATM parquet files do not expose sufficient expiry/contract semantics for reliable reconciliation.
+- Phase 3 now starts from official canonical data with explicit quarantine rules for auxiliary sources that lack historical publication timestamps.
 
 
 - Repository initialized: 2026-10-07
-- Current phase: Phase 2 — data engineering and point-in-time validation
+- Current phase: Phase 3 — labels, baselines and cost-aware directionability
 - Developer branch: `developer`
 - Tester branch: `tester`
 - Strategy constraint: buy NIFTY calls or puts only; no option selling, spreads, short futures, or hidden short exposure.
