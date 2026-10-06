@@ -1,0 +1,25 @@
+name: Research Protocol Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - developer
+      - tester
+      - phase-*
+  pull_request:
+    branches:
+      - main
+      - developer
+      - tester
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate repository contract
+        run: python scripts/validate_protocol.py
