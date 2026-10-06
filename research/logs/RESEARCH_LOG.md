@@ -90,3 +90,9 @@ The repository records research decisions, user requirements, experiment outcome
 - The denominator included zero-volume/zero-OI contracts that a derived intraday dataset may legitimately omit.
 - Reconciliation was revised to define and report an active contract universe using official trade volume or open interest, while retaining full-universe counts and missing-key diagnostics.
 - The Phase 2 audit artifact is now uploaded even when the reconciliation gate fails, so failures remain inspectable.
+
+## 2026-10-07 — Phase 2B derived-source coverage interpretation
+
+- The hosted run established 192 active official NIFTY contracts for the selected 2024-07-11 expiry, while the weekly HF research file contained 170 contracts and missed 22 far-from-ATM active contracts.
+- The missing contracts were concentrated in far-out strikes rather than a random subset, confirming that the HF file is a partial moneyness slice rather than a full archive.
+- Reconciliation was revised to validate the derived source only on a pre-declared near-ATM band `abs(log(K/S)) <= 0.05`. Full official-data completeness remains a separate canonical gate.
