@@ -15,8 +15,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 YEAR = int(os.environ.get("YEAR", "2024"))
-START = dt.date.fromisoformat(os.environ.get("WINDOW_START", f"{YEAR}-01-01"))
-END = dt.date.fromisoformat(os.environ.get("WINDOW_END", f"{YEAR}-12-31"))
+WINDOW_START = dt.date(2019, 2, 11)
+WINDOW_END = dt.date(2026, 9, 30)
+START = max(dt.date(YEAR, 1, 1), WINDOW_START)
+END = min(dt.date(YEAR, 12, 31), WINDOW_END)
+
 MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "3"))
 SLEEP = float(os.environ.get("REQUEST_SLEEP", "0.20"))
 
