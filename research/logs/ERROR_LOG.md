@@ -7,5 +7,8 @@
 
 New errors must be appended, never overwritten.
 
-| 2026-10-07 | 0 | Native GitHub APPROVE review rejected | Same authenticated account cannot approve its own PR | Preserve tester branch/report and use tester artifact + issue comment as independent gate evidence | Pending |\n| 2026-10-07 | 0 | Phase branch names with slash rejected by GitHub connector | Reference creation returned 422 | Use flat phase branch names (phase-00-developer/phase-00-tester) | Fixed |\n
-| 2026-10-07 | 1 | Literature search was not reproducible enough for independent rerun | Initial review lacked search protocol and machine-readable registry | Added search protocol + CSV registry + README links; resubmitted to tester | Pending tester recheck |\n
+| 2026-10-07 | 0 | Native GitHub APPROVE review rejected | Same authenticated account cannot approve its own PR | Preserve tester branch/report and use tester artifact + issue comment as independent gate evidence | Pending |
+| 2026-10-07 | 0 | Phase branch names with slash rejected by GitHub connector | Reference creation returned 422 | Use flat phase branch names (phase-00-developer/phase-00-tester) | Fixed |
+
+| 2026-10-07 | 1 | Literature search was not reproducible enough for independent rerun | Initial review lacked search protocol and machine-readable registry | Added search protocol + CSV registry + README links; resubmitted to tester | Pending tester recheck |
+| 2026-10-07 | 1 | Literature registry schema did not include fields promised by search protocol | Initial registry was under-specified | Added related methods, hypotheses and replication requirement columns | Pending tester recheck |
