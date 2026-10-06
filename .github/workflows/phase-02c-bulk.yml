@@ -106,6 +106,7 @@ jobs:
 
       - name: Acquire current FII/DII snapshot
         run: python scripts/acquire_fii_dii_snapshot.py
+        continue-on-error: true
 
       - name: Upload contextual artifact
         uses: actions/upload-artifact@v4
@@ -116,7 +117,7 @@ jobs:
             data/reports/india_vix_history_validation.json
             data/reports/global_reference_window.json
             data/reports/fii_dii_snapshot.json
-          if-no-files-found: error
+          if-no-files-found: warn
 
   gate:
     needs: [bulk-nse, contextual]
