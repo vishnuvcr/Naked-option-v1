@@ -62,3 +62,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Added actual Hugging Face research-reference acquisition and official-vs-derived reconciliation.
 - Added static syntax/workflow validation to prevent silent CI failures.
 - Submitted Phase 2B to independent tester; no predictive labels/models may begin until data gate passes.
+
+## 2026-10-07 — Phase 2B tester REQUEST_CHANGES and correction
+
+- Tester identified a serious integrity flaw: the first reconciliation pass reported quality metrics without enforcing them, silently collapsed duplicate intraday keys, compared a weekly derived file against all official expiries, and skipped underlying reconciliation.
+- Corrected the reconciliation logic to aggregate the derived intraday source to the final bar per contract, scope to the represented expiry, detect ties/duplicates, enforce 95% key coverage and 99% close tolerance, and compare the underlying value.
+- Added global-source endpoint probing to the automatic workflow.
+- Phase 2B remains gated pending fresh tester review.
