@@ -69,3 +69,11 @@
 - Triple-barrier crossing is now evaluated at the finest available post-decision observation frequency while keeping barriers fixed.
 - Clarified option cost normalization so broker fees are not double-counted per lot.
 - Phase 3 remains gated pending final tester re-review.
+
+## 2026-10-07 — Phase 3 data execution workflow submitted
+
+- Tester final protocol gate passed.
+- Added official NIFTY 50 daily-history acquisition in 60-day chunks from 2020-01-01 through 2026-09-30 with hashing and PIT provenance.
+- Added Hugging Face intraday research-reference discovery using HF_TOKEN; no derived intraday data is accepted until the selected files are independently validated.
+- Added automatic/manual Phase 3 data workflow with cache.
+- No B0-B11 performance results exist yet.
