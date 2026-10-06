@@ -58,3 +58,8 @@ Only one long option position per signal in the primary baseline:
 - NO TRADE
 
 No short legs.
+
+
+## Cost unit rule
+
+All option-P&L calculations are performed from the exact transaction bill. A `per_unit_total_round_trip_cost` is defined only after total entry and exit fees are computed for the actual quantity traded and divided by the exact option-unit quantity. Brokerage is not multiplied by lot size a second time. Slippage is similarly expressed per option unit after the chosen slippage assumption is applied.
