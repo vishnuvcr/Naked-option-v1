@@ -70,6 +70,17 @@ def metrics(y,p):
         out["roc_auc"]=None; out["pr_auc"]=None
     return out
 
+def b7_regime_counts(df):
+    ret=df["log_spot"].diff()
+    v=ret.rolling(20).std()
+    pct=v.rolling(252,min_periods=252).rank(pct=True)
+    return {
+        "low_lt33":int((pct<0.33).sum()),
+        "mid_33_67":int(((pct>=0.33)&(pct<=0.67)).sum()),
+        "high_gt67":int((pct>0.67).sum()),
+        "unclassified":int(pct.isna().sum()),
+    }
+
 def base_preds(df,h,name):
     idx=df.index
     p=pd.Series(np.nan,index=idx)
@@ -160,6 +171,7 @@ def run():
         for name,series in base_preds_full.items():
             out[str(h)][name]=metrics(y,series.loc[grid.index])
         out[str(h)]["B11"]=metrics(y,logistic(df,h,y_full).loc[grid.index])
+        out[str(h)]["B7_regime_counts"]=b7_regime_counts(df)
     report={
         "rows":len(grid),
         "full_rows":len(df),
