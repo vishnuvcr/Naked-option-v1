@@ -30,6 +30,12 @@ A derived dataset may be considered a validation match only if:
 
 The derived source is never promoted to canonical solely because it passes one date.
 
+## Derived-source validation universe
+
+For an independently derived dataset that intentionally contains a restricted moneyness range, coverage is evaluated on a pre-declared liquid validation band:
+`abs(log(strike / official_spot)) <= 0.05`.
+This is not a relaxation of the canonical-data completeness requirement; it explicitly separates full official coverage from partial-data cross-validation. Any use of derived data outside this band is prohibited until independently validated.
+
 ## Composite-source rule
 
 A composite record must retain:
