@@ -23,6 +23,13 @@ acq=REPORT/f"nse_year_{YEAR}_acquisition.json"
 if not acq.exists():
     raise SystemExit("ERROR: acquisition report missing")
 meta=json.loads(acq.read_text(encoding="utf-8"))
+weekdays=int(meta.get("weekdays",0))
+downloaded=int(meta.get("downloaded_or_cached",0))
+coverage=downloaded/max(1,weekdays)
+if coverage < 0.92:
+    raise SystemExit(
+        f"ERROR: official NSE year coverage below 92%: downloaded_or_cached={downloaded}, weekdays={weekdays}, coverage={coverage:.2%}; inspect unresolved dates"
+    )
 
 def ffloat(v):
     try:
@@ -131,6 +138,7 @@ if duplicates>0:
     raise SystemExit(f"ERROR: duplicate NIFTY option keys detected: {duplicates}")
 
 # Build a compact year manifest without writing it to Git.
+unresolved_dates=[r["date"] for r in meta["results"] if r["status"]=="unresolved"]
 out={
     "year":YEAR,
     "nifty_option_rows":sum(key_counts.values()),
@@ -138,6 +146,8 @@ out={
     "trading_dates_seen":len(source_days),
     "missing_core_price_rows":missing_core,
     "duplicate_keys":duplicates,
+    "official_archive_coverage":coverage,
+    "unresolved_dates":unresolved_dates,
     "schemas":schema_by_format,
     "lot_size_regimes_seen":{d:sorted(v) for d,v in sorted(lot_by_date.items())[:50]},
     "status":"PASS",
