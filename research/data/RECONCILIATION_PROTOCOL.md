@@ -1,5 +1,5 @@
 [object Object]
 
-## Secondary derived-source price corroboration gate
+## Underlying spot comparison exception
 
-Because an independently derived 1-minute dataset and an exchange EOD reference are not guaranteed to share an identical terminal trade timestamp, two price-quality metrics are retained. The strict diagnostic remains a pre-declared 0.25%/tick agreement fraction and is never erased. A derived source may be used only as **secondary corroboration**, not as a canonical price source, when at least 95% of matched near-ATM contracts are within 1% relative error and no matched contract exceeds 3% relative error, with the median relative error also reported. Any failed source remains non-canonical. These tolerances govern corroboration only; executable strategy backtests must use canonical/persisted exchange-quality prices and their own bid/ask/slippage model.
+If the derived validation source exposes a spot field but the selected rows contain no usable values, the reconciliation report must mark the comparison as `source_values_unavailable` and must not fabricate or forward-fill spot prices. The source is then corroborative for option-price fields only. A source that does provide a usable spot series must pass the explicit index-point tolerance. This exception does not affect canonical underlying data quality.
