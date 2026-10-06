@@ -26,13 +26,13 @@ For each candidate long CE/PE:
 
 ### Premium break-even
 
-`exit_price_break_even = entry_price + per_unit_total_cost + per_unit_slippage`
+`exit_price_break_even = entry_price + per_unit_total_round_trip_cost + per_unit_total_slippage`
 
 ### Underlying first-order break-even
 
 Only where delta is known:
 
-`spot_move_break_even ≈ total_option_break_even_cost / |delta_entry|`
+`spot_move_break_even ≈ (entry_premium + per_unit_total_round_trip_cost + per_unit_total_slippage) / |delta_entry|`
 
 This is a diagnostic, not the execution rule.
 
