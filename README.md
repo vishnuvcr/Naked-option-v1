@@ -53,3 +53,7 @@ The current Project contains earlier NIFTY/market-inefficiency research artifact
 ## Disclaimer
 
 This is research and backtesting infrastructure, not a guarantee of profit or investment advice. Long options can lose 100% of the premium paid.
+
+### Phase 3 execution
+
+The Phase 3 protocol has passed independent tester review. The current workflow acquires a long daily NIFTY history via a free Yahoo Finance bulk reference with mandatory official NSE overlap validation, discovers and samples a long intraday NIFTY research reference from Hugging Face, then runs frozen positional/intraday baselines. Derived intraday data remain non-canonical under the Phase 2 restrictions. No Phase 4 method search has started.
