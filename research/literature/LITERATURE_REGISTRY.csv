@@ -1,0 +1,37 @@
+source_id,title,year,source_class,evidence_class,url_or_doi,verification_status,notes
+L001,Adaptive Markets: Financial Evolution at the Speed of Thought,2005,JIC,METHODOLOGY,https://web.mit.edu/Alo/www/Papers/JIC2005_Final.pdf,verified,Regime-dependent efficiency framework
+L002,A Reality Check for Data Snooping,2000,Econometrica,METHODOLOGY,https://doi.org/10.1111/1468-0262.00152,verified,Multiple testing
+L003,Data-Snooping, Technical Trading Rule Performance, and the Bootstrap,1999,Review of Financial Studies,METHODOLOGY,https://doi.org/10.1111/0022-1082.00163,verified,Technical-rule data snooping
+L004,The Probability of Backtest Overfitting,2014,SSRN,METHODOLOGY,https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2326253,verified,Backtest selection bias
+L005,The Deflated Sharpe Ratio,2014,SSRN,METHODOLOGY,https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551,verified,Sharpe correction
+L006,Comparing Predictive Accuracy,1995,JASA,METHODOLOGY,https://doi.org/10.1080/07350015.1995.10524599,verified,DM test
+L007,Stepwise SPA test,2010,Economics Letters,METHODOLOGY,https://www.sciencedirect.com/science/article/pii/S0927539810000022,verified,Data-snooping multiple models
+L008,Technical trading revisited,2012,Journal of Financial Economics,METHODOLOGY,https://www.sciencedirect.com/science/article/pii/S0304405X1200116X,verified,Technical rules and costs
+L009,Technical market indicators overview,2015,Decision Support Systems,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S2214635014000495,verified,Indicator universe review
+L010,Technical analysis aligned approach,2018,Journal of Empirical Finance,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S1386418117300824,verified,Technical information
+L011,Accounting vs technical information,2025,Journal of International Money and Finance,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S1042443125000976,verified,Short-horizon predictability and turnover
+L012,Option Return Predictability a Machine-Learning Approach,2018,SSRN,EMPIRICAL,https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3073791,verified,Option moneyness maturity predictors
+L013,Information content of order imbalance in index options,2021,Research/Journal,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S1059056021002367,verified,Order imbalance
+L014,Does information drive trading in option strategies,2010,Research/Journal,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S037842661000097X,verified,Flow information
+L015,Index Option Trading Activity and Market Returns,2016,SSRN,EMPIRICAL,https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2798390,verified,Index option activity
+L016,Joint modeling of call and put implied volatility,2009,Research/Journal,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S0169207009000041,verified,IV asymmetry
+L017,Retail option traders and the implied volatility surface,2026,Journal of Financial Economics,EMPIRICAL,https://www.sciencedirect.com/science/article/pii/S0304405X26000097,verified,Recent retail/surface evidence
+L018,Predicting option prices from price history using machine learning,2026,Research/Journal,EMPIRICAL,https://link.springer.com/article/10.1007/s11147-026-09228-9,verified,Option forecast task
+L019,India VIX official index methodology,current,NSE,PRIMARY,https://www.nseindia.com/static/products-services/indices-indiavix-index,verified,Official India VIX page
+L020,India VIX computation methodology,current,NSE methodology,PRIMARY,https://nsearchives.nseindia.com/web/sites/default/files/inline-files/India_VIX_comp_meth.pdf,verified,Official methodology PDF
+L021,Historical Contract-wise Price Volume Data,current,NSE,PRIMARY,https://www.nseindia.com/report-detail/fo_eq_security,verified,Official options EOD fields
+L022,All Reports Derivatives,current,NSE,PRIMARY,https://www.nseindia.com/all-reports-derivatives,verified,Official derivatives report hub
+L023,FII FPI DII trading activity,current,NSE,PRIMARY,https://www.nseindia.com/reports/fii-dii,verified,Institutional flows
+L024,Historical index data,current,NSE,PRIMARY,https://www.nseindia.com/reports-indices-historical-index-data,verified,NIFTY index source
+L025,Study Profitability of Individual Traders FY25-FY26,2026,SEBI,PRIMARY,https://www.sebi.gov.in/reports-and-statistics/research/aug-2026/study-profitability-of-individual-traders-in-the-equity-derivatives-segment-fy25-fy26-_103835.html,verified,Current regulatory context
+L026,Study Trading Behaviour of Individual Traders FY25-FY26,2026,SEBI,PRIMARY,https://www.sebi.gov.in/reports-and-statistics/research/aug-2026/study-trading-behaviour-of-individual-traders-in-the-equity-derivatives-segment-fy25-fy26-_103836.html,verified,Current regulatory context
+L027,High-frequency return implied-volatility relationship Nifty and India VIX,2020,Journal/Ideas,EMPIRICAL,https://ideas.repec.org/a/jda/journl/vol.54year2020issue3pp53-68.html,verified,Five-minute relation
+L028,India VIX and equity-index returns,2014,Journal/DOI,EMPIRICAL,https://doi.org/10.1108/JES-12-2013-0198,verified,VIX/NIFTY asymmetry
+L029,Forecasting direction of daily changes in India VIX using ML,2022,Journal/MDPI,EMPIRICAL,https://www.mdpi.com/1911-8074/15/12/552,verified,Volatility-state prediction
+L030,NIFTY 50 and India VIX spillover study,2025,International Journal,EMPIRICAL,https://ideas.repec.org/a/spr/ijsaem/v16y2025i6d10.1007_s13198-025-02711-w.html,verified,Changing dependence
+L031,Open Interest Repositioning around Intraday Price-structure Breaks in NIFTY 50 Index Options,2026,SSRN,REPLICATION_TARGET,https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7394780,verified_pending,Recent NIFTY OI hypothesis
+L032,Explainable XGBoost for NIFTY 50 direction,2026,Academia/Journal,REPLICATION_TARGET,https://www.abacademies.org/articles/an-explainable-machine-learning-framework-for-predicting-nifty-50-stock-market-direction-using-xgboost-and-shap-analysis-18199.html,verified_pending,Recent NIFTY ML claim
+L033,Can News Sentiment Improve Deep Learning Models for Nifty 50 Index Forecasting,2025,ResearchGate/IEEE lead,REPLICATION_TARGET,https://www.researchgate.net/publication/398712882_Can_News_Sentiment_Improve_Deep_Learning_Models_for_Nifty_50_Index_Forecasting,verified_pending,Recent sentiment claim
+L034,Wavelet decomposed cross-country NIFTY prediction,2026,ResearchGate,REPLICATION_TARGET,https://www.researchgate.net/publication/406025875_A_Wavelet-Decomposed_D-Band_with_Constricted_PSO-Tuned_Light_Gradient_Boosting_Machine_for_Indian_Stock_Market_Prediction_with_Cross-Country_Market_Influence,verified_pending,Recent complex ML claim
+L035,Harvesting VRP in Nifty index options,2026,ResearchGate,REPLICATION_TARGET,https://www.researchgate.net/publication/402442?x=1,verified_pending,Project-relevant cost/friction study
+L036,NIFTY50 Market Direction Prediction,unknown,GitHub,OPEN_SOURCE,https://github.com/AtomicHalifax/NIFTY50-Market-Direction-Prediction,verified_pending,Replication code target
