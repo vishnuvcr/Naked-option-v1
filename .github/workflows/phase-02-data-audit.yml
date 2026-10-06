@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/cache/raw
-          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py', 'scripts/acquire_s31_reference.py') }}
+          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py', 'scripts/acquire_s31_reference.py', 'scripts/acquire_global_reference.py') }}
           restore-keys: |
             phase2-raw-
 
@@ -75,6 +75,19 @@ jobs:
       - name: Build official snapshot manifest
         run: python scripts/build_snapshot_manifest.py
 
+      - name: Acquire free global reference series
+        run: python scripts/acquire_global_reference.py
+
+      - name: Validate effective-dated NIFTY lot size
+        run: python scripts/validate_lot_size_udiff.py
+
+      - name: Acquire official India VIX snapshot
+        run: python scripts/acquire_india_vix_snapshot.py
+
+      - name: Acquire official FII/DII snapshot
+        run: python scripts/acquire_fii_dii_snapshot.py
+
+
       - name: Acquire derived HF validation reference
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -107,6 +120,10 @@ jobs:
             data/reports/global_source_probe.json
             data/reports/huggingface_dataset_probe.json
             data/reports/official_sample_acquisition.json
+            data/reports/global_reference_acquisition.json
+            data/reports/lot_size_validation.json
+            data/reports/india_vix_snapshot.json
+            data/reports/fii_dii_snapshot.json
             data/reports/hf_reference_acquisition.json
             data/reports/official_vs_hf_reconciliation.json
             data/reports/s31_reference_acquisition.json
