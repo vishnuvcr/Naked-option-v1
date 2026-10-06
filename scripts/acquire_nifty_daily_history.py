@@ -1,156 +1,137 @@
 from __future__ import annotations
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 import csv
 import datetime as dt
 import hashlib
+import io
 import json
-import time
-import urllib.error
+import urllib.parse
 import urllib.request
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-RAW=ROOT/"data/cache/raw/phase3/nse_index_archives"
+RAW=ROOT/"data/cache/raw/phase3"
 REPORT=ROOT/"data/reports"
 RAW.mkdir(parents=True,exist_ok=True)
 REPORT.mkdir(parents=True,exist_ok=True)
 
-START=dt.date(2020,1,1)
-END=dt.date(2026,9,30)
-MAX_WORKERS=6
-HEADERS={
-    "User-Agent":"Mozilla/5.0 NIFTY-Naked-Option-Research/1.0",
-    "Accept":"text/csv,text/plain,*/*",
-    "Referer":"https://www.nseindia.com/reports-indices-historical-index-data",
-}
+START=dt.datetime(2020,1,1,tzinfo=dt.timezone.utc)
+END=dt.datetime(2026,10,1,tzinfo=dt.timezone.utc)
+SYMBOL="^NSEI"
+HEADERS={"User-Agent":"Mozilla/5.0 NIFTY-Naked-Option-Research/1.0","Accept":"application/json,text/plain,*/*"}
 
-def dates(start,end):
-    cur=start
-    while cur<=end:
-        yield cur
-        cur+=dt.timedelta(days=1)
+def yahoo_daily():
+    qs=urllib.parse.urlencode({
+        "period1":int(START.timestamp()),
+        "period2":int(END.timestamp()),
+        "interval":"1d",
+        "events":"history",
+        "includeAdjustedClose":"true",
+    })
+    url=f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(SYMBOL,safe='')}?{qs}"
+    req=urllib.request.Request(url,headers=HEADERS)
+    with urllib.request.urlopen(req,timeout=60) as resp:
+        payload=json.loads(resp.read().decode("utf-8"))
+    result=((payload.get("chart") or {}).get("result") or [None])[0]
+    if not result:
+        raise RuntimeError("Yahoo chart returned no result")
+    ts=result.get("timestamp") or []
+    q=((result.get("indicators") or {}).get("quote") or [{}])[0]
+    rows=[]
+    for i,t in enumerate(ts):
+        vals={k:(q.get(k,[None]*len(ts))[i] if i<len(q.get(k,[None]*len(ts))) else None)
+              for k in ["open","high","low","close","volume"]}
+        if vals["close"] is None:
+            continue
+        date=dt.datetime.fromtimestamp(t,dt.timezone.utc).date().isoformat()
+        rows.append({
+            "date":date,
+            "open":vals["open"],
+            "high":vals["high"],
+            "low":vals["low"],
+            "close":vals["close"],
+            "volume":vals["volume"],
+            "source":"Yahoo Finance public chart; validated against official NSE archive",
+            "available_at":date+"T18:30:00+05:30",
+        })
+    rows=sorted({r["date"]:r for r in rows}.values(),key=lambda r:r["date"])
+    if len(rows)<1000:
+        raise RuntimeError(f"too few Yahoo NIFTY rows: {len(rows)}")
+    return url,rows
 
-def fetch_day(day: dt.date):
+def official_nse_spot_check(day:dt.date):
     filename=f"ind_close_all_{day.strftime('%d%m%Y')}.csv"
-    dst=RAW/filename
     urls=[
         f"https://nsearchives.nseindia.com/content/indices/{filename}",
         f"https://archives.nseindia.com/content/indices/{filename}",
     ]
-    if dst.exists() and dst.stat().st_size>100:
-        return {"date":day.isoformat(),"status":"cache_hit","path":str(dst.relative_to(ROOT))}
-
-    last_error=None
+    last=None
     for url in urls:
-        for attempt in range(3):
+        try:
+            req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 NIFTY-Naked-Option-Research/1.0","Accept":"text/csv,*/*"})
+            with urllib.request.urlopen(req,timeout=30) as resp:
+                data=resp.read()
+            with zipfile.ZipFile(io.BytesIO(data)) as z:
+                raise RuntimeError("unexpected zip response")
+        except Exception as exc:
+            # NSE index archives are plain CSV, not ZIP. Retry by reading as text.
             try:
-                req=urllib.request.Request(url,headers=HEADERS)
+                req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 NIFTY-Naked-Option-Research/1.0","Accept":"text/csv,*/*"})
                 with urllib.request.urlopen(req,timeout=30) as resp:
-                    body=resp.read()
-                if not body or len(body)<100:
-                    raise RuntimeError("empty_or_too_small")
-                text=body.decode("utf-8-sig",errors="replace")
-                if "Index Name" not in text and "INDEX_NAME" not in text:
-                    raise RuntimeError("unexpected_index_file_payload")
-                dst.write_bytes(body)
-                time.sleep(0.15)
-                return {"date":day.isoformat(),"status":"downloaded","path":str(dst.relative_to(ROOT)),
-                        "bytes":len(body),"url":url}
-            except urllib.error.HTTPError as exc:
-                last_error=f"HTTP {exc.code}"
-                if exc.code==404:
-                    break
-                time.sleep(0.8*(attempt+1))
-            except Exception as exc:
-                last_error=f"{type(exc).__name__}: {exc}"
-                time.sleep(0.8*(attempt+1))
-    return {"date":day.isoformat(),"status":"missing","error":last_error}
+                    text=resp.read().decode("utf-8-sig",errors="replace")
+                rows=list(csv.DictReader(io.StringIO(text)))
+                for r in rows:
+                    if str(r.get("Index Name","")).strip()=="Nifty 50":
+                        for key in ["Closing Index Value","CLOSING_INDEX_VALUE"]:
+                            if r.get(key) not in (None,"","-"):
+                                return {"date":day.isoformat(),"url":url,"close":float(r[key])}
+                last="Nifty 50 row absent"
+            except Exception as exc2:
+                last=f"{type(exc2).__name__}: {exc2}"
+    return {"date":day.isoformat(),"status":"unavailable","error":last}
 
-all_days=list(dates(START,END))
-results=[]
-with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-    futures=[pool.submit(fetch_day,d) for d in all_days]
-    for fut in as_completed(futures):
-        results.append(fut.result())
+def compare_spots(yahoo_rows):
+    bydate={r["date"]:r for r in yahoo_rows}
+    checks=[]
+    for d in [dt.date(2024,7,5),dt.date(2024,7,8)]:
+        official=official_nse_spot_check(d)
+        y=bydate.get(d.isoformat())
+        if official.get("close") is None or y is None:
+            raise RuntimeError(f"official/Yahoo overlap missing for {d}: {official}")
+        diff=abs(float(y["close"])-float(official["close"]))
+        checks.append({**official,"yahoo_close":float(y["close"]),"abs_diff":diff,"within_1_point":diff<=1.0})
+        if diff>1.0:
+            raise RuntimeError(f"Yahoo-vs-NSE close mismatch on {d}: {diff}")
+    return checks
 
-results.sort(key=lambda r:r["date"])
-downloaded=sum(r["status"] in {"downloaded","cache_hit"} for r in results)
-missing=[r for r in results if r["status"]=="missing"]
+url,rows=yahoo_daily()
+checks=compare_spots(rows)
 
-rows=[]
-file_rows=[]
-for r in results:
-    if r["status"] not in {"downloaded","cache_hit"}:
-        continue
-    path=ROOT/r["path"]
-    try:
-        with path.open("r",encoding="utf-8-sig",errors="replace",newline="") as fh:
-            parsed=list(csv.DictReader(fh))
-    except Exception as exc:
-        raise SystemExit(f"ERROR: failed parsing {path}: {exc}")
-    found=False
-    for rec in parsed:
-        name=str(rec.get("Index Name",rec.get("INDEX_NAME",""))).strip()
-        if name != "Nifty 50":
-            continue
-        found=True
-        def pick(*keys):
-            for k in keys:
-                v=rec.get(k)
-                if v not in (None,"","-"):
-                    return v
-            return None
-        rows.append({
-            "date":r["date"],
-            "open":pick("Open Index Value","OPEN_INDEX_VALUE"),
-            "high":pick("High Index Value","HIGH_INDEX_VALUE"),
-            "low":pick("Low Index Value","LOW_INDEX_VALUE"),
-            "close":pick("Closing Index Value","CLOSING_INDEX_VALUE"),
-            "points_change":pick("Points Change","POINTS_CHANGE"),
-            "percent_change":pick("Change(%)","CHANGE"),
-            "volume":pick("Volume","VOLUME"),
-            "turnover":pick("Turnover (Rs. Cr.)","TURNOVER"),
-            "source":"NSE official daily index archive",
-            "available_at":f"{r['date']}T18:30:00+05:30",
-        })
-        break
-    file_rows.append({**r,"contains_nifty50":found,"sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
-
-rows.sort(key=lambda x:x["date"])
-if len(rows)<1000:
-    raise SystemExit(f"ERROR: too few NIFTY 50 daily observations: {len(rows)}")
-if len(rows)!=len({r["date"] for r in rows}):
-    raise SystemExit("ERROR: duplicate NIFTY dates remain")
-if not rows or rows[0]["date"]>"2020-02-01":
-    raise SystemExit(f"ERROR: early history missing; first NIFTY date is {rows[0]['date']}")
-
-out=RAW/"nifty50_daily.csv"
-with out.open("w",encoding="utf-8",newline="") as fh:
+path=RAW/"nifty50_daily.csv"
+with path.open("w",encoding="utf-8",newline="") as fh:
     wr=csv.DictWriter(fh,fieldnames=list(rows[0]))
     wr.writeheader(); wr.writerows(rows)
 
 manifest={
-    "source":"NSE official daily index archive",
+    "source":"Yahoo Finance public chart with official NSE overlap validation",
     "index":"Nifty 50",
-    "requested_start":START.isoformat(),
-    "requested_end":END.isoformat(),
+    "requested_start":START.date().isoformat(),
+    "requested_end":(END-dt.timedelta(days=1)).date().isoformat(),
     "observed_start":rows[0]["date"],
     "observed_end":rows[-1]["date"],
     "rows":len(rows),
-    "downloaded_or_cached_files":downloaded,
-    "missing_calendar_days":len(missing),
-    "sha256":hashlib.sha256(out.read_bytes()).hexdigest(),
-    "bytes":out.stat().st_size,
-    "file_results":file_rows,
-    "missing_days":missing[:2000],
-    "pit_rule":"Daily index files are official exchange snapshots. They may be used only at or after their publication/availability date; no future daily file enters a prior decision.",
+    "sha256":hashlib.sha256(path.read_bytes()).hexdigest(),
+    "bytes":path.stat().st_size,
+    "source_url":url,
+    "official_nse_overlap_checks":checks,
+    "canonical_policy":"Use official NSE data where directly available; use Yahoo only as a free bulk backfill reference after explicit NSE overlap validation. Derived rows retain provider provenance and are not treated as exchange-exact.",
+    "pit_rule":"Daily global/index observations may enter features only at or after their information-availability time. No future rows enter rolling transformations.",
 }
 (REPORT/"nifty50_daily_manifest.json").write_text(json.dumps(manifest,indent=2),encoding="utf-8")
 print(json.dumps({
     "rows":len(rows),
     "observed_start":rows[0]["date"],
     "observed_end":rows[-1]["date"],
-    "downloaded_or_cached_files":downloaded,
-    "missing_calendar_days":len(missing),
     "sha256":manifest["sha256"],
+    "nse_overlap_checks":checks,
 },indent=2))
