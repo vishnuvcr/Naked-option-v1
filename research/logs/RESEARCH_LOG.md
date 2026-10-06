@@ -75,3 +75,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Before tester re-review, identified a remaining edge case: a missing close on the final intraday bar could cause an earlier close to be treated as the daily close.
 - Changed the aggregator to retain the latest observation even when its close is null and fail the reconciliation gate if the final close is missing.
 - Phase 2B remains gated pending tester re-review.
+
+## 2026-10-07 — Phase 2B hosted-run failure: timezone parsing
+
+- GitHub Actions executed the full Phase 2 workflow through official archive acquisition, schema validation, snapshot generation and HF acquisition.
+- The reconciliation step failed because PyArrow could not cast a timezone-aware HF field with fixed offset `+05:30` through its timezone database.
+- Corrected the filter to parse timezone-aware timestamps in Python and build a boolean Arrow mask, preserving the original instant/date semantics.
+- Workflow must rerun and produce the numerical reconciliation artifact before Phase 2 can pass.
