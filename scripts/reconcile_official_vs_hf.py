@@ -495,7 +495,9 @@ report = {
     "status": "PASS",
     "thresholds": {
         "min_key_coverage": MIN_KEY_COVERAGE,
-        "min_close_tolerance_fraction": MIN_CLOSE_TOLERANCE,
+        "min_strict_tolerance_fraction": MIN_STRICT_TOLERANCE,
+        "min_practical_tolerance_fraction": MIN_PRACTICAL_TOLERANCE,
+        "max_practical_relative_error": MAX_PRACTICAL_REL_ERROR,
         "max_spot_error": MAX_SPOT_ERROR,
     },
 }
