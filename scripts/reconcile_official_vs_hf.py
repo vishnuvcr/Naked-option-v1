@@ -169,7 +169,19 @@ official_rows = list(csv.DictReader(io.StringIO(text)))
 official_map = {}
 official_duplicate_keys = Counter()
 official_missing_close = 0
+official_activity_unknown = 0
+official_total_keys = 0
+official_active_keys = 0
 official_spots = []
+official_header_set = set(official_rows[0].keys()) if official_rows else set()
+
+def first_finite(row, names):
+    for name in names:
+        if row.get(name) not in (None, ""):
+            value = finite_float(row.get(name))
+            if value is not None:
+                return value
+    return None
 
 for row in official_rows:
     if row.get("TckrSymb", "").strip() != "NIFTY":
@@ -183,21 +195,31 @@ for row in official_rows:
         continue
     if exp != target_expiry:
         continue
+
     strike = finite_float(row.get("StrkPric"))
     close = finite_float(row.get("ClsPric"))
     if strike is None:
         continue
-    spot = None
-    for name in ["UndrlygPric", "UndrlygVal", "UnderlyingValue", "Underlying"]:
-        if row.get(name) not in (None, ""):
-            spot = finite_float(row.get(name))
-            if spot is not None:
-                break
+
+    official_total_keys += 1
+
+    spot = first_finite(row, ["UndrlygPric", "UndrlygVal", "UnderlyingValue", "Underlying"])
     if spot is not None:
         official_spots.append(spot)
+
+    volume = first_finite(row, ["TradgVol", "TtlTradgVol", "TotalTradedVolume", "Volume", "CONTRACTS"])
+    oi = first_finite(row, ["OpnIntrst", "OPEN_INT", "OpenInterest", "Open_Int"])
+    if volume is None and oi is None:
+        active = None
+        official_activity_unknown += 1
+    else:
+        active = ((volume or 0) > 0) or ((oi or 0) > 0)
+
     if close is None:
-        official_missing_close += 1
+        if active is True:
+            official_missing_close += 1
         continue
+
     key = (exp, strike, opt)
     if key in official_map:
         official_duplicate_keys[key] += 1
@@ -205,23 +227,79 @@ for row in official_rows:
         official_map[key] = {
             "close": close,
             "spot": spot,
+            "volume": volume,
+            "oi": oi,
+            "active": active,
         }
+
+    if active is True:
+        official_active_keys += 1
 
 if official_duplicate_keys:
     raise SystemExit(f"ERROR: official UDiFF duplicate NIFTY keys: {len(official_duplicate_keys)}")
+if official_activity_unknown:
+    raise SystemExit(
+        f"ERROR: official activity status unavailable for {official_activity_unknown} target-expiry rows; "
+        "cannot define the active reconciliation universe"
+    )
 if official_missing_close:
-    raise SystemExit(f"ERROR: official NIFTY target-expiry core close missing: {official_missing_close}")
+    raise SystemExit(f"ERROR: official active NIFTY target-expiry core close missing: {official_missing_close}")
 if not official_map:
     raise SystemExit("ERROR: zero official NIFTY contracts for selected expiry")
 
-matched = set(official_map) & set(latest)
-official_coverage = len(matched) / max(1, len(official_map))
-hf_coverage = len(matched) / max(1, len(latest))
-if official_coverage < MIN_KEY_COVERAGE or hf_coverage < MIN_KEY_COVERAGE:
-    raise SystemExit(
-        f"ERROR: key coverage below threshold: official={official_coverage:.4%}, hf={hf_coverage:.4%}"
-    )
+# The derived weekly file is expected to contain contracts with observable
+# activity. Exclude official zero-volume/zero-OI contracts from the coverage
+# denominator, but keep them in provenance counts.
+official_active_map = {
+    k: v for k, v in official_map.items() if v["active"] is True
+}
+if not official_active_map:
+    raise SystemExit("ERROR: official active-universe is empty")
 
+matched = set(official_active_map) & set(latest)
+official_coverage = len(matched) / max(1, len(official_active_map))
+hf_coverage = len(matched) / max(1, len(latest))
+
+# Diagnostics for unexplained gaps.
+missing_official = sorted(set(official_active_map) - set(latest))
+missing_hf = sorted(set(latest) - set(official_active_map))
+
+diagnostic = {
+    "official_headers": sorted(official_header_set),
+    "official_total_target_expiry_keys": official_total_keys,
+    "official_active_target_expiry_keys": len(official_active_map),
+    "official_activity_unknown_rows": official_activity_unknown,
+    "hf_target_expiry_latest_keys": len(latest),
+    "missing_official_active_key_count": len(missing_official),
+    "missing_hf_key_count": len(missing_hf),
+    "missing_official_active_examples": [list(k) for k in missing_official[:200]],
+    "missing_hf_examples": [list(k) for k in missing_hf[:200]],
+}
+if official_coverage < MIN_KEY_COVERAGE or hf_coverage < MIN_KEY_COVERAGE:
+    report = {
+        "status": "FAIL",
+        "failure_reason": "key coverage below threshold",
+        "official_snapshot": "2024-07-08_UDiFF",
+        "hf_dataset": hf_meta["dataset"],
+        "hf_file": hf_meta["selected_file"],
+        "target_trade_date": target_trade_date.isoformat(),
+        "matched_expiry": target_expiry.isoformat(),
+        "official_key_coverage_of_hf": hf_coverage,
+        "hf_key_coverage_of_official": official_coverage,
+        "thresholds": {
+            "min_key_coverage": MIN_KEY_COVERAGE,
+            "min_close_tolerance_fraction": MIN_CLOSE_TOLERANCE,
+            "max_spot_error": MAX_SPOT_ERROR,
+        },
+        "diagnostic": diagnostic,
+    }
+    (OUT / "official_vs_hf_reconciliation.json").write_text(
+        json.dumps(report, indent=2, default=str), encoding="utf-8"
+    )
+    raise SystemExit(
+        f"ERROR: key coverage below threshold: official={official_coverage:.4%}, hf={hf_coverage:.4%}. "
+        "See official_vs_hf_reconciliation.json for gap diagnostics."
+    )
 abs_errors = []
 within_tolerance = 0
 for key in matched:
