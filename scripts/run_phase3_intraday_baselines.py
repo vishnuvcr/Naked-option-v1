@@ -88,8 +88,9 @@ def base_preds(df,h,name):
     if name=="B7":
         v=ret.rolling(20).std()
         pct=v.rolling(252).rank(pct=True)
-        raw=np.where(ret>0,0.55,np.where(ret<0,0.45,0.5))
-        return pd.Series(raw,index=idx)
+        persistence=np.where(ret>0,0.55,np.where(ret<0,0.45,0.5))
+        p=np.where(pct<0.33,persistence,np.where(pct>0.67,1-persistence,0.5))
+        return pd.Series(p,index=idx)
     if name=="B8":
         dow=df["ist"].dt.dayofweek
         return pd.Series(np.where(dow==3,0.51,0.5),index=idx)
