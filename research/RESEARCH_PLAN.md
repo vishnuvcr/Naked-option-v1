@@ -72,6 +72,8 @@ Map directional forecasts to calls/puts. Test expiry, delta/moneyness, DTE, entr
 ### Phase 9 — Robustness + statistical gate
 Walk-forward, purged/embargoed validation where needed, CPCV, PBO, Deflated Sharpe, White/Reality-Check or SPA-type controls as appropriate, block bootstrap, sensitivity matrices, cost stress, parameter perturbation, regime-by-regime results, and multiple-comparison accounting.
 
+An untouched holdout is reserved throughout model selection. The final forward validation is kept completely separate from the development sample.
+
 ### Phase 10 — Fresh-forward / paper-trading verification
 Lock strategy and parameters. Run a later untouched dataset and/or live paper sleeve without re-fitting. No promotion after peeking at results.
 
