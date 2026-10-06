@@ -137,6 +137,17 @@ jobs:
           merge-multiple: true
           path: data
 
+      - name: Validate Phase 2 static contract
+        run: python scripts/validate_phase2_static.py
+
+      - name: Build and validate PIT fixture
+        run: |
+          python scripts/build_pit_fixture.py
+          python scripts/validate_pit_fixture.py
+
+      - name: Validate lot-size history
+        run: python scripts/validate_lot_size_history.py
+
       - name: Validate Phase 2C bulk gate
         run: python scripts/validate_phase2c_bulk_reports.py
 
