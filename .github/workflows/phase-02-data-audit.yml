@@ -82,6 +82,16 @@ jobs:
 
       - name: Reconcile official NSE vs HF reference
         run: python scripts/reconcile_official_vs_hf.py
+        continue-on-error: true
+
+      - name: Acquire S31 independent NIFTY option reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_s31_reference.py
+
+      - name: Reconcile S31 against official NSE
+        run: python scripts/reconcile_s31_vs_official.py
+        continue-on-error: true
 
       - name: Upload Phase 2 audit report
         if: always()
@@ -95,6 +105,8 @@ jobs:
             data/reports/official_sample_acquisition.json
             data/reports/hf_reference_acquisition.json
             data/reports/official_vs_hf_reconciliation.json
+            data/reports/s31_reference_acquisition.json
+            data/reports/s31_reconciliation.json
             data/fixtures/pit_fixture.csv
             data/manifests/phase2_official_option_samples.json
           if-no-files-found: error
