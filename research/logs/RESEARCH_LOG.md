@@ -69,3 +69,9 @@ The repository records research decisions, user requirements, experiment outcome
 - Corrected the reconciliation logic to aggregate the derived intraday source to the final bar per contract, scope to the represented expiry, detect ties/duplicates, enforce 95% key coverage and 99% close tolerance, and compare the underlying value.
 - Added global-source endpoint probing to the automatic workflow.
 - Phase 2B remains gated pending fresh tester review.
+
+## 2026-10-07 — Phase 2B final-bar integrity correction
+
+- Before tester re-review, identified a remaining edge case: a missing close on the final intraday bar could cause an earlier close to be treated as the daily close.
+- Changed the aggregator to retain the latest observation even when its close is null and fail the reconciliation gate if the final close is missing.
+- Phase 2B remains gated pending tester re-review.
