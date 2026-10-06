@@ -1,0 +1,13 @@
+source_id,tier,source_name,url_or_repo,coverage_or_role,priority,status,license_note
+S19,PRIMARY,Cboe VIX,https://www.cboe.com/tradable_products/vix/,US volatility regime,1,UNTESTED,Official Cboe source
+S20,PRIMARY,US Treasury Daily Treasury Par Yield Curve Rates,https://home.treasury.gov/resource-center/data-chart-center/interest-rates,US 10Y and rates regime,1,UNTESTED,Official US Treasury source
+S21,PRIMARY,RBI Reference Rate archives,https://www.rbi.org.in/Scripts/ReferenceRateArchive.aspx,USD/INR reference rates,1,UNTESTED,Official RBI source
+S22,PRIMARY,RBI rates / government securities,https://www.rbi.org.in/,Indian rates regime,1,UNTESTED,Official RBI source
+S23,PRIMARY,LBMA Gold Price,https://www.lbma.org.uk/prices-and-data/precious-metal-prices,Gold risk proxy,2,UNTESTED,Official/industry source; timezone alignment required
+S24,PRIMARY,EIA petroleum prices,https://www.eia.gov/petroleum/,Crude oil proxy,2,UNTESTED,Official US EIA source
+S25,FREE_FALLBACK,Stooq S&P 500,https://stooq.com/q/d/?s=%5Espx,SP500 overnight lead-lag,3,UNTESTED,Free market-data fallback; verify licensing/field integrity
+S26,FREE_FALLBACK,Stooq Nasdaq Composite,https://stooq.com/q/d/?s=%5Endq,Nasdaq overnight lead-lag,3,UNTESTED,Free market-data fallback
+S27,FREE_FALLBACK,Stooq Nikkei 225,https://stooq.com/q/d/?s=%5Enk,Nikkei overnight lead-lag,3,UNTESTED,Free market-data fallback
+S28,FREE_FALLBACK,Stooq Hang Seng,https://stooq.com/q/d/?s=%5Ehsi,Hang Seng overnight lead-lag,3,UNTESTED,Free market-data fallback
+S29,PRIMARY,NSE sectoral indices,https://www.nseindia.com/market-data/live-market-indices,Indian sector leadership/breadth,1,UNTESTED,Official NSE source
+S30,PRIMARY,NSE market breadth,https://www.nseindia.com/market-data/live-equity-market,NSE advance/decline and breadth,1,UNTESTED,Official NSE source
