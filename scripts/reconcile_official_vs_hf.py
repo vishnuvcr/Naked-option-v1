@@ -199,6 +199,7 @@ for row in official_rows:
 
     strike = finite_float(row.get("StrkPric"))
     close = finite_float(row.get("ClsPric"))
+    last_price = finite_float(row.get("LastPric"))
     if strike is None:
         continue
 
@@ -216,7 +217,7 @@ for row in official_rows:
     else:
         active = ((volume or 0) > 0) or ((oi or 0) > 0)
 
-    if close is None:
+    if last_price is None and close is None:
         if active is True:
             official_missing_close += 1
         continue
@@ -227,6 +228,7 @@ for row in official_rows:
     else:
         official_map[key] = {
             "close": close,
+            "last_price": last_price,
             "spot": spot,
             "volume": volume,
             "oi": oi,
@@ -319,6 +321,7 @@ if official_coverage < MIN_KEY_COVERAGE or hf_coverage < MIN_KEY_COVERAGE:
             "min_close_tolerance_fraction": MIN_CLOSE_TOLERANCE,
             "max_spot_error": MAX_SPOT_ERROR,
             "max_log_moneyness": MAX_LOG_MONEYNESS,
+        "close_reference_field": "LastPric (primary) with ClsPric as diagnostic",
         },
         "diagnostic": diagnostic,
     }
@@ -329,20 +332,69 @@ if official_coverage < MIN_KEY_COVERAGE or hf_coverage < MIN_KEY_COVERAGE:
         f"ERROR: key coverage below threshold: official={official_coverage:.4%}, hf={hf_coverage:.4%}. "
         "See official_vs_hf_reconciliation.json for gap diagnostics."
     )
-abs_errors = []
-within_tolerance = 0
-for key in matched:
-    a = official_map[key]["close"]
-    b = latest[key]["close"]
-    err = abs(a - b)
-    abs_errors.append(err)
-    if err <= max(0.05, 0.0025 * abs(a)):
-        within_tolerance += 1
+def tolerance_fraction(field):
+    errors=[]
+    within=0
+    usable=0
+    for key in matched:
+        a=official_map[key].get(field)
+        b=latest[key].get("close")
+        if a is None or b is None or not math.isfinite(a) or not math.isfinite(b):
+            continue
+        usable += 1
+        err=abs(a-b)
+        errors.append(err)
+        if err <= max(0.05, 0.0025*abs(a)):
+            within += 1
+    frac=within/max(1,usable)
+    return frac, errors, usable
 
-close_tolerance_fraction = within_tolerance / max(1, len(matched))
-if close_tolerance_fraction < MIN_CLOSE_TOLERANCE:
+last_frac,last_errors,last_usable = tolerance_fraction("last_price")
+close_frac,close_errors,close_usable = tolerance_fraction("close")
+abs_errors=last_errors
+close_tolerance_fraction=last_frac
+
+if last_usable < max(10, int(0.95*len(matched))):
     raise SystemExit(
-        f"ERROR: close-price reconciliation below threshold: {close_tolerance_fraction:.4%}"
+        f"ERROR: insufficient official LastPric coverage for validation: {last_usable}/{len(matched)}"
+    )
+
+if close_tolerance_fraction < MIN_CLOSE_TOLERANCE:
+    top=[]
+    for key in matched:
+        a=official_map[key].get("last_price")
+        b=latest[key].get("close")
+        if a is None or b is None:
+            continue
+        top.append({
+            "key": list(key),
+            "hf_close": b,
+            "official_last_price": a,
+            "official_close": official_map[key].get("close"),
+            "abs_last_error": abs(a-b),
+            "abs_close_error": (
+                abs(official_map[key].get("close")-b)
+                if official_map[key].get("close") is not None else None
+            ),
+        })
+    top.sort(key=lambda x: x["abs_last_error"], reverse=True)
+    diagnostic={
+        "status":"FAIL",
+        "failure_reason":"LastPric reconciliation below threshold",
+        "threshold":MIN_CLOSE_TOLERANCE,
+        "last_price_tolerance_fraction":last_frac,
+        "official_close_tolerance_fraction":close_frac,
+        "last_price_usable":last_usable,
+        "official_close_usable":close_usable,
+        "matched_contract_keys":len(matched),
+        "top_absolute_last_price_errors":top[:25],
+    }
+    (OUT/"official_vs_hf_reconciliation.json").write_text(
+        json.dumps(diagnostic,indent=2,default=str),encoding="utf-8"
+    )
+    raise SystemExit(
+        f"ERROR: official LastPric reconciliation below threshold: {last_frac:.4%}; "
+        f"ClsPric comparison was {close_frac:.4%}"
     )
 
 # Compare underlying/index value using latest HF spot and the official EOD spot.
@@ -384,7 +436,10 @@ report = {
     "official_key_coverage_of_hf": hf_coverage,
     "hf_key_coverage_of_official": official_coverage,
     "validation_universe": "active NIFTY contracts within abs(log(strike/official_spot)) <= 0.05",
-    "close_tolerance_fraction": close_tolerance_fraction,
+    "last_price_tolerance_fraction": close_tolerance_fraction,
+    "official_close_tolerance_fraction": close_frac,
+    "last_price_usable": last_usable,
+    "official_close_usable": close_usable,
     "median_abs_close_error": sorted(abs_errors)[len(abs_errors)//2],
     "p95_abs_close_error": sorted(abs_errors)[min(len(abs_errors)-1, int(0.95*len(abs_errors)))],
     "hf_latest_spot": hf_spot,
