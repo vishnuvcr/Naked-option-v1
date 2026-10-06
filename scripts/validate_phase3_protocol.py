@@ -29,8 +29,9 @@ if slips != sorted(slips) or slips[0] < 0:
     raise SystemExit("ERROR: slippage scenarios are not monotonic")
 
 label = (ROOT / "research/phase3/LABEL_PROTOCOL.md").read_text()
-for phrase in ["5 minutes","15 minutes","30 minutes","60 minutes","120 minutes","+1 trading session","+5","+10 sessions","NO TRADE","leakage"]:
-    if phrase not in label:
+label_lower = label.lower()
+for phrase in ["5 minutes","15 minutes","30 minutes","60 minutes","120 minutes","+1 trading session","+5","+10 sessions","no trade","leakage"]:
+    if phrase.lower() not in label_lower:
         raise SystemExit(f"ERROR: label protocol missing {phrase}")
 
 baseline = (ROOT / "research/phase3/BASELINE_PROTOCOL.md").read_text()
