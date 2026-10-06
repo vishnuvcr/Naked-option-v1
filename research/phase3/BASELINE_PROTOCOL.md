@@ -27,25 +27,27 @@ For intraday:
 Sign of the most recent 5/15/30-minute return.
 
 ### B5 Moving-average state
-Price versus a short/medium moving average.
+Price versus a fixed 5/20-observation moving-average pair. No period search is allowed in Phase 3.
 
 ### B6 Range-position state
 Current price within prior-session high/low range.
 
 ### B7 Volatility-conditioned sign
-Persistence/momentum conditioned on volatility regime.
+Persistence/momentum conditioned on a volatility regime defined by the current rolling 20-observation standard deviation percentile over a fixed trailing 252-observation history. The regime cut points are fixed at the 33rd and 67th percentiles of the training-only reference window.
 
 ### B8 Calendar-only
 Expiry-day, weekday, month-end and holiday-adjacent indicators, tested as probability shifts, not deterministic trade rules.
 
 ### B9 Global overnight
-Pre-NIFTY-open global return composite, using only markets already closed.
+Equal-weight mean of standardized previous-available daily closes for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng. Each series is standardized using only the training history; a market is omitted for that decision if its local close was not yet available before the NIFTY decision.
 
 ### B10 Breadth
-NSE market breadth/sector leadership where PIT-safe.
+`breadth = (advances - declines) / (advances + declines)`, using only breadth observations available before the decision timestamp. Missing denominator rows are NO FEATURE, not zero.
 
 ### B11 Logistic baseline
-Regularized logistic regression on a deliberately tiny feature set:
+Fixed regularized logistic regression. Preprocessing and model specification are frozen: feature scaler fit on training fold only; L2 penalty; C=1.0; solver=`liblinear`; max_iter=1000; class_weight=None. No hyperparameter sweep in Phase 3. All baseline feature periods, formulas and model parameters above are frozen before any result is inspected.
+
+Feature set:
 - last return;
 - rolling volatility;
 - gap;
