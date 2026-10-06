@@ -1,0 +1,162 @@
+name: Phase 2C — Bulk Data and PIT Gate
+
+concurrency:
+  group: phase2c-bulk-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - phase-02c-developer
+      - phase-02c-tester
+  pull_request:
+    branches:
+      - phase-02-developer
+      - phase-02-tester
+  workflow_dispatch:
+
+jobs:
+  bulk-nse:
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        year: [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-phase2.txt
+
+      - name: Cache official NSE raw year
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/cache/raw/nse_year/${{ matrix.year }}
+            data/cache/derived/official_nifty_eod
+          key: phase2c-nse-${{ matrix.year }}-${{ hashFiles('scripts/acquire_official_nse_year.py', 'scripts/build_nifty_eod_parquet_year.py') }}
+          restore-keys: |
+            phase2c-nse-${{ matrix.year }}-
+
+      - name: Acquire official NSE option year
+        env:
+          YEAR: ${{ matrix.year }}
+          MAX_WORKERS: "3"
+          REQUEST_SLEEP: "0.20"
+        run: python scripts/acquire_official_nse_year.py
+
+      - name: Build canonical NIFTY EOD parquet
+        env:
+          YEAR: ${{ matrix.year }}
+        run: python scripts/build_nifty_eod_parquet_year.py
+
+      - name: Validate canonical NIFTY year
+        env:
+          YEAR: ${{ matrix.year }}
+        run: python scripts/validate_official_nse_year.py
+
+      - name: Upload year artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2c-nse-${{ matrix.year }}
+          path: |
+            data/reports/nse_year_${{ matrix.year }}_acquisition.json
+            data/reports/nse_year_${{ matrix.year }}_validation.json
+            data/reports/nifty_option_eod_${{ matrix.year }}_parquet.json
+            data/cache/derived/official_nifty_eod/nifty_option_eod_${{ matrix.year }}.parquet
+          if-no-files-found: error
+
+  contextual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-phase2.txt
+
+      - name: Cache contextual raw data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/cache/raw/india_vix
+            data/cache/raw/global_window
+          key: phase2c-context-${{ hashFiles('scripts/acquire_vix_history.py', 'scripts/acquire_global_reference_window.py') }}
+          restore-keys: |
+            phase2c-context-
+
+      - name: Acquire India VIX history
+        run: python scripts/acquire_vix_history.py
+
+      - name: Validate India VIX history
+        run: python scripts/validate_vix_history.py
+
+      - name: Acquire global daily/rates history
+        run: python scripts/acquire_global_reference_window.py
+
+      - name: Acquire current FII/DII snapshot
+        run: python scripts/acquire_fii_dii_snapshot.py
+
+      - name: Upload contextual artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2c-context
+          path: |
+            data/reports/india_vix_history_acquisition.json
+            data/reports/india_vix_history_validation.json
+            data/reports/global_reference_window.json
+            data/reports/fii_dii_snapshot.json
+          if-no-files-found: error
+
+  gate:
+    needs: [bulk-nse, contextual]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-phase2.txt
+
+      - name: Download all Phase 2C artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: data
+
+      - name: Validate Phase 2C bulk gate
+        run: python scripts/validate_phase2c_bulk_reports.py
+
+      - name: Record gate metadata
+        run: |
+          mkdir -p data/reports
+          python - <<'PY'
+          import datetime, json, os
+          from pathlib import Path
+          Path('data/reports/phase2c_gate_execution.json').write_text(
+              json.dumps({
+                  'executed_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  'github_sha': os.environ.get('GITHUB_SHA'),
+                  'status': 'PASS',
+              }, indent=2)
+          )
+          PY
+
+      - name: Upload Phase 2C gate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2c-gate
+          path: data/reports/phase2c_gate_execution.json
