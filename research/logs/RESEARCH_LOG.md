@@ -43,3 +43,9 @@ The repository records research decisions, user requirements, experiment outcome
 - Corrected the row using CSV quoting.
 - Added `scripts/validate_literature_registry.py` and wired it into the automatic/manual research protocol workflow.
 - Phase 1 remains gated pending tester recheck.
+
+## 2026-10-07 — Phase 1 gate passed
+
+- Independent tester final report passed Phase 1.
+- Phase 1 evidence map, search protocol, hypothesis catalog and finite method registry are frozen as the starting research universe.
+- Advanced to Phase 2: data acquisition, point-in-time validation and composite-source reconciliation.
