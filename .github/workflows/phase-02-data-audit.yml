@@ -80,6 +80,7 @@ jobs:
         run: python scripts/reconcile_official_vs_hf.py
 
       - name: Upload Phase 2 audit report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase2-source-audit
