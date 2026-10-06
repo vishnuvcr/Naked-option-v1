@@ -51,8 +51,11 @@ jobs:
       - name: Validate PIT fixture
         run: python scripts/validate_pit_fixture.py
 
-      - name: Probe public source endpoints
+      - name: Probe public NSE/BSE endpoints
         run: python scripts/probe_sources.py
+
+      - name: Probe global macro/cross-market endpoints
+        run: python scripts/probe_global_sources.py
 
       - name: Probe Hugging Face datasets
         env:
@@ -82,6 +85,7 @@ jobs:
           name: phase2-source-audit
           path: |
             data/reports/source_probe.json
+            data/reports/global_source_probe.json
             data/reports/huggingface_dataset_probe.json
             data/reports/official_sample_acquisition.json
             data/reports/hf_reference_acquisition.json
