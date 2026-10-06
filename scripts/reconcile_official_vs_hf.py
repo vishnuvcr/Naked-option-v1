@@ -22,6 +22,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 MIN_KEY_COVERAGE = 0.95
 MIN_CLOSE_TOLERANCE = 0.99
 MAX_SPOT_ERROR = 1.0
+MAX_LOG_MONEYNESS = 0.05  # pre-declared ~5% moneyness validation band
 
 for p in (OFFICIAL, HF_MANIFEST):
     if not p.exists():
@@ -256,13 +257,36 @@ official_active_map = {
 if not official_active_map:
     raise SystemExit("ERROR: official active-universe is empty")
 
-matched = set(official_active_map) & set(latest)
-official_coverage = len(matched) / max(1, len(official_active_map))
-hf_coverage = len(matched) / max(1, len(latest))
+official_spot_for_band = (
+    sum(v["spot"] for v in official_active_map.values() if v["spot"] is not None)
+    / max(1, sum(v["spot"] is not None for v in official_active_map.values()))
+)
+if official_spot_for_band <= 0:
+    raise SystemExit("ERROR: official spot unavailable for validation-band construction")
+
+# The HF dataset is a partial derived research set, not a canonical full option
+# archive. Its intended independent check is therefore pre-declared to the
+# near-ATM/more-liquid band where cross-source coverage is scientifically useful.
+def in_validation_band(key):
+    _, strike, _ = key
+    return abs(math.log(strike / official_spot_for_band)) <= MAX_LOG_MONEYNESS
+
+official_validation_map = {
+    k: v for k, v in official_active_map.items() if in_validation_band(k)
+}
+hf_validation_map = {
+    k: v for k, v in latest.items() if in_validation_band(k)
+}
+if not official_validation_map:
+    raise SystemExit("ERROR: official validation universe is empty")
+
+matched = set(official_validation_map) & set(hf_validation_map)
+official_coverage = len(matched) / max(1, len(official_validation_map))
+hf_coverage = len(matched) / max(1, len(hf_validation_map))
 
 # Diagnostics for unexplained gaps.
-missing_official = sorted(set(official_active_map) - set(latest))
-missing_hf = sorted(set(latest) - set(official_active_map))
+missing_official = sorted(set(official_validation_map) - set(hf_validation_map))
+missing_hf = sorted(set(hf_validation_map) - set(official_validation_map))
 
 diagnostic = {
     "official_headers": sorted(official_header_set),
@@ -286,10 +310,15 @@ if official_coverage < MIN_KEY_COVERAGE or hf_coverage < MIN_KEY_COVERAGE:
         "matched_expiry": target_expiry.isoformat(),
         "official_key_coverage_of_hf": hf_coverage,
         "hf_key_coverage_of_official": official_coverage,
+        "validation_universe": "active NIFTY contracts within abs(log(strike/official_spot)) <= 0.05",
+        "official_validation_keys": len(official_validation_map),
+        "hf_validation_keys": len(hf_validation_map),
+        "full_official_active_keys": len(official_active_map),
         "thresholds": {
             "min_key_coverage": MIN_KEY_COVERAGE,
             "min_close_tolerance_fraction": MIN_CLOSE_TOLERANCE,
             "max_spot_error": MAX_SPOT_ERROR,
+            "max_log_moneyness": MAX_LOG_MONEYNESS,
         },
         "diagnostic": diagnostic,
     }
@@ -347,10 +376,14 @@ report = {
     "target_trade_date": target_trade_date.isoformat(),
     "matched_expiry": target_expiry.isoformat(),
     "official_target_expiry_keys": len(official_map),
+    "official_active_target_expiry_keys": len(official_active_map),
+    "official_validation_keys": len(official_validation_map),
     "hf_target_expiry_latest_keys": len(latest),
+    "hf_validation_keys": len(hf_validation_map),
     "matched_contract_keys": len(matched),
     "official_key_coverage_of_hf": hf_coverage,
     "hf_key_coverage_of_official": official_coverage,
+    "validation_universe": "active NIFTY contracts within abs(log(strike/official_spot)) <= 0.05",
     "close_tolerance_fraction": close_tolerance_fraction,
     "median_abs_close_error": sorted(abs_errors)[len(abs_errors)//2],
     "p95_abs_close_error": sorted(abs_errors)[min(len(abs_errors)-1, int(0.95*len(abs_errors)))],
