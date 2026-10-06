@@ -61,3 +61,11 @@
 - Corrected and froze: 20-observation same-frequency sigma, non-updating triple barriers, 5/20 moving averages, training-only 33/67 volatility-regime cut points, equal-weight global composite, exact breadth formula, and logistic L2/C=1/liblinear/max_iter=1000 specification.
 - No baseline results have been inspected during this correction.
 - Phase 3 remains gated pending independent tester re-review.
+
+## 2026-10-07 — Phase 3 tester re-review 2 correction
+
+- Tester identified a material horizon mismatch: a 5-minute label cannot use 20 one-hour decision-grid returns as its volatility reference.
+- Corrected the protocol to use `sigma_H(t)`: the standard deviation of the preceding 20 non-overlapping H-length returns for each label horizon H.
+- Triple-barrier crossing is now evaluated at the finest available post-decision observation frequency while keeping barriers fixed.
+- Clarified option cost normalization so broker fees are not double-counted per lot.
+- Phase 3 remains gated pending final tester re-review.
