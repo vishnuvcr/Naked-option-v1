@@ -57,13 +57,15 @@ Pre-registered `k` grid:
 - 0.75
 - 1.00
 
-`sigma_reference` is a strictly historical realized-volatility estimate fit using only information available before the decision.
+`sigma_reference` is the rolling standard deviation of the preceding 20 same-frequency decision-to-decision log returns, computed without annualization and without any observations at or after the decision timestamp. The 20-observation window is fixed for Phase 3 and is not tuned.
 
 ### Triple-barrier label
 
-- upper barrier = +k * volatility reference;
-- lower barrier = -k * volatility reference;
-- time barrier = the chosen horizon.
+- upper barrier = +k * sigma_reference;
+- lower barrier = -k * sigma_reference;
+- time barrier = the chosen horizon;
+- sigma_reference is the same fixed 20-observation same-frequency standard deviation described above;
+- barriers are frozen at the decision timestamp and are never updated after entry.
 
 The class is the first barrier hit, or 0 if neither is hit.
 
@@ -73,7 +75,7 @@ Direction-only prediction is not sufficient for a long-option strategy.
 
 For a candidate call/put observed at the decision time:
 
-`net_pnl = (exit_price - entry_price) * lot_size - total_costs - slippage_cost`
+`net_pnl = (exit_price - entry_price) * lot_size - total_round_trip_costs - total_slippage_costs`
 
 The economic label is:
 - +1 when net P&L > 0;
