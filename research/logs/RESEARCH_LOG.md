@@ -82,3 +82,11 @@ The repository records research decisions, user requirements, experiment outcome
 - The reconciliation step failed because PyArrow could not cast a timezone-aware HF field with fixed offset `+05:30` through its timezone database.
 - Corrected the filter to parse timezone-aware timestamps in Python and build a boolean Arrow mask, preserving the original instant/date semantics.
 - Workflow must rerun and produce the numerical reconciliation artifact before Phase 2 can pass.
+
+## 2026-10-07 — Phase 2B hosted-run key-coverage failure
+
+- Hosted workflow successfully acquired and validated official NSE legacy/UDiFF archives and the HF research reference, with cache hits observed.
+- Reconciliation failed at 84.16% official-key coverage versus 100% HF-key coverage.
+- The denominator included zero-volume/zero-OI contracts that a derived intraday dataset may legitimately omit.
+- Reconciliation was revised to define and report an active contract universe using official trade volume or open interest, while retaining full-universe counts and missing-key diagnostics.
+- The Phase 2 audit artifact is now uploaded even when the reconciliation gate fails, so failures remain inspectable.
