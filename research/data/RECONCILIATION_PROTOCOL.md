@@ -22,6 +22,7 @@ For each matched date:
 A derived dataset may be considered a validation match only if:
 - contract-key duplicate rate = 0;
 - core-price missingness on active matched rows = 0;
+- >= 95% of contract keys match in both directions after scoping the official side to the expiry represented by the derived weekly file;
 - >= 99% of matched close values are equal within one minimum tick or 0.25% (whichever is larger);
 - >= 99% of matched underlying values are within 1.0 index point;
 - no unexplained date/time-zone offset remains;
