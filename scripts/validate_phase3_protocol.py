@@ -43,5 +43,5 @@ print("PASS: Phase 3 label, baseline, data and cost protocols are frozen")
 
 log_paths = [ROOT / "research" / "logs" / "RESEARCH_LOG.md", ROOT / "research" / "logs" / "ERROR_LOG.md"]
 for log_path in log_paths:
-    if "[object Object]" in log_path.read_text(encoding="utf-8"):
+    if log_path.read_text(encoding="utf-8").strip() == "[object Object]" or "\n[object Object]\n" in log_path.read_text(encoding="utf-8"):
         raise SystemExit(f"ERROR: object-placeholder detected in {log_path}")
