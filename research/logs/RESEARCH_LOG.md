@@ -49,3 +49,9 @@ The repository records research decisions, user requirements, experiment outcome
 - Independent tester final report passed Phase 1.
 - Phase 1 evidence map, search protocol, hypothesis catalog and finite method registry are frozen as the starting research universe.
 - Advanced to Phase 2: data acquisition, point-in-time validation and composite-source reconciliation.
+
+## 2026-10-07 — Phase 2 tester REQUEST_CHANGES and correction
+
+- Tester required explicit BSE comparator sources, official NSE contract/lot-size source, live official option archive acquisition, raw-data cache population, snapshot hashing, and optional HF metadata access.
+- Added BSE/NSE source rows, official 05-Jul-2024 legacy and 08-Jul-2024 UDiFF acquisition, schema validation, raw cache usage, snapshot manifest generation and HF dataset probing via HF_TOKEN.
+- Phase 2A remains gated pending independent tester recheck.
