@@ -98,7 +98,7 @@ def deterministic_features(df,h):
 def prediction_series(name,df,h,features=None):
     p=pd.Series(np.nan,index=df.index)
     if name=="B0":
-        p.iloc[::2]=0.5
+        p.iloc[:]=0.5
         return p
     if name=="B1":
         prev=df["log_close"].diff(h).shift(0)
@@ -120,11 +120,12 @@ def prediction_series(name,df,h,features=None):
         sigma=df["ret_1"].rolling(20).std()
         pct=sigma.rolling(252,min_periods=252).rank(pct=True)
         p_raw=np.where(df["ret_1"]>0,0.55,np.where(df["ret_1"]<0,0.45,0.5))
-        # High-vol regime uses no additional tuning; persistence direction retained.
+        # The regime classifier is descriptive only; no cutpoint optimization occurs.
         return pd.Series(p_raw,index=df.index)
     if name=="B8":
         dow=df["date"].dt.dayofweek
-        # Neutral deterministic calendar probability shift: Thu expiry placeholder is 0.51
+        # Phase 3 freezes a calendar-only weekday effect; expiry-day labels are
+        # deferred until an official historical expiry calendar is joined.
         return pd.Series(np.where(dow==3,0.51,0.5),index=df.index)
     return pd.Series(np.nan,index=df.index)
 
@@ -135,7 +136,10 @@ def logistic_walkforward(df,h):
     out=np.full(len(df),np.nan)
     train_start=max(252,20*h+20)
     for i in range(train_start,len(df)):
-        y_train=y.iloc[:i]
+        # Purge observations whose H-step label would overlap the current
+        # decision timestamp. Training labels must end strictly before i.
+        train_end=max(0,i-h)
+        y_train=y.iloc[:train_end]
         mask=y_train.notna()
         x_train=X.iloc[:i][cols].copy()
         mask &= x_train.notna().all(axis=1)
