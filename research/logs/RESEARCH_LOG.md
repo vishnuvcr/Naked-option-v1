@@ -1,4 +1,3 @@
-[object Object]
 ## 2026-10-07 — Phase 2B derived spot-data correction
 
 - The revised LastPric corroboration threshold passed the practical price gate, but the workflow then stopped because the HF source did not contain usable spot values for the selected date/expiry.
