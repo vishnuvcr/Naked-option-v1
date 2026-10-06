@@ -109,14 +109,10 @@ for item in meta["results"]:
         if strike is None or close is None:
             missing_core+=1
             continue
-        trade_value=row.get(vals["trade_date"]) if vals["trade_date"] else None
-        if trade_value:
-            try:
-                tdate=dt.date.fromisoformat(str(trade_value).split("T")[0])
-            except Exception:
-                tdate=None
-        else:
-            tdate=dt.date.fromisoformat(item["date"])
+        # The archive filename is the authoritative trading date for the
+        # downloaded daily snapshot. Do not depend on legacy/UDiFF text-date
+        # formatting, which differs across formats.
+        tdate=dt.date.fromisoformat(item["date"])
         if tdate:
             source_days.add(tdate.isoformat())
         key=(str(tdate),expiry.isoformat(),strike,opt)
