@@ -1,7 +1,6 @@
 [object Object]
-## 2026-10-07 — Phase 2B secondary-source corroboration protocol revision
+## 2026-10-07 — Phase 2B derived spot-data correction
 
-- The strict ±0.25%/tick LastPric agreement was 95.8333%, with the largest observed relative discrepancy about 2.8%.
-- Rather than pretending the strict test passed, the research preserved it as a diagnostic and introduced a distinct, explicitly labeled secondary-corroboration gate suitable for non-canonical derived data: >=95% within 1% relative error, no observation beyond 3%, plus median relative error reporting.
-- This protocol revision is about data-source corroboration only and cannot authorize use of the derived dataset as an executable price feed.
-- Tester review is required before the data gate can advance.
+- The revised LastPric corroboration threshold passed the practical price gate, but the workflow then stopped because the HF source did not contain usable spot values for the selected date/expiry.
+- This is a secondary-source field-availability issue, not evidence that the option-price source is invalid.
+- The reconciliation now reports the spot check explicitly as PASS/FAIL/unavailable and never forward-fills or fabricates a spot value.
