@@ -36,3 +36,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Added explicit related-method, related-hypothesis and replication-requirement fields to the literature CSV registry.
 - Normalized the error log so appended rows are real Markdown table rows rather than literal escape sequences.
 - Phase 1 remains gated pending tester confirmation.
+
+## 2026-10-07 — Phase 1 literature registry parse correction
+
+- Tester found one malformed CSV row caused by unescaped commas in a paper title.
+- Corrected the row using CSV quoting.
+- Added `scripts/validate_literature_registry.py` and wired it into the automatic/manual research protocol workflow.
+- Phase 1 remains gated pending tester recheck.
