@@ -16,6 +16,7 @@ required_files=[
     "scripts/probe_huggingface_datasets.py",
     "scripts/acquire_hf_reference.py",
     "scripts/reconcile_official_vs_hf.py",
+    "scripts/probe_global_sources.py",
 ]
 
 for rel in required_files:
@@ -40,7 +41,7 @@ if "pyarrow" not in req.read_text(encoding="utf-8").lower():
     raise SystemExit("ERROR: Phase 2 parquet dependency missing")
 
 wf=(ROOT/".github/workflows/phase-02-data-audit.yml").read_text(encoding="utf-8")
-for marker in ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py"]:
+for marker in ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py"]:
     if marker not in wf:
         raise SystemExit(f"ERROR: Phase 2 workflow missing {marker}")
 
