@@ -77,3 +77,9 @@
 - Added Hugging Face intraday research-reference discovery using HF_TOKEN; no derived intraday data is accepted until the selected files are independently validated.
 - Added automatic/manual Phase 3 data workflow with cache.
 - No B0-B11 performance results exist yet.
+
+## 2026-10-07 — Phase 3 hosted-run validator failure and correction
+
+- Hosted Phase 3 run failed before data acquisition because `validate_phase3_protocol.py` searched for lowercase `leakage` against a capitalized `Leakage rules` heading.
+- This was a validator-only false failure, not a data or label defect.
+- Corrected the validator to normalize the protocol text to lowercase before required-phrase checks.
