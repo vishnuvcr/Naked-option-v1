@@ -3,6 +3,13 @@
 Research program for predicting NIFTY 50 direction and translating signals into **long-only naked option buying** strategies for intraday and positional horizons.
 
 ## Research status
+### Latest Phase 2C execution
+
+- Phase 2C freezes the positional EOD window at 2019-02-11 to 2026-09-30 and the intraday executable window at 2021-01-01 to 2026-09-30.
+- Official NSE EOD acquisition is now batchable by year with raw-data caching and compact NIFTY-only Parquet outputs.
+- India VIX historical acquisition, free global/rates history, effective-dated lot-size validation and FII/DII quarantine are now part of the Phase 2C gate.
+- Phase 3 remains blocked until the independent tester passes the full bulk-data/PIT gate.
+
 ### Latest Phase 2 execution
 
 - Hosted GitHub Actions is now executing the real data-audit workflow with cached raw data and the repository HF_TOKEN secret.
