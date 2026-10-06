@@ -14,3 +14,6 @@ S12,OPEN_SOURCE,QuantDev-stack/OptionVault,https://github.com/QuantDev-stack/Opt
 S13,OPEN_SOURCE,mukhilj/breeze_options_pipeline,https://github.com/mukhilj/breeze_options_pipeline,1-minute ICICI Direct historical adapter,4,CANDIDATE,Third-party API dependency; not a priority source
 S14,OPEN_SOURCE,NikhilSuthar/indian-market-data,https://github.com/NikhilSuthar/indian-market-data,NSE archive naming/discovery reference,2,UNTESTED,Code reference
 S15,OPEN_SOURCE,Jay-Kali/NSE-Bhavcopy,https://github.com/Jay-Kali/NSE-Bhavcopy,Legacy NSE archive downloader reference,3,CANDIDATE,Code reference
+S16,PRIMARY,BSE SENSEX historical index data,https://www.bseindices.com/indices-details/code/16,BSE SENSEX comparator and cross-market lead-lag,1,UNTESTED,Official BSE Indices source
+S17,PRIMARY,BSE derivatives historical reports,https://www.bseindia.com/markets/Derivatives/DeriReports/DeriHistorical.aspx,BSE derivatives comparator and cross-market validation,1,UNTESTED,Official BSE source
+S18,PRIMARY,NSE equity-derivatives contract information,https://www.nseindia.com/static/products-services/equity-derivatives-contract-information,Contract specifications and permitted lot-size regime,1,UNTESTED,Official NSE source
