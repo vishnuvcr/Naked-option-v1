@@ -2,7 +2,7 @@ source_id,tier,source_name,url_or_repo,coverage_or_role,priority,status,license_
 S01,PRIMARY,NSE historical contract-wise F&O,https://www.nseindia.com/report-detail/fo_eq_security,NIFTY options EOD OHLC OI volume underlying,1,UNTESTED,Official source; validate access before use
 S02,PRIMARY,NSE historical index data,https://www.nseindia.com/reports-indices-historical-index-data,NIFTY underlying/index history,1,UNTESTED,Official source
 S03,PRIMARY,NSE India VIX,https://www.nseindia.com/static/products-services/indices-indiavix-index,India VIX daily/near-term volatility,1,UNTESTED,Official source
-S04,PRIMARY,NSE FII FPI DII,https://www.nseindia.com/reports/fii-dii,Institutional flow inputs,1,UNTESTED,Official source; publication availability must be modeled
+S04,PRIMARY,NSE FII/FPI/DII snapshot,https://www.nseindia.com/reports/fii-dii,Institutional flow inputs; live snapshot validated, historical combined FII+DII cash-flow history currently quarantined pending free-source point-in-time verification,1,QUARANTINED_HISTORICAL,Official current source; historical exact-scope gap documented in research/data/SOURCE_GAPS.md
 S05,PRIMARY,NSE derivatives reports,https://www.nseindia.com/all-reports-derivatives,UDiFF/participant/FII derivatives reports and archive discovery,1,UNTESTED,Official source
 S06,DERIVED_FREE,rissin/nse-options-intraday,https://huggingface.co/datasets/rissin/nse-options-intraday,NIFTY/BANKNIFTY/SENSEX daily + 1-minute data,2,UNTESTED,Derived dataset; must be cross-validated
 S07,DERIVED_FREE,artist-23/nifty-options-data,https://huggingface.co/datasets/artist-23/nifty-options-data,NIFTY intraday options with IV/OI/spot fields,2,UNTESTED,Dataset card has no stated license; treat as research-only until verified
