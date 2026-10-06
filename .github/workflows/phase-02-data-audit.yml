@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/cache/raw
-          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py') }}
+          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py', 'scripts/acquire_s31_reference.py') }}
           restore-keys: |
             phase2-raw-
 
