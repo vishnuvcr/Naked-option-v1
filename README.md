@@ -3,6 +3,13 @@
 Research program for predicting NIFTY 50 direction and translating signals into **long-only naked option buying** strategies for intraday and positional horizons.
 
 ## Research status
+### Latest Phase 2 execution
+
+- Hosted GitHub Actions is now executing the real data-audit workflow with cached raw data and the repository HF_TOKEN secret.
+- Official NSE legacy/UDiFF archive acquisition, schema validation, snapshot hashing and HF reference acquisition have all completed successfully in the observed runs.
+- Reconciliation has so far failed on real data twice for legitimate engineering reasons: a fixed-offset timezone parsing issue, then an over-broad full-expiry coverage denominator (84.16%). Both failures are logged and corrected; the latest run is testing a pre-declared near-ATM validation universe.
+- Full official NSE data remains canonical; derived Hugging Face data is only a validation source and is not being promoted to canonical.
+
 
 - Repository initialized: 2026-10-07
 - Current phase: Phase 2 — data engineering and point-in-time validation
