@@ -115,7 +115,7 @@ for i in range(hf_day.num_rows):
         opt = str(get("option_type")).strip().upper()
         ts = get("timestamp")
         close = finite_float(get("close"))
-        if strike is None or opt not in {"CE", "PE"} or close is None:
+        if strike is None or opt not in {"CE", "PE"}:
             continue
         if isinstance(ts, datetime.datetime):
             ts_key = ts
@@ -137,6 +137,10 @@ for i in range(hf_day.num_rows):
 
 if latest_ties:
     raise SystemExit(f"ERROR: HF reference has tied latest timestamps for {len(latest_ties)} contracts")
+
+hf_missing_final_close = sum(1 for v in latest.values() if v["close"] is None)
+if hf_missing_final_close:
+    raise SystemExit(f"ERROR: HF reference has {hf_missing_final_close} contracts with missing final close")
 
 if not latest:
     raise SystemExit("ERROR: zero HF NIFTY contracts for the target trade date/expiry")
