@@ -40,3 +40,10 @@
 - Hosted run exposed a free-source reliability problem: Stooq returned only two usable S&P 500 rows for the requested window.
 - The project did not treat this as missing global data; it switched to Yahoo Finance's public chart endpoint as the primary free research reference, normalized the returned daily close series, and kept Stooq in the source registry as a fallback.
 - The data remain a research reference only; no execution feed is assumed from this provider.
+
+## 2026-10-07 — Phase 2C global source provenance correction
+
+- Final audit review found that S25-S28 in the manifest still named Stooq even though the successful acquisition used Yahoo Finance.
+- Corrected S25-S28 to the actual Yahoo Finance reference endpoints and retained Stooq as explicit S36-S39 fallbacks.
+- Clarified Phase 2 gate semantics for India VIX/FII-DII: absence of historical publication timestamps triggers conservative quarantine rather than hidden look-ahead.
+- One final hosted audit run is required after the provenance correction.
