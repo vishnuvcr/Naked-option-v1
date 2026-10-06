@@ -30,13 +30,13 @@ Sign of the most recent 5/15/30-minute return.
 Price versus a fixed 5/20-observation moving-average pair. No period search is allowed in Phase 3.
 
 ### B6 Range-position state
-Current price within prior-session high/low range.
+Current price relative to the rolling prior-20-observation high/low range, computed only from observations available at the decision timestamp. No future bar may enter the range.
 
 ### B7 Volatility-conditioned sign
-Persistence/momentum conditioned on a volatility regime defined by the current rolling 20-observation standard deviation percentile over a fixed trailing 252-observation history. The regime cut points are fixed at the 33rd and 67th percentiles of the training-only reference window.
+Use current rolling 20-observation volatility percentile over a fixed trailing 252-observation history. Frozen rule: below the 33rd percentile, use persistence 0.55/0.45; between 33rd and 67th, use 0.50/0.50; above the 67th, invert persistence to 0.45/0.55. No cutpoint optimization. The regime counts must be reported separately.
 
 ### B8 Calendar-only
-Expiry-day, weekday, month-end and holiday-adjacent indicators, tested as probability shifts, not deterministic trade rules.
+Weekday, month-end and holiday-adjacent indicators, tested as probability shifts, not deterministic trade rules. The current Phase 3 baseline uses weekday only; it must not be described as an expiry-day effect.
 
 ### B9 Global overnight
 Equal-weight mean of standardized previous-available daily closes for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng. Each series is standardized using only the training history; a market is omitted for that decision if its local close was not yet available before the NIFTY decision.
