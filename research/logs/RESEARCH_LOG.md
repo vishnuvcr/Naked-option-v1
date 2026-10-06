@@ -83,3 +83,8 @@
 - Hosted Phase 3 run failed before data acquisition because `validate_phase3_protocol.py` searched for lowercase `leakage` against a capitalized `Leakage rules` heading.
 - This was a validator-only false failure, not a data or label defect.
 - Corrected the validator to normalize the protocol text to lowercase before required-phrase checks.
+
+## 2026-10-07 — Phase 3 regression-check false positive
+
+- The new log-placeholder regression guard correctly caught a literal object-placeholder phrase inside the error description of its own previous correction row.
+- The row was rephrased to avoid the literal token, and the validator was narrowed to detect actual whole-line corruption patterns rather than mentions of the error token in prose.
