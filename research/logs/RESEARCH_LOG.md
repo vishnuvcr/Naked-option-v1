@@ -30,3 +30,9 @@ The repository records research decisions, user requirements, experiment outcome
 - Added `research/literature/LITERATURE_REGISTRY.csv` with source IDs and verification status.
 - Updated README to link the new artifacts.
 - Phase 1 remains gated pending fresh tester review.
+
+## 2026-10-07 — Phase 1 tester re-review correction
+
+- Added explicit related-method, related-hypothesis and replication-requirement fields to the literature CSV registry.
+- Normalized the error log so appended rows are real Markdown table rows rather than literal escape sequences.
+- Phase 1 remains gated pending tester confirmation.
