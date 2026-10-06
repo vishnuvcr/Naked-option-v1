@@ -95,7 +95,9 @@ def base_preds(df,h,name):
         return pd.Series(np.where(dow==3,0.51,0.5),index=idx)
     if name=="B3":
         day_open=df.groupby("date")["spot"].transform("first")
-        prior_close=df["spot"].shift(1)
+        day_firsts=df.groupby("date")["spot"].first()
+        prior_day_close=day_firsts.shift(1)
+        prior_close=df["date"].map(prior_day_close)
         pday=np.where(day_open>prior_close,0.55,np.where(day_open<prior_close,0.45,0.5))
         return pd.Series(pday,index=idx)
     return p
@@ -135,19 +137,39 @@ def logistic(df,h,y):
 def run():
     df=load()
     df["log_spot"]=np.log(df["spot"])
-    # Keep only fixed decision grid times.
     grid_mask=(df["minute_of_day"]>=9*60+30)&(df["minute_of_day"]<=15*60+30)&(((df["minute_of_day"]-9*60-30)%60)==0)
-    d=df[grid_mask].copy()
+    grid=df[grid_mask].copy()
     out={}
     for h in HORIZONS:
-        y,fut,sig=labels(d["timestamp"],d["spot"],h)
-        out[str(h)]={"label":{"n":int(y.notna().sum()),"positive_rate":float(y.dropna().mean()) if y.notna().any() else None,"future_return_mean":float(fut.mean()),"future_return_std":float(fut.std()),"sigma_h_available":int(sig.notna().sum())}}
-        for name in ["B0","B3","B4","B5","B6","B7","B8"]:
-            out[str(h)][name]=metrics(y,base_preds(d,h,name))
-        out[str(h)]["B11"]=metrics(y,logistic(d,h,y))
-    report={"rows":len(d),"timestamp_start":d["timestamp"].min().isoformat(),"timestamp_end":d["timestamp"].max().isoformat(),"horizons":out,"status":"PASS" if len(d)>=50000 else "LOW_POWER"}
+        y_full,fut_full,sig_full=labels(df["timestamp"],df["spot"],h)
+        # Use the full 1-minute path to construct labels/features, then evaluate only
+        # at the frozen decision grid.
+        y=y_full.loc[grid.index]
+        fut=fut_full.loc[grid.index]
+        sig=sig_full.loc[grid.index]
+        base_full=df.copy()
+        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B3","B4","B5","B6","B7","B8"]}
+        out[str(h)]={"label":{
+            "n":int(y.notna().sum()),
+            "positive_rate":float(y.dropna().mean()) if y.notna().any() else None,
+            "future_return_mean":float(fut.mean()),
+            "future_return_std":float(fut.std()),
+            "sigma_h_available":int(sig.notna().sum())
+        }}
+        for name,series in base_preds_full.items():
+            out[str(h)][name]=metrics(y,series.loc[grid.index])
+        out[str(h)]["B11"]=metrics(y,logistic(df,h,y_full).loc[grid.index])
+    report={
+        "rows":len(grid),
+        "full_rows":len(df),
+        "timestamp_start":grid["timestamp"].min().isoformat(),
+        "timestamp_end":grid["timestamp"].max().isoformat(),
+        "horizons":out,
+        "status":"PASS" if len(df)>=50000 else "LOW_POWER",
+        "feature_path":"full 1-minute series; evaluation restricted to frozen hourly decision grid"
+    }
     (OUT/"phase3_intraday_baseline_results.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
-    print(json.dumps({"rows":report["rows"],"timestamp_start":report["timestamp_start"],"timestamp_end":report["timestamp_end"],"status":report["status"]},indent=2))
+    print(json.dumps({"full_rows":report["full_rows"],"grid_rows":report["rows"],"timestamp_start":report["timestamp_start"],"timestamp_end":report["timestamp_end"],"status":report["status"]},indent=2))
 
 if __name__=="__main__":
     run()
