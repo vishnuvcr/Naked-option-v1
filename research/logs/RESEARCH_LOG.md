@@ -34,3 +34,9 @@
 - Wired global reference acquisition, effective-dated lot-size validation, India VIX snapshot acquisition and FII/DII snapshot acquisition into the automatic/manual Phase 2 audit workflow.
 - Extended the static validator and Phase 2 exit criteria to cover these source-completion checks.
 - Next hosted run is the formal Phase 2C execution gate.
+
+## 2026-10-07 — Phase 2C global acquisition correction
+
+- Hosted run exposed a free-source reliability problem: Stooq returned only two usable S&P 500 rows for the requested window.
+- The project did not treat this as missing global data; it switched to Yahoo Finance's public chart endpoint as the primary free research reference, normalized the returned daily close series, and kept Stooq in the source registry as a fallback.
+- The data remain a research reference only; no execution feed is assumed from this provider.
