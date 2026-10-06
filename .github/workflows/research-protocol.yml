@@ -23,3 +23,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate repository contract
         run: python scripts/validate_protocol.py
+      - name: Validate literature registry
+        run: python scripts/validate_literature_registry.py
