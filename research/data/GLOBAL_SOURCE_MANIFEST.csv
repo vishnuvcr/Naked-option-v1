@@ -1,6 +1,6 @@
 source_id,tier,source_name,url_or_repo,coverage_or_role,priority,status,license_note
 S19,PRIMARY,Cboe VIX,https://www.cboe.com/tradable_products/vix/,US volatility regime,1,UNTESTED,Official Cboe source
-S20,PRIMARY,US Treasury Daily Treasury Par Yield Curve Rates,https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value_month=202407&type=daily_treasury_yield_curve,US 10Y and rates regime,1,UNTESTED,Official US Treasury source
+S20,PRIMARY,US 10Y constant-maturity yield (DGS10),https://fred.stlouisfed.org/series/DGS10,US 10Y rates regime; Board of Governors H.15 series via FRED,1,UNTESTED,Official Federal Reserve/FRED source; daily frequency and revision timing must be PIT-controlled
 S21,PRIMARY,RBI Reference Rate archives,https://www.rbi.org.in/Scripts/ReferenceRateArchive.aspx,USD/INR reference rates,1,UNTESTED,Official RBI source
 S22,PRIMARY,RBI rates / government securities,https://www.rbi.org.in/,Indian rates regime,1,UNTESTED,Official RBI source
 S23,PRIMARY,LBMA Gold Price,https://www.lbma.org.uk/prices-and-data/precious-metal-prices,Gold risk proxy,2,UNTESTED,Official/industry source; timezone alignment required
