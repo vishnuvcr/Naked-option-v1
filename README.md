@@ -5,7 +5,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 ## Research status
 
 - Repository initialized: 2026-10-07
-- Current phase: Phase 0 — governance/bootstrap
+- Current phase: Phase 2 — data engineering and point-in-time validation
 - Developer branch: `developer`
 - Tester branch: `tester`
 - Strategy constraint: buy NIFTY calls or puts only; no option selling, spreads, short futures, or hidden short exposure.
@@ -18,6 +18,10 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - [Research plan](research/RESEARCH_PLAN.md)
 - [Research protocol](research/RESEARCH_PROTOCOL.md)
 - [Method registry](research/METHOD_REGISTRY.md)
+- [Hypothesis catalog](research/HYPOTHESIS_CATALOG.md)
+- [Literature review](research/literature/LITERATURE_REVIEW.md)
+- [Literature search protocol](research/literature/LITERATURE_SEARCH_PROTOCOL.md)
+- [Machine-readable literature registry](research/literature/LITERATURE_REGISTRY.csv)
 - [Cost model](research/COST_MODEL.md)
 - [Data source registry](research/DATA_SOURCE_REGISTRY.md)
 - [Phase status](research/STATUS.md)
