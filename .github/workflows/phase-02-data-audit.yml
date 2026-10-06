@@ -1,5 +1,9 @@
 name: Phase 2 — Data Audit
 
+concurrency:
+  group: phase2-data-audit-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
