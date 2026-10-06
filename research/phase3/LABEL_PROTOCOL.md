@@ -57,15 +57,16 @@ Pre-registered `k` grid:
 - 0.75
 - 1.00
 
-`sigma_reference` is the rolling standard deviation of the preceding 20 same-frequency decision-to-decision log returns, computed without annualization and without any observations at or after the decision timestamp. The 20-observation window is fixed for Phase 3 and is not tuned.
+`sigma_H(t)` is the standard deviation of the preceding 20 non-overlapping H-length log returns ending no later than the decision timestamp t. H is the label horizon itself (5/15/30/60/120 minutes for intraday labels; 1/2/3/5/10 sessions for positional labels). No annualization is used. The 20-observation window is fixed for Phase 3 and is not tuned.
 
 ### Triple-barrier label
 
 - upper barrier = +k * sigma_reference;
 - lower barrier = -k * sigma_reference;
 - time barrier = the chosen horizon;
-- sigma_reference is the same fixed 20-observation same-frequency standard deviation described above;
-- barriers are frozen at the decision timestamp and are never updated after entry.
+- sigma_H(t) is the horizon-matched fixed 20-observation standard deviation described above;
+- barriers are frozen at the decision timestamp and are never updated after entry;
+- barrier crossing is evaluated on the finest available post-decision observation frequency (e.g. 1-minute bars when available).
 
 The class is the first barrier hit, or 0 if neither is hit.
 
@@ -93,7 +94,7 @@ This label is evaluated separately from spot-direction accuracy.
 
 When a point-in-time option delta is available:
 
-`required_underlying_move ≈ (entry_premium + per_unit_cost) / |delta|`
+`required_underlying_move ≈ (entry_premium + per_unit_round_trip_cost + per_unit_slippage) / |delta|`
 
 This is a first-order diagnostic only. It must never replace the exact observed option-P&L label because gamma, theta, IV changes and nonlinear pricing matter.
 
