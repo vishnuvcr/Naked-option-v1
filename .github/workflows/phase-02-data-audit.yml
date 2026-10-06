@@ -93,6 +93,10 @@ jobs:
         run: python scripts/reconcile_s31_vs_official.py
         continue-on-error: true
 
+      - name: Validate mandatory reconciliation artifacts
+        if: always()
+        run: python scripts/validate_phase2_reconciliation_reports.py
+
       - name: Upload Phase 2 audit report
         if: always()
         uses: actions/upload-artifact@v4
