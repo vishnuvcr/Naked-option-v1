@@ -88,3 +88,9 @@
 
 - The new log-placeholder regression guard correctly caught a literal object-placeholder phrase inside the error description of its own previous correction row.
 - The row was rephrased to avoid the literal token, and the validator was narrowed to detect actual whole-line corruption patterns rather than mentions of the error token in prose.
+
+## 2026-10-07 — Phase 3 daily-data composite fallback
+
+- Official bulk NSE daily index retrieval was not reliable in the hosted runner despite successful official option-archive access in Phase 2.
+- Rather than stall the research, the daily NIFTY layer was switched to a free Yahoo Finance public chart backfill with mandatory overlap checks against official NSE archive files for 2024-07-05 and 2024-07-08.
+- Yahoo is explicitly non-canonical/derived; provider provenance is retained, and official NSE remains preferred whenever directly available.
