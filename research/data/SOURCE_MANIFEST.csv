@@ -1,0 +1,20 @@
+source_id,tier,source_name,url_or_repo,coverage_or_role,priority,status,license_note
+S01,PRIMARY,NSE historical contract-wise F&O,https://www.nseindia.com/report-detail/fo_eq_security,NIFTY options EOD OHLC OI volume underlying,1,UNTESTED,Official source; validate access before use
+S02,PRIMARY,NSE historical index data,https://www.nseindia.com/reports-indices-historical-index-data,NIFTY underlying/index history,1,UNTESTED,Official source
+S03,PRIMARY,NSE India VIX,https://www.nseindia.com/static/products-services/indices-indiavix-index,India VIX daily/near-term volatility,1,UNTESTED,Official source
+S04,PRIMARY,NSE FII FPI DII,https://www.nseindia.com/reports/fii-dii,Institutional flow inputs,1,UNTESTED,Official source; publication availability must be modeled
+S05,PRIMARY,NSE derivatives reports,https://www.nseindia.com/all-reports-derivatives,UDiFF/participant/FII derivatives reports and archive discovery,1,UNTESTED,Official source
+S06,DERIVED_FREE,rissin/nse-options-intraday,https://huggingface.co/datasets/rissin/nse-options-intraday,NIFTY/BANKNIFTY/SENSEX daily + 1-minute data,2,UNTESTED,Derived dataset; must be cross-validated
+S07,DERIVED_FREE,artist-23/nifty-options-data,https://huggingface.co/datasets/artist-23/nifty-options-data,NIFTY intraday options with IV/OI/spot fields,2,UNTESTED,Dataset card has no stated license; treat as research-only until verified
+S08,DERIVED_FREE,thetrademarkk/india-index-options-1m,https://huggingface.co/datasets/thetrademarkk/india-index-options-1m,NIFTY/BANKNIFTY/SENSEX 1-minute index/options,2,UNTESTED,CC-BY-NC-4.0; verify row-level integrity and license use
+S09,OPEN_SOURCE,SantoshSrinivas79/NSE-FNO-Data-bank,https://github.com/SantoshSrinivas79/NSE-FNO-Data-bank,Official NSE F&O archive caching/validation pattern,2,UNTESTED,Code reference; repo data licensing must be checked
+S10,OPEN_SOURCE,SatvikBajpai/nifty-options-greeks,https://github.com/SatvikBajpai/nifty-options-greeks,Free NSE bhavcopy to IV/Greeks pipeline,2,UNTESTED,Code/data provenance to be independently audited
+S11,OPEN_SOURCE,SauMStats/nifty-options-data-engine,https://github.com/SauMStats/nifty-options-data-engine,Kaggle/2026 NIFTY option pipeline adapter,3,CANDIDATE,Code reference only; Kaggle dataset not independently verified yet
+S12,OPEN_SOURCE,QuantDev-stack/OptionVault,https://github.com/QuantDev-stack/OptionVault,Large 1-second/1-minute market dataset samples,4,SAMPLE_ONLY,Full data appears licensed/commercial; do not depend on paid data before free sources are exhausted
+S13,OPEN_SOURCE,mukhilj/breeze_options_pipeline,https://github.com/mukhilj/breeze_options_pipeline,1-minute ICICI Direct historical adapter,4,CANDIDATE,Third-party API dependency; not a priority source
+S14,OPEN_SOURCE,NikhilSuthar/indian-market-data,https://github.com/NikhilSuthar/indian-market-data,NSE archive naming/discovery reference,2,UNTESTED,Code reference
+S15,OPEN_SOURCE,Jay-Kali/NSE-Bhavcopy,https://github.com/Jay-Kali/NSE-Bhavcopy,Legacy NSE archive downloader reference,3,CANDIDATE,Code reference
+S16,PRIMARY,BSE SENSEX historical index data,https://www.bseindices.com/indices-details/code/16,BSE SENSEX comparator and cross-market lead-lag,1,UNTESTED,Official BSE Indices source
+S17,PRIMARY,BSE derivatives historical reports,https://www.bseindia.com/markets/Derivatives/DeriReports/DeriHistorical.aspx,BSE derivatives comparator and cross-market validation,1,UNTESTED,Official BSE source
+S18,PRIMARY,NSE equity-derivatives contract information,https://www.nseindia.com/static/products-services/equity-derivatives-contract-information,Contract specifications and permitted lot-size regime,1,UNTESTED,Official NSE source
+S31,DERIVED_FREE,artist-23 NIFTY options data on Hugging Face,https://huggingface.co/datasets/artist-23/nifty-options-data,NIFTY weekly/monthly option reference series for independent cross-check,2,UNTESTED,No license stated in registry; research-only pending license verification

@@ -1,0 +1,17 @@
+source_id,tier,source_name,url_or_repo,coverage_or_role,priority,status,license_note
+S19,PRIMARY,Cboe VIX,https://www.cboe.com/tradable_products/vix/,US volatility regime,1,UNTESTED,Official Cboe source
+S20,PRIMARY,US Treasury Daily Treasury Par Yield Curve Rates,https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value_month=202407&type=daily_treasury_yield_curve,US 10Y and rates regime,1,UNTESTED,Official US Treasury source
+S21,PRIMARY,RBI Reference Rate archives,https://www.rbi.org.in/Scripts/ReferenceRateArchive.aspx,USD/INR reference rates,1,UNTESTED,Official RBI source
+S22,PRIMARY,RBI rates / government securities,https://www.rbi.org.in/,Indian rates regime,1,UNTESTED,Official RBI source
+S23,PRIMARY,LBMA Gold Price,https://www.lbma.org.uk/prices-and-data/precious-metal-prices,Gold risk proxy,2,UNTESTED,Official/industry source; timezone alignment required
+S24,PRIMARY,EIA petroleum prices,https://www.eia.gov/petroleum/,Crude oil proxy,2,UNTESTED,Official US EIA source
+S25,FREE_FALLBACK,Yahoo Finance S&P 500 chart history,https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC,SP500 overnight lead-lag,3,ACTIVE_REFERENCE,Public chart endpoint used for research reference; not canonical execution feed
+S26,FREE_FALLBACK,Yahoo Finance Nasdaq Composite chart history,https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC,Nasdaq overnight lead-lag,3,ACTIVE_REFERENCE,Public chart endpoint used for research reference; not canonical execution feed
+S27,FREE_FALLBACK,Yahoo Finance Nikkei 225 chart history,https://query1.finance.yahoo.com/v8/finance/chart/%5EN225,Nikkei overnight lead-lag,3,ACTIVE_REFERENCE,Public chart endpoint used for research reference; not canonical execution feed
+S28,FREE_FALLBACK,Yahoo Finance Hang Seng chart history,https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI,Hang Seng overnight lead-lag,3,ACTIVE_REFERENCE,Public chart endpoint used for research reference; not canonical execution feed
+S29,PRIMARY,NSE sectoral indices,https://www.nseindia.com/market-data/live-market-indices,Indian sector leadership/breadth,1,UNTESTED,Official NSE source
+S30,PRIMARY,NSE market breadth,https://www.nseindia.com/market-data/live-equity-market,NSE advance/decline and breadth,1,UNTESTED,Official NSE source
+S36,FREE_FALLBACK,Stooq S&P 500 fallback,https://stooq.com/q/d/?s=%5Espx,Alternative free SP500 source if Yahoo unavailable,4,SECONDARY_ONLY,Intermittent CI truncation observed; keep secondary-only
+S37,FREE_FALLBACK,Stooq Nasdaq Composite fallback,https://stooq.com/q/d/?s=%5Endq,Alternative free Nasdaq source,4,SECONDARY_ONLY,Research fallback
+S38,FREE_FALLBACK,Stooq Nikkei 225 fallback,https://stooq.com/q/d/?s=%5Enk,Alternative free Nikkei source,4,SECONDARY_ONLY,Research fallback
+S39,FREE_FALLBACK,Stooq Hang Seng fallback,https://stooq.com/q/d/?s=%5Ehsi,Alternative free Hang Seng source,4,SECONDARY_ONLY,Research fallback

@@ -25,3 +25,10 @@ Earlier project artifacts reported:
 - option-surface/skew information remained an interesting signal.
 
 Those are prior findings to be revalidated, not accepted as current conclusions.
+
+
+### 2026-10-07 — Resume research command
+
+User requested that the research resume from the current checkpoint. Developer re-read the Phase 2 status, research plan/protocol, method registry, error/research logs and both developer/tester branch status ledgers before continuing. Phase 2 remains the active gate; no prediction/strategy phase is allowed to start until data/PIT validation is passed.
+
+Current automated run: Phase 2 Data Audit run #60 is executing on `phase-02-developer`. Official NSE legacy/UDiFF acquisition, schema validation, snapshot generation and HF acquisition have already completed in this run; the reconciliation stage is still executing. Prior real-run failures were preserved and corrected rather than bypassed.

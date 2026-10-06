@@ -3,9 +3,17 @@
 Research program for predicting NIFTY 50 direction and translating signals into **long-only naked option buying** strategies for intraday and positional horizons.
 
 ## Research status
+### Latest Phase 2 execution
+
+- Final hosted Phase 2 audit run #104 completed successfully after real-data failures were diagnosed and corrected.
+- Official NSE legacy/UDiFF archives were acquired, schema-checked, hashed and cached; global reference series, official lot-size validation, India VIX/FII-DII source checks and cross-source reconciliations also completed.
+- The S08 derived option dataset passed the pre-declared secondary corroboration gate on 96 near-ATM contracts, while its strict 0.25%/tick metric remains visible as a diagnostic; it is not canonical.
+- S31 remains quarantined because its ATM parquet files do not expose sufficient expiry/contract semantics for reliable reconciliation.
+- Phase 3 now starts from official canonical data with explicit quarantine rules for auxiliary sources that lack historical publication timestamps.
+
 
 - Repository initialized: 2026-10-07
-- Current phase: Phase 2 — data engineering and point-in-time validation
+- Current phase: Phase 3 — labels, baselines and cost-aware directionability
 - Developer branch: `developer`
 - Tester branch: `tester`
 - Strategy constraint: buy NIFTY calls or puts only; no option selling, spreads, short futures, or hidden short exposure.
