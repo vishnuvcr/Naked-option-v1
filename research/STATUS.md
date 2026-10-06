@@ -2,8 +2,8 @@
 
 | Phase | Status | Gate |
 |---|---|---|
-| 0 Governance/bootstrap | IN PROGRESS | repository initialized; branches/workflows pending |
-| 1 Literature/method registry | NOT STARTED | developer package + tester report |
+| 0 Governance/bootstrap | PASSED | tester report archived; phase-0 PR merged |
+| 1 Literature/method registry | IN PROGRESS | literature/source evidence + hypotheses + tester review |
 | 2 Data engineering/PIT | NOT STARTED | data-quality gate |
 | 3 Labels/baselines | NOT STARTED | leakage + benchmark gate |
 | 4 Single-family methods | NOT STARTED | family-level reports |
