@@ -26,24 +26,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Cache Python packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-phase2-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-phase2-
+      - name: Install Phase 2 dependencies
+        run: python -m pip install -r requirements-phase2.txt
 
       - name: Cache raw research data
         uses: actions/cache@v4
         with:
           path: data/cache/raw
-          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py') }}
+          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py') }}
           restore-keys: |
             phase2-raw-
 
-      - name: Validate source manifest
-        run: python scripts/validate_source_manifest.py
+      - name: Validate Phase 2 statics
+        run: python scripts/validate_phase2_static.py
+
+      - name: Validate source manifests
+        run: |
+          python scripts/validate_source_manifest.py
+          python scripts/validate_global_manifest.py
 
       - name: Build deterministic PIT fixture
         run: python scripts/build_pit_fixture.py
@@ -54,7 +54,7 @@ jobs:
       - name: Probe public source endpoints
         run: python scripts/probe_sources.py
 
-      - name: Probe approved Hugging Face datasets
+      - name: Probe Hugging Face datasets
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/probe_huggingface_datasets.py
@@ -65,8 +65,16 @@ jobs:
       - name: Validate official archive schemas
         run: python scripts/validate_official_option_samples.py
 
-      - name: Build immutable snapshot manifest
+      - name: Build official snapshot manifest
         run: python scripts/build_snapshot_manifest.py
+
+      - name: Acquire derived HF validation reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_reference.py
+
+      - name: Reconcile official NSE vs HF reference
+        run: python scripts/reconcile_official_vs_hf.py
 
       - name: Upload Phase 2 audit report
         uses: actions/upload-artifact@v4
@@ -76,6 +84,8 @@ jobs:
             data/reports/source_probe.json
             data/reports/huggingface_dataset_probe.json
             data/reports/official_sample_acquisition.json
+            data/reports/hf_reference_acquisition.json
+            data/reports/official_vs_hf_reconciliation.json
             data/fixtures/pit_fixture.csv
             data/manifests/phase2_official_option_samples.json
           if-no-files-found: error
