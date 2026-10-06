@@ -2,7 +2,7 @@
 
 ## Canonical daily layer
 
-- NIFTY 50 daily OHLCV/close.
+- NIFTY 50 daily OHLCV/close. Official NSE data are preferred; when bulk official archive acquisition is technically unavailable, a free Yahoo bulk backfill may be used only after explicit overlap validation against official NSE archive dates, with provider provenance retained.
 - trading calendar.
 - official availability timestamp/observation date.
 - India VIX where PIT-safe.
