@@ -34,3 +34,10 @@
 - Wired global reference acquisition, effective-dated lot-size validation, India VIX snapshot acquisition and FII/DII snapshot acquisition into the automatic/manual Phase 2 audit workflow.
 - Extended the static validator and Phase 2 exit criteria to cover these source-completion checks.
 - Next hosted run is the formal Phase 2C execution gate.
+
+## 2026-10-07 — Phase 2C bulk/PIT gate implementation
+
+- Froze the positional EOD window (2019-02-11 to 2026-09-30) and intraday executable window (2021-01-01 to 2026-09-30).
+- Added year-by-year official NSE acquisition, compact NIFTY-only Parquet generation, India VIX historical acquisition, free global/rates history, lot-size history checks and a final bulk-data gate workflow.
+- The workflow is matrixed by year, rate-limited, cached, manually dispatchable and uploads immutable validation artifacts.
+- Historical combined FII/DII is explicitly quarantined rather than fabricated; current live snapshots remain available.
