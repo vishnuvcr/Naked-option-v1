@@ -96,3 +96,8 @@ The repository records research decisions, user requirements, experiment outcome
 - The hosted run established 192 active official NIFTY contracts for the selected 2024-07-11 expiry, while the weekly HF research file contained 170 contracts and missed 22 far-from-ATM active contracts.
 - The missing contracts were concentrated in far-out strikes rather than a random subset, confirming that the HF file is a partial moneyness slice rather than a full archive.
 - Reconciliation was revised to validate the derived source only on a pre-declared near-ATM band `abs(log(K/S)) <= 0.05`. Full official-data completeness remains a separate canonical gate.
+
+## 2026-10-07 — Phase 2 workflow concurrency correction
+
+- Multiple sequential developer commits temporarily launched overlapping Phase 2 Actions runs.
+- Added branch-scoped `concurrency` with `cancel-in-progress: true` so only the latest Phase 2 audit remains active.
