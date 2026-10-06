@@ -13,3 +13,11 @@
 ## Conversation continuity policy
 
 The repository records research decisions, user requirements, experiment outcomes and errors. Private hidden chain-of-thought is not copied into repository artifacts. Reproducible scientific rationale is recorded as explicit decisions and protocol text instead.
+
+
+## 2026-10-07 — Phase 1 literature audit
+
+- Added 36 evidence targets spanning methodological finance literature, NIFTY/India-specific research, official NSE/SEBI/Paytm Money sources, recent preprints and open-source replications.
+- Registered H01–H20 before current-repository empirical trading results.
+- Main methodological conclusion: raw classification accuracy is insufficient; the research must connect forecast probability to net option break-even after IV/theta/costs.
+- Recent NIFTY-specific claims from 2025–2026 are treated as replication targets, not facts.
