@@ -24,6 +24,12 @@ required_files=[
     "scripts/validate_lot_size_udiff.py",
     "scripts/acquire_india_vix_snapshot.py",
     "scripts/acquire_fii_dii_snapshot.py",
+    "scripts/validate_phase2c_completeness.py",
+    "scripts/validate_lot_size_history.py",
+    "scripts/build_nifty_eod_parquet_year.py",
+    "scripts/acquire_global_reference_window.py",
+    "scripts/validate_vix_history.py",
+    "scripts/acquire_vix_history.py",
 ]
 
 for rel in required_files:
@@ -48,7 +54,7 @@ if "pyarrow" not in req.read_text(encoding="utf-8").lower():
     raise SystemExit("ERROR: Phase 2 parquet dependency missing")
 
 wf=(ROOT/".github/workflows/phase-02-data-audit.yml").read_text(encoding="utf-8")
-for marker in ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","validate_lot_size_udiff.py","acquire_india_vix_snapshot.py","acquire_fii_dii_snapshot.py"]:
+for marker in ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","acquire_global_reference_window.py","validate_lot_size_udiff.py","validate_lot_size_history.py","acquire_india_vix_snapshot.py","acquire_vix_history.py","validate_vix_history.py","acquire_fii_dii_snapshot.py","build_nifty_eod_parquet_year.py","validate_phase2c_completeness.py"]:
     if marker not in wf:
         raise SystemExit(f"ERROR: Phase 2 workflow missing {marker}")
 
