@@ -47,3 +47,10 @@
 - Corrected S25-S28 to the actual Yahoo Finance reference endpoints and retained Stooq as explicit S36-S39 fallbacks.
 - Clarified Phase 2 gate semantics for India VIX/FII-DII: absence of historical publication timestamps triggers conservative quarantine rather than hidden look-ahead.
 - One final hosted audit run is required after the provenance correction.
+
+## 2026-10-07 — Phase 2 final gate passed
+
+- Hosted run #104 completed successfully after the final global-provider provenance correction.
+- Independent tester final gate: `research/gates/PHASE2_FINAL_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Phase 2 canonical data policy is now frozen: official NSE/BSE sources are primary; derived S08 is validation-only; S31 is quarantined; India VIX/FII-DII without historical publication timestamps are conservative next-session/exclusion inputs.
+- Advanced to Phase 3: label definitions, baselines, and cost-aware directionability. No model optimization yet.
