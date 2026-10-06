@@ -90,13 +90,25 @@ ts_col = table[mapping["timestamp"]]
 if not pyarrow.types.is_timestamp(ts_col.type):
     raise SystemExit("ERROR: HF reference does not expose a timestamp-resolution field")
 
-# Filter to the target trading date.
+# Filter to the target trading date. HF may store timezone-aware timestamps
+# with fixed offsets such as +05:30, which Arrow cannot always cast directly
+# through its timezone database on a hosted runner. Convert values explicitly.
 trade_date_col = table[mapping["trade_date"]] if mapping["trade_date"] else ts_col
-if pyarrow.types.is_timestamp(trade_date_col.type):
-    trade_dates = pc.cast(trade_date_col, pyarrow.date32())
-else:
-    trade_dates = pc.cast(trade_date_col, pyarrow.date32())
-trade_mask = pc.equal(trade_dates, pyarrow.scalar(target_trade_date, type=pyarrow.date32()))
+
+def to_trade_date(value):
+    if isinstance(value, datetime.datetime):
+        return value.date()
+    if isinstance(value, datetime.date):
+        return value
+    s = str(value).strip().replace("Z", "")
+    if "T" in s:
+        s = s.split("T", 1)[0]
+    if " " in s:
+        s = s.split(" ", 1)[0]
+    return datetime.date.fromisoformat(s)
+
+trade_dates = [to_trade_date(v) for v in trade_date_col.to_pylist()]
+trade_mask = pyarrow.array([d == target_trade_date for d in trade_dates])
 hf_day = table.filter(trade_mask)
 
 # Keep only the weekly expiry represented by the selected HF file, then take the
