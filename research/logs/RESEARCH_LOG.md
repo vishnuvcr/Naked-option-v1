@@ -20,3 +20,11 @@
 
 - S31 schema correction is committed.
 - No further developer changes will be made until the resulting hosted workflow completes, so the data gate can be evaluated on a single stable commit.
+
+## 2026-10-07 — Phase 2C source-completion package
+
+- Added actual free global daily reference acquisition (S&P 500, Nasdaq Composite, Nikkei 225, Hang Seng) with cached CSV snapshots, hashes and conservative next-session availability semantics.
+- Corrected the official U.S. Treasury historical-rate endpoint after the endpoint probe returned 404.
+- Added effective-dated NIFTY lot-size validation using the official UDiFF sample.
+- Added live official NSE India VIX and FII/DII snapshot acquisition with explicit availability rules.
+- Phase 2 final gate remains pending tester review and hosted execution of these new source checks.
