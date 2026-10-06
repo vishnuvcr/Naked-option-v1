@@ -119,9 +119,9 @@ def prediction_series(name,df,h,features=None):
     if name=="B7":
         sigma=df["ret_1"].rolling(20).std()
         pct=sigma.rolling(252,min_periods=252).rank(pct=True)
-        p_raw=np.where(df["ret_1"]>0,0.55,np.where(df["ret_1"]<0,0.45,0.5))
-        # The regime classifier is descriptive only; no cutpoint optimization occurs.
-        return pd.Series(p_raw,index=df.index)
+        persistence=np.where(df["ret_1"]>0,0.55,np.where(df["ret_1"]<0,0.45,0.5))
+        p=np.where(pct<0.33,persistence,np.where(pct>0.67,1-persistence,0.5))
+        return pd.Series(p,index=df.index)
     if name=="B8":
         dow=df["date"].dt.dayofweek
         # Phase 3 freezes a calendar-only weekday effect; expiry-day labels are
