@@ -21,3 +21,12 @@ The repository records research decisions, user requirements, experiment outcome
 - Registered H01–H20 before current-repository empirical trading results.
 - Main methodological conclusion: raw classification accuracy is insufficient; the research must connect forecast probability to net option break-even after IV/theta/costs.
 - Recent NIFTY-specific claims from 2025–2026 are treated as replication targets, not facts.
+
+
+## 2026-10-07 — Phase 1 tester REQUEST_CHANGES and developer correction
+
+- Tester requested a reproducible literature search protocol, machine-readable literature registry, and README navigation links.
+- Added `research/literature/LITERATURE_SEARCH_PROTOCOL.md` with actual search surfaces, representative exact queries, screening criteria, evidence classes and limitations.
+- Added `research/literature/LITERATURE_REGISTRY.csv` with source IDs and verification status.
+- Updated README to link the new artifacts.
+- Phase 1 remains gated pending fresh tester review.
