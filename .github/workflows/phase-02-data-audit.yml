@@ -1,0 +1,56 @@
+name: Phase 2 — Data Audit
+
+on:
+  push:
+    branches:
+      - phase-02-developer
+      - developer
+      - phase-02-tester
+      - tester
+  pull_request:
+    branches:
+      - developer
+      - tester
+  workflow_dispatch:
+
+jobs:
+  data-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: \${{ runner.os }}-pip-phase2-\${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            \${{ runner.os }}-pip-phase2-
+
+      - name: Validate source manifest
+        run: python scripts/validate_source_manifest.py
+
+      - name: Build deterministic PIT fixture
+        run: python scripts/build_pit_fixture.py
+
+      - name: Validate PIT fixture
+        run: python scripts/validate_pit_fixture.py
+
+      - name: Probe public source endpoints
+        run: python scripts/probe_sources.py
+
+      - name: Upload Phase 2 audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2-source-audit
+          path: |
+            data/reports/source_probe.json
+            data/fixtures/pit_fixture.csv
+          if-no-files-found: error
