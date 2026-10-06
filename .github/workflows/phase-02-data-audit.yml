@@ -30,9 +30,17 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: \${{ runner.os }}-pip-phase2-\${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-pip-phase2-${{ hashFiles('**/requirements*.txt') }}
           restore-keys: |
-            \${{ runner.os }}-pip-phase2-
+            ${{ runner.os }}-pip-phase2-
+
+      - name: Cache raw research data
+        uses: actions/cache@v4
+        with:
+          path: data/cache/raw
+          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py') }}
+          restore-keys: |
+            phase2-raw-
 
       - name: Validate source manifest
         run: python scripts/validate_source_manifest.py
@@ -46,11 +54,28 @@ jobs:
       - name: Probe public source endpoints
         run: python scripts/probe_sources.py
 
+      - name: Probe approved Hugging Face datasets
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/probe_huggingface_datasets.py
+
+      - name: Acquire official NIFTY option archive samples
+        run: python scripts/acquire_official_option_samples.py
+
+      - name: Validate official archive schemas
+        run: python scripts/validate_official_option_samples.py
+
+      - name: Build immutable snapshot manifest
+        run: python scripts/build_snapshot_manifest.py
+
       - name: Upload Phase 2 audit report
         uses: actions/upload-artifact@v4
         with:
           name: phase2-source-audit
           path: |
             data/reports/source_probe.json
+            data/reports/huggingface_dataset_probe.json
+            data/reports/official_sample_acquisition.json
             data/fixtures/pit_fixture.csv
+            data/manifests/phase2_official_option_samples.json
           if-no-files-found: error
