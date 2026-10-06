@@ -95,6 +95,16 @@ def deterministic_features(df,h):
     x["is_expiry_placeholder"]=(df["date"].dt.weekday==3).astype(float)
     return x
 
+def b7_regime_counts(df):
+    sigma=df["ret_1"].rolling(20).std()
+    pct=sigma.rolling(252,min_periods=252).rank(pct=True)
+    return {
+        "low_lt33":int((pct<0.33).sum()),
+        "mid_33_67":int(((pct>=0.33)&(pct<=0.67)).sum()),
+        "high_gt67":int((pct>0.67).sum()),
+        "unclassified":int(pct.isna().sum()),
+    }
+
 def prediction_series(name,df,h,features=None):
     p=pd.Series(np.nan,index=df.index)
     if name=="B0":
@@ -175,6 +185,7 @@ def run():
             p=prediction_series(name,df,h)
             result[str(h)][name]=metrics(y,p)
         result[str(h)]["B11"]=metrics(y,logistic_walkforward(df,h))
+        result[str(h)]["B7_regime_counts"]=b7_regime_counts(df)
     out={"data_rows":len(df),"date_start":df["date"].min().date().isoformat(),"date_end":df["date"].max().date().isoformat(),"horizons":result}
     (OUT/"phase3_daily_baseline_results.json").write_text(json.dumps(out,indent=2,allow_nan=False),encoding="utf-8")
     print(json.dumps(out,indent=2))
