@@ -289,3 +289,10 @@
 - Added automatic/manual GitHub Actions workflow with cached data restoration and schema validation.
 - D04-D06 use explicitly documented provider-independent HistGradientBoosting surrogates; this will remain visible in the final artifact.
 - No empirical Family D result has yet been accepted.
+
+## 2026-10-07 — Phase 5 intraday refit-cadence clarification
+- The first corrected Family D empirical run passed its regression suite but remained computationally expensive because the intraday runner refit each model every 20 hourly decision rows.
+- Before accepting any empirical metric, the developer aligned the intraday implementation with the session-based walk-forward convention: refit once per 20 trading sessions and hold the fitted model across that session block while predicting on the frozen hourly decision grid.
+- The protocol was amended explicitly to state this cadence. No model hyperparameter, feature definition, label, or economic criterion changed.
+- Independent tester reviewed the amendment and issued research/gates/PHASE5_PROTOCOL_AMENDMENT_TESTER.md = PASS — PROTOCOL AMENDMENT ONLY.
+- No Family D empirical result has yet been accepted.
