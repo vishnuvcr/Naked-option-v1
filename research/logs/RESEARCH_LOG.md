@@ -343,3 +343,12 @@
 - The empirical D01-D15 suite remains the active job step; schema validation and immutable artifact upload have not begun.
 - A live job-log retrieval attempt returned GitHub BlobNotFound. This is recorded as infrastructure-only and does not alter scientific status.
 - No Family D metric is accepted or selected. Phase 6 remains blocked until the immutable artifact is independently audited by the tester.
+
+
+## 2026-10-07 — User continuation: Family D run #19 remains active
+
+- User authorized continuation.
+- Live state rechecked for hosted run #19 (37611880308).
+- Regression suite remains successful; empirical D01-D15 remains active.
+- No immutable result artifact is available yet.
+- No Family D result is accepted; Phase 6 remains blocked.
