@@ -435,3 +435,11 @@
 - These were corrected before the tester code gate. The implementation now accumulates predictions across all eligible walk-forward blocks and maps E06 test values using a deterministic training-only empirical-rank reference.
 - Fixed helpers for I03, I07, I08 and I09 were added so the regression suite can test the exact frozen semantics.
 - The Phase 6 workflow now separates the automatic regression job from the empirical job; empirical execution is hard-gated on an independent tester approval file.
+
+
+## 2026-10-07 — Phase 6 code-gate correction cycle
+- Tester blocked the first implementation package before empirical execution.
+- The developer corrected the definite E06 variable-name error and added a training-cutoff mutation test proving E06 fitted state is invariant to post-cutoff changes.
+- The developer froze the exact E07 four-source global composite definition because the earlier wording was not sufficiently reproducible.
+- The empirical workflow schema validation was strengthened to reconcile confusion counts, accuracy, class rate, probability bins, metric ranges and required block reasons.
+- A fresh tester code-gate review is required before the empirical job can be authorized.
