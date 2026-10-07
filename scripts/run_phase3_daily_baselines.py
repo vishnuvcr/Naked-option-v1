@@ -175,21 +175,12 @@ def prediction_series(name,df,h,features=None):
         p=np.where(pct<0.33,persistence,np.where(pct>0.67,1-persistence,0.5))
         return pd.Series(p,index=df.index)
     if name=="B8":
-        out=np.full(len(df),np.nan)
-        dow=df["date"].dt.dayofweek.to_numpy()
-        for i in range(len(df)):
-            d=dow[i]
-            past=dow[:i]==d
-            if not past.any():
-                out[i]=0.5
-                continue
-            yy,_=make_label(df.iloc[:i],h)
-            valid=yy.notna().to_numpy() & past
-            if valid.any():
-                out[i]=float(np.clip(yy.to_numpy()[valid].mean(),0.0,1.0))
-            else:
-                out[i]=0.5
-        return pd.Series(out,index=df.index)
+        y_hist,_=make_label(df,h)
+        cal=pd.DataFrame({"dow":df["date"].dt.dayofweek.to_numpy(),"y":y_hist.to_numpy()})
+        cal["b8"]=cal.groupby("dow")["y"].transform(
+            lambda s: s.shift(1).expanding(min_periods=1).mean()
+        ).fillna(0.5)
+        return pd.Series(cal["b8"].to_numpy(),index=df.index)
     return pd.Series(np.nan,index=df.index)
 
 def logistic_walkforward(df,h):
