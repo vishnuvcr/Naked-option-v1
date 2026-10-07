@@ -78,7 +78,7 @@ def model_probs(method,Xtr,ytr,Xte):
     if method=="C04":
         yseries=pd.Series(ytr.to_numpy(),index=np.arange(len(ytr)))
         # AR(5) on returns; direction probability from a Gaussian approximation
-        model=AutoReg(yseries,lags=5,trend="c",old_names=False).fit()
+        model=AutoReg(yseries,lags=5,trend="c").fit()
         pred=float(model.predict(start=len(yseries),end=len(yseries)).iloc[0])
         scale=float(np.std(ytr))
         z=pred/(scale if scale>0 else 1.0)
