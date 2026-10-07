@@ -95,3 +95,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 4 | Family B runner passed raw directional signals (-1/0/1) into probability-based metrics | The metrics layer expects probabilities in [0,1] | Apply the pre-registered 0.55/0.45/0.50 mapping before all Family B metrics | Pending hosted rerun |
 
 | 2026-10-07 | 4 | Family C workflow introduced online state/filter methods and arch/statsmodels dependencies | Statistical family requires model-specific forward-only implementation | Added explicit protocol, deterministic training boundaries, validator and hosted workflow; tester gate required | Pending hosted run/tester |
+
+| 2026-10-07 | 4 | Family C probit prediction returned a pandas Series and the runner indexed by label 0 after a non-zero Series index | Model output type/index mismatch | Normalize Probit and LDA/QDA outputs to NumPy arrays before scalar extraction | Pending hosted rerun |
