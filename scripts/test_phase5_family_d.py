@@ -60,6 +60,42 @@ def main():
         assert np.all(np.isfinite(p)), f"{name}: non-finite probabilities {p}"
         assert np.all((p >= 0) & (p <= 1)), f"{name}: out-of-range probabilities {p}"
 
+    # D07 calibrated-meta-stack pin: independently reconstruct the fixed
+    # chronological 80/20 stack and confirm the production output matches.
+    from sklearn.linear_model import LogisticRegression
+
+    X7 = pd.DataFrame(rng.normal(size=(360, 7)))
+    y7 = pd.Series((rng.normal(size=360) > 0).astype(int))
+    test_rows7 = np.array([330, 331, 332])
+    train_end7 = 300
+    produced7 = fit_predict_block("D07", X7, y7, train_end7, test_rows7)
+
+    train7 = X7.iloc[:train_end7].copy()
+    yy7 = y7.iloc[:train_end7].copy().astype(int)
+    split7 = max(200, int(len(train7) * 0.8))
+    base_x7, base_y7 = train7.iloc[:split7], yy7.iloc[:split7]
+    cal_x7, cal_y7 = train7.iloc[split7:], yy7.iloc[split7:]
+    cal_cols7 = []
+    for sub in ["D01", "D02", "D03", "D04", "D05", "D06"]:
+        m7 = model(sub)
+        m7.fit(base_x7, base_y7)
+        cal_cols7.append(m7.predict_proba(cal_x7)[:, 1])
+    meta7 = LogisticRegression(C=1.0, solver="lbfgs", max_iter=2000)
+    meta7.fit(np.column_stack(cal_cols7), cal_y7)
+    refit_cols7 = []
+    for sub in ["D01", "D02", "D03", "D04", "D05", "D06"]:
+        m7 = model(sub)
+        m7.fit(train7, yy7)
+        refit_cols7.append(m7.predict_proba(X7.iloc[test_rows7])[:, 1])
+    expected7 = meta7.predict_proba(np.column_stack(refit_cols7))[:, 1]
+    assert np.allclose(produced7, expected7, rtol=1e-10, atol=1e-12)
+
+    # Post-cutoff labels must not affect D07 test probabilities.
+    y7_mut = y7.copy()
+    y7_mut.iloc[train_end7:] = 1 - y7_mut.iloc[train_end7:].astype(int)
+    produced7_mut = fit_predict_block("D07", X7, y7_mut, train_end7, test_rows7)
+    assert np.allclose(produced7, produced7_mut, rtol=1e-10, atol=1e-12)
+
     # D01-D12 are separately instantiated to ensure every frozen classifier
     # remains available and exposes a probability interface.
     for name in ["D01", "D02", "D03", "D04", "D05", "D06", "D08", "D09", "D10", "D11", "D12"]:
