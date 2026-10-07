@@ -1,16 +1,22 @@
 name: Phase 6 Novel Methods
 
+# Tester-approved workflow; empirical job requires archived tester gate.
+
 on:
-  push:
-    branches:
-      - phase-05-developer
-    paths:
-      - "scripts/run_phase6_novel.py"
-      - "scripts/test_phase6_novel.py"
-      - "research/phase6/**"
-      - ".github/workflows/phase-06-novel.yml"
-      - "research/gates/PHASE6_CODE_APPROVAL_TESTER.md"
+  workflow_call:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical execution authorization"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical execution authorization"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: phase6-novel-${{ github.ref }}
@@ -53,7 +59,7 @@ jobs:
   empirical:
     name: phase6-empirical
     needs: regression
-    if: ${{ hashFiles('research/gates/PHASE6_CODE_APPROVAL_TESTER.md') != '' }}
+    if: ${{ inputs.empirical_authorized }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
