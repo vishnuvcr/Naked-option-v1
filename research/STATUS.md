@@ -7,8 +7,8 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — RUN #20 NON-EVIDENCE; INTRADAY SEQUENCE CORRECTION TESTER-APPROVED; FRESH RUN REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
-| Phase 6 Novel methods | BLOCKED | Phase 5 gate |
+| Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
+| Phase 6 Novel methods | **PENDING TESTER REVIEW OF SCOPE** | Family D gate passed; tester must review the proposed Phase 6 scope before empirical execution |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
@@ -48,3 +48,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer correction maps causal 20-observation representations from the full 1-minute path to the frozen hourly decision rows.
 - Tester approved the correction in `research/gates/PHASE5_RUN20_INTRADAY_SEQUENCE_APPROVAL_TESTER.md`.
 - A fresh hosted Family D run is required; Phase 6 remains blocked pending artifact audit.
+
+
+## 2026-10-07 — Family D run #23 final technical gate
+
+- Fresh hosted run #23 (`37642007846`) on developer head `75ed6ddd90ac261364bf52570999d3c308fb37b5` completed successfully.
+- Immutable artifact `phase5-family-d-results` / artifact ID `11499450561` was independently downloaded and SHA-256 verified as `27ca6cbc6e1653d40e2d896a81211c97a8d5e70543cf37ad9f402597eee306d8`.
+- Independent tester gate `research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- All 150 Family D method/horizon cells executed; numerical reconciliation passed; D07 leakage/isolation checks passed; intraday D13-D15 coverage is restored and non-zero at every registered horizon.
+- No Family D model is promoted. Multiple-testing, option economics, transaction costs, robustness and fresh-forward validation remain mandatory.
+- Phase 6 remains pending only for independent tester review of the developer's proposed scope.
