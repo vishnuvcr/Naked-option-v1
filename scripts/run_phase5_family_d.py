@@ -350,15 +350,22 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
         future = future_full.iloc[decision_idx].reset_index(drop=True)
         h_out = {}
 
+        # Intraday refits are session-based: one fit per 20 trading
+        # sessions, while predictions remain on the frozen hourly decision grid.
+        session_values = pd.Index(groups.drop_duplicates())
+        session_blocks = []
+        for s0 in range(0, len(session_values), 20):
+            block_sessions = set(session_values[s0:s0 + 20])
+            rows = np.flatnonzero(groups.isin(block_sessions).to_numpy())
+            if len(rows):
+                session_blocks.append(rows)
+
         for name in [f"D{i:02d}" for i in range(1, 16)]:
             p = np.full(len(X), np.nan)
             status = "EXECUTED"
-            for start in range(0, len(X), 20):
-                rows = np.arange(start, min(start + 20, len(X)), dtype=int)
+            for rows in session_blocks:
                 first_time = decision_times_series.iloc[rows[0]]
                 cutoff = first_time - pd.Timedelta(minutes=int(H))
-                # Compare integer nanoseconds so tz-aware and tz-naive timestamp
-                # representations cannot be mixed.
                 train_end = cutoff_train_end(decision_times, cutoff)
                 try:
                     p[rows] = fit_predict_block(name, X, y, train_end, rows, groups=groups)
