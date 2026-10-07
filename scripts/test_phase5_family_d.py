@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from run_phase5_family_d import cutoff_train_end, fit_predict_block, model, prep_fit, purged_train_end, sequence_features
+from run_phase5_family_d import cutoff_train_end, fit_predict_block, model, prep_fit, precompute_sequence_representations, purged_train_end, sequence_features
 
 
 def main():
@@ -14,6 +14,10 @@ def main():
     b, j = sequence_features(X, 20, "lag")
     assert np.array_equal(a, b) and np.array_equal(i, j)
     assert a.shape == (401, 140)
+    pre = precompute_sequence_representations(X, "lag")
+    pre2 = np.full_like(pre, np.nan)
+    pre2[i] = a
+    assert np.allclose(pre, pre2, equal_nan=True)
 
     # Session-boundary guard: windows must never cross group changes.
     groups = pd.Series(np.repeat(np.arange(3), 140))
