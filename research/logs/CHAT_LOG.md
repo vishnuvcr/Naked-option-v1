@@ -32,3 +32,13 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 User requested that the research resume from the current checkpoint. Developer re-read the Phase 2 status, research plan/protocol, method registry, error/research logs and both developer/tester branch status ledgers before continuing. Phase 2 remains the active gate; no prediction/strategy phase is allowed to start until data/PIT validation is passed.
 
 Current automated run: Phase 2 Data Audit run #60 is executing on `phase-02-developer`. Official NSE legacy/UDiFF acquisition, schema validation, snapshot generation and HF acquisition have already completed in this run; the reconciliation stage is still executing. Prior real-run failures were preserved and corrected rather than bypassed.
+
+### 2026-10-07 — Continuation from user-provided checkpoint
+
+User supplied a screenshot of the prior Phase 2C checkpoint after a conversation-length boundary and asked to continue.
+
+Developer re-read the current repository rather than trusting the screenshot as the latest state. The repository had already progressed beyond Phase 2C: Phase 2 had passed with scoped restrictions and Phase 3 protocol work existed on the phase-03 branches.
+
+The independent tester then audited the actual Phase 3 empirical package and issued REQUEST CHANGES. The developer is correcting the package on phase-03-developer only. Phase 3 remains the active gate; Phase 4 is blocked.
+
+Current correction set includes restoring the research log, wiring the full empirical workflow, requiring explicit B0-B11 dispositions, correcting intraday B3/B4/B11 semantics, adding official NSE overlap checks for the intraday research reference, and strengthening the result-schema validator.
