@@ -8,7 +8,7 @@
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
-| Phase 6 Novel methods | **IMPLEMENTATION READY — CODE GATE PENDING** | Method specification approved; tester must approve implementation/regression/workflow before empirical execution |
+| Phase 6 Novel methods | **CODE GATE PASSED — EMPIRICAL AUTHORIZED** | Tester approved implementation/workflow; empirical job is hard-gated by archived tester approval and artifact review remains mandatory |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
@@ -65,3 +65,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer implemented E01-E10/I01-I10, added causal/numerical regression tests, and created a gated workflow.
 - The empirical workflow job is blocked unless the tester approval file is present on the developer branch.
 - No Phase 6 empirical metric has been generated or accepted.
+
+
+## 2026-10-07 — Phase 6 code gate passed
+- Tester code gate `research/gates/PHASE6_CODE_APPROVAL_TESTER.md` archived on developer branch.
+- E06 implementation, cutoff-invariance test, E07 exact composite amendment and schema gate passed independent review.
+- No empirical result is accepted yet. The next hosted run must pass regression, then the gated empirical job can execute.
