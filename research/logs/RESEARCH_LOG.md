@@ -216,3 +216,9 @@
 - Frozen C01-C11 statistical/time-series definitions before empirical inspection.
 - Implemented probit, LDA/QDA, autoregressive direction, GARCH-family volatility conditioning, forward-only Gaussian regime filters, local-trend Kalman filtering and CUSUM change-point detection.
 - C10 Hawkes and C11 copula/dependence remain explicitly BLOCKED_DATA until their required PIT-safe feature layers are materialized.
+
+## 2026-10-07 — Phase 4 Family C model-output correction
+
+- Hosted Family C execution reached model fitting but failed on a pandas Series label-vs-position indexing mismatch when extracting Probit predictions.
+- Probit and LDA/QDA outputs are now normalized to NumPy arrays before scalar extraction. No model definition or training boundary changed.
+- No Family C empirical result from the failed run is accepted.
