@@ -18,7 +18,7 @@
 
 ## Point-in-time rule
 
-All training data end strictly before the decision timestamp. Test probabilities are generated with forward-only filtering; no smoothed posterior or future test observations are used.
+All training data end strictly before the decision timestamp. Test probabilities are generated with forward-only filtering; no smoothed posterior or future test observations are used. Intraday C01-C03 fitting and prediction use only the frozen hourly decision grid; the underlying one-minute path remains available for exact H-minute labels and C04/C06-C09 sequential state updates.
 
 C01-C04 use a fixed 20-session refit cadence: fit once at the first decision of each 20-session block using only observations before that block, then hold the fitted model fixed for the block. This cadence is frozen before result inspection and prevents excessive repeated refits while preserving chronological information boundaries.
 
