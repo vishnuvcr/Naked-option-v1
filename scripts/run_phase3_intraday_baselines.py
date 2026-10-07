@@ -78,7 +78,11 @@ def calibration_metrics(y,p):
     return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
 
 def fixed_bin_future_returns(p,future):
-    z=pd.DataFrame({"p":p,"future":future}).replace([np.inf,-np.inf],np.nan).dropna()
+    if future is None:
+        return {}
+    if len(p)!=len(future):
+        raise ValueError("future/p length mismatch in intraday probability-bin report")
+    z=pd.DataFrame({"p":np.asarray(p,dtype=float),"future":np.asarray(future,dtype=float)}).replace([np.inf,-np.inf],np.nan).dropna()
     bins=[-0.001,0.45,0.50,0.55,0.60,1.001]
     names=["<0.45","0.45-0.50","0.50-0.55","0.55-0.60",">=0.60"]
     out={}
