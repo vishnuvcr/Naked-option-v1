@@ -87,12 +87,16 @@ def calibration_metrics(y,p):
     model=LogisticRegression(C=1e6,solver="lbfgs",max_iter=1000).fit(lp.reshape(-1,1),yy)
     return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
 
-def fixed_bin_future_returns(p,future):
+def fixed_bin_future_returns(y,p,future):
     if future is None:
         return {}
-    if len(p)!=len(future):
-        raise ValueError("future/p length mismatch in intraday probability-bin report")
-    z=pd.DataFrame({"p":np.asarray(p,dtype=float),"future":np.asarray(future,dtype=float)}).replace([np.inf,-np.inf],np.nan).dropna()
+    if len(y)!=len(p) or len(p)!=len(future):
+        raise ValueError("y/p/future length mismatch in intraday probability-bin report")
+    z=pd.DataFrame({
+        "y":np.asarray(y,dtype=float),
+        "p":np.asarray(p,dtype=float),
+        "future":np.asarray(future,dtype=float),
+    }).replace([np.inf,-np.inf],np.nan).dropna(subset=["y","p","future"])
     bins=[-0.001,0.45,0.50,0.55,0.60,1.001]
     names=["<0.45","0.45-0.50","0.50-0.55","0.55-0.60",">=0.60"]
     out={}
@@ -117,7 +121,7 @@ def metrics(y,p,future=None):
         "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
         **calibration_metrics(y,p),
         "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
-        "future_return_by_probability_bin":fixed_bin_future_returns(p,future),
+        "future_return_by_probability_bin":fixed_bin_future_returns(y,p,future),
     }
     if len(np.unique(yy))==2:
         out["roc_auc"]=float(roc_auc_score(yy,pp))
@@ -136,6 +140,27 @@ def b7_regime_counts(df):
         "high_gt67":int((pct>0.67).sum()),
         "unclassified":int(pct.isna().sum()),
     }
+
+def pit_weekday_probability(df, y_full, h):
+    """Expanding weekday probability using only labels fully completed before decision time."""
+    ts=pd.DatetimeIndex(df["timestamp"])
+    y_arr=np.asarray(y_full,dtype=float)
+    out=np.full(len(df),0.5,dtype=float)
+    dow=df["ist"].dt.dayofweek.to_numpy()
+    label_end=ts + pd.Timedelta(minutes=h)
+    for d in np.unique(dow):
+        pos=np.flatnonzero(dow==d)
+        ends=label_end[pos].asi8
+        vals=y_arr[pos]
+        valid=np.isfinite(vals)
+        csum=np.cumsum(np.where(valid,vals,0.0))
+        ccnt=np.cumsum(valid.astype(int))
+        decision_ns=ts[pos].asi8
+        cuts=np.searchsorted(ends,decision_ns,side="left")
+        for j,cut in enumerate(cuts):
+            if cut>0 and ccnt[cut-1]>0:
+                out[pos[j]]=csum[cut-1]/ccnt[cut-1]
+    return pd.Series(out,index=df.index)
 
 def base_preds(df,h,name):
     idx=df.index
@@ -254,13 +279,10 @@ def run():
         for name,series in base_preds_full.items():
             out[str(h)][name]=metrics(y,series.loc[grid.index],fut)
 
-        # PIT-safe weekday probability: expanding training history by weekday.
-        dow=df["ist"].dt.dayofweek.astype(int)
-        cal=pd.DataFrame({"dow":dow.to_numpy(),"y":y_full.to_numpy()})
-        cal["b8"]=cal.groupby("dow")["y"].transform(
-            lambda s: s.shift(1).expanding(min_periods=1).mean()
-        ).fillna(0.5)
-        out[str(h)]["B8"]=metrics(y,pd.Series(cal["b8"].to_numpy(),index=df.index).loc[grid.index],fut)
+        # PIT-safe weekday probability: only labels whose H-minute future endpoint
+        # is strictly before the current decision timestamp may enter the estimate.
+        b8=pit_weekday_probability(df,y_full,h)
+        out[str(h)]["B8"]=metrics(y,b8.loc[grid.index],fut)
 
         # B2 is an intraday decision feature derived from the prior completed session return.
         out[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
