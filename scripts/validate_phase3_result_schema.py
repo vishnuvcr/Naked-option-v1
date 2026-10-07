@@ -36,10 +36,19 @@ def check_horizon_block(block, label):
 daily = load("phase3_daily_baseline_results.json")
 intraday = load("phase3_intraday_baseline_results.json")
 
-for h, block in daily.get("horizons", {}).items():
+expected_daily = {"1","2","3","5","10"}
+expected_intraday = {"5","15","30","60","120"}
+daily_h = set(daily.get("horizons", {}))
+intraday_h = set(intraday.get("horizons", {}))
+if daily_h != expected_daily:
+    raise SystemExit(f"ERROR: daily horizon set mismatch: {sorted(daily_h)}")
+if intraday_h != expected_intraday:
+    raise SystemExit(f"ERROR: intraday horizon set mismatch: {sorted(intraday_h)}")
+
+for h, block in daily["horizons"].items():
     check_horizon_block(block, f"daily horizon {h}")
 
-for h, block in intraday.get("horizons", {}).items():
+for h, block in intraday["horizons"].items():
     check_horizon_block(block, f"intraday horizon {h}")
 
 if daily.get("data_rows", 0) <= 0:
