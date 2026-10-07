@@ -59,3 +59,16 @@ Developer rechecked the live run rather than treating the prior checkpoint as fi
 ### 2026-10-07 — Another user continuation of Family D
 
 User again authorized continuation. Developer rechecked hosted run #19 and confirmed the empirical D01-D15 suite is still active. No result promotion or tester gate is possible before immutable artifact creation.
+
+
+### 2026-10-07 — Family D run #19 live verification checkpoint
+
+Developer re-read the active Phase 5 status and logs before taking the next action. Hosted run #19 (37611880308), job 112760881845, remains `in_progress`.
+
+- Steps through Family D regression tests are complete and successful.
+- The full D01-D15 empirical suite remains the active step.
+- Result-schema validation and immutable artifact upload have not started.
+- No Family D metric is accepted.
+- Phase 6 remains blocked pending the immutable artifact and independent tester audit.
+
+This is a monitoring checkpoint only; no scientific conclusion or promotion was made.
