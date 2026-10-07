@@ -7,10 +7,10 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Phase 2 passed the independent tester gate with explicit source restrictions.
 - Phase 3 passed the independent tester gate with scoped data restrictions.
 - Phase 4 Family B passed with VWAP blocked for missing PIT-safe volume; Family C passed with C10/C11 blocked for missing PIT-safe feature layers.
-- Phase 5 Family D is active. Protocol review passed, but hosted Family D run #1 was rejected before empirical execution because its regression gate failed.
+- Phase 5 Family D is active. The initial empirical lineage has been rejected/invalidated before accepted evidence because of deterministic regression, timestamp, and runtime-control defects; all are logged and preserved.
 - The failed run is preserved as rejected evidence; no Family D metric from it is accepted.
-- An independent tester report is archived at [PHASE5_RUN1_TESTER](research/gates/PHASE5_RUN1_TESTER.md).
-- The corrected developer head is under a fresh hosted regression/empirical gate. No Phase 6 transition is permitted until the independent tester signs off.
+- Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
+- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. A fresh hosted Family D run is queued/active. No Phase 6 transition is permitted until the independent tester signs off.
 - The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
 
 ### Current Phase 5 scope
