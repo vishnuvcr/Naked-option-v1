@@ -83,3 +83,9 @@
 - Daily B1 persistence is now based on the immediately preceding session direction rather than the forecast horizon.
 - Intraday B2 is now executed from the previous completed session return.
 - Intraday logistic refits are limited to the frozen decision grid while label and feature construction continues to use the full 1-minute path.
+
+## 2026-10-07 — Phase 3 metric-alignment correction
+
+- The hosted run exposed a length mismatch in the fixed probability-bin future-return diagnostic after NaN metric masking.
+- The diagnostic now applies the same finite-value mask to predictions, labels and future returns, and explicitly rejects any vector-length mismatch.
+- No empirical result from the failed run is retained as an accepted research result.
