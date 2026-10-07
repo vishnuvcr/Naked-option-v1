@@ -9,7 +9,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Official NSE EOD acquisition is now batchable by year with raw-data caching and compact NIFTY-only Parquet outputs.
 - India VIX historical acquisition, free global/rates history, effective-dated lot-size validation and FII/DII quarantine are now part of the Phase 2C gate.
 - Phase 3 remains blocked until the independent tester passes the full bulk-data/PIT gate.
-- Phase 2C run #22 confirms the Hang Seng public GitHub snapshot is the most reliable free fallback in this CI environment, so S28 now uses that fixed-commit source first and retains live feeds as fallbacks. Its shorter verified tail remains explicit; no paid source or acceptance-threshold relaxation is being used.
+- Phase 2C run #23 showed the global source chain could spend excessive CI time on sequential live requests; S25-S27 now try public FRED series first and S28 uses its fixed-commit HSI snapshot first, with Stooq/Yahoo retained as free fallbacks. No paid source or acceptance-threshold relaxation is being used.
 
 ### Latest Phase 2 execution
 

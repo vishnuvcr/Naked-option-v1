@@ -142,19 +142,17 @@ for sid,config in SERIES.items():
     errors=[]
 
     candidates=[]
-    # S28 has an immutable public GitHub daily-close snapshot that is already
-    # verified through 2026-05-28; use it first to avoid spending CI time on
-    # repeatedly failing live endpoints, while retaining them as fallbacks.
+    # Prefer deterministic public snapshots over repeatedly failing live feeds
+    # in the GitHub Actions environment. FRED is preferred for S25-S27; S28
+    # uses the fixed-commit HSI snapshot first.
     if sid=="S28" and "github_raw" in config:
         candidates.append(("github_raw",config["github_raw"],None))
-    if "stooq" in config:
-        candidates.append(("stooq",config["stooq"],None))
     for fid in config.get("fred_ids",[]):
         candidates.append(("fred",f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={fid}&cosd={START.isoformat()}&coed={END.isoformat()}",fid))
+    if "stooq" in config:
+        candidates.append(("stooq",config["stooq"],None))
     if "yahoo" in config:
         candidates.append(("yahoo_chart_api",None,config["yahoo"]))
-    if "github_raw" in config:
-        candidates.append(("github_raw",config["github_raw"],None))
 
     for provider,url,extra in candidates:
         try:

@@ -99,3 +99,9 @@
 - The verified HSI GitHub snapshot is deterministic and provenance-locked, while the tested live S28 endpoints have repeatedly returned no data or 404s.
 - To prevent unnecessary CI time and repeated network failures, S28 now selects the fixed-commit GitHub dataset first and retains live feeds as fallback alternatives.
 - The source's shorter verified tail remains explicit; no synthetic extension is introduced.
+
+## 2026-10-07 — Phase 2C run #23 runtime correction
+
+- Run #23 did not reach a data-quality conclusion because the global acquisition spent extended CI time on sequential Stooq window requests.
+- Because FRED global equity series are predeclared and free, they are now attempted before Stooq for S25-S27. The deterministic fixed-commit HSI snapshot remains first for S28.
+- Stooq and Yahoo remain free fallbacks. No acceptance threshold is changed; this is an execution-order optimization to make the finite Phase 2 gate complete reliably.
