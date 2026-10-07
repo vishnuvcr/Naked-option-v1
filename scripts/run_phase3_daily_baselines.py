@@ -13,7 +13,7 @@ from sklearn.metrics import (
 )
 
 ROOT=Path(__file__).resolve().parents[1]
-DATA=ROOT/"data/cache/raw/phase3/nse_index_archives/nifty50_daily.csv"
+DATA=ROOT/"data/cache/raw/phase3/nifty50_daily.csv"
 OUT=ROOT/"data/reports"
 OUT.mkdir(parents=True,exist_ok=True)
 
@@ -79,6 +79,18 @@ def calibration_metrics(y,p):
     model=LogisticRegression(C=1e6,solver="lbfgs",max_iter=1000).fit(lp.reshape(-1,1),y)
     return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
 
+def fixed_bin_future_returns(y,p,future):
+    if future is None:
+        return {}
+    z=pd.DataFrame({"p":p,"future":future}).replace([np.inf,-np.inf],np.nan).dropna()
+    bins=[-0.001,0.45,0.50,0.55,0.60,1.001]
+    names=["<0.45","0.45-0.50","0.50-0.55","0.55-0.60",">=0.60"]
+    out={}
+    for lo,hi,name in zip(bins[:-1],bins[1:],names):
+        m=(z["p"]>=lo)&(z["p"]<hi if hi<1 else z["p"]<=hi)
+        out[name]={"n":int(m.sum()),"mean_future_return":float(z.loc[m,"future"].mean()) if m.any() else None}
+    return out
+
 def metrics(y, p, future=None):
     y=np.asarray(y,dtype=float)
     p=np.asarray(p,dtype=float)
@@ -99,6 +111,7 @@ def metrics(y, p, future=None):
         "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
         **calibration_metrics(y,p),
         "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
+        "future_return_by_probability_bin":fixed_bin_future_returns(y,p,future),
     }
     if len(np.unique(y))==2:
         out["roc_auc"]=float(roc_auc_score(y,p))
@@ -131,7 +144,7 @@ def prediction_series(name,df,h,features=None):
         p.iloc[:]=0.5
         return p
     if name=="B1":
-        prev=df["log_close"].diff(h).shift(0)
+        prev=df["ret_1"]
         p=np.where(prev>0,0.55,np.where(prev<0,0.45,0.5))
         return pd.Series(p,index=df.index)
     if name=="B2":
