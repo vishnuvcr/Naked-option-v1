@@ -54,6 +54,11 @@ def main():
     assert bins1 == bins2
     assert all(0 <= b < 4 for b in bins1)
 
+    # Intraday cutoff regression: decision_times is a DatetimeIndex, so positional access must work.
+    decision_times = pd.date_range("2026-01-01 09:15", periods=5, freq="h")
+    cutoff = decision_times[2] - pd.Timedelta(minutes=15)
+    assert cutoff == pd.Timestamp("2026-01-01 11:00")
+
     # E06 training cutoff must be invariant to any mutation after train_end.
     e06_x = np.random.default_rng(123).normal(0.0, 0.01, size=420)
     e06_y = (np.random.default_rng(124).normal(size=420) > 0).astype(int)
