@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — RUN #16 NON-ACCEPTED; D07 CORRECTED; FRESH HOSTED RUN REQUIRED** | D07 amendment tester-approved; fresh artifact and final empirical tester gate required |
+| Phase 5 Statistical/ML | **ACTIVE — FRESH HOSTED RUN #19 EMPIRICAL SUITE IN PROGRESS** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
@@ -24,7 +24,7 @@ Last updated: 2026-10-07
 - Protocol amendment for intraday refit cadence was independently passed at `research/gates/PHASE5_PROTOCOL_AMENDMENT_TESTER.md`.
 - Intraday Family D now refits once per 20 trading sessions and predicts on the frozen hourly decision grid.
 - The previous Family D runs that failed regression or empirical execution are rejected evidence and are not used for selection.
-- Hosted Family D run #16 (`37606785909`) is preserved as non-accepted evidence because the frozen D07 wording did not exactly match the calibrated-meta-stack implementation. The tester-approved D07 clarification and regression pin are now on `phase-05-developer`; a fresh hosted run must complete before empirical metrics are accepted.
+- Hosted Family D run #16 (`37606785909`) is preserved as non-accepted evidence because the frozen D07 wording did not exactly match the calibrated-meta-stack implementation. Tester gate `research/gates/PHASE5_D07_POST_AMENDMENT_TESTER.md` authorized fresh execution. Hosted run #19 (`37611880308`) has passed the mandatory regression gate and is currently executing the empirical D01-D15 suite. No metric is accepted yet.
 - Phase 6 remains blocked until the independent tester reviews an immutable Family D artifact and issues a gate decision.
 
 ## Research continuity rule
