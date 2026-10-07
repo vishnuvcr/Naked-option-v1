@@ -8,12 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    roc_auc_score,
-    average_precision_score,
-    brier_score_loss,
-    log_loss,
+    accuracy_score, balanced_accuracy_score, roc_auc_score,
+    average_precision_score, brier_score_loss, log_loss, confusion_matrix,
 )
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -57,7 +53,33 @@ def make_label(df,h):
     y=np.where(future>0,1,np.where(future<0,0,np.nan))
     return pd.Series(y,index=df.index),future
 
-def metrics(y, p):
+def block_bootstrap_accuracy(y, p, block_len=20, reps=200, seed=42):
+    y=np.asarray(y,dtype=float); p=np.asarray(p,dtype=float)
+    m=np.isfinite(y)&np.isfinite(p); y=y[m].astype(int); p=p[m]
+    if len(y)<block_len:
+        return {"lower":None,"upper":None,"median":None}
+    rng=np.random.default_rng(seed)
+    blocks=[np.arange(i,min(i+block_len,len(y))) for i in range(0,len(y),block_len)]
+    vals=[]
+    for _ in range(reps):
+        sel=rng.integers(0,len(blocks),size=len(blocks))
+        idx=np.concatenate([blocks[j] for j in sel])[:len(y)]
+        vals.append(float(np.mean((p[idx]>=0.5)==y[idx])))
+    return {"lower":float(np.quantile(vals,0.025)),"upper":float(np.quantile(vals,0.975)),"median":float(np.median(vals))}
+
+def calibration_metrics(y,p):
+    y=np.asarray(y,dtype=float); p=np.asarray(p,dtype=float)
+    m=np.isfinite(y)&np.isfinite(p); y=y[m].astype(int); p=np.clip(p[m],1e-6,1-1e-6)
+    if len(y)==0:
+        return {"calibration_slope":None,"calibration_intercept":None}
+    lp=np.log(p/(1-p))
+    if np.ptp(lp)<1e-12:
+        rate=float(y.mean())
+        return {"calibration_slope":None,"calibration_intercept":float(np.log(rate/(1-rate))) if 0<rate<1 else None}
+    model=LogisticRegression(C=1e6,solver="lbfgs",max_iter=1000).fit(lp.reshape(-1,1),y)
+    return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
+
+def metrics(y, p, future=None):
     y=np.asarray(y,dtype=float)
     p=np.asarray(p,dtype=float)
     m=np.isfinite(y)&np.isfinite(p)
@@ -65,13 +87,18 @@ def metrics(y, p):
     if len(y)==0:
         return {"n":0}
     pred=(p>=0.5).astype(int)
+    cm=confusion_matrix(y,pred,labels=[0,1]).ravel()
     out={
+        "status":"EXECUTED",
         "n":int(len(y)),
         "positive_rate":float(y.mean()),
         "accuracy":float(accuracy_score(y,pred)),
         "balanced_accuracy":float(balanced_accuracy_score(y,pred)),
         "brier":float(brier_score_loss(y,p)),
         "log_loss":float(log_loss(y,p,labels=[0,1])),
+        "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
+        **calibration_metrics(y,p),
+        "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
     }
     if len(np.unique(y))==2:
         out["roc_auc"]=float(roc_auc_score(y,p))
@@ -84,15 +111,8 @@ def metrics(y, p):
 def deterministic_features(df,h):
     x=pd.DataFrame(index=df.index)
     x["ret_1"]=df["ret_1"]
-    x["ret_h"]=df["log_close"].diff(h)
     x["vol20"]=df["ret_1"].rolling(20).std()
-    x["ma5_gap"]=np.log(df["close"]/df["close"].rolling(5).mean())
-    x["ma20_gap"]=np.log(df["close"]/df["close"].rolling(20).mean())
-    x["range20_pos"]=(df["close"]-df["low"].rolling(20).min())/(df["high"].rolling(20).max()-df["low"].rolling(20).min())
     x["gap"]=df["gap"]
-    x["dow"]=df["date"].dt.dayofweek
-    x["month_end"]=(df["date"].dt.day>=25).astype(float)
-    x["is_expiry_placeholder"]=(df["date"].dt.weekday==3).astype(float)
     return x
 
 def b7_regime_counts(df):
@@ -142,7 +162,7 @@ def prediction_series(name,df,h,features=None):
 def logistic_walkforward(df,h):
     y,_=make_label(df,h)
     X=deterministic_features(df,h)
-    cols=["ret_1","ret_h","vol20","ma5_gap","ma20_gap","range20_pos","gap","dow","month_end"]
+    cols=["ret_1","vol20","gap"]
     out=np.full(len(df),np.nan)
     train_start=max(252,20*h+20)
     for i in range(train_start,len(df)):
@@ -183,8 +203,13 @@ def run():
         }}
         for name in ["B0","B1","B2","B5","B6","B7","B8"]:
             p=prediction_series(name,df,h)
-            result[str(h)][name]=metrics(y,p)
-        result[str(h)]["B11"]=metrics(y,logistic_walkforward(df,h))
+            result[str(h)][name]=metrics(y,p,future)
+
+        result[str(h)]["B3"]={"status":"NOT_APPLICABLE","reason":"B3 is defined as intraday gap sign only"}
+        result[str(h)]["B4"]={"status":"NOT_APPLICABLE","reason":"B4 is defined as intraday momentum only"}
+        result[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
+        result[str(h)]["B10"]={"status":"BLOCKED_DATA","reason":"PIT-safe historical NSE breadth observations are not yet materialized in Phase 3"}
+        result[str(h)]["B11"]=metrics(y,logistic_walkforward(df,h),future)
         result[str(h)]["B7_regime_counts"]=b7_regime_counts(df)
     out={"data_rows":len(df),"date_start":df["date"].min().date().isoformat(),"date_end":df["date"].max().date().isoformat(),"horizons":result}
     (OUT/"phase3_daily_baseline_results.json").write_text(json.dumps(out,indent=2,allow_nan=False),encoding="utf-8")
