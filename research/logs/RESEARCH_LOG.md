@@ -201,3 +201,12 @@
 - The first Family B hosted run reached method execution but failed because directional signals (-1/0/1) were passed directly to probability-based metrics.
 - The fixed protocol mapping is now applied consistently: bullish 0.55, bearish 0.45, neutral 0.50.
 - No Family B empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 4 Family B tester gate passed
+
+- Independent tester passed Family B with one scoped restriction: B09 VWAP remains BLOCKED_DATA because the canonical NIFTY spot layer lacks PIT-safe volume.
+- Apparent classical-signal deviations are retained as research leads only; no strategy is promoted before later robustness and option-execution gates.
+
+## 2026-10-07 — Phase 4 Family C initialized
+
+- Family C statistical/time-series methods are now being frozen and tested on the phase-04-developer branch.
