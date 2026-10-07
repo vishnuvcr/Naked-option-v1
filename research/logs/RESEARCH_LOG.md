@@ -31,3 +31,10 @@ The repository records research decisions, user requirements, experiment outcome
 - The prior I07 PE direction error and I03 raw-volatility scaling problem were fixed; deterministic rank binning and estimator edge guards were also sufficient.
 - Tester disposition: **APPROVED FOR PHASE 6 IMPLEMENTATION AND PRE-EMPIRICAL TESTING**.
 - The next required gate is code/regression inspection before any empirical run.
+
+
+## 2026-10-07 — Phase 6 implementation tester review
+- Independent tester reviewed the developer implementation package without modifying developer code.
+- Found a definite E06 NameError path from inconsistent `train_sorted`/`train_reference` naming.
+- Required a stronger E06 training-cutoff invariance test, exact E07 composite definition, and stronger schema validation.
+- Tester gate: **REQUEST CHANGES**. Empirical execution remains blocked.
