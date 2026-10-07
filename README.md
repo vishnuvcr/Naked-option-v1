@@ -10,7 +10,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Phase 5 Family D is active. The initial empirical lineage has been rejected/invalidated before accepted evidence because of deterministic regression, timestamp, and runtime-control defects; all are logged and preserved.
 - The failed run is preserved as rejected evidence; no Family D metric from it is accepted.
 - Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
-- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. A fresh hosted Family D run is queued/active. No Phase 6 transition is permitted until the independent tester signs off.
+- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. A fresh hosted Family D run #16 is active. No Phase 6 transition is permitted until the independent tester signs off.
 - The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
 
 ### Current Phase 5 scope
@@ -37,6 +37,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
 - [Error log](research/logs/ERROR_LOG.md)
 - [Phase 5 run-1 error record](research/logs/PHASE5_RUN1_ERROR.md)
+- [Phase 5 sequence precompute tester gate](research/gates/PHASE5_SEQUENCE_PRECOMPUTE_TESTER.md)
 - [Decision/chat log](research/logs/CHAT_LOG.md)
 - [Phase 5 resume chat log](research/logs/CHAT_LOG_PHASE5_20261007.md)
 - [Gate reports](research/gates/)
