@@ -22,3 +22,10 @@ Last updated: 2026-10-07
 - Current developer correction set was independently checked for C04 AR innovation-variance handling, C06/C07 transition-predicted priors and H-step moments, C08 H-step propagation, C09 persistent state, C05 horizon interpretation, and regression-test wiring.
 - Review disposition: **PENDING / NOT APPROVED** until the current hosted rerun completes and its current artifact is independently inspected.
 - Phase 5 remains blocked.
+
+
+## 2026-10-07 — Family D run #23 independent artifact gate
+- Developer run #23 (`37642007846`) completed successfully with immutable artifact `11499450561`.
+- Tester independently verified artifact SHA-256, schema, 150-cell coverage, confusion-matrix/metric reconciliation, D07 calibration isolation, and D13-D15 full-1-minute causal/session-local sequence coverage.
+- Tester disposition: **PASS WITH SCOPED RESTRICTIONS**; gate report: `research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md`.
+- No model is promoted. Option economics, execution costs, robustness/multiple-testing and fresh-forward gates remain mandatory.
