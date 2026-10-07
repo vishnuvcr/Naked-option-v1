@@ -1,8 +1,10 @@
-# Phase 6 Novel-Method Scope — Developer Submission
+# Phase 6 Novel-Method Scope — Developer Resubmission
 
 Date: 2026-10-07
 Developer branch: `phase-05-developer`
 Precondition: Family D run #23 tester gate = PASS WITH SCOPED RESTRICTIONS.
+Previous tester decision: REQUEST CHANGES on under-specified exact method definitions.
+Frozen method specification: `research/phase6/PHASE6_METHOD_SPEC.md`.
 
 ## Purpose
 
@@ -90,3 +92,12 @@ Independently review whether this scope is consistent with the registry, protoco
 ## Tester instruction
 
 Return PASS / REQUEST CHANGES with concrete reasons before any Phase 6 empirical implementation or workflow execution.
+
+
+## Corrections from tester request-changes
+The exact E01-E10 and I01-I10 mathematical/algorithmic definitions are now frozen in `research/phase6/PHASE6_METHOD_SPEC.md`. The specification fixes estimator windows, discretization, thresholds, state rules, component sets, weights, seeds, backoff rules and BLOCKED_DATA semantics before empirical inspection.
+
+The developer also accepts the tester-mandated causal mutation tests for every derived rolling/information feature, explicit no-centered-window checks, training-only binning/normalization assertions, deterministic regime/backoff tests, fixed-constant assertions and probability-range checks.
+
+## Resubmission request to tester
+Independently review `research/phase6/PHASE6_METHOD_SPEC.md` against the registry and protocol. Do not treat the specification as approved merely because it is deterministic; check for mathematical/sign/causality problems and data-availability contradictions before granting empirical execution.
