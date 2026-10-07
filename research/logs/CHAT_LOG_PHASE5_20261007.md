@@ -86,3 +86,17 @@ Run #19 is classified as non-evidence. The successful regression result is retai
 
 ## Next gate
 Developer must investigate the runtime/cancellation cause and submit any correction to the independent tester before a new empirical run. Phase 6 remains blocked.
+### 2026-10-07 — Immediate check and runtime correction
+
+## User
+“Check now”
+
+## Developer action
+Checked the live Family D run #19. It had completed as `cancelled` after the 90-minute configured job timeout; the empirical suite was cancelled and no artifact was produced. Run #19 was classified as non-evidence.
+
+The tester approved a runtime-only amendment. The developer changed the workflow hard timeout to 180 minutes and added progress markers without changing scientific definitions.
+
+A push automatically started the fresh Family D workflow (run id 37626101730). Its protocol check passed and the Family D job is now running.
+
+## Gate
+No metric is accepted. The independent tester artifact gate remains mandatory.
