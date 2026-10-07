@@ -60,6 +60,37 @@ def parse_csv_rows(raw: bytes) -> tuple[list[str],int]:
             pass
     return dates,valid_values
 
+def stooq_window_csv(base_url: str) -> bytes:
+    chunks=[]
+    cur=START
+    while cur<=END:
+        stop=min(cur+dt.timedelta(days=179),END)
+        url=base_url+f"&d1={cur:%Y%m%d}&d2={stop:%Y%m%d}"
+        raw=fetch_bytes(url)
+        text=raw.decode("utf-8-sig",errors="replace")
+        reader=csv.DictReader(text.splitlines())
+        rows=list(reader)
+        if not rows:
+            raise ValueError(f"stooq_empty_chunk:{cur}:{stop}")
+        for row in rows:
+            value=row.get("Date") or row.get("DATE")
+            if value:
+                row["_date"] = str(value).strip()[:10]
+                chunks.append(row)
+        cur=stop+dt.timedelta(days=1)
+    if not chunks:
+        raise ValueError("stooq_no_chunk_observations")
+    fields=[k for k in chunks[0].keys() if k!="_date"]
+    seen=set()
+    out=[",".join(fields)]
+    for row in chunks:
+        d=row.get("_date","")
+        if d in seen:
+            continue
+        seen.add(d)
+        out.append(",".join(str(row.get(k,"")) for k in fields))
+    return ("\n".join(out)+"\n").encode("utf-8")
+
 def yahoo_csv(symbol: str) -> bytes:
     p1=int(dt.datetime.combine(START,dt.time.min,tzinfo=dt.timezone.utc).timestamp())
     p2=int(dt.datetime.combine(END+dt.timedelta(days=1),dt.time.min,tzinfo=dt.timezone.utc).timestamp())
@@ -121,13 +152,13 @@ for sid,config in SERIES.items():
     for provider,url,extra in candidates:
         try:
             if provider=="stooq":
-                path=RAW/f"{sid}_stooq_{START}_{END}.csv"
+                path=RAW/f"{sid}_stooq_windowed_{START}_{END}.csv"
                 if path.exists() and path.stat().st_size>0:
                     raw=path.read_bytes(); hit=True
                     dates,valid=parse_csv_rows(raw)
                     if not dates or valid==0: raise ValueError("cached_stooq_unusable")
                 else:
-                    raw=fetch_bytes(url); hit=False
+                    raw=stooq_window_csv(url); hit=False
                     dates,valid=write_and_check(path,raw)
             elif provider=="fred":
                 fid=extra

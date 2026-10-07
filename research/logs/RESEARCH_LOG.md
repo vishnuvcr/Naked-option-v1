@@ -80,3 +80,9 @@
 - The global validator now requires every selected global/rates record to report a provider and non-zero numeric observations.
 - Cache-hit metadata was also corrected so it reflects whether the selected raw file was actually read from an existing cache.
 - No paid source has been introduced and no scientific threshold has been relaxed. The Phase 2 gate remains open pending a successful contextual run and tester reproduction.
+
+## 2026-10-07 — Phase 2C run #20 Hang Seng source diagnosis
+
+- Run #20 failed only at S28 (Hang Seng) after the free chain exhausted: long-window Stooq returned no observations, FRED candidates returned 404, and Yahoo returned 404.
+- The earlier Stooq probe had worked on a short historical window, so the most conservative next free-source action is to preserve Stooq but request it in 180-day chunks, then merge the chunks by date with duplicate protection.
+- No paid source has been tried. The FRED/Yahoo alternatives remain available as fallbacks.
