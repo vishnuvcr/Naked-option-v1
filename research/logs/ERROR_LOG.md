@@ -142,3 +142,6 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-07 | 6 | Phase 6 scope under-specified exact E/I method definitions | Registry method names and high-level scope did not freeze windows, estimators, thresholds, weights and composition rules tightly enough for reproducible pre-registration | Added frozen `research/phase6/PHASE6_METHOD_SPEC.md` covering E01-E10/I01-I10, fixed configurations, BLOCKED_DATA rules and mandatory causal regression tests; resubmitted to tester | Pending tester recheck |
+
+
+| 2026-10-07 | 6 | Phase 6 method-spec mathematical defects | Tester found I07 used the wrong/ambiguous favorable-direction event for puts and I03 divided a bounded persistence score by raw volatility, causing likely saturation; quantile and estimator edge guards were also incomplete | Corrected PE/CE break-even events, made I03 dimensionless via volatility ratio, fixed deterministic rank binning and added entropy/MFDFA/state-transition numerical guards | Pending tester recheck |
