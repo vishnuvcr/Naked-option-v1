@@ -111,3 +111,10 @@
 - Run #24 finally reached the deterministic S28 GitHub snapshot immediately, confirming the candidate-order optimization worked.
 - The source itself was valid, but its schema uses lowercase `date`; the parser only accepted `Date` and `DATE`, causing a false no-observation failure.
 - The correction adds lowercase `date` support. This is a parsing-only fix and preserves the verified source's actual coverage through 2026-05-28 without fabricating later dates.
+
+## 2026-10-07 — Phase 2C run #25 gate failure diagnosis
+
+- Run #25 is the first corrected run in which all eight official NSE year jobs and the contextual job passed, producing the expected artifacts.
+- The gate then failed before PIT/lot-size/bulk checks because `validate_phase2_static.py` still inspected the legacy `phase-02-data-audit.yml` workflow file for the newer Phase 2C markers.
+- This is a governance/CI validator defect, not a data-quality failure. The fix makes the static validator check both workflow generations with separate required-marker sets.
+- Phase 2 remains open pending rerun and tester verification of the actual gate outputs.

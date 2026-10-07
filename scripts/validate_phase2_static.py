@@ -53,9 +53,22 @@ req=ROOT/"requirements-phase2.txt"
 if "pyarrow" not in req.read_text(encoding="utf-8").lower():
     raise SystemExit("ERROR: Phase 2 parquet dependency missing")
 
-wf=(ROOT/".github/workflows/phase-02-data-audit.yml").read_text(encoding="utf-8")
-for marker in ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","acquire_global_reference_window.py","validate_lot_size_udiff.py","validate_lot_size_history.py","acquire_india_vix_snapshot.py","acquire_vix_history.py","validate_vix_history.py","acquire_fii_dii_snapshot.py","build_nifty_eod_parquet_year.py","validate_phase2c_completeness.py"]:
-    if marker not in wf:
-        raise SystemExit(f"ERROR: Phase 2 workflow missing {marker}")
+workflow_specs=[
+    (
+        ROOT/".github/workflows/phase-02-data-audit.yml",
+        ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","validate_lot_size_udiff.py","acquire_india_vix_snapshot.py","acquire_fii_dii_snapshot.py","validate_phase2c_completeness.py"],
+    ),
+    (
+        ROOT/".github/workflows/phase-02c-bulk.yml",
+        ["workflow_dispatch","data/cache/raw","acquire_vix_history.py","validate_vix_history.py","acquire_global_reference_window.py","acquire_fii_dii_snapshot.py","build_nifty_eod_parquet_year.py","validate_lot_size_history.py","validate_phase2c_bulk_reports.py"],
+    ),
+]
+for wf_path,markers in workflow_specs:
+    if not wf_path.exists():
+        raise SystemExit(f"ERROR: missing Phase 2 workflow {wf_path}")
+    wf=wf_path.read_text(encoding="utf-8")
+    for marker in markers:
+        if marker not in wf:
+            raise SystemExit(f"ERROR: {wf_path.name} missing {marker}")
 
 print("PASS: Phase 2 static syntax, manifest, dependency and workflow checks")

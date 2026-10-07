@@ -47,3 +47,7 @@ Developer actions recorded:
 - updated the isolated Phase 2C tester branch with an independent correction review marked **PASS WITH DATA EXECUTION PENDING**.
 
 Current decision: Phase 2 data gate remains OPEN. No Phase 3 prediction testing is permitted yet.
+
+### 2026-10-07 — “Ok proceed” continuation and Phase 2C run #25 checkpoint
+
+User again instructed the research to proceed. The developer continued Phase 2C rather than advancing phases. The corrected data run #25 successfully acquired and validated all eight official NSE NIFTY yearly datasets plus India VIX, global/rates context and the live FII/DII snapshot. The gate stopped on a stale static-workflow validator that checked the legacy Phase 2 workflow instead of the active Phase 2C workflow. This is logged as a CI/governance defect and is being corrected without changing data-quality thresholds. Phase 3 remains blocked.
