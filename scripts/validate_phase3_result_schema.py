@@ -29,6 +29,13 @@ def check_horizon_block(block, label):
             raise SystemExit(f"ERROR: {label} {bid} invalid status {status}")
         if status == "EXECUTED" and "n" not in item:
             raise SystemExit(f"ERROR: {label} {bid} executed without metrics")
+        if status == "EXECUTED":
+            bins=item.get("future_return_by_probability_bin")
+            if not isinstance(bins,dict):
+                raise SystemExit(f"ERROR: {label} {bid} missing probability-bin diagnostics")
+            bin_n=sum(int(v.get("n",0)) for v in bins.values() if isinstance(v,dict))
+            if bin_n != int(item["n"]):
+                raise SystemExit(f"ERROR: {label} {bid} probability-bin denominator {bin_n} != metric n {item['n']}")
         if status == "BLOCKED_DATA" and not item.get("reason"):
             raise SystemExit(f"ERROR: {label} {bid} blocked without reason")
 
@@ -57,3 +64,12 @@ if intraday.get("full_rows", 0) <= 0:
     raise SystemExit("ERROR: intraday baseline has no data rows")
 
 print("PASS: Phase 3 result packet contains an explicit disposition for every B0-B11 baseline.")
+
+
+# Static B8 PIT-control guard: the leaked row-shift/expanding pattern is forbidden.
+source=(ROOT / "scripts/run_phase3_intraday_baselines.py").read_text(encoding="utf-8")
+for forbidden in ['groupby("dow")["y"].transform', 'shift(1).expanding(min_periods=1).mean()']:
+    if forbidden in source:
+        raise SystemExit(f"ERROR: intraday B8 contains forbidden PIT-unsafe pattern: {forbidden}")
+if "pit_weekday_probability" not in source:
+    raise SystemExit("ERROR: intraday B8 PIT-safe helper is missing")
