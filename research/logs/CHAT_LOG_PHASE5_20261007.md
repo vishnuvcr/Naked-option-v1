@@ -65,3 +65,13 @@ Rechecked the live Family D hosted run #19 state before taking any new research 
 
 ## Gate discipline
 No phase transition or model selection is performed while the empirical artifact is incomplete. The independent tester gate remains mandatory after artifact creation.
+### 2026-10-07 — User requested continued monitoring
+
+## User
+“Ok keep monitoring”
+
+## Developer action
+Rechecked Family D hosted run #19 (`37611880308`). The workflow remains in progress on commit `c8603d76efcae7d555e7bc61432f077c72c46e0a`. Regression, cache restoration and acquisitions remain successful; the empirical D01-D15 suite is still active. No artifact exists and no metric is accepted.
+
+## Gate discipline
+Continue monitoring the active run. On artifact completion, perform the independent tester audit before any promotion or phase transition.
