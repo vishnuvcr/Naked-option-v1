@@ -235,15 +235,12 @@ def run():
             out[str(h)][name]=metrics(y,series.loc[grid.index],fut)
 
         # PIT-safe weekday probability: expanding training history by weekday.
-        b8=np.full(len(df),np.nan)
-        dow=df["ist"].dt.dayofweek.to_numpy()
-        yy=y_full.to_numpy()
-        for i in range(len(df)):
-            d=dow[i]
-            past=(dow[:i]==d)
-            valid=past & np.isfinite(yy)
-            b8[i]=float(np.mean(yy[valid])) if valid.any() else 0.5
-        out[str(h)]["B8"]=metrics(y,pd.Series(b8,index=df.index).loc[grid.index],fut)
+        dow=df["ist"].dt.dayofweek.astype(int)
+        cal=pd.DataFrame({"dow":dow.to_numpy(),"y":y_full.to_numpy()})
+        cal["b8"]=cal.groupby("dow")["y"].transform(
+            lambda s: s.shift(1).expanding(min_periods=1).mean()
+        ).fillna(0.5)
+        out[str(h)]["B8"]=metrics(y,pd.Series(cal["b8"].to_numpy(),index=df.index).loc[grid.index],fut)
 
         # B2 is an intraday decision feature derived from the prior completed session return.
         out[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
