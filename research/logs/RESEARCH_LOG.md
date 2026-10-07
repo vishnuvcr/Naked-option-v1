@@ -112,3 +112,9 @@
 - Hosted Phase 3 execution exposed a pandas boolean-mask alignment error in the daily logistic baseline after the horizon purge.
 - The training feature matrix is now sliced exactly to the purged training endpoint before applying the label/feature completeness mask, eliminating index expansion and preserving the intended chronology.
 - No empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 3 intraday label-index correction
+
+- Hosted execution reached the intraday baseline suite but exposed an index mismatch between timestamp-indexed labels and integer-indexed decision-grid rows.
+- The label constructor now retains timestamps only for horizon lookup and emits result series on the source row index, eliminating the selection mismatch without changing label timing.
+- No intraday empirical result from the failed run is accepted.
