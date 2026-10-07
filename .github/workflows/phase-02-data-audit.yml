@@ -1,0 +1,133 @@
+name: Phase 2 — Data Audit
+
+concurrency:
+  group: phase2-data-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - phase-02-developer
+      - developer
+      - phase-02-tester
+      - tester
+  pull_request:
+    branches:
+      - developer
+      - tester
+  workflow_dispatch:
+
+jobs:
+  data-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Phase 2 dependencies
+        run: python -m pip install -r requirements-phase2.txt
+
+      - name: Cache raw research data
+        uses: actions/cache@v4
+        with:
+          path: data/cache/raw
+          key: phase2-raw-${{ hashFiles('research/data/SOURCE_MANIFEST.csv', 'research/data/GLOBAL_SOURCE_MANIFEST.csv', 'scripts/acquire_official_option_samples.py', 'scripts/acquire_hf_reference.py', 'scripts/acquire_s31_reference.py', 'scripts/acquire_global_reference.py') }}
+          restore-keys: |
+            phase2-raw-
+
+      - name: Validate Phase 2 statics
+        run: python scripts/validate_phase2_static.py
+
+      - name: Validate source manifests
+        run: |
+          python scripts/validate_source_manifest.py
+          python scripts/validate_global_manifest.py
+
+      - name: Build deterministic PIT fixture
+        run: python scripts/build_pit_fixture.py
+
+      - name: Validate PIT fixture
+        run: python scripts/validate_pit_fixture.py
+
+      - name: Probe public NSE/BSE endpoints
+        run: python scripts/probe_sources.py
+
+      - name: Probe global macro/cross-market endpoints
+        run: python scripts/probe_global_sources.py
+
+      - name: Probe Hugging Face datasets
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/probe_huggingface_datasets.py
+
+      - name: Acquire official NIFTY option archive samples
+        run: python scripts/acquire_official_option_samples.py
+
+      - name: Validate official archive schemas
+        run: python scripts/validate_official_option_samples.py
+
+      - name: Build official snapshot manifest
+        run: python scripts/build_snapshot_manifest.py
+
+      - name: Acquire free global reference series
+        run: python scripts/acquire_global_reference.py
+
+      - name: Validate effective-dated NIFTY lot size
+        run: python scripts/validate_lot_size_udiff.py
+
+      - name: Acquire official India VIX snapshot
+        run: python scripts/acquire_india_vix_snapshot.py
+
+      - name: Acquire official FII/DII snapshot
+        run: python scripts/acquire_fii_dii_snapshot.py
+
+
+      - name: Acquire derived HF validation reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_reference.py
+
+      - name: Reconcile official NSE vs HF reference
+        run: python scripts/reconcile_official_vs_hf.py
+        continue-on-error: true
+
+      - name: Acquire S31 independent NIFTY option reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_s31_reference.py
+
+      - name: Reconcile S31 against official NSE
+        run: python scripts/reconcile_s31_vs_official.py
+        continue-on-error: true
+
+      - name: Validate mandatory reconciliation artifacts
+        if: always()
+        run: python scripts/validate_phase2_reconciliation_reports.py
+
+      - name: Upload Phase 2 audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2-source-audit
+          path: |
+            data/reports/source_probe.json
+            data/reports/global_source_probe.json
+            data/reports/huggingface_dataset_probe.json
+            data/reports/official_sample_acquisition.json
+            data/reports/global_reference_acquisition.json
+            data/reports/lot_size_validation.json
+            data/reports/india_vix_snapshot.json
+            data/reports/fii_dii_snapshot.json
+            data/reports/hf_reference_acquisition.json
+            data/reports/official_vs_hf_reconciliation.json
+            data/reports/s31_reference_acquisition.json
+            data/reports/s31_reconciliation.json
+            data/fixtures/pit_fixture.csv
+            data/manifests/phase2_official_option_samples.json
+          if-no-files-found: error

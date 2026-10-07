@@ -25,3 +25,64 @@ Earlier project artifacts reported:
 - option-surface/skew information remained an interesting signal.
 
 Those are prior findings to be revalidated, not accepted as current conclusions.
+
+
+### 2026-10-07 — Resume research command
+
+User requested that the research resume from the current checkpoint. Developer re-read the Phase 2 status, research plan/protocol, method registry, error/research logs and both developer/tester branch status ledgers before continuing. Phase 2 remains the active gate; no prediction/strategy phase is allowed to start until data/PIT validation is passed.
+
+Current automated run: Phase 2 Data Audit run #60 is executing on `phase-02-developer`. Official NSE legacy/UDiFF acquisition, schema validation, snapshot generation and HF acquisition have already completed in this run; the reconciliation stage is still executing. Prior real-run failures were preserved and corrected rather than bypassed.
+
+### 2026-10-07 — Continuation from user-provided checkpoint
+
+User supplied a screenshot of the prior Phase 2C checkpoint after a conversation-length boundary and asked to continue.
+
+Developer re-read the current repository rather than trusting the screenshot as the latest state. The repository had already progressed beyond Phase 2C: Phase 2 had passed with scoped restrictions and Phase 3 protocol work existed on the phase-03 branches.
+
+The independent tester then audited the actual Phase 3 empirical package and issued REQUEST CHANGES. The developer is correcting the package on phase-03-developer only. Phase 3 remains the active gate; Phase 4 is blocked.
+
+Current correction set includes restoring the research log, wiring the full empirical workflow, requiring explicit B0-B11 dispositions, correcting intraday B3/B4/B11 semantics, adding official NSE overlap checks for the intraday research reference, and strengthening the result-schema validator.
+
+
+### 2026-10-07 — Family D run #19 monitoring continuation
+
+User requested continuation from the live Family D run #19 checkpoint and ongoing monitoring in chat. Developer independently checked the repository governance, phase-05 developer/tester status ledgers, prior Family D tester approvals and the live GitHub Actions state.
+
+Run #19 remains in progress with the regression suite passed and D01-D15 empirical execution active. A direct live-log fetch returned BlobNotFound; this is treated as an infrastructure inspection limitation only. No scientific metric is accepted before immutable artifact creation and independent tester review.
+
+
+### 2026-10-07 — User said Ok proceed: Family D gate continuation
+
+Developer rechecked the live run rather than treating the prior checkpoint as final. Run #19 remains in progress with D01-D15 empirical execution active, so no tester promotion action is yet authorized.
+
+
+### 2026-10-07 — Another user continuation of Family D
+
+User again authorized continuation. Developer rechecked hosted run #19 and confirmed the empirical D01-D15 suite is still active. No result promotion or tester gate is possible before immutable artifact creation.
+
+
+### 2026-10-07 — Family D run #19 live verification checkpoint
+
+Developer re-read the active Phase 5 status and logs before taking the next action. Hosted run #19 (37611880308), job 112760881845, remains `in_progress`.
+
+- Steps through Family D regression tests are complete and successful.
+- The full D01-D15 empirical suite remains the active step.
+- Result-schema validation and immutable artifact upload have not started.
+- No Family D metric is accepted.
+- Phase 6 remains blocked pending the immutable artifact and independent tester audit.
+
+This is a monitoring checkpoint only; no scientific conclusion or promotion was made.
+
+
+### 2026-10-07 — Family D run #19 continuation after dual-branch gate check
+
+Developer re-checked the developer-side frozen protocol/status and the independent tester-side Phase 5 protocol records before proceeding. The tester records continue to require an immutable artifact and independent audit before any Family D promotion.
+
+Live hosted state remains unchanged:
+- run #19 (37611880308) is `in_progress`;
+- job 112760881845 is executing the D01-D15 empirical suite;
+- regression tests passed;
+- result-schema validation and artifact upload remain pending;
+- no Family D metric is accepted.
+
+No scientific or protocol change was made during this checkpoint.

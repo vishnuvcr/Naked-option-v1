@@ -1,0 +1,37 @@
+# Phase 4 Family C — Statistical / Time-Series Protocol
+
+## Frozen methods
+
+| ID | Method | Frozen implementation |
+|---|---|---|
+| C01 | Logistic regression | Reference to accepted Phase 3 B11 logistic baseline; no second tuning run |
+| C02 | Probit | Probit on fixed lag features returns t-{1,2,3,5,10}, standardized from training only; no hyperparameter search |
+| C03 | LDA/QDA | LDA and QDA on the same fixed lag-feature vector; class priors estimated from training only |
+| C04 | AR direction state | AutoReg lag=5 with deterministic trend fitted to continuous returns; at each decision, recursively forecast H future returns using frozen coefficients and convert the cumulative H-return forecast to a Gaussian probability using the exact AR innovation-variance propagation for the cumulative forecast error |
+| C05 | GARCH-family volatility-conditioned direction | GARCH(1,1) volatility fitted on training returns; fixed 1.2× training-median volatility state threshold; the resulting direction is a horizon-invariant conditioning signal evaluated against every registered H, not a claim of an H-step GARCH forecast |
+| C06 | Markov-switching direction | Two-state Gaussian regime filter with fixed 0.95 self-transition probability; state means/variances estimated on training by return sign; online Hamilton-style filtering uses the transition-predicted prior before each observed return; for each H, propagate the posterior and compute cumulative H-step return moments without using future observations |
+| C07 | HMM direction | Two-state Gaussian HMM with transition probabilities estimated from training hard-state transitions; online forward filtering uses the transition-predicted prior before each observed return; for each H, compute cumulative H-step return moments from the filtered posterior; no backward smoothing on test data |
+| C08 | Bayesian/local state-space | Fixed linear local-trend Kalman filter with training-estimated observation variance and fixed 0.01 process-noise multiplier; update through the current decision observation, propagate the state H steps, and convert the predicted level change to a Gaussian probability |
+| C09 | Change-point detection | Two-sided standardized CUSUM with fixed threshold 2.5; once a direction is triggered it persists until the opposite threshold is crossed, which resets the state to the new direction |
+| C10 | Hawkes/self-exciting events | BLOCKED_DATA until a PIT-safe event-intensity data layer is materialized |
+| C11 | Copula/dependence | BLOCKED_DATA until PIT-safe synchronized cross-market features are materialized in the Phase 4 feature factory |
+
+## Point-in-time rule
+
+All training data end strictly before the decision timestamp. Test probabilities are generated with forward-only filtering; no smoothed posterior or future test observations are used. Intraday C01-C03 fitting and prediction use only the frozen hourly decision grid; the underlying one-minute path remains available for exact H-minute labels and C04/C06-C09 sequential state updates.
+
+C01-C04 use a fixed 20-session refit cadence: fit once at the first decision of each 20-session block using only observations before that block, then hold the fitted model fixed for the block. This cadence is frozen before result inspection and prevents excessive repeated refits while preserving chronological information boundaries.
+
+## Horizon interpretation
+
+C01-C03 directly model the registered H-step classification label. C04 predicts the continuous cumulative H-step return. C05 is deliberately horizon-invariant conditioning. C06-C07 compute cumulative H-step state-return moments from an online posterior. C08 computes an H-step state-space level-change forecast. C09 is a persistent state signal and is evaluated unchanged across H.
+
+## Evaluation
+
+Use the frozen Phase 3 horizons. Probability mapping for deterministic signals is not used here; probabilistic models emit calibrated probabilities where available. CUSUM/GARCH-regime state outputs use 0.55/0.45/0.50.
+
+Report the same discrimination/calibration/confusion/bootstrap diagnostics as Phase 3.
+
+## Gate
+
+Family C passes only after independent tester reconstruction and leakage review. It is not a strategy gate; option economics remain deferred to Phase 8.

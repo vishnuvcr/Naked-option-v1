@@ -1,0 +1,43 @@
+{
+  "version": "phase3-v1",
+  "currency": "INR",
+  "scenarios": {
+    "optimistic": {
+      "brokerage_per_order": null,
+      "stt_per_trade": null,
+      "exchange_txn_rate": null,
+      "sebi_turnover_rate": null,
+      "gst_rate": null,
+      "stamp_duty_rate": null,
+      "slippage_points": 0.5
+    },
+    "base": {
+      "brokerage_per_order": null,
+      "stt_per_trade": null,
+      "exchange_txn_rate": null,
+      "sebi_turnover_rate": null,
+      "gst_rate": null,
+      "stamp_duty_rate": null,
+      "slippage_points": 2.0
+    },
+    "adverse": {
+      "brokerage_per_order": null,
+      "stt_per_trade": null,
+      "exchange_txn_rate": null,
+      "sebi_turnover_rate": null,
+      "gst_rate": null,
+      "stamp_duty_rate": null,
+      "slippage_points": 4.0
+    },
+    "extreme": {
+      "brokerage_per_order": null,
+      "stt_per_trade": null,
+      "exchange_txn_rate": null,
+      "sebi_turnover_rate": null,
+      "gst_rate": null,
+      "stamp_duty_rate": null,
+      "slippage_points": 8.0
+    }
+  },
+  "rule": "Do not fill null statutory fields from memory. Populate only from versioned source documents applicable to the historical period."
+}

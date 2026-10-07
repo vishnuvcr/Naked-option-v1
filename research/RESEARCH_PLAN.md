@@ -95,8 +95,17 @@ A candidate can reach final review only if it has:
 
 No single numeric threshold is sufficient for promotion; all gates are conjunctive.
 
-## 7. Stop rule
+## 7. Completion / no-premature-null rule
 
-The research will not expand without limit. The method universe ends when the pre-registered catalog in `METHOD_REGISTRY.md` has been exhausted, all surviving candidates have passed the statistical gates, and the fresh-forward test is complete.
+A single failed model, family, backtest or phase is **never** sufficient to conclude that no usable strategy exists. The developer must complete the full pre-registered Phase 0-11 program, repair reproducible technical failures, rerun failed gates where scientifically valid, and preserve every null result before a final conclusion is issued.
 
-Literal “100% certainty” about future market direction is impossible. The scientific objective is the strongest defensible evidence under the declared protocol.
+The research remains finite and governed: the method universe is the pre-registered catalog in `METHOD_REGISTRY.md`, together with only explicitly documented amendments that pass the developer/tester governance gate. It must not become an uncontrolled infinite search or an unlogged optimization loop.
+
+A final null conclusion is permissible only after the complete phase catalog, all declared candidate families, cost-aware execution tests, robustness gates and fresh-forward verification have been completed, or after a serious irreparable data/research limitation is formally recorded.
+
+Literal “100% certainty” about future market direction is impossible. The scientific objective is the strongest defensible positive strategy evidence that survives the declared protocol.
+
+
+## Holdout terminology control
+
+The research protocol explicitly distinguishes a final **untouched holdout** from chronological training/validation folds and from the later fresh-forward verification. The final holdout must remain unopened during model selection and tuning.
