@@ -428,3 +428,10 @@
 - I03 now uses a dimensionless current-volatility/training-median-volatility ratio; I07 explicitly distinguishes CE upward and PE downward favorable events.
 - E06/E07 rank binning, MFDFA, sample entropy, permutation entropy and transition-state fallbacks now have deterministic edge rules.
 - The corrected specification is awaiting independent tester re-audit.
+
+
+## 2026-10-07 — Phase 6 implementation self-audit before tester gate
+- The first implementation draft exposed two developer-side defects before empirical execution: per-block result accumulation was overwritten, and E06 test-value binning lacked a frozen training reference.
+- These were corrected before the tester code gate. The implementation now accumulates predictions across all eligible walk-forward blocks and maps E06 test values using a deterministic training-only empirical-rank reference.
+- Fixed helpers for I03, I07, I08 and I09 were added so the regression suite can test the exact frozen semantics.
+- The Phase 6 workflow now separates the automatic regression job from the empirical job; empirical execution is hard-gated on an independent tester approval file.
