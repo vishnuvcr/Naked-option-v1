@@ -144,8 +144,19 @@ def ar5_horizon_probability(model, history_ret, horizon):
         path.append(x)
         history.append(x)
 
+    # Exact Gaussian innovation variance for the cumulative H-step AR forecast.
+    # psi_0=1 and psi_j follows the fitted AR recursion.
+    H = int(horizon)
+    psi = np.zeros(H, dtype=float)
+    psi[0] = 1.0
+    for j in range(1, H):
+        psi[j] = sum(phi[k - 1] * psi[j - k] for k in range(1, min(5, j) + 1))
+    innovation_weights = np.array(
+        [float(np.sum(psi[: H - u])) for u in range(1, H + 1)],
+        dtype=float,
+    )
+    variance = float(max(float(model.sigma2) * float(np.sum(innovation_weights ** 2)), 1e-12))
     mean_sum = float(np.sum(path))
-    variance = float(max(horizon * float(model.sigma2), 1e-12))
     return normal_prob_positive(mean_sum, variance)
 
 
@@ -197,11 +208,12 @@ def online_hmm(train_ret, test_ret, transition, horizon):
     out = []
 
     for r in np.asarray(test_ret, dtype=float):
+        prior = transition.T @ pi
         lik = np.array([
             math.exp(-0.5 * (r - means[0]) ** 2 / vars_[0]) / math.sqrt(vars_[0]),
             math.exp(-0.5 * (r - means[1]) ** 2 / vars_[1]) / math.sqrt(vars_[1]),
         ])
-        post = pi * lik
+        post = prior * lik
         post = post / post.sum() if post.sum() > 0 else np.array([0.5, 0.5])
         mean_sum = float(post @ future_m)
         second_sum = float(post @ future_q)
