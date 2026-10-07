@@ -254,3 +254,9 @@
 - Hosted run reached the regression suite, confirming the prior type error was fixed.
 - The remaining failure was in the synthetic expectation: the fixture required persistence through an opposite threshold, which the protocol explicitly defines as a reset.
 - Revised the fixture to test persistence until, and reversal at, the opposite threshold.
+
+## 2026-10-07 — Family C intraday eligibility mask correction
+- Synthetic regression tests passed.
+- Empirical run then stopped before producing results because the timestamp eligibility comparison returned a NumPy array.
+- Corrected the boolean mask handling without changing the strict label-end-before-decision rule.
+- Family C result artifact remains ungenerated until the next hosted run.
