@@ -379,3 +379,11 @@
 - Schema validation and artifact upload were skipped; no immutable result artifact exists.
 - Run #19 is therefore non-evidence and cannot be used for model selection.
 - The next action is a runtime investigation and tester-reviewed correction before another fresh Family D empirical execution.
+
+## 2026-10-07 — Run #19 runtime gate and correction
+
+- Independent review established that run #19 ended at approximately the workflow's configured 90-minute timeout; no empirical artifact was produced.
+- Tester classified run #19 as non-evidence and authorized a runtime-only amendment.
+- Developer increased the hard workflow timeout to 180 minutes and added empirical-suite start/end progress markers.
+- No model, feature, label, horizon, refit cadence, seed, cost model or selection rule changed.
+- A fresh hosted Family D run is required after the runtime-only amendment.
