@@ -118,3 +118,11 @@
 - The gate then failed before PIT/lot-size/bulk checks because `validate_phase2_static.py` still inspected the legacy `phase-02-data-audit.yml` workflow file for the newer Phase 2C markers.
 - This is a governance/CI validator defect, not a data-quality failure. The fix makes the static validator check both workflow generations with separate required-marker sets.
 - Phase 2 remains open pending rerun and tester verification of the actual gate outputs.
+
+## 2026-10-07 — Legacy strategy intake
+
+- Registered seven user-supplied Tradetron JSON strategies as prior-art inputs.
+- Classified all seven as structurally ineligible for the final naked-long execution constraint because they contain short legs or spreads, but preserved their timing, delta, premium, regime, state-machine and exit logic as atomic ablation candidates.
+- Queried the seven user-provided Tradetron backtest identifiers through the connected service. All returned `not_found`; this is a retrieval limitation, not a failed backtest result, and no paid replacement backtest was submitted.
+- Audited relevant prior public GitHub research repositories from the user's account, including Iron_condor, Paper-Trade-v1, market-inefficiency, research-ML-trading, ML-trading-v2, btst-strategy-lab, Surge-identifier, market-gainer predictors, Institutional-Algorithmic-Trading-System, ML-trade and CPR-.
+- Added a strategy-component mining map linking the recovered legacy logic to pre-registered hypothesis/method families. Phase 3 remains blocked until the Phase 2 data gate passes.

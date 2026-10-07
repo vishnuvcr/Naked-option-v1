@@ -51,3 +51,16 @@ Current decision: Phase 2 data gate remains OPEN. No Phase 3 prediction testing 
 ### 2026-10-07 — “Ok proceed” continuation and Phase 2C run #25 checkpoint
 
 User again instructed the research to proceed. The developer continued Phase 2C rather than advancing phases. The corrected data run #25 successfully acquired and validated all eight official NSE NIFTY yearly datasets plus India VIX, global/rates context and the live FII/DII snapshot. The gate stopped on a stale static-workflow validator that checked the legacy Phase 2 workflow instead of the active Phase 2C workflow. This is logged as a CI/governance defect and is being corrected without changing data-quality thresholds. Phase 3 remains blocked.
+
+### 2026-10-07 — User supplied Tradetron strategies and prior GitHub strategy intake
+
+User requested that seven Tradetron backtest links be included and that previous strategies in other GitHub repositories be located.
+
+Developer actions:
+- reviewed the seven attached Tradetron JSON exports and classified their multi-leg structures against the project's naked-long-only final constraint;
+- retained their timing, DTE, delta, premium, state-machine, expiry-day and exit rules as component-mining/ablation inputs;
+- queried all seven supplied backtest tokens through the connected Tradetron service; every lookup returned `not_found`, so no performance number was fabricated and no chargeable replacement run was submitted;
+- searched the user's public GitHub research ecosystem and registered the most relevant prior repositories for systematic re-testing;
+- created legacy strategy intake, component-mining and prior-research inventory files in the developer branch.
+
+Phase remains: Phase 2 data/PIT gate. Phase 3 is still blocked.
