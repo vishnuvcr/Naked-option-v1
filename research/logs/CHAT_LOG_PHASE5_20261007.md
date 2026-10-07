@@ -44,3 +44,14 @@ The developer then amended the main Phase 5 protocol and added a deterministic D
 
 ## Gate state
 A fresh hosted Family D run is required after the approved D07 correction. No empirical Family D metric is accepted until the fresh artifact passes the independent tester gate.
+
+### 2026-10-07 — Fresh Family D run #19
+
+## Developer action
+After the tester-approved D07 post-amendment gate, the developer triggered fresh hosted Family D run #19 (37611880308). Acquisition and cache restoration completed successfully, and the expanded regression suite including the D07 meta-stack pin passed.
+
+## Current state
+The empirical D01-D15 suite is executing. No result artifact or Family D metric has been accepted.
+
+## Tester instruction
+Review the immutable artifact immediately when produced; do not rely on developer interpretation of the numerical results.
