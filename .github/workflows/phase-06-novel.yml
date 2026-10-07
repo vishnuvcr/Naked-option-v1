@@ -4,7 +4,19 @@ name: Phase 6 Novel Methods
 
 on:
   workflow_call:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical execution authorization"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical execution authorization"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: phase6-novel-${{ github.ref }}
@@ -47,7 +59,7 @@ jobs:
   empirical:
     name: phase6-empirical
     needs: regression
-    if: ${{ hashFiles('research/gates/PHASE6_CODE_APPROVAL_TESTER.md') != '' }}
+    if: ${{ inputs.empirical_authorized }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
