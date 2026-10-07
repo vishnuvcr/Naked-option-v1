@@ -97,3 +97,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 4 | Family C workflow introduced online state/filter methods and arch/statsmodels dependencies | Statistical family requires model-specific forward-only implementation | Added explicit protocol, deterministic training boundaries, validator and hosted workflow; tester gate required | Pending hosted run/tester |
 
 | 2026-10-07 | 4 | Family C probit prediction returned a pandas Series and the runner indexed by label 0 after a non-zero Series index | Model output type/index mismatch | Normalize Probit and LDA/QDA outputs to NumPy arrays before scalar extraction | Pending hosted rerun |
+
+| 2026-10-07 | 4 | Family C AutoReg invocation used an unsupported `old_names` parameter in the installed statsmodels version | API-version mismatch | Removed the optional parameter; model definition remains AR(5) with constant | Pending hosted rerun |
