@@ -312,3 +312,9 @@
 - Regression, acquisition and cache-restore steps have completed successfully; the empirical D01-D15 suite remains in progress.
 - No Family D metric is accepted and Phase 6 remains blocked.
 - Independent artifact review is the next required gate and must occur before any model/family promotion.
+## 2026-10-07 — Phase 5 D07 protocol alignment correction
+
+- Independent tester pre-check identified a frozen-protocol mismatch: the written D07 definition said probability averaging while the implementation performed calibrated logistic meta-stacking.
+- Tester blocked Run #16 from scientific acceptance and approved a precise definition clarification covering the existing 80/20 chronological calibration split, minimum 200 base-training guard, training-only base/calibration fits and unchanged base-model hyperparameters.
+- Developer amended the main protocol and added a deterministic regression test that independently reconstructs the D07 stack and proves post-cutoff labels cannot change test probabilities.
+- Run #16 remains preserved as non-accepted evidence. A fresh hosted Family D run is required before any Family D metric can enter model selection or promotion.
