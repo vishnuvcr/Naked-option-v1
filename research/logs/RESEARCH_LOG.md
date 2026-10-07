@@ -118,3 +118,9 @@
 - Hosted execution reached the intraday baseline suite but exposed an index mismatch between timestamp-indexed labels and integer-indexed decision-grid rows.
 - The label constructor now retains timestamps only for horizon lookup and emits result series on the source row index, eliminating the selection mismatch without changing label timing.
 - No intraday empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 3 intraday index-space correction
+
+- The second hosted intraday attempt exposed a subtler row-index mismatch: labels were generated after session filtering while the filtered source frame retained original pre-filter row indices.
+- The intraday loader now resets the row index immediately after regular-session filtering, keeping labels, decision-grid rows, features and predictions in one immutable row-index space.
+- No intraday empirical result from the failed run is accepted.
