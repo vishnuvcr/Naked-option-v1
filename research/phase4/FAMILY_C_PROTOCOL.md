@@ -20,6 +20,8 @@
 
 All training data end strictly before the decision timestamp. Test probabilities are generated with forward-only filtering; no smoothed posterior or future test observations are used.
 
+C01-C04 use a fixed 20-session refit cadence: fit once at the first decision of each 20-session block using only observations before that block, then hold the fitted model fixed for the block. This cadence is frozen before result inspection and prevents excessive repeated refits while preserving chronological information boundaries.
+
 ## Evaluation
 
 Use the frozen Phase 3 horizons. Probability mapping for deterministic signals is not used here; probabilistic models emit calibrated probabilities where available. CUSUM/GARCH-regime state outputs use 0.55/0.45/0.50.
