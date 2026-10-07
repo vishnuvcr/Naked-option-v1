@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — RUN #19 CANCELLED DURING EMPIRICAL EXECUTION; RUNTIME GATE REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
+| Phase 5 Statistical/ML | **ACTIVE — RUN #19 NON-EVIDENCE; TESTER-APPROVED RUNTIME AMENDMENT APPLIED; FRESH RUN REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
