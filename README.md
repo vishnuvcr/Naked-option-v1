@@ -35,7 +35,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Phase status](research/STATUS.md)
 - [Research log](research/logs/RESEARCH_LOG.md)
 - [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
-- [Error log](research/logs/ERROR_LOG.md)
+- [Error log](research/ERROR_LOG.md)
 - [Phase 5 run-1 error record](research/logs/PHASE5_RUN1_ERROR.md)
 - [Phase 5 sequence precompute tester gate](research/gates/PHASE5_SEQUENCE_PRECOMPUTE_TESTER.md)
 - [Phase 5 D07 amendment submission](research/gates/PHASE5_D07_PROTOCOL_AMENDMENT_SUBMISSION.md)
@@ -74,3 +74,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Implementation/code gate:** tester approved.
 - **E07 amendment:** exact four-source global composite frozen pre-result.
 - **Empirical status:** authorized but not yet independently accepted; artifact gate remains mandatory.
+
+## Latest Phase 6 checkpoint — 2026-10-08
+
+- Fresh hosted Phase 6 run #575 (`37678088131`) is **NON-EVIDENCE** after the independent tester found a residual invalid `DatetimeIndex.iloc[...]` access in the later global-I03 cutoff path.
+- Tester gate [PHASE6_RUN25_RESIDUAL_CUTOFF_TESTER.md](research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_TESTER.md) = **REQUEST CHANGES**.
+- A detached developer correction commit is prepared with valid `DatetimeIndex[...]` access, regression coverage for the later cutoff path, and an assertion forbidding `decision_times.iloc`.
+- The developer branch has not advanced to the proposed correction until the independent tester approves it. No Phase 6 metric or artifact is accepted; Phase 7 remains blocked.

@@ -459,3 +459,11 @@
 - Tester disposition: **PASS — WORKFLOW CORRECTION GATE**.
 - Approval archived at `research/gates/PHASE6_WORKFLOW_APPROVAL_TESTER.md`.
 - Fresh hosted execution is authorized; the prior failed run remains non-evidence.
+
+## 2026-10-08 — Phase 6 run 575 tester pre-result review
+- User authorized continuation and the fresh hosted Phase 6 run #575 (37678088131) was independently rechecked against the current protocol, status and error records.
+- Regression and acquisition stages passed; the empirical job remained active.
+- A full-code tester audit identified a residual `DatetimeIndex.iloc` access in the later global-I03 cutoff block that was not covered by the earlier cutoff correction.
+- Tester issued REQUEST CHANGES at `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_TESTER.md`.
+- The active run is non-evidence; no scientific metric is accepted. A detached correction is being prepared and must receive tester approval before the developer ref is advanced.
+- A live-job log request returned GitHub BlobNotFound; this is recorded as infrastructure-only and had no scientific effect.

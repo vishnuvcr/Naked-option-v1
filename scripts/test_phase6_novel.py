@@ -59,6 +59,10 @@ def main():
     cutoff = decision_times[2] - pd.Timedelta(minutes=15)
     assert cutoff == pd.Timestamp("2026-01-01 11:00")
 
+    # Later global-I03 cutoff path must use the same valid DatetimeIndex positional access.
+    global_i03_cutoff = decision_times[4] - pd.Timedelta(minutes=120)
+    assert global_i03_cutoff == pd.Timestamp("2026-01-01 11:00")
+
     # E06 training cutoff must be invariant to any mutation after train_end.
     e06_x = np.random.default_rng(123).normal(0.0, 0.01, size=420)
     e06_y = (np.random.default_rng(124).normal(size=420) > 0).astype(int)
@@ -126,8 +130,9 @@ def main():
     trade = (p < ABSTENTION_LOW) | (p > ABSTENTION_HIGH)
     assert trade.tolist() == [True, False, False, False, True]
 
-    # No centered windows are permitted in the implementation.
+    # No centered windows are permitted in the implementation; DatetimeIndex must not use .iloc.
     source = Path(__file__).with_name("run_phase6_novel.py").read_text(encoding="utf-8")
+    assert "decision_times.iloc" not in source
     assert "center=True" not in source
     assert ".bfill(" not in source
     assert ".ffill(" not in source

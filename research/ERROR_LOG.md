@@ -9,3 +9,26 @@
 - Root cause: invalid positional indexing API for pandas DatetimeIndex.
 - Correction: use DatetimeIndex[...] and add explicit regression coverage.
 - Prevention: tester approval required before fresh empirical execution.
+
+## 2026-10-08 — Phase 6 fresh run 575 residual cutoff defect
+- Category: implementation/runtime
+- Component: scripts/run_phase6_novel.py later global-I03 cutoff path
+- Symptom: residual use of `decision_times.iloc[rows[0]]` on a pandas DatetimeIndex remained after the earlier cutoff correction.
+- Location: commit 9b9b7914f82993505ec4f2f0c3aac0b3d6732521, current file line 721.
+- Impact: fresh hosted run 575 (37678088131) is classified as non-evidence because the same AttributeError would occur when the global-I03 path is reached; no metric may be accepted.
+- Root cause: incomplete search/coverage of all DatetimeIndex positional accesses during the prior correction.
+- Proposed correction: replace the residual access with DatetimeIndex[...] and add regression coverage plus a source-level assertion forbidding `decision_times.iloc`.
+- Prevention: tester approval is required before the developer branch is advanced for a fresh empirical run.
+
+## 2026-10-08 — GitHub live-log visibility error during Phase 6 run 575
+- Category: infrastructure/tooling
+- Component: GitHub Actions live-job log retrieval
+- Symptom: fetching logs for in-progress empirical job 112986961991 returned HTTP 404 BlobNotFound.
+- Impact: no scientific impact; live job-step status remained available through the workflow-jobs endpoint.
+- Disposition: infrastructure-only visibility issue; no metric or result was inferred from missing logs.
+
+## 2026-10-08 — Developer tooling edit attempt
+- Category: developer/tooling
+- Symptom: first detached-commit construction attempt failed due to a JavaScript template-literal escaping error while assembling the multi-file tree.
+- Impact: no repository change; the intended correction was not written by that failed call.
+- Disposition: corrected in the subsequent repository operation; no scientific impact.

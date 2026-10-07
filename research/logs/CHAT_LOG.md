@@ -86,3 +86,10 @@ Live hosted state remains unchanged:
 - no Family D metric is accepted.
 
 No scientific or protocol change was made during this checkpoint.
+
+## 2026-10-08 — User continuation: Phase 6 fresh run and tester pre-result audit
+- User said "Ok proceed" and provided a screenshot confirming Research Protocol Check run #575 is active on `phase-06-developer`.
+- Developer verified the live run by GitHub API: run `37678088131`, regression/protocol/detection jobs succeeded and the empirical job was active.
+- Before accepting any result, the developer/tester review inspected the full Phase 6 code and found a second, residual `decision_times.iloc[rows[0]]` use in the later global-I03 block.
+- Tester submitted REQUEST CHANGES. The current run is classified as non-evidence, and a detached correction is being prepared for independent tester approval before the developer branch advances.
+- A GitHub live-log retrieval attempt returned BlobNotFound; no scientific inference was drawn from missing logs.
