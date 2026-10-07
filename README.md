@@ -11,7 +11,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Rejected runs are preserved as non-evidence. Run #23 is the accepted Family D technical artifact, but no D model is promoted from descriptive maxima.
 - Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
 - The current implementation uses the tester-approved session-based 20-trading-session intraday refit cadence while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. Run #19 is non-evidence because it timed out before artifact creation. Run #20 is non-evidence because the earlier intraday D13-D15 sequence cache was built on the hourly matrix and yielded n=0. The developer corrected the sequence path to the full 1-minute causal representation, the tester approved that correction, and fresh run #23 completed successfully. The independent tester gate for run #23 is PASS WITH SCOPED RESTRICTIONS. No D model is promoted; option economics, multiple-testing, robustness and fresh-forward validation remain mandatory.
-- The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
+- Phase 6 method specification and implementation code gate have now passed independent tester review. The exact E07 global composite amendment is frozen pre-result. Empirical execution is authorized through a gated GitHub Actions workflow; no Phase 6 metric is accepted until the immutable artifact is independently audited.
 
 ### Current Phase 5 scope
 
@@ -67,3 +67,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Tester disposition:** PASS WITH SCOPED RESTRICTIONS.
 - **Artifact:** `phase5-family-d-results` (ID `11499450561`; SHA-256 `27ca6cbc6e1653d40e2d896a81211c97a8d5e70543cf37ad9f402597eee306d8`).
 - **Next gate:** independent tester review of the Phase 6 novel-method scope. No strategy has been promoted.
+
+## Phase 6 checkpoint — 2026-10-07
+
+- **Method specification:** tester approved.
+- **Implementation/code gate:** tester approved.
+- **E07 amendment:** exact four-source global composite frozen pre-result.
+- **Empirical status:** authorized but not yet independently accepted; artifact gate remains mandatory.
