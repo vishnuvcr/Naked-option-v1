@@ -52,3 +52,10 @@ Developer commit `03dd42cfcf0686aafa254f69cf9555309a0ec0ae` was independently in
 Developer commit `70721c8d438a86e59ec5627e9a0d49b8a7469ef7` adds a free-source fallback chain for global equity indices: Stooq remains primary and Yahoo Finance chart API is used only if Stooq has no usable observations. The selected provider and failed attempts are recorded in the global report. This conforms to the free-source-first requirement and does not lower data-quality thresholds.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The final review must verify that Yahoo is actually producing complete frozen-window rows, duplicate-free dates, and correct cached hashes, and that no paid source was introduced.
+
+
+## FRED fallback review — 2026-10-07
+
+Developer commit `ee1bb63115fe8df913e09602c53aa9c645f7704d` was independently reviewed. The global-source chain now tries Stooq, then predeclared public FRED series, then Yahoo. It records the provider, numeric-observation count and failed attempts, and the cache-hit flag now reflects actual cache use. The Phase 2 gate validator additionally rejects global records with zero numeric observations or missing provider provenance.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The next review must independently verify the selected FRED series, row counts, date bounds, duplicate-date behavior, cache reuse, and point-in-time availability rule.
