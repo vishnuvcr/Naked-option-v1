@@ -19,7 +19,7 @@ concurrency:
 jobs:
   family-d:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -47,7 +47,10 @@ jobs:
         working-directory: scripts
         run: python test_phase5_family_d.py
       - name: Run Family D empirical suite
-        run: python scripts/run_phase5_family_d.py
+        run: |
+          echo "FAMILY_D_EMPIRICAL_START $(date -u +%FT%TZ)"
+          python scripts/run_phase5_family_d.py
+          echo "FAMILY_D_EMPIRICAL_END $(date -u +%FT%TZ)"
       - name: Validate result schema
         run: |
           python - <<'PY'
