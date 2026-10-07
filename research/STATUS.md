@@ -8,7 +8,7 @@
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
-| Phase 6 Novel methods | **PENDING TESTER REVIEW OF SCOPE** | Family D gate passed; tester must review the proposed Phase 6 scope before empirical execution |
+| Phase 6 Novel methods | **IMPLEMENTATION READY — CODE GATE PENDING** | Method specification approved; tester must approve implementation/regression/workflow before empirical execution |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
@@ -58,3 +58,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - All 150 Family D method/horizon cells executed; numerical reconciliation passed; D07 leakage/isolation checks passed; intraday D13-D15 coverage is restored and non-zero at every registered horizon.
 - No Family D model is promoted. Multiple-testing, option economics, transaction costs, robustness and fresh-forward validation remain mandatory.
 - Phase 6 remains pending only for independent tester review of the developer's proposed scope.
+
+
+## 2026-10-07 — Phase 6 implementation gate
+- Frozen Phase 6 method specification was approved by the tester.
+- Developer implemented E01-E10/I01-I10, added causal/numerical regression tests, and created a gated workflow.
+- The empirical workflow job is blocked unless the tester approval file is present on the developer branch.
+- No Phase 6 empirical metric has been generated or accepted.
