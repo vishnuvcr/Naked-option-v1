@@ -10,7 +10,13 @@ required = [
     "research/phase3/BASELINE_PROTOCOL.md",
     "research/phase3/OPTION_BREAKEVEN_PROTOCOL.md",
     "research/phase3/DATA_REQUIREMENTS.md",
+    "research/phase3/BASELINE_DATA_GAPS.md",
     "research/phase3/COST_BREAK_EVEN_CONFIG.json",
+    "scripts/acquire_hf_intraday_sample.py",
+    "scripts/run_phase3_daily_baselines.py",
+    "scripts/run_phase3_intraday_baselines.py",
+    "scripts/validate_phase3_result_schema.py",
+    "scripts/persist_phase3_results.py",
 ]
 
 for rel in required:
@@ -39,7 +45,23 @@ for baseline_id in ["B0","B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11
     if baseline_id not in baseline:
         raise SystemExit(f"ERROR: baseline {baseline_id} missing")
 
-print("PASS: Phase 3 label, baseline, data and cost protocols are frozen")
+baseline_protocol=(ROOT / "research/phase3/BASELINE_PROTOCOL.md").read_text(encoding="utf-8")
+for marker in ["min(H, 30)", "BLOCKED_DATA", "20-session blocks", "60 decision-observation blocks"]:
+    if marker not in baseline_protocol:
+        raise SystemExit(f"ERROR: baseline protocol missing frozen marker {marker}")
+
+workflow=(ROOT / ".github/workflows/phase-03-labels-baselines.yml").read_text(encoding="utf-8")
+for marker in [
+    "acquire_hf_intraday_sample.py",
+    "run_phase3_daily_baselines.py",
+    "run_phase3_intraday_baselines.py",
+    "validate_phase3_result_schema.py",
+    "persist_phase3_results.py",
+]:
+    if marker not in workflow:
+        raise SystemExit(f"ERROR: Phase 3 workflow missing {marker}")
+
+print("PASS: Phase 3 label, baseline, data, workflow and cost protocols are frozen")
 
 log_paths = [ROOT / "research" / "logs" / "RESEARCH_LOG.md", ROOT / "research" / "logs" / "ERROR_LOG.md"]
 for log_path in log_paths:
