@@ -66,3 +66,10 @@ Developer commit `ee1bb63115fe8df913e09602c53aa9c645f7704d` was independently re
 Developer commit `63c357a634c4f37eb6d06de3ba6d7a9987a18202` was independently reviewed. The new free-source change requests Stooq in 180-day chunks, merges rows with duplicate-date protection, and keeps the previously declared FRED/Yahoo fallbacks. This directly tests the observed distinction between a failed long-window request and a successful short-window probe without weakening coverage or numeric-quality requirements.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
+
+
+## Public GitHub HSI fallback review — 2026-10-07
+
+Developer commit `bc9b96ac63bfa170527962628a41c3a606576674` was independently reviewed. The S28 fallback uses an immutable public GitHub raw URL at a fixed commit, validates dates and numeric prices, records hashes/provider provenance, and explicitly preserves its verified sub-window rather than inventing missing tail values. The source has no visible license file, so the developer correctly labels it research-only/license-unverified and does not promote it to a canonical redistribution source.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. Final review must check the actual raw hash, date range, residual tail gap, cache reuse, and whether the global gate treats this sub-window limitation consistently with the pre-registered missing-data rules.
