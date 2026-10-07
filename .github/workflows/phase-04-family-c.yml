@@ -7,6 +7,10 @@ on:
       - developer
       - phase-04-tester
       - tester
+    paths-ignore:
+      - "research/logs/**"
+      - "research/STATUS.md"
+      - "README.md"
   pull_request:
     branches:
       - developer
