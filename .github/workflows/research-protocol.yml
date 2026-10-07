@@ -33,6 +33,7 @@ jobs:
       contents: read
     outputs:
       run_phase6: ${{ steps.detect.outputs.run_phase6 }}
+      empirical_authorized: ${{ steps.detect.outputs.empirical_authorized }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,11 +43,15 @@ jobs:
         run: |
           set -euo pipefail
           run_phase6=false
+          empirical_authorized=false
           ref="${GITHUB_REF}"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             ref="refs/heads/${{ github.event.pull_request.head.ref }}"
           fi
           if [ "${ref}" = "refs/heads/phase-05-developer" ]; then
+            if [ -f "research/gates/PHASE6_CODE_APPROVAL_TESTER.md" ]; then
+              empirical_authorized=true
+            fi
             if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
               run_phase6=true
             else
@@ -65,10 +70,13 @@ jobs:
             fi
           fi
           echo "run_phase6=${run_phase6}" >> "${GITHUB_OUTPUT}"
+          echo "empirical_authorized=${empirical_authorized}" >> "${GITHUB_OUTPUT}"
 
   phase6:
     name: phase6-novel-gated
     needs: phase6-change
     if: ${{ needs.phase6-change.outputs.run_phase6 == 'true' }}
     uses: ./.github/workflows/phase-06-novel.yml
+    with:
+      empirical_authorized: ${{ needs.phase6-change.outputs.empirical_authorized == 'true' }}
     secrets: inherit
