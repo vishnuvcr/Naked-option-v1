@@ -55,3 +55,13 @@ The empirical D01-D15 suite is executing. No result artifact or Family D metric 
 
 ## Tester instruction
 Review the immutable artifact immediately when produced; do not rely on developer interpretation of the numerical results.
+### 2026-10-07 — User continuation command
+
+## User
+“Ok proceed”
+
+## Developer action
+Rechecked the live Family D hosted run #19 state before taking any new research action. The run remains in progress on the current developer commit. Regression, cache restoration and data acquisition remain successful; the empirical D01-D15 suite is still executing. No artifact or metric is accepted.
+
+## Gate discipline
+No phase transition or model selection is performed while the empirical artifact is incomplete. The independent tester gate remains mandatory after artifact creation.
