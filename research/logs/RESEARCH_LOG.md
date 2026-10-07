@@ -143,3 +143,9 @@
 - The intraday B11 logistic computation was too expensive because it refit at every frozen decision timestamp.
 - Before accepting any result, the protocol was amended explicitly: one walk-forward refit at the first decision of each session, using only pre-session data, then hold the model fixed for that session.
 - This preserves the pre-session point-in-time information boundary and materially reduces compute. Earlier runs remain rejected and are not accepted as evidence.
+
+## 2026-10-07 — Phase 3 intraday label-performance correction
+
+- Intraday labels and the 20-block volatility statistic were computed row-by-row, creating avoidable runtime while preserving no scientific advantage.
+- The implementation now uses exact-timestamp vectorized reindexing. Future-return timing and point-in-time constraints are unchanged.
+- This is a computational correction only; prior empirical runs remain non-accepted.
