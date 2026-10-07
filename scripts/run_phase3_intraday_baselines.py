@@ -49,7 +49,8 @@ def labels(ts, price, h):
             if start in logp.index and end in logp.index:
                 vals.append(logp.loc[end]-logp.loc[start])
         sigma.append(float(np.std(vals,ddof=1)) if len(vals)==20 else np.nan)
-    return pd.Series(y,index=pos),pd.Series(future,index=pos),pd.Series(sigma,index=pos)
+    out_index=np.arange(len(pos))
+    return pd.Series(y,index=out_index),pd.Series(future,index=out_index),pd.Series(sigma,index=out_index)
 
 def block_bootstrap_accuracy(y, p, block_len=60, reps=200, seed=42):
     z=pd.DataFrame({"y":y,"p":p}).dropna()
