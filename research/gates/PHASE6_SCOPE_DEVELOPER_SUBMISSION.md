@@ -117,3 +117,15 @@ These were corrected in `research/phase6/PHASE6_METHOD_SPEC.md`:
 - MFDFA, sample entropy, permutation entropy and transition fallbacks have explicit guards.
 
 The corrected method specification is now resubmitted for tester re-audit.
+
+
+## Code-gate correction cycle
+The independent tester found and the developer corrected:
+- E06 `train_sorted`/`train_reference` variable mismatch;
+- missing E06 training-cutoff mutation regression;
+- under-specified E07 composite definition;
+- weak empirical schema validation.
+
+The exact E07 specification is now frozen as an equal-weight, four-source global composite (S&P 500, Nasdaq, Nikkei 225, Hang Seng), with local-close availability, causal 20-observation source volatility normalization and an all-four-source PIT requirement. This is a pre-result protocol clarification and is resubmitted for tester review.
+
+The empirical workflow schema gate now reconciles confusion counts, positive rate, accuracy, probability-bin counts, metric ranges and required BLOCKED_DATA/BLOCKED_RUNTIME reasons.
