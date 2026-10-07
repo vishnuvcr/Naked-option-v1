@@ -276,3 +276,8 @@
 - C04 now uses exact cumulative forecast-error innovation weights under the fitted AR(5).
 - C06/C07 now transition the prior state distribution before each observed test return.
 - These corrections invalidate the just-completed Family C metrics as a final gate result; a new hosted rerun is mandatory.
+
+## 2026-10-07 — Family C C04 regression-test saturation correction
+- Latest hosted run reached the updated C04 implementation and stopped only at the synthetic test.
+- The failure was a test assertion issue: a valid normal-CDF result can numerically saturate at exactly 0 or 1 for a highly separated synthetic forecast.
+- Corrected the test to assert finite probability bounds [0,1] instead of an artificial strict-interior condition.
