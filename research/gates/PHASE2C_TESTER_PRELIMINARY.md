@@ -73,3 +73,10 @@ Developer commit `63c357a634c4f37eb6d06de3ba6d7a9987a18202` was independently re
 Developer commit `bc9b96ac63bfa170527962628a41c3a606576674` was independently reviewed. The S28 fallback uses an immutable public GitHub raw URL at a fixed commit, validates dates and numeric prices, records hashes/provider provenance, and explicitly preserves its verified sub-window rather than inventing missing tail values. The source has no visible license file, so the developer correctly labels it research-only/license-unverified and does not promote it to a canonical redistribution source.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. Final review must check the actual raw hash, date range, residual tail gap, cache reuse, and whether the global gate treats this sub-window limitation consistently with the pre-registered missing-data rules.
+
+
+## S28 candidate-order review — 2026-10-07
+
+Developer commit `df6d1bae04f70ab761fc119d1905c95b08f55012` was reviewed. The fixed-commit HSI GitHub source is now tried before repeatedly failing live feeds; the live feeds remain as fallbacks. This is a CI-efficiency change only and does not alter the data-quality acceptance criteria or fabricate the unobserved 2026-05-29 to 2026-09-30 tail.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
