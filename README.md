@@ -10,7 +10,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Phase 5 Family D is active. The initial empirical lineage has been rejected/invalidated before accepted evidence because of deterministic regression, timestamp, and runtime-control defects; all are logged and preserved.
 - The failed run is preserved as rejected evidence; no Family D metric from it is accepted.
 - Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
-- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. A fresh hosted Family D run #16 is active. No Phase 6 transition is permitted until the independent tester signs off.
+- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch; the tester-approved D07 clarification and regression pin are now applied, and a fresh hosted run is required before any Family D metric is accepted. No Phase 6 transition is permitted until the independent tester signs off.
 - The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
 
 ### Current Phase 5 scope
@@ -38,6 +38,9 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Error log](research/logs/ERROR_LOG.md)
 - [Phase 5 run-1 error record](research/logs/PHASE5_RUN1_ERROR.md)
 - [Phase 5 sequence precompute tester gate](research/gates/PHASE5_SEQUENCE_PRECOMPUTE_TESTER.md)
+- [Phase 5 D07 amendment submission](research/gates/PHASE5_D07_PROTOCOL_AMENDMENT_SUBMISSION.md)
+- [Phase 5 D07 amendment tester review](research/gates/PHASE5_D07_PROTOCOL_AMENDMENT_TESTER.md)
+- [Phase 5 run #16 tester pre-check](research/gates/PHASE5_RUN16_TESTER_PRECHECK.md)
 - [Decision/chat log](research/logs/CHAT_LOG.md)
 - [Phase 5 resume chat log](research/logs/CHAT_LOG_PHASE5_20261007.md)
 - [Gate reports](research/gates/)
