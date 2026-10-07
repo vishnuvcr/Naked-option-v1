@@ -163,3 +163,9 @@
 - Added a synthetic B8 point-in-time regression test and a mandatory workflow step.
 - Probability-bin diagnostics now use the same joint validity mask as the classification metrics; the result schema rejects any denominator mismatch.
 - No Phase 4 work is started until the corrected Phase 3 artifact passes independent re-review.
+
+## 2026-10-07 — Phase 3 intraday cache idempotence correction
+
+- The first rerun after the B8 tester correction stopped at intraday acquisition because the cached parquet was already normalized to timestamp/spot while the script expected raw timestamp/close on cache reuse.
+- Acquisition is now schema-idempotent: it accepts an existing normalized cache or a raw source layout, normalizes to the canonical timestamp/spot cache, and proceeds to the same overlap checks.
+- No scientific result was produced by the failed rerun.
