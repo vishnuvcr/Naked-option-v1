@@ -10,7 +10,7 @@ Phase 5 evaluates the pre-registered Family D methods D01-D15 on the frozen Phas
 - D04 XGBoost-style boosting: HistGradientBoostingClassifier with max_iter=200, learning_rate=0.03, max_leaf_nodes=15, min_samples_leaf=30.
 - D05 LightGBM-style boosting: HistGradientBoostingClassifier with max_iter=250, learning_rate=0.02, max_leaf_nodes=15, min_samples_leaf=40; provider-independent surrogate is explicitly used.
 - D06 CatBoost-style boosting: HistGradientBoostingClassifier with max_iter=250, learning_rate=0.02, max_leaf_nodes=15, min_samples_leaf=40; provider-independent surrogate is explicitly used.
-- D07 Calibrated stacking: probability averaging of D01-D06, calibration fit only inside training blocks.
+- D07 Calibrated logistic meta-stacking: use an exact chronological 80% base-training / 20% calibration split of the eligible training block, with a minimum base-training guard of 200 observations; fit D01-D06 on the base-training subset, generate calibration probabilities on the held-out calibration subset, fit the logistic meta-model on those calibration probabilities and labels, refit D01-D06 on the complete eligible training block, then pass test probabilities through the frozen logistic meta-model. No fitted component may consume post-cutoff labels.
 - D08 Elastic-net logistic: C=1.0, l1_ratio=0.5, saga/liblinear-compatible deterministic solver as available.
 - D09 GAM/splines: fixed degree-3 spline basis with 8 knots per continuous feature, logistic ridge regularization.
 - D10 kNN/prototype: k=31, distance-weighted, standardized training-only features.
@@ -46,7 +46,7 @@ Before empirical execution, synthetic tests must verify:
 4. deterministic seeds;
 5. sequence windows do not cross session boundaries;
 6. output probabilities remain finite and in [0,1];
-7. calibration never consumes future labels.
+7. D07 calibration never consumes future labels and its fixed 80/20 chronological split plus minimum 200 base-training guard must be preserved.
 
 ## Gate
 Tester must independently inspect the protocol, code, workflow and regression tests before the first hosted empirical run. Phase 5 cannot advance to Phase 6 until the Family D artifact passes tester review.
