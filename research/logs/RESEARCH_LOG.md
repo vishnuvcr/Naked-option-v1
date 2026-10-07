@@ -403,3 +403,13 @@
 - Protocol wording and regression tests were amended accordingly.
 - Tester independently approved the correction for a fresh hosted run.
 - No Family D metric is accepted; Phase 6 remains blocked.
+
+
+## 2026-10-07 — Family D run #23 accepted technical artifact
+- Fresh developer run #23 (`37642007846`) completed all hosted steps, including regression tests, empirical execution, schema validation and artifact upload.
+- The immutable artifact `phase5-family-d-results` (ID `11499450561`) has SHA-256 `27ca6cbc6e1653d40e2d896a81211c97a8d5e70543cf37ad9f402597eee306d8`.
+- Independent tester gate `research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Tester independently reconciled all 150 method/horizon cells, confirmed D07 calibration isolation, and confirmed restored non-zero intraday D13-D15 coverage from full 1-minute causal sequence representations mapped to the hourly grid.
+- D05/D06 identical outputs were recorded as a protocol-defined non-blocking observation because both use the same provider-independent HistGradientBoosting surrogate.
+- Run #20 remains rejected non-evidence; run #23 is the accepted Family D technical artifact for downstream research.
+- No model is selected or promoted from the descriptive maxima. Next steps remain finite and governed: tester review of the Phase 6 scope, then novel-method experiments, option economics, robustness/multiple-testing and fresh-forward validation.
