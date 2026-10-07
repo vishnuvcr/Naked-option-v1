@@ -250,25 +250,32 @@ def _fit_sequence_model(name: str, X: pd.DataFrame, y: pd.Series, train_end: int
     if len(train_y) < 300 or np.unique(train_y).size < 2:
         return np.full(len(test_rows), np.nan)
 
+    min_test = int(np.min(test_rows))
     max_test = int(np.max(test_rows))
-    prefix_groups = None if groups is None else groups.iloc[:max_test + 1].reset_index(drop=True)
+    prefix_start = max(0, min_test - (SEQUENCE_WINDOW - 1))
+    prefix_groups = None if groups is None else groups.iloc[prefix_start:max_test + 1].reset_index(drop=True)
+    test_slice = X.iloc[prefix_start:max_test + 1].reset_index(drop=True)
     test_rep_all, test_idx_all = sequence_features(
-        X.iloc[:max_test + 1].reset_index(drop=True),
+        test_slice,
         SEQUENCE_WINDOW,
         kind,
         prefix_groups,
     )
-    lookup = {int(i): rep for i, rep in zip(test_idx_all, test_rep_all)}
-    if any(int(i) not in lookup for i in test_rows):
-        return np.full(len(test_rows), np.nan)
+    # Convert slice-local endpoints back to global row positions.
+    lookup = {int(i + prefix_start): rep for i, rep in zip(test_idx_all, test_rep_all)}
 
-    test_rep = np.vstack([lookup[int(i)] for i in test_rows])
     pipe = make_pipeline(
         StandardScaler(),
         MLPClassifier(hidden_layer_sizes=(32,), max_iter=250, early_stopping=False, random_state=SEED),
     )
     pipe.fit(train_rep, train_y)
-    return pipe.predict_proba(test_rep)[:, 1]
+
+    out = np.full(len(test_rows), np.nan, dtype=float)
+    valid = [j for j, row in enumerate(test_rows) if int(row) in lookup]
+    if valid:
+        reps = np.vstack([lookup[int(test_rows[j])] for j in valid])
+        out[np.asarray(valid)] = pipe.predict_proba(reps)[:, 1]
+    return out
 
 
 def fit_predict_block(
