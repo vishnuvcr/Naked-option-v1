@@ -74,3 +74,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 3 | Intraday B8 expanding weekday calculation broadcast an empty pre-history array against the full label vector | The first implementation built a length-i mask but applied it to the full y vector | Replaced the loop with a PIT-safe groupwise shifted expanding mean; also vectorized the equivalent daily B8 calculation to reduce runtime | Pending hosted rerun |
 
 | 2026-10-07 | 3 | Intraday B8 weekday-history loop compared a truncated weekday mask against the full future-label array | PIT-safe expanding-history implementation used `np.isfinite(yy)` instead of `np.isfinite(yy[:i])` | Restrict both the weekday mask and historical label array to observations strictly before the decision row | Pending hosted rerun |
+
+| 2026-10-07 | 3 | Intraday B11 logistic refit was computationally expensive because the initial implementation refit at every hourly decision timestamp | 8k+ decision points across five horizons created excessive hosted runtime | Pre-registered once-per-session daily refresh using only pre-session data, then hold the model fixed for that session | Pending hosted rerun |
