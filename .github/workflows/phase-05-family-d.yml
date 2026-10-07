@@ -1,4 +1,5 @@
 name: Phase 5 Family D
+# D07 protocol clarification and regression pin approved by independent tester before fresh empirical execution.
 
 on:
   push:
