@@ -16,6 +16,7 @@ from run_phase6_novel import (
     E06_LAGS,
     E08_MODEL_MAP,
     apply_rank_bin,
+    e06_train_model,
     entropy_weight,
     fit_rank_reference,
     hurst_feature,
@@ -52,6 +53,19 @@ def main():
     bins2 = [apply_rank_bin(v, ref, 4) for v in train]
     assert bins1 == bins2
     assert all(0 <= b < 4 for b in bins1)
+
+    # E06 training cutoff must be invariant to any mutation after train_end.
+    e06_x = np.random.default_rng(123).normal(0.0, 0.01, size=420)
+    e06_y = (np.random.default_rng(124).normal(size=420) > 0).astype(int)
+    train_end = 320
+    fit1 = e06_train_model(e06_x, e06_y, train_end)
+    e06_mut = e06_x.copy()
+    e06_mut[train_end:] += 10.0
+    fit2 = e06_train_model(e06_mut, e06_y, train_end)
+    assert fit1[0] == fit2[0]
+    assert_close(fit1[1], fit2[1])
+    assert np.array_equal(fit1[2], fit2[2])
+    assert np.array_equal(fit1[3], fit2[3])
 
     # Future-row mutation invariance for the causal feature family.
     t = 319
