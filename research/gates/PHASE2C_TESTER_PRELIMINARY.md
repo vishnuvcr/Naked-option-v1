@@ -80,3 +80,10 @@ Developer commit `bc9b96ac63bfa170527962628a41c3a606576674` was independently re
 Developer commit `df6d1bae04f70ab761fc119d1905c95b08f55012` was reviewed. The fixed-commit HSI GitHub source is now tried before repeatedly failing live feeds; the live feeds remain as fallbacks. This is a CI-efficiency change only and does not alter the data-quality acceptance criteria or fabricate the unobserved 2026-05-29 to 2026-09-30 tail.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
+
+
+## Global candidate-order review — 2026-10-07
+
+Developer commit `c81dbb593fb45f86065ddd86fdddb8ba417afa1a` was reviewed independently. The change uses public FRED series first for S25-S27 and the immutable GitHub HSI snapshot first for S28, with Stooq/Yahoo retained as free fallbacks. This reduces repeated live-request latency without altering the data-quality criteria.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
