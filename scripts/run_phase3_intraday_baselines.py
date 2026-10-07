@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score, average_precision_score, brier_score_loss, log_loss, confusion_matrix
 
 ROOT=Path(__file__).resolve().parents[1]
-DATA=ROOT/"data/cache/raw/phase3/hf_intraday/nifty_intraday_reference.parquet"
+DATA=ROOT/"data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet"
 OUT=ROOT/"data/reports"
 OUT.mkdir(parents=True,exist_ok=True)
 
@@ -144,7 +144,7 @@ def base_preds(df,h,name):
         ma5=df["spot"].rolling(5).mean(); ma20=df["spot"].rolling(20).mean()
         return pd.Series(np.where(ma5>ma20,0.55,np.where(ma5<ma20,0.45,0.5)),index=idx)
     if name=="B6":
-        lo=df["spot"].rolling(20).min(); hi=df["spot"].rolling(20).max()
+        lo=df["spot"].rolling(20).min().shift(1); hi=df["spot"].rolling(20).max().shift(1)
         pos=(df["spot"]-lo)/(hi-lo)
         return pd.Series(np.where(pos>0.5,0.55,np.where(pos<0.5,0.45,0.5)),index=idx)
     if name=="B7":
@@ -154,8 +154,14 @@ def base_preds(df,h,name):
         p=np.where(pct<0.33,persistence,np.where(pct>0.67,1-persistence,0.5))
         return pd.Series(p,index=idx)
     if name=="B8":
-        dow=df["ist"].dt.dayofweek
-        return pd.Series(np.where(dow==3,0.51,0.5),index=idx)
+        out=np.full(len(df),np.nan)
+        dow=df["ist"].dt.dayofweek.to_numpy()
+        y_cache={}
+        for hkey in HORIZONS:
+            y_cache[hkey]=None
+        # Calendar probabilities are estimated from earlier observations only.
+        # For the current horizon they are populated inside run() from y_full.
+        return pd.Series(out,index=idx)
     if name=="B3":
         day_open=df.groupby("date")["spot"].transform("first")
         day_closes=df.groupby("date")["spot"].last()
@@ -215,7 +221,7 @@ def run():
         fut=fut_full.loc[grid.index]
         sig=sig_full.loc[grid.index]
         base_full=df.copy()
-        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B1","B2","B3","B4","B5","B6","B7","B8"]}
+        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B1","B2","B3","B4","B5","B6","B7"]}
         out[str(h)]={"label":{
             "n":int(y.notna().sum()),
             "positive_rate":float(y.dropna().mean()) if y.notna().any() else None,
@@ -225,6 +231,18 @@ def run():
         }}
         for name,series in base_preds_full.items():
             out[str(h)][name]=metrics(y,series.loc[grid.index],fut)
+
+        # PIT-safe weekday probability: expanding training history by weekday.
+        b8=np.full(len(df),np.nan)
+        dow=df["ist"].dt.dayofweek.to_numpy()
+        yy=y_full.to_numpy()
+        for i in range(len(df)):
+            d=dow[i]
+            past=(dow[:i]==d)
+            valid=past & np.isfinite(yy)
+            b8[i]=float(np.mean(yy[valid])) if valid.any() else 0.5
+        out[str(h)]["B8"]=metrics(y,pd.Series(b8,index=df.index).loc[grid.index],fut)
+
         # B2 is an intraday decision feature derived from the prior completed session return.
         out[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
         out[str(h)]["B10"]={"status":"BLOCKED_DATA","reason":"PIT-safe historical NSE breadth observations are not yet materialized in Phase 3"}
