@@ -195,3 +195,9 @@
 - Frozen Family B classical technical definitions B01-B13 before empirical execution.
 - Implemented an automatic/manual Family B workflow with cached Phase 3 data, deterministic method formulas, result schema validation and artifact upload.
 - Family B is directional spot research only; option conversion remains deferred to Phase 8.
+
+## 2026-10-07 — Phase 4 Family B interface correction
+
+- The first Family B hosted run reached method execution but failed because directional signals (-1/0/1) were passed directly to probability-based metrics.
+- The fixed protocol mapping is now applied consistently: bullish 0.55, bearish 0.45, neutral 0.50.
+- No Family B empirical result from the failed run is accepted.
