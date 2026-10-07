@@ -7,10 +7,10 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Phase 2 passed the independent tester gate with explicit source restrictions.
 - Phase 3 passed the independent tester gate with scoped data restrictions.
 - Phase 4 Family B passed with VWAP blocked for missing PIT-safe volume; Family C passed with C10/C11 blocked for missing PIT-safe feature layers.
-- Phase 5 Family D is active. The initial empirical lineage has been rejected/invalidated before accepted evidence because of deterministic regression, timestamp, and runtime-control defects; all are logged and preserved.
-- The failed run is preserved as rejected evidence; no Family D metric from it is accepted.
+- Phase 5 Family D has completed the technical empirical gate with scoped restrictions. Earlier Family D runs remain rejected/non-evidence and are preserved in the logs; fresh run #23 passed independent tester audit.
+- Rejected runs are preserved as non-evidence. Run #23 is the accepted Family D technical artifact, but no D model is promoted from descriptive maxima.
 - Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
-- The current correction uses a session-based 20-trading-session intraday refit cadence, explicitly tester-approved as a protocol amendment, while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. The tester-approved D07 clarification and regression pin are now applied; fresh hosted run #19 passed the mandatory regression gate but hit the explicit 90-minute workflow timeout during the empirical suite before producing an artifact; it is non-accepted evidence. The tester approved a runtime-only amendment to a 180-minute hard timeout with progress markers. Run #20 completed successfully but is non-accepted evidence because intraday D13-D15 had n=0 under the previous hourly-cache implementation. The tester blocked acceptance, the developer corrected the sequence path to full 1-minute causal representations mapped to the hourly grid, and the tester approved the correction. A fresh execution is required. No Family D metric is accepted.
+- The current implementation uses the tester-approved session-based 20-trading-session intraday refit cadence while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. Run #19 is non-evidence because it timed out before artifact creation. Run #20 is non-evidence because the earlier intraday D13-D15 sequence cache was built on the hourly matrix and yielded n=0. The developer corrected the sequence path to the full 1-minute causal representation, the tester approved that correction, and fresh run #23 completed successfully. The independent tester gate for run #23 is PASS WITH SCOPED RESTRICTIONS. No D model is promoted; option economics, multiple-testing, robustness and fresh-forward validation remain mandatory.
 - The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
 
 ### Current Phase 5 scope
@@ -44,6 +44,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Phase 5 D07 post-amendment tester gate](research/gates/PHASE5_D07_POST_AMENDMENT_TESTER.md)
 - [Decision/chat log](research/logs/CHAT_LOG.md)
 - [Phase 5 resume chat log](research/logs/CHAT_LOG_PHASE5_20261007.md)
+- [Family D run #23 tester gate](research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md)
 - [Gate reports](research/gates/)
 
 ## Branch governance
@@ -59,3 +60,10 @@ Earlier Project artifacts reported a failed untouched-holdout next-day direction
 ## Disclaimer
 
 This is research and backtesting infrastructure, not a guarantee of profit or investment advice. Long options can lose 100% of the premium paid.
+
+## Latest research checkpoint — 2026-10-07
+
+- **Family D run #23:** completed successfully.
+- **Tester disposition:** PASS WITH SCOPED RESTRICTIONS.
+- **Artifact:** `phase5-family-d-results` (ID `11499450561`; SHA-256 `27ca6cbc6e1653d40e2d896a81211c97a8d5e70543cf37ad9f402597eee306d8`).
+- **Next gate:** independent tester review of the Phase 6 novel-method scope. No strategy has been promoted.
