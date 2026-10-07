@@ -93,3 +93,9 @@
 - A public GitHub dataset was found containing daily Hang Seng close data from 1986 through 2026-05-28. The repository has no license file visible at its root, so this source is explicitly tagged research-only/license-unverified; it is not promoted to a canonical redistribution source.
 - The acquisition script can use this source only as a fallback, retains the exact commit URL, hashes the cached bytes, and preserves the verified sub-window instead of padding the missing 2026-05-29 to 2026-09-30 interval.
 - This satisfies the free-source-first requirement while keeping the residual coverage limitation visible for the tester and final manuscript.
+
+## 2026-10-07 — Phase 2C run #22 CI-efficiency correction
+
+- The verified HSI GitHub snapshot is deterministic and provenance-locked, while the tested live S28 endpoints have repeatedly returned no data or 404s.
+- To prevent unnecessary CI time and repeated network failures, S28 now selects the fixed-commit GitHub dataset first and retains live feeds as fallback alternatives.
+- The source's shorter verified tail remains explicit; no synthetic extension is introduced.
