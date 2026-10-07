@@ -50,3 +50,8 @@
 - India VIX acquisition succeeded but validation parsed zero observations because the validator accepted only a narrow subset of date formats.
 - The developer correction is deliberately limited to parsing/validation semantics; no acceptance threshold was relaxed.
 - Phase 2 remains open pending the next hosted run and independent tester review.
+
+## 2026-10-07 — Phase 2C correction rerun trigger
+
+- After diagnosing run #14, the corrected parser/validator commit was moved onto the developer branch and a follow-up log commit was pushed solely to trigger the automatic Phase 2C workflow on the corrected tree.
+- No phase transition is permitted from this rerun until the tester independently inspects the resulting artifacts.
