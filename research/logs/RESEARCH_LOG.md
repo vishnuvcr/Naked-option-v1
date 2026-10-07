@@ -89,3 +89,8 @@
 - The hosted run exposed a length mismatch in the fixed probability-bin future-return diagnostic after NaN metric masking.
 - The diagnostic now applies the same finite-value mask to predictions, labels and future returns, and explicitly rejects any vector-length mismatch.
 - No empirical result from the failed run is retained as an accepted research result.
+## 2026-10-07 — Phase 3 hosted-run queue checkpoint
+
+- The corrected developer head passed the repository protocol check.
+- The Phase 3 run for the corrected head is currently pending because an older Phase 3 run remains in progress in the same branch concurrency group. The older run exposes no current job-step state through the connected GitHub service.
+- This is logged as an infrastructure/queue checkpoint, not a scientific result. Phase 3 remains open and Phase 4 remains blocked.
