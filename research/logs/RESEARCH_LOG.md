@@ -106,3 +106,9 @@
 - A prior Phase 3 Actions run remained stuck/in-progress while newer corrected runs were queued/cancelled.
 - To prevent stale infrastructure from blocking the corrected science run, the workflow concurrency namespace was versioned and a 45-minute job timeout was added.
 - No scientific metric or acceptance threshold was changed.
+
+## 2026-10-07 — Phase 3 B11 walk-forward indexing correction
+
+- Hosted Phase 3 execution exposed a pandas boolean-mask alignment error in the daily logistic baseline after the horizon purge.
+- The training feature matrix is now sliced exactly to the purged training endpoint before applying the label/feature completeness mask, eliminating index expansion and preserving the intended chronology.
+- No empirical result from the failed run is accepted.
