@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score, average_precision_score, brier_score_loss, log_loss
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score, average_precision_score, brier_score_loss, log_loss, confusion_matrix
 
 ROOT=Path(__file__).resolve().parents[1]
 DATA=ROOT/"data/cache/raw/phase3/hf_intraday/nifty_intraday_reference.parquet"
@@ -51,17 +51,48 @@ def labels(ts, price, h):
         sigma.append(float(np.std(vals,ddof=1)) if len(vals)==20 else np.nan)
     return pd.Series(y,index=pos),pd.Series(future,index=pos),pd.Series(sigma,index=pos)
 
+def block_bootstrap_accuracy(y, p, block_len=60, reps=200, seed=42):
+    z=pd.DataFrame({"y":y,"p":p}).dropna()
+    if len(z)<block_len:
+        return {"lower":None,"upper":None,"median":None}
+    rng=np.random.default_rng(seed); n=len(z)
+    blocks=[np.arange(i,min(i+block_len,n)) for i in range(0,n,block_len)]
+    vals=[]
+    for _ in range(reps):
+        sel=rng.integers(0,len(blocks),size=len(blocks))
+        idx=np.concatenate([blocks[j] for j in sel])[:n]
+        yy=z.y.to_numpy()[idx]; pp=z.p.to_numpy()[idx]
+        vals.append(float(np.mean((pp>=0.5)==yy)))
+    return {"lower":float(np.quantile(vals,0.025)),"upper":float(np.quantile(vals,0.975)),"median":float(np.median(vals))}
+
+def calibration_metrics(y,p):
+    z=pd.DataFrame({"y":y,"p":p}).dropna()
+    if len(z)==0:
+        return {"calibration_slope":None,"calibration_intercept":None}
+    yy=z.y.astype(int).to_numpy(); pp=np.clip(z.p.to_numpy(),1e-6,1-1e-6)
+    lp=np.log(pp/(1-pp))
+    if np.ptp(lp)<1e-12:
+        rate=float(yy.mean())
+        return {"calibration_slope":None,"calibration_intercept":float(np.log(rate/(1-rate))) if 0<rate<1 else None}
+    model=LogisticRegression(C=1e6,solver="lbfgs",max_iter=1000).fit(lp.reshape(-1,1),yy)
+    return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
+
 def metrics(y,p):
     z=pd.DataFrame({"y":y,"p":p}).dropna()
     if z.empty: return {"n":0}
     yy=z.y.astype(int).to_numpy(); pp=z.p.to_numpy(); pred=(pp>=0.5).astype(int)
+    cm=confusion_matrix(yy,pred,labels=[0,1]).ravel()
     out={
+        "status":"EXECUTED",
         "n":int(len(z)),
         "positive_rate":float(yy.mean()),
         "accuracy":float(accuracy_score(yy,pred)),
         "balanced_accuracy":float(balanced_accuracy_score(yy,pred)),
         "brier":float(brier_score_loss(yy,pp)),
         "log_loss":float(log_loss(yy,pp,labels=[0,1])),
+        "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
+        **calibration_metrics(y,p),
+        "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
     }
     if len(np.unique(yy))==2:
         out["roc_auc"]=float(roc_auc_score(yy,pp))
@@ -86,8 +117,11 @@ def base_preds(df,h,name):
     p=pd.Series(np.nan,index=idx)
     ret=df["log_spot"].diff()
     if name=="B0": return pd.Series(0.5,index=idx)
+    if name=="B1":
+        return pd.Series(np.where(ret>0,0.55,np.where(ret<0,0.45,0.5)),index=idx)
     if name=="B4":
-        r=np.log(df["spot"]/df["spot"].shift(h))
+        lookback=min(h,30)
+        r=np.log(df["spot"]/df["spot"].shift(lookback))
         return pd.Series(np.where(r>0,0.55,np.where(r<0,0.45,0.5)),index=idx)
     if name=="B5":
         ma5=df["spot"].rolling(5).mean(); ma20=df["spot"].rolling(20).mean()
@@ -107,8 +141,8 @@ def base_preds(df,h,name):
         return pd.Series(np.where(dow==3,0.51,0.5),index=idx)
     if name=="B3":
         day_open=df.groupby("date")["spot"].transform("first")
-        day_firsts=df.groupby("date")["spot"].first()
-        prior_day_close=day_firsts.shift(1)
+        day_closes=df.groupby("date")["spot"].last()
+        prior_day_close=day_closes.shift(1)
         prior_close=df["date"].map(prior_day_close)
         pday=np.where(day_open>prior_close,0.55,np.where(day_open<prior_close,0.45,0.5))
         return pd.Series(pday,index=idx)
@@ -118,13 +152,11 @@ def logistic(df,h,y):
     X=pd.DataFrame(index=df.index)
     ret=df["log_spot"].diff()
     X["ret1"]=ret
-    X["reth"]=df["log_spot"].diff(h)
     X["vol20"]=ret.rolling(20).std()
-    X["ma5gap"]=np.log(df["spot"]/df["spot"].rolling(5).mean())
-    X["ma20gap"]=np.log(df["spot"]/df["spot"].rolling(20).mean())
-    X["range20"]=(df["spot"]-df["spot"].rolling(20).min())/(df["spot"].rolling(20).max()-df["spot"].rolling(20).min())
-    X["dow"]=df["ist"].dt.dayofweek
-    X["session_min"]=df["minute_of_day"]
+    day_open=df.groupby("date")["spot"].transform("first")
+    day_closes=df.groupby("date")["spot"].last()
+    prior_close=df["date"].map(day_closes.shift(1))
+    X["gap"]=np.log(day_open/prior_close)
     out=np.full(len(df),np.nan)
     for i in range(300,len(df)):
         train_end=max(0,i-h)
@@ -160,7 +192,7 @@ def run():
         fut=fut_full.loc[grid.index]
         sig=sig_full.loc[grid.index]
         base_full=df.copy()
-        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B3","B4","B5","B6","B7","B8"]}
+        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B1","B3","B4","B5","B6","B7","B8"]}
         out[str(h)]={"label":{
             "n":int(y.notna().sum()),
             "positive_rate":float(y.dropna().mean()) if y.notna().any() else None,
@@ -170,6 +202,9 @@ def run():
         }}
         for name,series in base_preds_full.items():
             out[str(h)][name]=metrics(y,series.loc[grid.index])
+        out[str(h)]["B2"]={"status":"NOT_APPLICABLE","reason":"B2 previous-session sign is reserved for completed-session directional baselines"}
+        out[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
+        out[str(h)]["B10"]={"status":"BLOCKED_DATA","reason":"PIT-safe historical NSE breadth observations are not yet materialized in Phase 3"}
         out[str(h)]["B11"]=metrics(y,logistic(df,h,y_full).loc[grid.index])
         out[str(h)]["B7_regime_counts"]=b7_regime_counts(df)
     report={
