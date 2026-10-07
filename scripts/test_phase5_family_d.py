@@ -39,8 +39,11 @@ def main():
 
     # All registered methods must return finite probabilities on a controlled
     # balanced training block. A failure names the offending method.
+    # Use one synthetic group here so the 20-observation sequence methods have
+    # >=300 trainable sequence endpoints. Session-boundary safety is tested
+    # independently above and therefore does not get weakened.
     for name in [f"D{i:02d}" for i in range(1, 16)]:
-        p = fit_predict_block(name, X, y, 300, np.array([300, 301, 302]), groups=groups)
+        p = fit_predict_block(name, X, y, 300, np.array([300, 301, 302]), groups=None)
         assert len(p) == 3, f"{name}: wrong probability length {len(p)}"
         assert np.all(np.isfinite(p)), f"{name}: non-finite probabilities {p}"
         assert np.all((p >= 0) & (p <= 1)), f"{name}: out-of-range probabilities {p}"
