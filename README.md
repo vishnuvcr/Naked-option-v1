@@ -94,3 +94,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester gate [PHASE6_RUN26_REGRESSION_TESTER.md](research/gates/PHASE6_RUN26_REGRESSION_TESTER.md) = **REQUEST CHANGES**.
 - The defect is confined to the regression fixture expectation: 13:15 − 120 minutes = 11:15.
 - Run #578 is non-evidence; no artifact or Phase 6 metric was accepted. Phase 7 remains blocked.
+
+## Phase 6 regression correction gate — 2026-10-08
+
+- Tester gate [PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md](research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md) = **PASS — fresh empirical execution authorized**.
+- Correction `1a956f930b11850fb238ea3352565b36a7337395` fixes only the regression fixture arithmetic (13:15 − 120 minutes = 11:15).
+- Run #578 remains non-evidence; the next run must pass the full regression suite before empirical execution.

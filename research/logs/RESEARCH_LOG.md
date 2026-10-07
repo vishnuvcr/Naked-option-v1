@@ -480,3 +480,9 @@
 - Tester gate `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md` = REQUEST CHANGES.
 - Empirical execution was skipped; no Phase 6 result is accepted.
 - Developer is preparing a detached arithmetic correction. Tester approval is required before the developer branch advances again.
+
+## 2026-10-08 — Phase 6 run 578 regression correction approved
+- Tester independently reviewed detached correction `1a956f930b11850fb238ea3352565b36a7337395` and confirmed the global-I03 test fixture arithmetic: 13:15 minus 120 minutes = 11:15.
+- Tester confirmed production Phase 6 logic and frozen scientific definitions were unchanged.
+- Gate `research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md` = PASS for fresh empirical execution only.
+- Developer is authorized to archive the gate, advance the branch, and trigger a new hosted run. No scientific metric is accepted yet.

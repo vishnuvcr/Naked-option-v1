@@ -102,3 +102,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md` = **REQUEST CHANGES**.
 - Run #578 is **NON-EVIDENCE**; empirical execution was skipped and no artifact/metric was accepted.
 - Phase 6 remains **BLOCKED** until the regression arithmetic is corrected and independently approved.
+
+## 2026-10-08 — Phase 6 run 578 regression correction approved
+- Tester gate `research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md` = **PASS — correction approved for fresh empirical execution**.
+- Detached correction `1a956f930b11850fb238ea3352565b36a7337395` changes only the expected timestamp in the global-I03 regression fixture from 11:00 to the mathematically correct 11:15.
+- Run #578 remains **NON-EVIDENCE**; its empirical job was skipped and no artifact/metric was accepted.
+- The developer branch may now advance to the archived approval commit and trigger a fresh gated Phase 6 execution.
+- Phase 6 scientific promotion remains blocked until the fresh 200-cell artifact receives a separate independent empirical tester gate.

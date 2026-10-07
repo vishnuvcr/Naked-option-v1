@@ -106,3 +106,9 @@ No scientific or protocol change was made during this checkpoint.
 - Tester independently checked the failing assertion and identified a pure arithmetic error in the regression fixture: 13:15 minus 120 minutes is 11:15.
 - Tester issued REQUEST CHANGES at `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md`.
 - Run #578 is non-evidence and no scientific metric is accepted. A detached correction is being prepared for independent approval before the next hosted run.
+
+## 2026-10-08 — Tester approval of Phase 6 run 578 regression correction
+- Independent tester reviewed the detached arithmetic correction `1a956f930b11850fb238ea3352565b36a7337395`.
+- The incorrect 11:00 expectation was corrected to 11:15; production logic was unchanged.
+- Tester gate `research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md` = PASS for fresh execution only.
+- Developer may archive this gate on `phase-06-developer` and trigger a fresh hosted run. Run #578 remains non-evidence.
