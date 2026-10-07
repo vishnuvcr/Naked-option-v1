@@ -145,3 +145,5 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-07 | 6 | Phase 6 method-spec mathematical defects | Tester found I07 used the wrong/ambiguous favorable-direction event for puts and I03 divided a bounded persistence score by raw volatility, causing likely saturation; quantile and estimator edge guards were also incomplete | Corrected PE/CE break-even events, made I03 dimensionless via volatility ratio, fixed deterministic rank binning and added entropy/MFDFA/state-transition numerical guards | Pending tester recheck |
+
+| 2026-10-07 | 6 | Phase 6 first implementation had a block-aggregation defect and an incomplete E06 training-reference interface | Initial implementation overwrote per-block results and called a three-return E06 fitter as if it returned four values; test-value rank mapping also lacked a frozen training reference | Reworked Phase 6 accumulation to retain all walk-forward blocks, froze E06 rank reference to training-only data, added explicit I03/I07/I08/I09 helpers and regression coverage | Pending tester code gate |
