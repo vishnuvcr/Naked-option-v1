@@ -189,8 +189,8 @@ def _finite_training_slice(X: pd.DataFrame, y: pd.Series, train_end: int):
     return train.loc[mask], yy.loc[mask].astype(int)
 
 
-def _fit_calibrated_stack(X: pd.DataFrame, y: pd.Series, test_rows: np.ndarray):
-    train, yy = _finite_training_slice(X, y, len(X))
+def _fit_calibrated_stack(X: pd.DataFrame, y: pd.Series, train_end: int, test_rows: np.ndarray):
+    train, yy = _finite_training_slice(X, y, train_end)
     if len(yy) < 300 or yy.nunique() < 2:
         return np.full(len(test_rows), np.nan)
 
@@ -225,7 +225,12 @@ def _fit_sequence_model(name: str, X: pd.DataFrame, y: pd.Series, train_end: int
     kind = {"D13": "lag", "D14": "conv", "D15": "attn"}[name]
 
     train_groups = None if groups is None else groups.iloc[:train_end].reset_index(drop=True)
-    train_rep, train_idx = sequence_features(X.iloc[:train_end].reset_index(drop=True), SEQUENCE_WINDOW, kind, train_groups)
+    train_rep, train_idx = sequence_features(
+        X.iloc[:train_end].reset_index(drop=True),
+        SEQUENCE_WINDOW,
+        kind,
+        train_groups,
+    )
     if len(train_rep) < 300:
         return np.full(len(test_rows), np.nan)
 
@@ -237,7 +242,12 @@ def _fit_sequence_model(name: str, X: pd.DataFrame, y: pd.Series, train_end: int
 
     max_test = int(np.max(test_rows))
     prefix_groups = None if groups is None else groups.iloc[:max_test + 1].reset_index(drop=True)
-    test_rep_all, test_idx_all = sequence_features(X.iloc[:max_test + 1].reset_index(drop=True), SEQUENCE_WINDOW, kind, prefix_groups)
+    test_rep_all, test_idx_all = sequence_features(
+        X.iloc[:max_test + 1].reset_index(drop=True),
+        SEQUENCE_WINDOW,
+        kind,
+        prefix_groups,
+    )
     lookup = {int(i): rep for i, rep in zip(test_idx_all, test_rep_all)}
     if any(int(i) not in lookup for i in test_rows):
         return np.full(len(test_rows), np.nan)
@@ -263,8 +273,7 @@ def fit_predict_block(
         return np.empty(0)
 
     if name == "D07":
-        # The stack only sees y.iloc[:train_end]; its calibration split is inside that history.
-        return _fit_calibrated_stack(X.iloc[:train_end], y.iloc[:train_end], test_rows)
+        return _fit_calibrated_stack(X, y, train_end, test_rows)
 
     train, yy = _finite_training_slice(X, y, train_end)
     if len(yy) < 300 or yy.nunique() < 2:
