@@ -32,3 +32,15 @@ Independent tester pre-gate requirements remain active: once the immutable artif
 
 ## Ongoing gate
 Phase 6 remains blocked until the tester approves the completed Family D artifact.
+### 2026-10-07 — D07 protocol mismatch found and corrected
+
+## Tester finding
+Independent pre-artifact review found that the frozen Phase 5 protocol described D07 as probability averaging while the implemented method was a chronological calibrated logistic meta-stack. The tester blocked acceptance of Run #16.
+
+## Developer action
+Submitted the D07 clarification for independent tester review. The tester approved the clarification with exact wording controls: chronological 80/20 base/calibration split, minimum 200 base-training observations, training-only base models/calibrator, full-training base-model refit for test prediction, and unchanged D01-D06 hyperparameters.
+
+The developer then amended the main Phase 5 protocol and added a deterministic D07 regression pin plus a post-cutoff-label invariance check. Run #16 remains non-accepted evidence.
+
+## Gate state
+A fresh hosted Family D run is required after the approved D07 correction. No empirical Family D metric is accepted until the fresh artifact passes the independent tester gate.
