@@ -76,3 +76,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 3 | Intraday B8 weekday-history loop compared a truncated weekday mask against the full future-label array | PIT-safe expanding-history implementation used `np.isfinite(yy)` instead of `np.isfinite(yy[:i])` | Restrict both the weekday mask and historical label array to observations strictly before the decision row | Pending hosted rerun |
 
 | 2026-10-07 | 3 | Intraday B11 logistic refit was computationally expensive because the initial implementation refit at every hourly decision timestamp | 8k+ decision points across five horizons created excessive hosted runtime | Pre-registered once-per-session daily refresh using only pre-session data, then hold the model fixed for that session | Pending hosted rerun |
+
+| 2026-10-07 | 3 | Intraday label construction used a Python loop over every minute and 20 historical blocks per observation, making the empirical run unnecessarily long | Exact-timestamp lookup was implemented row-by-row | Replaced with vectorized timestamp reindexing for future labels and the 20-block volatility estimate; timing semantics are unchanged | Pending hosted rerun |
