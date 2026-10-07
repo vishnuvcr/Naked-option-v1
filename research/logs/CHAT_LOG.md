@@ -25,3 +25,7 @@ Earlier project artifacts reported:
 - option-surface/skew information remained an interesting signal.
 
 Those are prior findings to be revalidated, not accepted as current conclusions.
+
+### 2026-10-07 — Independent tester continuation checkpoint
+
+Tester role remained isolated from developer coding. The tester inspected the developer's Phase 2C correction and recorded an independent review: legacy-date parsing, non-option-row filtering and VIX date parsing are logically appropriate; no acceptance threshold was weakened. The tester gate remains OPEN pending corrected-tree hosted artifacts and independent reproduction.
