@@ -49,6 +49,18 @@ def num(v):
     except Exception:
         return None
 
+def parse_nse_date(v):
+    raw=str(v or "").strip()
+    if not raw:
+        return None
+    raw=raw.split("T")[0].split(" ")[0].strip()
+    for fmt in ("%Y-%m-%d","%d-%b-%Y","%d-%B-%Y","%d-%m-%Y","%d/%m/%Y","%Y/%m/%d"):
+        try:
+            return dt.datetime.strptime(raw, fmt).date()
+        except ValueError:
+            pass
+    return None
+
 records=[]
 for zpath in sorted(RAW.glob("*.zip")):
     if zpath.name.startswith("."):
@@ -69,9 +81,8 @@ for zpath in sorted(RAW.glob("*.zip")):
             opt=str(row.get(vals["opt"],"")).strip().upper()
             if opt not in {"CE","PE"}:
                 continue
-            try:
-                expiry=dt.date.fromisoformat(str(row.get(vals["expiry"],"")).split("T")[0])
-            except Exception:
+            expiry=parse_nse_date(row.get(vals["expiry"]))
+            if expiry is None:
                 continue
             strike=num(row.get(vals["strike"]))
             if strike is None:

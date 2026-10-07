@@ -38,6 +38,18 @@ def ffloat(v):
     except Exception:
         return None
 
+def parse_nse_date(v):
+    raw=str(v or "").strip()
+    if not raw:
+        return None
+    raw=raw.split("T")[0].split(" ")[0].strip()
+    for fmt in ("%Y-%m-%d","%d-%b-%Y","%d-%B-%Y","%d-%m-%Y","%d/%m/%Y","%Y/%m/%d"):
+        try:
+            return dt.datetime.strptime(raw, fmt).date()
+        except ValueError:
+            pass
+    return None
+
 ALIASES={
     "symbol":["SYMBOL","TckrSymb"],
     "expiry":["EXPIRY_DT","XpryDt"],
@@ -95,13 +107,13 @@ for item in meta["results"]:
         if sym!="NIFTY":
             continue
         opt=str(row.get(vals["opt"],"")).strip().upper()
+        # NIFTY rows also include non-option instruments (for example futures).
+        # They are outside the option validation universe and must not be
+        # misclassified as invalid options.
         if opt not in {"CE","PE"}:
-            invalid_rows+=1
             continue
-        expiry_raw=str(row.get(vals["expiry"],"")).strip()
-        try:
-            expiry=dt.date.fromisoformat(expiry_raw.split("T")[0])
-        except Exception:
+        expiry=parse_nse_date(row.get(vals["expiry"]))
+        if expiry is None:
             invalid_rows+=1
             continue
         strike=ffloat(row.get(vals["strike"]))

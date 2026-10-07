@@ -41,3 +41,12 @@
 - Added year-by-year official NSE acquisition, compact NIFTY-only Parquet generation, India VIX historical acquisition, free global/rates history, lot-size history checks and a final bulk-data gate workflow.
 - The workflow is matrixed by year, rate-limited, cached, manually dispatchable and uploads immutable validation artifacts.
 - Historical combined FII/DII is explicitly quarantined rather than fabricated; current live snapshots remain available.
+
+## 2026-10-07 — Phase 2C run #14 failure diagnosis and correction
+
+- The hosted Phase 2C run reached real data acquisition successfully for all year jobs that entered parsing.
+- 2019, 2022 and 2023 produced no canonical option rows because legacy NSE expiry dates were not ISO-formatted, so valid option rows were discarded during expiry parsing.
+- 2024, 2025 and 2026 were flagged for invalid NIFTY option rows because the validator counted non-option NIFTY instruments (such as futures) as invalid; this was a validation-logic error, not evidence that those rows were malformed options.
+- India VIX acquisition succeeded but validation parsed zero observations because the validator accepted only a narrow subset of date formats.
+- The developer correction is deliberately limited to parsing/validation semantics; no acceptance threshold was relaxed.
+- Phase 2 remains open pending the next hosted run and independent tester review.

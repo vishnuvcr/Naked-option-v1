@@ -14,14 +14,33 @@ meta=json.loads(meta_path.read_text())
 rows=0
 dates=[]
 
+def parse_date(raw):
+    text=str(raw or "").strip()
+    if not text:
+        return None
+    text=text.replace("T"," ").replace("Z","").strip()
+    for candidate in (text.split(" ")[0], text):
+        for fmt in ("%Y-%m-%d","%d-%m-%Y","%d/%m/%Y","%d-%b-%Y","%d-%B-%Y","%Y/%m/%d"):
+            try:
+                return dt.datetime.strptime(candidate, fmt).date()
+            except ValueError:
+                pass
+        try:
+            return dt.datetime.fromisoformat(candidate).date()
+        except Exception:
+            pass
+    return None
+
 def append_row(date_raw, val_raw):
     global rows
     if not date_raw or val_raw in (None,""):
         return
+    date=parse_date(date_raw)
     try:
-        date=dt.datetime.fromisoformat(str(date_raw).replace("T"," ").replace("Z","")).date()
-        value=float(str(val_raw).replace(",",""))
+        value=float(str(val_raw).replace(",","").strip())
     except Exception:
+        return
+    if date is None:
         return
     if value<=0:
         raise SystemExit(f"ERROR: non-positive India VIX value on {date}")
