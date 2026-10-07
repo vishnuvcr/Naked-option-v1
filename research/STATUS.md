@@ -87,10 +87,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The default `main` branch also contains the corrected reusable workflow for manual-dispatch registration.
 - A fresh Phase 6 hosted run is now authorized. No metric or artifact is accepted until post-run tester audit.
 
-## 2026-10-08 — Phase 6 run 575 residual-defect checkpoint
+## 2026-10-08 — Phase 6 run 575 residual-defect checkpoint — tester correction approved
 - Fresh hosted Research Protocol Check run `37678088131` / #575 started from developer commit `9b9b7914f82993505ec4f2f0c3aac0b3d6732521` and passed protocol detection, repository contract checks, source acquisition and the Phase 6 regression suite.
 - Tester independently inspected the complete Phase 6 implementation before accepting any empirical metric and found a residual invalid `decision_times.iloc[...]` access in the later global-I03 cutoff block.
 - Run #575 is therefore treated as **NON-EVIDENCE** regardless of its eventual workflow outcome; no Phase 6 metric/artifact from that run can be accepted.
 - Tester gate `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_TESTER.md` = **REQUEST CHANGES**.
-- A detached developer correction commit is prepared; the developer branch remains unchanged until the correction receives independent tester approval, preserving the developer/tester gate ordering.
-- Phase 6 remains **BLOCKED** pending tester approval of the correction and a fresh immutable 200-cell artifact audit.
+- Tester approval `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = **PASS — correction approved for fresh empirical execution**.
+- Corrected detached commit `e27b6358901dc60bc90bad295f46c9493ab63d1e` passed independent cutoff/code review; the developer ref can now advance only to the approved commit that archives this gate.
+- Phase 6 remains **BLOCKED for scientific promotion** pending the fresh immutable 200-cell artifact and separate empirical tester gate.

@@ -467,3 +467,9 @@
 - Tester issued REQUEST CHANGES at `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_TESTER.md`.
 - The active run is non-evidence; no scientific metric is accepted. A detached correction is being prepared and must receive tester approval before the developer ref is advanced.
 - A live-job log request returned GitHub BlobNotFound; this is recorded as infrastructure-only and had no scientific effect.
+
+## 2026-10-08 — Phase 6 residual cutoff correction tester approval
+- Tester independently reviewed detached developer correction `e27b6358901dc60bc90bad295f46c9493ab63d1e`.
+- Tester confirmed both `DatetimeIndex` cutoff paths use direct positional indexing, no `decision_times.iloc` remains, remaining `.iloc` calls apply to Series/DataFrame objects, indentation is valid, and regression coverage includes the later global-I03 path.
+- Tester gate `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = **PASS — correction approved for fresh empirical execution**.
+- The developer branch is authorized to advance to the corrected commit with the approval archived. No scientific metric is yet approved.

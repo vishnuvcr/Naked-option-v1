@@ -93,3 +93,9 @@ No scientific or protocol change was made during this checkpoint.
 - Before accepting any result, the developer/tester review inspected the full Phase 6 code and found a second, residual `decision_times.iloc[rows[0]]` use in the later global-I03 block.
 - Tester submitted REQUEST CHANGES. The current run is classified as non-evidence, and a detached correction is being prepared for independent tester approval before the developer branch advances.
 - A GitHub live-log retrieval attempt returned BlobNotFound; no scientific inference was drawn from missing logs.
+
+## 2026-10-08 — Tester approval of Phase 6 residual cutoff correction
+- Independent tester reviewed corrected detached commit `e27b6358901dc60bc90bad295f46c9493ab63d1e`.
+- Tester verified removal of the residual `decision_times.iloc` defect, valid indentation, complete cutoff regression coverage, and preservation of frozen scientific definitions.
+- Tester gate `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = PASS for fresh empirical execution only.
+- Developer may now archive the approval on `phase-06-developer` and advance the branch; run #575 remains non-evidence.
