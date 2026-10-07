@@ -14,12 +14,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: phase3-labels-${{ github.ref }}
+  group: phase3-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   phase3-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: read
     steps:
