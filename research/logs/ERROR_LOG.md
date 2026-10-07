@@ -66,3 +66,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | Governance | User requested indefinite research until a working strategy is found | Literal indefinite search conflicts with reproducibility and the pre-registered finite research design | Added a no-premature-null completion rule: execute the full declared phase catalog and all registered families before any final null conclusion; only explicitly governed amendments may extend the finite method universe | Protocol/static review |
 
 | 2026-10-07 | 3 | Daily B11 walk-forward training mask became longer than the training frame after pandas index alignment | Feature frame was sliced to i while the label mask was sliced to i-h | Slice the feature frame to the purged training endpoint before applying the mask | Pending hosted rerun |
+
+| 2026-10-07 | 3 | Intraday label series used timestamps as index while the decision-grid frame used integer row indices | Label constructor returned a DatetimeIndex, but grid selection used the source DataFrame integer index | Return label/future/sigma series on the source row-index while retaining timestamps internally for horizon lookup | Pending hosted rerun |
