@@ -176,3 +176,9 @@
 - Corrected daily B8 now admits only same-weekday historical labels whose h-session future endpoint is strictly before the decision date.
 - Added a combined synthetic regression test for daily and intraday B8 and extended the result-schema static guard to reject the unsafe shifting/expanding pattern in both implementations.
 - Run #107 remains rejected evidence; Phase 3 must be rerun from a fresh commit before independent approval.
+
+## 2026-10-07 — Phase 3 B8 regression fixture correction
+
+- The combined B8 regression workflow failed before empirical execution because the synthetic daily fixture expected a positive same-weekday history at an early row where no prior same-weekday observation existed.
+- The fixture was corrected to test a later same-weekday decision plus the strict endpoint rule. This does not alter production B8 logic.
+- No scientific result was produced by the failed regression run.
