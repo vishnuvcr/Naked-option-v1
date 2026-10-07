@@ -83,3 +83,5 @@ New errors must be appended, never overwritten.
 
 | 2026-10-07 | 3 | Tester run #97 found intraday B8 future-label leakage | B8 used a one-row shift of labels despite H-minute future endpoints | Replaced with endpoint-aware historical-label filtering requiring label_end < decision_time | Pending hosted rerun/tester |
 | 2026-10-07 | 3 | Probability-bin diagnostics used a wider denominator than classification metrics | The bin report masked p/future but not y validity | Apply y/p/future joint mask and require bin-count sum = metric n in schema validation | Pending hosted rerun/tester |
+
+| 2026-10-07 | 3 | Phase 3 rerun failed because the cached normalized intraday parquet had `spot` instead of the raw source `close` field expected on cache reuse | Acquisition normalized the cache in the prior run, making the next run non-idempotent | Acquisition now accepts either normalized timestamp/spot cache or raw timestamp/close source before rewriting the normalized cache | Pending hosted rerun |
