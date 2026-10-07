@@ -304,3 +304,11 @@
 - A regression test now proves the cached representation is numerically identical to the direct representation.
 - The independent tester approved the optimization as computational-only at `research/gates/PHASE5_SEQUENCE_PRECOMPUTE_TESTER.md`.
 - The long-running pre-optimization run is superseded and remains non-evidence. No Family D empirical metric has been accepted.
+
+## 2026-10-07 — Phase 5 Family D continuation: hosted run #16
+
+- Continued from the user-provided checkpoint and re-read the repository governance, status, prior tester reports, correction logs and the current developer head.
+- Verified hosted run #16 (37606785909) is executing the tester-approved exact row-aligned D13-D15 sequence-cache correction on phase-05-developer commit 3bb5fe0c17c1dce92624059a40b9e140d2c2814f.
+- Regression, acquisition and cache-restore steps have completed successfully; the empirical D01-D15 suite remains in progress.
+- No Family D metric is accepted and Phase 6 remains blocked.
+- Independent artifact review is the next required gate and must occur before any model/family promotion.
