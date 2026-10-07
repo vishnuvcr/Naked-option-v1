@@ -649,7 +649,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
 
             # E06: fit bin edges and conditional probabilities only on the training block.
             ret_source = full_ret[decision_idx] if intraday else full_ret
-            selected_lag, mi, table, train_sorted = e06_train_model(ret_source, y, train_end)
+            selected_lag, mi, table, train_reference = e06_train_model(ret_source, y, train_end)
             if selected_lag is not None and table is not None:
                 x = pd.Series(ret_source).shift(selected_lag).to_numpy()
                 for r in rows:
