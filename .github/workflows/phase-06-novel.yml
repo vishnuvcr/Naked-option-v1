@@ -1,6 +1,6 @@
 name: Phase 6 Novel Methods
 
-# Tester-approved workflow; empirical job requires archived tester gate.
+# Tester-approved workflow; empirical job requires archived tester gate and caller-supplied boolean authorization.
 
 on:
   workflow_call:
