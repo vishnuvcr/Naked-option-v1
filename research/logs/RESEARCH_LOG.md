@@ -371,3 +371,11 @@
 - Schema validation and immutable artifact upload remain pending.
 - No Family D metric is accepted; Phase 6 remains blocked.
 - A prior live-log BlobNotFound remains an infrastructure visibility issue only.
+
+## 2026-10-07 — Family D run #19 cancellation
+
+- Fresh run #19 (37611880308) passed regression and all acquisition/cache stages.
+- The empirical D01-D15 suite ran from 11:07:52 UTC until 12:38:11 UTC and then the workflow was cancelled.
+- Schema validation and artifact upload were skipped; no immutable result artifact exists.
+- Run #19 is therefore non-evidence and cannot be used for model selection.
+- The next action is a runtime investigation and tester-reviewed correction before another fresh Family D empirical execution.
