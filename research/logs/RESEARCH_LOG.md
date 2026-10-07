@@ -137,3 +137,9 @@
 - Hosted execution exposed a vector-length mismatch in the PIT-safe weekday baseline at the first rows of the expanding-history loop.
 - B8 now evaluates only labels available strictly before the current decision row, preserving point-in-time semantics.
 - No empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 3 B11 runtime-control amendment
+
+- The intraday B11 logistic computation was too expensive because it refit at every frozen decision timestamp.
+- Before accepting any result, the protocol was amended explicitly: one walk-forward refit at the first decision of each session, using only pre-session data, then hold the model fixed for that session.
+- This preserves the pre-session point-in-time information boundary and materially reduces compute. Earlier runs remain rejected and are not accepted as evidence.
