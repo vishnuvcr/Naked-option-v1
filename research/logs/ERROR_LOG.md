@@ -134,3 +134,4 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-07 | 5 | Live Family D job-log download returned GitHub BlobNotFound | GitHub Actions did not expose a retrievable log blob for the still-running job #112760881845 | Treat as infrastructure inspection failure only; continue state polling and require the immutable artifact for scientific review | No scientific impact; artifact gate remains mandatory |
+| 2026-10-07 | 5 | Fresh Family D run #19 was cancelled during the empirical suite after ~90 minutes without producing an artifact | Workflow/job ended with `cancelled`; schema validation and artifact upload were skipped | Treat run #19 as non-evidence; preserve the successful regression result, investigate runtime/cancellation cause, then make a tester-reviewed runtime correction before the next fresh run | No scientific metric impact; Family D gate remains open |
