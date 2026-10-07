@@ -94,3 +94,10 @@ Developer commit `c81dbb593fb45f86065ddd86fdddb8ba417afa1a` was reviewed indepen
 Developer commit `d62f4adbe50ee40193e2215300c834d03d364428` was independently reviewed. The failed S28 fallback is a source-schema parsing issue: the fixed public CSV uses lowercase `date`. The correction adds only the missing field alias and reuses the already-cached immutable source bytes. No coverage or numerical threshold was relaxed.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
+
+
+## Static-validator workflow reference review — 2026-10-07
+
+Developer commit `a68c72d8f2308c91b9b8b8712170510e3f879137` was independently reviewed. The Phase 2 static validator now checks both the legacy Phase 2 audit workflow and the active Phase 2C bulk workflow with separate marker sets. This directly addresses the run #25 gate failure and does not relax any data-quality or PIT requirement.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The next gate review must verify that both workflow marker suites pass and then independently inspect the Phase 2C lot-size, PIT, unresolved-date and cache evidence.
