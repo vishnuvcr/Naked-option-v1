@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 from run_phase4_family_c import (
     fit_ar5,
@@ -43,7 +44,7 @@ def main() -> None:
     assert float(np.median(pk)) > 0.5
 
     # C09: once a direction is detected it must persist until the opposite reset.
-    train = np.zeros(100)
+    train = pd.Series(np.zeros(100))
     test = np.array([0.20, 0.05, 0.04, 0.03, -0.01, -0.01, -0.01], dtype=float)
     pc = cusum_signal(train, test)
     assert pc[1] >= pc[0]
