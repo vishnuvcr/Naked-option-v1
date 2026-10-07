@@ -22,3 +22,10 @@ Family C gate state: REQUEST CHANGES from independent tester was received and in
 
 Last updated: 2026-10-07
 Family C remains REQUEST CHANGES / pending rerun. A successful hosted run existed, but independent developer review found two mathematical issues in multi-step probability/filtering. No Family C gate pass is claimed; Phase 5 remains blocked.
+
+
+## 2026-10-07 — Family C correction-set rerun active
+- Developer correction head: `d33b42f11c5373c0b0b2550a698df36e35f0f761`.
+- Hosted Family C run #38 is executing the corrected regression and empirical package.
+- Regression tests have passed in the active run; the empirical statistical step is still running.
+- No Family C pass is claimed and Phase 5 remains blocked until independent tester review of the new artifact.
