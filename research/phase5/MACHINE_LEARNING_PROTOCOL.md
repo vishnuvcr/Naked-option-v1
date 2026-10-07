@@ -26,7 +26,7 @@ Use only the frozen Phase 3 core feature layer plus already-approved PIT-safe co
 ## Walk-forward protocol
 - Chronological training only.
 - Minimum training size follows the Phase 3 minimum.
-- Refit every 20 trading sessions for both daily and intraday. Intraday predictions are evaluated only on the frozen hourly decision grid; the refit cadence is session-based, not row-based. Sequence methods may use a fixed warm-up.
+- Refit every 20 trading sessions for both daily and intraday. Intraday predictions are evaluated only on the frozen hourly decision grid; the refit cadence is session-based, not row-based. Intraday D13-D15 sequence representations use the full 1-minute feature path, remain causal and session-local, and are row-aligned to the frozen hourly decision timestamps; the 20-observation warm-up is therefore defined on the 1-minute path, not on the downsampled hourly matrix.
 - Purge observations whose labels extend to or beyond the decision timestamp.
 - Standardization, imputation, spline fitting, calibration, feature selection and class weighting are training-only.
 - No final holdout access.
