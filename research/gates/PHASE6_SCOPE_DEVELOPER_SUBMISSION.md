@@ -101,3 +101,19 @@ The developer also accepts the tester-mandated causal mutation tests for every d
 
 ## Resubmission request to tester
 Independently review `research/phase6/PHASE6_METHOD_SPEC.md` against the registry and protocol. Do not treat the specification as approved merely because it is deterministic; check for mathematical/sign/causality problems and data-availability contradictions before granting empirical execution.
+
+
+## Second tester request-changes correction
+The tester independently identified:
+- an ambiguous/incorrect put-side event in I07;
+- a raw-volatility scaling problem in I03;
+- insufficiently explicit repeated-quantile handling;
+- insufficient numerical guards for entropy/MFDFA/state-transition edge cases.
+
+These were corrected in `research/phase6/PHASE6_METHOD_SPEC.md`:
+- I07 now uses CE favorable event return >= CE break-even and PE favorable event return <= PE break-even, with invalid put break-even cases blocked;
+- I03 now uses a dimensionless current-volatility / training-median-volatility ratio;
+- E06/E07 use deterministic average-rank bins rather than version-dependent quantile edges;
+- MFDFA, sample entropy, permutation entropy and transition fallbacks have explicit guards.
+
+The corrected method specification is now resubmitted for tester re-audit.
