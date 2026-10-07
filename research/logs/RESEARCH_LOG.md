@@ -182,3 +182,16 @@
 - The combined B8 regression workflow failed before empirical execution because the synthetic daily fixture expected a positive same-weekday history at an early row where no prior same-weekday observation existed.
 - The fixture was corrected to test a later same-weekday decision plus the strict endpoint rule. This does not alter production B8 logic.
 - No scientific result was produced by the failed regression run.
+
+## 2026-10-07 — Phase 3 tester gate passed
+
+- Independent tester passed Phase 3 with scoped restrictions after reproducing run #117 and resolving the B8 PIT and probability-bin defects.
+- B9 global overnight and B10 breadth remain explicitly BLOCKED_DATA until PIT-safe historical feature layers are materialized.
+- No Phase 4 method result is inferred from Phase 3 baseline deviations.
+
+## 2026-10-07 — Phase 4 Family B initialized
+
+- Created isolated phase-04-developer and phase-04-tester branches from the respective Phase 3 gate heads.
+- Frozen Family B classical technical definitions B01-B13 before empirical execution.
+- Implemented an automatic/manual Family B workflow with cached Phase 3 data, deterministic method formulas, result schema validation and artifact upload.
+- Family B is directional spot research only; option conversion remains deferred to Phase 8.
