@@ -260,3 +260,8 @@
 - Empirical run then stopped before producing results because the timestamp eligibility comparison returned a NumPy array.
 - Corrected the boolean mask handling without changing the strict label-end-before-decision rule.
 - Family C result artifact remains ungenerated until the next hosted run.
+
+## 2026-10-07 — Family C runtime correction
+- Hosted Family C run reached the statistical execution stage and remained compute-bound in the Kalman method.
+- Reviewed the implementation and found repeated H-step matrix-power/covariance construction inside every observation.
+- Moved those horizon-constant calculations outside the observation loop; the statistical definition is unchanged.
