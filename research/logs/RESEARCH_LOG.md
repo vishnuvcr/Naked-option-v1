@@ -155,3 +155,11 @@
 - The vectorized label rewrite exposed a second alignment defect in the volatility-block construction.
 - The implementation now uses an explicit unique timestamp index and exact position lookups (`Index.get_indexer`) for all future and prior-horizon observations, with fixed-size arrays and assertions.
 - The timing definition is unchanged; this is a defensive numerical implementation correction.
+
+## 2026-10-07 — Phase 3 tester correction cycle after run #97
+
+- Independent tester rejected run #97 because intraday B8 used unfinished future labels and because probability-bin diagnostics used a denominator different from the classification metrics.
+- Corrected B8 now uses only historical labels whose H-minute future endpoint is strictly before the decision timestamp.
+- Added a synthetic B8 point-in-time regression test and a mandatory workflow step.
+- Probability-bin diagnostics now use the same joint validity mask as the classification metrics; the result schema rejects any denominator mismatch.
+- No Phase 4 work is started until the corrected Phase 3 artifact passes independent re-review.
