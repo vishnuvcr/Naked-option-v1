@@ -71,3 +71,15 @@
 - Added official NSE overlap checks for the selected intraday research reference and preserved exact dates/tolerance/provenance in the acquisition report.
 - Added calibration, confusion-matrix and block-bootstrap diagnostics to baseline result metrics.
 - Phase 3 remains blocked at the empirical tester gate until the fresh hosted run completes and an independent tester reproduces the result packet.
+
+## 2026-10-07 — Phase 3 data-reference correction
+
+- Hosted Phase 3 execution exposed two concrete data-engineering defects after successful source acquisition: the baseline loader referenced an obsolete daily-cache path, and the earlier intraday dataset candidate did not provide a numeric NIFTY spot field for this task.
+- The daily loader is now aligned to the actual cached acquisition artifact.
+- The intraday reference was changed to the pinned thetrademarkk/india-index-options-1m index/NIFTY.parquet spot series. The dataset is treated as a derived research reference and must pass official NSE overlap validation; it is not canonical.
+
+## 2026-10-07 — Phase 3 computation correction
+
+- Daily B1 persistence is now based on the immediately preceding session direction rather than the forecast horizon.
+- Intraday B2 is now executed from the previous completed session return.
+- Intraday logistic refits are limited to the frozen decision grid while label and feature construction continues to use the full 1-minute path.
