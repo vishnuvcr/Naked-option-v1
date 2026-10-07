@@ -231,22 +231,26 @@ def daily_run():
             elif method=="C09":
                 p[start:]=cusum_signal(df["ret"].iloc[:start],df["ret"].iloc[start:])[:len(df)-start]
             else:
-                # Session-refresh models C01-C04.
+                # C01-C04: one fit per frozen 20-session block, then hold forward.
                 X=lag_features(df["ret"])
-                for i in range(start,len(df)):
-                    tr_end=max(30,i-H)
+                for block_start in range(start,len(df),20):
+                    block_end=min(block_start+20,len(df))
+                    tr_end=max(30,block_start-H)
                     Xtr=X.iloc[:tr_end].dropna()
                     ytr=pd.Series(y[:tr_end],index=df.index[:tr_end]).loc[Xtr.index].dropna().astype(int)
-                    if len(ytr)<50 or ytr.nunique()<2: continue
+                    if len(ytr)<50 or ytr.nunique()<2:
+                        continue
                     Xtr=Xtr.loc[ytr.index]
-                    Xte=X.iloc[[i]]
-                    if Xte.isna().any(axis=1).iloc[0]: continue
+                    Xte=X.iloc[block_start:block_end]
+                    good=~Xte.isna().any(axis=1)
+                    if not good.any():
+                        continue
                     if method=="C01":
-                        # logistic reference implementation via closed-form sklearn-like Newton using statsmodels Logit
                         model=sm.Logit(ytr,sm.add_constant(Xtr,has_constant="add")).fit(disp=False,maxiter=100)
-                        p[i]=float(model.predict(sm.add_constant(Xte,has_constant="add")).iloc[0])
+                        pred=np.asarray(model.predict(sm.add_constant(Xte.loc[good],has_constant="add")),dtype=float)
                     else:
-                        p[i]=float(model_probs(method,Xtr,ytr,Xte)[0])
+                        pred=np.asarray(model_probs(method,Xtr,ytr,Xte.loc[good]),dtype=float)
+                    p[block_start:block_end][good.to_numpy()]=pred
             hres[method]=result_metrics(y,p,future,20)
         out[str(H)]={"label":{"n":int(np.isfinite(y).sum()),"positive_rate":float(np.nanmean(y))},**hres}
     return {"data_rows":len(df),"date_start":df["date"].min().date().isoformat(),"date_end":df["date"].max().date().isoformat(),"horizons":out}
@@ -285,10 +289,11 @@ def intra_run():
                 p[start:]=cusum_signal(df["ret"].iloc[:start],df["ret"].iloc[start:])[:len(df)-start]
             else:
                 X=lag_features(df["ret"])
-                # One fit per trading day; model trained on rows strictly before the day.
-                dates=df["date"].iloc[start:].unique()
-                for day in dates:
-                    loc=np.flatnonzero((df["date"].to_numpy()==day))
+                # C01-C04: one fit per frozen 20-session block, then hold forward.
+                dates=list(df["date"].iloc[start:].drop_duplicates())
+                for di in range(0,len(dates),20):
+                    block_dates=set(dates[di:di+20])
+                    loc=np.flatnonzero(df["date"].isin(block_dates).to_numpy())
                     loc=loc[loc>=start]
                     if len(loc)==0: continue
                     tr_end=int(loc[0]-H)
@@ -300,9 +305,9 @@ def intra_run():
                     if not goodte.any(): continue
                     if method=="C01":
                         model=sm.Logit(yy,sm.add_constant(Xtr,has_constant="add")).fit(disp=False,maxiter=100)
-                        pred=model.predict(sm.add_constant(Xte.loc[goodte],has_constant="add")).to_numpy()
+                        pred=np.asarray(model.predict(sm.add_constant(Xte.loc[goodte],has_constant="add")),dtype=float)
                     else:
-                        pred=model_probs(method,Xtr,yy,Xte.loc[goodte])
+                        pred=np.asarray(model_probs(method,Xtr,yy,Xte.loc[goodte]),dtype=float)
                     p[loc[goodte.to_numpy()]]=pred
             hres[method]=result_metrics(y[grid],p[grid],fut[grid],60)
         out[str(H)]={"label":{"n":int(np.isfinite(y[grid]).sum()),"positive_rate":float(np.nanmean(y[grid]))},**hres}
