@@ -17,6 +17,14 @@ on:
 jobs:
   protocol:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate repository contract
+        run: python scripts/validate_protocol.py
+      - name: Validate literature registry
+        run: python scripts/validate_literature_registry.py
 
   phase6-change:
     name: detect-phase6-change
@@ -64,12 +72,3 @@ jobs:
     if: ${{ needs.phase6-change.outputs.run_phase6 == 'true' }}
     uses: ./.github/workflows/phase-06-novel.yml
     secrets: inherit
-
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - name: Validate repository contract
-        run: python scripts/validate_protocol.py
-      - name: Validate literature registry
-        run: python scripts/validate_literature_registry.py
