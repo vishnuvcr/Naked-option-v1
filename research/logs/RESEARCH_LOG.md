@@ -265,3 +265,8 @@
 - Hosted Family C run reached the statistical execution stage and remained compute-bound in the Kalman method.
 - Reviewed the implementation and found repeated H-step matrix-power/covariance construction inside every observation.
 - Moved those horizon-constant calculations outside the observation loop; the statistical definition is unchanged.
+
+## 2026-10-07 — Family C intraday training-grid correction
+- The hosted statistical step remained dominated by repeated intraday fits on the full one-minute history.
+- Review confirmed that C01-C03 are evaluated on the frozen hourly decision grid, so fitting and prediction should use that same decision grid while the one-minute path remains for exact H-minute labels and sequential state models.
+- Updated the implementation and protocol to make this sampling rule explicit. This is a deterministic sampling correction, not a parameter search.
