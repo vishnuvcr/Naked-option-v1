@@ -124,3 +124,10 @@
 - The second hosted intraday attempt exposed a subtler row-index mismatch: labels were generated after session filtering while the filtered source frame retained original pre-filter row indices.
 - The intraday loader now resets the row index immediately after regular-session filtering, keeping labels, decision-grid rows, features and predictions in one immutable row-index space.
 - No intraday empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 3 B8 vectorization correction
+
+- The hosted intraday run exposed a broadcasting defect in the weekday-history baseline.
+- B8 is now calculated with a groupwise shifted expanding mean by weekday, so each prediction uses only prior same-weekday observations and the computation is O(n) rather than nested loops.
+- The daily B8 implementation was vectorized similarly to reduce runtime without changing the PIT rule.
+- No result from the failed B8 implementation is accepted.
