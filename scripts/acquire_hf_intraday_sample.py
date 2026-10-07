@@ -41,21 +41,25 @@ if not cache_hit:
         local.write_bytes(resp.read())
 
 df=pd.read_parquet(local)
-required={"timestamp","close"}
-missing=required-set(df.columns)
-if missing:
-    raise SystemExit(f"ERROR: HF NIFTY index reference missing columns: {sorted(missing)}")
-
-x=pd.DataFrame({
-    "timestamp":pd.to_datetime(df["timestamp"],errors="coerce",utc=True),
-    "spot":pd.to_numeric(df["close"],errors="coerce"),
-}).dropna().sort_values("timestamp").drop_duplicates("timestamp")
+if {"timestamp","spot"}.issubset(df.columns):
+    x=pd.DataFrame({
+        "timestamp":pd.to_datetime(df["timestamp"],errors="coerce",utc=True),
+        "spot":pd.to_numeric(df["spot"],errors="coerce"),
+    })
+else:
+    required={"timestamp","close"}
+    missing=required-set(df.columns)
+    if missing:
+        raise SystemExit(f"ERROR: HF NIFTY index reference missing columns: {sorted(missing)}")
+    x=pd.DataFrame({
+        "timestamp":pd.to_datetime(df["timestamp"],errors="coerce",utc=True),
+        "spot":pd.to_numeric(df["close"],errors="coerce"),
+    })
+x=x.dropna().sort_values("timestamp").drop_duplicates("timestamp")
 if len(x)==0:
     raise SystemExit("ERROR: HF NIFTY index reference has no usable rows")
 
-# Keep the full 1-minute NIFTY spot track. It is small enough to cache locally
-# and avoids the false inference that an option-chain field named 'underlying'
-# is itself a numeric spot price.
+# Store a canonical normalized cache with timestamp/spot columns.
 x.to_parquet(local,index=False)
 
 def official_nse_close(day: dt.date):
