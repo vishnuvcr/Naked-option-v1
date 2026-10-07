@@ -281,3 +281,11 @@
 - Latest hosted run reached the updated C04 implementation and stopped only at the synthetic test.
 - The failure was a test assertion issue: a valid normal-CDF result can numerically saturate at exactly 0 or 1 for a highly separated synthetic forecast.
 - Corrected the test to assert finite probability bounds [0,1] instead of an artificial strict-interior condition.
+
+## 2026-10-07 — Phase 5 Family D implementation
+- Frozen `research/phase5/MACHINE_LEARNING_PROTOCOL.md` before empirical execution.
+- Implemented D01-D15 runner with deterministic controls and result persistence.
+- Added regression tests covering deterministic sequence construction and probability validity.
+- Added automatic/manual GitHub Actions workflow with cached data restoration and schema validation.
+- D04-D06 use explicitly documented provider-independent HistGradientBoosting surrogates; this will remain visible in the final artifact.
+- No empirical Family D result has yet been accepted.
