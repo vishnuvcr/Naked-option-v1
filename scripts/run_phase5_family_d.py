@@ -192,6 +192,28 @@ def sequence_features(
     return np.asarray(rows, dtype=float), np.asarray(idx, dtype=int)
 
 
+def precompute_sequence_representations(
+    x: pd.DataFrame,
+    kind: str,
+    groups: pd.Series | None = None,
+) -> np.ndarray:
+    """Precompute deterministic causal representations once per data layer.
+    This is an exact computational optimization: representations use only
+    current/past observations and session-local grouping; no labels are used.
+    """
+    reps, idx = sequence_features(
+        x.reset_index(drop=True),
+        SEQUENCE_WINDOW,
+        kind,
+        None if groups is None else groups.reset_index(drop=True),
+    )
+    width = {"lag": SEQUENCE_WINDOW * x.shape[1], "conv": N_CONV_FILTERS, "attn": ATTN_WIDTH}[kind]
+    out = np.full((len(x), width), np.nan, dtype=float)
+    if len(idx):
+        out[idx] = reps
+    return out
+
+
 def _finite_training_slice(X: pd.DataFrame, y: pd.Series, train_end: int):
     train = X.iloc[:train_end].copy()
     yy = y.iloc[:train_end].copy()
@@ -231,38 +253,21 @@ def _fit_calibrated_stack(X: pd.DataFrame, y: pd.Series, train_end: int, test_ro
     return meta.predict_proba(np.column_stack(refit_probs))[:, 1]
 
 
-def _fit_sequence_model(name: str, X: pd.DataFrame, y: pd.Series, train_end: int, test_rows: np.ndarray, groups: pd.Series | None):
-    kind = {"D13": "lag", "D14": "conv", "D15": "attn"}[name]
-
-    train_groups = None if groups is None else groups.iloc[:train_end].reset_index(drop=True)
-    train_rep, train_idx = sequence_features(
-        X.iloc[:train_end].reset_index(drop=True),
-        SEQUENCE_WINDOW,
-        kind,
-        train_groups,
-    )
-    if len(train_rep) < 300:
-        return np.full(len(test_rows), np.nan)
-
-    train_y = y.iloc[train_idx].to_numpy()
+def _fit_sequence_model(
+    name: str,
+    X: pd.DataFrame,
+    y: pd.Series,
+    train_end: int,
+    test_rows: np.ndarray,
+    sequence_cache: np.ndarray,
+):
+    train_rep = sequence_cache[:train_end]
+    train_y = y.iloc[:train_end].to_numpy()
     finite = np.isfinite(train_rep).all(axis=1) & np.isfinite(train_y)
-    train_rep, train_y = train_rep[finite], train_y[finite].astype(int)
+    train_rep = train_rep[finite]
+    train_y = train_y[finite].astype(int)
     if len(train_y) < 300 or np.unique(train_y).size < 2:
         return np.full(len(test_rows), np.nan)
-
-    min_test = int(np.min(test_rows))
-    max_test = int(np.max(test_rows))
-    prefix_start = max(0, min_test - (SEQUENCE_WINDOW - 1))
-    prefix_groups = None if groups is None else groups.iloc[prefix_start:max_test + 1].reset_index(drop=True)
-    test_slice = X.iloc[prefix_start:max_test + 1].reset_index(drop=True)
-    test_rep_all, test_idx_all = sequence_features(
-        test_slice,
-        SEQUENCE_WINDOW,
-        kind,
-        prefix_groups,
-    )
-    # Convert slice-local endpoints back to global row positions.
-    lookup = {int(i + prefix_start): rep for i, rep in zip(test_idx_all, test_rep_all)}
 
     pipe = make_pipeline(
         StandardScaler(),
@@ -270,11 +275,11 @@ def _fit_sequence_model(name: str, X: pd.DataFrame, y: pd.Series, train_end: int
     )
     pipe.fit(train_rep, train_y)
 
+    test_rep = sequence_cache[test_rows]
     out = np.full(len(test_rows), np.nan, dtype=float)
-    valid = [j for j, row in enumerate(test_rows) if int(row) in lookup]
-    if valid:
-        reps = np.vstack([lookup[int(test_rows[j])] for j in valid])
-        out[np.asarray(valid)] = pipe.predict_proba(reps)[:, 1]
+    valid = np.isfinite(test_rep).all(axis=1)
+    if valid.any():
+        out[valid] = pipe.predict_proba(test_rep[valid])[:, 1]
     return out
 
 
@@ -285,6 +290,7 @@ def fit_predict_block(
     train_end: int,
     test_rows: np.ndarray,
     groups: pd.Series | None = None,
+    sequence_cache: np.ndarray | None = None,
 ):
     if len(test_rows) == 0:
         return np.empty(0)
@@ -297,7 +303,10 @@ def fit_predict_block(
         return np.full(len(test_rows), np.nan)
 
     if name in {"D13", "D14", "D15"}:
-        return _fit_sequence_model(name, X, y, train_end, test_rows, groups)
+        if sequence_cache is None:
+            kind = {"D13": "lag", "D14": "conv", "D15": "attn"}[name]
+            sequence_cache = precompute_sequence_representations(X, kind, groups)
+        return _fit_sequence_model(name, X, y, train_end, test_rows, sequence_cache)
 
     pipe = prep_fit(name)
     pipe.fit(train, yy)
@@ -306,6 +315,11 @@ def fit_predict_block(
 
 def _daily_run(df: pd.DataFrame, horizons: list[int]):
     X = features_daily(df)
+    sequence_cache = {
+        "D13": precompute_sequence_representations(X, "lag"),
+        "D14": precompute_sequence_representations(X, "conv"),
+        "D15": precompute_sequence_representations(X, "attn"),
+    }
     result = {}
     for H in horizons:
         y, future = make_label(df, H)
@@ -319,7 +333,10 @@ def _daily_run(df: pd.DataFrame, horizons: list[int]):
                 rows = eval_idx[start:start + 20]
                 train_end = purged_train_end(rows[0], H)
                 try:
-                    p[rows] = fit_predict_block(name, X, y, train_end, rows)
+                    p[rows] = fit_predict_block(
+                        name, X, y, train_end, rows,
+                        sequence_cache=sequence_cache.get(name),
+                    )
                 except Exception as exc:
                     status = "BLOCKED_RUNTIME"
                     p = None
@@ -349,6 +366,11 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
     decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx], utc=True))
     decision_times_series = pd.Series(decision_times)
     groups = df["date"].iloc[decision_idx].reset_index(drop=True)
+    sequence_cache = {
+        "D13": precompute_sequence_representations(X, "lag", groups),
+        "D14": precompute_sequence_representations(X, "conv", groups),
+        "D15": precompute_sequence_representations(X, "attn", groups),
+    }
 
     result = {}
     for H in horizons:
@@ -375,7 +397,11 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
                 cutoff = first_time - pd.Timedelta(minutes=int(H))
                 train_end = cutoff_train_end(decision_times, cutoff)
                 try:
-                    p[rows] = fit_predict_block(name, X, y, train_end, rows, groups=groups)
+                    p[rows] = fit_predict_block(
+                        name, X, y, train_end, rows,
+                        groups=groups,
+                        sequence_cache=sequence_cache.get(name),
+                    )
                 except Exception as exc:
                     status = "BLOCKED_RUNTIME"
                     p = None
