@@ -28,7 +28,10 @@ HEADERS={"User-Agent":"NIFTY-Naked-Option-Research/1.0"}
 def in_window(url,sid):
     if sid=="S20":
         return url+"&cosd="+START.isoformat()+"&coed="+END.isoformat()
-    return url+"&d1="+START.strftime("%Y%m%d")+"&d2="+END.strftime("%Y%m%d")
+    # Stooq's long-window CSV endpoint is more reliable than repeatedly
+    # sending date-bounded queries from CI. Fetch the daily series and apply
+    # the frozen window locally so source failures are visible and auditable.
+    return url
 
 records=[]
 for sid,url in SERIES.items():
@@ -50,7 +53,14 @@ for sid,url in SERIES.items():
     for row in reader:
         value=row.get("Date") or row.get("DATE") or row.get("observation_date")
         if value:
-            dates.append(value)
+            try:
+                d=dt.date.fromisoformat(str(value).strip()[:10])
+            except ValueError:
+                continue
+            if START <= d <= END:
+                dates.append(d.isoformat())
+    if not dates:
+        raise SystemExit(f"ERROR: global reference {sid} returned no observations in the frozen window")
     if len(dates)!=len(set(dates)):
         raise SystemExit(f"ERROR: duplicate dates in {sid}")
     records.append({

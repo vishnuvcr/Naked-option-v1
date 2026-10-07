@@ -55,3 +55,12 @@
 
 - After diagnosing run #14, the corrected parser/validator commit was moved onto the developer branch and a follow-up log commit was pushed solely to trigger the automatic Phase 2C workflow on the corrected tree.
 - No phase transition is permitted from this rerun until the tester independently inspects the resulting artifacts.
+
+## 2026-10-07 — Phase 2C run #17 global-source failure diagnosis
+
+- All eight official NSE year jobs passed their acquisition, NIFTY extraction and validation steps on the corrected parser tree.
+- India VIX validation passed on the corrected tree before the contextual job reached global acquisition.
+- The contextual job failed in the global-series script because a source response contained no usable date rows and the script called min() on an empty list.
+- This is treated as a source-response validation defect, not as evidence that the global source itself is unavailable.
+- The developer correction switches the Stooq series to the same unbounded daily CSV pattern already used successfully in the earlier single-window source acquisition, then filters rows to the frozen research window locally and fails explicitly if no usable observations are present.
+- Phase 2 remains open; the corrected global source path must complete before the gate can be resubmitted to the tester.

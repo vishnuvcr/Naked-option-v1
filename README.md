@@ -9,7 +9,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Official NSE EOD acquisition is now batchable by year with raw-data caching and compact NIFTY-only Parquet outputs.
 - India VIX historical acquisition, free global/rates history, effective-dated lot-size validation and FII/DII quarantine are now part of the Phase 2C gate.
 - Phase 3 remains blocked until the independent tester passes the full bulk-data/PIT gate.
-- Latest Phase 2C hosted run #14 exposed three parsing/validation defects (legacy expiry-date formats, non-option NIFTY rows counted as invalid, and VIX date formats); these are logged and corrected without lowering scientific acceptance thresholds. A fresh hosted rerun is required before the data gate can move.
+- The corrected Phase 2C run #17 passed all eight official NSE year jobs and VIX validation but exposed one additional global-series response-handling defect; it is logged and corrected without lowering scientific acceptance thresholds. A fresh hosted rerun is required before the data gate can move.
 
 ### Latest Phase 2 execution
 
