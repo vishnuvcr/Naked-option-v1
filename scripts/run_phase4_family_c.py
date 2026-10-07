@@ -242,8 +242,7 @@ def kalman_horizon_probs(train_price, test_price, horizon):
         Ph = Fh @ P @ Fh.T
         for j in range(int(horizon)):
             Fj = np.linalg.matrix_power(F, j)
-            if j > 0:
-                Ph += Fj @ Q @ Fj.T
+            Ph += Fj @ Q @ Fj.T
 
         mean_change = float((Fh @ x)[0] - x[0])
         variance = float(max(Ph[0, 0], 1e-12))
@@ -381,13 +380,10 @@ def daily_run():
                 for block_start in range(start, len(df), 20):
                     block_end = min(block_start + 20, len(df))
                     if method == "C04":
-                        try:
-                            model = fit_ar5(df["ret"].iloc[:block_start].dropna())
-                            for i in range(block_start, block_end):
-                                history = df["ret"].iloc[: i + 1].dropna()
-                                p[i] = ar5_horizon_probability(model, history, H)
-                        except Exception:
-                            continue
+                        model = fit_ar5(df["ret"].iloc[:block_start].dropna())
+                        for i in range(block_start, block_end):
+                            history = df["ret"].iloc[: i + 1].dropna()
+                            p[i] = ar5_horizon_probability(model, history, H)
                         continue
 
                     tr_end = max(30, block_start - H)
@@ -501,18 +497,17 @@ def intra_run():
                         continue
 
                     if method == "C04":
-                        try:
-                            model = fit_ar5(df["ret"].iloc[:loc[0]].dropna())
-                            for i in loc:
-                                history = df["ret"].iloc[: i + 1].dropna()
-                                p[i] = ar5_horizon_probability(model, history, H)
-                        except Exception:
-                            continue
+                        model = fit_ar5(df["ret"].iloc[:loc[0]].dropna())
+                        for i in loc:
+                            history = df["ret"].iloc[: i + 1].dropna()
+                            p[i] = ar5_horizon_probability(model, history, H)
                         continue
 
-                    tr_end = int(loc[0] - H)
-                    Xtr = X.iloc[:tr_end].dropna()
-                    yy = pd.Series(y[:tr_end], index=df.index[:tr_end]).loc[Xtr.index].dropna().astype(int)
+                    decision_time = df["timestamp"].iloc[int(loc[0])]
+                    label_end = idx + pd.Timedelta(minutes=H)
+                    eligible = (label_end < decision_time).to_numpy()
+                    Xtr = X.loc[eligible].dropna()
+                    yy = pd.Series(y[eligible], index=df.index[eligible]).loc[Xtr.index].dropna().astype(int)
                     if len(yy) < 300 or yy.nunique() < 2:
                         continue
                     Xtr = Xtr.loc[yy.index]
@@ -550,18 +545,24 @@ def intra_run():
     }
 
 
-report = {
-    "daily": daily_run(),
-    "intraday": intra_run(),
-    "methods": METHODS,
-    "status": "PASS",
-}
-(OUT / "phase4_family_c_results.json").write_text(
-    json.dumps(report, indent=2),
-    encoding="utf-8",
-)
-print(json.dumps({
-    "daily_rows": report["daily"]["data_rows"],
-    "intraday_rows": report["intraday"]["data_rows"],
-    "grid": report["intraday"]["decision_grid_rows"],
-}, indent=2))
+def main():
+    report = {
+        "daily": daily_run(),
+        "intraday": intra_run(),
+        "methods": METHODS,
+        "status": "EXECUTED_PENDING_TESTER",
+        "protocol_revision": "family-c-horizon-correction-v2",
+    }
+    (OUT / "phase4_family_c_results.json").write_text(
+        json.dumps(report, indent=2),
+        encoding="utf-8",
+    )
+    print(json.dumps({
+        "daily_rows": report["daily"]["data_rows"],
+        "intraday_rows": report["intraday"]["data_rows"],
+        "grid": report["intraday"]["decision_grid_rows"],
+    }, indent=2))
+
+
+if __name__ == "__main__":
+    main()
