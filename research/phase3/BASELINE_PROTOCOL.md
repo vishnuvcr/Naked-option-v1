@@ -69,6 +69,8 @@ Frozen feature list:
 
 At execution time, unavailable optional layers are excluded and reported explicitly; they are never replaced by unregistered features.
 
+For the intraday implementation, the walk-forward logistic model is refit once at the first frozen decision timestamp of each trading session using only observations strictly before that session, then held fixed for all frozen decision timestamps within that session. This is a pre-registered daily-refresh computational design, not an adaptive intraday refit.
+
 All baseline feature periods, formulas and model parameters above are frozen before any result is inspected.
 
 ## Statistical reporting
