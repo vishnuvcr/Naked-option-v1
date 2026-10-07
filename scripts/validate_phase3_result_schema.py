@@ -68,8 +68,16 @@ print("PASS: Phase 3 result packet contains an explicit disposition for every B0
 
 # Static B8 PIT-control guard: the leaked row-shift/expanding pattern is forbidden.
 source=(ROOT / "scripts/run_phase3_intraday_baselines.py").read_text(encoding="utf-8")
-for forbidden in ['groupby("dow")["y"].transform', 'shift(1).expanding(min_periods=1).mean()']:
+forbidden_patterns=['groupby("dow")["y"].transform', 'shift(1).expanding(min_periods=1).mean()']
+for forbidden in forbidden_patterns:
     if forbidden in source:
         raise SystemExit(f"ERROR: intraday B8 contains forbidden PIT-unsafe pattern: {forbidden}")
 if "pit_weekday_probability" not in source:
     raise SystemExit("ERROR: intraday B8 PIT-safe helper is missing")
+
+daily_source=(ROOT / "scripts/run_phase3_daily_baselines.py").read_text(encoding="utf-8")
+for forbidden in ['groupby("dow")["y"].transform', 'shift(1).expanding(min_periods=1).mean()']:
+    if forbidden in daily_source:
+        raise SystemExit(f"ERROR: daily B8 contains forbidden PIT-unsafe pattern: {forbidden}")
+if "pit_weekday_probability_daily" not in daily_source:
+    raise SystemExit("ERROR: daily B8 PIT-safe helper is missing")
