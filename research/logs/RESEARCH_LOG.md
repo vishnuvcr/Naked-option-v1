@@ -443,3 +443,12 @@
 - The developer froze the exact E07 four-source global composite definition because the earlier wording was not sufficiently reproducible.
 - The empirical workflow schema validation was strengthened to reconcile confusion counts, accuracy, class rate, probability bins, metric ranges and required block reasons.
 - A fresh tester code-gate review is required before the empirical job can be authorized.
+
+
+## 2026-10-07 — Phase 6 reusable workflow correction
+- Tester-approved Phase 6 code was attempted automatically through Research Protocol Check.
+- Hosted run `37668494609` failed before producing jobs/artifacts because `hashFiles()` was used in a job-level `if` in the reusable workflow.
+- Run `37668494609` and Research Protocol Check run `37668496665` are preserved as infrastructure/non-evidence; no empirical metrics were generated.
+- Developer replaced the invalid gate with a typed `workflow_call` boolean input and updated the caller to emit/pass tester authorization based on the archived approval file.
+- Corrected reusable workflow was synced to `main` for the manual-dispatch button.
+- Fresh tester workflow review is required before the next empirical run.
