@@ -329,7 +329,9 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
     )
     decision_idx = np.flatnonzero(grid.to_numpy())
     X = X_full.iloc[decision_idx].reset_index(drop=True)
-    decision_times = pd.to_datetime(df["timestamp"].iloc[decision_idx]).reset_index(drop=True)
+    decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx]))
+    decision_ns = decision_times.asi8
+    decision_times = pd.Series(decision_times)
     groups = df["date"].iloc[decision_idx].reset_index(drop=True)
 
     result = {}
@@ -346,7 +348,9 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
                 rows = np.arange(start, min(start + 20, len(X)), dtype=int)
                 first_time = decision_times.iloc[rows[0]]
                 cutoff = first_time - pd.Timedelta(minutes=int(H))
-                train_end = int(np.searchsorted(decision_times.to_numpy(), cutoff.to_datetime64(), side="left"))
+                # Compare integer nanoseconds so tz-aware and tz-naive timestamp
+                # representations cannot be mixed.
+                train_end = int(np.searchsorted(decision_ns, cutoff.value, side="left"))
                 try:
                     p[rows] = fit_predict_block(name, X, y, train_end, rows, groups=groups)
                 except Exception as exc:
