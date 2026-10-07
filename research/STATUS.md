@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | tester PHASE3_FINAL_TESTER.md; B9/B10 blocked |
 | Phase 4 Single-family methods | **FAMILY B PASSED; FAMILY C PASSED WITH SCOPED RESTRICTIONS** | Family C final tester gate archived; C10/C11 blocked; later robustness/economic gates required |
-| Phase 5 Statistical/ML | **READY TO START** | Phase 4 Family C tester gate passed with scoped restrictions |
+| Phase 5 Statistical/ML | **PROTOCOL FROZEN / IMPLEMENTATION IN PROGRESS** | Family D tester gate required before empirical run |
 | Phase 6 Novel methods | BLOCKED | Phase 5/novelty gates |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | cost/execution gate |
@@ -38,3 +38,9 @@ Family C remains REQUEST CHANGES / pending rerun. A successful hosted run existe
 - Family C shows no robust deployable directional edge; results are carried forward for later multiple-testing, robustness and option-economics analysis.
 - C10/C11 remain BLOCKED_DATA.
 - Phase 5 is now unblocked; no trading strategy has yet been promoted.
+
+
+## 2026-10-07 — Phase 5 initialized
+- Created `research/phase5/MACHINE_LEARNING_PROTOCOL.md` with fixed D01-D15 definitions, walk-forward controls, training-only preprocessing and regression requirements.
+- Family D implementation and tester gate are now the active research step.
+- No empirical Family D run has yet been accepted.
