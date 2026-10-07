@@ -145,6 +145,24 @@ def b7_regime_counts(df):
         "unclassified":int(pct.isna().sum()),
     }
 
+def pit_weekday_probability_daily(df, y_full, h):
+    """Weekday probability using only labels whose h-session endpoint is before decision."""
+    y_arr=np.asarray(y_full,dtype=float)
+    out=np.full(len(df),0.5,dtype=float)
+    dow=df["date"].dt.dayofweek.to_numpy()
+    for d in np.unique(dow):
+        pos=np.flatnonzero(dow==d)
+        for i in pos:
+            cutoff=i-h
+            if cutoff<=0:
+                continue
+            eligible=pos[pos<cutoff]
+            vals=y_arr[eligible]
+            vals=vals[np.isfinite(vals)]
+            if len(vals):
+                out[i]=float(vals.mean())
+    return pd.Series(out,index=df.index)
+
 def prediction_series(name,df,h,features=None):
     p=pd.Series(np.nan,index=df.index)
     if name=="B0":
@@ -176,11 +194,7 @@ def prediction_series(name,df,h,features=None):
         return pd.Series(p,index=df.index)
     if name=="B8":
         y_hist,_=make_label(df,h)
-        cal=pd.DataFrame({"dow":df["date"].dt.dayofweek.to_numpy(),"y":y_hist.to_numpy()})
-        cal["b8"]=cal.groupby("dow")["y"].transform(
-            lambda s: s.shift(1).expanding(min_periods=1).mean()
-        ).fillna(0.5)
-        return pd.Series(cal["b8"].to_numpy(),index=df.index)
+        return pit_weekday_probability_daily(df,y_hist,h)
     return pd.Series(np.nan,index=df.index)
 
 def logistic_walkforward(df,h):
