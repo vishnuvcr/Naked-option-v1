@@ -32,3 +32,18 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 User requested that the research resume from the current checkpoint. Developer re-read the Phase 2 status, research plan/protocol, method registry, error/research logs and both developer/tester branch status ledgers before continuing. Phase 2 remains the active gate; no prediction/strategy phase is allowed to start until data/PIT validation is passed.
 
 Current automated run: Phase 2 Data Audit run #60 is executing on `phase-02-developer`. Official NSE legacy/UDiFF acquisition, schema validation, snapshot generation and HF acquisition have already completed in this run; the reconciliation stage is still executing. Prior real-run failures were preserved and corrected rather than bypassed.
+
+### 2026-10-07 — “Ok proceed” continuation checkpoint
+
+User instructed the research to continue. Developer resumed Phase 2C from the declared gate rather than starting Phase 3.
+
+Developer actions recorded:
+- inspected the developer/tester branch heads and canonical governance/status documents;
+- inspected the real hosted Phase 2C run #14 and its job logs;
+- diagnosed the observed failures as legacy NSE expiry-date parsing, non-option NIFTY rows being counted as invalid options, and narrow India VIX date parsing;
+- applied parser/validation corrections without lowering scientific acceptance thresholds;
+- recorded the failures in the developer error/research logs;
+- queued corrected-tree Phase 2C run #16 on commit `be5302615522592275db10741d5de377c1ecace3`;
+- updated the isolated Phase 2C tester branch with an independent correction review marked **PASS WITH DATA EXECUTION PENDING**.
+
+Current decision: Phase 2 data gate remains OPEN. No Phase 3 prediction testing is permitted yet.
