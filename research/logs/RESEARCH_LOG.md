@@ -360,3 +360,14 @@
 - Hosted run #19 (37611880308) was rechecked.
 - The empirical D01-D15 step remains in progress; no artifact is available.
 - No Family D metric is accepted and Phase 6 remains blocked.
+
+
+## 2026-10-07 — Family D run #19 continuation checkpoint 3
+
+- User authorized continuation.
+- Live hosted state was rechecked: run #19 (37611880308), job 112760881845 remains `in_progress`.
+- D01-D15 empirical execution remains the active step.
+- Regression, cache restoration and source-acquisition stages remain successful.
+- Schema validation and immutable artifact upload remain pending.
+- No Family D metric is accepted; Phase 6 remains blocked.
+- A prior live-log BlobNotFound remains an infrastructure visibility issue only.
