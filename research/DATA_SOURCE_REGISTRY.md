@@ -35,3 +35,7 @@ When a source has missing or inconsistent observations, combine only after:
 ## Prior-project data evidence
 
 The Project's earlier research reports successful access to a large NIFTY option dataset with roughly 2.86 million observations and more than 1.5k observation dates, but this is treated as an input to be independently revalidated in the current repo.
+
+## Active Phase 3 intraday research reference
+
+The current Phase 3 intraday reference is thetrademarkk/india-index-options-1m, using the pinned index/NIFTY.parquet spot series. It is CC-BY-NC-4.0 research data, not a canonical exchange feed. It must pass official NSE overlap checks before use, and its timestamps are treated as research-reference observation times rather than retroactively assigned publication times.
