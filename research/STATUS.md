@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — CORRECTION LINEAGE; FRESH HOSTED RUN QUEUED** | protocol amendment passed; empirical tester gate still required |
+| Phase 5 Statistical/ML | **ACTIVE — FRESH HOSTED EMPIRICAL RUN IN PROGRESS** | protocol amendment passed; empirical tester gate still required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
@@ -24,7 +24,7 @@ Last updated: 2026-10-07
 - Protocol amendment for intraday refit cadence was independently passed at `research/gates/PHASE5_PROTOCOL_AMENDMENT_TESTER.md`.
 - Intraday Family D now refits once per 20 trading sessions and predicts on the frozen hourly decision grid.
 - The previous Family D runs that failed regression or empirical execution are rejected evidence and are not used for selection.
-- Latest correction lineage is on `phase-05-developer`; a fresh hosted Family D run is queued after the cadence correction.
+- Latest correction lineage is on `phase-05-developer`; hosted Family D run #16 (`37606785909`) is in progress after the tester-approved exact sequence-cache optimization.
 - Phase 6 remains blocked until the independent tester reviews an immutable Family D artifact and issues a gate decision.
 
 ## Research continuity rule
