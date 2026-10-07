@@ -11,3 +11,5 @@ S27,FREE_FALLBACK,Stooq Nikkei 225,https://stooq.com/q/d/?s=%5Enk,Nikkei overnig
 S28,FREE_FALLBACK,Stooq Hang Seng,https://stooq.com/q/d/?s=%5Ehsi,Hang Seng overnight lead-lag,3,UNTESTED,Free market-data fallback
 S29,PRIMARY,NSE sectoral indices,https://www.nseindia.com/market-data/live-market-indices,Indian sector leadership/breadth,1,UNTESTED,Official NSE source
 S30,PRIMARY,NSE market breadth,https://www.nseindia.com/market-data/live-equity-market,NSE advance/decline and breadth,1,UNTESTED,Official NSE source
+
+S32,RESEARCH_ONLY,GitHub public HSI daily close fallback,https://github.com/rq1234/UROP-tar-efficiency/blob/c44c1f9aaa9288908590ee4fb7bd4f3aac64edc7/data/equity/hangseng.csv,Hang Seng daily close fallback when primary free feeds fail,4,RESEARCH_ONLY_LICENSE_UNVERIFIED,Public GitHub dataset; no repository license file observed; use for research validation only and preserve source hash/provenance.

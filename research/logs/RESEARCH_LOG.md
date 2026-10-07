@@ -86,3 +86,10 @@
 - Run #20 failed only at S28 (Hang Seng) after the free chain exhausted: long-window Stooq returned no observations, FRED candidates returned 404, and Yahoo returned 404.
 - The earlier Stooq probe had worked on a short historical window, so the most conservative next free-source action is to preserve Stooq but request it in 180-day chunks, then merge the chunks by date with duplicate protection.
 - No paid source has been tried. The FRED/Yahoo alternatives remain available as fallbacks.
+
+## 2026-10-07 — Phase 2C Hang Seng free-data composite fallback
+
+- Run #21 confirmed that the remaining S28 Hang Seng gap survives the Stooq chunked approach and the tested FRED/Yahoo endpoints.
+- A public GitHub dataset was found containing daily Hang Seng close data from 1986 through 2026-05-28. The repository has no license file visible at its root, so this source is explicitly tagged research-only/license-unverified; it is not promoted to a canonical redistribution source.
+- The acquisition script can use this source only as a fallback, retains the exact commit URL, hashes the cached bytes, and preserves the verified sub-window instead of padding the missing 2026-05-29 to 2026-09-30 interval.
+- This satisfies the free-source-first requirement while keeping the residual coverage limitation visible for the tester and final manuscript.

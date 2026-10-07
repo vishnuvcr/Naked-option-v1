@@ -23,7 +23,7 @@ SERIES={
     "S25":{"stooq":"https://stooq.com/q/d/l/?s=%5Espx&i=d","fred_ids":["SP500"],"yahoo":"%5EGSPC"},
     "S26":{"stooq":"https://stooq.com/q/d/l/?s=%5Endq&i=d","fred_ids":["NASDAQCOM"],"yahoo":"%5EIXIC"},
     "S27":{"stooq":"https://stooq.com/q/d/l/?s=%5Enk&i=d","fred_ids":["NIKKEI225"],"yahoo":"%5EN225"},
-    "S28":{"stooq":"https://stooq.com/q/d/l/?s=%5Ehsi&i=d","fred_ids":["HSI","HANGSENG"],"yahoo":"%5EHSI"},
+    "S28":{"stooq":"https://stooq.com/q/d/l/?s=%5Ehsi&i=d","fred_ids":["HSI","HANGSENG"],"yahoo":"%5EHSI","github_raw":"https://raw.githubusercontent.com/rq1234/UROP-tar-efficiency/c44c1f9aaa9288908590ee4fb7bd4f3aac64edc7/data/equity/hangseng.csv"},
     "S20":{"fred_ids":["DGS10"]},
 }
 HEADERS={"User-Agent":"NIFTY-Naked-Option-Research/1.0","Accept":"text/csv,application/json,*/*"}
@@ -52,7 +52,7 @@ def parse_csv_rows(raw: bytes) -> tuple[list[str],int]:
         if not (START <= d <= END):
             continue
         dates.append(d.isoformat())
-        close=row.get("Close") or row.get("CLOSE") or row.get("close") or row.get("SP500") or row.get("NASDAQCOM") or row.get("NIKKEI225") or row.get("HSI") or row.get("HANGSENG") or row.get("DGS10")
+        close=row.get("Close") or row.get("CLOSE") or row.get("close") or row.get("price") or row.get("Price") or row.get("SP500") or row.get("NASDAQCOM") or row.get("NIKKEI225") or row.get("HSI") or row.get("HANGSENG") or row.get("DGS10")
         try:
             if close not in (None,"",".") and float(str(close).replace(",","")) == float(str(close).replace(",","")):
                 valid_values += 1
@@ -148,6 +148,8 @@ for sid,config in SERIES.items():
         candidates.append(("fred",f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={fid}&cosd={START.isoformat()}&coed={END.isoformat()}",fid))
     if "yahoo" in config:
         candidates.append(("yahoo_chart_api",None,config["yahoo"]))
+    if "github_raw" in config:
+        candidates.append(("github_raw",config["github_raw"],None))
 
     for provider,url,extra in candidates:
         try:
@@ -167,6 +169,15 @@ for sid,config in SERIES.items():
                     raw=path.read_bytes(); hit=True
                     dates,valid=parse_csv_rows(raw)
                     if not dates or valid==0: raise ValueError("cached_fred_unusable")
+                else:
+                    raw=fetch_bytes(url); hit=False
+                    dates,valid=write_and_check(path,raw)
+            elif provider=="github_raw":
+                path=RAW/f"{sid}_github_raw_{START}_{END}.csv"
+                if path.exists() and path.stat().st_size>0:
+                    raw=path.read_bytes(); hit=True
+                    dates,valid=parse_csv_rows(raw)
+                    if not dates or valid==0: raise ValueError("cached_github_raw_unusable")
                 else:
                     raw=fetch_bytes(url); hit=False
                     dates,valid=write_and_check(path,raw)
