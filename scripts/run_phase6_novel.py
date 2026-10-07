@@ -45,6 +45,45 @@ def sigmoid(x: np.ndarray | float) -> np.ndarray | float:
     return 1.0 / (1.0 + np.exp(-x))
 
 
+ABSTENTION_LOW = 0.45
+ABSTENTION_HIGH = 0.55
+E08_MODEL_MAP = {0: "D09", 1: "D02", 2: "D12"}
+
+
+def i03_probability(persistence: float, current_vol: float, training_median_vol: float) -> float:
+    if not np.isfinite(persistence):
+        return np.nan
+    if not np.isfinite(training_median_vol) or training_median_vol <= 0:
+        score = persistence
+    else:
+        vol = current_vol if np.isfinite(current_vol) and current_vol > 0 else training_median_vol
+        vol_ratio = vol / training_median_vol
+        score = persistence / max(vol_ratio, 0.25)
+    return float(sigmoid(np.clip(score, -3.0, 3.0)))
+
+
+def option_break_even_return(side: str, spot: float, strike: float, premium: float) -> float:
+    """Return log-return break-even threshold for a long naked option."""
+    if not all(np.isfinite(v) for v in (spot, strike, premium)) or spot <= 0 or premium < 0:
+        return np.nan
+    side = side.upper()
+    if side == "CE":
+        return float(np.log((strike + premium) / spot))
+    if side == "PE":
+        if strike - premium <= 0:
+            return np.nan
+        return float(np.log((strike - premium) / spot))
+    raise ValueError("side must be CE or PE")
+
+
+def entropy_weight(p: float) -> float:
+    if not np.isfinite(p):
+        return np.nan
+    pp = float(np.clip(p, EPS, 1 - EPS))
+    h = -(pp * math.log2(pp) + (1 - pp) * math.log2(1 - pp))
+    return max(1.0 - h, 0.05)
+
+
 def block_bootstrap_accuracy(y, p, block_len, reps=200, seed=SEED):
     z = pd.DataFrame({"y": y, "p": p}).dropna()
     if len(z) < block_len:
@@ -150,8 +189,13 @@ def apply_rank_bin(value: float, reference: np.ndarray, n_bins: int) -> int:
     """Map a new value using only the frozen training reference."""
     if not np.isfinite(value) or reference.size == 0:
         return -1
-    pos = int(np.searchsorted(reference, value, side="right"))
-    u = (pos - 0.5) / max(int(reference.size), 1)
+    left = int(np.searchsorted(reference, value, side="left"))
+    right = int(np.searchsorted(reference, value, side="right"))
+    if left < right:
+        avg_rank = (left + 1 + right) / 2.0
+    else:
+        avg_rank = left + 1.0
+    u = (avg_rank - 0.5) / max(int(reference.size), 1)
     return int(np.clip(np.floor(n_bins * u), 0, n_bins - 1))
 
 
@@ -645,8 +689,9 @@ def run_scope(df, intraday: bool, horizons: list[int]):
 
             for r in rows:
                 vs = int(common["vol_state"][r])
-                chosen = "D09" if vs == 0 else "D02" if vs == 1 else "D12"
-                pred["E08"][r] = base_block[chosen][r]
+                chosen = E08_MODEL_MAP.get(vs)
+                if chosen is not None:
+                    pred["E08"][r] = base_block[chosen][r]
 
             # I05: fixed one-step regime-transition pressure.
             pred_i05 = i05_probs(trend_states, common["vol_state"], y, train_end, rows)
@@ -659,8 +704,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
                     continue
                 ws = []
                 for pv in ps:
-                    ent = -(pv * math.log2(max(pv, EPS)) + (1 - pv) * math.log2(max(1 - pv, EPS)))
-                    ws.append(max(1.0 - ent, 0.05))
+                    ws.append(entropy_weight(pv))
                 pred["I08"][r] = float(np.dot(ws, ps) / sum(ws))
 
             # I09: fixed D07 abstention band, preserving the full denominator separately.
@@ -689,12 +733,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
                 ) if src >= I03_WINDOW else np.nan
                 if not np.isfinite(raw_persistence):
                     continue
-                current_vol = vol20[src]
-                if not np.isfinite(current_vol):
-                    current_vol = medv
-                vr = current_vol / medv
-                score = np.clip(raw_persistence / max(vr, 0.25), -3, 3)
-                pred["I03"][r] = float(sigmoid(score))
+                pred["I03"][r] = i03_probability(raw_persistence, vol20[src], medv)
 
         # Methods requiring unavailable PIT layers remain blocked by explicit rule.
         blocked = {
@@ -743,7 +782,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
 
         # I09 needs conditional metrics on traded observations plus full coverage.
         finite_p = np.isfinite(pred["I09"])
-        trade = finite_p & ((pred["I09"] < 0.45) | (pred["I09"] > 0.55))
+        trade = finite_p & ((pred["I09"] < ABSTENTION_LOW) | (pred["I09"] > ABSTENTION_HIGH))
         i09_extra = {
             "coverage": float(trade.sum() / finite_p.sum()) if finite_p.sum() else 0.0,
             "trade_n": int(trade.sum()),
