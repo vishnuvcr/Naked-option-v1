@@ -86,3 +86,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Corrected reusable workflow uses typed `workflow_call.inputs.empirical_authorized`; automatic caller derives authorization from archived tester approval.
 - The default `main` branch also contains the corrected reusable workflow for manual-dispatch registration.
 - A fresh Phase 6 hosted run is now authorized. No metric or artifact is accepted until post-run tester audit.
+
+
+## 2026-10-07 — Phase 6 fresh hosted execution active
+- Research Protocol Check run `37668947725` is the current automatic execution path.
+- Protocol validation and Phase 6 regression have passed.
+- Phase 6 empirical job `112955675058` is **in progress** at the empirical E01-E10/I01-I10 suite.
+- Schema validation and artifact upload have not started.
+- No Phase 6 metric is accepted or interpreted until the immutable artifact is independently audited.
