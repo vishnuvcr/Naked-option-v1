@@ -5,8 +5,8 @@
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
 | Phase 1 Literature/method registry | PASSED | final tester gate passed |
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
-| Phase 3 Labels/baselines | **TESTER REQUEST CHANGES — RUN #97 REJECTED FOR B8 PIT LEAKAGE + METRIC DENOMINATOR MISMATCH** | corrected empirical artifact + independent reproduction |
-| Phase 4 Single-family methods | BLOCKED | Phase 3 tester pass |
+| Phase 3 Labels/baselines | **PASSED WITH SCOPED RESTRICTIONS** | research/gates/PHASE3_FINAL_TESTER.md; B9/B10 remain blocked data layers |
+| Phase 4 Single-family methods | READY TO START | independent tester gate required per family |
 | Phase 5 Statistical/ML | BLOCKED | Phase 4 gates |
 | Phase 6 Novel methods | BLOCKED | Phase 5/novelty gates |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
