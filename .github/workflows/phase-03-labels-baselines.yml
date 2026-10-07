@@ -58,6 +58,9 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/acquire_hf_intraday_sample.py
 
+      - name: Run B8 PIT regression test
+        run: python scripts/test_phase3_b8_pit.py
+
       - name: Run positional baseline suite B0-B11
         run: python scripts/run_phase3_daily_baselines.py
 
