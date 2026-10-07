@@ -234,3 +234,13 @@
 - Family C reached model execution but the first forward implementation was computationally excessive because C01-C04 refit too frequently.
 - The protocol was amended before accepting results: C01-C04 now refit every 20 trading sessions and hold the model fixed within each block, always training only on observations strictly before the block.
 - This is a computation-control amendment, not a result-driven parameter change; it is frozen before the next accepted empirical run.
+
+## 2026-10-07 — Phase 4 Family C correction pass
+- Independent tester findings were accepted as blocking changes.
+- Corrected C04 to fit AutoReg(5) on continuous returns and recursively forecast the registered H-step cumulative return.
+- Corrected C06/C07 to compute cumulative H-step return moments from the online state posterior rather than a one-step state probability.
+- Corrected C08 to propagate the local-trend Kalman state H steps and use the predicted level-change distribution.
+- Corrected C09 to persist the detected direction until an opposite-threshold reset.
+- Explicitly documented C05 as a horizon-invariant volatility-conditioned signal, not an H-step volatility forecast.
+- Added synthetic regression tests for C04, C06/C07, C08 and C09 and wired them into the Family C workflow before the empirical run.
+- Family C remains pending independent tester approval; no Family D advancement is authorized yet.
