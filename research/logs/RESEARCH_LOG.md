@@ -72,3 +72,11 @@
 - To honor the free-source-first rule, the global acquisition now uses a two-source free chain: Stooq first and Yahoo Finance chart API as fallback for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng. FRED remains the US 10Y source.
 - The global manifest/result records the selected provider and any failed source attempts so source substitution is auditable.
 - This is a data-source robustness correction, not a relaxation of acceptance criteria. The research gate remains open until the fallback source completes and the tester reproduces the resulting hashes/date coverage.
+
+## 2026-10-07 — Phase 2C run #19 free-source escalation
+
+- Run #19 confirmed that Stooq S25 returned no frozen-window observations and the proposed Yahoo chart fallback returned HTTP 404 from GitHub Actions.
+- The free-source-first rule was therefore extended to FRED public series before any consideration of paid data. FRED series candidates were predeclared for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng; Yahoo remains the last free fallback.
+- The global validator now requires every selected global/rates record to report a provider and non-zero numeric observations.
+- Cache-hit metadata was also corrected so it reflects whether the selected raw file was actually read from an existing cache.
+- No paid source has been introduced and no scientific threshold has been relaxed. The Phase 2 gate remains open pending a successful contextual run and tester reproduction.

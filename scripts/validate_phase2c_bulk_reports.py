@@ -33,8 +33,13 @@ for name in ["india_vix_history_validation.json","global_reference_window.json",
 if missing or failed or small:
     raise SystemExit(f'ERROR: Phase 2C bulk gate failed; missing={missing}, failed={failed}, small={small}')
 glob=json.loads((REPORT/"global_reference_window.json").read_text())
-if len(glob.get("records",[]))<5:
+records=glob.get("records",[])
+if len(records)<5:
     raise SystemExit('ERROR: fewer than 5 global/rates series')
+if any(int(r.get("rows",0))<=0 or int(r.get("numeric_value_rows",0))<=0 for r in records):
+    raise SystemExit('ERROR: global/rates series contains no numeric observations')
+if any(not r.get("provider") for r in records):
+    raise SystemExit('ERROR: global/rates provider not recorded')
 vix=json.loads((REPORT/"india_vix_history_validation.json").read_text())
 if vix.get("status")!="PASS":
     raise SystemExit('ERROR: India VIX validation did not pass')
