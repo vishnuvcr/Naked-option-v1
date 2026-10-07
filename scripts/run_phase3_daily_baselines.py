@@ -30,7 +30,8 @@ def load_daily():
     df=df.sort_values("date").drop_duplicates("date").reset_index(drop=True)
     df["log_close"]=np.log(df["close"])
     df["ret_1"]=df["log_close"].diff()
-    df["gap"]=np.log(df["open"]/df["prev_close"]) if {"open","prev_close"}<=set(df) else np.nan
+    prev_close=df["close"].shift(1)
+    df["gap"]=np.log(df["open"]/prev_close)
     return df
 
 def horizon_sigma(df,h):
@@ -162,7 +163,9 @@ def prediction_series(name,df,h,features=None):
         p=np.where(state==1,0.55,0.45)
         return pd.Series(p,index=df.index)
     if name=="B6":
-        pos=(df["close"]-df["low"].rolling(20).min())/(df["high"].rolling(20).max()-df["low"].rolling(20).min())
+        prior_lo=df["low"].rolling(20).min().shift(1)
+        prior_hi=df["high"].rolling(20).max().shift(1)
+        pos=(df["close"]-prior_lo)/(prior_hi-prior_lo)
         p=np.where(pos>0.5,0.55,np.where(pos<0.5,0.45,0.5))
         return pd.Series(p,index=df.index)
     if name=="B7":
@@ -172,10 +175,21 @@ def prediction_series(name,df,h,features=None):
         p=np.where(pct<0.33,persistence,np.where(pct>0.67,1-persistence,0.5))
         return pd.Series(p,index=df.index)
     if name=="B8":
-        dow=df["date"].dt.dayofweek
-        # Phase 3 freezes a calendar-only weekday effect; expiry-day labels are
-        # deferred until an official historical expiry calendar is joined.
-        return pd.Series(np.where(dow==3,0.51,0.5),index=df.index)
+        out=np.full(len(df),np.nan)
+        dow=df["date"].dt.dayofweek.to_numpy()
+        for i in range(len(df)):
+            d=dow[i]
+            past=dow[:i]==d
+            if not past.any():
+                out[i]=0.5
+                continue
+            yy,_=make_label(df.iloc[:i],h)
+            valid=yy.notna().to_numpy() & past
+            if valid.any():
+                out[i]=float(np.clip(yy.to_numpy()[valid].mean(),0.0,1.0))
+            else:
+                out[i]=0.5
+        return pd.Series(out,index=df.index)
     return pd.Series(np.nan,index=df.index)
 
 def logistic_walkforward(df,h):
