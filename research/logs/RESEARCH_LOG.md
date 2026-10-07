@@ -326,3 +326,11 @@
 - Cached data restoration and acquisitions completed successfully.
 - The full mandatory regression suite passed, including the new D07 meta-stack reconstruction/invariance test.
 - The empirical D01-D15 suite is now executing. No metric or model is accepted until the immutable artifact is independently reviewed.
+## 2026-10-07 — Continuation while Family D run #19 remains active
+
+- Rechecked the live GitHub Actions state before proceeding.
+- Run #19 (37611880308) remains in progress.
+- The mandatory regression suite, cache restoration and data-acquisition stages have completed successfully.
+- The empirical D01-D15 suite remains the active step; schema validation and artifact upload have not begun.
+- No Family D metric is accepted, selected or interpreted yet.
+- Phase 6 remains blocked pending immutable artifact and independent tester review.
