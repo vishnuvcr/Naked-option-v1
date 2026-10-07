@@ -48,7 +48,7 @@ jobs:
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             ref="refs/heads/${{ github.event.pull_request.head.ref }}"
           fi
-          if [ "${ref}" = "refs/heads/phase-05-developer" ]; then
+          if [ "${ref}" = "refs/heads/phase-06-developer" ]; then
             if [ -f "research/gates/PHASE6_CODE_APPROVAL_TESTER.md" ]; then
               empirical_authorized=true
             fi
