@@ -44,11 +44,12 @@ def main():
     assert np.allclose(fitted_mean, expected_mean)
     assert not np.allclose(fitted_mean, full_mean)
 
-    # All registered methods must return finite probabilities on a controlled
-    # balanced training block. A failure names the offending method.
-    # Use one synthetic group here so the 20-observation sequence methods have
-    # >=300 trainable sequence endpoints. Session-boundary safety is tested
-    # independently above and therefore does not get weakened.
+    # Sequence methods must preserve valid predictions within a session even
+    # when a test block also contains session-start rows without a full warm-up.
+    seq_p = fit_predict_block("D13", X, y, 360, np.array([280, 281, 300]), groups=groups)
+    assert np.isnan(seq_p[0]) and np.isnan(seq_p[1]) and np.isfinite(seq_p[2])
+    # Use one synthetic group below so every registered method has enough
+    # sequence endpoints for the finite-probability interface test.
     for name in [f"D{i:02d}" for i in range(1, 16)]:
         p = fit_predict_block(name, X, y, 360, np.array([360, 361, 362]), groups=None)
         assert len(p) == 3, f"{name}: wrong probability length {len(p)}"
