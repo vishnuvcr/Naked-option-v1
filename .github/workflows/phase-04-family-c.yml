@@ -46,6 +46,10 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/acquire_hf_intraday_sample.py
+      - name: Run Family C regression tests
+        working-directory: scripts
+        run: python test_phase4_family_c.py
+
       - name: Run Family C statistical methods
         run: python scripts/run_phase4_family_c.py
       - name: Validate Family C results
