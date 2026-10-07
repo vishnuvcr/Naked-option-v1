@@ -101,6 +101,16 @@ def purged_train_end(first_test_row: int, horizon: int) -> int:
     return max(0, int(first_test_row) - int(horizon))
 
 
+def cutoff_train_end(decision_times, cutoff) -> int:
+    """
+    Return the first decision observation at/after cutoff using integer
+    nanoseconds. This is robust to either tz-aware or tz-naive timestamps.
+    """
+    decision_ns = pd.DatetimeIndex(pd.to_datetime(decision_times)).asi8
+    cutoff_ns = pd.Timestamp(cutoff).value
+    return int(np.searchsorted(decision_ns, cutoff_ns, side="left"))
+
+
 def _fixed_conv_filters(n_features: int) -> np.ndarray:
     rng = np.random.default_rng(SEED + 1301 + n_features)
     k = rng.normal(size=(N_CONV_FILTERS, n_features, 3))
@@ -330,8 +340,7 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
     decision_idx = np.flatnonzero(grid.to_numpy())
     X = X_full.iloc[decision_idx].reset_index(drop=True)
     decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx]))
-    decision_ns = decision_times.asi8
-    decision_times = pd.Series(decision_times)
+    decision_times_series = pd.Series(decision_times)
     groups = df["date"].iloc[decision_idx].reset_index(drop=True)
 
     result = {}
@@ -346,11 +355,11 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
             status = "EXECUTED"
             for start in range(0, len(X), 20):
                 rows = np.arange(start, min(start + 20, len(X)), dtype=int)
-                first_time = decision_times.iloc[rows[0]]
+                first_time = decision_times_series.iloc[rows[0]]
                 cutoff = first_time - pd.Timedelta(minutes=int(H))
                 # Compare integer nanoseconds so tz-aware and tz-naive timestamp
                 # representations cannot be mixed.
-                train_end = int(np.searchsorted(decision_ns, cutoff.value, side="left"))
+                train_end = cutoff_train_end(decision_times, cutoff)
                 try:
                     p[rows] = fit_predict_block(name, X, y, train_end, rows, groups=groups)
                 except Exception as exc:
