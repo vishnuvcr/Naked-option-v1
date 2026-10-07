@@ -101,3 +101,18 @@ Developer commit `d62f4adbe50ee40193e2215300c834d03d364428` was independently re
 Developer commit `a68c72d8f2308c91b9b8b8712170510e3f879137` was independently reviewed. The Phase 2 static validator now checks both the legacy Phase 2 audit workflow and the active Phase 2C bulk workflow with separate marker sets. This directly addresses the run #25 gate failure and does not relax any data-quality or PIT requirement.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The next gate review must verify that both workflow marker suites pass and then independently inspect the Phase 2C lot-size, PIT, unresolved-date and cache evidence.
+
+
+## Phase 2C static-validator correction — developer commit `6130d8d4c0e4d4b2777b414ea63f70b24d5fc42d`
+
+Independent tester review: the stale required marker for nonexistent `scripts/validate_phase2c_completeness.py` was removed from the static Python contract so the gate no longer requires a file that the active Phase 2C workflow does not use. The active Phase 2C workflow has its own marker suite. This is a governance/CI correction and does not weaken the scientific gate.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The current run must demonstrate that the corrected static validator, PIT fixture, lot-size report, all eight year reports and contextual reports pass together.
+
+## Legacy strategy and prior-research intake review — developer commit `b80215168f98f6fc22c65b82a989d0b7592c5d4c`
+
+Independent review of the new intake documents confirms that the seven Tradetron strategies are preserved as historical/component-mining inputs and are not being promoted as final strategies because they contain short-option legs/spreads. The mining map appropriately extracts timing, DTE, delta, premium, state-machine and exit components for later naked-long ablations. The GitHub prior-research inventory likewise treats prior performance as hypothesis/prior-art only and requires re-testing under the current PIT/cost/tester protocol.
+
+The seven supplied Tradetron backtest tokens were checked through the connected service and all returned `not_found`; no performance result is asserted and no chargeable replacement run was initiated.
+
+**Tester assessment:** PASS for intake classification; does not affect the open Phase 2 data gate.
