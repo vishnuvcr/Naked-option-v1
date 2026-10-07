@@ -22,8 +22,8 @@ ddf=pd.DataFrame({"date":dates})
 y=np.full(len(ddf),np.nan)
 y[:3]=1.0
 got=daily.pit_weekday_probability_daily(ddf,y,2)
-assert float(got.iloc[4])==1.0
-assert float(got.iloc[2])==0.5
+assert abs(float(got.iloc[10])-1.0)<1e-12
+assert abs(float(got.iloc[4])-0.5)<1e-12
 
 # Intraday H=5: same strict endpoint rule in timestamp space.
 ts=pd.date_range("2026-01-05 09:15",periods=20,freq="min",tz="Asia/Kolkata").tz_convert("UTC")
