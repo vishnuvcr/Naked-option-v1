@@ -60,12 +60,14 @@ At test time, estimate P(Y_H=1 | selected-lag-bin) from the same training table 
 No test labels enter lag selection or probability estimation.
 
 ### E07 Transfer entropy / information flow
-Source: predeclared global risk-on/off composite from the accepted daily global layer when available, using only the most recently completed source session at the NIFTY decision timestamp.
-Discretization: source and NIFTY returns into 3 deterministic rank bins using the same average-rank rule as E06 with 3 bins. No library-dependent quantile-edge behavior is allowed.
-History: one lag for source and one lag for target.
-Estimate first-order transfer entropy TE(source -> NIFTY) from conditional-frequency counts with +1 Laplace smoothing.
-Use a fixed TE threshold equal to 0.02 nats: if TE <= threshold, p=0.50; otherwise use the training conditional direction table for the current source state.
-If the composite lacks PIT-safe observations, BLOCKED_DATA.
+Global composite sources are fixed to the four registered free global daily references currently used by the repository: S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng.
+For each source, compute the one-session log return on its local exchange close. A source observation is eligible only after that local exchange has completed the session and the observation would have been available before the NIFTY decision timestamp; no same-day future close is allowed.
+Normalize each source return by its own causal 20-observation rolling standard deviation computed from that source's local history. The global composite is the equal-weight mean of the four normalized source returns; all four sources must be PIT-available for the observation, otherwise E07 is BLOCKED_DATA.
+Discretization: source composite return and NIFTY return use 3 deterministic rank bins from training data with the same explicit average-rank/reference rule as E06. No library-dependent quantile-edge behavior is allowed.
+History: one lag for source composite and one lag for NIFTY target.
+Estimate first-order transfer entropy TE(source -> NIFTY) from conditional-frequency counts with +1 Laplace smoothing using training observations only.
+Use a fixed TE threshold equal to 0.02 nats: if TE <= threshold, p=0.50; otherwise use the training conditional direction table for the current composite state.
+The exact composite, timing rule, normalization and four-source requirement are frozen; missing/full-period PIT coverage is a BLOCKED_DATA condition.
 
 ### E08 Regime-conditioned model switching
 Regime axes are fixed:
