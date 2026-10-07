@@ -249,3 +249,8 @@
 - Hosted corrected run stopped at the synthetic test gate because the CUSUM fixture passed an incompatible NumPy-array training type.
 - Corrected only the test fixture to use the same Series interface as the production helper.
 - No Family C statistical result was generated or promoted from the failed run.
+
+## 2026-10-07 — Family C CUSUM regression fixture correction
+- Hosted run reached the regression suite, confirming the prior type error was fixed.
+- The remaining failure was in the synthetic expectation: the fixture required persistence through an opposite threshold, which the protocol explicitly defines as a reset.
+- Revised the fixture to test persistence until, and reversal at, the opposite threshold.
