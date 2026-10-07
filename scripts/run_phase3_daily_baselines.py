@@ -204,7 +204,7 @@ def logistic_walkforward(df,h):
         train_end=max(0,i-h)
         y_train=y.iloc[:train_end]
         mask=y_train.notna()
-        x_train=X.iloc[:i][cols].copy()
+        x_train=X.iloc[:train_end][cols].copy()
         mask &= x_train.notna().all(axis=1)
         yv=y_train[mask].astype(int)
         if len(yv)<200 or yv.nunique()<2:
