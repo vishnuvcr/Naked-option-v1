@@ -64,3 +64,5 @@ New errors must be appended, never overwritten.
 
 | 2026-10-07 | 3 | Older Phase 3 Actions run could remain in progress and block/cancel corrected runs | Stale workflow run and shared concurrency namespace | Versioned the corrected workflow concurrency group and added a finite 45-minute timeout; future corrected runs are isolated from the stale namespace | Pending hosted rerun |
 | 2026-10-07 | Governance | User requested indefinite research until a working strategy is found | Literal indefinite search conflicts with reproducibility and the pre-registered finite research design | Added a no-premature-null completion rule: execute the full declared phase catalog and all registered families before any final null conclusion; only explicitly governed amendments may extend the finite method universe | Protocol/static review |
+
+| 2026-10-07 | 3 | Daily B11 walk-forward training mask became longer than the training frame after pandas index alignment | Feature frame was sliced to i while the label mask was sliced to i-h | Slice the feature frame to the purged training endpoint before applying the mask | Pending hosted rerun |
