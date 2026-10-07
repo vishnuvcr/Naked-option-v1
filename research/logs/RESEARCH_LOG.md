@@ -452,3 +452,10 @@
 - Developer replaced the invalid gate with a typed `workflow_call` boolean input and updated the caller to emit/pass tester authorization based on the archived approval file.
 - Corrected reusable workflow was synced to `main` for the manual-dispatch button.
 - Fresh tester workflow review is required before the next empirical run.
+
+
+## 2026-10-07 — Phase 6 workflow correction tester approval
+- Independent tester re-reviewed the corrected reusable workflow and Research Protocol caller after the prior `hashFiles` job-level failure.
+- Tester disposition: **PASS — WORKFLOW CORRECTION GATE**.
+- Approval archived at `research/gates/PHASE6_WORKFLOW_APPROVAL_TESTER.md`.
+- Fresh hosted execution is authorized; the prior failed run remains non-evidence.
