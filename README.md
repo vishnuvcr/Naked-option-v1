@@ -5,19 +5,21 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 ## Research status
 
 - Phase 2 passed the independent tester gate with explicit source restrictions.
-- Phase 3 protocol passed its independent tester review, but the first empirical-execution package was rejected by the tester for workflow, logging, implementation, and PIT-validation defects.
-- Those defects have now been corrected on the phase-03-developer branch.
-- A fresh hosted Phase 3 run is required before any empirical baseline result is accepted.
-- A failed candidate is not treated as a terminal research answer. The full pre-registered phase sequence must be completed and every reproducible failure repaired or formally gated before a final conclusion.
-- Phase 4 and all later phases remain blocked until the independent tester reproduces the Phase 3 result packet and passes the empirical gate.
+- Phase 3 passed the independent tester gate with scoped data restrictions.
+- Phase 4 Family B passed with VWAP blocked for missing PIT-safe volume; Family C passed with C10/C11 blocked for missing PIT-safe feature layers.
+- Phase 5 Family D is active. Protocol review passed, but hosted Family D run #1 was rejected before empirical execution because its regression gate failed.
+- The failed run is preserved as rejected evidence; no Family D metric from it is accepted.
+- An independent tester report is archived at [PHASE5_RUN1_TESTER](research/gates/PHASE5_RUN1_TESTER.md).
+- The corrected developer head is under a fresh hosted regression/empirical gate. No Phase 6 transition is permitted until the independent tester signs off.
+- The research is not allowed to stop because an early model fails. The finite pre-registered phase sequence, execution-cost analysis, robustness gates and untouched-forward verification remain mandatory.
 
-### Current Phase 3 scope
+### Current Phase 5 scope
 
-The frozen label horizons are 5/15/30/60/120 minutes intraday and +1/+2/+3/+5/+10 sessions positional. Baselines B0-B11 are explicitly required for every evaluated horizon; a missing data layer must be recorded as BLOCKED_DATA, never silently omitted.
+Family D evaluates D01-D15 using the frozen horizons: 5/15/30/60/120 minutes intraday and +1/+2/+3/+5/+10 sessions positional.
 
-The workflow now performs protocol validation, NIFTY daily acquisition, Hugging Face intraday reference discovery/acquisition, official-NSE overlap validation for the intraday reference, positional/intraday baseline execution, result-schema validation, result persistence and artifact upload. Caches are retained to avoid unnecessary redownloads.
+The current implementation retains the frozen hyperparameters. D04-D06 are explicitly provider-independent HistGradientBoosting surrogates. D13 uses a 20-observation lag-window MLP; D14 uses 16 fixed causal 3-tap filters followed by a 32-unit dense learner; D15 uses a fixed 2-head causal-attention representation of width 32 followed by a 32-unit dense learner. Intraday model fitting/prediction uses the frozen hourly decision grid while exact H-minute labels remain on the 1-minute path, and session-local sequence windows are enforced.
 
-B9 global-overnight and B10 breadth are currently conservatively blocked in Phase 3 until their PIT-safe historical feature layers are materialized. India VIX/FII-DII remain governed by the Phase 2 publication-timestamp restrictions.
+D07 now uses chronological training-only calibration for its base-probability stack. Standardization and all fitted transforms remain training-only. Failed runs are never treated as evidence.
 
 ## Canonical documents
 
@@ -32,9 +34,11 @@ B9 global-overnight and B10 breadth are currently conservatively blocked in Phas
 - [Data source registry](research/DATA_SOURCE_REGISTRY.md)
 - [Phase status](research/STATUS.md)
 - [Research log](research/logs/RESEARCH_LOG.md)
+- [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
 - [Error log](research/logs/ERROR_LOG.md)
+- [Phase 5 run-1 error record](research/logs/PHASE5_RUN1_ERROR.md)
 - [Decision/chat log](research/logs/CHAT_LOG.md)
-- [Phase 3 baseline data gaps](research/phase3/BASELINE_DATA_GAPS.md)
+- [Phase 5 resume chat log](research/logs/CHAT_LOG_PHASE5_20261007.md)
 - [Gate reports](research/gates/)
 
 ## Branch governance
