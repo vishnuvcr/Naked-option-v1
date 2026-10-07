@@ -101,3 +101,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 4 | Family C AutoReg invocation used an unsupported `old_names` parameter in the installed statsmodels version | API-version mismatch | Removed the optional parameter; model definition remains AR(5) with constant | Pending hosted rerun |
 
 | 2026-10-07 | 4 | Family C C01-C04 computation was too slow under per-observation/session refits | Thousands of Probit/Logit/AR fits per horizon created excessive hosted runtime | Frozen a 20-session refit cadence for C01-C04, with each fitted model held forward for the block | Pending hosted rerun |
+
+| 2026-10-07 | 4 | Tester rejected Family C because C04 used binary labels, C09 did not persist state, and C06/C07/C08 lacked explicit horizon handling | Initial implementation mapped one-step model outputs onto all H-step labels | Rewrote C04 as continuous-return AR(5) forecasting, added cumulative H-step Markov moments, H-step Kalman propagation, persistent CUSUM state, explicit C05 horizon interpretation, and synthetic regression tests | Pending hosted rerun/tester |
