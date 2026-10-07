@@ -34,14 +34,14 @@ No centered windows.
 ### E03 Sample entropy
 Window: 100 returns.
 Embedding dimension m=2.
-Tolerance r=0.20 * training-window standard deviation.
+Tolerance r=0.20 * the **current causal 100-observation return-window standard deviation**. If this SD is zero or non-finite, the output is p=0.50.
 Use standard sample-entropy logarithmic ratio with self-matches excluded.
 Signal: entropy below the training-block median implies trend-persistent state; use recent return sign with p=0.55/0.45. Otherwise p=0.50.
 The training median is computed only inside the current fit.
 
 ### E04 Permutation entropy
 Window: 100 returns; ordinal pattern order m=5; delay=1.
-Compute normalized permutation entropy from the six? No: all 5! = 120 ordinal patterns.
+Compute normalized permutation entropy from all 5! = 120 ordinal patterns. If fewer than 20 valid ordinal patterns are available, or all patterns are degenerate, return the neutral value p=0.50.
 Signal: normalized entropy < 0.80 => persistent state and use recent return sign with p=0.55/0.45; otherwise p=0.50.
 The 0.80 threshold is fixed.
 
@@ -53,7 +53,7 @@ Signal: R_norm > 1.25 => mean-reverting/contrarian (flip recent return sign); R_
 
 ### E06 Mutual information
 Candidate source lags: 1,2,5,10 observations.
-Discretize each source return into 8 equal-frequency bins using training-block quantiles.
+Discretize each source return into 8 deterministic rank bins. For n eligible training observations, use stable rank(method='average'), u=(rank-0.5)/n, and bin=min(floor(8*u),7). This avoids version-dependent repeated-quantile edge behavior.
 Compute plug-in mutual information I(X_lag;Y_H) with Laplace +1 cell smoothing using only eligible training observations.
 Select the source lag with largest training MI; ties go to the smallest lag.
 At test time, estimate P(Y_H=1 | selected-lag-bin) from the same training table and use that probability.
@@ -61,7 +61,7 @@ No test labels enter lag selection or probability estimation.
 
 ### E07 Transfer entropy / information flow
 Source: predeclared global risk-on/off composite from the accepted daily global layer when available, using only the most recently completed source session at the NIFTY decision timestamp.
-Discretization: source and NIFTY returns into 3 equiprobable bins using training quantiles.
+Discretization: source and NIFTY returns into 3 deterministic rank bins using the same average-rank rule as E06 with 3 bins. No library-dependent quantile-edge behavior is allowed.
 History: one lag for source and one lag for target.
 Estimate first-order transfer entropy TE(source -> NIFTY) from conditional-frequency counts with +1 Laplace smoothing.
 Use a fixed TE threshold equal to 0.02 nats: if TE <= threshold, p=0.50; otherwise use the training conditional direction table for the current source state.
@@ -109,8 +109,7 @@ Map score to probability with sigmoid(score).
 ### I03 Volatility-adjusted trend persistence
 Window: 30 observations.
 Compute persistence = sum(sign(r_j)*|r_j|) / (sum(|r_j|)+1e-12).
-Compute vol-adjusted score = persistence / (rolling 60-observation volatility + 1e-12), clipped to [-3,3].
-Probability = sigmoid(score).
+Compute a dimensionless volatility ratio = current causal 60-observation volatility / median eligible training-block 60-observation volatility. Define adjusted_score = persistence / max(volatility_ratio,0.25), clipped to [-3,3]. If the training median volatility is non-positive or unavailable, fall back to adjusted_score=persistence. Probability = sigmoid(adjusted_score).
 
 ### I04 Option-surface directional asymmetry
 Required PIT-safe inputs: 25-delta put IV, 25-delta call IV, ATM IV, put OI, call OI at the nearest valid weekly expiry.
@@ -141,9 +140,7 @@ If spread/liquidity inputs are unavailable, BLOCKED_DATA.
 
 ### I07 Probability-of-move-vs-premium efficiency
 Required PIT-safe ATM CE/PE premium, strike, spot and expiry.
-For each side, compute the fixed option break-even underlying return from the observed premium and strike, then estimate the training-only probability that the H-horizon underlying return exceeds the relevant break-even threshold.
-Efficiency score = P(move beyond break-even) / (premium/spot + 1e-12).
-Report the larger CE/PE score and its side.
+For the call, break_even_return_CE = log((K+premium_CE)/spot) and the favorable event is return_H >= break_even_return_CE. For the put, break_even_return_PE = log((K-premium_PE)/spot) and the favorable event is return_H <= break_even_return_PE. If K-premium_PE <= 0, the PE side is invalid for this metric. Estimate each favorable-event probability using eligible training observations only. Efficiency score = favorable_probability / (premium/spot + 1e-12). Report the larger valid CE/PE score and its side.
 No option contract may be selected using future information. If PIT-safe premiums are unavailable, BLOCKED_DATA.
 
 ### I08 Entropy-weighted ensemble confidence
@@ -185,3 +182,14 @@ If any required component is BLOCKED_DATA, I10 is BLOCKED_DATA rather than rewei
 6. Exact fixed thresholds and weights tested against configuration constants.
 7. Probability outputs finite and in [0,1].
 8. All methods persist explicit data-status reasons when blocked.
+
+
+## Numerical-guard addendum
+
+- All rank-bin implementations are deterministic average-rank transforms; repeated raw values never depend on library quantile-edge behavior.
+- MFDFA uses only finite positive fluctuation values and requires at least 3 usable scales.
+- Sample entropy returns neutral when the causal window is degenerate.
+- Permutation entropy returns neutral when insufficient/degenerate ordinal patterns exist.
+- Transition estimators with no eligible outgoing transitions from the current state use the pooled training probability and record the fallback count.
+- I07 rejects economically invalid put break-even thresholds rather than clipping or fabricating them.
+- All probabilities are clipped only to numerical safety before log-loss/calibration calculations; no score threshold is tuned.
