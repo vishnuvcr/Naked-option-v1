@@ -61,7 +61,7 @@ def main():
 
     # Later global-I03 cutoff path must use the same valid DatetimeIndex positional access.
     global_i03_cutoff = decision_times[4] - pd.Timedelta(minutes=120)
-    assert global_i03_cutoff == pd.Timestamp("2026-01-01 11:00")
+    assert global_i03_cutoff == pd.Timestamp("2026-01-01 11:15")
 
     # E06 training cutoff must be invariant to any mutation after train_end.
     e06_x = np.random.default_rng(123).normal(0.0, 0.01, size=420)

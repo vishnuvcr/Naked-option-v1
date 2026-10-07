@@ -40,3 +40,13 @@
 - Impact: the proposed detached commit was rejected before tester submission; developer branch was not advanced and no workflow was triggered by this flawed object.
 - Correction: rebuilt the detached commit with the cutoff line correctly nested inside the `if intraday:` block.
 - Prevention: inspect the exact changed source lines in the detached commit before tester review.
+
+## 2026-10-08 — Phase 6 run 578 regression arithmetic defect
+- Category: tester/regression-fixture arithmetic
+- Component: scripts/test_phase6_novel.py global-I03 cutoff regression
+- Symptom: regression expected `decision_times[4] - 120 minutes` to equal 11:00, but the fixture starts at 09:15 with hourly spacing, so decision_times[4] is 13:15 and the correct result is 11:15.
+- Hosted run: Research Protocol Check #578 (`37680279189`), job `112994273676`.
+- Impact: mandatory regression failed; empirical job was skipped; no Phase 6 artifact or metric was generated/accepted.
+- Root cause: arithmetic error in the newly added regression expectation, not in the production cutoff implementation.
+- Correction: update the expected timestamp to 11:15 and preserve the production change unchanged.
+- Prevention: independently recompute fixture timestamps for every explicit time-delta assertion before the next hosted run.

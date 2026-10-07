@@ -473,3 +473,10 @@
 - Tester confirmed both `DatetimeIndex` cutoff paths use direct positional indexing, no `decision_times.iloc` remains, remaining `.iloc` calls apply to Series/DataFrame objects, indentation is valid, and regression coverage includes the later global-I03 path.
 - Tester gate `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = **PASS — correction approved for fresh empirical execution**.
 - The developer branch is authorized to advance to the corrected commit with the approval archived. No scientific metric is yet approved.
+
+## 2026-10-08 — Phase 6 run 578 regression failure
+- Developer advanced only after the prior cutoff correction tester approval; fresh hosted run #578 (`37680279189`) then failed the mandatory regression suite.
+- Independent tester traced the failure to a test-fixture arithmetic mistake: 13:15 minus 120 minutes equals 11:15, not 11:00.
+- Tester gate `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md` = REQUEST CHANGES.
+- Empirical execution was skipped; no Phase 6 result is accepted.
+- Developer is preparing a detached arithmetic correction. Tester approval is required before the developer branch advances again.

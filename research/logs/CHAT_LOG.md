@@ -99,3 +99,10 @@ No scientific or protocol change was made during this checkpoint.
 - Tester verified removal of the residual `decision_times.iloc` defect, valid indentation, complete cutoff regression coverage, and preservation of frozen scientific definitions.
 - Tester gate `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = PASS for fresh empirical execution only.
 - Developer may now archive the approval on `phase-06-developer` and advance the branch; run #575 remains non-evidence.
+
+## 2026-10-08 — Phase 6 run 578 regression correction cycle
+- User said "Ok proceed" and the developer/tester gate was advanced from the tester-approved cutoff fix.
+- Fresh run #578 (`37680279189`) passed protocol and acquisition but failed the Phase 6 regression suite before empirical execution.
+- Tester independently checked the failing assertion and identified a pure arithmetic error in the regression fixture: 13:15 minus 120 minutes is 11:15.
+- Tester issued REQUEST CHANGES at `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md`.
+- Run #578 is non-evidence and no scientific metric is accepted. A detached correction is being prepared for independent approval before the next hosted run.

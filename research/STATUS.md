@@ -95,3 +95,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester approval `research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md` = **PASS — correction approved for fresh empirical execution**.
 - Corrected detached commit `e27b6358901dc60bc90bad295f46c9493ab63d1e` passed independent cutoff/code review; the developer ref can now advance only to the approved commit that archives this gate.
 - Phase 6 remains **BLOCKED for scientific promotion** pending the fresh immutable 200-cell artifact and separate empirical tester gate.
+
+## 2026-10-08 — Phase 6 run 578 regression failure
+- Fresh hosted run #578 (`37680279189`) used the tester-approved cutoff correction, passed protocol/source acquisition, but failed the mandatory Phase 6 regression suite before empirical execution.
+- Failure: `global_i03_cutoff` fixture expected 11:00 instead of the mathematically correct 11:15.
+- Tester gate `research/gates/PHASE6_RUN26_REGRESSION_TESTER.md` = **REQUEST CHANGES**.
+- Run #578 is **NON-EVIDENCE**; empirical execution was skipped and no artifact/metric was accepted.
+- Phase 6 remains **BLOCKED** until the regression arithmetic is corrected and independently approved.

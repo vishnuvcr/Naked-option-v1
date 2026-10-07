@@ -87,3 +87,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester gate [PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md](research/gates/PHASE6_RUN25_RESIDUAL_CUTOFF_APPROVAL_TESTER.md) = **PASS — fresh empirical execution authorized**.
 - Corrected commit `e27b6358901dc60bc90bad295f46c9493ab63d1e` removes the residual `DatetimeIndex.iloc` defect in both cutoff paths and adds explicit later-cutoff regression coverage.
 - Run #575 remains non-evidence. A new hosted run may be triggered only from the approved archived commit; no Phase 6 metric is accepted before independent artifact review.
+
+## Phase 6 regression checkpoint — 2026-10-08
+
+- Fresh hosted run #578 (`37680279189`) passed protocol and data acquisition but failed the mandatory regression suite before empirical execution.
+- Tester gate [PHASE6_RUN26_REGRESSION_TESTER.md](research/gates/PHASE6_RUN26_REGRESSION_TESTER.md) = **REQUEST CHANGES**.
+- The defect is confined to the regression fixture expectation: 13:15 − 120 minutes = 11:15.
+- Run #578 is non-evidence; no artifact or Phase 6 metric was accepted. Phase 7 remains blocked.
