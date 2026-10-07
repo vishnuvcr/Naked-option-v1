@@ -43,7 +43,7 @@ def main():
     # >=300 trainable sequence endpoints. Session-boundary safety is tested
     # independently above and therefore does not get weakened.
     for name in [f"D{i:02d}" for i in range(1, 16)]:
-        p = fit_predict_block(name, X, y, 300, np.array([300, 301, 302]), groups=None)
+        p = fit_predict_block(name, X, y, 360, np.array([360, 361, 362]), groups=None)
         assert len(p) == 3, f"{name}: wrong probability length {len(p)}"
         assert np.all(np.isfinite(p)), f"{name}: non-finite probabilities {p}"
         assert np.all((p >= 0) & (p <= 1)), f"{name}: out-of-range probabilities {p}"
