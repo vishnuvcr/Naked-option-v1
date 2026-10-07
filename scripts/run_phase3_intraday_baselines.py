@@ -77,7 +77,17 @@ def calibration_metrics(y,p):
     model=LogisticRegression(C=1e6,solver="lbfgs",max_iter=1000).fit(lp.reshape(-1,1),yy)
     return {"calibration_slope":float(model.coef_[0,0]),"calibration_intercept":float(model.intercept_[0])}
 
-def metrics(y,p):
+def fixed_bin_future_returns(p,future):
+    z=pd.DataFrame({"p":p,"future":future}).replace([np.inf,-np.inf],np.nan).dropna()
+    bins=[-0.001,0.45,0.50,0.55,0.60,1.001]
+    names=["<0.45","0.45-0.50","0.50-0.55","0.55-0.60",">=0.60"]
+    out={}
+    for lo,hi,name in zip(bins[:-1],bins[1:],names):
+        m=(z["p"]>=lo)&((z["p"]<hi) if hi<1 else (z["p"]<=hi))
+        out[name]={"n":int(m.sum()),"mean_future_return":float(z.loc[m,"future"].mean()) if m.any() else None}
+    return out
+
+def metrics(y,p,future=None):
     z=pd.DataFrame({"y":y,"p":p}).dropna()
     if z.empty: return {"n":0}
     yy=z.y.astype(int).to_numpy(); pp=z.p.to_numpy(); pred=(pp>=0.5).astype(int)
@@ -93,6 +103,7 @@ def metrics(y,p):
         "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
         **calibration_metrics(y,p),
         "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
+        "future_return_by_probability_bin":fixed_bin_future_returns(p,future),
     }
     if len(np.unique(yy))==2:
         out["roc_auc"]=float(roc_auc_score(yy,pp))
@@ -121,7 +132,9 @@ def base_preds(df,h,name):
         return pd.Series(np.where(ret>0,0.55,np.where(ret<0,0.45,0.5)),index=idx)
     if name=="B4":
         lookback=min(h,30)
-        r=np.log(df["spot"]/df["spot"].shift(lookback))
+        past=df.set_index("timestamp")["spot"].reindex(df["timestamp"]-pd.Timedelta(minutes=lookback)).to_numpy()
+        r=np.log(df["spot"].to_numpy()/past)
+        r=pd.Series(r,index=df.index)
         return pd.Series(np.where(r>0,0.55,np.where(r<0,0.45,0.5)),index=idx)
     if name=="B5":
         ma5=df["spot"].rolling(5).mean(); ma20=df["spot"].rolling(20).mean()
@@ -146,9 +159,14 @@ def base_preds(df,h,name):
         prior_close=df["date"].map(prior_day_close)
         pday=np.where(day_open>prior_close,0.55,np.where(day_open<prior_close,0.45,0.5))
         return pd.Series(pday,index=idx)
+    if name=="B2":
+        day_closes=df.groupby("date")["spot"].last()
+        prior_session_return=np.log(day_closes/day_closes.shift(1)).shift(1)
+        r=df["date"].map(prior_session_return)
+        return pd.Series(np.where(r>0,0.55,np.where(r<0,0.45,0.5)),index=idx)
     return p
 
-def logistic(df,h,y):
+def logistic(df,h,y,eval_index):
     X=pd.DataFrame(index=df.index)
     ret=df["log_spot"].diff()
     X["ret1"]=ret
@@ -158,7 +176,8 @@ def logistic(df,h,y):
     prior_close=df["date"].map(day_closes.shift(1))
     X["gap"]=np.log(day_open/prior_close)
     out=np.full(len(df),np.nan)
-    for i in range(300,len(df)):
+    positions=[df.index.get_loc(i) for i in eval_index if i in df.index]
+    for i in positions:
         train_end=max(0,i-h)
         if train_end<300: continue
         yy=y.iloc[:train_end]
@@ -192,7 +211,7 @@ def run():
         fut=fut_full.loc[grid.index]
         sig=sig_full.loc[grid.index]
         base_full=df.copy()
-        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B1","B3","B4","B5","B6","B7","B8"]}
+        base_preds_full={name:base_preds(base_full,h,name) for name in ["B0","B1","B2","B3","B4","B5","B6","B7","B8"]}
         out[str(h)]={"label":{
             "n":int(y.notna().sum()),
             "positive_rate":float(y.dropna().mean()) if y.notna().any() else None,
@@ -201,11 +220,11 @@ def run():
             "sigma_h_available":int(sig.notna().sum())
         }}
         for name,series in base_preds_full.items():
-            out[str(h)][name]=metrics(y,series.loc[grid.index])
-        out[str(h)]["B2"]={"status":"NOT_APPLICABLE","reason":"B2 previous-session sign is reserved for completed-session directional baselines"}
+            out[str(h)][name]=metrics(y,series.loc[grid.index],fut)
+        # B2 is an intraday decision feature derived from the prior completed session return.
         out[str(h)]["B9"]={"status":"BLOCKED_DATA","reason":"PIT-safe global daily histories are not yet materialized in the Phase 3 feature factory"}
         out[str(h)]["B10"]={"status":"BLOCKED_DATA","reason":"PIT-safe historical NSE breadth observations are not yet materialized in Phase 3"}
-        out[str(h)]["B11"]=metrics(y,logistic(df,h,y_full).loc[grid.index])
+        out[str(h)]["B11"]=metrics(y,logistic(df,h,y_full,grid.index).loc[grid.index],fut)
         out[str(h)]["B7_regime_counts"]=b7_regime_counts(df)
     report={
         "rows":len(grid),
