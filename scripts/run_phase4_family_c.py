@@ -227,6 +227,11 @@ def kalman_horizon_probs(train_price, test_price, horizon):
     x = np.array([z[-1], z[-1] - z[-2]], dtype=float)
     P = np.eye(2) * obs_var
     I = np.eye(2)
+    Fh = np.linalg.matrix_power(F, int(horizon))
+    process_cov = np.zeros((2, 2))
+    for j in range(int(horizon)):
+        Fj = np.linalg.matrix_power(F, j)
+        process_cov += Fj @ Q @ Fj.T
     out = []
 
     for obs in np.asarray(np.log(test_price), dtype=float):
@@ -238,11 +243,7 @@ def kalman_horizon_probs(train_price, test_price, horizon):
         x = xp + K.flatten() * innovation
         P = (I - K @ Hmat) @ Pp
 
-        Fh = np.linalg.matrix_power(F, int(horizon))
-        Ph = Fh @ P @ Fh.T
-        for j in range(int(horizon)):
-            Fj = np.linalg.matrix_power(F, j)
-            Ph += Fj @ Q @ Fj.T
+        Ph = Fh @ P @ Fh.T + process_cov
 
         mean_change = float((Fh @ x)[0] - x[0])
         variance = float(max(Ph[0, 0], 1e-12))
