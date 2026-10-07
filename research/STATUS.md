@@ -19,3 +19,6 @@ Last updated: 2026-10-07
 
 Last updated: 2026-10-07
 Family C gate state: REQUEST CHANGES from independent tester was received and incorporated into the developer branch. A corrected hosted rerun is required. Tester approval is still outstanding; Phase 5 remains blocked.
+
+Last updated: 2026-10-07
+Family C remains REQUEST CHANGES / pending rerun. A successful hosted run existed, but independent developer review found two mathematical issues in multi-step probability/filtering. No Family C gate pass is claimed; Phase 5 remains blocked.
