@@ -487,19 +487,19 @@ def run_scope(df, intraday: bool, horizons: list[int]):
         block_len = 60
         n_rows = len(decision_idx)
     else:
+        q = None
         X = features_daily(df)
         decision_idx = np.arange(len(df), dtype=int)
         full_ret = df["log_close"].diff().to_numpy()
-        groups = pd.Series(np.arange(len(df)))
         session_blocks = [np.arange(i, min(i + 20, len(df))) for i in range(0, len(df), 20)]
         decision_times = None
         block_len = 20
         n_rows = len(df)
 
-    ret_dec = full_ret[decision_idx]
+    h_real, h_ctrl = hurst_feature(full_ret)
     common = {
-        "E01": hurst_feature(full_ret)[0][decision_idx],
-        "E01_control": hurst_feature(full_ret)[1][decision_idx],
+        "E01": h_real[decision_idx],
+        "E01_control": h_ctrl[decision_idx],
         "E02": np.array([mfdfa_delta(full_ret, i) for i in decision_idx]),
         "E03": np.array([
             sample_entropy(full_ret[max(0, i - E03_WINDOW + 1):i + 1])
@@ -510,41 +510,35 @@ def run_scope(df, intraday: bool, horizons: list[int]):
             if i >= E04_WINDOW - 1 else np.nan for i in decision_idx
         ]),
         "E05": roughness_feature(full_ret)[decision_idx],
-        "I01": None,
-        "I03": None,
     }
+
     vol20, vol_state_full = volatility_states(full_ret)
     common["vol_state"] = vol_state_full[decision_idx]
     recent_sign = np.sign(pd.Series(full_ret).rolling(20).sum().to_numpy())[decision_idx]
 
-    i01 = np.full(n_rows, np.nan)
-    i03 = np.full(n_rows, np.nan)
-    for i in range(n_rows):
-        src = decision_idx[i]
-        if src < 60 or not np.isfinite(full_ret[src]):
+    # I01 is a causal deterministic pressure score on the full path.
+    p_i01 = np.full(n_rows, np.nan)
+    for r, src in enumerate(decision_idx):
+        if src < 60:
             continue
         sd60 = np.nanstd(full_ret[src - 59:src + 1], ddof=1)
         if not np.isfinite(sd60) or sd60 <= 0:
             continue
-        z = []
+        zs = []
         for k in I01_SCALES:
             if src < k:
-                z = []
+                zs = []
                 break
-            r_k = np.nansum(full_ret[src - k + 1:src + 1])
-            z.append(r_k / (sd60 * math.sqrt(k) + EPS))
-        if z:
-            i01[i] = float(sigmoid(1.5 * ((z[0] + z[1] / math.sqrt(10/3) + z[2] / math.sqrt(30/3)) / 3))
-        if src >= I03_WINDOW:
-            w = full_ret[src - I03_WINDOW + 1:src + 1]
-            pers = np.nansum(np.sign(w) * np.abs(w)) / (np.nansum(np.abs(w)) + EPS)
-            if np.isfinite(pers) and sd60 > 0:
-                i03[i] = pers
-    common["I01"] = i01
-    common["I03"] = i03
+            rk = np.nansum(full_ret[src - k + 1:src + 1])
+            zs.append(rk / (sd60 * math.sqrt(k) + EPS))
+        if len(zs) == 3:
+            score = (zs[0] + zs[1] / math.sqrt(10 / 3) + zs[2] / math.sqrt(30 / 3)) / 3
+            p_i01[r] = float(sigmoid(1.5 * score))
 
     result = {}
-    base_names = ["D01", "D02", "D03", "D07", "D09", "D12"]
+    methods = ["E01","E02","E03","E04","E05","E06","E07","E08","E09","E10",
+               "I01","I02","I03","I04","I05","I06","I07","I08","I09","I10"]
+
     for H in horizons:
         if intraday:
             y_full, future_full, _ = intraday_labels(q["timestamp"], q["spot"], H)
@@ -555,149 +549,113 @@ def run_scope(df, intraday: bool, horizons: list[int]):
             y = y_full.to_numpy()
             future = future_series.to_numpy()
 
-        out = {m: {"status": "BLOCKED_DATA", "reason": "not initialized"} for m in [
-            "E01","E02","E03","E04","E05","E06","E07","E08","E09","E10",
-            "I01","I02","I03","I04","I05","I06","I07","I08","I09","I10"
-        ]}
+        pred = {m: np.full(n_rows, np.nan) for m in methods}
+        extra_diag = {m: {} for m in methods}
+        eligible_blocks = 0
 
         for rows in session_blocks:
             if len(rows) == 0:
                 continue
             if intraday:
-                first_time = decision_times.iloc[rows[0]]
-                cutoff = first_time - pd.Timedelta(minutes=int(H))
+                cutoff = decision_times.iloc[rows[0]] - pd.Timedelta(minutes=int(H))
                 train_end = cutoff_train_end(decision_times, cutoff)
             else:
                 train_end = purged_train_end(rows[0], H)
             if train_end < 300:
                 continue
+            eligible_blocks += 1
 
-            idx_rows = rows
-            # fixed daily/intraday feature arrays are aligned to decision rows
-            trend_thr_vol = np.nanmedian(vol20[:decision_idx[train_end-1]+1]) if intraday else np.nanmedian(vol20[:train_end])
+            # Block-specific E08/E09/E10/I05 states.
+            train_vol = vol20[decision_idx[:train_end]] if intraday else vol20[:train_end]
+            trend_thr_vol = np.nanmedian(train_vol[np.isfinite(train_vol)]) if np.isfinite(train_vol).any() else np.nan
             trend_states_full = ema_slope(full_ret, trend_thr_vol)
             trend_states = trend_states_full[decision_idx]
 
-            # E01-E05 deterministic signals
             p01 = e01_signal(common["E01"], recent_sign)
             p02 = e02_signal(common["E02"], recent_sign)
             p03 = e03_signal(common["E03"], train_end, recent_sign)
             p05 = e05_signal(common["E05"], train_end, recent_sign)
+            pred["E01"][rows] = p01[rows]
+            pred["E02"][rows] = p02[rows]
+            pred["E03"][rows] = p03[rows]
+            pred["E05"][rows] = p05[rows]
 
-            for m, p in [("E01", p01), ("E02", p02), ("E03", p03), ("E05", p05)]:
-                vals = p[idx_rows].copy()
-                if not np.isfinite(vals).any():
-                    out[m] = {"status": "EXECUTED", "n": 0}
-                else:
-                    out[m] = metrics(y, p, future, block_len)
             p04 = np.full(n_rows, np.nan)
-            for j in idx_rows:
-                if np.isfinite(common["E04"][j]):
-                    p04[j] = 0.55 if common["E04"][j] < 0.80 and recent_sign[j] > 0 else 0.45 if common["E04"][j] < 0.80 and recent_sign[j] < 0 else 0.5
-            out["E04"] = metrics(y, p04, future, block_len)
+            for r in rows:
+                if np.isfinite(common["E04"][r]):
+                    if common["E04"][r] < 0.80 and recent_sign[r] > 0:
+                        p04[r] = 0.55
+                    elif common["E04"][r] < 0.80 and recent_sign[r] < 0:
+                        p04[r] = 0.45
+                    else:
+                        p04[r] = 0.50
+            pred["E04"][rows] = p04[rows]
 
-            lag, mi, table = e06_train_model(ret_dec if not intraday else full_ret[decision_idx], y, train_end)
-            p06 = np.full(n_rows, np.nan)
-            if lag is not None:
-                src = full_ret if intraday else ret_dec
-                x = pd.Series(src).shift(lag).to_numpy()
-                # Build deterministic rank bins from training+past values; ranks are causal by truncation.
-                for r in idx_rows:
+            # E06: fit bin edges and conditional probabilities only on the training block.
+            ret_source = full_ret[decision_idx] if intraday else full_ret
+            selected_lag, mi, table, train_sorted = e06_train_model(ret_source, y, train_end)
+            if selected_lag is not None and table is not None:
+                x = pd.Series(ret_source).shift(selected_lag).to_numpy()
+                for r in rows:
                     if not np.isfinite(x[r]):
                         continue
-                    bx = rank_bins(x[:r+1], 8)[r]
+                    bx = apply_rank_bin(x[r], train_sorted, 8)
                     if bx >= 0:
-                        row = table[int(bx)]
-                        p06[r] = row[1] / row.sum()
-                out["E06"] = metrics(y, p06, future, block_len, extra={"selected_lag": int(lag), "training_mutual_information": float(mi)})
+                        rowc = table[int(bx)]
+                        pred["E06"][r] = rowc[1] / rowc.sum()
+                extra_diag["E06"].setdefault("selected_lags", []).append(int(selected_lag))
+                extra_diag["E06"].setdefault("training_mutual_information", []).append(float(mi))
             else:
-                out["E06"] = {"status": "BLOCKED_DATA", "reason": "fewer than 200 eligible training observations for mutual-information estimator"}
+                extra_diag["E06"].setdefault("blocked_reason", "fewer than 200 eligible training observations")
 
-            # E09/E10
+            # E09/E10.
             cell_p, trend_p, vol_p, pooled = state_matrix_probs(trend_states, common["vol_state"], y, train_end)
-            p09 = np.full(n_rows, np.nan)
-            for r in idx_rows:
+            for r in rows:
                 vs = int(common["vol_state"][r])
-                if vs in (0,1,2):
-                    p09[r] = vol_p[vs]
-            out["E09"] = metrics(y, p09, future, block_len, extra={"state_counts_test": {str(s): int(np.sum(common["vol_state"][idx_rows] == s)) for s in (0,1,2)}})
-            p10 = np.full(n_rows, np.nan)
-            for r in idx_rows:
-                p10[r] = cell_p.get((int(trend_states[r]), int(common["vol_state"][r])), pooled)
-            out["E10"] = metrics(y, p10, future, block_len)
+                if vs in (0, 1, 2):
+                    pred["E09"][r] = vol_p[vs]
+                pred["E10"][r] = cell_p.get((int(trend_states[r]), int(common["vol_state"][r])), pooled)
+            extra_diag["E09"].setdefault("state_counts_test", []).append(
+                {str(s): int(np.sum(common["vol_state"][rows] == s)) for s in (0, 1, 2)}
+            )
 
-            # E08 + fixed base model predictions for I08/I09
-            base = {}
+            # Fixed base models reused by E08, I08 and I09.
+            base_names = ["D01", "D02", "D03", "D07", "D09", "D12"]
+            base_block = {}
             for name in base_names:
                 try:
-                    base[name] = fit_predict_block(name, X, pd.Series(y), train_end, idx_rows)
+                    arr = fit_predict_block(name, X, pd.Series(y), train_end, rows)
                 except Exception:
-                    base[name] = np.full(len(idx_rows), np.nan)
-            for k, arr in list(base.items()):
-                if k in base:
-                    b = np.full(n_rows, np.nan)
-                    b[idx_rows] = arr
-                    base[k] = b
+                    arr = np.full(len(rows), np.nan)
+                b = np.full(n_rows, np.nan)
+                b[rows] = arr
+                base_block[name] = b
 
-            p08 = np.full(n_rows, np.nan)
-            for pos, r in enumerate(idx_rows):
+            for r in rows:
                 vs = int(common["vol_state"][r])
                 chosen = "D09" if vs == 0 else "D02" if vs == 1 else "D12"
-                p08[r] = base[chosen][r]
-            out["E08"] = metrics(y, p08, future, block_len, extra={"fixed_model_map": {"low": "D09", "mid": "D02", "high": "D12"}})
+                pred["E08"][r] = base_block[chosen][r]
 
-            p11 = common["I01"].copy()
-            p11[:] = np.nan
-            for r in idx_rows:
-                # I05 uses a one-step transition model over E10 states.
-                tmp = i05_probs(trend_states, common["vol_state"], y, train_end, [r])
-                p11[r] = tmp[r]
-            out["I05"] = metrics(y, p11, future, block_len)
+            # I05: fixed one-step regime-transition pressure.
+            pred_i05 = i05_probs(trend_states, common["vol_state"], y, train_end, rows)
+            pred["I05"][rows] = pred_i05[rows]
 
-            p_i08 = np.full(n_rows, np.nan)
-            for r in idx_rows:
-                ps = [base[n][r] for n in base_names]
+            # I08: fixed entropy-weighted component ensemble.
+            for r in rows:
+                ps = [base_block[n][r] for n in base_names]
                 if not np.all(np.isfinite(ps)):
                     continue
                 ws = []
                 for pv in ps:
-                    ent = -(pv * math.log2(max(pv, 1e-12)) + (1-pv) * math.log2(max(1-pv, 1e-12)))
+                    ent = -(pv * math.log2(max(pv, EPS)) + (1 - pv) * math.log2(max(1 - pv, EPS)))
                     ws.append(max(1.0 - ent, 0.05))
-                p_i08[r] = float(np.dot(ws, ps) / sum(ws))
-            out["I08"] = metrics(y, p_i08, future, block_len)
+                pred["I08"][r] = float(np.dot(ws, ps) / sum(ws))
 
-            p_i09 = base["D07"].copy()
-            trade_mask = np.isfinite(p_i09) & ((p_i09 < 0.45) | (p_i09 > 0.55))
-            extra = {"coverage": float(np.mean(trade_mask[np.isfinite(p_i09)])) if np.isfinite(p_i09).any() else 0.0,
-                     "trade_n": int(trade_mask.sum())}
-            out["I09"] = metrics(y, p_i09, future, block_len, extra=extra, mask=trade_mask)
+            # I09: fixed D07 abstention band, preserving the full denominator separately.
+            pred["I09"][rows] = base_block["D07"][rows]
 
-            # Methods requiring unavailable PIT data in the current canonical cache.
-            out["E07"] = {"status": "BLOCKED_DATA", "reason": "PIT-safe global composite coverage is insufficient for the registered historical window"}
-            out["I02"] = {"status": "BLOCKED_DATA", "reason": "current canonical global source cache is limited to a short 2024 reference window; full-period PIT coverage is insufficient"}
-            out["I04"] = {"status": "BLOCKED_DATA", "reason": "PIT-safe option-surface IV/OI history is not available in the canonical Phase 6 input cache"}
-            out["I06"] = {"status": "BLOCKED_DATA", "reason": "PIT-safe bid/ask spread history is not available in the canonical Phase 6 input cache"}
-            out["I07"] = {"status": "BLOCKED_DATA", "reason": "PIT-safe option premium/contract history suitable for the registered break-even calculation is not available in the canonical Phase 6 input cache"}
-            out["I10"] = {"status": "BLOCKED_DATA", "reason": "I02 is BLOCKED_DATA and the frozen I10 rule forbids reweighting blocked components"}
-
-        # Methods were initialized as blocked until the first eligible training block. Ensure no false EXECUTED with no predictions.
-        for name in ("E01","E02","E03","E04","E05","E06","E08","E09","E10","I01","I03","I05","I08","I09"):
-            if out[name].get("status") == "BLOCKED_DATA" and name not in {"I02","I04","I06","I07","I10","E07"}:
-                out[name] = {"status": "EXECUTED", "n": 0, "reason": "insufficient early training rows; no eligible test rows reached the minimum training boundary"}
-
-        # I01/I03 probability maps from precomputed scores.
-        p_i01 = np.full(n_rows, np.nan)
-        p_i03 = np.full(n_rows, np.nan)
-        for r in range(n_rows):
-            if np.isfinite(common["I01"][r]):
-                p_i01[r] = common["I01"][r]
-            if np.isfinite(common["I03"][r]):
-                # Use block-specific dimensionless volatility ratio with training median.
-                # Apply in the final metric below per test rows by recomputing the same rule inside blocks.
-                pass
-        out["I01"] = metrics(y, p_i01, future, block_len)
-        # I03 is recomputed blockwise to apply the frozen training-median volatility ratio.
-        p_i03 = np.full(n_rows, np.nan)
+        # Global I01/I03 use all eligible blocks; I03 gets block-specific volatility adjustment.
+        pred["I01"] = p_i01.copy()
         for rows in session_blocks:
             if len(rows) == 0:
                 continue
@@ -712,16 +670,92 @@ def run_scope(df, intraday: bool, horizons: list[int]):
             medv = np.nanmedian(train_vol[np.isfinite(train_vol)]) if np.isfinite(train_vol).any() else np.nan
             for r in rows:
                 src = decision_idx[r]
-                if not np.isfinite(common["I03"][r]) or not np.isfinite(medv) or medv <= 0:
+                if not np.isfinite(src) or not np.isfinite(medv) or medv <= 0:
                     continue
-                vr = (vol20[src] if np.isfinite(vol20[src]) else medv) / medv
-                score = common["I03"][r] / max(vr, 0.25)
-                p_i03[r] = float(sigmoid(np.clip(score, -3, 3)))
-        out["I03"] = metrics(y, p_i03, future, block_len)
+                raw_persistence = np.nansum(full_ret[src - I03_WINDOW + 1:src + 1] * np.sign(full_ret[src - I03_WINDOW + 1:src + 1])) / (
+                    np.nansum(np.abs(full_ret[src - I03_WINDOW + 1:src + 1])) + EPS
+                ) if src >= I03_WINDOW else np.nan
+                if not np.isfinite(raw_persistence):
+                    continue
+                current_vol = vol20[src]
+                if not np.isfinite(current_vol):
+                    current_vol = medv
+                vr = current_vol / medv
+                score = np.clip(raw_persistence / max(vr, 0.25), -3, 3)
+                pred["I03"][r] = float(sigmoid(score))
 
-        result[str(H)] = out
+        # Methods requiring unavailable PIT layers remain blocked by explicit rule.
+        blocked = {
+            "E07": "PIT-safe global composite coverage is insufficient for the registered historical window",
+            "I02": "current canonical global source cache is limited to a short 2024 reference window; full-period PIT coverage is insufficient",
+            "I04": "PIT-safe option-surface IV/OI history is not available in the canonical Phase 6 input cache",
+            "I06": "PIT-safe bid/ask spread history is not available in the canonical Phase 6 input cache",
+            "I07": "PIT-safe option premium/contract history suitable for the registered break-even calculation is not available in the canonical Phase 6 input cache",
+            "I10": "I02 is BLOCKED_DATA and the frozen I10 rule forbids reweighting blocked components",
+        }
+        for m, reason in blocked.items():
+            result[str(H)] if False else None
+
+        # Finalize metrics from the accumulated, full-block prediction vectors.
+        for m in methods:
+            if m in blocked:
+                extra_diag[m]["reason"] = blocked[m]
+                continue
+            extra = {}
+            if m == "E01":
+                ctrl = common["E01_control"]
+                valid_ctrl = np.isfinite(ctrl)
+                if valid_ctrl.any():
+                    extra["hurst_surrogate_control_mean"] = float(np.nanmean(ctrl[valid_ctrl]))
+            if m == "E06":
+                if "blocked_reason" in extra_diag[m]:
+                    result_diag = {"reason": extra_diag[m]["blocked_reason"]}
+                    result_diag.update({k: v for k, v in extra_diag[m].items() if k != "blocked_reason"})
+                    extra = result_diag
+                else:
+                    extra = {k: v for k, v in extra_diag[m].items()}
+            elif m == "E08":
+                extra = {"fixed_model_map": {"low": "D09", "mid": "D02", "high": "D12"}}
+            elif m == "E09":
+                extra = {"state_counts_test": extra_diag[m].get("state_counts_test", [])}
+            elif m == "I09":
+                finite_p = np.isfinite(pred[m])
+                trade = finite_p & ((pred[m] < 0.45) | (pred[m] > 0.55))
+                extra = {
+                    "coverage": float(trade.sum() / finite_p.sum()) if finite_p.sum() else 0.0,
+                    "trade_n": int(trade.sum()),
+                    "evaluable_n": int(finite_p.sum()),
+                }
+                mask = trade
+                result[str(H)][m] = metrics(y, pred[m], future, block_len, extra=extra, mask=mask) if False else {}
+            else:
+                result[str(H)] = result.get(str(H), {})
+            result[str(H)][m] = metrics(y, pred[m], future, block_len, extra=extra)
+
+        # I09 needs conditional metrics on traded observations plus full coverage.
+        finite_p = np.isfinite(pred["I09"])
+        trade = finite_p & ((pred["I09"] < 0.45) | (pred["I09"] > 0.55))
+        i09_extra = {
+            "coverage": float(trade.sum() / finite_p.sum()) if finite_p.sum() else 0.0,
+            "trade_n": int(trade.sum()),
+            "evaluable_n": int(finite_p.sum()),
+        }
+        result[str(H)]["I09"] = metrics(y, pred["I09"], future, block_len, extra=i09_extra, mask=trade)
+
+        # I10 is intentionally blocked because I02 is blocked.
+        for m, reason in blocked.items():
+            result[str(H)][m] = {"status": "BLOCKED_DATA", "reason": reason}
+
+        if eligible_blocks == 0:
+            for m in methods:
+                if m not in blocked:
+                    result[str(H)][m] = {
+                        "status": "EXECUTED",
+                        "n": 0,
+                        "reason": "no test block reached the minimum 300-observation training boundary"
+                    }
+
     return result
-
 
 def main():
     with warnings.catch_warnings():
