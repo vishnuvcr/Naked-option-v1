@@ -492,7 +492,8 @@ def intra_run():
                 dates = list(df["date"].iloc[start:].drop_duplicates())
                 for di in range(0, len(dates), 20):
                     block_dates = set(dates[di:di + 20])
-                    loc = np.flatnonzero(df["date"].isin(block_dates).to_numpy())
+                    block_mask = df["date"].isin(block_dates).to_numpy()
+                    loc = np.flatnonzero(block_mask & grid)
                     loc = loc[loc >= start]
                     if len(loc) == 0:
                         continue
@@ -506,7 +507,7 @@ def intra_run():
 
                     decision_time = df["timestamp"].iloc[int(loc[0])]
                     label_end = idx + pd.Timedelta(minutes=H)
-                    eligible = (label_end < decision_time)
+                    eligible = (label_end < decision_time) & grid
                     Xtr = X.loc[eligible].dropna()
                     yy = pd.Series(y[eligible], index=df.index[eligible]).loc[Xtr.index].dropna().astype(int)
                     if len(yy) < 300 or yy.nunique() < 2:
