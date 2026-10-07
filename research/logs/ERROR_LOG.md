@@ -109,3 +109,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 4 | The corrected Family C regression suite failed because the synthetic CUSUM fixture expected persistence through an explicitly adverse reset observation | Test expectation contradicted the registered opposite-threshold reset rule | Changed the fixture to verify persistence through neutral observations and verify state reversal only at the opposite threshold | Automatic rerun |
 
 | 2026-10-07 | 4 | Corrected Family C empirical execution failed when the intraday PIT eligibility comparison returned a NumPy boolean array and code called a Series-only method | Pandas/NumPy return-type mismatch | Use the boolean array directly for indexed masking; no change to the timestamp inequality itself | Automatic rerun |
+
+| 2026-10-07 | 4 | Corrected Family C empirical execution was unnecessarily slow because the H-step Kalman propagation matrices were recomputed for every minute | Horizon covariance was invariant across observations for fixed H | Precomputed F^H and the accumulated process-noise covariance once per horizon before the sequential filter loop | Automatic rerun |
