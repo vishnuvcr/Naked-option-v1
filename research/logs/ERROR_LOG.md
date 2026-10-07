@@ -131,3 +131,6 @@ New errors must be appended, never overwritten.
 
 | 2026-10-07 | 5 | Direct network git clone from the container failed with DNS/network resolution | The execution container could not resolve github.com; repository access is therefore performed through the connected GitHub repository interface | Use the GitHub connector as the authoritative repository access path; do not substitute unverified local copies | No scientific impact |
 | 2026-10-07 | 5 | Run #16 exposed a protocol/implementation mismatch for D07 | The frozen protocol said probability averaging, while code implemented calibrated logistic meta-stacking | Tester blocked metric acceptance; approved a definition clarification; amended protocol and pinned the formula in regression tests; Run #16 is preserved as non-evidence | Fresh hosted rerun required |
+
+
+| 2026-10-07 | 5 | Live Family D job-log download returned GitHub BlobNotFound | GitHub Actions did not expose a retrievable log blob for the still-running job #112760881845 | Treat as infrastructure inspection failure only; continue state polling and require the immutable artifact for scientific review | No scientific impact; artifact gate remains mandatory |
