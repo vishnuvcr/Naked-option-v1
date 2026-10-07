@@ -99,3 +99,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 4 | Family C probit prediction returned a pandas Series and the runner indexed by label 0 after a non-zero Series index | Model output type/index mismatch | Normalize Probit and LDA/QDA outputs to NumPy arrays before scalar extraction | Pending hosted rerun |
 
 | 2026-10-07 | 4 | Family C AutoReg invocation used an unsupported `old_names` parameter in the installed statsmodels version | API-version mismatch | Removed the optional parameter; model definition remains AR(5) with constant | Pending hosted rerun |
+
+| 2026-10-07 | 4 | Family C C01-C04 computation was too slow under per-observation/session refits | Thousands of Probit/Logit/AR fits per horizon created excessive hosted runtime | Frozen a 20-session refit cadence for C01-C04, with each fitted model held forward for the block | Pending hosted rerun |
