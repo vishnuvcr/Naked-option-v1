@@ -127,18 +127,32 @@ def metrics(y, p, future, block_len, extra=None, mask=None):
 
 
 def rank_bins(values: np.ndarray, n_bins: int) -> np.ndarray:
+    """Deterministic within-sample average-rank bins."""
     s = pd.Series(values, dtype=float)
-    if s.notna().sum() == 0:
-        return np.full(len(s), -1, dtype=int)
     ranks = s.rank(method="average", na_option="keep").to_numpy()
-    n = np.isfinite(ranks).sum()
-    u = (ranks - 0.5) / max(n, 1)
-    b = np.floor(n_bins * u)
-    b = np.clip(b, 0, n_bins - 1)
+    n = int(np.isfinite(ranks).sum())
+    if n == 0:
+        return np.full(len(s), -1, dtype=int)
+    u = (ranks - 0.5) / n
     out = np.full(len(s), -1, dtype=int)
-    m = np.isfinite(b)
-    out[m] = b[m].astype(int)
+    m = np.isfinite(u)
+    out[m] = np.clip(np.floor(n_bins * u[m]), 0, n_bins - 1).astype(int)
     return out
+
+
+def fit_rank_reference(values: np.ndarray) -> np.ndarray:
+    """Frozen empirical-CDF reference built only from training observations."""
+    x = np.asarray(values, dtype=float)
+    return np.sort(x[np.isfinite(x)])
+
+
+def apply_rank_bin(value: float, reference: np.ndarray, n_bins: int) -> int:
+    """Map a new value using only the frozen training reference."""
+    if not np.isfinite(value) or reference.size == 0:
+        return -1
+    pos = int(np.searchsorted(reference, value, side="right"))
+    u = (pos - 0.5) / max(int(reference.size), 1)
+    return int(np.clip(np.floor(n_bins * u), 0, n_bins - 1))
 
 
 def hurst_rs(window: np.ndarray) -> float:
@@ -189,7 +203,7 @@ def hurst_feature(ret: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 def mfdfa_delta(ret: np.ndarray, idx: int) -> float:
     if idx + 1 < 256:
         return np.nan
-    w = ret[idx - 255:idx + 1]
+    w = np.asarray(ret[idx - 255:idx + 1], dtype=float)
     if not np.isfinite(w).all():
         return np.nan
     profile = np.cumsum(w - w.mean())
@@ -197,24 +211,31 @@ def mfdfa_delta(ret: np.ndarray, idx: int) -> float:
     for q in E02_Q:
         xs, ys = [], []
         for s in E02_SCALES:
-            if len(profile) < s:
+            nseg = len(profile) // s
+            if nseg < 8:
                 continue
-            fs = []
-            for start in range(0, len(profile) - s + 1, s):
-                seg = profile[start:start + s]
-                t = np.arange(s, dtype=float)
-                coef = np.polyfit(t, seg, 1)
-                trend = coef[0] * t + coef[1]
-                rms = np.sqrt(np.mean((seg - trend) ** 2))
-                if np.isfinite(rms) and rms > 0:
-                    fs.append(rms)
-            if len(fs) < 8:
+            arr = profile[:nseg * s].reshape(nseg, s)
+            t = np.arange(s, dtype=float)
+            tc = t - t.mean()
+            denom = float(np.sum(tc * tc))
+            if denom <= 0:
                 continue
-            a = np.asarray(fs)
+            mean_y = arr.mean(axis=1)
+            slope = ((arr - mean_y[:, None]) * tc[None, :]).sum(axis=1) / denom
+            intercept = mean_y - slope * t.mean()
+            resid = arr - (slope[:, None] * t[None, :] + intercept[:, None])
+            rms = np.sqrt(np.mean(resid * resid, axis=1))
+            rms = rms[np.isfinite(rms) & (rms > 0)]
+            if len(rms) < 8:
+                continue
             if q == 0:
-                f_q = float(np.exp(np.mean(np.log(a + EPS))))
+                f_q = float(np.exp(np.mean(np.log(rms + EPS))))
             else:
-                f_q = float(np.mean(a ** q) ** (1.0 / q))
+                with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+                    moment = np.mean(np.power(rms, q))
+                if not np.isfinite(moment) or moment <= 0:
+                    continue
+                f_q = float(moment ** (1.0 / q))
             if np.isfinite(f_q) and f_q > 0:
                 xs.append(math.log(s))
                 ys.append(math.log(f_q))
@@ -320,44 +341,35 @@ def e06_train_model(ret, y, train_end):
     best_lag = None
     best_mi = -np.inf
     best_table = None
+    best_reference = np.empty(0, dtype=float)
     for lag in E06_LAGS:
         x = pd.Series(ret).shift(lag).to_numpy()
         m = (np.arange(len(x)) < train_end) & np.isfinite(x) & np.isfinite(y)
-        if m.sum() < 200:
+        if int(m.sum()) < 200:
             continue
-        bins = rank_bins(x[m], 8)
+        reference = fit_rank_reference(x[m])
+        bins = np.array([apply_rank_bin(v, reference, 8) for v in x[m]], dtype=int)
         yy = np.asarray(y)[m].astype(int)
         valid = bins >= 0
         bins = bins[valid]
         yy = yy[valid]
-        table = np.ones((8, 2), dtype=float)
+        table = np.ones((8, 2), dtype=float)  # Laplace +1 smoothing.
         for bx, by in zip(bins, yy):
             table[int(bx), int(by)] += 1.0
         pxy = table / table.sum()
         px = pxy.sum(axis=1, keepdims=True)
         py = pxy.sum(axis=0, keepdims=True)
         mi = float((pxy * np.log((pxy + EPS) / (px @ py + EPS))).sum())
-        if mi > best_mi + 1e-15 or (abs(mi - best_mi) <= 1e-15 and (best_lag is None or lag < best_lag)):
+        if mi > best_mi + 1e-15 or (
+            abs(mi - best_mi) <= 1e-15 and (best_lag is None or lag < best_lag)
+        ):
             best_mi = mi
             best_lag = lag
             best_table = table
-    return best_lag, best_mi, best_table
+            best_reference = reference
+    return best_lag, best_mi, best_table, best_reference
 
 
-def apply_e06(ret, idx_rows, lag, table):
-    out = np.full(len(ret), np.nan)
-    if lag is None or table is None:
-        return out
-    x = pd.Series(ret).shift(lag).to_numpy()
-    for i in idx_rows:
-        if not np.isfinite(x[i]):
-            continue
-        b = rank_bins(x[:i + 1], 8)[i]
-        if b < 0:
-            continue
-        row = table[int(b)]
-        out[i] = row[1] / row.sum()
-    return out
 
 
 def e05_signal(rough, train_end, recent_sign):
@@ -599,7 +611,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
                 for r in rows:
                     if not np.isfinite(x[r]):
                         continue
-                    bx = apply_rank_bin(x[r], train_sorted, 8)
+                    bx = apply_rank_bin(x[r], train_reference, 8)
                     if bx >= 0:
                         rowc = table[int(bx)]
                         pred["E06"][r] = rowc[1] / rowc.sum()
@@ -693,9 +705,6 @@ def run_scope(df, intraday: bool, horizons: list[int]):
             "I07": "PIT-safe option premium/contract history suitable for the registered break-even calculation is not available in the canonical Phase 6 input cache",
             "I10": "I02 is BLOCKED_DATA and the frozen I10 rule forbids reweighting blocked components",
         }
-        for m, reason in blocked.items():
-            result[str(H)] if False else None
-
         # Finalize metrics from the accumulated, full-block prediction vectors.
         for m in methods:
             if m in blocked:
