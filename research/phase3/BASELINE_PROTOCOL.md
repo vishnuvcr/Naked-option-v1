@@ -14,17 +14,25 @@
 Deterministic 50/50 benchmark with fixed seed for reproducibility.
 
 ### B1 Persistence
-Predict the next direction as the last observed direction.
+Predict the next direction as the last observed direction available at the decision timestamp.
 
 ### B2 Previous-session sign
-Predict future sign from previous session return.
+Predict future sign from the immediately preceding completed session return.
 
 ### B3 Gap sign
 For intraday:
-- sign of open minus previous close.
+- sign of current-session open minus previous-session close.
+
+Daily positional output is `NOT_APPLICABLE` because B3 is explicitly an intraday baseline.
 
 ### B4 Intraday momentum
-Sign of the most recent 5/15/30-minute return.
+Sign of the most recent pre-registered momentum return.
+For an intraday label horizon H in {5,15,30,60,120} minutes, use:
+- momentum lookback L = min(H, 30) minutes.
+
+Thus the fixed sequence is 5, 15, 30, 30, 30 minutes. No lookback search is permitted.
+
+Daily positional output is `NOT_APPLICABLE` because B4 is explicitly an intraday baseline.
 
 ### B5 Moving-average state
 Price versus a fixed 5/20-observation moving-average pair. No period search is allowed in Phase 3.
@@ -41,21 +49,27 @@ Weekday, month-end and holiday-adjacent indicators, tested as probability shifts
 ### B9 Global overnight
 Equal-weight mean of standardized previous-available daily closes for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng. Each series is standardized using only the training history; a market is omitted for that decision if its local close was not yet available before the NIFTY decision.
 
+If the required PIT-safe global history is not materialized in the Phase 3 feature factory, B9 must be emitted as `BLOCKED_DATA` with the exact source gap; no unregistered substitute is allowed.
+
 ### B10 Breadth
 `breadth = (advances - declines) / (advances + declines)`, using only breadth observations available before the decision timestamp. Missing denominator rows are NO FEATURE, not zero.
 
-### B11 Logistic baseline
-Fixed regularized logistic regression. Preprocessing and model specification are frozen: feature scaler fit on training fold only; L2 penalty; C=1.0; solver=`liblinear`; max_iter=1000; class_weight=None. No hyperparameter sweep in Phase 3. All baseline feature periods, formulas and model parameters above are frozen before any result is inspected.
+If a PIT-safe historical breadth layer is not materialized, B10 must be emitted as `BLOCKED_DATA` with the exact source gap; no substitute is allowed.
 
-Feature set:
+### B11 Logistic baseline
+Fixed regularized logistic regression. Preprocessing and model specification are frozen: feature scaler fit on training fold only; L2 penalty; C=1.0; solver=`liblinear`; max_iter=1000; class_weight=None. No hyperparameter sweep in Phase 3.
+
+Frozen feature list:
 - last return;
 - rolling volatility;
 - gap;
-- breadth;
-- India VIX when PIT-safe;
-- global overnight composite when PIT-safe.
+- breadth, only when PIT-safe data exist;
+- India VIX, only when PIT-safe data exist;
+- global overnight composite, only when PIT-safe data exist.
 
-No hyperparameter sweep in Phase 3.
+At execution time, unavailable optional layers are excluded and reported explicitly; they are never replaced by unregistered features.
+
+All baseline feature periods, formulas and model parameters above are frozen before any result is inspected.
 
 ## Statistical reporting
 
@@ -69,8 +83,14 @@ For each horizon:
 - log loss;
 - calibration slope/intercept;
 - confusion matrix;
-- mean future return by predicted probability bin;
+- mean future return by fixed predicted-probability bin;
 - uncertainty interval via block bootstrap.
+
+Phase 3 bootstrap settings are frozen:
+- daily: non-overlapping 20-session blocks, 200 resamples, seed 42;
+- intraday: 60 decision-observation blocks, 200 resamples, seed 42.
+
+A baseline may be `BLOCKED_DATA` or `NOT_APPLICABLE`, but it must still appear explicitly in the result packet.
 
 ## Economic reporting
 
