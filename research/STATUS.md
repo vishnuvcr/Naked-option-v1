@@ -8,7 +8,7 @@
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
-| Phase 6 Novel methods | **CODE GATE PASSED — EMPIRICAL AUTHORIZED** | Tester approved implementation/workflow; empirical job is hard-gated by archived tester approval and artifact review remains mandatory |
+| Phase 6 Novel methods | **WORKFLOW CORRECTION PENDING TESTER RE-REVIEW** | Tester blocked the first hosted attempt because the reusable workflow used an invalid job-level hashFiles gate; developer replaced it with typed workflow-call authorization |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
@@ -71,3 +71,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester code gate `research/gates/PHASE6_CODE_APPROVAL_TESTER.md` archived on developer branch.
 - E06 implementation, cutoff-invariance test, E07 exact composite amendment and schema gate passed independent review.
 - No empirical result is accepted yet. The next hosted run must pass regression, then the gated empirical job can execute.
+
+
+## 2026-10-07 — Phase 6 workflow correction checkpoint
+- Tester-approved code gate remains scientifically valid, but the first hosted workflow attempt failed before execution because of an invalid GitHub Actions context expression.
+- Failed run `37668494609` is non-evidence; no artifact exists.
+- Developer replaced the empirical gate with `workflow_call.inputs.empirical_authorized` and caller-side tester-file detection.
+- The corrected reusable workflow was also synced to `main` so its manual-dispatch interface is registered on the default branch.
+- A fresh tester workflow gate is mandatory before another hosted attempt.
