@@ -505,7 +505,7 @@ def intra_run():
 
                     decision_time = df["timestamp"].iloc[int(loc[0])]
                     label_end = idx + pd.Timedelta(minutes=H)
-                    eligible = (label_end < decision_time).to_numpy()
+                    eligible = (label_end < decision_time)
                     Xtr = X.loc[eligible].dropna()
                     yy = pd.Series(y[eligible], index=df.index[eligible]).loc[Xtr.index].dropna().astype(int)
                     if len(yy) < 300 or yy.nunique() < 2:
