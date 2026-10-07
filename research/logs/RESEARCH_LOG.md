@@ -210,3 +210,9 @@
 ## 2026-10-07 — Phase 4 Family C initialized
 
 - Family C statistical/time-series methods are now being frozen and tested on the phase-04-developer branch.
+
+## 2026-10-07 — Phase 4 Family C implementation
+
+- Frozen C01-C11 statistical/time-series definitions before empirical inspection.
+- Implemented probit, LDA/QDA, autoregressive direction, GARCH-family volatility conditioning, forward-only Gaussian regime filters, local-trend Kalman filtering and CUSUM change-point detection.
+- C10 Hawkes and C11 copula/dependence remain explicitly BLOCKED_DATA until their required PIT-safe feature layers are materialized.
