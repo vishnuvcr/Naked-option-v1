@@ -149,3 +149,9 @@
 - Intraday labels and the 20-block volatility statistic were computed row-by-row, creating avoidable runtime while preserving no scientific advantage.
 - The implementation now uses exact-timestamp vectorized reindexing. Future-return timing and point-in-time constraints are unchanged.
 - This is a computational correction only; prior empirical runs remain non-accepted.
+
+## 2026-10-07 — Phase 3 intraday label alignment hardening
+
+- The vectorized label rewrite exposed a second alignment defect in the volatility-block construction.
+- The implementation now uses an explicit unique timestamp index and exact position lookups (`Index.get_indexer`) for all future and prior-horizon observations, with fixed-size arrays and assertions.
+- The timing definition is unchanged; this is a defensive numerical implementation correction.
