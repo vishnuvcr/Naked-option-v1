@@ -413,3 +413,10 @@
 - D05/D06 identical outputs were recorded as a protocol-defined non-blocking observation because both use the same provider-independent HistGradientBoosting surrogate.
 - Run #20 remains rejected non-evidence; run #23 is the accepted Family D technical artifact for downstream research.
 - No model is selected or promoted from the descriptive maxima. Next steps remain finite and governed: tester review of the Phase 6 scope, then novel-method experiments, option economics, robustness/multiple-testing and fresh-forward validation.
+
+
+## 2026-10-07 — Phase 6 scope tester request-changes and correction
+- Developer submitted the pre-registered Family E/I scope after the Family D run #23 gate.
+- Independent tester requested changes because registry names alone did not sufficiently freeze exact estimators, windows, thresholds, composition rules, and causality tests.
+- The developer did not run Phase 6 empirical code. Instead, a frozen method specification was created at `research/phase6/PHASE6_METHOD_SPEC.md` covering E01-E10 and I01-I10, explicit BLOCKED_DATA rules, deterministic composition/weighting, and future-row mutation regression requirements.
+- The scope submission was resubmitted for independent tester review. No Phase 6 result exists yet.
