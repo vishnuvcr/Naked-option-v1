@@ -87,3 +87,10 @@ Developer commit `df6d1bae04f70ab761fc119d1905c95b08f55012` was reviewed. The fi
 Developer commit `c81dbb593fb45f86065ddd86fdddb8ba417afa1a` was reviewed independently. The change uses public FRED series first for S25-S27 and the immutable GitHub HSI snapshot first for S28, with Stooq/Yahoo retained as free fallbacks. This reduces repeated live-request latency without altering the data-quality criteria.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
+
+
+## HSI lowercase-date parser review — 2026-10-07
+
+Developer commit `d62f4adbe50ee40193e2215300c834d03d364428` was independently reviewed. The failed S28 fallback is a source-schema parsing issue: the fixed public CSV uses lowercase `date`. The correction adds only the missing field alias and reuses the already-cached immutable source bytes. No coverage or numerical threshold was relaxed.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
