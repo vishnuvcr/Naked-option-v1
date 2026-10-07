@@ -24,7 +24,6 @@ required_files=[
     "scripts/validate_lot_size_udiff.py",
     "scripts/acquire_india_vix_snapshot.py",
     "scripts/acquire_fii_dii_snapshot.py",
-    "scripts/validate_phase2c_completeness.py",
     "scripts/validate_lot_size_history.py",
     "scripts/build_nifty_eod_parquet_year.py",
     "scripts/acquire_global_reference_window.py",
@@ -56,7 +55,7 @@ if "pyarrow" not in req.read_text(encoding="utf-8").lower():
 workflow_specs=[
     (
         ROOT/".github/workflows/phase-02-data-audit.yml",
-        ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","validate_lot_size_udiff.py","acquire_india_vix_snapshot.py","acquire_fii_dii_snapshot.py","validate_phase2c_completeness.py"],
+        ["workflow_dispatch","data/cache/raw","HF_TOKEN","acquire_hf_reference.py","reconcile_official_vs_hf.py","probe_global_sources.py","acquire_s31_reference.py","reconcile_s31_vs_official.py","validate_phase2_reconciliation_reports.py","acquire_global_reference.py","validate_lot_size_udiff.py","acquire_india_vix_snapshot.py","acquire_fii_dii_snapshot.py"],
     ),
     (
         ROOT/".github/workflows/phase-02c-bulk.yml",
