@@ -387,3 +387,9 @@
 - Developer increased the hard workflow timeout to 180 minutes and added empirical-suite start/end progress markers.
 - No model, feature, label, horizon, refit cadence, seed, cost model or selection rule changed.
 - A fresh hosted Family D run is required after the runtime-only amendment.
+## 2026-10-07 — Fresh Family D runtime-corrected execution
+
+- Tester approved the runtime-only amendment after run #19 hit the explicit 90-minute timeout.
+- Developer changed only the hosted job timeout from 90 to 180 minutes and added empirical-suite start/end progress markers.
+- Push automatically started a fresh Family D workflow (run id 37626101730) on the corrected developer head.
+- The fresh run is currently in progress; no empirical result is accepted.
