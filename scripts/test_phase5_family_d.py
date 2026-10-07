@@ -27,6 +27,22 @@ def main():
     assert not np.any((idx >= 280) & (idx < 299))
     assert np.all(groups.iloc[idx].to_numpy() == np.floor(idx / 140).astype(int))
 
+    # Intraday sequence representations are built on the full 1-minute
+    # path and then mapped to hourly decision rows. A 20-observation warm-up
+    # must be available within a session, while later-session rows must not
+    # inherit observations from the prior session.
+    X_min = pd.DataFrame(rng.normal(size=(140, 7)))
+    g_min = pd.Series(np.r_[np.zeros(70, dtype=int), np.ones(70, dtype=int)])
+    for kind in ["lag", "conv", "attn"]:
+        full_rep = precompute_sequence_representations(X_min, kind, g_min)
+        mapped = full_rep[[60, 69, 89, 119]]
+        assert np.isfinite(mapped[0]).all() and np.isfinite(mapped[1]).all()
+        assert np.isfinite(mapped[2]).all() and np.isfinite(mapped[3]).all()
+        X_mut = X_min.copy()
+        X_mut.iloc[70:] += 1000.0
+        full_rep_mut = precompute_sequence_representations(X_mut, kind, g_min)
+        assert np.allclose(full_rep[69], full_rep_mut[69], equal_nan=True)
+        assert not np.isfinite(full_rep[70:89]).any()
     # Chronological purge.
     assert purged_train_end(320, 20) == 300
     assert purged_train_end(10, 20) == 0
