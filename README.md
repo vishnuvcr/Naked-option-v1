@@ -8,6 +8,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Phase 3 protocol passed its independent tester review, but the first empirical-execution package was rejected by the tester for workflow, logging, implementation, and PIT-validation defects.
 - Those defects have now been corrected on the phase-03-developer branch.
 - A fresh hosted Phase 3 run is required before any empirical baseline result is accepted.
+- A failed candidate is not treated as a terminal research answer. The full pre-registered phase sequence must be completed and every reproducible failure repaired or formally gated before a final conclusion.
 - Phase 4 and all later phases remain blocked until the independent tester reproduces the Phase 3 result packet and passes the empirical gate.
 
 ### Current Phase 3 scope
