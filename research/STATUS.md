@@ -16,3 +16,6 @@
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
 Last updated: 2026-10-07
+
+Last updated: 2026-10-07
+Family C gate state: REQUEST CHANGES from independent tester was received and incorporated into the developer branch. A corrected hosted rerun is required. Tester approval is still outstanding; Phase 5 remains blocked.
