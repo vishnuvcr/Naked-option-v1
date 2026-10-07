@@ -124,6 +124,7 @@ if not frames:
     raise SystemExit("ERROR: selected HF files contain no usable underlying spot series")
 
 all_df=pd.concat(frames,ignore_index=True).sort_values("timestamp").drop_duplicates("timestamp")
+overlap_checks=nse_overlap_checks(all_df)
 span_days=(all_df["timestamp"].max()-all_df["timestamp"].min()).total_seconds()/86400
 status="PASS" if len(all_df)>=50000 and span_days>=365*3 else "LOW_POWER"
 out_path=RAW/"nifty_intraday_reference.parquet"
@@ -143,6 +144,8 @@ report={
     "file_reports":file_reports,
     "status":status,
     "adequacy_rule":">=50000 intraday observations spanning >=3 years; otherwise low-power warning and no stability claim",
+    "official_nse_overlap_checks":overlap_checks,
+    "overlap_tolerance_points":2.0,
     "license_note":"Derived research reference; not canonical execution feed.",
 }
 (OUT/"hf_intraday_acquisition.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
