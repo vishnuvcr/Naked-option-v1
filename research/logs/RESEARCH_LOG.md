@@ -169,3 +169,10 @@
 - The first rerun after the B8 tester correction stopped at intraday acquisition because the cached parquet was already normalized to timestamp/spot while the script expected raw timestamp/close on cache reuse.
 - Acquisition is now schema-idempotent: it accepts an existing normalized cache or a raw source layout, normalizes to the canonical timestamp/spot cache, and proceeds to the same overlap checks.
 - No scientific result was produced by the failed rerun.
+
+## 2026-10-07 — Phase 3 tester re-review finding: daily B8
+
+- Independent review of run #107 found that the same endpoint-leakage pattern rejected in intraday B8 still existed in the daily B8 implementation.
+- Corrected daily B8 now admits only same-weekday historical labels whose h-session future endpoint is strictly before the decision date.
+- Added a combined synthetic regression test for daily and intraday B8 and extended the result-schema static guard to reject the unsafe shifting/expanding pattern in both implementations.
+- Run #107 remains rejected evidence; Phase 3 must be rerun from a fresh commit before independent approval.
