@@ -222,3 +222,9 @@
 - Hosted Family C execution reached model fitting but failed on a pandas Series label-vs-position indexing mismatch when extracting Probit predictions.
 - Probit and LDA/QDA outputs are now normalized to NumPy arrays before scalar extraction. No model definition or training boundary changed.
 - No Family C empirical result from the failed run is accepted.
+
+## 2026-10-07 — Phase 4 Family C AutoReg compatibility correction
+
+- Hosted execution exposed a statsmodels API-version mismatch for AutoReg.
+- Removed the unsupported optional parameter while keeping the registered AR(5) with constant specification unchanged.
+- No Family C result from the failed run is accepted.
