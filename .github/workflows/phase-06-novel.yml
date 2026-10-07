@@ -1,0 +1,138 @@
+name: Phase 6 Novel Methods
+
+on:
+  push:
+    branches:
+      - phase-05-developer
+    paths:
+      - "scripts/run_phase6_novel.py"
+      - "scripts/test_phase6_novel.py"
+      - "research/phase6/**"
+      - ".github/workflows/phase-06-novel.yml"
+      - "research/gates/PHASE6_CODE_APPROVAL_TESTER.md"
+  workflow_dispatch:
+
+concurrency:
+  group: phase6-novel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    name: phase6-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn pyarrow
+      - name: Restore cached research data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/cache
+          key: phase6-data-${{ runner.os }}-${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
+          restore-keys: |
+            phase6-data-${{ runner.os }}-
+      - name: Acquire daily layer
+        run: python scripts/acquire_nifty_daily_history.py
+      - name: Acquire intraday reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_intraday_sample.py
+      - name: Acquire global reference
+        run: python scripts/acquire_global_reference.py
+      - name: Run Phase 6 regression suite
+        working-directory: scripts
+        run: python test_phase6_novel.py
+
+  empirical:
+    name: phase6-empirical
+    needs: regression
+    if: ${{ hashFiles('research/gates/PHASE6_CODE_APPROVAL_TESTER.md') != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn pyarrow
+      - name: Restore cached research data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/cache
+          key: phase6-data-${{ runner.os }}-${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
+          restore-keys: |
+            phase6-data-${{ runner.os }}-
+      - name: Acquire daily layer
+        run: python scripts/acquire_nifty_daily_history.py
+      - name: Acquire intraday reference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_intraday_sample.py
+      - name: Acquire global reference
+        run: python scripts/acquire_global_reference.py
+      - name: Run Phase 6 empirical suite
+        run: |
+          echo "PHASE6_EMPIRICAL_START $(date -u +%FT%TZ)"
+          python scripts/run_phase6_novel.py
+          echo "PHASE6_EMPIRICAL_END $(date -u +%FT%TZ)"
+      - name: Validate result schema
+        run: |
+          python - <<'PY'
+          import json
+          p = "data/reports/phase6_novel_results.json"
+          d = json.load(open(p))
+          assert set(d["daily"]["horizons"]) == {"1","2","3","5","10"}
+          assert set(d["intraday"]["horizons"]) == {"5","15","30","60","120"}
+          methods = {
+              "E01","E02","E03","E04","E05","E06","E07","E08","E09","E10",
+              "I01","I02","I03","I04","I05","I06","I07","I08","I09","I10",
+          }
+          allowed = {"EXECUTED","BLOCKED_DATA","BLOCKED_RUNTIME","NOT_APPLICABLE"}
+          for layer in ("daily","intraday"):
+              for h, cells in d[layer]["horizons"].items():
+                  assert set(cells) == methods
+                  for name, cell in cells.items():
+                      status = cell["status"]
+                      assert status in allowed
+                      if status == "EXECUTED":
+                          n = int(cell["n"])
+                          assert n > 0
+                          for key in ("tn","fp","fn","tp"):
+                              assert key in cell
+                          assert n == int(cell["tn"] + cell["fp"] + cell["fn"] + cell["tp"])
+                          assert abs(float(cell["positive_rate"]) - float((cell["tp"] + cell["fn"]) / n)) < 1e-12
+                          assert abs(float(cell["accuracy"]) - float((cell["tp"] + cell["tn"]) / n)) < 1e-12
+                          assert 0.0 <= float(cell["accuracy"]) <= 1.0
+                          assert 0.0 <= float(cell["balanced_accuracy"]) <= 1.0
+                          assert 0.0 <= float(cell["brier"]) <= 1.0
+                          assert float(cell["log_loss"]) >= 0.0
+                          if cell.get("roc_auc") is not None:
+                              assert 0.0 <= float(cell["roc_auc"]) <= 1.0
+                          if cell.get("pr_auc") is not None:
+                              assert 0.0 <= float(cell["pr_auc"]) <= 1.0
+                          if cell.get("accuracy_block_bootstrap_95"):
+                              ci = cell["accuracy_block_bootstrap_95"]
+                              if ci["lower"] is not None:
+                                  assert 0.0 <= float(ci["lower"]) <= float(ci["upper"]) <= 1.0
+                          bins = cell["future_return_by_probability_bin"]
+                          assert sum(int(v["n"]) for v in bins.values()) == n
+                      else:
+                          assert isinstance(cell.get("reason"), str) and cell["reason"].strip()
+          print("PHASE6_SCHEMA_PASS")
+          PY
+      - name: Upload Phase 6 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-novel-results
+          path: data/reports/phase6_novel_results.json
