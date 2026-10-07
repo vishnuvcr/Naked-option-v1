@@ -91,3 +91,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 3 | Combined B8 regression gate failed due to an incorrect synthetic test expectation, not a research-code failure | Test assumed a same-weekday historical label existed at an early synthetic row where none existed | Corrected the regression fixture to test a later same-weekday decision and the strict endpoint rule; production B8 code unchanged | Pending hosted rerun |
 
 | 2026-10-07 | 4 | Phase 4 Family B initially lacked an explicit family-level protocol and workflow | Phase 3 gate ended before family scripts existed | Added frozen B01-B13 protocol, deterministic runner, schema validator and automatic/manual workflow | Pending hosted run/tester |
+
+| 2026-10-07 | 4 | Family B runner passed raw directional signals (-1/0/1) into probability-based metrics | The metrics layer expects probabilities in [0,1] | Apply the pre-registered 0.55/0.45/0.50 mapping before all Family B metrics | Pending hosted rerun |
