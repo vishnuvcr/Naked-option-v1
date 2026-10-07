@@ -106,8 +106,8 @@ def cutoff_train_end(decision_times, cutoff) -> int:
     Return the first decision observation at/after cutoff using integer
     nanoseconds. This is robust to either tz-aware or tz-naive timestamps.
     """
-    decision_ns = pd.DatetimeIndex(pd.to_datetime(decision_times)).asi8
-    cutoff_ns = pd.Timestamp(cutoff).value
+    decision_ns = pd.DatetimeIndex(pd.to_datetime(decision_times, utc=True)).asi8
+    cutoff_ns = pd.DatetimeIndex(pd.to_datetime([cutoff], utc=True)).asi8[0]
     return int(np.searchsorted(decision_ns, cutoff_ns, side="left"))
 
 
@@ -339,7 +339,7 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
     )
     decision_idx = np.flatnonzero(grid.to_numpy())
     X = X_full.iloc[decision_idx].reset_index(drop=True)
-    decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx]))
+    decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx], utc=True))
     decision_times_series = pd.Series(decision_times)
     groups = df["date"].iloc[decision_idx].reset_index(drop=True)
 
