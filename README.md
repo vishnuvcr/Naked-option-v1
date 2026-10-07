@@ -1,25 +1,22 @@
 # NIFTY Naked-Option Direction Research
 
-Research program for predicting NIFTY 50 direction and translating signals into **long-only naked option buying** strategies for intraday and positional horizons.
+Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
 ## Research status
-### Latest Phase 2 execution
 
-- Final hosted Phase 2 audit run #104 completed successfully after real-data failures were diagnosed and corrected.
-- Official NSE legacy/UDiFF archives were acquired, schema-checked, hashed and cached; global reference series, official lot-size validation, India VIX/FII-DII source checks and cross-source reconciliations also completed.
-- The S08 derived option dataset passed the pre-declared secondary corroboration gate on 96 near-ATM contracts, while its strict 0.25%/tick metric remains visible as a diagnostic; it is not canonical.
-- S31 remains quarantined because its ATM parquet files do not expose sufficient expiry/contract semantics for reliable reconciliation.
-- Phase 3 now starts from official canonical data with explicit quarantine rules for auxiliary sources that lack historical publication timestamps.
+- Phase 2 passed the independent tester gate with explicit source restrictions.
+- Phase 3 protocol passed its independent tester review, but the first empirical-execution package was rejected by the tester for workflow, logging, implementation, and PIT-validation defects.
+- Those defects have now been corrected on the phase-03-developer branch.
+- A fresh hosted Phase 3 run is required before any empirical baseline result is accepted.
+- Phase 4 and all later phases remain blocked until the independent tester reproduces the Phase 3 result packet and passes the empirical gate.
 
+### Current Phase 3 scope
 
-- Repository initialized: 2026-10-07
-- Current phase: Phase 3 — labels, baselines and cost-aware directionability
-- Developer branch: `developer`
-- Tester branch: `tester`
-- Strategy constraint: buy NIFTY calls or puts only; no option selling, spreads, short futures, or hidden short exposure.
-- Execution costs: brokerage, STT, exchange charges, SEBI fee, GST, stamp duty where applicable, bid/ask, slippage and latency must be modeled.
-- Validation standard: chronological walk-forward, untouched holdout, CPCV/DSR/PBO-style robustness, stress tests and independent tester review.
-- Stop rule: the research stops after the pre-registered phase catalog is exhausted or a serious irreparable data/research limitation is reached. “Exhaust every possible way in the universe” is treated as an explicit **finite method-universe requirement**, not a claim of literal omniscience.
+The frozen label horizons are 5/15/30/60/120 minutes intraday and +1/+2/+3/+5/+10 sessions positional. Baselines B0-B11 are explicitly required for every evaluated horizon; a missing data layer must be recorded as BLOCKED_DATA, never silently omitted.
+
+The workflow now performs protocol validation, NIFTY daily acquisition, Hugging Face intraday reference discovery/acquisition, official-NSE overlap validation for the intraday reference, positional/intraday baseline execution, result-schema validation, result persistence and artifact upload. Caches are retained to avoid unnecessary redownloads.
+
+B9 global-overnight and B10 breadth are currently conservatively blocked in Phase 3 until their PIT-safe historical feature layers are materialized. India VIX/FII-DII remain governed by the Phase 2 publication-timestamp restrictions.
 
 ## Canonical documents
 
@@ -36,24 +33,19 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - [Research log](research/logs/RESEARCH_LOG.md)
 - [Error log](research/logs/ERROR_LOG.md)
 - [Decision/chat log](research/logs/CHAT_LOG.md)
+- [Phase 3 baseline data gaps](research/phase3/BASELINE_DATA_GAPS.md)
 - [Gate reports](research/gates/)
 
 ## Branch governance
 
-`developer` implements research code and evidence packages.
-
-`tester` is an isolated independent review environment. The tester does not reuse developer conclusions as evidence; it independently checks mathematics, data joins, leakage, code logic, execution-cost assumptions, and reproducibility.
-
-Each research phase will have separate phase branches and a developer-to-tester gate before progression.
+developer implements research code and evidence packages.
+tester is an isolated independent review environment. The tester independently checks mathematics, data joins, leakage, code logic, execution-cost assumptions, and reproducibility.
+Each research phase has separate phase developer/tester branches and a tester gate before progression.
 
 ## Important prior-project evidence
 
-The current Project contains earlier NIFTY/market-inefficiency research artifacts. Those artifacts report, among other things, a failed untouched-holdout next-day directional model (AUC about 0.458) and a more promising future-volatility signal. These are **historical project findings, not yet accepted results for this repository**; they must be revalidated under the present protocol before being used in final conclusions.
+Earlier Project artifacts reported a failed untouched-holdout next-day directional model (AUC about 0.458) and a more promising future-volatility signal. These are historical inputs only and are not accepted current results until revalidated under this repository's protocol.
 
 ## Disclaimer
 
 This is research and backtesting infrastructure, not a guarantee of profit or investment advice. Long options can lose 100% of the premium paid.
-
-### Phase 3 execution
-
-The Phase 3 protocol has passed independent tester review. The current workflow acquires a long daily NIFTY history via a free Yahoo Finance bulk reference with mandatory official NSE overlap validation, discovers and samples a long intraday NIFTY research reference from Hugging Face, then runs frozen positional/intraday baselines. Derived intraday data remain non-canonical under the Phase 2 restrictions. No Phase 4 method search has started.
