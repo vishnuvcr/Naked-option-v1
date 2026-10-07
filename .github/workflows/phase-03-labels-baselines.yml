@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/cache/raw/phase3
-          key: phase3-data-${{ hashFiles('scripts/acquire_nifty_daily_history.py', 'scripts/discover_hf_intraday.py') }}
+          key: phase3-data-${{ hashFiles('scripts/acquire_nifty_daily_history.py', 'scripts/discover_hf_intraday.py', 'scripts/acquire_hf_intraday_sample.py', 'scripts/run_phase3_daily_baselines.py', 'scripts/run_phase3_intraday_baselines.py') }}
           restore-keys: |
             phase3-data-
 
@@ -52,11 +52,32 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/discover_hf_intraday.py
 
-      - name: Upload Phase 3 data manifest
+      - name: Acquire selected intraday sample and official-NSE overlap checks
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_intraday_sample.py
+
+      - name: Run positional baseline suite B0-B11
+        run: python scripts/run_phase3_daily_baselines.py
+
+      - name: Run intraday baseline suite B0-B11
+        run: python scripts/run_phase3_intraday_baselines.py
+
+      - name: Validate B0-B11 result dispositions
+        run: python scripts/validate_phase3_result_schema.py
+
+      - name: Persist Phase 3 result packet
+        run: python scripts/persist_phase3_results.py
+
+      - name: Upload Phase 3 result packet
         uses: actions/upload-artifact@v4
         with:
-          name: phase3-data-manifest
+          name: phase3-data-and-baselines
           path: |
             data/reports/nifty50_daily_manifest.json
             data/reports/hf_intraday_discovery.json
+            data/reports/hf_intraday_acquisition.json
+            data/reports/phase3_daily_baseline_results.json
+            data/reports/phase3_intraday_baseline_results.json
+            research/gates/PHASE3_DATA_RUN.md
           if-no-files-found: error
