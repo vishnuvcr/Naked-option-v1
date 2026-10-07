@@ -228,3 +228,9 @@
 - Hosted execution exposed a statsmodels API-version mismatch for AutoReg.
 - Removed the unsupported optional parameter while keeping the registered AR(5) with constant specification unchanged.
 - No Family C result from the failed run is accepted.
+
+## 2026-10-07 — Phase 4 Family C runtime-control amendment
+
+- Family C reached model execution but the first forward implementation was computationally excessive because C01-C04 refit too frequently.
+- The protocol was amended before accepting results: C01-C04 now refit every 20 trading sessions and hold the model fixed within each block, always training only on observations strictly before the block.
+- This is a computation-control amendment, not a result-driven parameter change; it is frozen before the next accepted empirical run.
