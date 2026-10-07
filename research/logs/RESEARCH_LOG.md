@@ -296,3 +296,11 @@
 - The protocol was amended explicitly to state this cadence. No model hyperparameter, feature definition, label, or economic criterion changed.
 - Independent tester reviewed the amendment and issued research/gates/PHASE5_PROTOCOL_AMENDMENT_TESTER.md = PASS — PROTOCOL AMENDMENT ONLY.
 - No Family D empirical result has yet been accepted.
+
+## 2026-10-07 — Phase 5 exact sequence-cache optimization
+- The session-based Family D run passed regression but remained compute-bound in the empirical suite.
+- Independent code review identified repeated deterministic construction of D13-D15 causal representations for every horizon/refit block.
+- The developer replaced this with a row-aligned precomputed representation cache using the same causal/session-local `sequence_features()` implementation.
+- A regression test now proves the cached representation is numerically identical to the direct representation.
+- The independent tester approved the optimization as computational-only at `research/gates/PHASE5_SEQUENCE_PRECOMPUTE_TESTER.md`.
+- The long-running pre-optimization run is superseded and remains non-evidence. No Family D empirical metric has been accepted.
