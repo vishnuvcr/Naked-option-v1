@@ -24,3 +24,10 @@ The repository records research decisions, user requirements, experiment outcome
 - D05/D06 identical outputs were recorded as a non-blocking consequence of the explicitly frozen identical HistGradientBoosting surrogate definition.
 - Gate disposition: **PASS WITH SCOPED RESTRICTIONS**. No strategy promotion; downstream economic, robustness, multiplicity and fresh-forward gates remain mandatory.
 - Gate report: `research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md`.
+
+
+## 2026-10-07 — Phase 6 method-spec re-review
+- Tester re-audited the corrected Phase 6 specification.
+- The prior I07 PE direction error and I03 raw-volatility scaling problem were fixed; deterministic rank binning and estimator edge guards were also sufficient.
+- Tester disposition: **APPROVED FOR PHASE 6 IMPLEMENTATION AND PRE-EMPIRICAL TESTING**.
+- The next required gate is code/regression inspection before any empirical run.
