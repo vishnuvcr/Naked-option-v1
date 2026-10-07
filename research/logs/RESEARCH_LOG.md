@@ -420,3 +420,11 @@
 - Independent tester requested changes because registry names alone did not sufficiently freeze exact estimators, windows, thresholds, composition rules, and causality tests.
 - The developer did not run Phase 6 empirical code. Instead, a frozen method specification was created at `research/phase6/PHASE6_METHOD_SPEC.md` covering E01-E10 and I01-I10, explicit BLOCKED_DATA rules, deterministic composition/weighting, and future-row mutation regression requirements.
 - The scope submission was resubmitted for independent tester review. No Phase 6 result exists yet.
+
+
+## 2026-10-07 — Phase 6 mathematical specification correction
+- Tester re-review found an I07 put-side break-even direction error/ambiguity and an I03 raw-volatility scaling problem, plus missing deterministic repeated-quantile and numerical edge handling.
+- The developer corrected the specification before any Phase 6 code or empirical execution.
+- I03 now uses a dimensionless current-volatility/training-median-volatility ratio; I07 explicitly distinguishes CE upward and PE downward favorable events.
+- E06/E07 rank binning, MFDFA, sample entropy, permutation entropy and transition-state fallbacks now have deterministic edge rules.
+- The corrected specification is awaiting independent tester re-audit.
