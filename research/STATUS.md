@@ -29,3 +29,10 @@ Last updated: 2026-10-07
 - Tester independently verified artifact SHA-256, schema, 150-cell coverage, confusion-matrix/metric reconciliation, D07 calibration isolation, and D13-D15 full-1-minute causal/session-local sequence coverage.
 - Tester disposition: **PASS WITH SCOPED RESTRICTIONS**; gate report: `research/gates/PHASE5_FAMILY_D_RUN23_TESTER.md`.
 - No model is promoted. Option economics, execution costs, robustness/multiple-testing and fresh-forward gates remain mandatory.
+
+
+## 2026-10-07 — Phase 6 method-spec approval
+- Tester re-reviewed corrected `research/phase6/PHASE6_METHOD_SPEC.md`.
+- I07 CE/PE directionality, I03 scaling, deterministic rank bins, entropy/MFDFA guards and fixed composition rules passed recheck.
+- Disposition: **APPROVED FOR PHASE 6 IMPLEMENTATION AND PRE-EMPIRICAL TESTING**.
+- Empirical execution remains blocked until the implementation/regression package passes its own tester gate.
