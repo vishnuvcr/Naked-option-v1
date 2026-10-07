@@ -49,3 +49,5 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 2C | Run #22 spent substantial CI time in sequential global-source fallback attempts before reaching the HSI GitHub snapshot | S28 candidate order tried multiple live feeds before a known-good immutable fallback | Reordered S28 to use its provenance-tracked GitHub raw dataset first; live Stooq/FRED/Yahoo remain fallbacks | Pending hosted rerun |
 
 | 2026-10-07 | 2C | Run #23 global acquisition spent excessive CI time on live Stooq chunk requests before reaching deterministic fallbacks | Candidate order still prioritized sequential live-source chunks for S25-S27 | Reordered S25-S27 to use public FRED series first and S28 to use the fixed-commit HSI snapshot first; Stooq/Yahoo remain fallbacks | Pending hosted rerun |
+
+| 2026-10-07 | 2C | Run #24 reached the deterministic HSI GitHub snapshot but parsed zero observations | The public HSI CSV uses lowercase `date`, while the parser accepted only `Date`/uppercase variants | Added lowercase `date` support; the cached immutable HSI bytes remain reusable, so no source threshold or coverage rule was changed | Pending hosted rerun |

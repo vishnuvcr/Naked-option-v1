@@ -105,3 +105,9 @@
 - Run #23 did not reach a data-quality conclusion because the global acquisition spent extended CI time on sequential Stooq window requests.
 - Because FRED global equity series are predeclared and free, they are now attempted before Stooq for S25-S27. The deterministic fixed-commit HSI snapshot remains first for S28.
 - Stooq and Yahoo remain free fallbacks. No acceptance threshold is changed; this is an execution-order optimization to make the finite Phase 2 gate complete reliably.
+
+## 2026-10-07 — Phase 2C run #24 HSI parser correction
+
+- Run #24 finally reached the deterministic S28 GitHub snapshot immediately, confirming the candidate-order optimization worked.
+- The source itself was valid, but its schema uses lowercase `date`; the parser only accepted `Date` and `DATE`, causing a false no-observation failure.
+- The correction adds lowercase `date` support. This is a parsing-only fix and preserves the verified source's actual coverage through 2026-05-28 without fabricating later dates.

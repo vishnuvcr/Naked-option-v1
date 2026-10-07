@@ -42,7 +42,7 @@ def parse_csv_rows(raw: bytes) -> tuple[list[str],int]:
     dates=[]
     valid_values=0
     for row in reader:
-        value=row.get("Date") or row.get("DATE") or row.get("observation_date")
+        value=row.get("Date") or row.get("DATE") or row.get("date") or row.get("observation_date")
         if not value:
             continue
         try:
