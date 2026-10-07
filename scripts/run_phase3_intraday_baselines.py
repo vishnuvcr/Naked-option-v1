@@ -32,15 +32,27 @@ def load():
 
 def labels(ts, price, h):
     idx=pd.DatetimeIndex(ts)
-    logp=pd.Series(np.log(np.asarray(price,dtype=float)),index=idx)
-    future_logp=logp.reindex(idx+pd.Timedelta(minutes=h))
-    future=future_logp.to_numpy()-logp.to_numpy()
+    if not idx.is_unique:
+        raise ValueError("intraday timestamp index must be unique after acquisition deduplication")
+    values=np.log(np.asarray(price,dtype=float))
+    if len(values)!=len(idx):
+        raise ValueError("timestamp/price length mismatch in intraday labels")
+    indexer=pd.Index(idx)
+    future_target=idx+pd.Timedelta(minutes=h)
+    future_pos=indexer.get_indexer(future_target)
+    future=np.full(len(idx),np.nan)
+    good=future_pos>=0
+    future[good]=values[future_pos[good]]-values[good]
     y=np.where(np.isfinite(future),np.where(future>0,1,np.where(future<0,0,np.nan)),np.nan)
+
     blocks=[]
     for j in range(1,21):
-        end=logp.reindex(idx-pd.Timedelta(minutes=j*h))
-        start=logp.reindex(idx-pd.Timedelta(minutes=(j+1)*h))
-        blocks.append((end-start).to_numpy())
+        end_pos=indexer.get_indexer(idx-pd.Timedelta(minutes=j*h))
+        start_pos=indexer.get_indexer(idx-pd.Timedelta(minutes=(j+1)*h))
+        arr=np.full(len(idx),np.nan)
+        good_pair=(end_pos>=0)&(start_pos>=0)
+        arr[good_pair]=values[end_pos[good_pair]]-values[start_pos[good_pair]]
+        blocks.append(arr)
     block_matrix=np.column_stack(blocks)
     complete=np.isfinite(block_matrix).all(axis=1)
     sigma=np.full(len(idx),np.nan)
