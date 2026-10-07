@@ -12,6 +12,15 @@ on:
       - "research/phase6/**"
       - ".github/workflows/phase-06-novel.yml"
       - "research/gates/PHASE6_CODE_APPROVAL_TESTER.md"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "scripts/run_phase6_novel.py"
+      - "scripts/test_phase6_novel.py"
+      - "research/phase6/**"
+      - ".github/workflows/phase-06-novel.yml"
+      - "research/gates/PHASE6_CODE_APPROVAL_TESTER.md"
   workflow_dispatch:
 
 concurrency:
