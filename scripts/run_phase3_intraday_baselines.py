@@ -27,6 +27,7 @@ def load():
     df["minute_of_day"]=df["ist"].dt.hour*60+df["ist"].dt.minute
     # Only regular NIFTY cash-session observations.
     df=df[(df["minute_of_day"]>=9*60+15)&(df["minute_of_day"]<=15*60+30)].copy()
+    df=df.reset_index(drop=True)
     return df
 
 def labels(ts, price, h):
