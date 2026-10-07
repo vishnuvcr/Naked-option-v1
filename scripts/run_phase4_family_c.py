@@ -65,7 +65,7 @@ def probit_fit_predict(Xtr,ytr,Xte):
     xtr=sm.add_constant(Xtr,has_constant="add")
     xte=sm.add_constant(Xte,has_constant="add")
     model=sm.Probit(ytr,xtr).fit(disp=False,maxiter=200)
-    return model.predict(xte)
+    return np.asarray(model.predict(xte),dtype=float)
 
 
 def model_probs(method,Xtr,ytr,Xte):
@@ -74,7 +74,7 @@ def model_probs(method,Xtr,ytr,Xte):
     if method=="C03":
         lda=LinearDiscriminantAnalysis().fit(Xtr,ytr)
         qda=QuadraticDiscriminantAnalysis(reg_param=0.01).fit(Xtr,ytr)
-        return 0.5*lda.predict_proba(Xte)[:,1]+0.5*qda.predict_proba(Xte)[:,1]
+        return np.asarray(0.5*lda.predict_proba(Xte)[:,1]+0.5*qda.predict_proba(Xte)[:,1],dtype=float)
     if method=="C04":
         yseries=pd.Series(ytr.to_numpy(),index=np.arange(len(ytr)))
         # AR(5) on returns; direction probability from a Gaussian approximation
