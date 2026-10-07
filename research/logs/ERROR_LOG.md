@@ -139,3 +139,6 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-07 | 5 | Run #20 completed but intraday D13-D15 had n=0 across all horizons | Sequence cache was built from the hourly decision matrix, which has only about 7 observations per session and cannot satisfy the frozen 20-observation session-local window | Tester blocked acceptance; developer corrected sequence construction to use full 1-minute path and map causally to hourly decision rows; added regression tests | Fresh hosted rerun required |
+
+
+| 2026-10-07 | 6 | Phase 6 scope under-specified exact E/I method definitions | Registry method names and high-level scope did not freeze windows, estimators, thresholds, weights and composition rules tightly enough for reproducible pre-registration | Added frozen `research/phase6/PHASE6_METHOD_SPEC.md` covering E01-E10/I01-I10, fixed configurations, BLOCKED_DATA rules and mandatory causal regression tests; resubmitted to tester | Pending tester recheck |
