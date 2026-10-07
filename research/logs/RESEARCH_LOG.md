@@ -244,3 +244,8 @@
 - Explicitly documented C05 as a horizon-invariant volatility-conditioned signal, not an H-step volatility forecast.
 - Added synthetic regression tests for C04, C06/C07, C08 and C09 and wired them into the Family C workflow before the empirical run.
 - Family C remains pending independent tester approval; no Family D advancement is authorized yet.
+
+## 2026-10-07 — Family C regression-test fixture correction
+- Hosted corrected run stopped at the synthetic test gate because the CUSUM fixture passed an incompatible NumPy-array training type.
+- Corrected only the test fixture to use the same Series interface as the production helper.
+- No Family C statistical result was generated or promoted from the failed run.
