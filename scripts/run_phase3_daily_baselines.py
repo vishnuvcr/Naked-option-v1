@@ -95,6 +95,12 @@ def metrics(y, p, future=None):
     y=np.asarray(y,dtype=float)
     p=np.asarray(p,dtype=float)
     m=np.isfinite(y)&np.isfinite(p)
+    future_arr=None
+    if future is not None:
+        future_arr=np.asarray(future,dtype=float)
+        if len(future_arr)!=len(m):
+            raise ValueError("future/y/p length mismatch before metric masking")
+        future_arr=future_arr[m]
     y=y[m].astype(int); p=p[m]
     if len(y)==0:
         return {"n":0}
@@ -111,7 +117,7 @@ def metrics(y, p, future=None):
         "tn":int(cm[0]),"fp":int(cm[1]),"fn":int(cm[2]),"tp":int(cm[3]),
         **calibration_metrics(y,p),
         "accuracy_block_bootstrap_95":block_bootstrap_accuracy(y,p),
-        "future_return_by_probability_bin":fixed_bin_future_returns(y,p,future),
+        "future_return_by_probability_bin":fixed_bin_future_returns(y,p,future_arr),
     }
     if len(np.unique(y))==2:
         out["roc_auc"]=float(roc_auc_score(y,p))
