@@ -270,3 +270,9 @@
 - The hosted statistical step remained dominated by repeated intraday fits on the full one-minute history.
 - Review confirmed that C01-C03 are evaluated on the frozen hourly decision grid, so fitting and prediction should use that same decision grid while the one-minute path remains for exact H-minute labels and sequential state models.
 - Updated the implementation and protocol to make this sampling rule explicit. This is a deterministic sampling correction, not a parameter search.
+
+## 2026-10-07 — Family C final mathematical correction before tester gate
+- Independent review found a remaining AR multi-step variance simplification and an HMM/Markov filtering prior omission.
+- C04 now uses exact cumulative forecast-error innovation weights under the fitted AR(5).
+- C06/C07 now transition the prior state distribution before each observed test return.
+- These corrections invalidate the just-completed Family C metrics as a final gate result; a new hosted rerun is mandatory.
