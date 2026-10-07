@@ -80,3 +80,6 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 3 | Intraday label construction used a Python loop over every minute and 20 historical blocks per observation, making the empirical run unnecessarily long | Exact-timestamp lookup was implemented row-by-row | Replaced with vectorized timestamp reindexing for future labels and the 20-block volatility estimate; timing semantics are unchanged | Pending hosted rerun |
 
 | 2026-10-07 | 3 | Vectorized intraday sigma block had an index-size mismatch despite unique-source filtering | Pandas reindex/array alignment created a block matrix length inconsistent with the sigma output vector | Reimplemented exact timestamp lookup with an explicit unique Index.get_indexer map and fixed-size NumPy arrays; added source length and uniqueness assertions | Pending hosted rerun |
+
+| 2026-10-07 | 3 | Tester run #97 found intraday B8 future-label leakage | B8 used a one-row shift of labels despite H-minute future endpoints | Replaced with endpoint-aware historical-label filtering requiring label_end < decision_time | Pending hosted rerun/tester |
+| 2026-10-07 | 3 | Probability-bin diagnostics used a wider denominator than classification metrics | The bin report masked p/future but not y validity | Apply y/p/future joint mask and require bin-count sum = metric n in schema validation | Pending hosted rerun/tester |
