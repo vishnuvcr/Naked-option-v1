@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# Phase 6 fresh-run trigger: no scientific logic change.
+
 from pathlib import Path
 import json
 import math
