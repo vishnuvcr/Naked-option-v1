@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from run_phase5_family_d import fit_predict_block, model, prep_fit, purged_train_end, sequence_features
+from run_phase5_family_d import cutoff_train_end, fit_predict_block, model, prep_fit, purged_train_end, sequence_features
 
 
 def main():
@@ -26,6 +26,13 @@ def main():
     # Chronological purge.
     assert purged_train_end(320, 20) == 300
     assert purged_train_end(10, 20) == 0
+
+    # Intraday timestamp cutoff must work with both timezone-aware and
+    # timezone-naive representations.
+    naive = pd.date_range("2026-01-01 09:30", periods=5, freq="h")
+    aware = naive.tz_localize("Asia/Kolkata")
+    assert cutoff_train_end(naive, naive[2]) == 2
+    assert cutoff_train_end(aware, aware[2]) == 2
 
     # Training-only preprocessing: the fitted scaler must reproduce the
     # training-window mean, not the full-sample mean.
