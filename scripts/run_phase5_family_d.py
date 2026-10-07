@@ -366,10 +366,18 @@ def _intraday_run(df: pd.DataFrame, horizons: list[int]):
     decision_times = pd.DatetimeIndex(pd.to_datetime(df["timestamp"].iloc[decision_idx], utc=True))
     decision_times_series = pd.Series(decision_times)
     groups = df["date"].iloc[decision_idx].reset_index(drop=True)
+    # Sequence representations require the full 1-minute path.  They are
+    # then row-aligned to the frozen hourly decision grid.  This preserves the
+    # 20-observation causal warm-up without allowing windows to cross sessions.
+    full_groups = df["date"].reset_index(drop=True)
+    sequence_cache_full = {
+        "D13": precompute_sequence_representations(X_full, "lag", full_groups),
+        "D14": precompute_sequence_representations(X_full, "conv", full_groups),
+        "D15": precompute_sequence_representations(X_full, "attn", full_groups),
+    }
     sequence_cache = {
-        "D13": precompute_sequence_representations(X, "lag", groups),
-        "D14": precompute_sequence_representations(X, "conv", groups),
-        "D15": precompute_sequence_representations(X, "attn", groups),
+        name: cache[decision_idx]
+        for name, cache in sequence_cache_full.items()
     }
 
     result = {}
