@@ -131,3 +131,9 @@
 - B8 is now calculated with a groupwise shifted expanding mean by weekday, so each prediction uses only prior same-weekday observations and the computation is O(n) rather than nested loops.
 - The daily B8 implementation was vectorized similarly to reduce runtime without changing the PIT rule.
 - No result from the failed B8 implementation is accepted.
+
+## 2026-10-07 — Phase 3 intraday B8 expanding-history correction
+
+- Hosted execution exposed a vector-length mismatch in the PIT-safe weekday baseline at the first rows of the expanding-history loop.
+- B8 now evaluates only labels available strictly before the current decision row, preserving point-in-time semantics.
+- No empirical result from the failed run is accepted.
