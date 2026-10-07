@@ -12,7 +12,7 @@ Reviewed the developer correction at commit `a3355a28da573adc096c5f8ac1920f73ce5
 | UDiFF expiry parsing | PASS | Existing ISO parsing remains covered by the same parser. |
 | Non-option NIFTY rows | PASS | Validator now excludes NIFTY rows whose option type is not CE/PE from the option-invalid counter, preventing NIFTY futures from being falsely counted as malformed options. |
 | VIX date parsing | PASS | Validator now accepts several common NSE date encodings before falling back to ISO parsing. |
-| Acceptance thresholds | PASS | No coverage, price, duplicate-key, or PIT acceptance threshold was relaxed by the correction. |
+| Acceptance thresholds | PASS | No coverage, price, duplicate-key, PIT, or global-series acceptance threshold was relaxed by the correction. |
 | Canonical/source role | PASS | Official NSE remains canonical; derived/HF inputs remain validation sources. |
 | Phase progression | BLOCKED | Hosted Phase 2C corrected-tree execution and artifact inspection are still required. |
 
@@ -38,3 +38,10 @@ No Phase 3 work may be promoted until the corrected hosted run completes and the
 ## Tester instruction to developer
 
 Wait for the corrected-tree Phase 2C hosted run. Resubmit the resulting year reports, VIX report, PIT/cache evidence and unresolved-date diagnostics for final tester sign-off. Do not relax thresholds to make the run green.
+
+
+## Global-source correction review — 2026-10-07
+
+Developer commit `03dd42cfcf0686aafa254f69cf9555309a0ec0ae` was independently inspected after corrected Phase 2C run #17 failed only in the global-series acquisition stage. The change is logically acceptable: Stooq requests revert to the previously validated unbounded daily CSV pattern, the frozen research window is applied locally, and an empty observation set now fails explicitly instead of throwing `min() iterable is empty`. This does not lower scientific requirements.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
