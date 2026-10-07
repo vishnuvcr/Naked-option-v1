@@ -43,3 +43,10 @@ Last updated: 2026-10-07
 - Tester disposition: **REQUEST CHANGES — EMPIRICAL EXECUTION BLOCKED**.
 - Blocking issues: E06 variable-name execution defect; insufficient E06 cutoff-invariance regression pin; E07 composite still under-specified; workflow schema validation too weak.
 - No Phase 6 empirical artifact exists.
+
+
+## 2026-10-07 — Phase 6 workflow failure gate
+- First tester-approved Phase 6 workflow attempt failed before empirical execution.
+- Run `37668494609` and Research Protocol run `37668496665` are classified as non-evidence.
+- Tester identified invalid use of `hashFiles` in a job-level `if` within the reusable workflow.
+- Disposition: **REQUEST CHANGES — EMPIRICAL EXECUTION BLOCKED**.
