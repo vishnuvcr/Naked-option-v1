@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — RUN #19 NON-EVIDENCE; TESTER-APPROVED RUNTIME AMENDMENT APPLIED; FRESH RUN REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
+| Phase 5 Statistical/ML | **ACTIVE — RUN #20 NON-EVIDENCE; INTRADAY SEQUENCE CORRECTION TESTER-APPROVED; FRESH RUN REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
@@ -40,3 +40,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Immutable artifact upload: **SKIPPED**.
 - Family D empirical acceptance: **NONE**.
 - Phase 6: **BLOCKED** pending independent tester artifact audit.
+
+## Run #20 tester gate
+- Run #20 (`37626101730`): workflow success; artifact `phase5-family-d-results` created.
+- Independent tester found intraday D13-D15 had n=0 for every registered horizon because 20-observation session-local windows were built on the hourly decision matrix.
+- Run #20 is non-evidence. Tester gate `research/gates/PHASE5_RUN20_INTRADAY_SEQUENCE_TESTER.md` requests changes.
+- Developer correction maps causal 20-observation representations from the full 1-minute path to the frozen hourly decision rows.
+- Tester approved the correction in `research/gates/PHASE5_RUN20_INTRADAY_SEQUENCE_APPROVAL_TESTER.md`.
+- A fresh hosted Family D run is required; Phase 6 remains blocked pending artifact audit.

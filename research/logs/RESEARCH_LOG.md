@@ -393,3 +393,13 @@
 - Developer changed only the hosted job timeout from 90 to 180 minutes and added empirical-suite start/end progress markers.
 - Push automatically started a fresh Family D workflow (run id 37626101730) on the corrected developer head.
 - The fresh run is currently in progress; no empirical result is accepted.
+
+
+## 2026-10-07 — Family D run #20 tester block and correction
+- Run #20 (`37626101730`) completed successfully with immutable artifact.
+- Independent artifact audit found intraday D13-D15 labelled EXECUTED but n=0 at all five intraday horizons.
+- Tester issued REQUEST CHANGES; run #20 is non-evidence.
+- Developer corrected D13-D15 to precompute causal session-local representations on the full 1-minute feature path and row-align them to the frozen hourly decision grid.
+- Protocol wording and regression tests were amended accordingly.
+- Tester independently approved the correction for a fresh hosted run.
+- No Family D metric is accepted; Phase 6 remains blocked.

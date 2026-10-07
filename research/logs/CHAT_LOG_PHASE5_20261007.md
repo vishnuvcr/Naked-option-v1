@@ -100,3 +100,13 @@ A push automatically started the fresh Family D workflow (run id 37626101730). I
 
 ## Gate
 No metric is accepted. The independent tester artifact gate remains mandatory.
+
+
+## 2026-10-07 — User: Proceed; Run #20 artifact audit
+- User authorized continuation.
+- Fresh runtime-corrected Family D run #20 (`37626101730`) completed successfully.
+- Independent tester audit found a substantive intraday D13-D15 coverage defect: all five intraday horizons reported n=0 for D13-D15 because the 20-observation session-local cache was constructed on the hourly decision matrix.
+- Run #20 was blocked as non-evidence.
+- Developer implemented the tester-required 1-minute-path causal sequence cache and exact hourly row mapping, with new causality/session-boundary regression tests and explicit protocol wording.
+- Tester approved the correction; fresh hosted Family D execution is required.
+- Phase 6 remains blocked.
