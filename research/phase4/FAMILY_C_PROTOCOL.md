@@ -7,12 +7,12 @@
 | C01 | Logistic regression | Reference to accepted Phase 3 B11 logistic baseline; no second tuning run |
 | C02 | Probit | Probit on fixed lag features returns t-{1,2,3,5,10}, standardized from training only; no hyperparameter search |
 | C03 | LDA/QDA | LDA and QDA on the same fixed lag-feature vector; class priors estimated from training only |
-| C04 | AR direction state | AutoReg lag=5 with deterministic trend; predict next-period return sign |
-| C05 | GARCH-family volatility-conditioned direction | GARCH(1,1) volatility fitted on training returns; fixed 1.2× training-median volatility state threshold; low-vol state uses persistence sign, high-vol state uses sign of the recent five-return mean |
-| C06 | Markov-switching direction | Two-state Gaussian regime filter with fixed 0.95 self-transition probability; state means/variances estimated on training by return sign; online Hamilton-style filtering only |
-| C07 | HMM direction | Two-state Gaussian HMM with transition probabilities estimated from training hard-state transitions; online forward filtering only; no backward smoothing on test data |
-| C08 | Bayesian/local state-space | Fixed linear local-trend Kalman filter with training-estimated observation variance and fixed 0.01 process-noise multiplier; predict sign from filtered trend state |
-| C09 | Change-point detection | Two-sided standardized CUSUM with fixed threshold 2.5; signal remains in detected direction until reset |
+| C04 | AR direction state | AutoReg lag=5 with deterministic trend fitted to continuous returns; at each decision, recursively forecast H future returns using the frozen coefficients and convert the cumulative H-return forecast to a Gaussian probability of a positive H-horizon return |
+| C05 | GARCH-family volatility-conditioned direction | GARCH(1,1) volatility fitted on training returns; fixed 1.2× training-median volatility state threshold; the resulting direction is a horizon-invariant conditioning signal evaluated against every registered H, not a claim of an H-step GARCH forecast |
+| C06 | Markov-switching direction | Two-state Gaussian regime filter with fixed 0.95 self-transition probability; state means/variances estimated on training by return sign; online Hamilton-style filtering; for each H, propagate the posterior through the transition matrix and compute the cumulative H-step return mean/variance without using future observations |
+| C07 | HMM direction | Two-state Gaussian HMM with transition probabilities estimated from training hard-state transitions; online forward filtering only; for each H, compute cumulative H-step return moments from the forward posterior; no backward smoothing on test data |
+| C08 | Bayesian/local state-space | Fixed linear local-trend Kalman filter with training-estimated observation variance and fixed 0.01 process-noise multiplier; update through the current decision observation, propagate the state H steps, and convert the predicted level change to a Gaussian probability |
+| C09 | Change-point detection | Two-sided standardized CUSUM with fixed threshold 2.5; once a direction is triggered it persists until the opposite threshold is crossed, which resets the state to the new direction |
 | C10 | Hawkes/self-exciting events | BLOCKED_DATA until a PIT-safe event-intensity data layer is materialized |
 | C11 | Copula/dependence | BLOCKED_DATA until PIT-safe synchronized cross-market features are materialized in the Phase 4 feature factory |
 
@@ -21,6 +21,10 @@
 All training data end strictly before the decision timestamp. Test probabilities are generated with forward-only filtering; no smoothed posterior or future test observations are used.
 
 C01-C04 use a fixed 20-session refit cadence: fit once at the first decision of each 20-session block using only observations before that block, then hold the fitted model fixed for the block. This cadence is frozen before result inspection and prevents excessive repeated refits while preserving chronological information boundaries.
+
+## Horizon interpretation
+
+C01-C03 directly model the registered H-step classification label. C04 predicts the continuous cumulative H-step return. C05 is deliberately horizon-invariant conditioning. C06-C07 compute cumulative H-step state-return moments from an online posterior. C08 computes an H-step state-space level-change forecast. C09 is a persistent state signal and is evaluated unchanged across H.
 
 ## Evaluation
 
