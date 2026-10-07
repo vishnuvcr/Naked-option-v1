@@ -45,3 +45,10 @@ Wait for the corrected-tree Phase 2C hosted run. Resubmit the resulting year rep
 Developer commit `03dd42cfcf0686aafa254f69cf9555309a0ec0ae` was independently inspected after corrected Phase 2C run #17 failed only in the global-series acquisition stage. The change is logically acceptable: Stooq requests revert to the previously validated unbounded daily CSV pattern, the frozen research window is applied locally, and an empty observation set now fails explicitly instead of throwing `min() iterable is empty`. This does not lower scientific requirements.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
+
+
+## Free-source fallback review — 2026-10-07
+
+Developer commit `70721c8d438a86e59ec5627e9a0d49b8a7469ef7` adds a free-source fallback chain for global equity indices: Stooq remains primary and Yahoo Finance chart API is used only if Stooq has no usable observations. The selected provider and failed attempts are recorded in the global report. This conforms to the free-source-first requirement and does not lower data-quality thresholds.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The final review must verify that Yahoo is actually producing complete frozen-window rows, duplicate-free dates, and correct cached hashes, and that no paid source was introduced.
