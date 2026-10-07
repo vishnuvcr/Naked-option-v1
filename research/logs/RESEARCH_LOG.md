@@ -38,3 +38,8 @@ The repository records research decisions, user requirements, experiment outcome
 - Found a definite E06 NameError path from inconsistent `train_sorted`/`train_reference` naming.
 - Required a stronger E06 training-cutoff invariance test, exact E07 composite definition, and stronger schema validation.
 - Tester gate: **REQUEST CHANGES**. Empirical execution remains blocked.
+
+
+## 2026-10-07 — Phase 6 workflow validation failure
+- Hosted run `37668494609` failed before producing an artifact because the reusable workflow used `hashFiles` in a job-level `if`, which is not supported in that context.
+- Tester recorded the failure as non-evidence and requested a typed `workflow_call` authorization input plus caller-side gate detection.
