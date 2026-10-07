@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — RUN 1 REJECTED; CORRECTION SET UNDER HOSTED GATE** | independent tester REQUEST CHANGES; new gate required |
+| Phase 5 Statistical/ML | **ACTIVE — CORRECTION LINEAGE; FRESH HOSTED RUN QUEUED** | protocol amendment passed; empirical tester gate still required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
@@ -19,13 +19,13 @@ Last updated: 2026-10-07
 
 ## Phase 5 current state
 
-- Protocol: frozen and independently reviewed at `research/gates/PHASE5_PROTOCOL_TESTER.md`.
-- Hosted run #1: `37594529634`, failed in the regression suite before empirical execution.
-- Run #1 tester decision: **REQUEST CHANGES**, archived at `research/gates/PHASE5_RUN1_TESTER.md`.
-- Rejected evidence: no Family D empirical metric from run #1 is accepted.
-- Developer correction head: `f80b08d9a4d9f244e3e9f1c8563d6cebb5d3c94b`.
-- Corrections include D07 training-only calibrated stacking, D13-D15 sequence architecture and session-boundary controls, training-only preprocessing tests, chronology/purge tests, and hourly-grid intraday fitting.
-- Corrected hosted run is active. Phase 6 remains blocked until the independent tester reviews the new artifact.
+- Frozen protocol tester review passed at `research/gates/PHASE5_PROTOCOL_TESTER.md`.
+- Independent tester issued REQUEST CHANGES for the early correction lineage; those submissions are archived under `research/gates/`.
+- Protocol amendment for intraday refit cadence was independently passed at `research/gates/PHASE5_PROTOCOL_AMENDMENT_TESTER.md`.
+- Intraday Family D now refits once per 20 trading sessions and predicts on the frozen hourly decision grid.
+- The previous Family D runs that failed regression or empirical execution are rejected evidence and are not used for selection.
+- Latest correction lineage is on `phase-05-developer`; a fresh hosted Family D run is queued after the cadence correction.
+- Phase 6 remains blocked until the independent tester reviews an immutable Family D artifact and issues a gate decision.
 
 ## Research continuity rule
 
