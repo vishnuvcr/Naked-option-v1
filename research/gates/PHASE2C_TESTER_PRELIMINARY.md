@@ -59,3 +59,10 @@ Developer commit `70721c8d438a86e59ec5627e9a0d49b8a7469ef7` adds a free-source f
 Developer commit `ee1bb63115fe8df913e09602c53aa9c645f7704d` was independently reviewed. The global-source chain now tries Stooq, then predeclared public FRED series, then Yahoo. It records the provider, numeric-observation count and failed attempts, and the cache-hit flag now reflects actual cache use. The Phase 2 gate validator additionally rejects global records with zero numeric observations or missing provider provenance.
 
 **Tester assessment:** PASS WITH HOSTED EXECUTION PENDING. The next review must independently verify the selected FRED series, row counts, date bounds, duplicate-date behavior, cache reuse, and point-in-time availability rule.
+
+
+## Windowed-Stooq correction review — 2026-10-07
+
+Developer commit `63c357a634c4f37eb6d06de3ba6d7a9987a18202` was independently reviewed. The new free-source change requests Stooq in 180-day chunks, merges rows with duplicate-date protection, and keeps the previously declared FRED/Yahoo fallbacks. This directly tests the observed distinction between a failed long-window request and a successful short-window probe without weakening coverage or numeric-quality requirements.
+
+**Tester assessment:** PASS WITH HOSTED EXECUTION PENDING.
