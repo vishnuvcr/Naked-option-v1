@@ -32,3 +32,11 @@
 - Symptom: first detached-commit construction attempt failed due to a JavaScript template-literal escaping error while assembling the multi-file tree.
 - Impact: no repository change; the intended correction was not written by that failed call.
 - Disposition: corrected in the subsequent repository operation; no scientific impact.
+
+## 2026-10-08 — Developer detached correction indentation defect
+- Category: developer/code assembly
+- Component: proposed detached Phase 6 correction commit `1aa8be846348f9e8341d572cd3289cd12ee89045`
+- Symptom: the corrected `cutoff = decision_times[...]` line was initially emitted at the wrong indentation level because the replacement omitted the source line's existing leading whitespace.
+- Impact: the proposed detached commit was rejected before tester submission; developer branch was not advanced and no workflow was triggered by this flawed object.
+- Correction: rebuilt the detached commit with the cutoff line correctly nested inside the `if intraday:` block.
+- Prevention: inspect the exact changed source lines in the detached commit before tester review.

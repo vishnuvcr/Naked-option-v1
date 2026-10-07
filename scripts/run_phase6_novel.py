@@ -719,7 +719,7 @@ def run_scope(df, intraday: bool, horizons: list[int]):
                 continue
             if intraday:
                 # decision_times is a DatetimeIndex: use direct positional indexing for the causal cutoff.
-            cutoff = decision_times[rows[0]] - pd.Timedelta(minutes=int(H))
+                cutoff = decision_times[rows[0]] - pd.Timedelta(minutes=int(H))
                 train_end = cutoff_train_end(decision_times, cutoff)
             else:
                 train_end = purged_train_end(rows[0], H)
