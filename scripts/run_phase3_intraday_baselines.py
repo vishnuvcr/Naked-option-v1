@@ -188,25 +188,37 @@ def logistic(df,h,y,eval_index):
     prior_close=df["date"].map(day_closes.shift(1))
     X["gap"]=np.log(day_open/prior_close)
     out=np.full(len(df),np.nan)
-    positions=[df.index.get_loc(i) for i in eval_index if i in df.index]
-    for i in positions:
-        train_end=max(0,i-h)
-        if train_end<300: continue
+    eval_positions=sorted(int(i) for i in eval_index if int(i) in df.index)
+    if not eval_positions:
+        return pd.Series(out,index=df.index)
+    date_for_pos=df["date"]
+    eval_dates={i:date_for_pos.iloc[i] for i in eval_positions}
+    for day in sorted(set(eval_dates.values())):
+        day_positions=[i for i in eval_positions if eval_dates[i]==day]
+        first_pos=min(day_positions)
+        train_end=max(0,first_pos-h)
+        if train_end<300:
+            continue
         yy=y.iloc[:train_end]
-        mask=yy.notna()
         xx=X.iloc[:train_end]
-        mask &= xx.notna().all(axis=1)
+        mask=yy.notna() & xx.notna().all(axis=1)
         yy=yy[mask].astype(int)
         xx=xx[mask]
-        if len(yy)<300 or yy.nunique()<2: continue
-        mu=xx.mean(); sd=xx.std(ddof=0).replace(0,1)
+        if len(yy)<300 or yy.nunique()<2:
+            continue
+        mu=xx.mean()
+        sd=xx.std(ddof=0).replace(0,1)
         xx=(xx-mu)/sd
-        xt=X.iloc[[i]]
-        if xt.isna().any(axis=1).iloc[0]: continue
+        xt=X.loc[day_positions]
+        good=~xt.isna().any(axis=1)
+        if not good.any():
+            continue
         xt=(xt-mu)/sd
         model=LogisticRegression(C=1.0,solver="liblinear",max_iter=1000,class_weight=None)
         model.fit(xx,yy)
-        out[i]=model.predict_proba(xt)[0,1]
+        pred=model.predict_proba(xt.loc[good])[:,1]
+        good_positions=np.asarray(day_positions)[good.to_numpy()]
+        out[good_positions]=pred
     return pd.Series(out,index=df.index)
 
 def run():
