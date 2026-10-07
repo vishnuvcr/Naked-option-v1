@@ -5,42 +5,28 @@
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
 | Phase 1 Literature/method registry | PASSED | final tester gate passed |
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
-| Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | tester PHASE3_FINAL_TESTER.md; B9/B10 blocked |
-| Phase 4 Single-family methods | **FAMILY B PASSED; FAMILY C PASSED WITH SCOPED RESTRICTIONS** | Family C final tester gate archived; C10/C11 blocked; later robustness/economic gates required |
-| Phase 5 Statistical/ML | **PROTOCOL FROZEN / IMPLEMENTATION IN PROGRESS** | Family D tester gate required before empirical run |
-| Phase 6 Novel methods | BLOCKED | Phase 5/novelty gates |
+| Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
+| Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
+| Phase 5 Statistical/ML | **ACTIVE — RUN 1 REJECTED; CORRECTION SET UNDER HOSTED GATE** | independent tester REQUEST CHANGES; new gate required |
+| Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | BLOCKED | cost/execution gate |
+| Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
 Last updated: 2026-10-07
 
-Last updated: 2026-10-07
-Family C gate state: REQUEST CHANGES from independent tester was received and incorporated into the developer branch. A corrected hosted rerun is required. Tester approval is still outstanding; Phase 5 remains blocked.
+## Phase 5 current state
 
-Last updated: 2026-10-07
-Family C remains REQUEST CHANGES / pending rerun. A successful hosted run existed, but independent developer review found two mathematical issues in multi-step probability/filtering. No Family C gate pass is claimed; Phase 5 remains blocked.
+- Protocol: frozen and independently reviewed at `research/gates/PHASE5_PROTOCOL_TESTER.md`.
+- Hosted run #1: `37594529634`, failed in the regression suite before empirical execution.
+- Run #1 tester decision: **REQUEST CHANGES**, archived at `research/gates/PHASE5_RUN1_TESTER.md`.
+- Rejected evidence: no Family D empirical metric from run #1 is accepted.
+- Developer correction head: `f80b08d9a4d9f244e3e9f1c8563d6cebb5d3c94b`.
+- Corrections include D07 training-only calibrated stacking, D13-D15 sequence architecture and session-boundary controls, training-only preprocessing tests, chronology/purge tests, and hourly-grid intraday fitting.
+- Corrected hosted run is active. Phase 6 remains blocked until the independent tester reviews the new artifact.
 
+## Research continuity rule
 
-## 2026-10-07 — Family C correction-set rerun active
-- Developer correction head: `d33b42f11c5373c0b0b2550a698df36e35f0f761`.
-- Hosted Family C run #38 is executing the corrected regression and empirical package.
-- Regression tests have passed in the active run; the empirical statistical step is still running.
-- No Family C pass is claimed and Phase 5 remains blocked until independent tester review of the new artifact.
-
-
-## 2026-10-07 — Phase 4 Family C gate passed
-- Hosted correction-set run #38 completed successfully at `d33b42f11c5373c0b0b2550a698df36e35f0f761`.
-- Independent tester final gate: `research/gates/PHASE4_FAMILY_C_FINAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
-- Artifact `11469469440` digest `sha256:963c263c144e7ed9fb44baa81ae7868b5b133aacc44f66b8a2037196fcae7ede` is the accepted Family C research input.
-- Family C shows no robust deployable directional edge; results are carried forward for later multiple-testing, robustness and option-economics analysis.
-- C10/C11 remain BLOCKED_DATA.
-- Phase 5 is now unblocked; no trading strategy has yet been promoted.
-
-
-## 2026-10-07 — Phase 5 initialized
-- Created `research/phase5/MACHINE_LEARNING_PROTOCOL.md` with fixed D01-D15 definitions, walk-forward controls, training-only preprocessing and regression requirements.
-- Family D implementation and tester gate are now the active research step.
-- No empirical Family D run has yet been accepted.
+A failed family or model is not a terminal conclusion. The full finite pre-registered universe, option economics, transaction-cost stress, multiple-testing controls and untouched-forward validation must be completed before final synthesis.
