@@ -7,7 +7,7 @@
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **ACTIVE — FRESH HOSTED RUN #19 EMPIRICAL SUITE IN PROGRESS** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
+| Phase 5 Statistical/ML | **ACTIVE — RUN #19 CANCELLED DURING EMPIRICAL EXECUTION; RUNTIME GATE REQUIRED** | D07 amendment tester-approved; regression passed; immutable artifact and final empirical tester gate required |
 | Phase 6 Novel methods | BLOCKED | Phase 5 gate |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
@@ -33,10 +33,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 
 ## Live verification — 2026-10-07
-- Family D hosted run #19 (37611880308): **IN PROGRESS**.
-- Active step: empirical D01-D15 execution.
+- Family D hosted run #19 (37611880308): **CANCELLED — NON-EVIDENCE**.
+- Active step at cancellation: empirical D01-D15 execution.
 - Regression suite: **PASSED**.
-- Result schema validation: pending.
-- Immutable artifact upload: pending.
+- Result schema validation: **SKIPPED**.
+- Immutable artifact upload: **SKIPPED**.
 - Family D empirical acceptance: **NONE**.
 - Phase 6: **BLOCKED** pending independent tester artifact audit.
