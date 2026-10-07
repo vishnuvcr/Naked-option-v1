@@ -94,3 +94,15 @@
 - The corrected developer head passed the repository protocol check.
 - The Phase 3 run for the corrected head is currently pending because an older Phase 3 run remains in progress in the same branch concurrency group. The older run exposes no current job-step state through the connected GitHub service.
 - This is logged as an infrastructure/queue checkpoint, not a scientific result. Phase 3 remains open and Phase 4 remains blocked.
+
+## 2026-10-07 — User-directed no-premature-null rule
+
+- User instructed that the research must not stop merely because an early family, model or strategy fails, and requested a continuation bias toward finding a strategy that actually works.
+- The plan remains scientifically finite rather than literally infinite, but the completion rule has been strengthened: no final null conclusion before the full pre-registered phase catalog, all declared method families, execution-cost tests, robustness gates and fresh-forward verification are completed, unless an irreparable research limitation is formally documented.
+- This changes the completion criterion, not the scientific acceptance criteria.
+
+## 2026-10-07 — Phase 3 stale-workflow isolation
+
+- A prior Phase 3 Actions run remained stuck/in-progress while newer corrected runs were queued/cancelled.
+- To prevent stale infrastructure from blocking the corrected science run, the workflow concurrency namespace was versioned and a 45-minute job timeout was added.
+- No scientific metric or acceptance threshold was changed.
