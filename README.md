@@ -9,7 +9,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Official NSE EOD acquisition is now batchable by year with raw-data caching and compact NIFTY-only Parquet outputs.
 - India VIX historical acquisition, free global/rates history, effective-dated lot-size validation and FII/DII quarantine are now part of the Phase 2C gate.
 - Phase 3 remains blocked until the independent tester passes the full bulk-data/PIT gate.
-- The corrected Phase 2C run #17 passed all eight official NSE year jobs and VIX validation but exposed one additional global-series response-handling defect; it is logged and corrected without lowering scientific acceptance thresholds. A fresh hosted rerun is required before the data gate can move.
+- Phase 2C run #18 confirmed that Stooq S25 can return no usable observations for the full frozen window in GitHub Actions; this is logged and handled through a free Yahoo Finance chart-API fallback while retaining Stooq as the first source. No paid source or acceptance-threshold relaxation is being used.
 
 ### Latest Phase 2 execution
 

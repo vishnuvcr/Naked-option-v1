@@ -64,3 +64,11 @@
 - This is treated as a source-response validation defect, not as evidence that the global source itself is unavailable.
 - The developer correction switches the Stooq series to the same unbounded daily CSV pattern already used successfully in the earlier single-window source acquisition, then filters rows to the frozen research window locally and fails explicitly if no usable observations are present.
 - Phase 2 remains open; the corrected global source path must complete before the gate can be resubmitted to the tester.
+
+## 2026-10-07 — Phase 2C run #18 global-source fallback decision
+
+- Run #18 reached the contextual job and failed explicitly because Stooq S25 returned no usable observations across the frozen window.
+- The failure is isolated to the free global equity source path; official NSE year validation was still progressing independently.
+- To honor the free-source-first rule, the global acquisition now uses a two-source free chain: Stooq first and Yahoo Finance chart API as fallback for S&P 500, Nasdaq Composite, Nikkei 225 and Hang Seng. FRED remains the US 10Y source.
+- The global manifest/result records the selected provider and any failed source attempts so source substitution is auditable.
+- This is a data-source robustness correction, not a relaxation of acceptance criteria. The research gate remains open until the fallback source completes and the tester reproduces the resulting hashes/date coverage.
