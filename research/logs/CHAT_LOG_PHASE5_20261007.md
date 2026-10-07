@@ -75,3 +75,14 @@ Rechecked Family D hosted run #19 (`37611880308`). The workflow remains in progr
 
 ## Gate discipline
 Continue monitoring the active run. On artifact completion, perform the independent tester audit before any promotion or phase transition.
+
+### 2026-10-07 — Check now: run #19 cancelled
+
+## Developer action
+Checked the live hosted run after the user requested an immediate status check. Run #19 (37611880308) is now completed with conclusion **cancelled**. The empirical D01-D15 step was cancelled after approximately 90 minutes; schema validation and artifact upload were skipped and no artifact exists.
+
+## Evidence status
+Run #19 is classified as non-evidence. The successful regression result is retained, but no empirical metric is accepted.
+
+## Next gate
+Developer must investigate the runtime/cancellation cause and submit any correction to the independent tester before a new empirical run. Phase 6 remains blocked.
