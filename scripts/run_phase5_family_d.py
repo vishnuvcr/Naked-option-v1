@@ -70,7 +70,7 @@ def fit_predict_block(name,X,y,train_end,test_rows):
     if name in ("D13","D14","D15"):
         kind={"D13":"lag","D14":"conv","D15":"attn"}[name]
         tr,ti=sequence_features(train,20,kind); 
-        te,ei=sequence_features(X.iloc[max(0,train_end-19):],20,kind)
+        te,ei=sequence_features(X.iloc[max(0,train_end-19):max(test_rows)+1],20,kind)
         if len(tr)<300 or len(te)==0: return np.full(len(test_rows),np.nan)
         mm=make_pipeline(StandardScaler(),LogisticRegression(C=1.0,max_iter=2000,solver="lbfgs"))
         mm.fit(tr,yy.iloc[ti]); p=mm.predict_proba(te)[:,1]
