@@ -32,25 +32,21 @@ def load():
 
 def labels(ts, price, h):
     idx=pd.DatetimeIndex(ts)
-    series=pd.Series(price,index=idx)
-    logp=np.log(series)
-    y=[]; future=[]; sigma=[]
-    pos=logp.index
-    for i,t in enumerate(pos):
-        ftime=t+pd.Timedelta(minutes=h)
-        if ftime not in logp.index:
-            y.append(np.nan); future.append(np.nan); sigma.append(np.nan); continue
-        ret=logp.loc[ftime]-logp.loc[t]
-        y.append(1 if ret>0 else (0 if ret<0 else np.nan))
-        future.append(ret)
-        vals=[]
-        for j in range(1,21):
-            end=t-pd.Timedelta(minutes=j*h)
-            start=end-pd.Timedelta(minutes=h)
-            if start in logp.index and end in logp.index:
-                vals.append(logp.loc[end]-logp.loc[start])
-        sigma.append(float(np.std(vals,ddof=1)) if len(vals)==20 else np.nan)
-    out_index=np.arange(len(pos))
+    logp=pd.Series(np.log(np.asarray(price,dtype=float)),index=idx)
+    future_logp=logp.reindex(idx+pd.Timedelta(minutes=h))
+    future=future_logp.to_numpy()-logp.to_numpy()
+    y=np.where(np.isfinite(future),np.where(future>0,1,np.where(future<0,0,np.nan)),np.nan)
+    blocks=[]
+    for j in range(1,21):
+        end=logp.reindex(idx-pd.Timedelta(minutes=j*h))
+        start=logp.reindex(idx-pd.Timedelta(minutes=(j+1)*h))
+        blocks.append((end-start).to_numpy())
+    block_matrix=np.column_stack(blocks)
+    complete=np.isfinite(block_matrix).all(axis=1)
+    sigma=np.full(len(idx),np.nan)
+    if complete.any():
+        sigma[complete]=np.std(block_matrix[complete],axis=1,ddof=1)
+    out_index=np.arange(len(idx))
     return pd.Series(y,index=out_index),pd.Series(future,index=out_index),pd.Series(sigma,index=out_index)
 
 def block_bootstrap_accuracy(y, p, block_len=60, reps=200, seed=42):
