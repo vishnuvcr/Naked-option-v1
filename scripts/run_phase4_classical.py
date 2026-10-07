@@ -186,7 +186,7 @@ def daily_run():
             elif m=="B10":
                 out[str(H)][m]={"status":"NOT_APPLICABLE","reason":"Opening-range breakout is intraday-specific"}
             else:
-                p=sig[m]
+                p=sig_to_prob(sig[m])
                 out[str(H)][m]=metrics(y,p,future,20)
     return {"data_rows":len(df),"date_start":df["date"].min().date().isoformat(),"date_end":df["date"].max().date().isoformat(),"horizons":out}
 
@@ -210,7 +210,7 @@ def intra_run():
             if m=="B09":
                 out[str(H)][m]={"status":"BLOCKED_DATA","reason":"No PIT-safe NIFTY volume in canonical spot reference; VWAP blocked"}
             else:
-                p=sig[m]
+                p=sig_to_prob(sig[m])
                 out[str(H)][m]=metrics(y[g],p[g],fut[g],60)
     return {"data_rows":len(df),"decision_grid_rows":int(grid.sum()),"timestamp_start":df["timestamp"].min().isoformat(),"timestamp_end":df["timestamp"].max().isoformat(),"horizons":out}
 
