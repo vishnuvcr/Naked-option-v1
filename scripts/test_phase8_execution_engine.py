@@ -1,3 +1,4 @@
+# Phase 8 fresh hosted trigger after tester-approved Run 767 fixture correction.
 # Phase 8 hosted engineering-gate trigger after tester-approved import correction.
 from __future__ import annotations
 
