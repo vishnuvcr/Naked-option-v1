@@ -198,3 +198,13 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Correction status:** Run #650 bootstrap/diagnostic defects are closed by the corrected implementation and independent artifact audit.
 - **Carry-forward restrictions:** abstention chronological diagnostics are full-series rather than trade-only; intraday P08-P10 regime inputs use the fixed one-minute causal return path sampled at hourly decision rows. These must remain fixed and are to be documented in Phase 8.
 - **Next phase:** Phase 8 long-option execution research, with Paytm Money brokerage/fees, exchange/statutory charges, spread, slippage, latency and premium-decay realism. Phase 9 robustness and Phase 10 fresh-forward validation remain mandatory.
+
+
+## Latest Phase 7 checkpoint — 2026-10-08
+
+- Run #654 (`37763242007`) completed protocol, regression, empirical execution, validation and artifact upload.
+- Artifact `phase7-ensemble-results`, ID `11551679532`, digest `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- Independent tester gate [PHASE7_RUN654_FINAL_TESTER_GATE.md](research/gates/PHASE7_RUN654_FINAL_TESTER_GATE.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- All 100 P01-P10 layer/horizon cells executed and independently reconciled.
+- No family-level test reached alpha=0.05; no Phase 7 candidate is promoted.
+- **Next phase:** Phase 8 long-option execution translation with realistic Paytm Money brokerage/charges, exchange/statutory costs, bid/ask spread, slippage, latency and premium decay. The final untouched holdout remains sealed.
