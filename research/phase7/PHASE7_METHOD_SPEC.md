@@ -28,7 +28,7 @@ For each decision time and horizon, average all available Phase 6 probabilities 
 Median of all available Phase 6 probabilities.
 
 ### P03 — 10% trimmed probability mean
-Remove the highest and lowest 10% of available probabilities when the available count is sufficient; otherwise use the ordinary mean. The rule is fixed before execution.
+For n available forecasts, set k=floor(0.10*n). If k=0, use the ordinary mean; otherwise remove exactly k observations from each tail and average the remainder. No alternative small-sample rule is permitted.
 
 ### P04 — Equal-weight family mean
 First average E-family forecasts and I-family forecasts separately; then average the family means. If one family has no available forecast for a cell, use the other family without tuning.
@@ -40,13 +40,13 @@ Use P01, but abstain when the ensemble probability lies in [0.45, 0.55]. Thresho
 Use P01, but abstain when probability lies in [0.40, 0.60]. Threshold is frozen.
 
 ### P07 — Chronological logistic stacking
-Fit a regularized logistic meta-model only inside the training portion of each chronological evaluation block using Phase 6 probabilities as predictors. The meta-model is refit causally and never sees future labels. Hyperparameters are frozen: L2 penalty C=1.0, solver=lbfgs, max_iter=500, random_state=42. Standardization, if required, is fit only on the training portion.
+For each layer/horizon, use the fixed set of Phase 6 methods whose status is EXECUTED for that cell in the accepted Phase 6 artifact. Blocked methods are omitted, never imputed or replaced, and the predictor set is not selected using Phase 7 outcomes. Fit a regularized logistic meta-model only inside the training portion of each chronological evaluation block using these Phase 6 probabilities as predictors. The meta-model is refit causally and never sees future labels. Hyperparameters are frozen: L2 penalty C=1.0, solver=lbfgs, max_iter=500, random_state=42. Standardization, if required, is fit only on the training portion.
 
 ### P08 — Regime-conditioned P01
 Use P01, but calculate a causal regime state from NIFTY realized-volatility and trend features available at decision time. Three fixed states are used: low-vol/trend, high-vol/trend, and high-vol/non-trend. State thresholds are fixed from training quantiles only: 33rd and 67th percentile of training realized volatility and a frozen absolute trend-strength threshold defined in the implementation specification. No threshold may be optimized after results are seen.
 
 ### P09 — Regime-conditioned family combination
-Use P04 inside each causal regime. The regime-to-combination mapping is fixed: no regime-specific model selection.
+Use P04 inside each of the same four causal regimes. The regime-to-combination mapping is fixed: no regime-specific model selection.
 
 ### P10 — Fixed abstention + regime combination
 Apply P09 and abstain at probability interval [0.45, 0.55].
@@ -54,7 +54,7 @@ Apply P09 and abstain at probability interval [0.45, 0.55].
 ## Causality and validation
 
 - Every meta-model/regime statistic must be estimated only from observations strictly before the forecast timestamp.
-- Chronological walk-forward evaluation is mandatory.
+- Chronological walk-forward evaluation is mandatory. The fixed schedule is an expanding training window with a minimum of 200 eligible training observations, followed by a 20-trading-session test block; refit at every 20-trading-session boundary. Intraday rows inherit the same session blocks, so no intraday-specific refit cadence may be tuned.
 - Final untouched holdout remains unopened.
 - Phase 7 test predictions must be generated without using labels from the same evaluation block.
 - Any standardization, calibration, thresholding or regime quantile is fit on training data only.
