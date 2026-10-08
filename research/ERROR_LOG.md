@@ -140,3 +140,12 @@
 - Statistical disposition: none of the ten layer/horizon family tests produced a p-value below 0.05; no Phase 7 candidate is promoted.
 - Scoped audit restrictions recorded by the tester: P05/P06 chronological diagnostics are full-series rather than trade-only, and the intraday P08/P09/P10 regime inputs are computed on the one-minute causal path at hourly decision rows; neither may be tuned from Run #654 outcomes.
 - Disposition: **PASS WITH SCOPED RESTRICTIONS**. Run #654 is accepted technical evidence; downstream option execution, cost, robustness and fresh-forward gates remain mandatory.
+
+
+## 2026-10-08 — Phase 8 specification tester gate REQUEST CHANGES
+- Category: protocol/reproducibility
+- Component: Phase 8 long-option execution specification
+- Independent tester identified ten issues before empirical authorization: undefined liquidity tie-break, unfrozen fill tolerances, non-numeric data-quality thresholds, unspecified historical Paytm brokerage fallback, incomplete Black–Scholes fallback inputs, unspecified Run #654 reconstruction tolerance, implicit rather than explicit 4,800-cell universe, non-auditable anomaly-concentration rule, missing option P&L block definition, and missing overlap-signal reset behavior.
+- Impact: empirical execution remained blocked; no strategy evidence was generated.
+- Correction: developer froze deterministic values and statuses in the current Phase 8 method/data specifications.
+- Disposition: fresh tester re-review required; no parameter or threshold was selected from empirical Phase 8 results.
