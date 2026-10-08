@@ -1,0 +1,14 @@
+{
+  "phase": "8",
+  "phase7_run": 654,
+  "workflow_run_id": 37763242007,
+  "developer_commit": "4f1d695f291ed32996c07f01710afcecc6f2a540",
+  "phase7_source_blob_sha": "399ad338a409b6faf56c3ee243f2643cc89f162a",
+  "artifact_name": "phase7-ensemble-results",
+  "artifact_id": 11551679532,
+  "artifact_sha256": "c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a",
+  "reconstruction_tolerance_abs": 1e-9,
+  "counts_exact": true,
+  "prediction_panel_required": true,
+  "empirical_option_execution_authorized": false
+}
