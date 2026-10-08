@@ -28,22 +28,32 @@ def test_source_blocks_result_driven_changes():
     assert 'raise SystemExit("RECONSTRUCTION_ERROR: frozen input manifest must not authorize option execution")' in src
 
 
+def exec_source_namespace():
+    ns = {"__file__": str(SRC), "__name__": "phase8_reconstruction_test_namespace"}
+    tree = ast.parse(load_source())
+    exec(compile(tree, str(SRC), "exec"), ns)
+    return ns
+
+
+def test_exec_harness_sets_file_context():
+    ns = exec_source_namespace()
+    assert Path(ns["__file__"]).resolve() == SRC.resolve()
+    assert ns["__name__"] == "phase8_reconstruction_test_namespace"
+
+
 def test_recursive_compare_tolerance():
-    ns = {}
+    ns = exec_source_namespace()
     tree = ast.parse(load_source())
     wanted = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
     assert {"recursive_compare", "build_candidates", "canonical_prediction_rows"} <= wanted
 
-    exec(compile(tree, str(SRC), "exec"), ns)
     cmp = ns["recursive_compare"]
     assert cmp({"x": 1.0}, {"x": 1.0 + 5e-10}) == []
     assert cmp({"x": 1.0}, {"x": 1.0 + 2e-9})
 
 
 def test_canonical_rows_do_not_drop_future_audit_fields():
-    ns = {}
-    tree = ast.parse(load_source())
-    exec(compile(tree, str(SRC), "exec"), ns)
+    ns = exec_source_namespace()
     build = {
         "timestamps": pd.to_datetime(["2026-01-01 09:30:00", "2026-01-01 10:30:00"]),
         "y": np.array([1.0, 0.0]),
@@ -66,6 +76,7 @@ def test_manifest_is_json():
 if __name__ == "__main__":
     test_source_freezes_input_commit()
     test_source_blocks_result_driven_changes()
+    test_exec_harness_sets_file_context()
     test_recursive_compare_tolerance()
     test_canonical_rows_do_not_drop_future_audit_fields()
     test_manifest_is_json()
