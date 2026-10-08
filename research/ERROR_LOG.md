@@ -130,3 +130,13 @@
 - Family bootstrap was non-overlapping rather than the frozen moving-block bootstrap.
 - P08/P09/P10 regime diagnostic list had one extra terminal entry at daily +10 relative to candidate chronological metric blocks.
 - Tester froze the correction rules before implementation.
+
+
+## 2026-10-08 — Phase 7 Run #654 audit closure
+- Category: audit/scientific validation
+- Hosted run: Research Protocol Check #654 (`37763242007`).
+- Symptom: no runtime or workflow error; all mandatory jobs completed successfully and the immutable artifact was uploaded.
+- Independent audit findings: all 100 candidate cells executed; arithmetic/schema checks passed; corrected moving-block bootstrap and regime-diagnostic reconciliation matched the frozen correction gate.
+- Statistical disposition: none of the ten layer/horizon family tests produced a p-value below 0.05; no Phase 7 candidate is promoted.
+- Scoped audit restrictions recorded by the tester: P05/P06 chronological diagnostics are full-series rather than trade-only, and the intraday P08/P09/P10 regime inputs are computed on the one-minute causal path at hourly decision rows; neither may be tuned from Run #654 outcomes.
+- Disposition: **PASS WITH SCOPED RESTRICTIONS**. Run #654 is accepted technical evidence; downstream option execution, cost, robustness and fresh-forward gates remain mandatory.
