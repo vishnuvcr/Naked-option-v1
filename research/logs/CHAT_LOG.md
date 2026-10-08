@@ -172,3 +172,12 @@ No scientific or protocol change was made during this checkpoint.
 - Tester caught a second DTE fixture inconsistency in the moneyness fallback test: the 2026-10-01 to 2026-10-30 business-day interval is 21 sessions and therefore D3.
 - Tester issued REQUEST CHANGES; developer changed the fixture from D1 to D3 and added a direct 21-session assertion.
 - Tester re-approved the correction. Empirical authorization remains false and the 4,800-cell option grid remains blocked pending a fresh complete gate and independent tester audit.
+
+
+## 2026-10-08 — User continuation: Phase 8 Run #783 reconstruction integrity correction
+- Developer continued from the latest tester-approved execution-engine fixture corrections.
+- Run #783 passed protocol, source audit, immutable Run #654 artifact verification, workflow contract, reconstruction regression harness and execution-engine regression.
+- The forecast reconstruction itself failed at the frozen source-blob integrity check.
+- Tester independently verified that the source blob in the repository already matches the frozen Run #654 SHA; the failure was in the checker’s Git object-header implementation.
+- Tester requested changes. Developer replaced the literal backslash-x sequence with a real NUL byte and added a known-vector regression using Git’s canonical empty-blob SHA.
+- Tester re-approved the correction. Empirical option execution remains disabled.
