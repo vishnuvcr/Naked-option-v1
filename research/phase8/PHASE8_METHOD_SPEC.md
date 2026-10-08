@@ -383,3 +383,10 @@ Chronological performance blocks are fixed at **20 NSE trading sessions** for bo
 
 ### Overlapping signals
 When a signal occurs while the same strategy/configuration cell already has an open position, the signal is not queued. It is logged as `OVERLAP_SKIPPED` and does not alter the open trade.
+
+
+### IV reconstruction solver convention
+When a point-in-time IV is unavailable but a premium observation is available, IV is recovered from the European Black–Scholes price equation using a deterministic bisection solver over volatility `[1e-6, 5.0]`, 80 iterations, with the model price checked for bracketing/no-arbitrage validity first. Failure to bracket a unique solution produces `MONEYNESS_FALLBACK`; no future price is used.
+
+### Venue/source scope
+NIFTY 50 index options are primarily validated against NSE records. BSE derivatives data are audited as a secondary venue/source check where the same NIFTY contract history exists, but BSE data cannot replace the controlling NSE contract metadata for an NSE-execution study.
