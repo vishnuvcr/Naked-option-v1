@@ -29,6 +29,7 @@ def main():
                 if m in ("P08","P09","P10"):
                     assert "regime_diagnostics" in x
                     assert "regime_fallback_count" in x
+                    assert len(x["regime_diagnostics"]) == len(x["chronological_blocks"])
     print("Phase 7 result schema PASS")
 
 if __name__=="__main__":

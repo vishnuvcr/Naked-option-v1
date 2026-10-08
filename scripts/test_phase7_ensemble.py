@@ -12,7 +12,7 @@ ns={"__file__": str(Path(__file__).resolve().parents[0] / "run_phase7_ensemble.p
 exec(compile(SRC,"phase7","exec"),ns)
 
 def main():
-    for token in ["family_bootstrap","500","block_len","observed_max_brier_improvement","chronological_blocks","regime_fallback_count","CAPTURE_ORDER"]:
+    for token in ["family_bootstrap","moving_block_resample","500","block_len","observed_max_brier_improvement","chronological_blocks","regime_fallback_count","CAPTURE_ORDER"]:
         assert token in SRC, token
     base={m:np.array([0.4,0.5,0.6]) for m in ns["METHODS"]}
     for m in ns["BLOCKED"]: base[m]=np.full(3,np.nan)
@@ -43,10 +43,14 @@ def main():
     p1=np.full(500,0.6); p4=np.full(500,0.4)
     r8,r9,diag,fb=ns["regimes"](p1,p4,y,vol,trend,blocks)
     assert len(diag)>=1
+    assert all(sum(d["test_counts"].values())>0 for d in diag)
     assert np.allclose(r8[220:],0.55)
     assert np.allclose(r9[220:],0.45)
 
     baseline=ns["causal_baseline"](y,blocks)
+    idx=ns["moving_block_resample"](10,4,np.random.default_rng(42))
+    assert len(idx)==10
+    assert any(idx[i+3]-idx[i]==3 for i in range(7))
     fam=ns["family_bootstrap"](y,{"P01":np.full(500,0.5)},baseline,20)
     assert "family_p_value" in fam and 0.0 <= fam["family_p_value"] <= 1.0
     print("Phase 7 regression checks PASS")

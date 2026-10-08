@@ -566,3 +566,7 @@
 ## 2026-10-08 — Phase 7 Run #645 closure fix approved
 - Tester approved the exact current-lineage `current_h=H` capture fix.
 - Fresh gated regression is authorized; Run #645 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #650 correction
+- Tester accepted the 100-cell mathematical audit but rejected final scientific acceptance until the frozen moving-block bootstrap and one-to-one regime diagnostics are corrected.
+- Amendment approved; developer implementing only those changes.

@@ -106,13 +106,17 @@ def regimes(p1,p4,y,vol,trend,blocks):
                 if n>=50: state_rates[(vs,ts)]=float(np.mean(y[tr][m]))
                 else: state_rates[(vs,ts)]=pooled; fallback+=1
         test_counts={f"{vs}{ts}":0 for vs in (0,1) for ts in (0,1)}
+        eval_mask=np.isfinite(y[rows])&np.isfinite(p1[rows])&np.isfinite(p4[rows])&np.isfinite(vol[rows])&np.isfinite(trend[rows])
         for r in rows:
             if np.isfinite(p1[r]) and np.isfinite(p4[r]) and np.isfinite(vol[r]) and np.isfinite(trend[r]):
-                state=(int(vol[r]>vc),int(trend[r]>tc)); test_counts[f"{state[0]}{state[1]}"]+=1
+                state=(int(vol[r]>vc),int(trend[r]>tc))
                 q=state_rates[state]
                 p8[r]=0.5*p1[r]+0.5*q
                 p9[r]=0.5*p4[r]+0.5*q
-        diag.append({"train_counts":train_counts,"test_counts":test_counts,"vol_cut":vc,"trend_cut":tc})
+                if np.isfinite(y[r]):
+                    test_counts[f"{state[0]}{state[1]}"]+=1
+        if eval_mask.any():
+            diag.append({"train_counts":train_counts,"test_counts":test_counts,"vol_cut":vc,"trend_cut":tc})
     return p8,p9,diag,fallback
 
 def causal_baseline(y,blocks):
@@ -135,6 +139,18 @@ def block_diagnostics(y,p,blocks):
                     "brier":float(np.mean((pp-yy)**2))})
     return out
 
+def moving_block_resample(n,block_len,rng):
+    if n <= 0:
+        return np.array([], dtype=int)
+    L=min(int(block_len), int(n))
+    starts=np.arange(0,n-L+1,dtype=int)
+    pool=[np.arange(s,s+L,dtype=int) for s in starts]
+    n_blocks=int(math.ceil(n/L))
+    selected=rng.integers(0,len(pool),size=n_blocks)
+    idx=np.concatenate([pool[k] for k in selected])[:n]
+    assert len(idx)==n
+    return idx
+
 def family_bootstrap(y,candidates,baseline,block_len):
     names=list(candidates); n=len(y); diffs=np.full((n,len(names)),np.nan)
     for j,name in enumerate(names):
@@ -148,17 +164,14 @@ def family_bootstrap(y,candidates,baseline,block_len):
             diffs[finite,j]=(baseline[finite]-y[finite])**2-(p[finite]-y[finite])**2
     means=np.nanmean(diffs,axis=0); observed=float(np.nanmax(means))
     centered=diffs-means
-    rng=np.random.default_rng(SEED); starts=np.arange(0,n,block_len)
-    idx_blocks=[np.arange(s,min(s+block_len,n)) for s in starts]
+    rng=np.random.default_rng(SEED)
     boot=np.empty(500)
     for b in range(500):
-        sel=rng.integers(0,len(idx_blocks),size=len(idx_blocks))
-        idx=np.concatenate([idx_blocks[k] for k in sel])[:n]
+        idx=moving_block_resample(n,block_len,rng)
         boot[b]=float(np.nanmax(np.nanmean(centered[idx],axis=0)))
     return {"observed_max_brier_improvement":observed,
             "family_p_value":float(np.mean(boot>=observed)),
             "candidate_mean_brier_improvement":{name:float(v) for name,v in zip(names,means)}}
-
 def run_layer(df,intraday,horizons):
     captured=capture_scope(df,intraday,horizons); blocks=blocks_for(df,intraday)
     vol,trend=regime_inputs(df,intraday); block_len=60 if intraday else 20

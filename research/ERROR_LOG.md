@@ -124,3 +124,9 @@
 - Tester requested an explicit `current_h=H` closure binding.
 - A first automated reconstruction was malformed by indentation and was discarded before branch advancement.
 - The current correction rebuilds `capture_scope` explicitly with correct scope and `try/finally` restoration.
+
+## 2026-10-08 — Phase 7 Run #650 tester findings
+- Artifact `11532515562` was complete but not final evidence.
+- Family bootstrap was non-overlapping rather than the frozen moving-block bootstrap.
+- P08/P09/P10 regime diagnostic list had one extra terminal entry at daily +10 relative to candidate chronological metric blocks.
+- Tester froze the correction rules before implementation.

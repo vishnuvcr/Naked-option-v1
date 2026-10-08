@@ -198,3 +198,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md` = **PASS**.
 - Current-lineage `current_h=H` closure fix is approved; direct multi-horizon regression is present.
 - Fresh gated regression is authorized; Run #645 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #650 tester gate
+- Run #650 (`37723308187`), artifact `11532515562`, completed all 100 candidate cells.
+- Independent tester gate `PHASE7_RUN650_EMPIRICAL_TESTER.md` = REQUEST CHANGES for bootstrap and regime-diagnostic implementation mismatches.
+- Frozen correction amendment `PHASE7_RUN650_AMENDMENT_APPROVAL_TESTER.md` = PASS.
+- Corrected implementation is in preparation; no candidate is promoted.

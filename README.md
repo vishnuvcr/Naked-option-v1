@@ -181,3 +181,7 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester gate [PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md](research/gates/PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md) = **PASS**.
 - Current branch contains the approved explicit current-horizon closure fix and direct multi-horizon regression.
 - Fresh gated regression is authorized.
+
+## Phase 7 Run #650 correction cycle — 2026-10-08
+- Run #650 artifact is non-final evidence. Tester found a bootstrap construction mismatch and regime diagnostic block-count mismatch.
+- Frozen correction amendment is approved; developer is implementing before fresh execution.
