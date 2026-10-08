@@ -64,3 +64,30 @@
 - Root cause: Phase 7 workflow incorrectly assumed a repository-level requirements file instead of following the established explicit dependency installation used by Phase 6.
 - Correction: install numpy, pandas, scikit-learn and pyarrow explicitly and add canonical cached-data restoration/acquisition steps.
 - Disposition: non-evidence infrastructure failure; tester gate `research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md` = REQUEST CHANGES.
+
+## 2026-10-08 — Phase 7 Run #608 regression harness defect
+- Category: regression/test-harness
+- Component: `scripts/test_phase7_ensemble.py`
+- Symptom: `NameError: __file__ is not defined` when executing the production module source via `exec()`.
+- Hosted run: Research Protocol Check #608 (`37716925536`), regression job `113115445197`.
+- Impact: regression assertions did not execute; empirical job was skipped; no Phase 7 artifact or metric was generated.
+- Root cause: synthetic namespace omitted the production module's `__file__` variable.
+- Correction: supply deterministic `__file__` and assert the initialization path.
+- Disposition: non-evidence; tester gate `PHASE7_RUN608_REGRESSION_TESTER.md` = REQUEST CHANGES.
+
+## 2026-10-08 — Phase 7 Run #608 P07 fixture defect
+- Category: regression/test-fixture
+- Component: `scripts/test_phase7_ensemble.py` P07 causal stacking test
+- Symptom: fixture asserted all predictions through row 219 were NaN, although rows 200-219 have exactly 200 prior observations and satisfy the frozen training minimum.
+- Impact: the corrected harness would have failed its own P07 boundary assertion; no new hosted execution was authorized from that faulty fixture.
+- Correction: require NaN only for rows 0-19 and finite predictions for rows 200-219.
+- Disposition: tester gate `PHASE7_RUN608_REGRESSION_FIXTURE_APPROVAL_TESTER.md` = PASS.
+
+## 2026-10-08 — Phase 7 Run #614
+- Category: regression/test-harness
+- Hosted run: Research Protocol Check #614 (`37717431486`), regression job `113117063695`.
+- Symptom: the developer branch at run time still contained the unfixed `ns={}` execution namespace, causing the same `NameError: __file__ is not defined`.
+- Impact: regression failed; empirical job skipped; no artifact or metric accepted.
+- Root cause: approved corrections had not yet been applied to the actual developer branch when Run #614 started.
+- Correction: applied directly to the live developer branch with commit `84ffd525cc3ae77571a0cb38d24047b3de7b473e`.
+- Disposition: non-evidence; fresh hosted verification required.
