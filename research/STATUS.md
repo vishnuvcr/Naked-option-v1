@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
+| Phase 8 Long-option execution | **IMPLEMENTATION AUTHORIZED — DATA/WORKFLOW GATES PENDING** | frozen tester-approved specification; empirical execution still blocked |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -216,3 +216,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Scoped restrictions are carried into Phase 8: abstention chronological diagnostics are not trade-only, and the intraday regime observation scale (1-minute causal path sampled at hourly decision rows) must remain fixed and explicitly documented.
 - Phase 7 technical evidence is now accepted; Phase 8 remains **BLOCKED** until its independent execution/cost gate is satisfied.
 - This is a status update only; no method definitions were changed after observing Run #654 results.
+
+
+## 2026-10-08 — Phase 8 specification gate passed
+- Developer submitted the finite long-option execution protocol, options data plan and literature review before any empirical P&L generation.
+- Tester first returned REQUEST CHANGES for ten reproducibility gaps; those were corrected without using empirical Phase 8 results.
+- Tester gate [PHASE8_SPEC_APPROVAL_TESTER.md](research/gates/PHASE8_SPEC_APPROVAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- Frozen Phase 8 universe: 100 Phase 7 forecast cells × 3 delta targets × 4 DTE buckets × 4 exit policies = **4,800 configuration cells**, with deterministic EXECUTED/INELIGIBLE/DATA_QUALITY_FAIL/NO_PREDICTION statuses.
+- Empirical P&L remains blocked pending the separate data/PIT, Phase 7 forecast-reconstruction, execution-engine regression and GitHub Actions workflow gates.
+- Carry-forward restrictions: current Paytm ₹10 is present-day only and cannot be back-applied without an effective-date record; Q1 OHLC/proxy results are non-quote-executable; Run #654 row-level forecast reconstruction must reproduce aggregate metrics within 1e-9 before any option result is generated.
