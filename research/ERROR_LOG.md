@@ -205,3 +205,12 @@
 - Independent tester disposition: REQUEST CHANGES at `research/gates/PHASE8_RUN765_MONEYNESS_TESTER.md`.
 - Correction: change only the fixture from D1 to D3 and explicitly assert the 21-session DTE; production execution logic is unchanged.
 - Tester approval: `research/gates/PHASE8_RUN765_MONEYNESS_APPROVAL_TESTER.md` = PASS.
+
+
+## 2026-10-08 — Phase 8 Run #767 execution-engine fixture failure
+- Hosted run: Research Protocol Check #767 (`37815745993`).
+- Workflow contract and reconstruction regression passed; free-source audit completed successfully.
+- Execution-engine regression failed because the fallback test requested D1 for a 21-session expiry distance; the frozen DTE convention maps 21 sessions to D3.
+- Classification: **test fixture defect / non-evidence**.
+- Correction: both fallback test calls now use D3 and explicitly assert the 21-session mapping; engine/cost logic unchanged.
+- Tester approval: `research/gates/PHASE8_RUN767_ENGINE_FIXTURE_APPROVAL_TESTER.md`.
