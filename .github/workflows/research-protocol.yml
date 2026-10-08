@@ -136,3 +136,59 @@ jobs:
     with:
       empirical_authorized: ${{ needs.phase7-change.outputs.empirical_authorized == 'true' }}
     secrets: inherit
+
+
+  phase8-change:
+    name: detect-phase8-change
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      run_phase8: ${{ steps.detect.outputs.run_phase8 }}
+      empirical_authorized: ${{ steps.detect.outputs.empirical_authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_phase8=false
+          empirical_authorized=false
+          ref="${GITHUB_REF}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            ref="refs/heads/${{ github.event.pull_request.head.ref }}"
+          fi
+          if [ "${ref}" = "refs/heads/phase-08-developer" ]; then
+            if [ -f "research/phase8/PHASE8_EMPIRICAL_AUTHORIZATION.md" ] && grep -q "STATUS: AUTHORIZED" research/phase8/PHASE8_EMPIRICAL_AUTHORIZATION.md; then
+              empirical_authorized=true
+            fi
+            if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+              run_phase8=true
+            else
+              before="${{ github.event.before }}"
+              if [ -z "${before}" ] || [ "${before}" = "0000000000000000000000000000000000000000" ]; then
+                before="${GITHUB_SHA}^"
+              fi
+              changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
+              while IFS= read -r f; do
+                case "${f}" in
+                  scripts/reconstruct_phase7_predictions.py|scripts/test_phase8_reconstruction.py|scripts/validate_phase8_forecast_panel.py|scripts/audit_phase8_option_sources.py|scripts/phase8_execution_engine.py|scripts/test_phase8_execution_engine.py|data/reference/phase8_cost_schedule.json|research/phase8/*|research/gates/PHASE8_*|.github/workflows/phase-08-long-option.yml|.github/workflows/research-protocol.yml)
+                    run_phase8=true
+                    ;;
+                esac
+              done <<< "${changed}"
+            fi
+          fi
+          echo "run_phase8=${run_phase8}" >> "${GITHUB_OUTPUT}"
+          echo "empirical_authorized=${empirical_authorized}" >> "${GITHUB_OUTPUT}"
+
+  phase8:
+    name: phase8-long-option-gated
+    needs: phase8-change
+    if: ${{ needs.phase8-change.outputs.run_phase8 == 'true' }}
+    uses: ./.github/workflows/phase-08-long-option.yml
+    with:
+      empirical_authorized: ${{ needs.phase8-change.outputs.empirical_authorized == 'true' }}
+    secrets: inherit
