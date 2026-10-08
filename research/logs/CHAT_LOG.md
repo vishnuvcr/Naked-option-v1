@@ -164,3 +164,11 @@ No scientific or protocol change was made during this checkpoint.
 - The mandatory reconstruction regression then failed because the AST regression harness did not define `__file__` for the executed production source.
 - Independent tester submitted REQUEST CHANGES; no empirical P&L was generated.
 - Developer corrected the test-only namespace context and added a deterministic regression assertion. Fresh hosted verification is required before the workflow/data gate can pass.
+
+
+## 2026-10-08 — User continuation: Phase 8 Run #765 correction
+- Developer continued automatically from the accepted Run #759 fixture correction.
+- Hosted Run #765 passed protocol, reconstruction regression and free-source acquisition/reconciliation.
+- Tester caught a second DTE fixture inconsistency in the moneyness fallback test: the 2026-10-01 to 2026-10-30 business-day interval is 21 sessions and therefore D3.
+- Tester issued REQUEST CHANGES; developer changed the fixture from D1 to D3 and added a direct 21-session assertion.
+- Tester re-approved the correction. Empirical authorization remains false and the 4,800-cell option grid remains blocked pending a fresh complete gate and independent tester audit.
