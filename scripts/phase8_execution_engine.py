@@ -288,15 +288,16 @@ def choose_contract(
     required = {"expiry", "strike", "option_type", "spot"}
     if not required.issubset(contracts.columns):
         raise ValueError(f"contract panel missing columns: {sorted(required - set(contracts.columns))}")
-    planned_exit = pd.Timestamp(planned_exit)
+    planned_exit = as_ist_timestamp(planned_exit)
     work = contracts.copy()
-    work["expiry"] = pd.to_datetime(work["expiry"])
+    work["expiry_raw"] = work["expiry"]
+    work["expiry_timestamp"] = work["expiry"].map(expiry_timestamp)
     work["option_type_norm"] = work["option_type"].map(_norm_option_type)
     work = work[work["option_type_norm"] == _norm_option_type(direction)].copy()
     if work.empty:
         return None, "NO_DIRECTION_CONTRACT"
 
-    work = work[pd.to_datetime(work["expiry"]) > planned_exit].copy()
+    work = work[work["expiry_timestamp"] > planned_exit].copy()
     if work.empty:
         return None, "NO_EXPIRY_AFTER_EXIT"
 
