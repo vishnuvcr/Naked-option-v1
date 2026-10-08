@@ -154,3 +154,13 @@ No scientific or protocol change was made during this checkpoint.
 - Developer created isolated Phase 8 developer/tester branches and submitted the long-option execution specification, data plan and literature review before empirical work.
 - Tester issued REQUEST CHANGES; developer corrected ten reproducibility gaps.
 - Fresh tester gate passed with scoped restrictions. Phase 8 implementation is now authorized, but empirical execution remains blocked until data, forecast-reconstruction, execution-regression and workflow gates pass.
+
+
+## 2026-10-08 — User continuation: Phase 8 workflow/data gate
+- User requested continuation from the accepted Phase 7 Run #654 checkpoint.
+- Developer rechecked repository governance, Phase 8 specification/data plan, prior tester gates, developer/tester branch heads and hosted workflow state.
+- Fresh hosted Research Protocol Check #742 (`37815078803`) was automatically triggered from the approved Phase 8 developer head.
+- Phase 8 protocol passed. The free-source audit advanced through official-source and secondary Hugging Face acquisition.
+- The mandatory reconstruction regression then failed because the AST regression harness did not define `__file__` for the executed production source.
+- Independent tester submitted REQUEST CHANGES; no empirical P&L was generated.
+- Developer corrected the test-only namespace context and added a deterministic regression assertion. Fresh hosted verification is required before the workflow/data gate can pass.
