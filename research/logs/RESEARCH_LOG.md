@@ -581,3 +581,11 @@
 - All family-level p-values were non-significant at 5%: 0.742, 0.738, 0.962, 0.788, 0.464 daily and 0.248, 0.992, 1.000, 0.994, 0.512 intraday.
 - Tester gate `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - No P01-P10 candidate is promoted. Phase 8 is the next pre-registered research phase, but it must carry forward the two audit-scope restrictions and must include realistic Paytm Money execution costs, spread, slippage, latency and premium-decay economics.
+
+
+## 2026-10-08 — Phase 7 Run #654 closure
+- Run #654 completed all workflow gates and produced artifact 11551679532 (digest sha256:c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a).
+- Independent tester re-audited the corrected moving-block bootstrap and regime-diagnostic reconciliation.
+- All 100 P01-P10 cells executed; arithmetic and schema checks reconciled.
+- Family-level p-values were 0.742, 0.738, 0.962, 0.788, 0.464 (daily) and 0.248, 0.992, 1.000, 0.994, 0.512 (intraday).
+- No candidate is promoted. Phase 7 is closed; Phase 8 execution/cost translation is the next finite planned phase.
