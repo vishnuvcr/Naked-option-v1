@@ -539,3 +539,7 @@
 - First hosted Phase 7 attempt failed before regression because the workflow referenced a nonexistent root requirements.txt.
 - Tester classified Run #600 as non-evidence and requested workflow changes.
 - Developer corrected dependency installation and added the required data cache/acquisition stages; independent tester review is pending.
+
+## 2026-10-08 — Phase 7 workflow correction approved
+- Tester independently approved the dependency, cache and acquisition correction.
+- Fresh hosted execution is authorized. Run #600 remains non-evidence.
