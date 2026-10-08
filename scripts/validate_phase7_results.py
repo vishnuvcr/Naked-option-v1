@@ -1,3 +1,4 @@
+# Phase 7 approved-workflow trigger: no scientific logic change.
 import json
 from pathlib import Path
 import math
