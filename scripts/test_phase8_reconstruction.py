@@ -55,6 +55,17 @@ def test_recursive_compare_tolerance():
     assert cmp({"x": 1.0}, {"x": 1.0 + 2e-9})
 
 
+def test_git_blob_sha_matches_git_empty_blob():
+    ns = exec_source_namespace()
+    with tempfile.NamedTemporaryFile(delete=False) as fh:
+        path = Path(fh.name)
+    try:
+        path.write_bytes(b"")
+        assert ns["git_blob_sha"](path) == "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def test_canonical_rows_do_not_drop_future_audit_fields():
     ns = exec_source_namespace()
     build = {
@@ -81,6 +92,7 @@ if __name__ == "__main__":
     test_source_blocks_result_driven_changes()
     test_exec_harness_sets_file_context()
     test_recursive_compare_tolerance()
+    test_git_blob_sha_matches_git_empty_blob()
     test_canonical_rows_do_not_drop_future_audit_fields()
     test_manifest_is_json()
     print("Phase 8 reconstruction regression PASS")
