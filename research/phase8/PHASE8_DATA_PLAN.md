@@ -159,3 +159,12 @@ No strategy result is generated from an unapproved composite.
 ## Phase 7 row-level forecast dependency
 
 Run #654's accepted artifact stores aggregate candidate metrics but not a complete row-level probability table. Before empirical option execution, regenerate the P01–P10 prediction panel deterministically from the frozen Run #654 developer commit and source inputs. The reconstruction is accepted only when all 100 aggregate metrics reproduce within a frozen numerical tolerance. The prediction panel is then hashed and treated as an immutable Phase 8 input.
+
+
+## Tester-required data controls now frozen
+
+- Intraday liquidity tie-break = prior 15 complete one-minute bars' volume; daily liquidity tie-break = prior-session volume.
+- Critical metadata missing <=0.5%; stale observations <=1%; entry no-fill <=10%; exit-liquidity-failure <=1%; duplicate rows and invalid premiums are not permitted.
+- A historical Paytm brokerage fallback is exactly ₹20/order when the historical tariff cannot be independently verified and is explicitly tagged `BROKERAGE_FALLBACK`.
+- The complete registered grid is 4,800 configuration cells; unavailable configurations are retained as explicit `INELIGIBLE` statuses with deterministic reasons.
+- The Run #654 row-level forecast reconstruction must reproduce integer counts exactly and continuous aggregate metrics within 1e-9 absolute tolerance before any option result is generated.
