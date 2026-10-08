@@ -543,3 +543,8 @@
 ## 2026-10-08 — Phase 7 workflow correction approved
 - Tester independently approved the dependency, cache and acquisition correction.
 - Fresh hosted execution is authorized. Run #600 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #628 horizon correction approved
+- Tester independently approved the current-horizon capture fix and deterministic multi-horizon regression.
+- Gate `research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md` = PASS.
+- Fresh hosted Phase 7 regression is authorized; empirical execution remains conditional on regression passing.
