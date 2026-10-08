@@ -66,7 +66,7 @@ def test_contract_selection_tie_break():
         {"contract_id":"C","expiry":"2026-10-30","strike":101,"option_type":"CE","spot":100,"delta":0.50,"prior_liquidity":10},
     ])
     sessions = pd.date_range("2026-10-01","2026-10-30",freq="B").tolist()
-    row, reason = choose_contract(rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15"), "CE", 0.50, "D1", sessions, 0.05)
+    row, reason = choose_contract(rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15"), "CE", 0.50, "D0", sessions, 0.05)
     assert reason == "PASS"
     assert row["contract_id"] == "A"
 
@@ -106,21 +106,6 @@ def test_cost_arithmetic():
     assert costs.total > costs.brokerage
 
 
-if __name__ == "__main__":
-    test_direction_boundaries()
-    test_dte_buckets()
-    test_black_scholes_delta_signs()
-    test_break_even()
-    test_contract_selection_tie_break()
-    test_fill_prices()
-    test_stop_first_and_trailing()
-    test_expiry_timestamp_and_d0_selection()
-    test_moneyness_fallback_does_not_compare_to_delta_target()
-    test_quote_timestamp_and_overlap_ordering()
-    test_daily_exit_mapping()
-    test_cost_arithmetic()
-    print("Phase 8 execution engine regression PASS")
-
 
 def test_expiry_timestamp_and_d0_selection():
     ex = expiry_timestamp("2026-10-02")
@@ -157,3 +142,18 @@ def test_quote_timestamp_and_overlap_ordering():
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00")) is False
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00"), close_processed=True) is True
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:01")) is True
+
+if __name__ == "__main__":
+    test_direction_boundaries()
+    test_dte_buckets()
+    test_black_scholes_delta_signs()
+    test_break_even()
+    test_contract_selection_tie_break()
+    test_fill_prices()
+    test_stop_first_and_trailing()
+    test_expiry_timestamp_and_d0_selection()
+    test_moneyness_fallback_does_not_compare_to_delta_target()
+    test_quote_timestamp_and_overlap_ordering()
+    test_daily_exit_mapping()
+    test_cost_arithmetic()
+    print("Phase 8 execution engine regression PASS")
