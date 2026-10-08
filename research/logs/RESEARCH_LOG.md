@@ -508,3 +508,8 @@
 - Developer corrected P08 to binary median-based volatility and trend thresholds in commit `5cdb61d38d83bfe16484f181380a60d612fbb9c2`.
 - Tester gate `research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md` = PASS.
 - Implementation is now authorized subject to a separate code gate.
+
+## 2026-10-08 — Phase 7 implementation authorization
+- Tester approved the frozen regime-calibration amendment.
+- Developer prepared the Phase 7 implementation with P01-P10 and exact causal P08/P09 calibration.
+- Code gate is now required; no empirical execution is authorized yet.

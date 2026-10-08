@@ -46,7 +46,7 @@ For each layer/horizon, use the fixed set of Phase 6 methods whose status is EXE
 Use P01, but calculate a causal regime state from NIFTY realized-volatility and trend features available at decision time. Three fixed states are used: low-vol/trend, high-vol/trend, and high-vol/non-trend. State thresholds are fixed from training quantiles only: 33rd and 67th percentile of training realized volatility and a frozen absolute trend-strength threshold defined in the implementation specification. No threshold may be optimized after results are seen.
 
 ### P09 — Regime-conditioned family combination
-Use P04 inside each of the same four causal regimes. The regime-to-combination mapping is fixed: no regime-specific model selection.
+Use P04 inside each of the same four causal regimes and apply the same fixed training-only regime calibration: P09 = 0.5*P04 + 0.5*q_s, with the same <50-observation pooled-rate fallback. The regime-to-combination mapping and 0.5 blend weight are fixed; no regime-specific model selection.
 
 ### P10 — Fixed abstention + regime combination
 Apply P09 and abstain at probability interval [0.45, 0.55].
@@ -102,6 +102,7 @@ It is not a trading strategy until Phase 8 long-option execution with realistic 
 
 - Sullivan, Timmermann & White, Data-Snooping, Technical Trading Rule Performance, and the Bootstrap, Journal of Finance (1999), DOI 10.1111/0022-1082.00163.
 - Zhao & Cheng, Stock return prediction: Stacking a variety of models, Journal of Empirical Finance (2022), DOI 10.1016/j.jempfin.2022.04.001.
+- Ranjan & Gneiting, Combining probability forecasts, Journal of the Royal Statistical Society: Series B (2010), DOI 10.1111/j.1467-9868.2009.00726.x; this motivates explicit calibration checks for probability combinations.
 - Zhu & Zhu, Predicting stock returns: A regime-switching combination approach and economic links, Journal of Banking & Finance (2013), DOI 10.1016/j.jbankfin.2013.07.016.
 
 ## Required gates

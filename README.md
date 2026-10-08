@@ -123,3 +123,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - P08 regime thresholds were corrected before implementation: both volatility and trend are binary median splits estimated only from the training block.
 - Tester amendment gate [PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md](research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md) = **PASS**.
+
+## Phase 7 implementation checkpoint — 2026-10-08
+
+- P01-P10 implementation prepared in `scripts/run_phase7_ensemble.py`.
+- Regression checks in `scripts/test_phase7_ensemble.py`.
+- Workflow `.github/workflows/phase-07-ensemble.yml` includes automatic and manual empirical authorization gates.
+- Tester regime-calibration gate = **PASS**. Complete implementation code review is the next gate.

@@ -128,3 +128,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Commit `5cdb61d38d83bfe16484f181380a60d612fbb9c2` freezes binary low/high volatility and low/high trend states using training-period medians.
 - Tester gate `research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md` = **PASS**.
 - Phase 7 implementation remains gated by the separate code review.
+
+## 2026-10-08 — Phase 7 implementation authorization
+- Tester-approved Phase 7 frozen specification is archived.
+- Tester gate `research/gates/PHASE7_REGIME_CALIBRATION_APPROVAL_TESTER.md` = **PASS** for the causal regime calibration amendment.
+- Developer implementation P01-P10 is prepared with the exact frozen rules, including P08/P09 = 0.5*base + 0.5*training regime rate.
+- Separate Phase 7 code gate is now required before empirical authorization.
