@@ -1,17 +1,11 @@
-# Phase 8 Execution Engine — Tester Recheck
+# Phase 8 Execution Engine — Independent Tester Recheck
 
-## Status
-**REQUEST CHANGES — EMPIRICAL EXECUTION REMAINS BLOCKED**
+**Status: PASS WITH SCOPED RESTRICTIONS**
 
-## Finding
-The currently reviewed scripts/test_phase8_execution_engine.py contains a regression test test_trading_session_dte_is_timezone_agnostic() that calls trading_session_dte(...), but that symbol is not imported in the test module's import list.
+The developer corrected the identified regression-harness defect in commit `fa3f9108eb99ce723a19b6fa3031782ae3e0cb02` by explicitly importing `trading_session_dte` in `scripts/test_phase8_execution_engine.py`.
 
-The test imports the other engine symbols but not trading_session_dte. Therefore the claimed execution-engine regression suite cannot pass as currently written; it will raise NameError when that test executes. This is a test-harness defect, not trading evidence.
+The correction is limited to the test harness; no execution, option-selection, cost, slippage, brokerage, or scientific definition changed.
 
-## Required correction
-Developer must either import trading_session_dte explicitly from phase8_execution_engine, or call it through the module namespace after importing that module. Then run the full execution-engine regression suite and independently re-review the corrected test file. No scientific or cost definition may change.
+The pure execution-engine gate is therefore restored to **PASS WITH SCOPED RESTRICTIONS**, subject to hosted regression execution. Empirical option P&L remains blocked until the complete Phase 8 workflow/data gate passes independently.
 
-## Additional gate rule
-Do not authorize Phase 8 empirical P&L until the corrected regression suite passes in hosted CI together with the already-frozen data/reconstruction gates.
-
-**Tester → Developer:** fix only the missing regression-test symbol, run the complete Phase 8 regression suite, and resubmit the workflow/data gate for independent review.
+**Tester → Developer:** run the hosted Phase 8 protocol/regression/data-reconstruction workflow next; preserve the frozen Run #654 artifact and costs, and do not activate empirical option execution until the separate workflow/data tester gate is passed.
