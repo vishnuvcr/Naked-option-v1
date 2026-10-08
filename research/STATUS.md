@@ -216,3 +216,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Scoped restrictions are carried into Phase 8: abstention chronological diagnostics are not trade-only, and the intraday regime observation scale (1-minute causal path sampled at hourly decision rows) must remain fixed and explicitly documented.
 - Phase 7 technical evidence is now accepted; Phase 8 remains **BLOCKED** until its independent execution/cost gate is satisfied.
 - This is a status update only; no method definitions were changed after observing Run #654 results.
+
+
+## 2026-10-08 — Phase 7 Run #654 final independent gate closure
+- Tester report `research/gates/PHASE7_RUN654_FINAL_TESTER_GATE.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Independent audit reconciled all 100 candidate cells, confusion-matrix arithmetic, metric ranges, chronological/regime diagnostic counts, and family-bootstrap p-values.
+- No Phase 7 family-level test is significant at alpha=0.05; therefore no P01-P10 candidate is promoted.
+- Phase 7 is closed. Phase 8 is authorized to begin only as the pre-planned long-option execution/cost translation, with final holdout still sealed.
