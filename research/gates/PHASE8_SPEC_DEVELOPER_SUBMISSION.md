@@ -46,3 +46,8 @@ Independently check:
 10. whether the implementation plan can be reproduced in GitHub Actions with cached data and manual dispatch.
 
 Do not authorize empirical execution until all requested changes are resolved and the tester gate is recorded.
+
+
+## Pre-review clarification
+- The Q1 OHLC/proxy execution track now has a fully frozen synthetic half-spread rule: C0 0.50%, C1 1.00%, C2 2.00%, C3 4.00% of premium per leg, floored at one point-in-time option tick. Incremental C0-C3 slippage remains separately 0%, 0.25%, 0.50%, 1.00% per leg. This clarification was made before tester review and is not based on Phase 8 performance.
+- The literature review was supplemented with open-source/qualitative execution evidence; none is treated as quantitative validation.
