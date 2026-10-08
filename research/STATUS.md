@@ -8,14 +8,14 @@
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
-| Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
-| Phase 7 Ensemble/regime | BLOCKED | freeze gate |
+| Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
+| Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-07
+Last updated: 2026-10-08
 
 ## Phase 5 current state
 
