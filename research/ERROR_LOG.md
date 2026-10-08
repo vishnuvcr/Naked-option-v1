@@ -149,3 +149,8 @@
 - Impact: empirical execution remained blocked; no strategy evidence was generated.
 - Correction: developer froze deterministic values and statuses in the current Phase 8 method/data specifications.
 - Disposition: fresh tester re-review required; no parameter or threshold was selected from empirical Phase 8 results.
+\n## 2026-10-08 — Phase 8 specification correction closed
+- The ten reproducibility findings from the first tester review were corrected in the current lineage.
+- No empirical option P&L was generated before re-approval.
+- Tester gate `PHASE8_SPEC_APPROVAL_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Remaining restrictions are explicitly frozen and are not to be changed from early Phase 8 results.
