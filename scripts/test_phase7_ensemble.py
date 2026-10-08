@@ -1,3 +1,4 @@
+# Phase 7 gated-run trigger: no scientific logic change.
 from pathlib import Path
 import numpy as np
 SRC=(Path(__file__).resolve().parents[1]/"scripts/run_phase7_ensemble.py").read_text(encoding="utf-8")
