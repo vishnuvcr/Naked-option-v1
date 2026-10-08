@@ -529,10 +529,20 @@ def conservative_trigger_exit(
     return None, None, max(current_high, high)
 
 
-def validate_no_overlap(open_until: pd.Timestamp | None, signal_time: pd.Timestamp) -> bool:
+def validate_no_overlap(
+    open_until: pd.Timestamp | None,
+    signal_time: pd.Timestamp,
+    close_processed: bool = False,
+) -> bool:
     if open_until is None:
         return True
-    return pd.Timestamp(signal_time) >= pd.Timestamp(open_until)
+    signal = as_ist_timestamp(signal_time)
+    close = as_ist_timestamp(open_until)
+    if signal < close:
+        return False
+    if signal > close:
+        return True
+    return bool(close_processed)
 
 
 def make_planned_daily_exit(session_dates, decision_time, H: int) -> pd.Timestamp:
