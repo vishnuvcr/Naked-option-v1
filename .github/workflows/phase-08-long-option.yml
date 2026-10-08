@@ -141,6 +141,11 @@ jobs:
         run: python scripts/reconcile_official_vs_hf.py
       - name: Validate date-aware lot size
         run: python scripts/validate_lot_size_udiff.py
+      - name: Upload source-audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-source-audit
+          path: data/reports/phase8/official_vs_hf_reconciliation.json
       - name: Cache phase8 raw source audit
         uses: actions/cache/save@v4
         with:
@@ -196,6 +201,7 @@ jobs:
   empirical-authorization:
     name: phase8-empirical-authorization
     needs: [protocol, regression, artifact, sources, reconstruct]
+    if: ${{ inputs.empirical_authorized == true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
