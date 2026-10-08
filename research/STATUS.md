@@ -184,3 +184,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Cause: current developer branch still contained `H=horizons[0]`; the previously approved correction had not been preserved in the branch lineage.
 - Run #637 is **NON-EVIDENCE**.
 - The exact tester-approved horizon correction is being reapplied to the current branch. No scientific definitions change.
+
+## 2026-10-08 — Phase 7 Run #637 horizon reapplication approved
+- Tester gate `research/gates/PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md` = **PASS**.
+- Current developer lineage now contains the exact approved `H=H` horizon binding and direct multi-horizon capture regression.
+- Fresh Phase 7 gated execution is authorized; Run #637 remains non-evidence.
