@@ -54,3 +54,16 @@ The literature supports the Phase 8 design choices but does not establish a NIFT
 3. Hong, S., Sung, S.-I., & Yang, S. (2018). On profitability of volatility trading on S&P 500 equity index options: the role of trading frictions. International Review of Economics & Finance. DOI: 10.1016/j.iref.2017.07.012.
 4. Do, B., Foster, G., & Gray, S. (2016). The Profitability of Volatility Spread Trading on ASX Equity Options. Journal of Futures Markets. DOI: 10.1002/fut.21729.
 5. Jha, R., & Kalimipalli, M. (2010). The economic significance of conditional skewness in index option markets. Journal of Futures Markets, 30(4), 378–406. DOI: 10.1002/fut.20414.
+
+## Supplementary current web/open-source evidence
+
+A current public GitHub project, `sahilempire/nifty-options-research-lab`, describes a 6.1-million-row NIFTY-options research framework and emphasizes that brokerage, spread, latency and order-rejection assumptions can dominate apparently profitable option strategies. Its public README also notes phantom/zero-trade closing prices and source disagreement. These are treated as community/open-source evidence, not as validated data for this study; the findings reinforce the need for contract-level liquidity filters and source reconciliation.
+
+Recent public analyses of YouTube NIFTY option-buying videos likewise show that strategies advertised with high win rates can lose after real option-premium paths, charges and spread assumptions. These analyses are not peer-reviewed and will not be used as quantitative evidence; they are retained only as a qualitative warning against trusting headline backtests.
+
+Open-source option replay sites also explicitly distinguish actual contract premium paths from theoretical option payoffs and include statutory charges and slippage. These are useful implementation cross-checks but are not accepted as a source of truth.
+
+## Supplementary sources
+
+6. `sahilempire/nifty-options-research-lab`, public GitHub repository, accessed October 2026: https://github.com/sahilempire/nifty-options-research-lab
+7. Public YouTube/NIFTY option-buying backtest analyses surfaced during the October 2026 search, retained as qualitative execution-friction evidence only. No video claim is accepted as a scientific result.
