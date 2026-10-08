@@ -513,3 +513,19 @@
 - Tester approved the frozen regime-calibration amendment.
 - Developer prepared the Phase 7 implementation with P01-P10 and exact causal P08/P09 calibration.
 - Code gate is now required; no empirical execution is authorized yet.
+
+## 2026-10-08 — Phase 7 code correction cycle
+- Tester rejected the first implementation for missing family-level multiple-testing control and insufficient diagnostics/regression coverage.
+- Developer implemented the frozen Brier-loss moving-block family bootstrap, regime counts/fallbacks, chronological block diagnostics and synthetic numerical tests.
+- No empirical execution has been authorized yet.
+
+## 2026-10-08 — Phase 7 capture-order correction
+- Independent code review found a latent method-label alignment defect in the Phase 6 prediction capture hook.
+- The defect was detected before empirical authorization and is logged as non-evidence.
+- Developer corrected the mapping to the exact executed-method order plus the duplicate I09 metric call.
+
+## 2026-10-08 — Phase 7 code gate passed
+- Tester independently reviewed corrected implementation commit `3a883899d4ac32043e6771d677624f1c244ef86c`.
+- Capture-order, causal stacking, regime calibration, family data-snooping bootstrap, chronological diagnostics and schema validation passed code review.
+- Tester gate `research/gates/PHASE7_CODE_APPROVAL_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Workflow registration/default-branch manual trigger and caller authorization are the remaining pre-empirical infrastructure gate.

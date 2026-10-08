@@ -130,3 +130,15 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Regression checks in `scripts/test_phase7_ensemble.py`.
 - Workflow `.github/workflows/phase-07-ensemble.yml` includes automatic and manual empirical authorization gates.
 - Tester regime-calibration gate = **PASS**. Complete implementation code review is the next gate.
+
+## Phase 7 code-gate correction — 2026-10-08
+
+- First implementation was rejected by the tester for missing family-level data-snooping inference and insufficient diagnostics.
+- Corrected implementation now includes the frozen 500-rep moving-block Brier family test, regime counts/fallbacks, chronological block diagnostics and deterministic tests.
+- A fresh tester code gate is required before empirical execution.
+
+## Phase 7 code gate — 2026-10-08
+
+- Tester code gate [PHASE7_CODE_APPROVAL_TESTER.md](research/gates/PHASE7_CODE_APPROVAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- Implementation includes P01-P10, causal stacking, four-state regime calibration, family-level moving-block Brier inference, chronological diagnostics and artifact schema validation.
+- Empirical execution remains blocked until workflow registration and the separate workflow gate pass.

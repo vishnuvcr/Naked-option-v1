@@ -84,6 +84,8 @@ For family-level inference:
 - block bootstrap preserving temporal dependence;
 - parameter/sensitivity checks only after the primary frozen results are recorded.
 
+The primary Phase 7 family test is frozen as follows: use Brier-loss improvement over a causal training-only positive-rate baseline; positive differential means the candidate has lower Brier loss. Use a moving-block bootstrap with block length 20 daily observations and 60 intraday decision rows, 500 bootstrap replications, shared resampled indices across candidates, seed 42, and per-candidate mean-differential recentering before bootstrap. The family statistic is the maximum positive candidate mean improvement. P05/P06 abstention candidates receive zero differential on abstained observations, equivalent to assigning the baseline loss when no forecast is taken. This family test is inferential only; it does not select a winner.
+
 The multiple-testing principle is mandatory because searching a large universe can create apparently strong winners by chance; White/Sullivan/Timmermann specifically address this problem.
 
 ## Promotion rule

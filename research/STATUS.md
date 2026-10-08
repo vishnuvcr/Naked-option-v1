@@ -134,3 +134,20 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_REGIME_CALIBRATION_APPROVAL_TESTER.md` = **PASS** for the causal regime calibration amendment.
 - Developer implementation P01-P10 is prepared with the exact frozen rules, including P08/P09 = 0.5*base + 0.5*training regime rate.
 - Separate Phase 7 code gate is now required before empirical authorization.
+
+## 2026-10-08 — Phase 7 code correction cycle
+- Tester requested changes to the first implementation because family-level data-snooping inference, regime diagnostics, chronological block diagnostics and numerical regression coverage were incomplete.
+- Developer added the frozen 500-replication moving-block Brier-loss family bootstrap, four-state regime diagnostics/fallback counts, per-block performance records and deterministic synthetic tests.
+- The family inference amendment was independently approved before implementation.
+- A fresh Phase 7 code gate is required before empirical execution.
+
+## 2026-10-08 — Phase 7 capture-order correction
+- Tester review identified a latent prediction-to-method mapping defect in the first Phase 7 implementation.
+- Because six Phase 6 methods are BLOCKED_DATA and therefore skip metric calls, the capture hook could not index against all 20 method names.
+- Developer corrected this with explicit CAPTURE_ORDER and added regression coverage.
+- No Phase 7 empirical execution occurred with the defective mapping.
+
+## 2026-10-08 — Phase 7 code gate passed
+- Tester gate `research/gates/PHASE7_CODE_APPROVAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Corrected implementation commit `3a883899d4ac32043e6771d677624f1c244ef86c` includes explicit Phase 6 capture ordering, P01-P10, family bootstrap inference, regime diagnostics, chronological block diagnostics and schema validation.
+- Before empirical execution, the Phase 7 workflow must be registered on the default branch and the Research Protocol caller must contain the Phase 7 authorization gate.
