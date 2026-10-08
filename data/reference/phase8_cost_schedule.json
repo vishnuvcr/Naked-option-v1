@@ -1,0 +1,65 @@
+{
+  "version": "phase8-cost-schedule-v1",
+  "timezone": "Asia/Kolkata",
+  "broker": {
+    "name": "Paytm Money",
+    "current_fno_brokerage_rupees_per_executed_order": 10.0,
+    "historical_unverified_fallback_rupees_per_executed_order": 20.0,
+    "fallback_tag": "BROKERAGE_FALLBACK"
+  },
+  "rates": [
+    {
+      "effective_from": "2020-04-01",
+      "effective_to": "2026-03-31",
+      "stt_option_sale_rate": 0.001,
+      "basis": "option premium on sale",
+      "source": "NSE STT page current table: rate up to 31 March 2026"
+    },
+    {
+      "effective_from": "2026-04-01",
+      "effective_to": null,
+      "stt_option_sale_rate": 0.0015,
+      "basis": "option premium on sale",
+      "source": "NSE FATAX/73524 dated 31 March 2026"
+    }
+  ],
+  "exchange_transaction_charge": [
+    {
+      "effective_from": "2024-10-01",
+      "effective_to": "2026-02-28",
+      "rupees_per_crore_premium_per_side": 3503.0,
+      "ipft_rupees_per_crore_per_side": 50.0,
+      "status": "VERIFIED",
+      "source": "NSE FA64232 dated 27 September 2024; 35.03 per lakh each side for Equity Options, consistent with 3503 per crore"
+    },
+    {
+      "effective_from": "2026-03-01",
+      "effective_to": null,
+      "rupees_per_crore_premium_per_side": 3552.0,
+      "ipft_rupees_per_crore_per_side": 0.01,
+      "status": "VERIFIED",
+      "source": "NSE FA73061 dated 27 February 2026"
+    },
+    {
+      "effective_from": "2020-01-01",
+      "effective_to": "2024-09-30",
+      "rupees_per_crore_premium_per_side": 3553.0,
+      "ipft_rupees_per_crore_per_side": 0.0,
+      "status": "CONSERVATIVE_FALLBACK",
+      "source": "Pre-October-2024 member-level slab schedule not uniquely recoverable for a client backtest; use an intentionally conservative documented fallback rather than infer a favorable slab"
+    }
+  ],
+  "other": {
+    "sebi_turnover_fee_rate": 0.000001,
+    "equity_option_stamp_duty_rate_buyer": 0.00003,
+    "gst_rate": 0.18
+  },
+  "sources": [
+    "https://www.paytmmoney.com/stocks/customer/fno-faq",
+    "https://www.nseindia.com/static/products-services/equity-derivatives-securities-transaction-tax",
+    "https://nsearchives.nseindia.com/content/circulars/FA64232.pdf",
+    "https://nsearchives.nseindia.com/content/circulars/FA73061.pdf",
+    "https://www.nseindia.com/static/invest/first-time-investor-sebi-turnover-fees-stt-other-levies",
+    "https://www.nseindia.com/static/invest/first-time-investor-stamp-duty-charges-taxes"
+  ]
+}
