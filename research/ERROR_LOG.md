@@ -101,3 +101,11 @@
 - Root cause: regression fixture retained an obsolete `blocks` argument after the production function signature was simplified to `(y, candidates, baseline, block_len)`.
 - Correction: remove the stale argument and add a signature assertion.
 - Disposition: non-evidence; tester gate `PHASE7_RUN622_REGRESSION_TESTER.md` = REQUEST CHANGES.
+
+## 2026-10-08 — Phase 7 Run #635 detector sequencing issue
+- Category: workflow trigger sequencing
+- Hosted run: Research Protocol Check #635 (`37719802712`).
+- Symptom: protocol and detector jobs passed but `phase7-ensemble-gated` was skipped.
+- Root cause: the Run 628 tester approval gate was archived before the detector-path commit, so the current push diff contained only workflow changes and no allowed Phase 7 science-path file; the detector intentionally uses the immediate push diff to decide whether to launch.
+- Impact: no regression or empirical execution; no scientific result; Run #635 is non-evidence.
+- Correction: use a harmless, non-scientific test-file comment after the approved detector correction to trigger the gated workflow.

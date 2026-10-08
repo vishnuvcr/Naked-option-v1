@@ -173,3 +173,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md` = **PASS**.
 - Production capture now binds each metrics call to the current horizon; deterministic multi-horizon regression coverage was added.
 - Fresh hosted regression is authorized. Run #628 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #635 detector sequencing issue
+- Run #635 (`37719802712`) is **NON-EVIDENCE** because the phase7 detector saw no qualifying Phase 7 file in the immediate push diff and skipped the gated workflow.
+- Tester gate `research/gates/PHASE7_RUN635_DETECTOR_TESTER.md` = REQUEST CHANGES.
+- Developer will use a harmless test-file trigger only; no scientific logic changes.
