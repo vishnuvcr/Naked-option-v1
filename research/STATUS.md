@@ -233,3 +233,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The prior execution-engine harness defect was a missing `trading_session_dte` import; it is corrected and regression coverage is complete.
 - Default `main` now registers the Phase 8 reusable workflow and Research Protocol caller.
 - Next hosted run is engineering-only: empirical authorization remains false and the 4,800-cell option P&L grid must not execute.
+
+
+## 2026-10-08 — Phase 8 hosted workflow/data gate correction
+- Hosted Research Protocol Check #742 (`37815078803`) reached Phase 8 protocol successfully.
+- Free-source audit progressed through NSE/BSE/Hugging Face acquisition and into source reconciliation.
+- Mandatory reconstruction regression failed in the test harness because AST execution did not provide `__file__`.
+- Tester gate `research/gates/PHASE8_RUN742_WORKFLOW_DATA_TESTER.md` = REQUEST CHANGES.
+- Run #742 is non-evidence; empirical option execution remains blocked.
+- Developer correction at commit `aa84176fce56e8a8a69be32c287c6c7e99e37d57` adds explicit `__file__`/non-main `__name__` context and a deterministic harness regression test.
+- Fresh hosted workflow/data gate is required before any empirical authorization.
