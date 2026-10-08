@@ -94,9 +94,9 @@ def trading_session_dte(
     expiry_date: date | pd.Timestamp,
     session_dates: Sequence[date | pd.Timestamp],
 ) -> int:
-    d0 = pd.Timestamp(decision_date).normalize()
-    ex = pd.Timestamp(expiry_date).normalize()
-    sessions = [pd.Timestamp(x).normalize() for x in session_dates]
+    d0 = pd.Timestamp(decision_date).date()
+    ex = pd.Timestamp(expiry_date).date()
+    sessions = [pd.Timestamp(x).date() for x in session_dates]
     if d0 not in sessions or ex not in sessions:
         raise ValueError("decision and expiry dates must both exist in the supplied NSE session calendar")
     d_i = sessions.index(d0)
@@ -547,11 +547,11 @@ def validate_no_overlap(
 
 
 def make_planned_daily_exit(session_dates, decision_time, H: int) -> pd.Timestamp:
-    d = pd.Timestamp(decision_time).normalize()
-    sessions = [pd.Timestamp(x).normalize() for x in session_dates]
+    d = pd.Timestamp(decision_time).date()
+    sessions = [pd.Timestamp(x).date() for x in session_dates]
     if d not in sessions:
         raise ValueError("decision date missing from session calendar")
     idx = sessions.index(d)
     if idx + H >= len(sessions):
         raise ValueError("insufficient future sessions for requested daily horizon")
-    return sessions[idx + H] + pd.Timedelta(hours=15, minutes=15)
+    return pd.Timestamp(sessions[idx + H], tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=15)
