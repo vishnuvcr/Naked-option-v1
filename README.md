@@ -147,3 +147,15 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - Tester workflow gate [PHASE7_WORKFLOW_APPROVAL_TESTER.md](research/gates/PHASE7_WORKFLOW_APPROVAL_TESTER.md) = **PASS**.
 - Automatic caller and reusable workflow are approved. Default-branch registration and regression verification remain before empirical authorization.
+
+
+## Latest Phase 7 Run #654 checkpoint — 2026-10-08
+
+- **Hosted run:** #654 (`37763242007`) completed successfully through protocol, regression, empirical execution, validation and artifact upload.
+- **Artifact:** `phase7-ensemble-results`, ID `11551679532`.
+- **Artifact SHA-256:** `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- **Tester gate:** [PHASE7_RUN654_EMPIRICAL_TESTER.md](research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS** on the phase developer/tester branches.
+- **Coverage:** 100/100 P01-P10 cells executed across 2 layers × 5 horizons.
+- **Statistical result:** all family-level Brier data-snooping p-values are >0.05; no Phase 7 candidate is promoted.
+- **Correction status:** the Run #650 moving-block bootstrap and regime-diagnostic defects are closed by the corrected implementation and independent Run #654 audit.
+- **Next phase:** Phase 8 long-option execution research remains gated and must include Paytm Money brokerage/fees, exchange/statutory charges, spread, slippage, latency and premium-decay realism, followed by Phase 9 robustness and Phase 10 fresh-forward validation.
