@@ -73,6 +73,7 @@ def test_contract_selection_tie_break():
         {"contract_id":"C","expiry":"2026-10-30","strike":101,"option_type":"CE","spot":100,"delta":0.50,"prior_liquidity":10},
     ])
     sessions = pd.date_range("2026-10-01","2026-10-30",freq="B").tolist()
+    assert trading_session_dte(pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-30"), sessions) == 21
     row, reason = choose_contract(rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15"), "CE", 0.50, "D3", sessions, 0.05)
     assert reason == "PASS"
     assert row["contract_id"] == "A"
