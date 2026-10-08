@@ -548,3 +548,8 @@
 - Tester independently approved the current-horizon capture fix and deterministic multi-horizon regression.
 - Gate `research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md` = PASS.
 - Fresh hosted Phase 7 regression is authorized; empirical execution remains conditional on regression passing.
+
+## 2026-10-08 — Phase 7 Run #637 repeated horizon-capture defect
+- The fresh run again failed at the second daily horizon because the developer branch had reverted/lost the approved `H=H` capture correction.
+- Tester approval scope already covers this exact correction; no scientific change is needed.
+- Run #637 remains non-evidence. Developer is reapplying the exact approved production fix and strengthening the horizon regression on the current lineage.

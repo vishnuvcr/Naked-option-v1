@@ -163,3 +163,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - Tester gate [PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md](research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md) = **PASS**.
 - Fresh hosted regression is authorized; Run #628 remains non-evidence.
+
+## Phase 7 Run #637 — 2026-10-08
+
+- Run #637 (`37719955436`) is **NON-EVIDENCE**: regression passed, but empirical execution again hit `KeyError: ('2','E01')` because the current branch still used `H=horizons[0]`.
+- The issue is branch-lineage preservation, not a new scientific method problem.
+- The exact tester-approved horizon correction is being reapplied on the current branch.

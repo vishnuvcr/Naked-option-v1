@@ -178,3 +178,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run #635 (`37719802712`) is **NON-EVIDENCE** because the phase7 detector saw no qualifying Phase 7 file in the immediate push diff and skipped the gated workflow.
 - Tester gate `research/gates/PHASE7_RUN635_DETECTOR_TESTER.md` = REQUEST CHANGES.
 - Developer will use a harmless test-file trigger only; no scientific logic changes.
+
+## 2026-10-08 — Phase 7 Run #637 repeated horizon-capture defect
+- Run #637 (`37719955436`) passed regression but failed empirically at daily horizon 2 with `KeyError: ('2','E01')`.
+- Cause: current developer branch still contained `H=horizons[0]`; the previously approved correction had not been preserved in the branch lineage.
+- Run #637 is **NON-EVIDENCE**.
+- The exact tester-approved horizon correction is being reapplied to the current branch. No scientific definitions change.

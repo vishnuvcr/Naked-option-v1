@@ -109,3 +109,12 @@
 - Root cause: the Run 628 tester approval gate was archived before the detector-path commit, so the current push diff contained only workflow changes and no allowed Phase 7 science-path file; the detector intentionally uses the immediate push diff to decide whether to launch.
 - Impact: no regression or empirical execution; no scientific result; Run #635 is non-evidence.
 - Correction: use a harmless, non-scientific test-file comment after the approved detector correction to trigger the gated workflow.
+
+## 2026-10-08 — Phase 7 Run #637 repeated horizon-capture defect
+- Category: developer branch-lineage / production data-mapping
+- Hosted run: Research Protocol Check #637 (`37719955436`), empirical job `113125225580`.
+- Symptom: `KeyError: ('2','E01')` after regression passed; the hosted branch still contained `H=horizons[0]` in `capture_scope`.
+- Root cause: the previously approved horizon-capture correction was not present in the branch commit used for Run #637; later detector/trigger commits were based on an older lineage.
+- Impact: no Phase 7 artifact or scientific metric; Run #637 is **NON-EVIDENCE**.
+- Correction: reapply the exact tester-approved current-horizon binding on the current branch and retain direct multi-horizon regression coverage.
+- Prevention: verify production diff against the tester-approved correction commit before every gated empirical trigger.

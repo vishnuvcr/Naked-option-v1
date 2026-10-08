@@ -21,7 +21,7 @@ def capture_scope(df,intraday,horizons):
     counter={"i":0}
     def hook(y,p,future,block_len,extra=None,mask=None):
         i=counter["i"]; m=CAPTURE_ORDER[i%len(CAPTURE_ORDER)]
-        H=horizons[0]
+        H=H
         key=(str(H),m)
         if key not in captured:
             captured[key]={"y":np.asarray(y,float).copy(),"future":np.asarray(future,float).copy(),"p":np.asarray(p,float).copy()}
