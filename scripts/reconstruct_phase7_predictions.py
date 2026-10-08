@@ -202,7 +202,7 @@ def canonical_prediction_rows(layer, H, built):
 
 def git_blob_sha(path: Path) -> str:
     data = path.read_bytes()
-    header = b"blob " + str(len(data)).encode("ascii") + b"\\x00"
+    header = b"blob " + str(len(data)).encode("ascii") + b"\x00"
     return hashlib.sha1(header + data).hexdigest()
 
 
