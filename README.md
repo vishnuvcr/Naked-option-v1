@@ -153,3 +153,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Run #600 (`37716619573`) was **NON-EVIDENCE**: the Phase 7 regression job failed before tests because `requirements.txt` does not exist.
 - Tester gate [PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md](research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md) = **REQUEST CHANGES**.
 - Workflow correction now follows the established explicit dependency installation and cached canonical data acquisition used by Phase 6.
+
+## Phase 7 workflow correction gate — 2026-10-08
+
+- Tester correction gate PHASE7_RUN600_WORKFLOW_CORRECTION_APPROVAL_TESTER.md = **PASS**.
+- Fresh Phase 7 hosted execution is authorized. Run #600 remains non-evidence.
