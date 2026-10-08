@@ -44,6 +44,7 @@ def test_exec_harness_sets_file_context():
 def test_recursive_compare_tolerance():
     ns = exec_source_namespace()
     tree = ast.parse(load_source())
+    assert "__file__" in ns
     wanted = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
     assert {"recursive_compare", "build_candidates", "canonical_prediction_rows"} <= wanted
 
