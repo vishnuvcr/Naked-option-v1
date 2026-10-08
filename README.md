@@ -110,3 +110,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Tester gate:** [PHASE6_RUN581_TESTER.md](research/gates/PHASE6_RUN581_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
 - The technical artifact is accepted, but **no Phase 6 model is promoted**. Raw apparent accuracy/AUC elevations are not sufficient because multiple testing, chronological stability, costs, option execution economics, robustness and fresh-forward validation remain.
 - **Next phase:** Phase 7 ensemble/regime-conditioned prediction, with a new independent tester gate.
+
+## Phase 7 checkpoint — 2026-10-08
+
+- Isolated branches created: `phase-07-developer` and `phase-07-tester`.
+- Frozen specification: [PHASE7_METHOD_SPEC.md](research/phase7/PHASE7_METHOD_SPEC.md).
+- Tester specification gate: [PHASE7_SPEC_APPROVAL_TESTER.md](research/gates/PHASE7_SPEC_APPROVAL_TESTER.md) = **PASS**.
+- Registered methods P01-P10 cover fixed ensemble, abstention, chronological stacking and causal regime-conditioned combinations.
+- Implementation/code and empirical gates remain pending; no Phase 7 result exists yet.

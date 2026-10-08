@@ -116,3 +116,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent tester gate `research/gates/PHASE6_RUN581_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - Technical validity is accepted; no Phase 6 method is promoted to a trading strategy.
 - Phase 7 ensemble/regime research is now authorized, subject to a fresh tester gate. Phase 8 option execution, costs, robustness and fresh-forward validation remain mandatory.
+
+## 2026-10-08 — Phase 7 specification gate
+- Phase 7 developer specification `research/phase7/PHASE7_METHOD_SPEC.md` is frozen at commit `ae22d242631eb1cf2478ff818d285e458f5e33e6`.
+- Tester gate `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md` = **PASS — FROZEN SPECIFICATION**.
+- P01-P10 definitions, blocked-predictor handling, exhaustive four-state regime partition, trend formula, trimmed mean, and 20-session expanding walk-forward schedule are now fixed.
+- Phase 7 implementation is authorized; empirical execution remains blocked until a separate code gate and hosted regression gate pass.

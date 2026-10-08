@@ -120,3 +120,10 @@ No scientific or protocol change was made during this checkpoint.
 - Tester found no arithmetic/schema inconsistency in executed cells. Apparent performance elevations are treated as research leads only, not validated strategies.
 - Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Developer may archive the gate and proceed to Phase 7 ensemble/regime research; Phase 8 option economics and later robustness/fresh-forward gates remain mandatory.
+
+## 2026-10-08 — Phase 7 specification review and approval
+- Following the accepted Phase 6 Run #581 artifact, developer created isolated `phase-07-developer` and `phase-07-tester` branches.
+- Initial Phase 7 specification was independently rejected for five reproducibility gaps.
+- Developer corrected the regime partition, trend formula/threshold, blocked predictor handling, trimmed mean and walk-forward schedule.
+- Tester approved the frozen specification at `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md`.
+- Phase 7 implementation is now authorized; empirical execution remains gated.

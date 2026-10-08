@@ -495,3 +495,10 @@
 - Several apparent daily accuracy/AUC elevations were observed, but none is promotion-grade because multiple comparisons, chronological stability, option economics, cost stress, robustness and fresh-forward validation remain outstanding.
 - Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Phase 7 ensemble/regime research is authorized; direct Phase 6 strategy promotion is prohibited.
+
+## 2026-10-08 — Phase 7 specification gate
+- Developer proposed Phase 7 ensemble/regime specification and submitted it to the isolated tester branch.
+- Tester initially requested changes for an incomplete regime partition, unfrozen trend threshold, blocked-predictor handling, trimmed-mean small-sample behavior and walk-forward schedule.
+- Developer corrected all five issues in commit `ae22d242631eb1cf2478ff818d285e458f5e33e6`.
+- Tester gate `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md` = PASS — FROZEN SPECIFICATION.
+- Implementation may now proceed; no empirical execution is authorized until the implementation/code gate passes.
