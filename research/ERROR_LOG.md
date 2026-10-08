@@ -162,3 +162,15 @@
 - Tester gate `PHASE8_EXECUTION_ENGINE_APPROVAL_TESTER.md` = **REQUEST CHANGES**.
 - Correction: developer added the explicit `trading_session_dte` import in commit `fa3f9108eb99ce723a19b6fa3031782ae3e0cb02`.
 - Fresh hosted regression and independent re-review are required before the workflow/data gate can pass.
+
+
+## 2026-10-08 — Phase 8 Run #742 reconstruction regression harness defect
+- Category: tester/regression-harness
+- Component: `scripts/test_phase8_reconstruction.py`
+- Hosted run: Research Protocol Check #742 (`37815078803`), job `113441708126`.
+- Symptom: `NameError: name '__file__' is not defined` while AST-executing `scripts/reconstruct_phase7_predictions.py`.
+- Impact: mandatory reconstruction regression failed before Run #654 reconstruction; the workflow/data gate failed closed. No option P&L was generated or accepted.
+- Root cause: the test namespace passed to `exec()` omitted the `__file__` value required by the production module for repository-root path resolution.
+- Independent tester disposition: REQUEST CHANGES at `research/gates/PHASE8_RUN742_WORKFLOW_DATA_TESTER.md`.
+- Correction: test harness now executes the source with explicit `__file__ = str(SRC)` and a non-main `__name__`, with deterministic regression coverage for both values.
+- Prevention: AST-executed production modules must receive the same path context required by normal script execution; tester must re-run the complete hosted workflow/data gate before empirical authorization.
