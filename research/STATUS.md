@@ -151,3 +151,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_CODE_APPROVAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - Corrected implementation commit `3a883899d4ac32043e6771d677624f1c244ef86c` includes explicit Phase 6 capture ordering, P01-P10, family bootstrap inference, regime diagnostics, chronological block diagnostics and schema validation.
 - Before empirical execution, the Phase 7 workflow must be registered on the default branch and the Research Protocol caller must contain the Phase 7 authorization gate.
+
+## 2026-10-08 — Phase 7 workflow gate
+- Tester gate `research/gates/PHASE7_WORKFLOW_APPROVAL_TESTER.md` = **PASS — WORKFLOW GATE**.
+- Phase 7 reusable workflow and Research Protocol caller were independently reviewed.
+- Default-branch registration is the remaining infrastructure action before the manual Run workflow control can be confirmed.
+- Empirical execution remains blocked until regression passes after registration.

@@ -142,3 +142,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester code gate [PHASE7_CODE_APPROVAL_TESTER.md](research/gates/PHASE7_CODE_APPROVAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
 - Implementation includes P01-P10, causal stacking, four-state regime calibration, family-level moving-block Brier inference, chronological diagnostics and artifact schema validation.
 - Empirical execution remains blocked until workflow registration and the separate workflow gate pass.
+
+## Phase 7 workflow gate — 2026-10-08
+
+- Tester workflow gate [PHASE7_WORKFLOW_APPROVAL_TESTER.md](research/gates/PHASE7_WORKFLOW_APPROVAL_TESTER.md) = **PASS**.
+- Automatic caller and reusable workflow are approved. Default-branch registration and regression verification remain before empirical authorization.

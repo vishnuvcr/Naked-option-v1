@@ -529,3 +529,8 @@
 - Capture-order, causal stacking, regime calibration, family data-snooping bootstrap, chronological diagnostics and schema validation passed code review.
 - Tester gate `research/gates/PHASE7_CODE_APPROVAL_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Workflow registration/default-branch manual trigger and caller authorization are the remaining pre-empirical infrastructure gate.
+
+## 2026-10-08 — Phase 7 workflow gate
+- Tester independently approved the Phase 7 reusable workflow and automatic caller gate.
+- The workflow is hard-gated by typed empirical authorization, runs regression before empirical execution, validates the artifact and uploads it.
+- Tester authorized default-branch registration followed by a regression-only check; empirical execution remains blocked until that gate passes.
