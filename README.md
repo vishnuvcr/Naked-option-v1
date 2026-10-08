@@ -185,3 +185,16 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 ## Phase 7 Run #650 correction cycle — 2026-10-08
 - Run #650 artifact is non-final evidence. Tester found a bootstrap construction mismatch and regime diagnostic block-count mismatch.
 - Frozen correction amendment is approved; developer is implementing before fresh execution.
+
+
+## Phase 7 Run #654 checkpoint — 2026-10-08
+
+- **Hosted run:** #654 (`37763242007`) completed successfully through protocol, regression, empirical execution, validation and artifact upload.
+- **Artifact:** `phase7-ensemble-results` (ID `11551679532`).
+- **Artifact SHA-256:** `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- **Tester gate:** [PHASE7_RUN654_EMPIRICAL_TESTER.md](research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- **Coverage:** 100/100 frozen P01-P10 layer/horizon cells executed.
+- **Statistical result:** no family-level Brier data-snooping test is significant at 5%; no Phase 7 candidate is promoted.
+- **Correction status:** Run #650 bootstrap/diagnostic defects are closed by the corrected implementation and independent artifact audit.
+- **Carry-forward restrictions:** abstention chronological diagnostics are full-series rather than trade-only; intraday P08-P10 regime inputs use the fixed one-minute causal return path sampled at hourly decision rows. These must remain fixed and are to be documented in Phase 8.
+- **Next phase:** Phase 8 long-option execution research, with Paytm Money brokerage/fees, exchange/statutory charges, spread, slippage, latency and premium-decay realism. Phase 9 robustness and Phase 10 fresh-forward validation remain mandatory.
