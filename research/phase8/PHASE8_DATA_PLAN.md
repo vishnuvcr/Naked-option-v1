@@ -168,3 +168,8 @@ Run #654's accepted artifact stores aggregate candidate metrics but not a comple
 - A historical Paytm brokerage fallback is exactly ₹20/order when the historical tariff cannot be independently verified and is explicitly tagged `BROKERAGE_FALLBACK`.
 - The complete registered grid is 4,800 configuration cells; unavailable configurations are retained as explicit `INELIGIBLE` statuses with deterministic reasons.
 - The Run #654 row-level forecast reconstruction must reproduce integer counts exactly and continuous aggregate metrics within 1e-9 absolute tolerance before any option result is generated.
+
+
+### Additional free-source audit
+- **BSE:** audit BSE option archives/derivatives reference data as a secondary cross-check for any overlapping NIFTY records; NSE remains the controlling contract metadata venue for this study.
+- **2026 open-source coverage:** audit current public GitHub/Parquet sources such as `SauMStats/nifty-options-data-engine` for 2026 completeness, but accept rows only after overlap reconciliation with official NSE data.
