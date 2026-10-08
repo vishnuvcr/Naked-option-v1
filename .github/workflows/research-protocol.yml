@@ -118,7 +118,7 @@ jobs:
               changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
               while IFS= read -r f; do
                 case "${f}" in
-                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md)
+                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md|research/gates/PHASE7_RUN608_REGRESSION_APPROVAL_TESTER.md)
                     run_phase7=true
                     ;;
                 esac
