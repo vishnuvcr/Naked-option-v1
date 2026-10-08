@@ -174,3 +174,13 @@
 - Independent tester disposition: REQUEST CHANGES at `research/gates/PHASE8_RUN742_WORKFLOW_DATA_TESTER.md`.
 - Correction: test harness now executes the source with explicit `__file__ = str(SRC)` and a non-main `__name__`, with deterministic regression coverage for both values.
 - Prevention: AST-executed production modules must receive the same path context required by normal script execution; tester must re-run the complete hosted workflow/data gate before empirical authorization.
+
+
+## 2026-10-08 — Phase 8 Run #746 reconstruction regression failure
+- Category: regression/test-harness
+- Hosted run: Research Protocol Check #746 (`37815192558`), phase8 regression job `113442117175`.
+- Symptom: `NameError: name '__file__' is not defined` while the reconstruction regression executed `scripts/reconstruct_phase7_predictions.py` through its test harness.
+- Impact: workflow-contract regression passed; reconstruction regression failed; execution-engine regression was skipped; free-source audit independently passed; no reconstruction artifact or option P&L was generated.
+- Root cause: the reconstruction test harness did not provide a sufficiently explicit module execution context on the hosted path.
+- Correction: tester-approved harness correction now sets `__file__`/`__name__`, compiles once and executes with the same namespace as globals and locals, with explicit context assertion.
+- Disposition: Run #746 is **NON-EVIDENCE**. Tester gate `research/gates/PHASE8_RUN746_RECONSTRUCTION_APPROVAL_TESTER.md` authorizes a fresh engineering run only.
