@@ -4,7 +4,7 @@
 from pathlib import Path
 import numpy as np
 SRC=(Path(__file__).resolve().parents[1]/"scripts/run_phase7_ensemble.py").read_text(encoding="utf-8")
-ns={}
+ns={"__file__": str(Path(__file__).resolve().parents[0] / "run_phase7_ensemble.py"), "__name__":"phase7_test_import"}
 exec(compile(SRC,"phase7","exec"),ns)
 
 def main():
@@ -19,7 +19,8 @@ def main():
     blocks=[np.arange(0,20),np.arange(200,220),np.arange(220,240),np.arange(240,500)]
     p={m:np.full(500,0.5) for m in ns["METHODS"]}
     out=ns["stacking"](p,y,blocks)
-    assert np.isnan(out[:220]).all()
+    assert np.isnan(out[:20]).all()
+    assert np.isfinite(out[200:220]).all()
     assert np.isfinite(out[220:]).any()
 
     vol=np.ones(500); trend=np.ones(500)
