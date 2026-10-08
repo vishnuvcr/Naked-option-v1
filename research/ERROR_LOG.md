@@ -214,3 +214,17 @@
 - Classification: **test fixture defect / non-evidence**.
 - Correction: both fallback test calls now use D3 and explicitly assert the 21-session mapping; engine/cost logic unchanged.
 - Tester approval: `research/gates/PHASE8_RUN767_ENGINE_FIXTURE_APPROVAL_TESTER.md`.
+
+
+## 2026-10-08 — Phase 8 Run #783 reconstruction Git-blob hash defect
+- Category: implementation/reproducibility integrity
+- Component: `scripts/reconstruct_phase7_predictions.py::git_blob_sha`.
+- Hosted run: Research Protocol Check #783 (`37815994871`), forecast-reconstruction job `113445754578`.
+- Symptom: reconstruction rejected the current `run_phase7_ensemble.py` source with `RECONSTRUCTION_ERROR: Phase 7 source blob mismatch`.
+- Independent verification: the current source blob SHA is exactly the frozen manifest value `399ad338a409b6faf56c3ee243f2643cc89f162a`.
+- Root cause: the Git object header used the literal byte sequence `\\x00` rather than the required NUL byte `0x00`, causing an incorrect SHA-1 calculation.
+- Impact: forecast-panel validation was skipped; Run #783 is non-evidence for reconstruction; no empirical option P&L was generated or accepted.
+- Tester disposition: REQUEST CHANGES at `research/gates/PHASE8_RUN783_RECON_HASH_TESTER.md`.
+- Correction: use a real NUL byte in the Git blob header and add a deterministic empty-blob SHA regression test.
+- Tester approval: `research/gates/PHASE8_RUN783_RECON_HASH_APPROVAL_TESTER.md` = PASS.
+- Prevention: test cryptographic/integrity helpers against canonical known vectors before hosted reconstruction.
