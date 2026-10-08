@@ -570,3 +570,14 @@
 ## 2026-10-08 — Phase 7 Run #650 correction
 - Tester accepted the 100-cell mathematical audit but rejected final scientific acceptance until the frozen moving-block bootstrap and one-to-one regime diagnostics are corrected.
 - Amendment approved; developer implementing only those changes.
+
+
+## 2026-10-08 — Phase 7 Run #654 completion and tester gate
+- User authorized continuation.
+- Developer verified hosted Run #654 (`37763242007`) completed protocol, regression, empirical execution, validation and upload successfully.
+- Artifact `phase7-ensemble-results` ID `11551679532`; digest verified independently as `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- Tester independently audited all 100 P01-P10 cells, confusion arithmetic, metric ranges, chronological diagnostics, regime diagnostics and family-bootstrap outputs.
+- The production implementation now matches the frozen moving-block bootstrap correction: overlapping starts, shared resampling indices, 500 replications and seed 42.
+- All family-level p-values were non-significant at 5%: 0.742, 0.738, 0.962, 0.788, 0.464 daily and 0.248, 0.992, 1.000, 0.994, 0.512 intraday.
+- Tester gate `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- No P01-P10 candidate is promoted. Phase 8 is the next pre-registered research phase, but it must carry forward the two audit-scope restrictions and must include realistic Paytm Money execution costs, spread, slippage, latency and premium-decay economics.
