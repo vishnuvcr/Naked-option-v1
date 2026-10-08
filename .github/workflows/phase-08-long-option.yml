@@ -187,12 +187,20 @@ jobs:
           python scripts/acquire_hf_intraday_sample.py
       - name: Reconstruct from immutable Run #654 artifact
         run: |
+          set -o pipefail
           REF="$(find data/cache/reference/phase7_run654/unpacked -name phase7_ensemble_results.json -print -quit)"
           test -n "$REF"
-          python scripts/reconstruct_phase7_predictions.py --reference "$REF"
+          mkdir -p data/reports/phase8
+          if ! python scripts/reconstruct_phase7_predictions.py --reference "$REF" >data/reports/phase8/reconstruction_stdout.log 2>&1; then
+            echo "RECONSTRUCTION_COMMAND_FAILED"
+            tail -n 160 data/reports/phase8/reconstruction_stdout.log
+            exit 1
+          fi
+          tail -n 40 data/reports/phase8/reconstruction_stdout.log
       - name: Validate forecast panel
         run: python scripts/validate_phase8_forecast_panel.py
       - name: Upload reconstruction evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase8-forecast-reconstruction
