@@ -155,3 +155,7 @@ The dataset cannot advance to the empirical job until:
 - source hashes are stored.
 
 No strategy result is generated from an unapproved composite.
+
+## Phase 7 row-level forecast dependency
+
+Run #654's accepted artifact stores aggregate candidate metrics but not a complete row-level probability table. Before empirical option execution, regenerate the P01–P10 prediction panel deterministically from the frozen Run #654 developer commit and source inputs. The reconstruction is accepted only when all 100 aggregate metrics reproduce within a frozen numerical tolerance. The prediction panel is then hashed and treated as an immutable Phase 8 input.
