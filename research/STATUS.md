@@ -225,3 +225,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Frozen Phase 8 universe: 100 Phase 7 forecast cells × 3 delta targets × 4 DTE buckets × 4 exit policies = **4,800 configuration cells**, with deterministic EXECUTED/INELIGIBLE/DATA_QUALITY_FAIL/NO_PREDICTION statuses.
 - Empirical P&L remains blocked pending the separate data/PIT, Phase 7 forecast-reconstruction, execution-engine regression and GitHub Actions workflow gates.
 - Carry-forward restrictions: current Paytm ₹10 is present-day only and cannot be back-applied without an effective-date record; Q1 OHLC/proxy results are non-quote-executable; Run #654 row-level forecast reconstruction must reproduce aggregate metrics within 1e-9 before any option result is generated.
+
+
+## 2026-10-08 — Phase 8 execution-engine/workflow gate
+- Tester recheck `research/gates/PHASE8_EXECUTION_ENGINE_APPROVAL_TESTER_R2.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Tester workflow gate `research/gates/PHASE8_WORKFLOW_APPROVAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- The prior execution-engine harness defect was a missing `trading_session_dte` import; it is corrected and regression coverage is complete.
+- Default `main` now registers the Phase 8 reusable workflow and Research Protocol caller.
+- Next hosted run is engineering-only: empirical authorization remains false and the 4,800-cell option P&L grid must not execute.
