@@ -305,3 +305,19 @@ For Q1 OHLC/proxy rows, a synthetic half-spread is applied independently at entr
 - C3: max(1 tick, 4.00% of premium) per side.
 
 The option tick size is taken from the point-in-time contract metadata. The synthetic spread is not claimed to reproduce an observed historical quote; it is a conservative stress proxy. Incremental slippage from the C0–C3 scenario is then added separately. A Q1 result therefore remains **non-quote-executable**.
+
+## Phase 7 forecast reconstruction gate
+
+The accepted Run #654 aggregate artifact does not itself store every row-level P01–P10 probability and decision timestamp. Phase 8 therefore requires a deterministic reconstruction step **before option P&L is generated**.
+
+The reconstruction must:
+
+1. use the exact Run #654 developer commit and the frozen Phase 6/7 inputs;
+2. execute the same P01–P10 definitions, training schedule, blocked-predictor handling and seeds;
+3. preserve the original Phase 7 chronological horizon/layer boundaries;
+4. output one row per decision timestamp with P01–P10 probabilities and abstention state;
+5. compare aggregate metrics against the immutable Run #654 artifact for all 100 cells;
+6. fail closed if any metric differs beyond the pre-registered numerical tolerance;
+7. hash and archive the reconstructed prediction dataset before option execution.
+
+The reconstruction is a reproducibility operation, not a new model. No Phase 8 result may be used to alter Phase 7 code or reconstruction parameters.
