@@ -294,3 +294,14 @@ This shortlist rule is fixed before empirical execution and is not a significanc
 No strategy is accepted in Phase 8 alone.
 
 A Phase 8 result may advance only to the Phase 9 robustness/statistical gate. Final strategy promotion still requires Phase 9, untouched fresh-forward verification in Phase 10, tester approval and the conjunctive promotion criteria in `research/RESEARCH_PLAN.md`.
+
+### OHLC/proxy spread rule (frozen)
+
+For Q1 OHLC/proxy rows, a synthetic half-spread is applied independently at entry and exit:
+
+- C0: max(1 tick, 0.50% of premium) per side;
+- C1: max(1 tick, 1.00% of premium) per side;
+- C2: max(1 tick, 2.00% of premium) per side;
+- C3: max(1 tick, 4.00% of premium) per side.
+
+The option tick size is taken from the point-in-time contract metadata. The synthetic spread is not claimed to reproduce an observed historical quote; it is a conservative stress proxy. Incremental slippage from the C0–C3 scenario is then added separately. A Q1 result therefore remains **non-quote-executable**.
