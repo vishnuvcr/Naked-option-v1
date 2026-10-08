@@ -315,26 +315,34 @@ def choose_contract(
     deltas = []
     methods = []
     for _, row in work.iterrows():
-        d, method = selection_delta(row, pd.Timestamp(decision_time), risk_free)
+        d, method = selection_delta(row, as_ist_timestamp(decision_time), risk_free)
         deltas.append(d)
         methods.append(method)
     work["selection_delta"] = deltas
     work["delta_method"] = methods
-    work = work[np.isfinite(work["selection_delta"])].copy()
-    if work.empty:
-        return None, "NO_SELECTION_DELTA"
 
     if "prior_liquidity" not in work:
         work["prior_liquidity"] = 0.0
     work["prior_liquidity"] = pd.to_numeric(work["prior_liquidity"], errors="coerce").fillna(0.0)
-    work["abs_delta_error"] = (work["selection_delta"] - float(delta_target)).abs()
     work["abs_moneyness"] = np.log(work["strike"].astype(float) / work["spot"].astype(float)).abs()
     work["strike_distance"] = (work["strike"].astype(float) - work["spot"].astype(float)).abs()
-    work["contract_id_norm"] = [contract_id(r) for _, r in work.iterrows()]
+    work["greek_available"] = work["delta_method"].isin(["OBSERVED_DELTA", "BLACK_SCHOLES_DELTA"])
+    work["selection_priority"] = np.where(work["greek_available"], 0, 1)
+    work["abs_delta_error"] = np.where(
+        work["greek_available"],
+        (work["selection_delta"] - float(delta_target)).abs(),
+        np.inf,
+    )
+    work["fallback_moneyness"] = np.where(work["greek_available"], np.inf, work["abs_moneyness"])
+    work = work[work["greek_available"] | np.isfinite(work["abs_moneyness"])].copy()
+    if work.empty:
+        return None, "NO_SELECTION_INPUT"
 
+    work["contract_id_norm"] = [contract_id(r) for _, r in work.iterrows()]
     work = work.sort_values(
-        ["abs_delta_error", "prior_liquidity", "abs_moneyness", "strike_distance", "contract_id_norm"],
-        ascending=[True, False, True, True, True],
+        ["selection_priority", "abs_delta_error", "fallback_moneyness",
+         "prior_liquidity", "abs_moneyness", "strike_distance", "contract_id_norm"],
+        ascending=[True, True, True, False, True, True, True],
         kind="mergesort",
     )
     return work.iloc[0], "PASS"
