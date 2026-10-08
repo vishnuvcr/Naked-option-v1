@@ -610,3 +610,13 @@
 - Independent tester calculated the interval as 21 trading sessions and issued REQUEST CHANGES.
 - Developer corrected only the test fixture to D3 and added a direct DTE assertion.
 - Tester approved the correction. No production engine, cost or empirical rule changed.
+
+
+## 2026-10-08 — Phase 8 Run #783 reconstruction integrity correction
+- Hosted Run #783 passed all upstream non-empirical checks through execution-engine regression.
+- Immutable Run #654 artifact verification succeeded.
+- Forecast reconstruction then failed before aggregate reproduction because the checker computed a non-Git source blob hash.
+- Independent tester compared the actual `run_phase7_ensemble.py` blob and confirmed it exactly equals the frozen SHA `399ad338a409b6faf56c3ee243f2643cc89f162a`.
+- Tester isolated the root cause to `git_blob_sha()` using a literal backslash-x sequence instead of NUL.
+- Developer fixed only the hash header and added a canonical empty-blob regression.
+- Tester approved the correction. No science, costs or empirical authorization changed.
