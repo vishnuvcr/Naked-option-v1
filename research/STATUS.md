@@ -157,3 +157,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Phase 7 reusable workflow and Research Protocol caller were independently reviewed.
 - Default-branch registration is the remaining infrastructure action before the manual Run workflow control can be confirmed.
 - Empirical execution remains blocked until regression passes after registration.
+
+## 2026-10-08 — Phase 7 Run #600 workflow failure
+- Hosted run #600 (`37716619573`) reached the Phase 7 regression job but failed before tests because `requirements.txt` does not exist.
+- Run #600 is **NON-EVIDENCE**; empirical execution was skipped.
+- Tester gate `research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md` = **REQUEST CHANGES**.
+- Developer corrected the workflow to use explicit dependencies and canonical Phase 6 data acquisition/cache steps; tester approval is required before another hosted run.

@@ -54,3 +54,13 @@
 ## 2026-10-08 — Phase 6 Run #581
 - No execution error occurred. Protocol, regression, empirical suite, schema validation and artifact upload all passed.
 - The independent tester nevertheless recorded a scientific caution: raw maxima across 140 executed cells are not treated as discoveries because multiple-comparison and downstream trading gates remain outstanding.
+
+## 2026-10-08 — Phase 7 Run #600 workflow dependency failure
+- Category: infrastructure/workflow
+- Component: `.github/workflows/phase-07-ensemble.yml`
+- Symptom: regression job failed at `pip install -r requirements.txt` because the repository has no root requirements.txt.
+- Hosted run: Research Protocol Check #600 (`37716619573`), job `113114446777`.
+- Impact: regression suite skipped; empirical job skipped; no Phase 7 metric or artifact generated.
+- Root cause: Phase 7 workflow incorrectly assumed a repository-level requirements file instead of following the established explicit dependency installation used by Phase 6.
+- Correction: install numpy, pandas, scikit-learn and pyarrow explicitly and add canonical cached-data restoration/acquisition steps.
+- Disposition: non-evidence infrastructure failure; tester gate `research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md` = REQUEST CHANGES.

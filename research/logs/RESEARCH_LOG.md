@@ -534,3 +534,8 @@
 - Tester independently approved the Phase 7 reusable workflow and automatic caller gate.
 - The workflow is hard-gated by typed empirical authorization, runs regression before empirical execution, validates the artifact and uploads it.
 - Tester authorized default-branch registration followed by a regression-only check; empirical execution remains blocked until that gate passes.
+
+## 2026-10-08 — Phase 7 Run #600 workflow failure
+- First hosted Phase 7 attempt failed before regression because the workflow referenced a nonexistent root requirements.txt.
+- Tester classified Run #600 as non-evidence and requested workflow changes.
+- Developer corrected dependency installation and added the required data cache/acquisition stages; independent tester review is pending.

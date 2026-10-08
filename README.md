@@ -147,3 +147,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - Tester workflow gate [PHASE7_WORKFLOW_APPROVAL_TESTER.md](research/gates/PHASE7_WORKFLOW_APPROVAL_TESTER.md) = **PASS**.
 - Automatic caller and reusable workflow are approved. Default-branch registration and regression verification remain before empirical authorization.
+
+## Phase 7 workflow correction — 2026-10-08
+
+- Run #600 (`37716619573`) was **NON-EVIDENCE**: the Phase 7 regression job failed before tests because `requirements.txt` does not exist.
+- Tester gate [PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md](research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md) = **REQUEST CHANGES**.
+- Workflow correction now follows the established explicit dependency installation and cached canonical data acquisition used by Phase 6.
