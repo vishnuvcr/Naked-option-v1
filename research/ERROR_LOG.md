@@ -193,3 +193,15 @@
 - Classification: **test fixture defect / non-evidence**, not engine or trading evidence.
 - Correction: test now explicitly asserts the 21-session distance and requests D3; no engine/cost logic changed.
 - Tester approval: `research/gates/PHASE8_RUN759_ENGINE_FIXTURE_APPROVAL_TESTER.md`.
+
+
+## 2026-10-08 — Phase 8 Run #765 execution-engine moneyness fixture defect
+- Category: tester/regression-harness arithmetic
+- Component: `scripts/test_phase8_execution_engine.py` moneyness-fallback fixture.
+- Hosted run: Research Protocol Check #765 (`37815717928`), Phase 8 regression job.
+- Symptom: `test_moneyness_fallback_does_not_compare_to_delta_target` asserted PASS but `choose_contract()` returned a non-PASS status.
+- Root cause: the fixture used expiry 2026-10-30 and decision date 2026-10-01 with a business-day session calendar, yielding 21 trading sessions (D3) while the test requested D1.
+- Impact: mandatory execution-engine regression failed; no empirical option P&L was generated or accepted.
+- Independent tester disposition: REQUEST CHANGES at `research/gates/PHASE8_RUN765_MONEYNESS_TESTER.md`.
+- Correction: change only the fixture from D1 to D3 and explicitly assert the 21-session DTE; production execution logic is unchanged.
+- Tester approval: `research/gates/PHASE8_RUN765_MONEYNESS_APPROVAL_TESTER.md` = PASS.
