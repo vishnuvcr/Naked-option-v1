@@ -168,3 +168,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester correction gate PHASE7_RUN600_WORKFLOW_CORRECTION_APPROVAL_TESTER.md = PASS.
 - Corrected workflow uses explicit dependencies and canonical cached data acquisition.
 - Fresh hosted execution is authorized; Run #600 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #628 horizon correction approved
+- Tester gate `research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md` = **PASS**.
+- Production capture now binds each metrics call to the current horizon; deterministic multi-horizon regression coverage was added.
+- Fresh hosted regression is authorized. Run #628 remains non-evidence.
