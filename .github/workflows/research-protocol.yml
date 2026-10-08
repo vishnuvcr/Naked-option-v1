@@ -1,0 +1,138 @@
+name: Research Protocol Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - developer
+      - tester
+      - phase-*
+  pull_request:
+    branches:
+      - main
+      - developer
+      - tester
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate repository contract
+        run: python scripts/validate_protocol.py
+      - name: Validate literature registry
+        run: python scripts/validate_literature_registry.py
+
+  phase6-change:
+    name: detect-phase6-change
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      run_phase6: ${{ steps.detect.outputs.run_phase6 }}
+      empirical_authorized: ${{ steps.detect.outputs.empirical_authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_phase6=false
+          empirical_authorized=false
+          ref="${GITHUB_REF}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            ref="refs/heads/${{ github.event.pull_request.head.ref }}"
+          fi
+          if [ "${ref}" = "refs/heads/phase-06-developer" ]; then
+            if [ -f "research/gates/PHASE6_CODE_APPROVAL_TESTER.md" ]; then
+              empirical_authorized=true
+            fi
+            if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+              run_phase6=true
+            else
+              before="${{ github.event.before }}"
+              if [ -z "${before}" ] || [ "${before}" = "0000000000000000000000000000000000000000" ]; then
+                before="${GITHUB_SHA}^"
+              fi
+              changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
+              while IFS= read -r f; do
+                case "${f}" in
+                  scripts/run_phase6_novel.py|scripts/test_phase6_novel.py|research/phase6/*|.github/workflows/phase-06-novel.yml|research/gates/PHASE6_CODE_APPROVAL_TESTER.md)
+                    run_phase6=true
+                    ;;
+                esac
+              done <<< "${changed}"
+            fi
+          fi
+          echo "run_phase6=${run_phase6}" >> "${GITHUB_OUTPUT}"
+          echo "empirical_authorized=${empirical_authorized}" >> "${GITHUB_OUTPUT}"
+
+  phase6:
+    name: phase6-novel-gated
+    needs: phase6-change
+    if: ${{ needs.phase6-change.outputs.run_phase6 == 'true' }}
+    uses: ./.github/workflows/phase-06-novel.yml
+    with:
+      empirical_authorized: ${{ needs.phase6-change.outputs.empirical_authorized == 'true' }}
+    secrets: inherit
+
+
+  phase7-change:
+    name: detect-phase7-change
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      run_phase7: ${{ steps.detect.outputs.run_phase7 }}
+      empirical_authorized: ${{ steps.detect.outputs.empirical_authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_phase7=false
+          empirical_authorized=false
+          ref="${GITHUB_REF}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            ref="refs/heads/${{ github.event.pull_request.head.ref }}"
+          fi
+          if [ "${ref}" = "refs/heads/phase-07-developer" ]; then
+            if [ -f "research/gates/PHASE7_CODE_APPROVAL_TESTER.md" ]; then
+              empirical_authorized=true
+            fi
+            if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+              run_phase7=true
+            else
+              before="${{ github.event.before }}"
+              if [ -z "${before}" ] || [ "${before}" = "0000000000000000000000000000000000000000" ]; then
+                before="${GITHUB_SHA}^"
+              fi
+              changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
+              while IFS= read -r f; do
+                case "${f}" in
+                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md)
+                    run_phase7=true
+                    ;;
+                esac
+              done <<< "${changed}"
+            fi
+          fi
+          echo "run_phase7=${run_phase7}" >> "${GITHUB_OUTPUT}"
+          echo "empirical_authorized=${empirical_authorized}" >> "${GITHUB_OUTPUT}"
+
+  phase7:
+    name: phase7-ensemble-gated
+    needs: phase7-change
+    if: ${{ needs.phase7-change.outputs.run_phase7 == 'true' }}
+    uses: ./.github/workflows/phase-07-ensemble.yml
+    with:
+      empirical_authorized: ${{ needs.phase7-change.outputs.empirical_authorized == 'true' }}
+    secrets: inherit

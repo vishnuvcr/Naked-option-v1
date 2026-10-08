@@ -1,0 +1,43 @@
+name: Phase 7 Ensemble
+
+on:
+  workflow_call:
+    inputs:
+      empirical_authorized:
+        required: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical authorization"
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python scripts/test_phase7_ensemble.py
+
+  empirical:
+    needs: regression
+    if: ${{ inputs.empirical_authorized == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python scripts/run_phase7_ensemble.py
+      - run: python scripts/validate_phase7_results.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase7-ensemble-results
+          path: data/reports/phase7_ensemble_results.json
