@@ -20,6 +20,7 @@ from phase8_execution_engine import (
     expiry_timestamp,
     make_planned_daily_exit,
     choose_contract,
+    trading_session_dte,
 )
 
 
@@ -81,7 +82,6 @@ def test_fill_prices():
     q2_sell = fill_price(100, "SELL", "2026-10-01 15:15", "Q2", "C1", 0.05, bid=99, quote_timestamp="2026-10-01 15:15", max_quote_forward_seconds=120)
     assert abs(q2_buy.price - 101.2525) < 1e-12
     assert abs(q2_sell.price - 98.7525) < 1e-12
-
     q1_buy = fill_price(100, "BUY", "2026-10-01 09:16", "Q1", "C1", 0.05)
     q1_sell = fill_price(100, "SELL", "2026-10-01 15:15", "Q1", "C1", 0.05)
     assert abs(q1_buy.price - 101.25) < 1e-12
@@ -92,7 +92,6 @@ def test_stop_first_and_trailing():
     bar = {"high": 160, "low": 60}
     px, reason, _ = conservative_trigger_exit(bar, "X2", 100, None)
     assert px == 65 and reason == "STOP_LOSS"
-
     px, reason, high = conservative_trigger_exit({"high":120,"low":70}, "X3", 100, 120)
     assert px == 90 and reason == "TRAILING_STOP"
     assert high == 120
@@ -111,7 +110,6 @@ def test_cost_arithmetic():
     assert costs.total > costs.brokerage
 
 
-
 def test_expiry_timestamp_and_d0_selection():
     ex = expiry_timestamp("2026-10-02")
     assert ex == pd.Timestamp("2026-10-02 15:30", tz="Asia/Kolkata")
@@ -119,10 +117,7 @@ def test_expiry_timestamp_and_d0_selection():
         {"contract_id":"D0", "expiry":"2026-10-02", "strike":100, "option_type":"CE", "spot":100, "delta":0.50, "prior_liquidity":10},
     ])
     sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02")]
-    row, reason = choose_contract(
-        rows, pd.Timestamp("2026-10-01 15:30", tz="Asia/Kolkata"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"),
-        "CE", 0.50, "D0", sessions, 0.05
-    )
+    row, reason = choose_contract(rows, pd.Timestamp("2026-10-01 15:30", tz="Asia/Kolkata"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"), "CE", 0.50, "D0", sessions, 0.05)
     assert reason == "PASS" and row["contract_id"] == "D0"
 
 
@@ -147,6 +142,7 @@ def test_quote_timestamp_and_overlap_ordering():
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00")) is False
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00"), close_processed=True) is True
     assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:01")) is True
+
 
 if __name__ == "__main__":
     test_direction_boundaries()
