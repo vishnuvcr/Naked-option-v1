@@ -25,6 +25,7 @@ LAYERS = {
 METHODS = [f"P{i:02d}" for i in range(1, 11)]
 ABSTAIN = {"P05": (0.45, 0.55), "P06": (0.40, 0.60)}
 TOL = 1e-9
+FROZEN_PHASE7_SOURCE_SHA1 = "399ad338a409b6faf56c3ee243f2643cc89f162a"
 
 
 def find_reference_json(reference: Path) -> Path:
@@ -199,6 +200,12 @@ def canonical_prediction_rows(layer, H, built):
     return frame
 
 
+def git_blob_sha(path: Path) -> str:
+    data = path.read_bytes()
+    header = f"blob {len(data)}\\0".encode("utf-8")
+    return hashlib.sha1(header + data).hexdigest()
+
+
 def hash_file(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as fh:
@@ -218,6 +225,11 @@ def main() -> None:
         raise SystemExit("RECONSTRUCTION_ERROR: frozen input manifest must not authorize option execution")
     if manifest["developer_commit"] != "4f1d695f291ed32996c07f01710afcecc6f2a540":
         raise SystemExit("RECONSTRUCTION_ERROR: Run #654 developer commit mismatch")
+    phase7_blob_sha = git_blob_sha(ROOT / "scripts" / "run_phase7_ensemble.py")
+    if phase7_blob_sha != manifest["phase7_source_blob_sha"] or phase7_blob_sha != FROZEN_PHASE7_SOURCE_SHA1:
+        raise SystemExit(
+            "RECONSTRUCTION_ERROR: Phase 7 source blob mismatch; the accepted Run #654 implementation is not present"
+        )
 
     reference_path = find_reference_json(Path(args.reference))
     reference = json.loads(reference_path.read_text(encoding="utf-8"))
