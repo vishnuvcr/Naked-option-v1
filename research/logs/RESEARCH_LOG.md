@@ -602,3 +602,11 @@
 - Tester issued REQUEST CHANGES before any empirical authorization.
 - Developer corrected only the test harness by supplying explicit `__file__` and non-main `__name__`, and added a direct regression assertion for the namespace contract.
 - No scientific reconstruction output, option P&L, or Phase 8 strategy result was accepted.
+
+
+## 2026-10-08 — Phase 8 Run #765 execution-engine fixture correction
+- The fresh hosted gate after the Run #759 correction passed protocol, reconstruction regression and the free-source audit.
+- The execution-engine regression exposed a second fixture mismatch using the same 2026-10-01 to 2026-10-30 business-day interval but incorrectly requesting D1.
+- Independent tester calculated the interval as 21 trading sessions and issued REQUEST CHANGES.
+- Developer corrected only the test fixture to D3 and added a direct DTE assertion.
+- Tester approved the correction. No production engine, cost or empirical rule changed.
