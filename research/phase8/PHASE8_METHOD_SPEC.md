@@ -321,3 +321,65 @@ The reconstruction must:
 7. hash and archive the reconstructed prediction dataset before option execution.
 
 The reconstruction is a reproducibility operation, not a new model. No Phase 8 result may be used to alter Phase 7 code or reconstruction parameters.
+
+
+## Reproducibility clarifications added after tester review
+
+### Liquidity tie-break
+Liquidity is strictly pre-decision:
+- intraday: sum of option contracts traded in the prior 15 complete one-minute bars ending before the decision timestamp;
+- daily: prior NSE trading-session option volume.
+No entry-bar/future volume is permitted. Higher prior-volume value wins the first contract-selection tie-break.
+
+### Entry and exit tolerances
+- intraday entry: search only t+1 and t+2 one-minute observations after the fixed one-minute latency;
+- daily entry: search the next trading session from 09:16 through 09:30 IST after the fixed one-minute latency convention;
+- intraday planned exit: use the first valid observation at or after the target timestamp and within +2 minutes;
+- daily planned exit: use the first valid observation at or after the target timestamp and within +15 minutes of the next-session-aligned target.
+If a valid exit observation is still unavailable within the window, the trade is marked `EXIT_LIQUIDITY_FAIL`, liquidated at zero premium for the conservative accounting view, and the cell's data-quality/fill statistics record the event.
+
+### Data-quality thresholds
+Before empirical promotion:
+- duplicate contract/timestamp rows: 0 allowed;
+- invalid/non-positive premium: 0 allowed among executable rows;
+- missing critical contract metadata: <=0.5%;
+- stale observation rate beyond the registered windows: <=1%;
+- entry no-fill rate: <=10%;
+- exit-liquidity-failure rate: <=1%.
+A cell exceeding a threshold is `DATA_QUALITY_FAIL` and cannot enter the Phase 9 shortlist. Signals with no entry fill remain logged as `NO_FILL` rather than being silently removed.
+
+### Historical brokerage fallback
+For any historical date for which a dated Paytm tariff cannot be independently verified, the cost engine uses a fixed conservative fallback of **₹20 per executed order**, marked `BROKERAGE_FALLBACK`. The 2026 verified primary rate remains ₹10 per unique executed F&O order. No other rate may be inferred from strategy outcomes.
+
+### Delta/Black–Scholes fallback
+If an audited point-in-time delta is unavailable, Black–Scholes delta uses:
+- underlying: the latest NIFTY value available at/before decision time;
+- volatility: point-in-time option IV from the selected source, otherwise an IV reconstructed only from information at/before decision time;
+- risk-free rate: latest 91-day Government of India Treasury-bill yield available from the RBI data source on/before decision date;
+- dividend yield: 0 for the delta-ranking approximation;
+- European option formula;
+- no stochastic-volatility/model fitting.
+If any required input is unavailable, fall back to strike/moneyness ranking and flag the contract as `MONEYNESS_FALLBACK`. The fallback is never selected from future performance.
+
+### Forecast reconstruction tolerance
+For the Run #654 reconstruction gate:
+- integer counts and sample sizes must match exactly;
+- continuous aggregate metrics must match the Run #654 artifact within **1e-9 absolute tolerance**;
+- any mismatch beyond tolerance fails closed and blocks option execution.
+
+### Registered execution universe
+The complete theoretical Phase 8 grid is exactly:
+**100 forecast cells × 3 delta targets × 4 DTE buckets × 4 exit policies = 4,800 configuration cells.**
+Every configuration receives one status: `EXECUTED`, `INELIGIBLE`, `DATA_QUALITY_FAIL`, or `NO_PREDICTION`. Ineligible configurations require a deterministic reason such as no qualifying expiry/strike; they are not removed after observing P&L.
+
+### Anomaly-concentration rule
+To pass the Phase 8→Phase 9 economic screen:
+- define k = max(1, ceil(0.01*n_completed));
+- after removing the k highest-net-P&L completed trades, base-case mean net P&L per completed trade must remain >0;
+- no single expiry calendar month may contribute >50% of total positive base-case net P&L.
+
+### Chronological option blocks
+Chronological performance blocks are fixed at **20 NSE trading sessions** for both daily and intraday layers. Partial terminal blocks are retained only if they contain at least one completed trade; otherwise they are omitted from performance statistics but retained in the execution audit.
+
+### Overlapping signals
+When a signal occurs while the same strategy/configuration cell already has an open position, the signal is not queued. It is logged as `OVERLAP_SKIPPED` and does not alter the open trade.
