@@ -14,6 +14,18 @@ def main():
         assert token in SRC, token
     base={m:np.array([0.4,0.5,0.6]) for m in ns["METHODS"]}
     for m in ns["BLOCKED"]: base[m]=np.full(3,np.nan)
+    original_run_scope=ns["p6"].run_scope
+    original_metrics=ns["p6"].metrics
+    def fake_run_scope(_df,intraday=False,horizons=None):
+        for _h in horizons:
+            ns["p6"].metrics(np.array([0.0]),np.array([0.5]),np.array([0.0]),1)
+    ns["p6"].run_scope=fake_run_scope
+    try:
+        captured=ns["capture_scope"](None,False,[1,2,3])
+    finally:
+        ns["p6"].run_scope=original_run_scope
+        ns["p6"].metrics=original_metrics
+    assert {("1","E01"),("2","E01"),("3","E01")}.issubset(captured.keys())
     _,_,p3,_=ns["combine"](base)
     assert np.allclose(p3,[0.4,0.5,0.6])
 
