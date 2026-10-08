@@ -59,6 +59,11 @@ def test_break_even():
     assert math.isnan(break_even_log_return("PE", 100, 100, 100))
 
 
+def test_trading_session_dte_is_timezone_agnostic():
+    sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02"), pd.Timestamp("2026-10-05")]
+    assert trading_session_dte(pd.Timestamp("2026-10-01 15:30", tz="Asia/Kolkata"), pd.Timestamp("2026-10-05", tz="Asia/Kolkata"), sessions) == 2
+
+
 def test_contract_selection_tie_break():
     rows = pd.DataFrame([
         {"contract_id":"B","expiry":"2026-10-30","strike":100,"option_type":"CE","spot":100,"delta":0.50,"prior_liquidity":20},
@@ -95,7 +100,7 @@ def test_stop_first_and_trailing():
 
 def test_daily_exit_mapping():
     sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02"), pd.Timestamp("2026-10-05")]
-    assert make_planned_daily_exit(sessions, pd.Timestamp("2026-10-01 15:30"), 1) == pd.Timestamp("2026-10-02 15:15")
+    assert make_planned_daily_exit(sessions, pd.Timestamp("2026-10-01 15:30", tz="Asia/Kolkata"), 1) == pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata")
 
 
 def test_cost_arithmetic():
@@ -115,7 +120,7 @@ def test_expiry_timestamp_and_d0_selection():
     ])
     sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02")]
     row, reason = choose_contract(
-        rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"),
+        rows, pd.Timestamp("2026-10-01 15:30", tz="Asia/Kolkata"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"),
         "CE", 0.50, "D0", sessions, 0.05
     )
     assert reason == "PASS" and row["contract_id"] == "D0"
@@ -148,6 +153,7 @@ if __name__ == "__main__":
     test_dte_buckets()
     test_black_scholes_delta_signs()
     test_break_even()
+    test_trading_session_dte_is_timezone_agnostic()
     test_contract_selection_tie_break()
     test_fill_prices()
     test_stop_first_and_trailing()
