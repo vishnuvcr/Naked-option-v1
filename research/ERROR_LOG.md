@@ -184,3 +184,12 @@
 - Root cause: the reconstruction test harness did not provide a sufficiently explicit module execution context on the hosted path.
 - Correction: tester-approved harness correction now sets `__file__`/`__name__`, compiles once and executes with the same namespace as globals and locals, with explicit context assertion.
 - Disposition: Run #746 is **NON-EVIDENCE**. Tester gate `research/gates/PHASE8_RUN746_RECONSTRUCTION_APPROVAL_TESTER.md` authorizes a fresh engineering run only.
+
+
+## 2026-10-08 — Phase 8 Run #759 execution-engine fixture failure
+- Hosted run: Research Protocol Check #759 (`37815524247`).
+- Workflow contract and reconstruction regression passed; free-source audit passed.
+- Execution-engine regression failed at `test_contract_selection_tie_break` because the fixture used a 21-session expiry distance while requesting D0; the frozen DTE rule places 21 in D3.
+- Classification: **test fixture defect / non-evidence**, not engine or trading evidence.
+- Correction: test now explicitly asserts the 21-session distance and requests D3; no engine/cost logic changed.
+- Tester approval: `research/gates/PHASE8_RUN759_ENGINE_FIXTURE_APPROVAL_TESTER.md`.
