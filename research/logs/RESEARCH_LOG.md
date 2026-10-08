@@ -562,3 +562,7 @@
 ## 2026-10-08 — Phase 7 Run #645 correction on current lineage
 - Developer re-applied the tester-requested `current_h=H` closure binding directly to the current branch head to avoid lineage loss.
 - No empirical result exists from Run #645.
+
+## 2026-10-08 — Phase 7 Run #645 closure fix approved
+- Tester approved the exact current-lineage `current_h=H` capture fix.
+- Fresh gated regression is authorized; Run #645 remains non-evidence.

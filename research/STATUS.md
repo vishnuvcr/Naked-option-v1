@@ -193,3 +193,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 ## 2026-10-08 — Phase 7 Run #645 correction on current lineage
 - The current branch lineage still contained `H=H`; the exact tester-requested closure fix has been rebuilt directly from the current branch head.
 - No scientific definitions changed.
+
+## 2026-10-08 — Phase 7 Run #645 closure fix approved
+- Tester gate `research/gates/PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md` = **PASS**.
+- Current-lineage `current_h=H` closure fix is approved; direct multi-horizon regression is present.
+- Fresh gated regression is authorized; Run #645 remains non-evidence.

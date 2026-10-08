@@ -175,3 +175,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester gate [PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md](research/gates/PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md) = **PASS**.
 - Current branch now preserves the horizon-capture correction and direct multi-horizon regression.
 - Fresh Phase 7 execution is authorized; Run #637 remains non-evidence.
+
+## Phase 7 Run #645 closure fix — 2026-10-08
+
+- Tester gate [PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md](research/gates/PHASE7_RUN645_CLOSURE_APPROVAL_TESTER.md) = **PASS**.
+- Current branch contains the approved explicit current-horizon closure fix and direct multi-horizon regression.
+- Fresh gated regression is authorized.
