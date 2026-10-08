@@ -204,3 +204,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent tester gate `PHASE7_RUN650_EMPIRICAL_TESTER.md` = REQUEST CHANGES for bootstrap and regime-diagnostic implementation mismatches.
 - Frozen correction amendment `PHASE7_RUN650_AMENDMENT_APPROVAL_TESTER.md` = PASS.
 - Corrected implementation is in preparation; no candidate is promoted.
+
+
+## 2026-10-08 — Phase 7 Run #654 independent empirical gate
+- Fresh hosted Run #654 (`37763242007`) from developer head `4f1d695f291ed32996c07f01710afcecc6f2a540` completed protocol, regression, empirical execution, validation and artifact upload successfully.
+- Immutable artifact `phase7-ensemble-results`, ID `11551679532`, SHA-256 `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- Independent tester gate [PHASE7_RUN654_EMPIRICAL_TESTER.md](research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- Complete frozen grid: 2 layers × 5 horizons × 10 candidates = 100 executed cells. Confusion counts, metric ranges, regime-diagnostic reconciliation, and artifact digest passed independent checks.
+- Corrected moving-block bootstrap construction is present and verified; the Run #650 bootstrap mismatch is closed.
+- No Phase 7 candidate is promoted. All ten family-level p-values are > 0.05; the strongest raw Brier improvement is daily +10 P08 (0.00315275) with family p=0.464.
+- Scoped restrictions are carried into Phase 8: abstention chronological diagnostics are not trade-only, and the intraday regime observation scale (1-minute causal path sampled at hourly decision rows) must remain fixed and explicitly documented.
+- Phase 7 technical evidence is now accepted; Phase 8 remains **BLOCKED** until its independent execution/cost gate is satisfied.
+- This is a status update only; no method definitions were changed after observing Run #654 results.
