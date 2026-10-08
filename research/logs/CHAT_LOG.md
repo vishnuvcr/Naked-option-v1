@@ -127,3 +127,8 @@ No scientific or protocol change was made during this checkpoint.
 - Developer corrected the regime partition, trend formula/threshold, blocked predictor handling, trimmed mean and walk-forward schedule.
 - Tester approved the frozen specification at `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md`.
 - Phase 7 implementation is now authorized; empirical execution remains gated.
+
+## 2026-10-08 — Phase 7 regime-definition correction
+- Before implementation, tester identified an internal inconsistency in the P08 binary regime cutpoints.
+- Developer corrected the specification to exhaustive four-state median-split volatility/trend regimes.
+- Tester independently re-approved the amendment.

@@ -502,3 +502,9 @@
 - Developer corrected all five issues in commit `ae22d242631eb1cf2478ff818d285e458f5e33e6`.
 - Tester gate `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md` = PASS — FROZEN SPECIFICATION.
 - Implementation may now proceed; no empirical execution is authorized until the implementation/code gate passes.
+
+## 2026-10-08 — Phase 7 regime-definition amendment
+- Tester rechecked the approved Phase 7 specification and found that 33rd/67th volatility cutpoints were inconsistent with a binary low/high regime.
+- Developer corrected P08 to binary median-based volatility and trend thresholds in commit `5cdb61d38d83bfe16484f181380a60d612fbb9c2`.
+- Tester gate `research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md` = PASS.
+- Implementation is now authorized subject to a separate code gate.

@@ -122,3 +122,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_SPEC_APPROVAL_TESTER.md` = **PASS — FROZEN SPECIFICATION**.
 - P01-P10 definitions, blocked-predictor handling, exhaustive four-state regime partition, trend formula, trimmed mean, and 20-session expanding walk-forward schedule are now fixed.
 - Phase 7 implementation is authorized; empirical execution remains blocked until a separate code gate and hosted regression gate pass.
+
+## 2026-10-08 — Phase 7 regime amendment
+- Tester found and resolved an internal P08 cutpoint inconsistency before implementation.
+- Commit `5cdb61d38d83bfe16484f181380a60d612fbb9c2` freezes binary low/high volatility and low/high trend states using training-period medians.
+- Tester gate `research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md` = **PASS**.
+- Phase 7 implementation remains gated by the separate code review.

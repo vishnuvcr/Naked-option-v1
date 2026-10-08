@@ -118,3 +118,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester specification gate: [PHASE7_SPEC_APPROVAL_TESTER.md](research/gates/PHASE7_SPEC_APPROVAL_TESTER.md) = **PASS**.
 - Registered methods P01-P10 cover fixed ensemble, abstention, chronological stacking and causal regime-conditioned combinations.
 - Implementation/code and empirical gates remain pending; no Phase 7 result exists yet.
+
+## Phase 7 specification amendment — 2026-10-08
+
+- P08 regime thresholds were corrected before implementation: both volatility and trend are binary median splits estimated only from the training block.
+- Tester amendment gate [PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md](research/gates/PHASE7_SPEC_AMENDMENT_APPROVAL_TESTER.md) = **PASS**.
