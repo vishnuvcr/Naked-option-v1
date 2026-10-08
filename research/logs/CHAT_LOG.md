@@ -141,3 +141,11 @@ No scientific or protocol change was made during this checkpoint.
 - Independent tester performed the artifact/source audit and issued `PASS WITH SCOPED RESTRICTIONS` at `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md`.
 - No Phase 7 model is promoted. All family-level p-values exceed 0.05; raw maxima remain descriptive only.
 - The tester identified two carry-forward audit restrictions: P05/P06 chronological diagnostics are not trade-only, and intraday regime observation scale is a fixed one-minute causal path sampled at hourly decision rows. No post-result tuning is permitted.
+
+
+## 2026-10-08 — Phase 8 specification tester correction cycle
+- User authorized continuation after Phase 7 Run #654 was accepted.
+- Developer read the governing plan/protocol/cost/data files and created isolated Phase 8 developer/tester branches.
+- Phase 8 specification, data plan and literature review were submitted to the tester before empirical work.
+- Tester independently found ten reproducibility gaps and issued REQUEST CHANGES; empirical execution remained blocked.
+- Developer corrected those gaps in the current lineage and is resubmitting for tester approval. No Phase 8 strategy result exists yet.
