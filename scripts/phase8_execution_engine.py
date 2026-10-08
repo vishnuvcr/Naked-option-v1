@@ -117,10 +117,25 @@ def _norm_option_type(value: str) -> str:
     return aliases.get(v, v)
 
 
+def as_ist_timestamp(value) -> pd.Timestamp:
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is None:
+        return ts.tz_localize("Asia/Kolkata")
+    return ts.tz_convert("Asia/Kolkata")
+
+
+def expiry_timestamp(value) -> pd.Timestamp:
+    ts = as_ist_timestamp(value)
+    if ts.hour == 0 and ts.minute == 0 and ts.second == 0 and ts.microsecond == 0:
+        ts = ts.normalize() + pd.Timedelta(hours=15, minutes=30)
+    return ts
+
+
 def _norm_time_to_expiry(row: Mapping, decision_time: pd.Timestamp) -> float:
     if _finite(row.get("time_to_expiry")) and float(row["time_to_expiry"]) > 0:
         return float(row["time_to_expiry"])
-    expiry = pd.Timestamp(row["expiry"])
+    expiry = expiry_timestamp(row["expiry"])
+    decision_time = as_ist_timestamp(decision_time)
     seconds = (expiry - decision_time).total_seconds()
     return max(seconds / (365.0 * 24.0 * 3600.0), 1e-8)
 
@@ -250,7 +265,7 @@ def selection_delta(row: Mapping, decision_time: pd.Timestamp, risk_free: float)
                 return abs(delta), "BLACK_SCHOLES_DELTA"
             except ValueError:
                 pass
-        return float(abs(math.log(float(strike) / float(spot)))), "MONEYNESS_FALLBACK"
+        return float("nan"), "MONEYNESS_FALLBACK"
     return float("nan"), "UNUSABLE"
 
 
