@@ -116,7 +116,7 @@ def test_expiry_timestamp_and_d0_selection():
     sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02")]
     row, reason = choose_contract(
         rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"),
-        "CE", 0.50, "D1", sessions, 0.05
+        "CE", 0.50, "D0", sessions, 0.05
     )
     assert reason == "PASS" and row["contract_id"] == "D0"
 
