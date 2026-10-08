@@ -141,3 +141,10 @@ No scientific or protocol change was made during this checkpoint.
 - Independent tester performed the artifact/source audit and issued `PASS WITH SCOPED RESTRICTIONS` at `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md`.
 - No Phase 7 model is promoted. All family-level p-values exceed 0.05; raw maxima remain descriptive only.
 - The tester identified two carry-forward audit restrictions: P05/P06 chronological diagnostics are not trade-only, and intraday regime observation scale is a fixed one-minute causal path sampled at hourly decision rows. No post-result tuning is permitted.
+
+
+## 2026-10-08 — User: Resume / Ok proceed
+- Developer resumed from active Phase 7 Run #654.
+- Hosted run completed successfully; artifact independently audited.
+- Tester closure: PASS WITH SCOPED RESTRICTIONS; no Phase 7 candidate promoted.
+- Next action: proceed to Phase 8 only after creating its isolated developer/tester branches and passing the Phase 8 specification/code gates.
