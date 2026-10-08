@@ -77,3 +77,26 @@ Independently verify:
 5. forced expiry handling is deterministic.
 
 No empirical option results may be generated until this amendment is approved.
+
+
+## Implementation clarifications from execution-engine tester review
+
+### Expiry timestamp
+
+A date-only contract expiry is normalized to **15:30 IST on the expiry trading session** for the strict `expiry > planned_exit` eligibility test. Thus a D0 contract that expires at the exchange close remains eligible for a 15:15 forced/primary exit.
+
+### Non-Greek moneyness fallback
+
+When observed delta and Black–Scholes delta are both unavailable, the engine does **not** compare log-moneyness numerically with delta targets. Instead it marks `MONEYNESS_FALLBACK` and selects the smallest absolute log-moneyness among otherwise eligible contracts in the required direction/DTE bucket. Therefore the 0.40/0.50/0.60 configurations may collapse to the same fallback contract when no delta/IV input exists. This is a pre-registered data-quality fallback, not a pseudo-delta estimate.
+
+### Quote timestamp rule
+
+A Q2 quote is valid only when its timestamp is at or after the executable timestamp and no more than the frozen observation window later. Intraday Q2 validation uses 120 seconds; daily Q2 validation uses 900 seconds. A missing/stale quote produces no Q2 fill and cannot be replaced by a later quote outside the registered window.
+
+### Overlap ordering
+
+A signal before the existing position's liquidation timestamp is `OVERLAP_SKIPPED`. A signal exactly at the liquidation timestamp is admitted only when the close has already been processed in the event order. A signal after liquidation is admissible.
+
+### Engineering gate
+
+The execution engine tests cover the above rules, cost arithmetic, D0 eligibility, non-Greek fallback, Q2 quote causality and overlap ordering. Real option data remain blocked until the independent code/workflow gates pass.
