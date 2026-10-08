@@ -149,3 +149,8 @@ No scientific or protocol change was made during this checkpoint.
 - Phase 8 specification, data plan and literature review were submitted to the tester before empirical work.
 - Tester independently found ten reproducibility gaps and issued REQUEST CHANGES; empirical execution remained blocked.
 - Developer corrected those gaps in the current lineage and is resubmitting for tester approval. No Phase 8 strategy result exists yet.
+\n## 2026-10-08 — Phase 8 specification approved
+- User authorized continuation.
+- Developer created isolated Phase 8 developer/tester branches and submitted the long-option execution specification, data plan and literature review before empirical work.
+- Tester issued REQUEST CHANGES; developer corrected ten reproducibility gaps.
+- Fresh tester gate passed with scoped restrictions. Phase 8 implementation is now authorized, but empirical execution remains blocked until data, forecast-reconstruction, execution-regression and workflow gates pass.
