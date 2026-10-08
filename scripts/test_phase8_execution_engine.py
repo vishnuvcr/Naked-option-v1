@@ -15,6 +15,9 @@ from phase8_execution_engine import (
     conservative_trigger_exit,
     direction_from_probability,
     fill_price,
+    validate_quote_timestamp,
+    validate_no_overlap,
+    expiry_timestamp,
     make_planned_daily_exit,
     choose_contract,
 )
@@ -69,8 +72,8 @@ def test_contract_selection_tie_break():
 
 
 def test_fill_prices():
-    q2_buy = fill_price(100, "BUY", "2026-10-01 09:16", "Q2", "C1", 0.05, ask=101)
-    q2_sell = fill_price(100, "SELL", "2026-10-01 15:15", "Q2", "C1", 0.05, bid=99)
+    q2_buy = fill_price(100, "BUY", "2026-10-01 09:16", "Q2", "C1", 0.05, ask=101, quote_timestamp="2026-10-01 09:16", max_quote_forward_seconds=120)
+    q2_sell = fill_price(100, "SELL", "2026-10-01 15:15", "Q2", "C1", 0.05, bid=99, quote_timestamp="2026-10-01 15:15", max_quote_forward_seconds=120)
     assert abs(q2_buy.price - 101.2525) < 1e-12
     assert abs(q2_sell.price - 98.7525) < 1e-12
 
@@ -111,6 +114,46 @@ if __name__ == "__main__":
     test_contract_selection_tie_break()
     test_fill_prices()
     test_stop_first_and_trailing()
+    test_expiry_timestamp_and_d0_selection()
+    test_moneyness_fallback_does_not_compare_to_delta_target()
+    test_quote_timestamp_and_overlap_ordering()
     test_daily_exit_mapping()
     test_cost_arithmetic()
     print("Phase 8 execution engine regression PASS")
+
+
+def test_expiry_timestamp_and_d0_selection():
+    ex = expiry_timestamp("2026-10-02")
+    assert ex == pd.Timestamp("2026-10-02 15:30", tz="Asia/Kolkata")
+    rows = pd.DataFrame([
+        {"contract_id":"D0", "expiry":"2026-10-02", "strike":100, "option_type":"CE", "spot":100, "delta":0.50, "prior_liquidity":10},
+    ])
+    sessions = [pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-02")]
+    row, reason = choose_contract(
+        rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15", tz="Asia/Kolkata"),
+        "CE", 0.50, "D1", sessions, 0.05
+    )
+    assert reason == "PASS" and row["contract_id"] == "D0"
+
+
+def test_moneyness_fallback_does_not_compare_to_delta_target():
+    rows = pd.DataFrame([
+        {"contract_id":"NEAR", "expiry":"2026-10-30", "strike":101, "option_type":"CE", "spot":100, "prior_liquidity":1},
+        {"contract_id":"FAR", "expiry":"2026-10-30", "strike":108, "option_type":"CE", "spot":100, "prior_liquidity":100},
+    ])
+    sessions = pd.bdate_range("2026-10-01", "2026-10-30").tolist()
+    row1, reason1 = choose_contract(rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15"), "CE", 0.40, "D1", sessions, 0.05)
+    row2, reason2 = choose_contract(rows, pd.Timestamp("2026-10-01 15:30"), pd.Timestamp("2026-10-02 15:15"), "CE", 0.60, "D1", sessions, 0.05)
+    assert reason1 == reason2 == "PASS"
+    assert row1["contract_id"] == row2["contract_id"] == "NEAR"
+    assert row1["delta_method"] == row2["delta_method"] == "MONEYNESS_FALLBACK"
+
+
+def test_quote_timestamp_and_overlap_ordering():
+    assert validate_quote_timestamp("2026-10-01 09:17", "2026-10-01 09:16", 120) == (True, "PASS")
+    assert validate_quote_timestamp("2026-10-01 09:15", "2026-10-01 09:16", 120)[0] is False
+    assert validate_quote_timestamp("2026-10-01 09:20", "2026-10-01 09:16", 120)[0] is False
+    assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 09:59")) is False
+    assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00")) is False
+    assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:00"), close_processed=True) is True
+    assert validate_no_overlap(pd.Timestamp("2026-10-01 10:00"), pd.Timestamp("2026-10-01 10:01")) is True
