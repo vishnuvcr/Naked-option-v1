@@ -252,3 +252,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer correction `fc900ceec7eb6b5b0a65f4970a68adc01550155a` changes only the fixture to D3 and adds a direct 21-session assertion.
 - Tester approval `research/gates/PHASE8_RUN765_MONEYNESS_APPROVAL_TESTER.md` = PASS.
 - Fresh complete Phase 8 hosted engineering/data verification is required. Empirical P&L remains blocked.
+
+
+## 2026-10-08 — Phase 8 Run #783 reconstruction integrity correction
+- Run #783 passed protocol, free-source audit, immutable Run #654 artifact verification, workflow-contract regression, reconstruction harness regression and execution-engine regression.
+- Forecast reconstruction failed at source-blob verification even though the actual Phase 7 source blob exactly matched the frozen manifest SHA.
+- Tester identified the bug in the checker: the Git blob header used literal `\\x00` bytes rather than a NUL byte.
+- Tester gate `research/gates/PHASE8_RUN783_RECON_HASH_TESTER.md` = REQUEST CHANGES.
+- Developer correction commits `69f4ce1b338a69419e94e40c92ea3d6a3627348b` and `b528282c789a22cf6c7056519410a752ef748b88` fix the header and add a canonical Git empty-blob regression.
+- Tester approval `research/gates/PHASE8_RUN783_RECON_HASH_APPROVAL_TESTER.md` = PASS.
+- Fresh complete hosted reconstruction/data gate is required. Empirical option execution remains blocked.
