@@ -158,3 +158,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - Tester correction gate PHASE7_RUN600_WORKFLOW_CORRECTION_APPROVAL_TESTER.md = **PASS**.
 - Fresh Phase 7 hosted execution is authorized. Run #600 remains non-evidence.
+
+## Phase 7 Run #628 horizon correction — 2026-10-08
+
+- Tester gate [PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md](research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md) = **PASS**.
+- Fresh hosted regression is authorized; Run #628 remains non-evidence.
