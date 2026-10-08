@@ -163,3 +163,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run #600 is **NON-EVIDENCE**; empirical execution was skipped.
 - Tester gate `research/gates/PHASE7_RUN600_WORKFLOW_FAILURE_TESTER.md` = **REQUEST CHANGES**.
 - Developer corrected the workflow to use explicit dependencies and canonical Phase 6 data acquisition/cache steps; tester approval is required before another hosted run.
+
+## 2026-10-08 — Phase 7 Run #600 workflow correction approved
+- Tester correction gate PHASE7_RUN600_WORKFLOW_CORRECTION_APPROVAL_TESTER.md = PASS.
+- Corrected workflow uses explicit dependencies and canonical cached data acquisition.
+- Fresh hosted execution is authorized; Run #600 remains non-evidence.
