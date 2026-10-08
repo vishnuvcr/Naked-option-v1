@@ -588,3 +588,8 @@
 - Tester gate `research/gates/PHASE8_SPEC_TESTER.md` returned REQUEST CHANGES on ten reproducibility gaps.
 - Developer corrected the current Phase 8 specification/data plan without empirical results: pre-decision liquidity lookbacks, fixed entry/exit windows, numerical data-quality limits, ₹20 historical brokerage fallback, deterministic delta fallback, 1e-9 reconstruction tolerance, explicit 4,800-cell universe and status model, anomaly concentration rule, 20-session performance blocks, and overlap skipping.
 - A fresh tester gate is now required. Phase 8 empirical execution remains unauthorized.
+\n## 2026-10-08 — Phase 8 specification gate passed
+- Tester initially requested ten reproducibility corrections; developer implemented them before any option P&L generation.
+- Independent tester gate `research/gates/PHASE8_SPEC_APPROVAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Phase 8 execution universe is frozen at 4,800 configuration cells (100 forecast cells × 3 delta × 4 DTE × 4 exits), with explicit ineligible/data-quality statuses.
+- Separate data, forecast-reconstruction, execution-regression and workflow gates remain mandatory before empirical execution.
