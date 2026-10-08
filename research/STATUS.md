@@ -243,3 +243,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run #742 is non-evidence; empirical option execution remains blocked.
 - Developer correction at commit `aa84176fce56e8a8a69be32c287c6c7e99e37d57` adds explicit `__file__`/non-main `__name__` context and a deterministic harness regression test.
 - Fresh hosted workflow/data gate is required before any empirical authorization.
+
+
+## 2026-10-08 — Phase 8 Run #765 fixture correction
+- Run #765 passed workflow-contract regression, forecast-reconstruction regression and the full free-source audit.
+- Execution-engine regression then failed in the moneyness-fallback test because the fixture requested D1 for a 21-session expiry distance.
+- Tester gate `research/gates/PHASE8_RUN765_MONEYNESS_TESTER.md` = REQUEST CHANGES.
+- Developer correction `fc900ceec7eb6b5b0a65f4970a68adc01550155a` changes only the fixture to D3 and adds a direct 21-session assertion.
+- Tester approval `research/gates/PHASE8_RUN765_MONEYNESS_APPROVAL_TESTER.md` = PASS.
+- Fresh complete Phase 8 hosted engineering/data verification is required. Empirical P&L remains blocked.
