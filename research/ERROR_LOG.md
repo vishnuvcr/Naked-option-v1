@@ -91,3 +91,13 @@
 - Root cause: approved corrections had not yet been applied to the actual developer branch when Run #614 started.
 - Correction: applied directly to the live developer branch with commit `84ffd525cc3ae77571a0cb38d24047b3de7b473e`.
 - Disposition: non-evidence; fresh hosted verification required.
+
+## 2026-10-08 — Phase 7 Run #622 regression signature defect
+- Category: regression/test-harness
+- Component: `scripts/test_phase7_ensemble.py` family-bootstrap call
+- Symptom: `TypeError: family_bootstrap() takes 4 positional arguments but 5 were given`.
+- Hosted run: Research Protocol Check #622 (`37717651173`), regression job `113117787284`.
+- Impact: regression failed after reaching numerical tests; empirical job was skipped; no Phase 7 artifact or metric was accepted.
+- Root cause: regression fixture retained an obsolete `blocks` argument after the production function signature was simplified to `(y, candidates, baseline, block_len)`.
+- Correction: remove the stale argument and add a signature assertion.
+- Disposition: non-evidence; tester gate `PHASE7_RUN622_REGRESSION_TESTER.md` = REQUEST CHANGES.
