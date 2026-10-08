@@ -32,7 +32,7 @@ def main():
     assert np.allclose(r9[220:],0.45)
 
     baseline=ns["causal_baseline"](y,blocks)
-    fam=ns["family_bootstrap"](y,{"P01":np.full(500,0.5)},baseline,blocks,20)
+    fam=ns["family_bootstrap"](y,{"P01":np.full(500,0.5)},baseline,20)
     assert "family_p_value" in fam and 0.0 <= fam["family_p_value"] <= 1.0
     print("Phase 7 regression checks PASS")
 
