@@ -1,3 +1,4 @@
+# Phase 7 gated trigger after approved detector correction; no scientific logic change.
 # Phase 7 fresh gated-run trigger: no scientific logic change.
 # Phase 7 gated-run trigger: no scientific logic change.
 from pathlib import Path
