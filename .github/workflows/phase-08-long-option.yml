@@ -31,13 +31,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Restore cached phase8 raw source audit
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            data/cache/raw/nse_fno_samples
-            data/cache/raw/hf_reference
-          key: phase8-free-source-${{ runner.os }}-${{ hashFiles('research/phase8/PHASE8_DATA_PLAN.md','scripts/audit_phase8_option_sources.py','scripts/reconcile_official_vs_hf.py') }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -92,13 +85,13 @@ jobs:
           key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
       - name: Restore or download immutable Run #654 artifact
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p data/cache/reference/phase7_run654
           zip="data/cache/reference/phase7_run654/phase7_run654.zip"
           if [ ! -s "$zip" ]; then
-            gh api "repos/\${GITHUB_REPOSITORY}/actions/artifacts/\${RUN654_ARTIFACT_ID}/zip" > "$zip"
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RUN654_ARTIFACT_ID}/zip" > "$zip"
           fi
           actual="$(sha256sum "$zip" | awk '{print $1}')"
           test "$actual" = "$RUN654_ARTIFACT_SHA256"
@@ -110,7 +103,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: data/cache/reference/phase7_run654
-          key: phase8-run654-\${{ env.RUN654_ARTIFACT_SHA256 }}
+          key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
 
   sources:
     name: phase8-free-source-audit
@@ -118,6 +111,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Restore cached phase8 raw source audit
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/cache/raw/nse_fno_samples
+            data/cache/raw/hf_reference
+          key: phase8-free-source-${{ runner.os }}-${{ hashFiles('research/phase8/PHASE8_DATA_PLAN.md','scripts/audit_phase8_option_sources.py','scripts/reconcile_official_vs_hf.py') }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -127,7 +127,7 @@ jobs:
           pip install requests pyarrow
       - name: Audit free sources
         env:
-          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/audit_phase8_option_sources.py
       - name: Acquire official sample archives
         run: python scripts/acquire_official_option_samples.py
@@ -135,7 +135,7 @@ jobs:
         run: python scripts/validate_official_option_samples.py
       - name: Acquire secondary HF option sample
         env:
-          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python scripts/acquire_hf_reference.py
       - name: Reconcile official NSE versus secondary sample
         run: python scripts/reconcile_official_vs_hf.py
@@ -147,7 +147,7 @@ jobs:
           path: |
             data/cache/raw/nse_fno_samples
             data/cache/raw/hf_reference
-          key: phase8-free-source-\${{ runner.os }}-\${{ hashFiles('research/phase8/PHASE8_DATA_PLAN.md','scripts/audit_phase8_option_sources.py','scripts/reconcile_official_vs_hf.py') }}
+          key: phase8-free-source-${{ runner.os }}-${{ hashFiles('research/phase8/PHASE8_DATA_PLAN.md','scripts/audit_phase8_option_sources.py','scripts/reconcile_official_vs_hf.py') }}
 
   reconstruct:
     name: phase8-forecast-reconstruction
@@ -166,17 +166,17 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: data/cache/reference/phase7_run654
-          key: phase8-run654-\${{ env.RUN654_ARTIFACT_SHA256 }}
+          key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
       - name: Restore Phase 3/6 source data
         uses: actions/cache/restore@v4
         with:
           path: data/cache
-          key: phase8-phase3-source-\${{ runner.os }}-\${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
+          key: phase8-phase3-source-${{ runner.os }}-${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
           restore-keys: |
-            phase8-phase3-source-\${{ runner.os }}-
+            phase8-phase3-source-${{ runner.os }}-
       - name: Ensure source data
         env:
-          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           python scripts/acquire_nifty_daily_history.py
           python scripts/acquire_hf_intraday_sample.py
@@ -201,7 +201,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fail closed unless tester authorization exists
         env:
-          EMPIRICAL_AUTHORIZED_INPUT: \${{ inputs.empirical_authorized }}
+          EMPIRICAL_AUTHORIZED_INPUT: ${{ inputs.empirical_authorized }}
         run: |
           set -euo pipefail
           test "$EMPIRICAL_AUTHORIZED_INPUT" = "true"
@@ -213,7 +213,7 @@ jobs:
   empirical:
     name: phase8-empirical-4800-cell
     needs: empirical-authorization
-    if: \${{ inputs.empirical_authorized == true }}
+    if: ${{ inputs.empirical_authorized == true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
