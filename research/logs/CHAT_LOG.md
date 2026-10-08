@@ -132,3 +132,12 @@ No scientific or protocol change was made during this checkpoint.
 - Before implementation, tester identified an internal inconsistency in the P08 binary regime cutpoints.
 - Developer corrected the specification to exhaustive four-state median-split volatility/trend regimes.
 - Tester independently re-approved the amendment.
+
+
+## 2026-10-08 — User continuation: Phase 7 Run #654 completed
+- User said "Ok proceed". Developer rechecked the repository governance files and the active hosted run before accepting any result.
+- Run #654 (`37763242007`) completed successfully through protocol, regression, empirical execution, validation and artifact upload.
+- Artifact `phase7-ensemble-results`, ID `11551679532`, digest `c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a`.
+- Independent tester performed the artifact/source audit and issued `PASS WITH SCOPED RESTRICTIONS` at `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md`.
+- No Phase 7 model is promoted. All family-level p-values exceed 0.05; raw maxima remain descriptive only.
+- The tester identified two carry-forward audit restrictions: P05/P06 chronological diagnostics are not trade-only, and intraday regime observation scale is a fixed one-minute causal path sampled at hourly decision rows. No post-result tuning is permitted.
