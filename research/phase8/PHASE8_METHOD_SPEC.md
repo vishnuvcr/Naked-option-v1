@@ -174,7 +174,7 @@ All costs are applied per trade and per historical date using the applicable rat
 
 ### Brokerage
 
-The current Paytm Money F&O FAQ states ₹10 brokerage for each unique F&O order that gets executed. The current backtest configuration will therefore use ₹10/order for 2026-era observations, while historical observations must use a dated Paytm tariff version rather than back-applying the current rate.
+The current Paytm Money F&O FAQ states ₹10 brokerage for each unique F&O order that gets executed. The current Paytm Money FAQ rate of ₹10/order is treated as a present-day verified rate only. A trade date may use ₹10 only after an independently verified Paytm tariff effective date is established. Until the effective date is documented for a historical interval, the fixed ₹20/order conservative fallback applies and is tagged `BROKERAGE_FALLBACK`.
 
 Where an exact historical Paytm tariff cannot be independently verified, the trade remains reported under an explicit conservative brokerage stress rather than silently assuming the current tariff.
 
@@ -349,7 +349,7 @@ Before empirical promotion:
 A cell exceeding a threshold is `DATA_QUALITY_FAIL` and cannot enter the Phase 9 shortlist. Signals with no entry fill remain logged as `NO_FILL` rather than being silently removed.
 
 ### Historical brokerage fallback
-For any historical date for which a dated Paytm tariff cannot be independently verified, the cost engine uses a fixed conservative fallback of **₹20 per executed order**, marked `BROKERAGE_FALLBACK`. The 2026 verified primary rate remains ₹10 per unique executed F&O order. No other rate may be inferred from strategy outcomes.
+For any trade date for which a dated Paytm tariff cannot be independently verified, the cost engine uses a fixed conservative fallback of **₹20 per executed order**, marked `BROKERAGE_FALLBACK`. The present-day verified Paytm FAQ rate remains ₹10 per unique executed F&O order, but it is never back-applied without an effective-date record. No other rate may be inferred from strategy outcomes.
 
 ### Delta/Black–Scholes fallback
 If an audited point-in-time delta is unavailable, Black–Scholes delta uses:
