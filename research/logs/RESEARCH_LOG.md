@@ -558,3 +558,7 @@
 - Tester independently rechecked the current branch after Run #637 and approved the exact current-horizon capture correction.
 - Gate `PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md` = PASS.
 - Fresh gated Phase 7 execution is authorized; no scientific metric from Run #637 is accepted.
+
+## 2026-10-08 — Phase 7 Run #645 correction on current lineage
+- Developer re-applied the tester-requested `current_h=H` closure binding directly to the current branch head to avoid lineage loss.
+- No empirical result exists from Run #645.

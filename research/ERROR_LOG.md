@@ -118,3 +118,9 @@
 - Impact: no Phase 7 artifact or scientific metric; Run #637 is **NON-EVIDENCE**.
 - Correction: reapply the exact tester-approved current-horizon binding on the current branch and retain direct multi-horizon regression coverage.
 - Prevention: verify production diff against the tester-approved correction commit before every gated empirical trigger.
+
+## 2026-10-08 — Phase 7 Run #645 closure regression defect
+- Hosted run #645 (`37723044460`) failed regression with `UnboundLocalError` because `H=H` was placed inside the nested capture hook.
+- Tester requested an explicit `current_h=H` closure binding.
+- A first automated reconstruction was malformed by indentation and was discarded before branch advancement.
+- The current correction rebuilds `capture_scope` explicitly with correct scope and `try/finally` restoration.

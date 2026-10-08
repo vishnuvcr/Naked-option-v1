@@ -17,23 +17,23 @@ ABSTAIN={"P05":(0.45,0.55),"P06":(0.40,0.60)}
 
 def capture_scope(df,intraday,horizons):
     captured={}
-    original=p6.metrics
+    original_metrics=p6.metrics
     counter={"i":0}
-    def hook(y,p,future,block_len,extra=None,mask=None):
-        i=counter["i"]; m=CAPTURE_ORDER[i%len(CAPTURE_ORDER)]
-        H=H
-        key=(str(H),m)
-        if key not in captured:
-            captured[key]={"y":np.asarray(y,float).copy(),"future":np.asarray(future,float).copy(),"p":np.asarray(p,float).copy()}
-        counter["i"]+=1
-        return {"status":"EXECUTED","n":int(np.isfinite(y).sum())}
     try:
-        p6.metrics=hook
         for H in horizons:
+            current_h=H
             counter["i"]=0
-            p6.run_scope(df,intraday=intraday,horizons=[H])
+            def hook(y,p,future,block_len,extra=None,mask=None):
+                i=counter["i"]; m=CAPTURE_ORDER[i%len(CAPTURE_ORDER)]
+                key=(str(current_h),m)
+                if key not in captured:
+                    captured[key]={"y":np.asarray(y,float).copy(),"future":np.asarray(future,float).copy(),"p":np.asarray(p,float).copy()}
+                counter["i"]+=1
+                return {"status":"EXECUTED","n":int(np.isfinite(y).sum())}
+            p6.metrics=hook
+            p6.run_scope(df,intraday=intraday,horizons=[current_h])
     finally:
-        p6.metrics=original
+        p6.metrics=original_metrics
     return captured
 
 def blocks_for(df,intraday):

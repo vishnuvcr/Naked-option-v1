@@ -189,3 +189,7 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester gate `research/gates/PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md` = **PASS**.
 - Current developer lineage now contains the exact approved `H=H` horizon binding and direct multi-horizon capture regression.
 - Fresh Phase 7 gated execution is authorized; Run #637 remains non-evidence.
+
+## 2026-10-08 — Phase 7 Run #645 correction on current lineage
+- The current branch lineage still contained `H=H`; the exact tester-requested closure fix has been rebuilt directly from the current branch head.
+- No scientific definitions changed.
