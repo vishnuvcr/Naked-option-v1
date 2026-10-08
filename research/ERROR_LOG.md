@@ -73,7 +73,7 @@
 - Impact: regression assertions did not execute; empirical job was skipped; no Phase 7 artifact or metric was generated.
 - Root cause: synthetic namespace omitted the production module's `__file__` variable.
 - Correction: supply deterministic `__file__` and assert the initialization path.
-- Disposition: non-evidence; tester gate `PHASE7_RUN608_REGRESSION_TESTER.md` = REQUEST CHANGES.
+- Disposition: non-evidence; tester gate `research/gates/PHASE7_RUN608_REGRESSION_TESTER.md` = REQUEST CHANGES.
 
 ## 2026-10-08 — Phase 7 Run #608 P07 fixture defect
 - Category: regression/test-fixture
@@ -81,7 +81,7 @@
 - Symptom: fixture asserted all predictions through row 219 were NaN, although rows 200-219 have exactly 200 prior observations and satisfy the frozen training minimum.
 - Impact: the corrected harness would have failed its own P07 boundary assertion; no new hosted execution was authorized from that faulty fixture.
 - Correction: require NaN only for rows 0-19 and finite predictions for rows 200-219.
-- Disposition: tester gate `PHASE7_RUN608_REGRESSION_FIXTURE_APPROVAL_TESTER.md` = PASS.
+- Disposition: tester gate `research/gates/PHASE7_RUN608_REGRESSION_FIXTURE_APPROVAL_TESTER.md` = PASS.
 
 ## 2026-10-08 — Phase 7 Run #614
 - Category: regression/test-harness
@@ -100,7 +100,7 @@
 - Impact: regression failed after reaching numerical tests; empirical job was skipped; no Phase 7 artifact or metric was accepted.
 - Root cause: regression fixture retained an obsolete `blocks` argument after the production function signature was simplified to `(y, candidates, baseline, block_len)`.
 - Correction: remove the stale argument and add a signature assertion.
-- Disposition: non-evidence; tester gate `PHASE7_RUN622_REGRESSION_TESTER.md` = REQUEST CHANGES.
+- Disposition: non-evidence; tester gate `research/gates/PHASE7_RUN622_REGRESSION_TESTER.md` = REQUEST CHANGES.
 
 ## 2026-10-08 — Phase 7 Run #635 detector sequencing issue
 - Category: workflow trigger sequencing
@@ -131,7 +131,6 @@
 - P08/P09/P10 regime diagnostic list had one extra terminal entry at daily +10 relative to candidate chronological metric blocks.
 - Tester froze the correction rules before implementation.
 
-
 ## 2026-10-08 — Phase 7 Run #654 audit closure
 - Category: audit/scientific validation
 - Hosted run: Research Protocol Check #654 (`37763242007`).
@@ -141,7 +140,6 @@
 - Scoped audit restrictions recorded by the tester: P05/P06 chronological diagnostics are full-series rather than trade-only, and the intraday P08/P09/P10 regime inputs are computed on the one-minute causal path at hourly decision rows; neither may be tuned from Run #654 outcomes.
 - Disposition: **PASS WITH SCOPED RESTRICTIONS**. Run #654 is accepted technical evidence; downstream option execution, cost, robustness and fresh-forward gates remain mandatory.
 
-
 ## 2026-10-08 — Phase 8 specification tester gate REQUEST CHANGES
 - Category: protocol/reproducibility
 - Component: Phase 8 long-option execution specification
@@ -149,8 +147,18 @@
 - Impact: empirical execution remained blocked; no strategy evidence was generated.
 - Correction: developer froze deterministic values and statuses in the current Phase 8 method/data specifications.
 - Disposition: fresh tester re-review required; no parameter or threshold was selected from empirical Phase 8 results.
-\n## 2026-10-08 — Phase 8 specification correction closed
+
+## 2026-10-08 — Phase 8 specification correction closed
 - The ten reproducibility findings from the first tester review were corrected in the current lineage.
 - No empirical option P&L was generated before re-approval.
 - Tester gate `PHASE8_SPEC_APPROVAL_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Remaining restrictions are explicitly frozen and are not to be changed from early Phase 8 results.
+
+## 2026-10-08 — Phase 8 execution-engine regression harness defect
+- Category: regression/test-harness
+- Component: `scripts/test_phase8_execution_engine.py`
+- Symptom: `test_trading_session_dte_is_timezone_agnostic()` called `trading_session_dte()` without importing it.
+- Impact: the hosted Phase 8 regression suite would raise `NameError`; no empirical option P&L is authorized and no result is evidence.
+- Tester gate `PHASE8_EXECUTION_ENGINE_APPROVAL_TESTER.md` = **REQUEST CHANGES**.
+- Correction: developer added the explicit `trading_session_dte` import in commit `fa3f9108eb99ce723a19b6fa3031782ae3e0cb02`.
+- Fresh hosted regression and independent re-review are required before the workflow/data gate can pass.
