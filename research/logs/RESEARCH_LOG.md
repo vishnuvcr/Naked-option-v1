@@ -593,3 +593,12 @@
 - Independent tester gate `research/gates/PHASE8_SPEC_APPROVAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - Phase 8 execution universe is frozen at 4,800 configuration cells (100 forecast cells × 3 delta × 4 DTE × 4 exits), with explicit ineligible/data-quality statuses.
 - Separate data, forecast-reconstruction, execution-regression and workflow gates remain mandatory before empirical execution.
+
+
+## 2026-10-08 — Phase 8 Run #742 workflow/data gate failure and correction
+- The tester independently reviewed hosted Research Protocol Check #742 (`37815078803`).
+- Protocol and source-audit execution passed through source acquisition; the regression job failed at the reconstruction regression.
+- Failure was isolated to the regression harness: AST execution omitted `__file__`, while production reconstruction resolves `ROOT` from `__file__`.
+- Tester issued REQUEST CHANGES before any empirical authorization.
+- Developer corrected only the test harness by supplying explicit `__file__` and non-main `__name__`, and added a direct regression assertion for the namespace contract.
+- No scientific reconstruction output, option P&L, or Phase 8 strategy result was accepted.
