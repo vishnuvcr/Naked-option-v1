@@ -1,3 +1,4 @@
+# Phase 7 fresh gated trigger after tester-approved horizon reapplication; no scientific logic change.
 # Phase 7 workflow trigger after approved detector sequencing correction; no scientific logic change.
 # Phase 7 verification trigger: approved regression corrections are now live.
 # Phase 7 gated trigger after approved detector correction; no scientific logic change.
