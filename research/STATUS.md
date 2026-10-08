@@ -109,3 +109,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run #578 remains **NON-EVIDENCE**; its empirical job was skipped and no artifact/metric was accepted.
 - The developer branch may now advance to the archived approval commit and trigger a fresh gated Phase 6 execution.
 - Phase 6 scientific promotion remains blocked until the fresh 200-cell artifact receives a separate independent empirical tester gate.
+## 2026-10-08 — Phase 6 Run #581 empirical tester gate
+- Fresh hosted run #581 (`37680832842`) completed successfully.
+- Immutable artifact `phase6-novel-results`, ID `11513410209`, SHA-256 `2065f7d8025b87f67de1a9f04908ec2fc015a6bda98c5a8162ddad3b01961c24`.
+- Complete registered grid: 200 cells = 140 EXECUTED + 60 BLOCKED_DATA; no missing or unexpected cells.
+- Independent tester gate `research/gates/PHASE6_RUN581_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
+- Technical validity is accepted; no Phase 6 method is promoted to a trading strategy.
+- Phase 7 ensemble/regime research is now authorized, subject to a fresh tester gate. Phase 8 option execution, costs, robustness and fresh-forward validation remain mandatory.

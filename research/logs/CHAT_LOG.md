@@ -112,3 +112,11 @@ No scientific or protocol change was made during this checkpoint.
 - The incorrect 11:00 expectation was corrected to 11:15; production logic was unchanged.
 - Tester gate `research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md` = PASS for fresh execution only.
 - Developer may archive this gate on `phase-06-developer` and trigger a fresh hosted run. Run #578 remains non-evidence.
+
+## 2026-10-08 — User continuation: Phase 6 Run #581 completed
+- User said "Ok proceed". Developer rechecked the live hosted run and confirmed Run #581 completed successfully through artifact upload.
+- Artifact `phase6-novel-results` ID `11513410209`, SHA-256 `2065f7d8025b87f67de1a9f04908ec2fc015a6bda98c5a8162ddad3b01961c24` was retrieved for independent audit.
+- Tester independently reconciled all 200 registered method/horizon cells: 140 executed and 60 blocked-data; no missing cells or unexpected statuses.
+- Tester found no arithmetic/schema inconsistency in executed cells. Apparent performance elevations are treated as research leads only, not validated strategies.
+- Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Developer may archive the gate and proceed to Phase 7 ensemble/regime research; Phase 8 option economics and later robustness/fresh-forward gates remain mandatory.

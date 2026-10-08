@@ -486,3 +486,12 @@
 - Tester confirmed production Phase 6 logic and frozen scientific definitions were unchanged.
 - Gate `research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md` = PASS for fresh empirical execution only.
 - Developer is authorized to archive the gate, advance the branch, and trigger a new hosted run. No scientific metric is accepted yet.
+
+## 2026-10-08 — Phase 6 Run #581 independent tester gate
+- Run #581 (`37680832842`) completed with protocol, regression, empirical execution, schema validation and artifact upload successful.
+- Artifact ID `11513410209`; SHA-256 `2065f7d8025b87f67de1a9f04908ec2fc015a6bda98c5a8162ddad3b01961c24`.
+- Tester reconciled all 200 registered cells: 140 executed and 60 correctly blocked by frozen data-availability rules.
+- Confusion counts, accuracy, positive-rate, metric ranges and bootstrap interval ordering reconciled for all executed cells.
+- Several apparent daily accuracy/AUC elevations were observed, but none is promotion-grade because multiple comparisons, chronological stability, option economics, cost stress, robustness and fresh-forward validation remain outstanding.
+- Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Phase 7 ensemble/regime research is authorized; direct Phase 6 strategy promotion is prohibited.

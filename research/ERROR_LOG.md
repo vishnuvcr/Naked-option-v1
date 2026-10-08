@@ -50,3 +50,7 @@
 - Root cause: arithmetic error in the newly added regression expectation, not in the production cutoff implementation.
 - Correction: update the expected timestamp to 11:15 and preserve the production change unchanged.
 - Prevention: independently recompute fixture timestamps for every explicit time-delta assertion before the next hosted run.
+
+## 2026-10-08 — Phase 6 Run #581
+- No execution error occurred. Protocol, regression, empirical suite, schema validation and artifact upload all passed.
+- The independent tester nevertheless recorded a scientific caution: raw maxima across 140 executed cells are not treated as discoveries because multiple-comparison and downstream trading gates remain outstanding.

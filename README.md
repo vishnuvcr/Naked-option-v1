@@ -100,3 +100,13 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Tester gate [PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md](research/gates/PHASE6_RUN26_REGRESSION_APPROVAL_TESTER.md) = **PASS — fresh empirical execution authorized**.
 - Correction `1a956f930b11850fb238ea3352565b36a7337395` fixes only the regression fixture arithmetic (13:15 − 120 minutes = 11:15).
 - Run #578 remains non-evidence; the next run must pass the full regression suite before empirical execution.
+
+## Phase 6 Run #581 — 2026-10-08
+
+- **Status:** completed and independently audited.
+- **Artifact:** `phase6-novel-results`, ID `11513410209`.
+- **Artifact SHA-256:** `2065f7d8025b87f67de1a9f04908ec2fc015a6bda98c5a8162ddad3b01961c24`.
+- **Coverage:** 200 registered cells; 140 executed, 60 correctly blocked by PIT/data-availability rules.
+- **Tester gate:** [PHASE6_RUN581_TESTER.md](research/gates/PHASE6_RUN581_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
+- The technical artifact is accepted, but **no Phase 6 model is promoted**. Raw apparent accuracy/AUC elevations are not sufficient because multiple testing, chronological stability, costs, option execution economics, robustness and fresh-forward validation remain.
+- **Next phase:** Phase 7 ensemble/regime-conditioned prediction, with a new independent tester gate.
