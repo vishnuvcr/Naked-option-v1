@@ -1,0 +1,234 @@
+name: Phase 8 Long-Option Research
+
+on:
+  workflow_call:
+    inputs:
+      empirical_authorized:
+        required: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      empirical_authorized:
+        description: "Tester-approved empirical authorization"
+        required: true
+        type: boolean
+        default: false
+  push:
+    branches:
+      - phase-08-developer
+    paths:
+      - scripts/reconstruct_phase7_predictions.py
+      - scripts/test_phase8_reconstruction.py
+      - scripts/validate_phase8_forecast_panel.py
+      - scripts/audit_phase8_option_sources.py
+      - scripts/phase8_execution_engine.py
+      - scripts/test_phase8_execution_engine.py
+      - data/reference/phase8_cost_schedule.json
+      - research/phase8/**
+      - research/gates/PHASE8_**
+      - .github/workflows/phase-08-long-option.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  RUN654_ARTIFACT_ID: "11551679532"
+  RUN654_ARTIFACT_SHA256: "c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a"
+
+jobs:
+  protocol:
+    name: phase8-protocol
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas pyarrow
+      - name: Validate frozen Phase 8 contract
+        run: |
+          test -f research/gates/PHASE8_SPEC_APPROVAL_TESTER.md
+          test -f research/gates/PHASE8_RECONSTRUCTION_CODE_TESTER.md
+          test -f research/gates/PHASE8_EXECUTION_CONVENTIONS_TESTER.md
+          test -f research/gates/PHASE8_EXECUTION_ENGINE_APPROVAL_TESTER.md
+          python - <<'PY'
+          import json, os
+          p=json.load(open("research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json"))
+          assert p["artifact_id"] == int(os.environ["RUN654_ARTIFACT_ID"])
+          assert p["artifact_sha256"] == os.environ["RUN654_ARTIFACT_SHA256"]
+          assert p["empirical_option_execution_authorized"] is False
+          assert p["reconstruction_tolerance_abs"] == 1e-9
+          PY
+      - name: Validate literature registry
+        run: python scripts/validate_literature_registry.py
+
+  regression:
+    name: phase8-regression
+    needs: protocol
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn pyarrow
+      - name: Reconstruction regression
+        run: python scripts/test_phase8_reconstruction.py
+      - name: Execution-engine regression
+        run: PYTHONPATH=scripts python scripts/test_phase8_execution_engine.py
+
+  artifact:
+    name: phase8-run654-artifact
+    needs: regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore or download immutable Run #654 artifact
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/cache/reference/phase7_run654
+          zip="data/cache/reference/phase7_run654/phase7_run654.zip"
+          if [ ! -s "$zip" ]; then
+            gh api "repos/\${GITHUB_REPOSITORY}/actions/artifacts/\${RUN654_ARTIFACT_ID}/zip" > "$zip"
+          fi
+          actual="$(sha256sum "$zip" | awk '{print $1}')"
+          test "$actual" = "$RUN654_ARTIFACT_SHA256"
+          rm -rf data/cache/reference/phase7_run654/unpacked
+          mkdir -p data/cache/reference/phase7_run654/unpacked
+          unzip -q "$zip" -d data/cache/reference/phase7_run654/unpacked
+          test "$(find data/cache/reference/phase7_run654/unpacked -name phase7_ensemble_results.json | wc -l)" = "1"
+      - name: Cache immutable Run #654 artifact
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/reference/phase7_run654
+          key: phase8-run654-\${{ env.RUN654_ARTIFACT_SHA256 }}
+
+  sources:
+    name: phase8-free-source-audit
+    needs: protocol
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyarrow
+      - name: Audit free sources
+        env:
+          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+        run: python scripts/audit_phase8_option_sources.py
+      - name: Acquire official sample archives
+        run: python scripts/acquire_official_option_samples.py
+      - name: Validate official option schemas
+        run: python scripts/validate_official_option_samples.py
+      - name: Acquire secondary HF option sample
+        env:
+          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+        run: python scripts/acquire_hf_reference.py
+      - name: Reconcile official NSE versus secondary sample
+        run: python scripts/reconcile_official_vs_hf.py
+      - name: Validate date-aware lot size
+        run: python scripts/validate_lot_size_udiff.py
+      - name: Cache phase8 raw source audit
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/cache/raw/nse_fno_samples
+            data/cache/raw/hf_reference
+          key: phase8-free-source-\${{ runner.os }}-\${{ hashFiles('research/phase8/PHASE8_DATA_PLAN.md','scripts/audit_phase8_option_sources.py','scripts/reconcile_official_vs_hf.py') }}
+
+  reconstruct:
+    name: phase8-forecast-reconstruction
+    needs: [artifact, regression]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn pyarrow
+      - name: Restore cached Run #654 artifact
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/reference/phase7_run654
+          key: phase8-run654-\${{ env.RUN654_ARTIFACT_SHA256 }}
+      - name: Restore Phase 3/6 source data
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache
+          key: phase8-phase3-source-\${{ runner.os }}-\${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
+          restore-keys: |
+            phase8-phase3-source-\${{ runner.os }}-
+      - name: Ensure source data
+        env:
+          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+        run: |
+          python scripts/acquire_nifty_daily_history.py
+          python scripts/acquire_hf_intraday_sample.py
+      - name: Reconstruct from immutable Run #654 artifact
+        run: |
+          REF="$(find data/cache/reference/phase7_run654/unpacked -name phase7_ensemble_results.json -print -quit)"
+          test -n "$REF"
+          python scripts/reconstruct_phase7_predictions.py --reference "$REF"
+      - name: Validate forecast panel
+        run: python scripts/validate_phase8_forecast_panel.py
+      - name: Upload reconstruction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-forecast-reconstruction
+          path: data/reports/phase8/
+
+  empirical-authorization:
+    name: phase8-empirical-authorization
+    needs: [protocol, regression, artifact, sources, reconstruct]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed unless tester authorization exists
+        env:
+          EMPIRICAL_AUTHORIZED_INPUT: \${{ inputs.empirical_authorized }}
+        run: |
+          set -euo pipefail
+          test "$EMPIRICAL_AUTHORIZED_INPUT" = "true"
+          test -f research/phase8/PHASE8_EMPIRICAL_AUTHORIZATION.md
+          grep -q "STATUS: AUTHORIZED" research/phase8/PHASE8_EMPIRICAL_AUTHORIZATION.md
+          test ! -f research/phase8/PHASE8_FROZEN_INPUT_MANIFEST_EMPIRICAL_OVERRIDE.json
+          echo "Phase 8 empirical authorization gate PASS"
+
+  empirical:
+    name: phase8-empirical-4800-cell
+    needs: empirical-authorization
+    if: \${{ inputs.empirical_authorized == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas pyarrow scikit-learn
+      - name: Refuse placeholder empirical execution
+        run: |
+          if [ ! -f scripts/run_phase8_long_option.py ]; then
+            echo "Empirical runner not yet present; empirical authorization must remain disabled."
+            exit 1
+          fi
+      - name: Run registered 4,800-cell grid
+        run: python scripts/run_phase8_long_option.py
