@@ -31,7 +31,8 @@ def test_source_blocks_result_driven_changes():
 def exec_source_namespace():
     ns = {"__file__": str(SRC), "__name__": "phase8_reconstruction_test_namespace"}
     tree = ast.parse(load_source())
-    exec(compile(tree, str(SRC), "exec"), ns)
+    code = compile(tree, str(SRC), "exec")
+    exec(code, ns, ns)
     return ns
 
 
