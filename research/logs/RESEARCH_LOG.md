@@ -553,3 +553,8 @@
 - The fresh run again failed at the second daily horizon because the developer branch had reverted/lost the approved `H=H` capture correction.
 - Tester approval scope already covers this exact correction; no scientific change is needed.
 - Run #637 remains non-evidence. Developer is reapplying the exact approved production fix and strengthening the horizon regression on the current lineage.
+
+## 2026-10-08 — Phase 7 Run #637 horizon reapplication approved
+- Tester independently rechecked the current branch after Run #637 and approved the exact current-horizon capture correction.
+- Gate `PHASE7_RUN637_HORIZON_REAPPROVAL_TESTER.md` = PASS.
+- Fresh gated Phase 7 execution is authorized; no scientific metric from Run #637 is accepted.
