@@ -358,6 +358,21 @@ def proxy_spread_component(premium: float, tick_size: float, scenario: str) -> f
     return max(float(tick_size), float(premium) * PROXY_SPREAD[scenario])
 
 
+def validate_quote_timestamp(
+    quote_timestamp,
+    executable_timestamp,
+    max_forward_seconds: int,
+) -> tuple[bool, str]:
+    q = as_ist_timestamp(quote_timestamp)
+    e = as_ist_timestamp(executable_timestamp)
+    delta = (q - e).total_seconds()
+    if delta < 0:
+        return False, "QUOTE_BEFORE_EXECUTION"
+    if delta > int(max_forward_seconds):
+        return False, "QUOTE_TOO_FAR_AFTER_EXECUTION"
+    return True, "PASS"
+
+
 def fill_price(
     base_price: float,
     side: str,
@@ -367,14 +382,21 @@ def fill_price(
     tick_size: float,
     ask: float | None = None,
     bid: float | None = None,
+    quote_timestamp=None,
+    max_quote_forward_seconds: int | None = None,
 ) -> Fill:
     if not _finite(base_price) or base_price < 0:
         raise ValueError("invalid base price")
-    ts = pd.Timestamp(timestamp)
+    ts = as_ist_timestamp(timestamp)
     side = side.upper()
     quality = quality.upper()
     slip = INCREMENTAL_SLIPPAGE[scenario]
     if quality == "Q2":
+        if quote_timestamp is None or max_quote_forward_seconds is None:
+            raise ValueError("Q2 fills require a quote timestamp and stale-data window")
+        ok, reason = validate_quote_timestamp(quote_timestamp, ts, max_quote_forward_seconds)
+        if not ok:
+            raise ValueError(reason)
         if side == "BUY":
             if not _finite(ask):
                 raise ValueError("Q2 BUY requires ask")
@@ -401,7 +423,6 @@ def fill_price(
     else:
         raise ValueError("execution quality must be Q1 or Q2")
     return Fill(price=float(px), quality=quality, timestamp=ts, basis=basis)
-
 
 def break_even_log_return(
     option_type: str,
