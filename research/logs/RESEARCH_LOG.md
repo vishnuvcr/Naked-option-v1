@@ -581,3 +581,10 @@
 - All family-level p-values were non-significant at 5%: 0.742, 0.738, 0.962, 0.788, 0.464 daily and 0.248, 0.992, 1.000, 0.994, 0.512 intraday.
 - Tester gate `research/gates/PHASE7_RUN654_EMPIRICAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - No P01-P10 candidate is promoted. Phase 8 is the next pre-registered research phase, but it must carry forward the two audit-scope restrictions and must include realistic Paytm Money execution costs, spread, slippage, latency and premium-decay economics.
+
+
+## 2026-10-08 — Phase 8 specification tester review
+- Developer submitted the frozen long-option execution protocol for independent review before data acquisition or strategy execution.
+- Tester gate `research/gates/PHASE8_SPEC_TESTER.md` returned REQUEST CHANGES on ten reproducibility gaps.
+- Developer corrected the current Phase 8 specification/data plan without empirical results: pre-decision liquidity lookbacks, fixed entry/exit windows, numerical data-quality limits, ₹20 historical brokerage fallback, deterministic delta fallback, 1e-9 reconstruction tolerance, explicit 4,800-cell universe and status model, anomaly concentration rule, 20-session performance blocks, and overlap skipping.
+- A fresh tester gate is now required. Phase 8 empirical execution remains unauthorized.
