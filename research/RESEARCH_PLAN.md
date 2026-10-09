@@ -100,3 +100,6 @@ No single numeric threshold is sufficient for promotion; all gates are conjuncti
 The research will not expand without limit. The method universe ends when the pre-registered catalog in `METHOD_REGISTRY.md` has been exhausted, all surviving candidates have passed the statistical gates, and the fresh-forward test is complete.
 
 Literal “100% certainty” about future market direction is impossible. The scientific objective is the strongest defensible evidence under the declared protocol.
+
+
+Protocol terminology note: the final **untouched holdout** is the untouched forward-validation segment reserved from all development, tuning, and candidate selection; it is not reused for model selection.
