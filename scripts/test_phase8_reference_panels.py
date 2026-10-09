@@ -9,6 +9,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import run_phase7_ensemble as p7
+import validate_phase7_reference_panels as validator
 from validate_phase7_reference_panels import compare_panel
 
 
@@ -53,6 +54,134 @@ def test_saved_panel_metrics_reconcile_without_model_refit():
     assert outcome == {"rows": n, "blocks": len(blocks), "metric_comparison": "PASS"}
 
 
+def test_full_artifact_directory_validation():
+    import hashlib
+    import json
+    import tempfile
+
+    n = 240
+    original_root = validator.ROOT
+    original_family = p7.family_bootstrap
+    original_argv = sys.argv[:]
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            artifact = root / "artifact"
+            refdir = artifact / "phase7_reference"
+            refdir.mkdir(parents=True)
+            source_daily = root / "data/cache/raw/phase3/nifty50_daily.csv"
+            source_intra = root / "data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet"
+            source_daily.parent.mkdir(parents=True, exist_ok=True)
+            source_intra.parent.mkdir(parents=True, exist_ok=True)
+            source_daily.write_text("date,close\n2024-01-01,100\n", encoding="utf-8")
+            source_intra.write_bytes(b"synthetic-intraday-source")
+            validator.ROOT = root
+            p7.family_bootstrap = lambda *args, **kwargs: {"observed": 0.001, "p_value": 0.5}
+
+            aggregate = {"protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42}
+            panel_records = []
+            for layer, intraday, horizons, block_len in [
+                ("daily", False, [1, 2, 3, 5, 10], 20),
+                ("intraday", True, [5, 15, 30, 60, 120], 60),
+            ]:
+                layer_result = {"rows": n, "horizons": {}}
+                for H in horizons:
+                    y = (np.arange(n) % 3 != 0).astype(float)
+                    future = np.where(y == 1, 0.01, -0.01)
+                    if intraday:
+                        ts = pd.date_range("2024-01-01T00:00:00Z", periods=n, freq="h")
+                    else:
+                        ts = pd.date_range("2024-01-01", periods=n, freq="D")
+                    blocks = [np.arange(i, min(i + block_len, n)) for i in range(0, n, block_len)]
+                    block_index = np.repeat(np.arange(len(blocks)), [len(b) for b in blocks])
+                    candidates = {
+                        f"P{i:02d}": np.clip(0.36 + 0.001 * (np.arange(n) % 100) + i * 0.003, 0.01, 0.99)
+                        for i in range(1, 11)
+                    }
+                    frame = pd.DataFrame({
+                        "layer": layer, "horizon": H, "source_row_index": np.arange(n),
+                        "decision_timestamp": ts, "label_direction": y, "future_return": future,
+                        "block_index": block_index,
+                    })
+                    for name, pred in candidates.items():
+                        frame[name] = pred
+                    frame["source_run_id"] = "test-run"
+                    frame["source_commit"] = "a" * 40
+                    panel_path = refdir / f"phase7_predictions_{layer}_H{H}.parquet"
+                    frame.to_parquet(panel_path, index=False)
+                    panel_records.append({
+                        "path": f"data/reports/phase7_reference/{panel_path.name}",
+                        "sha256": hashlib.sha256(panel_path.read_bytes()).hexdigest(),
+                        "rows": n, "layer": layer, "horizon": H, "columns": list(frame.columns),
+                    })
+
+                    baseline = p7.causal_baseline(y, blocks)
+                    results = {}
+                    for name, pred in candidates.items():
+                        mask = None
+                        extra = {}
+                        if name in p7.ABSTAIN:
+                            lo, hi = p7.ABSTAIN[name]
+                            finite = np.isfinite(pred)
+                            mask = finite & ~((pred >= lo) & (pred <= hi))
+                            extra = {
+                                "coverage": float(mask.sum() / finite.sum()) if finite.sum() else 0.0,
+                                "trade_n": int(mask.sum()),
+                                "evaluable_n": int(finite.sum()),
+                            }
+                        metric = p7.p6.metrics(y, pred, future, block_len, extra=extra, mask=mask)
+                        metric["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks)
+                        if name in ("P08", "P09", "P10"):
+                            metric["regime_diagnostics"] = []
+                            metric["regime_fallback_count"] = 0
+                        results[name] = metric
+                    results["_FAMILY_TEST"] = p7.family_bootstrap(y, candidates, baseline, block_len)
+                    layer_result["horizons"][str(H)] = results
+                aggregate[layer] = layer_result
+
+            aggregate_path = artifact / "phase7_ensemble_results.json"
+            aggregate_path.write_text(json.dumps(aggregate, indent=2, allow_nan=False), encoding="utf-8")
+            manifest = {
+                "schema_version": 1, "status": "COMPLETE", "run_id": "test-run",
+                "commit": "a" * 40, "protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42,
+                "aggregate_result": {
+                    "path": "data/reports/phase7_ensemble_results.json",
+                    "sha256": hashlib.sha256(aggregate_path.read_bytes()).hexdigest(),
+                },
+                "prediction_panels": panel_records,
+                "source_files": {
+                    "daily_csv": {"path": "data/cache/raw/phase3/nifty50_daily.csv", "sha256": hashlib.sha256(source_daily.read_bytes()).hexdigest()},
+                    "intraday_parquet": {"path": "data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet", "sha256": hashlib.sha256(source_intra.read_bytes()).hexdigest()},
+                },
+                "code_files": {
+                    "scripts/run_phase7_ensemble.py": "1" * 64,
+                    "scripts/run_phase6_novel.py": "2" * 64,
+                    "scripts/run_phase3_daily_baselines.py": "3" * 64,
+                    "scripts/run_phase3_intraday_baselines.py": "4" * 64,
+                },
+                "runtime": {
+                    "python": "3.11", "platform": "test", "machine": "test", "numpy": np.__version__,
+                    "pandas": pd.__version__, "scikit_learn": "test", "scipy": "test",
+                    "pyarrow": "test", "threadpoolctl": "test", "threadpools": [],
+                },
+            }
+            (refdir / "phase7_reference_manifest.json").write_text(
+                json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+            output = root / "data/reports/phase8"
+            sys.argv = ["validate_phase7_reference_panels.py", "--artifact-dir", str(artifact), "--output-dir", str(output)]
+            validator.main()
+            result = json.loads((output / "phase8_forecast_reconstruction_manifest.json").read_text())
+            assert result["status"] == "PASS"
+            assert result["total_cells"] == 10
+            assert result["all_cells_reproduced"] is True
+            assert len(list(output.glob("phase7_predictions_*.parquet"))) == 10
+    finally:
+        validator.ROOT = original_root
+        p7.family_bootstrap = original_family
+        sys.argv = original_argv
+
+
 if __name__ == "__main__":
     test_saved_panel_metrics_reconcile_without_model_refit()
+    test_full_artifact_directory_validation()
     print("Phase 8 saved-panel validator regression PASS")
