@@ -135,7 +135,7 @@ def test_both_execution_workflows_use_snapshot_validator():
     assert "python scripts/validate_phase7_correction_approval.py --head" in reusable
     assert "fetch-depth: 0" in reusable
     assert "PHASE7_RUN925_CORRECTION_APPROVAL.json" in reusable
-    assert "PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md" in approval.PROTECTED_FILES
+    assert "research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md" in approval.PROTECTED_FILES
 
 
 def main():

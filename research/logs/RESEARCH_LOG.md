@@ -633,3 +633,11 @@
 - Added positive/negative tests for matching snapshots, protected-file mutation, changed tester copy, non-ancestor commit and incomplete protected-file manifest; workflow regression verifies caller and reusable paths use the validator.
 - Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol and Phase 7 regression suites. Empirical execution skipped because the correction-specific tester report and approval manifest are absent.
 - Submitted commit `b9fc7c9e7c77efb5149d35e31509251f701122ce` for independent review. Phase 7 and Phase 8 remain blocked pending tester decision.
+
+
+## 2026-10-09 — Phase 7 correction-approval regression fixture repair submitted
+
+- Run #989 (`37953177951`) passed protocol and the standard Phase 7 regression suite, then failed the new correction-approval test because it checked a bare filename against a tuple of full path strings.
+- Confirmed the production validator's protected list includes `research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md`; the failed assertion was a test-fixture path mismatch, not missing production coverage.
+- Corrected the test expectation to the full repository-relative path. No forecast logic or frozen scientific method changed.
+- This step remains engineering-only pending fresh hosted regression and independent tester review. Run #989 remains non-evidence, no new metric is accepted, and Phase 8 remains blocked.

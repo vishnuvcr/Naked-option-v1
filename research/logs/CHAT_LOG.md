@@ -194,3 +194,11 @@ No scientific or protocol change was made during this checkpoint.
 - Added `scripts/validate_phase7_correction_approval.py` and `scripts/test_phase7_correction_approval.py`; updated both automatic and manual/reusable workflow paths to verify a tester-branch approval manifest against the current protected-file hashes and reviewed commit.
 - Hosted Run #981 passed protocol and all Phase 7 regression jobs; empirical and approval gates were skipped because tester PASS/manifest are not yet present.
 - Developer commit `b9fc7c9e7c77efb5149d35e31509251f701122ce` submitted for independent tester review. No metric or strategy promoted.
+
+
+## 2026-10-09 — User: Proceed; repair Run #989 regression blocker
+
+- Resumed from the latest repository state, checked the run logs and phase governance files, and found Research Protocol Check #989 (`37953177951`) failed in the correction-approval test before empirical execution.
+- Root cause was a mismatched assertion: the test used the bare filename while `PROTECTED_FILES` uses the full path. The test now asserts the exact full path.
+- Logged the failure and planned prevention in both error-log files and the research status/log. No scientific result is implied by this engineering repair.
+- Tester instruction: independently review the corrected test and rerun the hosted engineering gate. Do not authorize empirical execution until the exact snapshot passes independent review.

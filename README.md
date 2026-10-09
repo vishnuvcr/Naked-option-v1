@@ -257,3 +257,10 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - Both the automatic protocol caller and manual/reusable Phase 7 workflow now fail closed unless the tester branch contains a matching report and JSON manifest for the exact reviewed commit and protected-file SHA-256 set.
 - Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol and all Phase 7 regression suites; empirical execution was skipped because independent tester approval has not yet been issued.
 - Developer snapshot submitted for independent review: `b9fc7c9e7c77efb5149d35e31509251f701122ce`. Phase 7 remains blocked pending tester review; Phase 8 is not authorized.
+
+
+## Latest checkpoint — 2026-10-09, Phase 7 approval-test repair
+
+- Research Protocol Check [#989](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37953177951) failed in a correction-approval regression assertion after protocol and the standard Phase 7 regression passed. Empirical execution did not run.
+- Root cause: the test compared a bare filename against a tuple containing full repository-relative paths. Developer corrected the assertion to the exact protected path; this is a test-only change, not a scientific-method change.
+- [Error log](research/ERROR_LOG.md) and [detailed research log](research/logs/RESEARCH_LOG.md) preserve the incident. Run #989 remains non-evidence; no metric or strategy is promoted. Phase 7 awaits a fresh hosted regression and independent tester review; Phase 8 remains blocked.

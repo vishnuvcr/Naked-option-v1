@@ -279,3 +279,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Protected source, tests, input/acquisition logic, method specifications and workflow files must match SHA-256 values in a tester-branch approval manifest. The reviewed commit must exist and be an ancestor; tester report and manifest must match byte-for-byte across branches and the report hash must match the manifest.
 - Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol, Phase 7 regression, correction-approval validator regression and reference-artifact regression. Authorization and empirical jobs were skipped, as expected, because independent approval/manifest are not yet present.
 - State: **AWAITING INDEPENDENT TESTER REVIEW**. No empirical run authorized, no metric accepted, Phase 8 blocked.
+
+
+## 2026-10-09 — Phase 7 correction-approval test fixture repair
+
+- Latest hosted check [#989](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37953177951) failed after protocol and the standard Phase 7 tests passed; the correction-approval regression asserted a bare filename against full-path registry entries.
+- Developer corrected the assertion to the canonical full path. The production protected-file registry already covered that report; no scientific logic or model metrics changed.
+- State: **ENGINEERING RE-RUN AND INDEPENDENT TESTER REVIEW REQUIRED**. Run #989 is non-evidence; no new Phase 7 artifact/metric is accepted. Phase 8 remains blocked until Phase 7 correction approval and a fresh post-run artifact audit pass.
