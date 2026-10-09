@@ -633,3 +633,11 @@
 - Reconstruction still failed at intraday H=60 P07 chronological-block Brier blocks 33 and 55, with differences above the frozen 1e-9 tolerance. Thus the runtime/thread-control patch did not solve the mismatch; its cause is still unknown.
 - Tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` records REQUEST CHANGES. The 4,800-cell option grid remains blocked.
 - Next research action is to isolate the exact historical per-row prediction/label aggregation path, test it against the immutable artifact, and obtain tester review before any further hosted reconstruction run. No metric tolerance or frozen reference was changed.
+
+
+## 2026-10-09 — Phase 8 Run #822 follow-up investigation
+- Checked Run #822 status repeatedly; upstream protocol, regression, free-source audit and immutable Run #654 artifact checks passed. Forecast reconstruction remained in progress at the latest check; live job logs were not yet available and no diagnostic result was inferred.
+- Compared Run #654 and Run #807 logs: both report the same HF revision and normalized intraday source SHA-256, and checked Phase 3/6 loader source blobs match the Run #654 commit. Run #807 used Python 3.11.16 and single-thread controls but still failed the same frozen aggregate checks; runner-image release differed.
+- Identified a structural reproducibility gap: Run #654 artifact retains aggregate metrics but no row-level predictions. Root cause remains unproven; no tolerance change or empirical execution.
+- Developer proposal commit d316da04e301977e62c6ee2c1fcba2602e608326 requests a new, versioned Phase 7 artifact that captures predictions and aggregate metrics from the same execution. Tester proposal gate commit b25dec552a735369ed1f15c6926c396f18620f75 approves this proposal with scoped restrictions only.
+- Next: implement panel/artifact output and tests, submit to a distinct tester code review, then run a gated Phase 7 artifact build and independent artifact audit before a separately reviewed Phase 8 manifest amendment.
