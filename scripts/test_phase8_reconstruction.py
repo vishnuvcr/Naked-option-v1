@@ -81,6 +81,30 @@ def test_canonical_rows_do_not_drop_future_audit_fields():
     assert df["decision_timestamp"].notna().all()
 
 
+
+def test_reconstruction_pins_numerical_threadpool():
+    src = load_source()
+    assert "from threadpoolctl import threadpool_limits" in src
+    assert "with threadpool_limits(limits=1):" in src
+    workflow = (ROOT / ".github" / "workflows" / "phase-08-long-option.yml").read_text(encoding="utf-8")
+    reconstruct = workflow.split("  reconstruct:", 1)[1].split("  empirical-authorization:", 1)[0]
+    assert 'python-version: "3.11.16"' in reconstruct
+    for key in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        assert f'{key}: "1"' in reconstruct
+
+
+def test_threadpool_limit_repeats_logistic_predictions():
+    from sklearn.linear_model import LogisticRegression
+    from threadpoolctl import threadpool_limits
+    rng = np.random.default_rng(42)
+    X = rng.normal(size=(600, 8))
+    y = (X[:, 0] - 0.4 * X[:, 1] + rng.normal(scale=0.5, size=600) > 0).astype(int)
+    X_train, y_train, X_test = X[:500], y[:500], X[500:]
+    with threadpool_limits(limits=1):
+        a = LogisticRegression(C=1.0, solver="lbfgs", max_iter=500, random_state=42).fit(X_train, y_train).predict_proba(X_test)[:, 1]
+        b = LogisticRegression(C=1.0, solver="lbfgs", max_iter=500, random_state=42).fit(X_train, y_train).predict_proba(X_test)[:, 1]
+    np.testing.assert_array_equal(a, b)
+
 def test_manifest_is_json():
     data = json.loads((ROOT / "research" / "phase8" / "PHASE8_FROZEN_INPUT_MANIFEST.json").read_text())
     assert data["artifact_id"] == 11551679532
@@ -95,5 +119,7 @@ if __name__ == "__main__":
     test_recursive_compare_tolerance()
     test_git_blob_sha_matches_git_empty_blob()
     test_canonical_rows_do_not_drop_future_audit_fields()
+    test_reconstruction_pins_numerical_threadpool()
+    test_threadpool_limit_repeats_logistic_predictions()
     test_manifest_is_json()
     print("Phase 8 reconstruction regression PASS")
