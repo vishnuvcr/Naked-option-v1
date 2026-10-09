@@ -650,3 +650,11 @@
 - Protocol and regression suites passed, but the reference-artifact authorization and empirical jobs were skipped. Run #992 is not scientific evidence.
 - Tester corrected the report line to the exact `Reviewed developer commit: `commit`` form, explicitly stated `fresh empirical execution only`, recomputed the report SHA-256 and Phase 6 file hash, and recommitted the report/manifest on `phase-07-tester`.
 - Developer is mirroring these exact tester blobs without changing any protected source, specification or workflow file. Next step is a new hosted validator run; only an explicit authorized=true result can release one fresh Phase 7 empirical execution.
+
+
+## 2026-10-09 — Phase 7 Run #994: snapshot authorization PASS; fresh empirical run started
+
+- After Run #992 correctly failed closed on the initial malformed manifest, the tester corrected its report and protected-file SHA-256 manifest. Developer mirrored the same blob versions byte-for-byte.
+- Run #993 on the isolated tester branch repeated the old Run #925 artifact audit (2,775 checks passed, 323 failed); this is the known rejected artifact and does not affect the separate correction-code gate.
+- Fresh developer hosted run [#994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, Phase 7 regression, approval-validator regression, reference-artifact regression and the independent snapshot authorization job. The validator accepted all 25 protected hashes and byte-identical tester copies for reviewed commit `ccb063fb414db971c9a43ed0e0cd85ef9d3c4c4f`.
+- The single authorized empirical job has started. Its output is pending; no new metrics, model promotion, or Phase 8 progression has been accepted.

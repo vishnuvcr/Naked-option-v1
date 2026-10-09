@@ -272,3 +272,11 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - The first approval mirror, [Run #992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957038797), correctly failed closed before empirical execution because the tester report line/scope format, report digest and one protected-file hash did not all match. Run #992 is non-evidence.
 - The independent tester corrected the report and JSON manifest on `phase-07-tester`; developer is mirroring those exact blobs. See [Phase 7 correction tester gate](research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md), [snapshot manifest](research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json), and [error log](research/ERROR_LOG.md).
 - State: waiting for the fresh hosted validator to confirm the exact snapshot. No new metric is accepted, no strategy promoted, and Phase 8 stays blocked pending the fresh empirical artifact's separate audit.
+
+
+## Latest checkpoint — 2026-10-09: Phase 7 fresh empirical run in progress
+
+- The exact snapshot approval was corrected and independently archived on `phase-07-tester`; the same report/manifest blobs are now on `phase-07-developer`.
+- [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, all Phase 7 regression suites and the tester-authorization job. The hosted validator confirmed report/manifest byte identity, reviewed-commit ancestry and all 25 protected-file hashes.
+- One fresh Phase 7 empirical job is in progress; no new metric is accepted until artifact validation and a separate independent tester audit finish.
+- The tester branch’s [Run #993](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957295201) repeated the prior Run #925 rejection (2,775 pass checks / 323 fails); Run #925 remains non-evidence. Phase 8 remains blocked pending Run #994’s artifact gate. See [status](research/STATUS.md), [research log](research/logs/RESEARCH_LOG.md) and [error log](research/ERROR_LOG.md).

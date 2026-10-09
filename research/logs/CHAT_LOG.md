@@ -212,3 +212,13 @@ No scientific or protocol change was made during this checkpoint.
 - Tester corrected the report/manifest on the isolated tester branch. Developer is copying their exact blobs and logging the denial. No protected scientific source or model file changes in this step.
 - Tester → Developer: verify the hosted validator response and do not advance unless it authorizes the exact protected snapshot.
 - Developer → Tester: once one fresh empirical execution completes, independently audit its immutable result and report a separate empirical gate; do not infer strategy validity from this code gate.
+
+
+## 2026-10-09 — Resume: exact tester approval validated and Run #994 started
+
+- Run #992's initial authorization refusal is retained and logged; the error was corrected on the tester branch, not bypassed.
+- Run #993 automatically rechecked the old Run #925 artifact and repeated its REQUEST CHANGES outcome (2,775 pass checks, 323 failed); that artifact remains non-evidence.
+- Developer Run #994 passed all Phase 7 regression suites plus the snapshot-binding authorization job. The fail-closed checker verified report/manifest bytes, reviewed commit ancestry and all protected-file hashes.
+- The single fresh Phase 7 empirical job is now in progress. Wait for its immutable artifact, schema/metric reconciliation and separate independent tester review before accepting a result or opening Phase 8.
+- Tester → Developer: inspect the completed Run #994 artifact and submit all row/panel/hash/metric/inference checks independently.
+- Developer → Tester: provide the immutable artifact and logs; do not promote any method or claim profitability until the post-run gate passes.

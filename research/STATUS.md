@@ -294,3 +294,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester issued a correction-specific code-gate approval with 25 protected-file hashes. The first mirrored attempt, Run #992, was correctly refused by the fail-closed validator due to a report-format/digest mismatch and one protected hash transcription error.
 - Tester corrected the report and manifest on the isolated `phase-07-tester` branch. Developer mirrors the exact tester blob versions and records the Run #992 refusal.
 - State: **AWAITING FRESH HOSTED SNAPSHOT VALIDATION**. Run #992 is non-evidence; no empirical metrics are accepted. Phase 8 remains blocked.
+
+
+## 2026-10-09 — Phase 7 fresh empirical run authorized and started
+
+- Snapshot-bound correction code gate: **PASS WITH SCOPED RESTRICTIONS** for one fresh empirical execution only.
+- Hosted [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, regression, approval-validator, reference-artifact regression and snapshot authorization. All 25 protected-file hashes and the exact tester report/manifest copies validated.
+- The empirical job is currently **IN PROGRESS**. No output is accepted yet; its artifact must undergo separate independent post-run audit, including all ten method panels, P10 abstention, finite regime eligibility, P05/P06 masks, family inference, hashes and metric reconciliation.
+- Run #925 remains rejected (including the re-audit in tester Run #993). Run #992 remains a logged authorization-refusal attempt. Phase 8 stays blocked until the fresh empirical gate passes.
