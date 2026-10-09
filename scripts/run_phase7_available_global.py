@@ -21,6 +21,7 @@ GLOBAL_DIR = ROOT / "data" / "cache" / "raw" / "global_history"
 MANIFEST_PATH = ROOT / "data" / "reports" / "available_global_source_manifest.json"
 REPORT_DIR = ROOT / "data" / "reports"
 OUTPUT_PATH = REPORT_DIR / "available_global_prediction_results.json"
+PANEL_PATH = REPORT_DIR / "available_global_prediction_panels.csv"
 HORIZONS = (1, 2, 3, 5, 10)
 MIN_TRAIN = 252
 TEST_BLOCK = 20
@@ -364,13 +365,16 @@ def run() -> dict:
 
     all_results = {"daily": {"horizons": {}}, "source_state": source_state, "method_status": candidate_status}
     family_ps = []
+    prediction_panels: list[dict] = []
     for h in HORIZONS:
         y, future = make_label(nifty, h)
         horizon_out = {}
         pred_vectors: dict[str, np.ndarray] = {}
+        panel_pred_vectors: dict[str, np.ndarray] = {}
         baseline_vector: np.ndarray | None = None
         for method, X in candidates.items():
             p, baseline = walk_forward_probabilities(y, X, h)
+            panel_pred_vectors[method] = p.copy()
             if baseline_vector is None:
                 baseline_vector = baseline.copy()
             else:
@@ -412,14 +416,57 @@ def run() -> dict:
             horizon_out["_FAMILY_TEST"] = {"status": "NOT_APPLICABLE", "reason": "no executable candidates"}
         else:
             baseline_metrics = calc_metrics(y, baseline_vector)
-            baseline_metrics["horizon_sessions"] = h
-            baseline_metrics["description"] = "causal historical positive-rate probability, estimated from each purged training prefix"
-            baseline_metrics["evaluation_scope"] = "all eligible out-of-sample label rows; compare candidates on paired_baseline_comparison rows, not directly to this broader cell if n differs"
-            horizon_out["_BASELINE"] = baseline_metrics
+            if baseline_metrics.get("n", 0) <= 0:
+                horizon_out["_BASELINE"] = {"status": "NOT_APPLICABLE", "reason": "no eligible out-of-sample baseline predictions"}
+            else:
+                baseline_metrics["horizon_sessions"] = h
+                baseline_metrics["description"] = "causal historical positive-rate probability, estimated from each purged training prefix"
+                baseline_metrics["evaluation_scope"] = "all eligible out-of-sample label rows; compare candidates on paired_baseline_comparison rows, not directly to this broader cell if n differs"
+                horizon_out["_BASELINE"] = baseline_metrics
             family = family_bootstrap(y, baseline_vector, pred_vectors)
             horizon_out["_FAMILY_TEST"] = family
             if family.get("status") == "EXECUTED":
                 family_ps.append((h, family["family_p_value"]))
+
+        # Preserve one immutable row per eligible date/horizon/method so an
+        # independent tester can recompute headline metrics and family inference.
+        label_mask = np.isfinite(y)
+        if baseline_vector is not None:
+            baseline_mask = label_mask & np.isfinite(baseline_vector)
+            for i in np.flatnonzero(baseline_mask):
+                prediction_panels.append({
+                    "date": pd.Timestamp(nifty["date"].iloc[i]).date().isoformat(),
+                    "horizon_sessions": int(h),
+                    "method": "_BASELINE",
+                    "row_type": "baseline",
+                    "cell_status": horizon_out["_BASELINE"]["status"],
+                    "actual_direction": int(y[i]),
+                    "future_log_return": float(future[i]),
+                    "predicted_probability": float(baseline_vector[i]),
+                    "baseline_probability": float(baseline_vector[i]),
+                    "source_ids_json": "[]",
+                    "feature_columns_json": "[]",
+                })
+            for method, p in panel_pred_vectors.items():
+                cell = horizon_out[method]
+                source_ids = candidate_status[method].get("source_ids", [])
+                feature_columns = list(candidates[method].columns)
+                for i in np.flatnonzero(baseline_mask):
+                    p_available = bool(np.isfinite(p[i]))
+                    prediction_panels.append({
+                        "date": pd.Timestamp(nifty["date"].iloc[i]).date().isoformat(),
+                        "horizon_sessions": int(h),
+                        "method": method,
+                        "row_type": "candidate",
+                        "cell_status": cell.get("status"),
+                        "actual_direction": int(y[i]),
+                        "future_log_return": float(future[i]),
+                        "predicted_probability": float(p[i]) if p_available else np.nan,
+                        "baseline_probability": float(baseline_vector[i]),
+                        "prediction_available": p_available,
+                        "source_ids_json": json.dumps(source_ids, separators=(",", ":")),
+                        "feature_columns_json": json.dumps(feature_columns, separators=(",", ":")),
+                    })
         all_results["daily"]["horizons"][str(h)] = horizon_out
 
     # Bonferroni correction across all reported horizon-specific family tests.
@@ -434,6 +481,8 @@ def run() -> dict:
         "bootstrap_method": "common-row paired moving-block bootstrap of Brier-loss improvement over a causal training-rate baseline; candidate differentials recentered under the null; max statistic across executed methods",
         "interpretation": "prediction screening only; no candidate promotion from this extension",
     }
+    panel_frame = pd.DataFrame(prediction_panels)
+    panel_frame.to_csv(PANEL_PATH, index=False)
     all_results["provenance"] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "git_sha": os.environ.get("GITHUB_SHA", "local_or_unspecified"),
@@ -441,6 +490,8 @@ def run() -> dict:
         "nifty_sha256": sha256_file(DAILY_PATH),
         "global_manifest_path": str(MANIFEST_PATH.relative_to(ROOT)),
         "global_manifest_sha256": sha256_file(MANIFEST_PATH),
+        "prediction_panel_path": str(PANEL_PATH.relative_to(ROOT)),
+        "prediction_panel_sha256": sha256_file(PANEL_PATH),
         "horizons": list(HORIZONS), "min_train": MIN_TRAIN, "test_block": TEST_BLOCK,
         "bootstrap_reps": BOOTSTRAP_REPS, "bootstrap_block": BOOTSTRAP_BLOCK, "seed": SEED,
         "decision_time_rule": "source-local session date strictly less than NIFTY session date",
