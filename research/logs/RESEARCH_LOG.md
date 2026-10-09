@@ -620,3 +620,10 @@
 - Tester isolated the root cause to `git_blob_sha()` using a literal backslash-x sequence instead of NUL.
 - Developer fixed only the hash header and added a canonical empty-blob regression.
 - Tester approved the correction. No science, costs or empirical authorization changed.
+
+
+## 2026-10-09 — Run #792 developer diagnosis checkpoint
+- Compared Run #654 and Run #792 hosted logs. Core scientific Python package versions match, while Python patch versions differ (3.11.16 vs 3.11.17).
+- Numerical root cause remains unproven; candidate explanation is native/runtime variation affecting P07 logistic regression output at billionth-level precision.
+- Developer proposal: tester review of a minimal pinned-runtime/thread-limit reproducibility patch and deterministic regression, preserving the frozen 1e-9 tolerance and reference artifact.
+- No production change or empirical option execution has been made.
