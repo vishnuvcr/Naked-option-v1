@@ -148,3 +148,10 @@ No scientific or protocol change was made during this checkpoint.
 - Hosted run completed successfully; artifact independently audited.
 - Tester closure: PASS WITH SCOPED RESTRICTIONS; no Phase 7 candidate promoted.
 - Next action: proceed to Phase 8 only after creating its isolated developer/tester branches and passing the Phase 8 specification/code gates.
+
+
+## 2026-10-09 — Proceed: same-run reference artifact implementation
+- Implemented row-level P01-P10 forecast panels and a same-run source/code/runtime manifest on phase-07-developer. Tester reviewed the output-only code and approved it with restrictions; the approval is archived in the developer branch.
+- Hosted regression exposed a test fixture path error in the manifest test. Corrected the second temporary-directory occurrence; no scientific code or frozen metrics changed.
+- Runs #831/#835/#837/#838 are not accepted as the new artifact gate; #831 began before the new tester gate and later runs failed the new regression. Run #846 skipped because its test-only change did not activate the Phase 7 detector.
+- Next: one fresh hosted run must pass the existing and new regression suites before the reference artifact is considered.
