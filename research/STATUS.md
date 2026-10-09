@@ -180,3 +180,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Preflight found the missing required artifact and skipped independent calculation, as intended. This was infrastructure smoke-test evidence only.
 - The workflow now also checks the exact upstream workflow name, completed success status, developer branch, immutable source SHA, and exactly one non-expired/non-empty artifact for each required artifact name.
 - Manual workflow dispatch requires a run ID and uses identical eligibility checks. Run #994 remains in progress with no artifact output; Phase 8 stays blocked.
+
+
+ 
+## 2026-10-09 — Exact workflow identity guard verified
+
+- Automatic approved-audit workflow run #2 ([run 37966008847](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37966008847)) checked completed developer protocol run #1037.
+- It validated the triggering workflow identity, branch, successful completion and source SHA, then skipped because the aggregate Phase 7 artifact was absent. The independent-audit job remained skipped.
+- The skip path is the intended fail-closed behavior for documentation-only changes. Run #994 still has no artifacts at the latest poll; no new metrics have been accepted.
