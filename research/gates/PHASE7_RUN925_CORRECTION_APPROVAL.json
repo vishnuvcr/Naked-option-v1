@@ -3,8 +3,8 @@
   "status": "PASS",
   "decision": "PASS WITH SCOPED RESTRICTIONS",
   "approval_scope": "fresh empirical execution only",
-  "reviewed_developer_commit": "39e964d4ae99bb02b113fa4eabecd91c9af46c16",
-  "tester_report_sha256": "54d565a1e22197bd3b9af0292366efcf99970085f0303e86cbe3dbd1530efae9",
+  "reviewed_developer_commit": "ccb063fb414db971c9a43ed0e0cd85ef9d3c4c4f",
+  "tester_report_sha256": "ff1e70945dce83bb3e7313f120f77bf0d2a555d991b369d5d1eca60b43a6c963",
   "protected_files": {
     ".github/workflows/phase-07-ensemble.yml": "eeb4fedd60b1e9ddf1413856fa597d9dd4853dd07b4b58b557a792399ee68258",
     ".github/workflows/research-protocol.yml": "a63b8c93a04da769ddcca6446a0319ef26009178010d7d950890f8dc74572f65",
@@ -21,14 +21,14 @@
     "scripts/run_phase3_intraday_baselines.py": "fd86b064bf6562ec2213b3df7982dfa5c0cfdddc7726786e020bbfb623781cdf",
     "scripts/run_phase5_family_d.py": "1dace9649375115af1538e0da825d3c3038642cfd5769d37204f6cca0e3044a4",
     "scripts/run_phase6_novel.py": "3939d0351392ea4f8b6ab3f4525b9ef1c19964e403f224323d2d0179e1cd5be6",
-    "scripts/run_phase7_ensemble.py": "ea72abef312238b9ec6341b72c58f2c3d9bd0977c973361532437aa066e5491c",
+    "scripts/run_phase7_ensemble.py": "1eb54b7b2e1b82bbebcd3193579e1bdfe552d9c2e4ec121a83ea8fc6d5d8b45a",
     "scripts/test_phase5_family_d.py": "6571a735f832efffec862e55bb03cce43daa7f2789355370e95dd3465ff107ed",
     "scripts/test_phase6_novel.py": "d88b2791b5fa4264e964afccfbcec76249242d3af6a79969a385be71cb3e4ccb",
-    "scripts/test_phase7_ensemble.py": "961744c0f9c02c8adf73996d29ceb7ad87bc35831672a0dc754081bbfc4f8aa3",
+    "scripts/test_phase7_ensemble.py": "80de08e14fe7d79d666a24b552db80e2dfbdb48b05b26ba0cc6ae07e302b2d71",
     "scripts/test_phase7_reference_artifact.py": "8b54ce03ea0c17e13fb4fac882dacf04f3f5eb6f895f09a5eacbe3e5ee9f6a5f",
     "scripts/test_phase7_correction_approval.py": "c5b7c0448889b02ee54c23c9c603f920575ac2b1e10142f5d854d4a77118c860",
     "scripts/validate_literature_registry.py": "b998b976c443b8866f4ca77cb0c51a1f12c810db6e0b591919c57e97cae52a5b",
-    "scripts/validate_phase7_results.py": "fcf053d43c54e25a5bac13e43a3390164246822006c578ab27a60b794055c5b3",
+    "scripts/validate_phase7_results.py": "74672d3d2e7022d0faf577b40d9da1e0527d68e8c050f0dd1269dc748fedb8ec",
     "scripts/validate_phase7_correction_approval.py": "fd0fb09364bae90827ad37d742c089f825caa35856cd58eb2777baea0750c637",
     "scripts/validate_protocol.py": "9ed4af215ea0652c4d014b5f092e6e46c999bf4b5ddc0aff5b5f31188f4f26b7"
   }
