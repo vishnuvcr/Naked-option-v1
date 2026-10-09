@@ -55,7 +55,7 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
             cached = pd.read_csv(dst, parse_dates=["date"])
             cached["close"] = pd.to_numeric(cached.get("close"), errors="coerce")
             cache_valid = (
-                {"date", "close", "source_symbol"}.issubset(cached.columns)
+                {"date", "close", "source_symbol", "source_timezone"}.issubset(cached.columns)
                 and len(cached) >= MIN_ROWS
                 and cached["date"].notna().all()
                 and cached["date"].is_unique
@@ -63,6 +63,8 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
                 and cached["close"].notna().all()
                 and (cached["close"] > 0).all()
                 and cached["source_symbol"].astype(str).eq(symbol).all()
+                and cached["source_timezone"].notna().all()
+                and cached["source_timezone"].astype(str).nunique() == 1
                 and cached["date"].max() >= (pd.Timestamp.now().normalize() - pd.Timedelta(days=10))
             )
             if cache_valid:
@@ -71,7 +73,7 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
                     "id": key, "symbol": symbol, "status": "ACTIVE", "cache_hit": True,
                     "path": str(dst.relative_to(ROOT)), "rows": int(len(cached)),
                     "min_date": str(cached["date"].min()), "max_date": str(cached["date"].max()),
-                    "timezone": expected_timezone, "sha256": sha256(dst),
+                    "timezone": str(cached["source_timezone"].iloc[0]), "sha256": sha256(dst),
                 }
         except Exception:
             pass  # Invalid/stale cache is reacquired and its failure is captured below.
