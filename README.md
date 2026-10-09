@@ -217,3 +217,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Hosted regression runs #835/#837/#838 failed only in the new manifest-test fixture because a temporary JSON path was outside the repository root. The fixture correction is commit `14d20380632e365b2a0b6b63afe58f2775375950`; fresh hosted verification is still pending.
 - Runs #831 and the failed fixture runs are non-evidence for the new reference artifact. No Phase 7 metric is promoted and Phase 8 empirical option execution remains blocked.
 - Follow the [research status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md) and [chat log](research/logs/CHAT_LOG.md) for gate history.
+
+## Phase 7 reference artifact regression — 2026-10-09
+
+- Fresh [Run #852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37912587739) passed both the existing Phase 7 regression suite and the new row-level reference-artifact regression. The tester authorization gate also passed.
+- Tester report: [PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md](research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md) = PASS for regression only.
+- The empirical job is still in progress. The new artifact and metrics remain unaccepted until a separate post-run audit validates all panels, hashes and aggregate reconciliation. Run #654 remains immutable; Phase 8 manifest amendment and option-grid execution remain blocked.
