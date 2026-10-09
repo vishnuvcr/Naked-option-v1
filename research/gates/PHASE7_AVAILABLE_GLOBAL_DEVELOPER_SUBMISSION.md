@@ -80,3 +80,29 @@ The initial exact-snapshot review was rejected and remains preserved on phase-07
 **Developer → Tester:** Re-review these exact blobs independently. Verify formulas, missingness masks, family p-value adjustment, paired row equality, schema validator and workflow protected path set; record the exact CI run if visible. Do not authorize empirical execution if the hosted regression has not passed or any mismatch remains.
 
 **Tester → Developer:** Return PASS / PASS WITH SCOPED RESTRICTIONS or REQUEST CHANGES with verified hashes and explicit one-run authorization status. Keep the old rejection as historical record; no strategy work or result promotion is permitted by a code review alone.
+
+
+## Auditability addendum — row-level forecast panel (2026-10-10)
+
+A further review found the previous output stored only aggregates, limiting independent reproduction of candidate metrics and the moving-block family test. Before any empirical execution, the developer added a row-level panel and made the output validator recalculate results from it.
+
+### Current exact blobs after this addendum
+
+- Spec: 71d2d8a9cfef5c138a75715c88bd2f17be3a2afc
+- Acquisition: 401fdacd3aa562b4907d422eb296fec502aa8f3c
+- Predictor with panel export: 3d4f7255755b2d55fe3bbce00f8a95e8d0e5c9b6
+- Predictor regression tests: 34dd77ce9f16e339a5785f3ee337bd8a29b1e7c5
+- Complete metric/panel validator: 21c63426ec055eed85c158280d8e0b4123c82ab1
+- Validator regression tests: 8651a96f5889a699659871f93bba25b133acef15
+- Workflow with panel artifact retention: c6fbf25e62a9882064cc350d558fd560f3afce35
+- Requirements: f54f873bbba4cfd010cabc32bb4432f581520e7f
+
+The panel is written to data/reports/available_global_prediction_panels.csv. Each eligible date/horizon has a baseline row and each registered candidate that can be run has a candidate row, including the realized return/direction, prediction probability or explicit abstention, paired baseline probability, source/feature identifiers and cell status. The JSON output records the panel path and SHA-256. The artifact validator now checks the panel hash, label/return signs, key uniqueness, row alignment, exact recomputation of model and paired-baseline metrics, common-row family mean Brier improvements, and reproducibility of the 500-replicate, 20-row moving-block bootstrap p-value.
+
+The panel is retained as a GitHub Actions artifact beside the summary JSON, source manifest and cached source files. If there is no forecast panel, the schema must still be present, and an empty panel passes only when the aggregate grid has no executable forecasts and all baseline cells are not applicable.
+
+This improvement was made before any empirical run; it is not a result and does not authorize a run. The full correction cycle must be independently reviewed again.
+
+**Developer → Tester:** Inspect the latest exact blobs above. Recompute a synthetic valid panel/metric/family case and make sure mutations to probabilities, labels, missingness, or the p-value make validation fail. Do not approve empirical execution until the hosted regression outcome is verified and every protected hash matches.
+
+**Tester → Developer:** Return a new exact-snapshot decision with tested panel reconciliation findings, CI run evidence if available, and explicit empirical-authorization status. Keep the original request-changes report as historical record and do not create an approval manifest without a pass.
