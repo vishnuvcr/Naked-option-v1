@@ -341,3 +341,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - This is an unresolved long-running job, not a demonstrated code failure. No competing Phase 7 run was launched. Existing Phase 8 reconstructions remain non-evidence until they complete and pass audit.
 - Phase 8 panel-validator code is only tester-approved for synthetic tests. The real reference artifact, frozen manifest amendment, and 4,800-cell grid remain blocked.
 - Next: re-poll the same run; if GitHub exposes a terminal state/artifact, audit it. If it remains stale, diagnose runner/job state from available Actions metadata before any rerun.
+
+## 2026-10-09 — Phase 7 run observability and bootstrap performance
+- Rechecked Run #852 (`37912587739`): still reported in progress at the ensemble calculation with no artifact; metadata remained stale and active-job logs were unavailable. No scientific result is accepted.
+- Code review identified avoidable repeated allocation in the moving-block bootstrap sampler. A performance-only change now samples the same block-start indices directly instead of rebuilding every possible block on each replicate; the random-number sequence and sampled indices are intended to remain bit-for-bit identical.
+- Added fixed-seed equivalence tests for daily/intraday-scale sizes and edge cases. Hosted regression-only runs `37914896724` and `37914905848` are in progress; neither is being treated as empirical evidence. Tester review is required before a fresh empirical rerun.
+- Phase 8 remains blocked until the real Phase 7 artifact passes its separate independent audit.
