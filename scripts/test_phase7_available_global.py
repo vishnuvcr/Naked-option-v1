@@ -115,6 +115,53 @@ def check_registry_has_explicit_blocked_status() -> None:
     assert status["G06_ASIA_COMPOSITE"]["status"] == "BLOCKED_DATA"
 
 
+def check_g13_uses_raw_returns_and_fixed_constituent_mask() -> None:
+    nifty = pd.DataFrame({"date": pd.to_datetime(["2024-01-02", "2024-01-03", "2024-01-04"])})
+    source_map = {
+        "SP500": pd.DataFrame({
+            "SP500_ret1": [0.01, 0.03, 0.05], "SP500_ret5": [0.05, 0.07, 0.09],
+            "SP500_vol20": [0.01, 0.01, 0.01], "SP500_ret1_z20": [100.0, 100.0, 100.0],
+            "SP500_ret5_z20": [200.0, 200.0, 200.0],
+        }),
+        "NASDAQ": pd.DataFrame({
+            "NASDAQ_ret1": [0.03, 0.05, np.nan], "NASDAQ_ret5": [0.09, 0.11, 0.13],
+            "NASDAQ_vol20": [0.02, 0.02, 0.02], "NASDAQ_ret1_z20": [-100.0, -100.0, -100.0],
+            "NASDAQ_ret5_z20": [-200.0, -200.0, -200.0],
+        }),
+    }
+    candidates, status = mod.build_candidates(nifty, source_map, {})
+    composite = candidates["G13_GLOBAL_EQUITY_COMPOSITE"]
+    assert composite.columns.tolist() == ["GLOBAL_EQUITY_MEAN_RET1", "GLOBAL_EQUITY_MEAN_RET5"]
+    assert np.allclose(composite["GLOBAL_EQUITY_MEAN_RET1"].iloc[:2], [0.02, 0.04])
+    assert np.allclose(composite["GLOBAL_EQUITY_MEAN_RET5"], [0.07, 0.09, 0.11])
+    assert np.isnan(composite["GLOBAL_EQUITY_MEAN_RET1"].iloc[2]), "partial contributor set must not change composite membership"
+    assert status["G13_GLOBAL_EQUITY_COMPOSITE"]["source_ids"] == ["SP500", "NASDAQ"]
+
+
+def check_bonferroni_uses_all_registered_horizons() -> None:
+    # Only one horizon has an available family test here; adjustment must still
+    # use the five-horizon registered family rather than multiplying by one.
+    adjusted = mod.adjust_horizon_pvalues([(1, 0.03)])
+    assert len(adjusted) == 1
+    assert adjusted[0]["horizon_sessions"] == 1
+    assert abs(adjusted[0]["bonferroni_p_value"] - 0.15) < 1e-12
+
+
+def check_paired_baseline_metrics_use_identical_rows() -> None:
+    y = np.array([0.0, 1.0, 1.0, 0.0, 1.0])
+    p = np.array([0.1, 0.7, np.nan, 0.8, 0.4])
+    baseline = np.full(5, 0.5)
+    paired = mod.paired_baseline_comparison(y, p, baseline)
+    mask = np.isfinite(y) & np.isfinite(p) & np.isfinite(baseline)
+    assert paired["status"] == "EXECUTED"
+    assert paired["n_common"] == int(mask.sum()) == 4
+    expected_candidate = mod.calc_metrics(y[mask], p[mask])
+    expected_baseline = mod.calc_metrics(y[mask], baseline[mask])
+    assert abs(paired["candidate_brier"] - expected_candidate["brier"]) < 1e-12
+    assert abs(paired["baseline_brier"] - expected_baseline["brier"]) < 1e-12
+    assert abs(paired["brier_improvement"] - (expected_baseline["brier"] - expected_candidate["brier"])) < 1e-12
+
+
 def main() -> None:
     checks = [
         check_strict_asof_excludes_same_date,
@@ -125,6 +172,9 @@ def main() -> None:
         check_family_bootstrap_is_deterministic_and_bounded,
         check_acquisition_failure_reasons_are_preserved,
         check_registry_has_explicit_blocked_status,
+        check_g13_uses_raw_returns_and_fixed_constituent_mask,
+        check_bonferroni_uses_all_registered_horizons,
+        check_paired_baseline_metrics_use_identical_rows,
     ]
     for check in checks:
         check()
