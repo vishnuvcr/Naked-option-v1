@@ -317,3 +317,10 @@
 - Added fail-closed checks for the exact expected source/code manifest keys and required panel run ID/commit identity.
 - Hosted run `37914278229` = SUCCESS; tester approval is archived in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
 - This verifies the synthetic regression only. No real Phase 7 artifact or Phase 8 metric acceptance is claimed.
+
+## 2026-10-09 — Phase 7 bootstrap optimization triggered extra workflow attempts
+- Category: workflow orchestration / avoidable duplicate execution risk
+- Commits: `4f959a0ba46929fe427bc3db27d02e57f88687fa1` and `682eadf2a9eb4de250bc3db27d02e57f88687fa1`; runs `37914896724` and `37914905848`.
+- Root cause: the implementation and regression-test changes were committed separately, and each change activated the Phase 7 workflow. The regression jobs passed, but the workflow graph also queued empirical jobs; the original Run #852 was still reported active.
+- Impact: risk of redundant compute and ambiguous run ordering. No Phase 8 grid was started and no metric/artifact has been accepted. The available GitHub tool interface exposes no workflow-cancel action, so cancellation could not be performed through the available tools.
+- Prevention: group code+test edits into one commit where possible and verify workflow path filters/job dependencies before changing Phase 7 science paths. Before the next empirical run, inspect the status of all queued/active Phase 7 runs and accept exactly one artifact only after tester audit.
