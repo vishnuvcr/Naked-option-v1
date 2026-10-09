@@ -358,8 +358,13 @@ def run() -> dict:
             if state.get("status") == "BLOCKED_DATA":
                 horizon_out[method] = {"status": "BLOCKED_DATA", "reason": state.get("reason"), "horizon_sessions": h}
         if baseline_vector is None:
+            horizon_out["_BASELINE"] = {"status": "NOT_APPLICABLE", "reason": "no causal historical-rate predictions"}
             horizon_out["_FAMILY_TEST"] = {"status": "NOT_APPLICABLE", "reason": "no executable candidates"}
         else:
+            baseline_metrics = calc_metrics(y, baseline_vector)
+            baseline_metrics["horizon_sessions"] = h
+            baseline_metrics["description"] = "causal historical positive-rate probability, estimated from each purged training prefix"
+            horizon_out["_BASELINE"] = baseline_metrics
             family = family_bootstrap(y, baseline_vector, pred_vectors)
             horizon_out["_FAMILY_TEST"] = family
             if family.get("status") == "EXECUTED":
