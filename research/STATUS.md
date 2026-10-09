@@ -179,3 +179,12 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 ## 2026-10-10 — P10 correction review versus execution authorization
 
 Static review of developer commit 39e964d passed for a future run only. The correction-specific approval report/manifest on both branches were restored to the last verified snapshot after the attempted updated SHA values failed an independent digest check. Therefore the current corrected developer HEAD is **not authorized for empirical execution** yet. Tester → Developer: regenerate/verify the report digest and all 25 protected-file hashes, synchronize identical report/manifest bytes to both branches, and require hosted validator PASS before running. Run #994 remains unchanged; no strategy promoted.
+
+
+## 2026-10-10 — Corrected Phase 7 snapshot reviewed (static only)
+
+- New report: [PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md](gates/PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md).
+- **Disposition: PASS WITH SCOPED RESTRICTIONS for static source review only; empirical execution remains NOT AUTHORIZED.**
+- Static review found the requested formula and output-audit corrections present in the current file blobs: raw-return G13/fixed constituent set, five-horizon Bonferroni, candidate-paired baseline metrics, row-level forecast output with SHA provenance, and result/panel reconstruction checks.
+- The regression test file contains 11 named checks, but the reviewer did not execute them or see a hosted run result. Status/workflow-run queries returned empty collections; this is not evidence of either success or failure.
+- Developer must keep the authorization manifest absent and obtain an observable, green hosted regression result before requesting the empirical gate.
