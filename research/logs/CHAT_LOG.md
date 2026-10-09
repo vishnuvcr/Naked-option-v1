@@ -216,3 +216,8 @@ No scientific or protocol change was made during this checkpoint.
 - Added an end-to-end synthetic check that the saved-panel validator's output is accepted by the existing Phase 8 forecast-panel validator.
 - Hosted run `37913391078` completed SUCCESS. The tester recorded a scoped follow-up PASS on `phase-08-tester`.
 - No real Phase 7 artifact has been accepted yet; Run #822/#839 and Phase 7 Run #852 are still running, and the frozen manifest/option-grid gate remains unchanged.
+
+## 2026-10-09 — Resume: validator source-version correction
+- During resume, compared the Phase 7 and Phase 8 copies of the metric module and found they differ. The validator had verified the Phase 7 source commit's hashes but then imported the Phase 8 working-tree module to recompute metrics.
+- Corrected this by loading the exact source bytes from the manifest commit and enabling full history fetch in the Phase 8 reconstruction job. Added hosted regression coverage; run `37913662777` is in progress.
+- This was caught before any new reference artifact was accepted. Phase 8 manifest and empirical option gate remain unchanged/blocked.
