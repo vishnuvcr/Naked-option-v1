@@ -868,3 +868,11 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Predictor writes floating-point values to CSV with 17 significant digits to support round-trip reproducibility of the fixed-seed moving-block bootstrap.
 - Added tests for candidate baseline probability mismatch and family p-value mutation. The current registry includes these tests in the automatic/manual workflow trigger and protected hash set.
 - Current file identifiers are recorded in the developer submission. Checks remain unavailable from the current commit-status endpoint; no CI pass is claimed. No empirical result was generated and no approval manifest exists.
+
+
+## 2026-10-10 — Tester resubmission reviewed; hosted CI remains unverified
+
+- Tester report on phase-07-tester: research/gates/PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md.
+- Static source review found the requested G13, family correction, paired-baseline and row-level artifact/validator corrections present.
+- Tester decision is limited to static review. Regression functions have not been verified as executed, because workflow/check lookups returned empty results. The report explicitly withholds empirical execution authorization.
+- Approval JSON remains absent. No predictions were generated; no method promoted. Next gate requires observable CI run evidence, hash reconciliation and a separate execution decision.
