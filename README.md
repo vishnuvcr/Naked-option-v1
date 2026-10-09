@@ -215,3 +215,12 @@ The frozen Phase 7 specification says regime-diagnostic block counts must equal 
 ## Independent tester finding — P10 diagnostic block invariant (2026-10-09)
 
 The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md) = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION** for a static consistency issue: the frozen spec includes P10 in the regime-diagnostic/chronological-block count equality, while the current validator enforces this invariant only for P08/P09 because P10 abstentions can empty a block. Run #994 may complete and be audited as the already-running immutable execution, but no metric, method or strategy may be promoted until this issue is resolved through an implementation correction or a separate pre-registered tester-approved spec amendment. Phase 8 remains blocked.
+
+
+ 
+## Latest Phase 7 resume — 2026-10-09 23:20 IST
+
+- **Empirical Run #994:** still in progress on immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; validation pending; no artifacts; job log retrieval currently returns BlobNotFound.
+- **P10 correction:** developer commit [`39e964d`](https://github.com/vishnuvcr/Naked-option-v1/commit/39e964d4ae99bb02b113fa4eabecd91c9af46c16) passed the regression job in [developer workflow #1068](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37968150153), but empirical and tester-gated jobs were skipped.
+- **Independent tester review:** pending on [the isolated tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md).
+- **Decision:** no accepted metrics or promoted strategy; Phase 8 remains blocked.
