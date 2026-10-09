@@ -45,6 +45,7 @@ jobs:
         run: |
           python scripts/test_phase7_available_global.py
           python scripts/test_validate_phase7_available_global_results.py
+      - name: Report protected snapshot hashes for independent review
         run: |
           set -euo pipefail
           sha256sum \
@@ -107,6 +108,8 @@ jobs:
               "scripts/acquire_global_history.py",
               "scripts/run_phase7_available_global.py",
               "scripts/test_phase7_available_global.py",
+              "scripts/validate_phase7_available_global_results.py",
+              "scripts/test_validate_phase7_available_global_results.py",
               "requirements-phase7-available.txt",
               ".github/workflows/phase-07-available-global.yml",
           ]
