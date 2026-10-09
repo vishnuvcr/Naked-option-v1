@@ -750,3 +750,15 @@ These do not provide historically executable bid/ask quotes. They must not be co
 - GitHub run-level `updated_at` remains stale and active live logs are unavailable in earlier polls; that is an observability constraint, not a terminal failure.
 - At this poll elapsed runtime is about 37 minutes, less than the previous completed Run #925's 1h 53m 20s model-step duration.
 - No duplicate was dispatched, no data/result was accepted, and Phase 8 remains blocked.
+
+
+
+## 2026-10-09 — Additional GitHub/Rust/EOD option research candidates (pre-gate)
+
+Read-only repository search identified four further leads:
+- **NSE-FNO-Data-bank** — https://github.com/SantoshSrinivas79/NSE-FNO-Data-bank claims a validated daily NSE F&O bhavcopy archive with 1,579 files, 13-Apr-2020 to 31-Aug-2026 (approximately 1.2 GB compressed), plus a downloader/validator. This may help cross-check calendar/availability counts and archive integrity, but it is EOD data only. Publicly committed raw NSE data is not proof of a redistribution licence; do not mirror its archive into this repository absent documented permission.
+- **jugaad-rs** — https://github.com/Am1n1602/jugaad-rs provides a Rust NSE data library/CLI including derivative history, daily reports, option-chain snapshots and related market reports. It is code for retrieving NSE data, not an independent vendor. Useful to test source redundancy/API fallbacks after licence and schema review; intraday historical quote availability must be confirmed per method.
+- **Nifty IV Surface & Event-Vol Tracker** — https://github.com/kfinance/nifty-iv-event-vol-tracker documents an overnight straddle research path using NSE F&O bhavcopy (claimed 2024-01-01 to 2026-09-18), including IV/event-vol studies and a claimed backtest. Treat as a hypothesis/code-review lead only; independently verify no synthetic data contamination, reconstruct results from allowed inputs, use a chronological out-of-sample design and reconcile all costs/slippage before any strategy inference. Do not import its reported return as evidence or add it post-hoc to the frozen current Phase 7 run.
+- **NSE historical archive bank / API tools** — https://github.com/Aniruddha1980/Bhavcopy and https://github.com/Teja-Ram-Pooniya/nser-r-programming-option-data-nse include methods for historical F&O bhavcopy and selected NSE reports, but are overlapping retrieval wrappers over the same official data source, not independent price observations.
+
+No candidate raw data was downloaded or copied. These leads are listed for the next permitted data/method gate only. Current Run #994 remains the active empirical target; Phase 8 remains blocked until its independent artifact gate.

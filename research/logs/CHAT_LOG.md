@@ -286,3 +286,10 @@ No scientific or protocol change was made during this checkpoint.
 - Current elapsed runtime is still below the prior comparable run's measured 1h53m20s. No new workflow was launched and no failure inferred from stale run metadata.
 - Tester → Developer: wait for this run's terminal result; if uploaded, audit its exact run/commit and all ten panels before promotion.
 - Developer → Tester: maintain the separate post-run audit gate and keep Phase 8 blocked until an independent PASS.
+
+
+## 2026-10-09 — Resume: additional GitHub/Rust/EOD/strategy leads
+
+- Logged `SantoshSrinivas79/NSE-FNO-Data-bank` (daily NSE archive, EOD only), `Am1n1602/jugaad-rs` (Rust retrieval CLI), `kfinance/nifty-iv-event-vol-tracker` (overnight straddle / event-IV hypothesis code), and further NSE bhavcopy wrappers as read-only leads.
+- The overnight-straddle README is not independent evidence: any candidate needs synthetic-data exclusion, source/price reconstruction, chronological validation and complete net-of-cost audit. Do not add it post-hoc to the frozen Phase 7 experiment; a later pre-result Phase 8 amendment would require independent tester approval.
+- No raw data imported/mirrored, no method/workflow modified, and no phase advanced.
