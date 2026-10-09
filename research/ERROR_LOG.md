@@ -274,3 +274,11 @@
 - Result: SUCCESS; synthetic saved-panel metrics, chronological-block diagnostics and family-bootstrap comparison passed without re-fitting model predictions.
 - Scope: this validates the synthetic path only. It does not prove the validator accepts the future Phase 7 artifact, does not amend the frozen manifest, and does not authorize empirical option execution.
 - Remaining gate: verify code-file hashes against the immutable artifact commit and independently audit all ten real panels/aggregate metrics after the new Phase 7 artifact is uploaded.
+
+## 2026-10-09 — Phase 8 saved-panel validator integration contract correction
+- Category: validator/workflow interface
+- Component: `scripts/validate_phase7_reference_panels.py` output manifest.
+- Finding: the existing `scripts/validate_phase8_forecast_panel.py` expects a `prediction_files` array containing path, rows, layer and horizon. The new validator initially emitted the copied files only in a `cells` array.
+- Correction: added the `prediction_files` contract while retaining detailed cell diagnostics; commit `cf5244352bb08d89525400a8c1a29595d196e749`.
+- Follow-up: added immutable Git commit code-hash verification and a regression that confirms correct hashes pass and tampered hashes fail. Hosted dedicated validator regression run `37913188030` completed SUCCESS.
+- Scope: synthetic regression only. The production workflow must fetch the reference commit before validation; the real Phase 7 artifact still requires an independent audit.
