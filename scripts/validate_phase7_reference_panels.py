@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import types
 import sys
 
 import numpy as np
@@ -13,7 +14,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-import run_phase7_ensemble as p7
+p7 = None
 from reconstruct_phase7_predictions import recursive_compare, TOL
 
 METHODS = [f"P{i:02d}" for i in range(1, 11)]
@@ -43,6 +44,27 @@ def verify_code_hashes(manifest: dict) -> None:
         actual_hash = hashlib.sha256(result.stdout).hexdigest()
         if actual_hash != expected_hash:
             raise SystemExit(f"ARTIFACT_ERROR: source code SHA-256 mismatch: {relative_path}")
+
+
+
+def load_reference_phase7_module(commit: str):
+    result = subprocess.run(
+        ["git", "show", f"{commit}:scripts/run_phase7_ensemble.py"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    if result.returncode != 0:
+        raise SystemExit(f"ARTIFACT_ERROR: cannot load Phase 7 metric implementation at {commit}")
+    module_name = f"_phase7_reference_{commit[:12]}"
+    module = types.ModuleType(module_name)
+    module.__file__ = str(ROOT / "scripts" / "run_phase7_ensemble.py")
+    module.__package__ = ""
+    sys.modules[module_name] = module
+    try:
+        exec(compile(result.stdout, module.__file__, "exec"), module.__dict__)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return module
 
 
 def blocks_from_panel(frame: pd.DataFrame):
@@ -143,6 +165,8 @@ def main():
     if len(manifest.get("code_files", {})) < 4 or any(len(v) != 64 for v in manifest.get("code_files", {}).values()):
         raise SystemExit("ARTIFACT_ERROR: incomplete/malformed code-file fingerprints")
     verify_code_hashes(manifest)
+    global p7
+    p7 = load_reference_phase7_module(str(manifest["commit"]))
     if len(manifest.get("prediction_panels", [])) != 10:
         raise SystemExit("ARTIFACT_ERROR: expected exactly ten horizon panels")
 
