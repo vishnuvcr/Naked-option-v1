@@ -780,3 +780,11 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The newly installed automatic audit workflow [run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965605363) inspected that exact run, found zero phase7-ensemble-results artifacts, and correctly skipped the independent audit. No tester code was executed and no metric was inferred.
 - The main workflow was subsequently tightened to require the upstream workflow name to be exactly Research Protocol Check in addition to branch, completion, successful conclusion, source SHA and both non-empty artifact checks. Future auto events will recheck these constraints. Manual dispatch requires a run ID and rejects incomplete/missing-artifact runs.
 - This is preflight evidence only, not empirical evidence. Run #994 remains in progress with no artifacts; Phase 8 remains blocked.
+
+
+ 
+## 2026-10-09 — Automatic audit preflight Run #2 verified
+
+- After tightening the workflow to require upstream workflow identity, the second orchestration run [#2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37966008847) processed developer source run [#1037](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965987043).
+- The preflight checks accepted the completed successful Research Protocol Check identity, then rejected it for audit eligibility because no phase7-ensemble-results artifact existed. It skipped before checking out/running tester calculations.
+- Result: preflight skip PASS, no scientific result, no accepted metric. The current authorized empirical target #994 remains active and artifactless at the latest poll.
