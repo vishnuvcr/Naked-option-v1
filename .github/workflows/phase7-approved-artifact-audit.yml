@@ -141,6 +141,14 @@ jobs:
           fetch-depth: 0
           token: ${{ github.token }}
 
+      - name: Checkout main status destination
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main_writer
+          fetch-depth: 0
+          token: ${{ github.token }}
+
       - name: Set up pinned Python
         uses: actions/setup-python@v5
         with:
@@ -363,6 +371,38 @@ jobs:
           else
             git -C tester_writer commit -m "tester: publish independent Phase 7 Run $RUN_ID artifact audit"
             git -C tester_writer push origin HEAD:phase-07-tester
+          fi
+
+      - name: Synchronize main README and research status
+        if: ${{ always() && steps.score.outputs.report_exists == 'true' }}
+        env:
+          RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+          DECISION: ${{ steps.score.outputs.decision }}
+          CHECKS_PASSED: ${{ steps.score.outputs.checks_passed }}
+          CHECKS_FAILED: ${{ steps.score.outputs.checks_failed }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C main_writer config user.name "github-actions[bot]"
+          git -C main_writer config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C main_writer fetch origin main
+          git -C main_writer checkout -B main origin/main
+          marker="Latest independent Phase 7 audit — Run #$RUN_ID"
+          if ! grep -Fq "$marker" main_writer/README.md; then
+            printf '\n\n## Latest independent Phase 7 audit — Run #%s\n\n- Decision: **%s** (%s passed / %s failed checks).\n- Source run: https://github.com/%s/actions/runs/%s\n- Exact developer commit: %s\n- Tester report: https://github.com/%s/blob/phase-07-tester/research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md\n- Full JSON: https://github.com/%s/blob/phase-07-tester/research/gates/PHASE7_RUN_%s_AUDIT.json\n- This technical audit does not independently promote a trading strategy or open Phase 8.\n' "$RUN_ID" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$GITHUB_REPOSITORY" "$RUN_ID" "$SOURCE_COMMIT" "$GITHUB_REPOSITORY" "$RUN_ID" "$GITHUB_REPOSITORY" "$RUN_ID" >> main_writer/README.md
+            printf '\n\n## Phase 7 empirical audit — Run #%s\n\n- Decision: **%s** (%s passed / %s failed independent checks).\n- Developer commit: %s\n- Tester report: https://github.com/%s/blob/phase-07-tester/research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md\n- Phase 8 remains gated; a code gate alone cannot promote a method.\n' "$RUN_ID" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$SOURCE_COMMIT" "$GITHUB_REPOSITORY" "$RUN_ID" >> main_writer/research/STATUS.md
+            printf '\n\n## Phase 7 independent tester audit — Run #%s\n\n- Source run: https://github.com/%s/actions/runs/%s\n- Developer commit: %s\n- Decision: **%s** (%s passed / %s failed checks).\n- Full report and JSON are linked in the main README and stored on phase-07-tester.\n- No strategy is promoted from protocol success or technical audit alone.\n' "$RUN_ID" "$GITHUB_REPOSITORY" "$RUN_ID" "$SOURCE_COMMIT" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" >> main_writer/research/logs/RESEARCH_LOG.md
+            git -C main_writer add README.md research/STATUS.md research/logs/RESEARCH_LOG.md
+            if ! git -C main_writer diff --cached --quiet; then
+              git -C main_writer commit -m "docs: publish independent Phase 7 Run $RUN_ID audit status"
+              if ! git -C main_writer push origin HEAD:main; then
+                echo "::warning::Tester report was archived, but automated main README/status update was denied by repository write rules."
+                echo "Main-branch status sync failed; see this workflow's logs. Tester report remains available." >> "$GITHUB_STEP_SUMMARY"
+              fi
+            fi
+          else
+            echo "Main README already indexes Run #$RUN_ID; avoiding duplicate log entries."
           fi
 
       - name: Enforce independent empirical gate
