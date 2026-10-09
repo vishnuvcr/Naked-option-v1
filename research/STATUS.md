@@ -335,3 +335,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md` = PASS WITH SCOPED RESTRICTIONS for the synthetic code path. Code review gates are now passed for exact-commit module loading, source-derived label/return checks, strict panel identity and aggregate reconciliation.
 - Phase 7 Run #852 (`37912587739`) remains active at `run_phase7_ensemble.py` with no artifact uploaded as of the latest poll. Phase 8 legacy reconstruction attempts #822 and #839 also remain active without artifacts; no empirical result is inferred from their ongoing status.
 - Next gate is the real Phase 7 reference artifact build and independent post-run audit. Frozen Phase 8 manifest and 4,800-cell grid remain blocked.
+
+## 2026-10-09 — Run #852 stale-progress recheck
+- Polled GitHub Actions at 09:59 UTC. Phase 7 Run #852 (`37912587739`, commit `ac6b30090e5146d527bb0af6dd9352a9b6a7fc93`) is still reported `in_progress`; empirical job remains on `scripts/run_phase7_ensemble.py`. Run metadata has not advanced since 09:39:25 UTC, no artifacts are listed, and job logs are not yet downloadable from GitHub's log endpoint (BlobNotFound while active).
+- This is an unresolved long-running job, not a demonstrated code failure. No competing Phase 7 run was launched. Existing Phase 8 reconstructions remain non-evidence until they complete and pass audit.
+- Phase 8 panel-validator code is only tester-approved for synthetic tests. The real reference artifact, frozen manifest amendment, and 4,800-cell grid remain blocked.
+- Next: re-poll the same run; if GitHub exposes a terminal state/artifact, audit it. If it remains stale, diagnose runner/job state from available Actions metadata before any rerun.
