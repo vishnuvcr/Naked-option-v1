@@ -35,7 +35,7 @@ Daily index/asset direction forecasts are evaluated for close-to-close horizons 
 
 ## Evaluation
 
-For every source candidate and horizon, report status/reason, source list, sample size, positive rate, accuracy, balanced accuracy, ROC-AUC, PR-AUC, Brier score, log loss, confusion counts, and calibration/probability diagnostics where defined. Reconcile confusion counts and metric denominators independently.
+For every source candidate and horizon, report status/reason, source list, sample size, positive rate, accuracy, balanced accuracy, ROC-AUC, PR-AUC, Brier score, log loss, confusion counts, and calibration/probability diagnostics where defined. Also report a separate per-horizon `_BASELINE` cell for the causal training-rate comparator, using the same held-out label rows. Reconcile confusion counts and metric denominators independently.
 
 The benchmark probability is the positive-label rate estimated only from the eligible pre-test training prefix. For each horizon, test the maximum Brier improvement among executed candidates using a moving-block bootstrap (seed 42, 500 replicates, block length 20 sessions), recentered under the no-improvement null. Report raw family p-values and a Bonferroni-adjusted value across the five horizons. This family test is screening evidence and does not by itself establish generalizability.
 
