@@ -333,7 +333,7 @@ def run() -> dict:
             family = family_bootstrap(y, baseline_vector, pred_vectors)
             horizon_out["_FAMILY_TEST"] = family
             if family.get("status") == "EXECUTED":
-                family_ps.append(family["family_p_value"])
+                family_ps.append((h, family["family_p_value"]))
         all_results["daily"]["horizons"][str(h)] = horizon_out
 
     # Bonferroni correction across all reported horizon-specific family tests.
@@ -342,8 +342,8 @@ def run() -> dict:
         "status": "EXECUTED" if mtests else "NOT_APPLICABLE",
         "family_tests": mtests,
         "bonferroni_adjusted_p_values": [
-            {"horizon_order": i + 1, "raw_p_value": float(p), "bonferroni_p_value": float(min(1.0, p * mtests))}
-            for i, p in enumerate(family_ps)
+            {"horizon_sessions": int(horizon), "raw_p_value": float(p), "bonferroni_p_value": float(min(1.0, p * mtests))}
+            for horizon, p in family_ps
         ],
         "bootstrap_method": "common-row paired moving-block bootstrap of Brier-loss improvement over a causal training-rate baseline; candidate differentials recentered under the null; max statistic across executed methods",
         "interpretation": "prediction screening only; no candidate promotion from this extension",
