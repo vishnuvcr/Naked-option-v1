@@ -310,3 +310,12 @@ No scientific or protocol change was made during this checkpoint.
 - The workflow now also requires exact upstream workflow-name identity and has a manual run_id button. Run #994 remains active and has no result artifacts.
 - Tester → Developer: do not treat an audit workflow success with skipped audit job as empirical approval.
 - Developer → Tester: audit only the exact completed run whose two artifacts pass preflight; no Phase 8 progression without a separate empirical PASS.
+
+
+ 
+## 2026-10-09 — Resume: second dynamic audit preflight
+
+- Confirmed orchestration run #2 consumed a completed successful Research Protocol Check on phase-07-developer, validated the workflow identity/branch/state/SHA, and then skipped because the required aggregate result artifact count was zero.
+- This is expected safe behavior for the documentation-only run #1037, not an audit outcome. The pinned tester calculation did not run.
+- Tester -> Developer: only audit after the exact run finishes and both artifacts are present.
+- Developer -> Tester: Run #994 remains the sole empirical target; no duplicate empirical run and no Phase 8 transition.
