@@ -12,6 +12,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - Independent tester submissions for the Family D correction cycle are archived under [Phase 5 gates](research/gates/), including the run-1 request-changes report and the protocol-amendment approval.
 - The current implementation uses the tester-approved session-based 20-trading-session intraday refit cadence while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. Run #19 is non-evidence because it timed out before artifact creation. Run #20 is non-evidence because the earlier intraday D13-D15 sequence cache was built on the hourly matrix and yielded n=0. The developer corrected the sequence path to the full 1-minute causal representation, the tester approved that correction, and fresh run #23 completed successfully. The independent tester gate for run #23 is PASS WITH SCOPED RESTRICTIONS. No D model is promoted; option economics, multiple-testing, robustness and fresh-forward validation remain mandatory.
 - Phase 6 method specification and implementation code gate have now passed independent tester review. The exact E07 global composite amendment is frozen pre-result. Empirical execution is authorized through a gated GitHub Actions workflow; no Phase 6 metric is accepted until the immutable artifact is independently audited.
+- **Phase 7 Run #925 is NON-ACCEPTED EVIDENCE; the independent tester issued REQUEST CHANGES.** The tester confirmed row-level source alignment but identified four protocol mismatches: P10 abstention was omitted, missing volatility/trend rows entered the low/low regime, P05/P06 block diagnostics ignored abstention masks, and family-bootstrap non-evaluable rows were set to zero. Phase 7 and Phase 8 remain blocked. See [Run #925 tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md), [Phase status](research/STATUS.md), and [Error log](research/ERROR_LOG.md).
 
 ### Current Phase 5 scope
 
@@ -33,6 +34,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Cost model](research/COST_MODEL.md)
 - [Data source registry](research/DATA_SOURCE_REGISTRY.md)
 - [Phase status](research/STATUS.md)
+- [Phase 7 Run #925 empirical tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md)
 - [Research log](research/logs/RESEARCH_LOG.md)
 - [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
 - [Error log](research/ERROR_LOG.md)
@@ -227,3 +229,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 ### 2026-10-09 Phase 7 artifact checkpoint
 
 Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37912587739), [#924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914896724), and [#925](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914905848) remain reported as in progress at the latest reconciliation. Their empirical jobs have not completed and no artifact is available to audit. Run #852 metadata is stale and live logs for active jobs are temporarily unavailable; neither condition is treated as evidence of success or failure. The bootstrap sampler optimization passed its equivalence regression and scoped tester review, but the real-data reference artifact gate remains open. **Phase 8 stays blocked; no strategy is promoted.** See [live phase status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
+
+
+## Latest Phase 7 checkpoint — 2026-10-09
+
+- Runs #852, #924 and #925 completed with immutable artifacts. Run #925 source commit: `682eadf2a9eb4de250bc3db27d02e57f88687fa1`.
+- The independent tester's audit [Run #943](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935031119) reported 2,775 passing checks and 323 failed checks grouped into four implementation defects.
+- Required fixes: implement the P10 [0.45, 0.55] abstention consistently; exclude rows lacking finite volatility/trend from regime state counts; align P05/P06 block metrics with their abstention masks; and treat non-evaluable family-bootstrap rows as missing, not zero differential.
+- Gate: [PHASE7_RUN925_EMPIRICAL_TESTER.md](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
+- Run #925 is not accepted evidence; no candidate or trading strategy is selected. Phase 8 remains blocked until a corrected Phase 7 code gate and fresh empirical artifact pass independent review.
