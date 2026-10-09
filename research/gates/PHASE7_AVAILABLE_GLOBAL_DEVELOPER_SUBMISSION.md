@@ -106,3 +106,19 @@ This improvement was made before any empirical run; it is not a result and does 
 **Developer → Tester:** Inspect the latest exact blobs above. Recompute a synthetic valid panel/metric/family case and make sure mutations to probabilities, labels, missingness, or the p-value make validation fail. Do not approve empirical execution until the hosted regression outcome is verified and every protected hash matches.
 
 **Tester → Developer:** Return a new exact-snapshot decision with tested panel reconciliation findings, CI run evidence if available, and explicit empirical-authorization status. Keep the original request-changes report as historical record and do not create an approval manifest without a pass.
+
+
+## Final exact-snapshot inventory for re-review — 2026-10-10
+
+The panel validation was tightened once more after adding its first regression fixture: candidate baseline probabilities must agree with the baseline panel for every row, predicted-up mean return is recomputed, invalid row flags/methods are rejected, an empty panel cannot support a family result, and the CSV is written with 17 significant digits for round-trip float fidelity.
+
+- Frozen spec: 71d2d8a9cfef5c138a75715c88bd2f17be3a2afc
+- Acquisition: 401fdacd3aa562b4907d422eb296fec502aa8f3c
+- Predictor: a3026472cea648198485513e77df74cee706a46a
+- Predictor regressions: 34dd77ce9f16e339a5785f3ee337bd8a29b1e7c5
+- Complete result/panel validator: ad2cc6b617224e4c6cddd85b1b8126bc5021cc06
+- Validator regressions: 8c580f80f4bdfc8e8be38997113168f008ad88ae
+- Workflow: c6fbf25e62a9882064cc350d558fd560f3afce35
+- Acquisition requirements: f54f873bbba4cfd010cabc32bb4432f581520e7f
+
+The hosted workflow is set to trigger for the protected predictor/spec/test/validator/workflow files, run both regression suites, print the protected file hashes, fail closed without tester approval, and upload the row-level forecast panel with summary/source artifacts. However, the available commit-status endpoint currently returns no checks for the latest commits and the connector exposes no general workflow-run listing/dispatch action. Treat the hosted test result as **unverified**, not green. The tester must not authorize an empirical run until the actual workflow regression result is visible and passes. No approval JSON has been created.
