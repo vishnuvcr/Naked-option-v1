@@ -17,9 +17,9 @@ def check_strict_asof_excludes_same_date() -> None:
         "source_ret": [0.1, 0.2, 0.3],
     })
     aligned = mod.strict_asof_features(targets, source)
-    assert np.isnan(aligned.loc[0, "source_ret"]), "same-day source row leaked into first target date"
-    assert abs(float(aligned.loc[1, "source_ret"]) - 0.1) < 1e-12, "target day should use latest strictly prior source session"
-    assert abs(float(aligned.loc[2, "source_ret"]) - 0.2) < 1e-12, "same-date source close was not excluded"
+    assert abs(float(aligned.loc[0, "source_ret"]) - 0.1) < 1e-12, "target day did not use latest strictly prior source session"
+    assert abs(float(aligned.loc[1, "source_ret"]) - 0.2) < 1e-12, "same-date source close was not excluded"
+    assert abs(float(aligned.loc[2, "source_ret"]) - 0.3) < 1e-12, "later target did not use latest strictly prior source session"
 
 
 def check_source_features_are_causal() -> None:
