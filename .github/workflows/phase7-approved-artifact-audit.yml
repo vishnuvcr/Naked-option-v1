@@ -55,6 +55,7 @@ jobs:
             echo "Skipped: upstream run metadata is unavailable."
             exit 0
           fi
+          workflow_name="$(jq -r '.name // ""' <<< "$run_json")"
           branch="$(jq -r '.head_branch // ""' <<< "$run_json")"
           status="$(jq -r '.status // ""' <<< "$run_json")"
           conclusion="$(jq -r '.conclusion // ""' <<< "$run_json")"
@@ -63,9 +64,9 @@ jobs:
 
           eligible=true
           reason=""
-          if [ "$branch" != "phase-07-developer" ] || [ "$status" != "completed" ] || [ "$conclusion" != "success" ] || ! [[ "$source_commit" =~ ^[0-9a-f]{40}$ ]]; then
+          if [ "$workflow_name" != "Research Protocol Check" ] || [ "$branch" != "phase-07-developer" ] || [ "$status" != "completed" ] || [ "$conclusion" != "success" ] || ! [[ "$source_commit" =~ ^[0-9a-f]{40}$ ]]; then
             eligible=false
-            reason="run must be completed, successful, and from phase-07-developer"
+            reason="run must be a completed successful Research Protocol Check on phase-07-developer with a valid source commit"
           fi
           if [ "$eligible" = true ]; then
             artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$target_id/artifacts?per_page=100")"
@@ -178,7 +179,13 @@ jobs:
         shell: bash
         run: |
           set +e
-          python tester_code/scripts/audit_phase7_artifact.py             --artifact-root audit_artifacts/reference             --results-root audit_artifacts/results             --source-root source_snapshot             --expected-run-id "$TARGET_RUN_ID"             --expected-commit "$SOURCE_COMMIT"             --report audit_out/phase7_audit.json
+          python tester_code/scripts/audit_phase7_artifact.py \
+            --artifact-root audit_artifacts/reference \
+            --results-root audit_artifacts/results \
+            --source-root source_snapshot \
+            --expected-run-id "$TARGET_RUN_ID" \
+            --expected-commit "$SOURCE_COMMIT" \
+            --report audit_out/phase7_audit.json
           auditor_rc=$?
           set -e
           echo "auditor_exit_code=$auditor_rc" >> "$GITHUB_OUTPUT"
