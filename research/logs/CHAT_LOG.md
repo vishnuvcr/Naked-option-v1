@@ -386,3 +386,14 @@ The tester's rejection remains the active disposition until a fresh report is wr
 **Developer → Tester:** Audit the corrected G13 formula and fixed-row behavior, family-size correction under missing horizons, paired baseline sample matching, complete result validation, workflow protected path list and regression fixtures. Do not authorize until hosted regression is verified.
 
 **Tester → Developer:** Return a new exact-snapshot report with all findings and approval/rejection; reject any mismatch in definitions or p-value adjustment.
+
+
+## 2026-10-10 — Additional independent-auditability correction
+
+After correcting the originally rejected G13, Bonferroni and paired-baseline issues, the developer performed another audit of the future tester's ability to verify actual results. The previous summary JSON did not include per-row held-out forecast probabilities and realized labels. To avoid requiring the tester to trust aggregate summaries, the pipeline now writes a row-level forecast panel and the independent validator recalculates metrics and family inference from that panel. The panel hash is part of the results provenance and the panel is retained as a workflow artifact.
+
+Current tester authorization remains absent. The prior REQUEST CHANGES report is preserved as historical evidence; the new panel additions are included in the latest developer resubmission and need a fresh independent code/spec review. No empirical output exists yet.
+
+**Developer → Tester:** independently test the row-level validator, especially fixed family membership, paired baseline calculations, and exact reproduction of the moving-block p-value; verify hosted regression if available; do not authorize on static inspection alone if CI is still unverified.
+
+**Tester → Developer:** return a new exact-snapshot disposition and report whether hosted tests could be verified. Do not generate or mirror an empirical approval JSON unless all findings and hash checks pass.
