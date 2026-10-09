@@ -67,6 +67,50 @@ def main():
     assert any(idx[i+3]-idx[i]==3 for i in range(7))
     fam=ns["family_bootstrap"](y,{"P01":np.full(500,0.5)},baseline,20)
     assert "family_p_value" in fam and 0.0 <= fam["family_p_value"] <= 1.0
+
+    # P10 is a registered abstention candidate: both interval endpoints abstain,
+    # while values immediately outside the interval remain eligible.
+    assert ns["ABSTAIN"]["P10"] == (0.45, 0.55)
+    p10_values=np.array([0.449999,0.45,0.50,0.55,0.550001,np.nan])
+    p10_eligible=np.isfinite(p10_values)&~((p10_values>=0.45)&(p10_values<=0.55))
+    assert p10_eligible.tolist() == [True,False,False,False,True,False]
+
+    # Non-evaluable rows must remain NaN in family differentials; only eligible
+    # P10 abstentions receive a zero differential.
+    diff=ns["candidate_brier_differential"](
+        np.array([1.0,0.0,1.0,np.nan]),
+        np.array([0.6,0.5,0.4,0.7]),
+        np.array([0.5,0.5,0.5,0.5]),
+        "P10",
+    )
+    assert np.isclose(diff[0],0.09)
+    assert diff[1] == 0.0
+    assert np.isclose(diff[2],-0.11)
+    assert np.isnan(diff[3])
+
+    # Per-block metrics must match the candidate-specific eligibility mask.
+    masked_blocks=ns["block_diagnostics"](
+        np.array([0.0,1.0,0.0,1.0]),
+        np.array([0.4,0.6,0.2,0.8]),
+        [np.arange(4)],
+        np.array([True,False,True,False]),
+    )
+    assert len(masked_blocks)==1 and masked_blocks[0]["n"]==2
+    assert np.isclose(masked_blocks[0]["accuracy"],1.0)
+
+    # Feature rows with missing volatility/trend cannot inflate the low/low regime.
+    regime_y=np.array([0.0,1.0]*115)
+    regime_vol=np.ones(230); regime_trend=np.ones(230)
+    regime_vol[:20]=np.nan; regime_trend[:20]=np.nan
+    regime_p1=np.full(230,0.60); regime_p4=np.full(230,0.40)
+    regime_blocks=[np.arange(0,20),np.arange(200,220),np.arange(220,230)]
+    _,_,regime_diag,_=ns["regimes"](
+        regime_p1,regime_p4,regime_y,regime_vol,regime_trend,regime_blocks
+    )
+    assert len(regime_diag)==1
+    state_counts=regime_diag[0]["train_counts"]
+    assert sum(state_counts.values())==200, state_counts
+    assert state_counts["00"]==200, state_counts
     print("Phase 7 regression checks PASS")
 
 if __name__=="__main__": main()
