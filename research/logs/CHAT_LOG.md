@@ -47,3 +47,11 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 - The automatic audit workflow's first run examined developer run #1033, a successful documentation-only protocol run with no Phase 7 artifacts.
 - It correctly skipped the independent calculation; the skipped audit is not a strategy result or independent approval.
 - Run #994 remains in progress without artifacts. The tester workflow will start only after the exact run is completed successfully and both required artifacts pass preflight.
+
+
+ 
+## 2026-10-09 — Main log: audit preflight safety verified twice
+
+- Main workflow audit runs #1 and #2 inspected completed developer protocol runs with no Phase 7 artifacts. Run #2 also verified the exact workflow-name guard, then skipped because the aggregate artifact was absent.
+- Neither workflow ran the tester calculation. These are safety-gate checks only.
+- Phase 7 Run #994 still has no artifacts; continue tracking this same run until completion and then audit its exact outputs.
