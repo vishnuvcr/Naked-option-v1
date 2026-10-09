@@ -54,3 +54,17 @@
 ## 2026-10-08 — Phase 6 Run #581
 - No execution error occurred. Protocol, regression, empirical suite, schema validation and artifact upload all passed.
 - The independent tester nevertheless recorded a scientific caution: raw maxima across 140 executed cells are not treated as discoveries because multiple-comparison and downstream trading gates remain outstanding.
+
+
+## 2026-10-09 — Phase 7 Run #925 independent empirical tester REQUEST CHANGES
+
+- Category: protocol/metrics/inference implementation
+- Component: `scripts/run_phase7_ensemble.py` and independent artifact audit
+- Hosted empirical run: [Run #925](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914905848), immutable source commit `682eadf2a9eb4de250bc3db27d02e57f88687fa1`.
+- Tester audit workflow: [Run #943](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935031119).
+- Symptom: the corrected independent audit recorded 2,775 passed checks and 323 failed checks across the 10 panels. The principal repeated failures were caused by four implementation mismatches, not 323 separate root causes.
+- Root causes: P10's frozen abstention range [0.45, 0.55] was omitted from the production abstention registry; NaN volatility/trend inputs were implicitly classified as low/low regime state; P05/P06 chronological diagnostics ignored the same abstention masks used by headline metrics; family-bootstrap abstentions were written as zero even when label/probability/baseline rows were not eligible.
+- Impact: P10 summary metrics, regime metrics and family-level inference are not protocol-reconciled. Run #925 is **NON-ACCEPTED EVIDENCE**; no P08/P09/P10 or other Phase 7 metric is promoted, and Phase 8 remains blocked.
+- Tester disposition: `research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md` = **REQUEST CHANGES**.
+- Correction: pending developer implementation and focused regression coverage. Do not alter the frozen Phase 7 specification, candidate universe, horizons, random seed, block lengths, 500 bootstrap replications or thresholds.
+- Prevention: add negative regression cases for each abstention boundary, non-finite regime inputs, candidate-specific block masking, and missing-versus-zero benchmark differentials; require a fresh immutable artifact plus independent source/hash/metric/family audit before progression.
