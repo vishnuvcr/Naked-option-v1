@@ -241,3 +241,12 @@ No scientific or protocol change was made during this checkpoint.
 - Captured NSE 2026 option transaction charge and STT dates/rates plus links for later GST/levy verification. No Phase 8 code or method was changed, and no option-P&L grid was run.
 - Tester → Developer: keep Phase 8 blocked until the Run #994 empirical artifact passes independent audit; then check each cost base/date and reconcile the modeled fees with broker contract-note examples.
 - Developer → Tester: independently verify cost formulae/signs/charge bases, bid-ask execution and timing/expiry assumptions before accepting any net P&L.
+
+
+## 2026-10-09 — Resume: read-only free-source leads for future Phase 8 gate
+
+- Identified additional candidates not represented by the current Phase 8 source probe: Hugging Face rissin/nse-options-intraday, a Kaggle dataset described by a public GitHub issue, a Zenodo NIFTY one-minute 2017–2020 archive, and three GitHub data collectors/projects.
+- Recorded limitations before treating any as evidence: NC/SA license concerns are only community-reported for the Kaggle candidate; the HF dataset says “other” license and reports no intraday OI/bid-ask; Zenodo source describes OHLC/volume; GitHub collectors may require paid/credentialed broker APIs; OptionVault's full archive is licensed rather than an unrestricted free bulk download.
+- This is source discovery only: no dataset imported, no Phase 8 branch opened for implementation, and no changes to forecast/science code. Source list and next validation requirements are in the research log.
+- Tester → Developer: after Phase 7 empirical gate, check source license, data provenance, row coverage and official-NSE overlaps before considering any composition.
+- Developer → Tester: independently review free-source coverage and distinguish Q2 quote-executable evidence from Q1 OHLC proxy evidence; do not authorize paid sources until plausible free sources are ruled out.

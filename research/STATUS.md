@@ -319,3 +319,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Paytm public information is account-plan-sensitive: its F&O FAQ reports ₹10 per unique executed order, while its older plan notice documents ₹10/₹15 grandfathered and ₹20 newer-account plans. Use ₹10/₹15/₹20 sensitivity until the account-specific tariff/contract note is verified.
 - NSE 2026 option transaction charges: ₹3,553/crore premium turnover per side from 1-Mar-2026; STT 0.15% on option sale premium and 0.15% on intrinsic value on exercise from 1-Apr-2026. Other statutory levies/GST, spread, slippage, latency and premium decay still require explicit handling.
 - This is preparation only. Phase 8 has not advanced; its opening gate remains the fresh Phase 7 Run #994 artifact and independent empirical approval.
+
+
+## 2026-10-09 — Additional free-source leads recorded (pre-gate only)
+
+- Identified candidates on Hugging Face, Kaggle (reported via a community issue), Zenodo and GitHub that are not all covered by the current Phase 8 source-probe list. Candidate source URLs and limitations are recorded in the research log.
+- The candidates are not accepted datasets: licensing/provenance, row coverage, expiry/strike omissions, OHLC-vs-bid/ask fields and official NSE cross-validation still require an audit.
+- State is unchanged: Phase 7 Run #994 remains the active empirical target; Phase 8 is blocked and no P&L grid or source-composite amendment is authorized.
