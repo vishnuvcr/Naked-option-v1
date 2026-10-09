@@ -238,3 +238,9 @@
 - Impact: Run #792 is NON-EVIDENCE; forecast panel validation and empirical authorization were skipped; no option P&L was generated.
 - Tester gate `research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md` on `phase-08-tester` = REQUEST CHANGES.
 - Required: diagnose reproducibility/runtime/aggregation cause, preserve frozen tolerance and source artifact, add regression coverage, obtain tester approval, then rerun complete gate.
+
+## 2026-10-09 — Run #792 numerical reproducibility diagnosis checkpoint
+- Run #792 failed at intraday H=60 P07 chronological-block Brier reproduction; absolute differences approximately 9.13e-9 and 2.18e-9 exceed frozen 1e-9 tolerance.
+- Developer compared hosted logs: Run #654 used Python 3.11.16 and Run #792 Python 3.11.17; both report NumPy 2.4.6, pandas 3.0.6, scikit-learn 1.9.1, SciPy 1.17.1, pyarrow 25.0.1 and threadpoolctl 3.7.0.
+- Root cause is not yet proven; native numerical-library/runtime or solver reproducibility remain hypotheses only.
+- Diagnosis recorded at `research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md`. Tester review is required before code changes. Do not widen tolerance or authorize option P&L.
