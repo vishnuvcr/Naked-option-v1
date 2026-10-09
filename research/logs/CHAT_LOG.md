@@ -186,3 +186,11 @@ No scientific or protocol change was made during this checkpoint.
 - Tester report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](../gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) is archived on the developer branch.
 - An old-approval defect had also triggered empirical runs `37935752265` and `37935794939`; these are non-evidence and cannot be used regardless of outputs. This was logged in the error log, and the authorization workflow is being tightened.
 - Next action: implement exact commit/hash binding for both automatic and manual authorization paths, submit positive/negative tests to the tester, and do not run another empirical execution until the tester PASS is bound to that snapshot.
+
+
+## 2026-10-09 — Resume: bind correction approval to reviewed snapshot
+
+- Continued after tester REQUEST CHANGES on stale approval reuse.
+- Added `scripts/validate_phase7_correction_approval.py` and `scripts/test_phase7_correction_approval.py`; updated both automatic and manual/reusable workflow paths to verify a tester-branch approval manifest against the current protected-file hashes and reviewed commit.
+- Hosted Run #981 passed protocol and all Phase 7 regression jobs; empirical and approval gates were skipped because tester PASS/manifest are not yet present.
+- Developer commit `b9fc7c9e7c77efb5149d35e31509251f701122ce` submitted for independent tester review. No metric or strategy promoted.
