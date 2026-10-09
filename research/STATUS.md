@@ -173,3 +173,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Research Protocol Check #1008 (`37960307076`) passed both repository contract and literature registry validation after validator scripts/registry were restored and the untouched-holdout terminology was clarified.
 - This is an infrastructure gate only; it does not authorize any new empirical phase or strategy.
 - Run #994 (`37957677656`) remains the active Phase 7 empirical evidence target; the latest artifact query returned no artifacts. Independent tester review is still pending.
+ 
+## 2026-10-09 — Automatic tester-audit preflight smoke test
+
+- Main audit workflow run #1 checked developer protocol run #1033, which was a documentation-only run without Phase 7 result artifacts.
+- Preflight found the missing required artifact and skipped independent calculation, as intended. This was infrastructure smoke-test evidence only.
+- The workflow now also checks the exact upstream workflow name, completed success status, developer branch, immutable source SHA, and exactly one non-expired/non-empty artifact for each required artifact name.
+- Manual workflow dispatch requires a run ID and uses identical eligibility checks. Run #994 remains in progress with no artifact output; Phase 8 stays blocked.
