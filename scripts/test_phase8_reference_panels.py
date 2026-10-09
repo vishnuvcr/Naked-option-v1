@@ -12,6 +12,7 @@ import run_phase7_ensemble as p7
 import validate_phase7_reference_panels as validator
 import validate_phase8_forecast_panel as phase8_panel_validator
 from validate_phase7_reference_panels import compare_panel
+validator.p7 = p7
 
 
 def test_saved_panel_metrics_reconcile_without_model_refit():
@@ -66,6 +67,9 @@ def test_code_hashes_are_checked_against_git_commit():
     ]
     code_files = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in paths}
     validator.verify_code_hashes({"commit": commit, "code_files": code_files})
+    loaded = validator.load_reference_phase7_module(commit)
+    assert loaded.__file__ == str(ROOT / "scripts" / "run_phase7_ensemble.py")
+    assert callable(loaded.family_bootstrap)
     tampered = dict(code_files)
     tampered[paths[0]] = "0" * 64
     try:
@@ -85,6 +89,8 @@ def test_full_artifact_directory_validation():
     original_root = validator.ROOT
     original_family = p7.family_bootstrap
     original_verify = validator.verify_code_hashes
+    original_loader = validator.load_reference_phase7_module
+    original_validator_p7 = validator.p7
     original_panel_root = phase8_panel_validator.ROOT
     original_panel_report = phase8_panel_validator.REPORT
     original_panel_manifest = phase8_panel_validator.MANIFEST
@@ -103,6 +109,8 @@ def test_full_artifact_directory_validation():
             source_intra.write_bytes(b"synthetic-intraday-source")
             validator.ROOT = root
             validator.verify_code_hashes = lambda manifest: None
+            validator.load_reference_phase7_module = lambda commit: p7
+            validator.p7 = p7
             p7.family_bootstrap = lambda *args, **kwargs: {"observed": 0.001, "p_value": 0.5}
 
             aggregate = {"protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42}
@@ -211,6 +219,8 @@ def test_full_artifact_directory_validation():
     finally:
         validator.ROOT = original_root
         validator.verify_code_hashes = original_verify
+        validator.load_reference_phase7_module = original_loader
+        validator.p7 = original_validator_p7
         phase8_panel_validator.ROOT = original_panel_root
         phase8_panel_validator.REPORT = original_panel_report
         phase8_panel_validator.MANIFEST = original_panel_manifest
