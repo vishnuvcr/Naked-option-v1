@@ -250,3 +250,9 @@ No scientific or protocol change was made during this checkpoint.
 - This is source discovery only: no dataset imported, no Phase 8 branch opened for implementation, and no changes to forecast/science code. Source list and next validation requirements are in the research log.
 - Tester → Developer: after Phase 7 empirical gate, check source license, data provenance, row coverage and official-NSE overlaps before considering any composition.
 - Developer → Tester: independently review free-source coverage and distinguish Q2 quote-executable evidence from Q1 OHLC proxy evidence; do not authorize paid sources until plausible free sources are ruled out.
+ 
+## 2026-10-09 — Resume: additional HF data-quality caveat logged
+
+- The Hugging Face dataset viewer showed sample 2005 daily rows with zeros across OHLC, volume, OI and settlement for selected option contracts. This may indicate absent trades/placeholders, so it is logged as a validation risk rather than a proved data corruption.
+- Before any future use, the tester must check contract/expiry-level zero rates, verify against official NSE samples, classify non-positive prices as non-executable, and keep coverage diagnostics instead of imputing prices.
+- This did not import or merge data, change the Phase 8 method or authorize the option-P&L grid.

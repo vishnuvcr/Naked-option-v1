@@ -326,3 +326,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Identified candidates on Hugging Face, Kaggle (reported via a community issue), Zenodo and GitHub that are not all covered by the current Phase 8 source-probe list. Candidate source URLs and limitations are recorded in the research log.
 - The candidates are not accepted datasets: licensing/provenance, row coverage, expiry/strike omissions, OHLC-vs-bid/ask fields and official NSE cross-validation still require an audit.
 - State is unchanged: Phase 7 Run #994 remains the active empirical target; Phase 8 is blocked and no P&L grid or source-composite amendment is authorized.
+
+
+## 2026-10-09 — Free-source preview quality caveat
+
+The current Hugging Face dataset viewer for rissin/nse-options-intraday shows legacy daily option rows dated 2005-06-10 with open/high/low/close, volume, open interest and settlement values all equal to zero for sample contracts. These may be placeholders for contracts with no eligible trade/quote, not valid executable observations. Do not silently forward-fill, impute or assign positive execution value to these rows. Validate zero/missing values by source and contract, retain explicit status/reason fields, and exclude invalid/non-positive premium rows from executable P&L while keeping them in coverage diagnostics. The dataset's license field is “other”, its provenance/redistribution terms need review, and it does not describe bid/ask data. Source: https://huggingface.co/datasets/rissin/nse-options-intraday
+
+This confirms the source remains a candidate only. No source was imported and no Phase 8 gate was opened.
