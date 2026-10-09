@@ -502,3 +502,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Candidate output now carries paired baseline metrics on the exact candidate prediction rows. The top-level baseline remains feature-mask independent and is explicitly labeled as a broader diagnostic.
 - Added a testable complete-grid/result validator checking method and baseline cells, paired row counts, metric arithmetic, blocked reasons, horizon family p-values, fixed Bonferroni factor, source/provenance hashes, and unopened holdout.
 - **Gate remains closed.** The REQUEST CHANGES tester report is not an approval; no Phase 7 approval JSON has been issued, and no empirical prediction result has been generated from this extension. Wait for a new independent review of the exact updated code/spec snapshot and the associated hosted regression run before authorizing one empirical batch.
+
+
+## 2026-10-10 — Row-level forecast panel added before empirical gate
+
+- A further independent auditability check found that aggregate metrics alone would make it harder to reproduce the candidate metrics and common-row moving-block inference.
+- Predictor now writes data/reports/available_global_prediction_panels.csv alongside the summary JSON, including actual direction/realized return, each candidate probability or abstention, baseline probability, source/feature IDs and cell status. JSON provenance records its path and SHA-256.
+- The standalone validator now checks panel provenance and key uniqueness, labels versus realized-return sign, metric recomputation for each model and baseline, paired baseline metrics, common-row family Brier improvements and deterministic moving-block bootstrap p-values.
+- Panel export and its validator tests are included in the protected workflow snapshot and artifact upload. Exact blobs are listed in the latest developer submission addendum.
+- **Empirical gate remains closed.** No row-level empirical panel or prediction result has been generated yet. Hosted regression outcome is not verified by the available status tools. The tester must independently review the added panel logic and verify hosted regression before any empirical approval.
