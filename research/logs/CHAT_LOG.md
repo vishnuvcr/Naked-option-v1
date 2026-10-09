@@ -256,3 +256,10 @@ No scientific or protocol change was made during this checkpoint.
 - The Hugging Face dataset viewer showed sample 2005 daily rows with zeros across OHLC, volume, OI and settlement for selected option contracts. This may indicate absent trades/placeholders, so it is logged as a validation risk rather than a proved data corruption.
 - Before any future use, the tester must check contract/expiry-level zero rates, verify against official NSE samples, classify non-positive prices as non-executable, and keep coverage diagnostics instead of imputing prices.
 - This did not import or merge data, change the Phase 8 method or authorize the option-P&L grid.
+
+
+## 2026-10-09 — Resume: source preview extrema and duplicate dataset check
+
+- The public preview for `artist-23/nifty-options-data` reports a negative volume minimum (-4,288,892,671), extreme maximum volume (1.44 billion) and IV maximum 4,540. These are validation flags requiring Parquet-level inspection, unit checks and official NSE overlap; they do not prove every row invalid.
+- Confirmed `codepyx23/india-index-options-1m` declares itself a duplicate of `thetrademarkk/india-index-options-1m`; they share CC-BY-NC-4.0 labels and are not independent corroborating sources.
+- Logged candidate-quality requirements and source links. No dataset imported, composited or accepted; Phase 8 remains blocked pending Run #994 empirical artifact audit.

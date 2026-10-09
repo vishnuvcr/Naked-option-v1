@@ -703,3 +703,15 @@ A read-only source search was run while Phase 7 Run #994 remains the sole active
 The current Hugging Face dataset viewer for rissin/nse-options-intraday shows legacy daily option rows dated 2005-06-10 with open/high/low/close, volume, open interest and settlement values all equal to zero for sample contracts. These may be placeholders for contracts with no eligible trade/quote, not valid executable observations. Do not silently forward-fill, impute or assign positive execution value to these rows. Validate zero/missing values by source and contract, retain explicit status/reason fields, and exclude invalid/non-positive premium rows from executable P&L while keeping them in coverage diagnostics. The dataset's license field is “other”, its provenance/redistribution terms need review, and it does not describe bid/ask data. Source: https://huggingface.co/datasets/rissin/nse-options-intraday
 
 This confirms the source remains a candidate only. No source was imported and no Phase 8 gate was opened.
+
+
+
+## 2026-10-09 — Hugging Face schema-range red flags found during pre-gate source search
+
+A public preview of `artist-23/nifty-options-data` reports 33.96 million rows and shows suspicious extrema: `volume` minimum -4,288,892,671 and maximum 1.44 billion, while `iv` reaches 4,540. Those reported ranges require direct file inspection and source reconciliation; they are not evidence that every row is corrupt, but they make this candidate unsuitable for blind use. The preview includes normal-looking rows, which can coexist with bad/misparsed/extreme rows. Dataset viewer/source: https://huggingface.co/datasets/artist-23/nifty-options-data (viewer summary and schema).
+
+The public dataset `codepyx23/india-index-options-1m` explicitly states it is a **duplicate** of `thetrademarkk/india-index-options-1m`, and both carry `CC-BY-NC-4.0`; do not count those as independent data sources or use them to claim independent cross-validation. Source: https://huggingface.co/datasets/codepyx23/india-index-options-1m/blob/main/README.md
+
+The dataset `thetrademarkk/india-index-options-1m` describes partial option coverage, missing OI/settlement on intraday rows and no bid/ask stream. It is Q1 OHLC proxy data, not Q2 quote-executable evidence. Source: https://huggingface.co/datasets/thetrademarkk/india-index-options-1m
+
+Required pre-acceptance checks for any of these candidates: check `high >= max(open, close, low)`, `low <= min(open, close, high)`, positive premium for executable rows, non-negative volume/OI when fields are present, IV unit/range sanity, timestamps/IST alignment, duplicated contract-minute keys, strike/expiry completeness, and overlap with official NSE contract rows. Keep raw input hash and row-level invalid reason codes. Never clamp, impute or drop bad rows silently. This is source QA preparation only: no dataset imported, composite built, or Phase 8 P&L executed.
