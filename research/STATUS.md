@@ -274,3 +274,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer compared Run #654 empirical-job environment logs with Run #792 reconstruction logs: both report NumPy 2.4.6, pandas 3.0.6, scikit-learn 1.9.1, SciPy 1.17.1, pyarrow 25.0.1 and threadpoolctl 3.7.0; Python patch versions differ (3.11.16 versus 3.11.17).
 - Numerical/runtime root cause remains unproven. Developer diagnosis/proposal is archived at `research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md`.
 - Tester must review the proposed minimal runtime/thread determinism controls before code changes. Tolerance remains 1e-9; no option execution authorized.
+
+
+## 2026-10-09 — Phase 8 Run #807 determinism attempt rejected
+- Hosted Research Protocol Check #807 (run ID 37876792124; developer head `559af131d75a6fc256afd9ba09eb2792653fea8c`) completed with FAILURE.
+- Protocol, workflow/reconstruction/execution-engine regression, free-source audit, and immutable Run #654 artifact checks passed. Forecast reconstruction failed at the same two intraday H=60 P07 chronological-block Brier values; differences remain above frozen absolute tolerance 1e-9.
+- Reconstruction job confirms Python 3.11.16 and thread limits of 1, so pinning Python and constraining numerical threads did not resolve the discrepancy. Root cause remains unproven.
+- Independent tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` on `phase-08-tester` = REQUEST CHANGES. No forecast panel accepted; empirical 4,800-cell grid and option P&L remain blocked.
+- Next action: inspect exact immutable per-row Run #654 predictions/labels and frozen aggregation path, isolate the mismatch, add historical-path regression coverage, and submit a targeted proposal for tester review before another hosted reconstruction attempt.
