@@ -224,3 +224,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Tester gate:** [Phase 8 follow-up proposal review](research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL_TESTER.md) = PASS WITH SCOPED RESTRICTIONS for proposal only. Phase 7 output-code review and new artifact audit remain mandatory.
 - **No empirical option grid or P&L is authorized.** Run #654 remains unchanged; tolerance remains 1e-9; no strategy is promoted.
 - Details: [Research status](research/STATUS.md), [Error log](research/ERROR_LOG.md), [Research log](research/logs/RESEARCH_LOG.md), [Chat log](research/logs/CHAT_LOG.md), [Developer proposal](research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL.md).
+
+## Saved-panel validator update — 2026-10-09
+
+- The new no-refit Phase 8 panel validator and synthetic regression test are implemented. [Dedicated hosted regression run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37912665449) completed successfully.
+- The test proves the synthetic saved-panel path can recompute metrics, chronological-block diagnostics and family-bootstrap inference at the frozen 1e-9 tolerance. It does **not** validate a real artifact or authorize changing the Phase 8 manifest.
+- Tester review is [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md), PASS WITH SCOPED RESTRICTIONS. Code hashes must be verified against the artifact's immutable source commit, and all ten real panels need an independent post-run audit.
+- Run #654 and the current frozen manifest remain unchanged; the 4,800-cell empirical option grid remains blocked.
