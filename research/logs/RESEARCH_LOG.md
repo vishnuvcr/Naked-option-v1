@@ -616,3 +616,12 @@
 - Root causes: no P10 abstention in [0.45, 0.55]; non-finite volatility/trend values classified into low/low state counts; P05/P06 per-block diagnostics not aligned to their masks; family-bootstrap rows with unavailable labels/probability/baseline treated as zero differential.
 - Tester report [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
 - Run #925 is non-accepted evidence. Phase 7 and Phase 8 stay blocked until a corrected code commit is approved by the independent tester and a fresh artifact passes the full source/hash/metric/inference audit.
+
+
+## 2026-10-09 — Correction code reviewed; snapshot-binding REQUEST CHANGES
+
+- The developer submitted the four Run #925 source corrections, targeted regression tests and result-validator adjustment. Hosted Run #964 passed protocol, Phase 7 regression and reference-artifact regression; empirical execution was skipped by the correction-specific guard.
+- The independent tester confirmed the four result corrections but found the correction-approval mechanism checks only file presence and text phrases; it does not identify/hash the exact protected-code snapshot.
+- Tester gate `research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md` = **REQUEST CHANGES** for authorization binding. Bind both manual/automatic paths to the exact reviewed commit/file hashes and add positive/negative tests.
+- Runs `37935752265` and `37935794939` were dispatched under a stale approval and are preserved as **NON-EVIDENCE**. No results are accepted.
+- Phase 7 remains blocked pending the snapshot-binding fix, tester re-review, then one fresh empirical run with separate post-run audit.
