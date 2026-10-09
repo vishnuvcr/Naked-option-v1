@@ -481,7 +481,13 @@ def run() -> dict:
         "bootstrap_method": "common-row paired moving-block bootstrap of Brier-loss improvement over a causal training-rate baseline; candidate differentials recentered under the null; max statistic across executed methods",
         "interpretation": "prediction screening only; no candidate promotion from this extension",
     }
-    panel_frame = pd.DataFrame(prediction_panels)
+    panel_columns = [
+        "date", "horizon_sessions", "method", "row_type", "cell_status",
+        "actual_direction", "future_log_return", "predicted_probability",
+        "baseline_probability", "prediction_available", "source_ids_json",
+        "feature_columns_json",
+    ]
+    panel_frame = pd.DataFrame(prediction_panels, columns=panel_columns)
     panel_frame.to_csv(PANEL_PATH, index=False)
     all_results["provenance"] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
