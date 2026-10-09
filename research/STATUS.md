@@ -262,3 +262,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer correction commits `69f4ce1b338a69419e94e40c92ea3d6a3627348b` and `b528282c789a22cf6c7056519410a752ef748b88` fix the header and add a canonical Git empty-blob regression.
 - Tester approval `research/gates/PHASE8_RUN783_RECON_HASH_APPROVAL_TESTER.md` = PASS.
 - Fresh complete hosted reconstruction/data gate is required. Empirical option execution remains blocked.
+
+
+## 2026-10-09 — Phase 8 Run #792 fresh reconstruction gate
+- Run #792 attempt 2 completed **FAILURE** at forecast reconstruction; upstream protocol, regression, free-source and immutable Run #654 artifact checks passed.
+- Intraday H=60 P07 chronological-block Brier values differed from the frozen Run #654 reference by approximately 9.13e-9 and 2.18e-9, exceeding the frozen absolute tolerance 1e-9.
+- Tester gate `research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md` = REQUEST CHANGES on `phase-08-tester`.
+- Phase 8 remains blocked before forecast-panel validation; no option P&L and no 4,800-cell grid execution. Developer must diagnose and fix with a regression and receive tester approval before fresh hosted execution.
