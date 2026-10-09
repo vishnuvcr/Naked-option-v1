@@ -1,7 +1,7 @@
 # Independent Tester Report — Phase 7 correction snapshot binding
 
 **Decision: PASS WITH SCOPED RESTRICTIONS**  
-Reviewed developer commit: `39e964d4ae99bb02b113fa4eabecd91c9af46c16`  
+Reviewed developer commit: `ccb063fb414db971c9a43ed0e0cd85ef9d3c4c4f`  
 Scope: correction-specific authorization safety only; approval permits one fresh empirical execution only against the exact protected snapshot, not strategy promotion.
 
 ## Independent findings
@@ -26,9 +26,3 @@ The correction-specific authorization code gate is **PASS WITH SCOPED RESTRICTIO
 **Tester → Developer:** Copy this report and its companion JSON manifest byte-for-byte to `phase-07-developer`; do not edit protected files; confirm the hosted validator returns authorized before one fresh run, then submit its immutable artifact for independent audit.
 
 **Developer → Tester:** Independently audit the next artifact, all ten panels and the frozen metric/inference checks. Issue a separate empirical gate; do not permit Phase 8 based only on this code gate.
-
-## Follow-up review — P10 regime diagnostic correction
-
-The reviewed developer commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` adds candidate-specific P10 regime-diagnostic filtering by the registered inclusive abstention interval, preserves block IDs, restores the frozen P08/P09/P10 diagnostic-count invariant, and adds a synthetic test for a fully abstained block and both endpoints. The developer hosted regression job passed. Static tester review accepts this code correction for **one fresh empirical execution only**; this is not an empirical-performance approval and does not alter Run #994.
-
-The fresh run must be audited independently. Run #994's ten family-level p-values were all non-significant; no strategy was selected. Options-level point-in-time data and after-cost execution evidence remain mandatory.
