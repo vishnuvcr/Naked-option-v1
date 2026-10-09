@@ -244,3 +244,14 @@
 - Developer compared hosted logs: Run #654 used Python 3.11.16 and Run #792 Python 3.11.17; both report NumPy 2.4.6, pandas 3.0.6, scikit-learn 1.9.1, SciPy 1.17.1, pyarrow 25.0.1 and threadpoolctl 3.7.0.
 - Root cause is not yet proven; native numerical-library/runtime or solver reproducibility remain hypotheses only.
 - Diagnosis recorded at `research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md`. Tester review is required before code changes. Do not widen tolerance or authorize option P&L.
+
+## 2026-10-09 — Phase 8 Run #807 repeated reconstruction mismatch
+- Category: scientific reproducibility / metric reconstruction
+- Component: `scripts/reconstruct_phase7_predictions.py`, aggregate reproduction for immutable Phase 7 Run #654
+- Hosted run: Research Protocol Check #807, run ID 37876792124, developer head `559af131d75a6fc256afd9ba09eb2792653fea8c`.
+- Symptom: reconstruction failed again despite Python 3.11.16 pin and single-thread numerical-library controls.
+- Exact mismatches under frozen absolute tolerance 1e-9: intraday H=60 P07 block 33 actual Brier 0.24826251046324826 vs reference 0.2482625195704263; block 55 actual 0.2516896144464828 vs reference 0.2516896166236784.
+- Upstream protocol, regression, free-source audit, immutable Run #654 artifact integrity, and execution-engine regression passed. Forecast panel validation and empirical authorization were skipped.
+- Impact: Run #807 is NON-EVIDENCE for forecast reconstruction; no option P&L or 4,800-cell empirical grid was produced.
+- Tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` = REQUEST CHANGES.
+- Root cause remains unproven. Required next step: reproduce aggregation from immutable per-row predictions/labels and frozen aggregation code, add historical-path regression coverage, and resubmit for tester review. Do not alter reference values, round metrics, or relax tolerance.
