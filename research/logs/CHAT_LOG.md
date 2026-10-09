@@ -35,3 +35,9 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 - Developer fix copied `scripts/validate_protocol.py`, `scripts/validate_literature_registry.py`, and `research/literature/LITERATURE_REGISTRY.csv` byte-for-byte from `phase-07-developer` to `main`. This is infrastructure synchronization only; no research code, results, or phase authorization changed.
 - Next: confirm a fresh main protocol run passes, keep monitoring Run #994, and have the independent tester audit the exact new artifact after it uploads.
 - Private hidden chain-of-thought is not archived; decisions and verifiable actions are recorded instead.
+
+
+### Follow-up verification — 2026-10-09
+
+- Research Protocol Check #1008 passed both validator steps after the missing validator/registry files and terminology mismatch were fixed.
+- Run #994 still has no artifacts published at the latest query. The developer must continue monitoring and submit its exact immutable artifacts for tester review once uploaded.
