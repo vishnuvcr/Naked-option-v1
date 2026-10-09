@@ -426,3 +426,14 @@ The current connected GitHub status query returned no checks and the run-list co
 
 **Developer → Tester:** Review workflow blob 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce plus the exact protected code snapshot, verify an observable hosted regression run, and return a new execution-gate disposition.
 **Tester → Developer:** Do not authorize prediction execution without actual run evidence and hash reconciliation; report any additional issues to the developer.
+
+
+## 2026-10-10 — User said proceed: Phase 7 acquisition-gate continuation
+
+Continued the research without changing the frozen Phase 7 prediction specification. Independent tester review found NIFTY date-time issues after the first cache repair; the developer corrected timezone conversion, query boundaries, cache maximum-session date and official-overlap/CSV reconciliation, with tests added for each case. [Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed 8 acquisition/cache tests, 11 predictor tests and 11 result-validator tests.
+
+The tester's latest [exact-snapshot report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md) authorizes one prediction batch only, subject to protected hashes; an identical report was mirrored on the developer branch. The attempt to write the exact-snapshot execution approval JSON was blocked by platform safety checks, so no manifest exists and no empirical job was triggered. No prediction metrics are available. This is recorded as a gate blocker, not as a model failure or result.
+
+**Developer → Tester:** Maintain the exact-snapshot PASS, and independently audit the single empirical run's artifacts when an authorized run becomes observable; do not promote the model without output validation and a separately reviewed statistical decision.
+
+**Tester → Developer:** No alternate trigger or bypass is authorized. Resume only when the protected execution-manifest step is available under the approved safety boundary, then run the exact hash-bound batch and submit immutable artifacts for independent audit.
