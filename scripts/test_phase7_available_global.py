@@ -91,6 +91,18 @@ def check_family_bootstrap_is_deterministic_and_bounded() -> None:
         assert a["n_common"] == 300
 
 
+def check_acquisition_failure_reasons_are_preserved() -> None:
+    nifty = pd.DataFrame({"date": pd.to_datetime(["2024-01-01", "2024-01-02"])})
+    manifest = {"series": [{
+        "id": "SP500", "status": "BLOCKED_DATA",
+        "reason": "HTTP 429 rate limit"
+    }]}
+    source_map, source_state = mod.build_feature_frame(nifty, manifest)
+    assert source_map == {}
+    assert source_state["SP500"]["status"] == "BLOCKED_DATA"
+    assert "HTTP 429" in source_state["SP500"]["reason"]
+
+
 def check_registry_has_explicit_blocked_status() -> None:
     frame = {
         "SENSEX": pd.DataFrame({"SENSEX_ret1": [0.1], "SENSEX_ret5": [0.2], "SENSEX_vol20": [0.01]}),
@@ -111,6 +123,7 @@ def main() -> None:
         check_benchmark_is_independent_of_candidate_feature_mask,
         check_metrics_reconcile,
         check_family_bootstrap_is_deterministic_and_bounded,
+        check_acquisition_failure_reasons_are_preserved,
         check_registry_has_explicit_blocked_status,
     ]
     for check in checks:
