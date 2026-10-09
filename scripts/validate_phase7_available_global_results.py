@@ -471,6 +471,10 @@ def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
                 _fail(f"horizon={horizon}/{method}: actual labels do not align with baseline panel")
             if not np.allclose(item["future_log_return"], base_sorted["future_log_return"], rtol=0.0, atol=1e-12):
                 _fail(f"horizon={horizon}/{method}: realized returns do not align with baseline panel")
+            base_probability_by_date = base_sorted.set_index("date")["predicted_probability"]
+            candidate_baseline_aligned = item.set_index("date")["baseline_probability"].reindex(base_probability_by_date.index)
+            if candidate_baseline_aligned.isna().any() or not np.allclose(candidate_baseline_aligned.to_numpy(dtype=float), base_probability_by_date.to_numpy(dtype=float), rtol=0.0, atol=1e-12):
+                _fail(f"horizon={horizon}/{method}: candidate baseline probabilities do not match baseline panel on every row")
             avail_raw = item["prediction_available"]
             if avail_raw.isna().any():
                 _fail(f"horizon={horizon}/{method}: prediction_available missing for candidate row")
@@ -491,6 +495,14 @@ def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
                     f"horizon={horizon}/{method}",
                 )
                 _match_metric_fields(metric, cell, f"horizon={horizon}/{method}")
+                predicted_up = available & (item["predicted_probability"] >= 0.5)
+                expected_mean_return = float(item.loc[predicted_up, "future_log_return"].mean()) if predicted_up.any() else None
+                reported_mean_return = cell.get("mean_future_log_return_when_predicted_up")
+                if expected_mean_return is None:
+                    if reported_mean_return is not None:
+                        _fail(f"horizon={horizon}/{method}: mean return when predicted up should be null")
+                elif reported_mean_return is None or abs(_finite_number(reported_mean_return, f"horizon={horizon}/{method}.mean_future_log_return_when_predicted_up") - expected_mean_return) > 1e-10:
+                    _fail(f"horizon={horizon}/{method}: mean return when predicted up does not reconcile with panel")
                 paired_base_metric = _metric_summary_from_rows(
                     candidate_rows["actual_direction"].to_numpy(dtype=float),
                     candidate_rows["baseline_probability"].to_numpy(dtype=float),
