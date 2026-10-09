@@ -302,3 +302,11 @@ No scientific or protocol change was made during this checkpoint.
 - The old Run #925 audit is manual-only and now additionally requires explicit opt-in. Run #994 remains active with no output artifact at this check.
 - Tester → Developer: do not bypass preflight or edit tester code from the developer branch.
 - Developer → Tester: review the exact-run report; do not promote or open Phase 8 until the empirical audit passes and remaining data/economic gates pass.
+
+## 2026-10-09 — Resume: automatic audit preflight skipped a non-empirical developer run
+
+- Main workflow run #1 was triggered after successful developer protocol run #1033; that upstream run was documentation-only and had no Phase 7 artifacts.
+- Preflight correctly found zero phase7-ensemble-results artifacts and skipped the tester calculation. This demonstrated the no-artifact skip path, not a scientific outcome.
+- The workflow now also requires exact upstream workflow-name identity and has a manual run_id button. Run #994 remains active and has no result artifacts.
+- Tester → Developer: do not treat an audit workflow success with skipped audit job as empirical approval.
+- Developer → Tester: audit only the exact completed run whose two artifacts pass preflight; no Phase 8 progression without a separate empirical PASS.

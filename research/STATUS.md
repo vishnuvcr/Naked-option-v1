@@ -402,3 +402,11 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - Independence: the audit uses the generic tester script from pinned tester commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f, checks out the exact developer source SHA, downloads only artifacts for the requested run, and writes its JSON/Markdown report and phase status/log entries to phase-07-tester. The final workflow gate fails unless the report identity is exact and all checks pass.
 - The legacy Run #925 audit on phase-07-tester is now manual-only and also requires an explicit boolean opt-in; normal tester-branch pushes no longer repeat the rejected historical audit.
 - **Run #994 has not yet completed** at this checkpoint (its empirical step remains in progress and no artifacts are published). No audit was run on it yet, no metrics were accepted, and Phase 8 remains blocked.
+
+
+## 2026-10-09 — Approved-audit workflow smoke test (preflight only)
+
+- A completed developer protocol run [#1033](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965583008) had no Phase 7 result artifacts because it was documentation-only.
+- The newly installed automatic audit workflow [run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965605363) inspected that exact run, found zero phase7-ensemble-results artifacts, and correctly skipped the independent audit. No tester code was executed and no metric was inferred.
+- The main workflow was subsequently tightened to require the upstream workflow name to be exactly Research Protocol Check in addition to branch, completion, successful conclusion, source SHA and both non-empty artifact checks. Future auto events will recheck these constraints. Manual dispatch requires a run ID and rejects incomplete/missing-artifact runs.
+- This is preflight evidence only, not empirical evidence. Run #994 remains in progress with no artifacts; Phase 8 remains blocked.
