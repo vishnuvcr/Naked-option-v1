@@ -312,3 +312,8 @@
 - Root cause: the synthetic artifact test bypassed the source-alignment assertion but still invoked production data loaders.
 - Correction: patch the daily/intraday loaders only within the synthetic fixture and restore them in `finally`; added separate positive and mutation-negative tests for daily and intraday source alignment using synthetic frames. Production validator loaders and checks remain enabled.
 - Verification: run #12 `37914065821` SUCCESS; tester reviewed and approved the source-alignment code/test with scoped restrictions. Earlier failures remain recorded and are not treated as passes.
+
+## 2026-10-09 — Strict manifest/panel identity hardening verified
+- Added fail-closed checks for the exact expected source/code manifest keys and required panel run ID/commit identity.
+- Hosted run `37914278229` = SUCCESS; tester approval is archived in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
+- This verifies the synthetic regression only. No real Phase 7 artifact or Phase 8 metric acceptance is claimed.
