@@ -169,15 +169,23 @@ def build_candidates(nifty: pd.DataFrame, source_map: dict[str, pd.DataFrame], s
     equity_ids = [s for s in ("SP500", "NASDAQ", "NIKKEI", "HANGSENG") if s in source_map]
     if len(equity_ids) >= 2:
         comp = pd.DataFrame(index=source_map[equity_ids[0]].index)
+        ret1_columns = []
+        ret5_columns = []
         for sid in equity_ids:
-            comp[f"{sid}_ret1_z20"] = source_map[sid][f"{sid}_ret1_z20"]
-            comp[f"{sid}_ret5_z20"] = source_map[sid][f"{sid}_ret5_z20"]
-        comp["GLOBAL_EQUITY_MEAN_RET1_Z20"] = comp[[f"{s}_ret1_z20" for s in equity_ids]].mean(axis=1)
-        comp["GLOBAL_EQUITY_MEAN_RET5_Z20"] = comp[[f"{s}_ret5_z20" for s in equity_ids]].mean(axis=1)
-        candidates["G13_GLOBAL_EQUITY_COMPOSITE"] = comp[["GLOBAL_EQUITY_MEAN_RET1_Z20", "GLOBAL_EQUITY_MEAN_RET5_Z20"]]
+            ret1_col = f"{sid}_ret1"
+            ret5_col = f"{sid}_ret5"
+            comp[ret1_col] = source_map[sid][ret1_col]
+            comp[ret5_col] = source_map[sid][ret5_col]
+            ret1_columns.append(ret1_col)
+            ret5_columns.append(ret5_col)
+        # skipna=False preserves the frozen constituent set; a missing constituent
+        # makes that composite row ineligible rather than changing the weights.
+        comp["GLOBAL_EQUITY_MEAN_RET1"] = comp[ret1_columns].mean(axis=1, skipna=False)
+        comp["GLOBAL_EQUITY_MEAN_RET5"] = comp[ret5_columns].mean(axis=1, skipna=False)
+        candidates["G13_GLOBAL_EQUITY_COMPOSITE"] = comp[["GLOBAL_EQUITY_MEAN_RET1", "GLOBAL_EQUITY_MEAN_RET5"]]
         status["G13_GLOBAL_EQUITY_COMPOSITE"] = {
             "status": "REGISTERED", "source_ids": equity_ids,
-            "definition": "equal-weight mean of causal source-return z-scores; constituents frozen from the acquisition manifest before metric calculation",
+            "definition": "equal-weight mean of raw causal 1-session and 5-session log returns; frozen constituents; row abstained if any constituent is missing",
         }
     else:
         status["G13_GLOBAL_EQUITY_COMPOSITE"] = {"status": "BLOCKED_DATA", "reason": "fewer than two validated global-equity histories"}
@@ -270,6 +278,43 @@ def calc_metrics(y: np.ndarray, p: np.ndarray) -> dict:
     }
 
 
+def paired_baseline_comparison(y: np.ndarray, p: np.ndarray, baseline: np.ndarray) -> dict:
+    """Compare a candidate and causal baseline on exactly the same eligible rows."""
+    mask = np.isfinite(y) & np.isfinite(p) & np.isfinite(baseline)
+    n = int(mask.sum())
+    if n == 0:
+        return {"status": "NOT_APPLICABLE", "reason": "no common candidate/baseline test rows", "n_common": 0}
+    yy = y[mask]
+    pp = p[mask]
+    bb = baseline[mask]
+    candidate_metrics = calc_metrics(yy, pp)
+    baseline_metrics = calc_metrics(yy, bb)
+    return {
+        "status": "EXECUTED",
+        "n_common": n,
+        "candidate_brier": float(candidate_metrics["brier"]),
+        "baseline_brier": float(baseline_metrics["brier"]),
+        "brier_improvement": float(baseline_metrics["brier"] - candidate_metrics["brier"]),
+        "baseline_metrics": baseline_metrics,
+    }
+
+
+def adjust_horizon_pvalues(family_ps: list[tuple[int, float]]) -> list[dict]:
+    """Bonferroni adjustment against the full pre-registered horizon family."""
+    family_size = len(HORIZONS)
+    adjusted = []
+    for horizon, raw_p in family_ps:
+        p = float(raw_p)
+        if not math.isfinite(p) or not 0.0 <= p <= 1.0:
+            raise ValueError(f"invalid raw family p-value for horizon {horizon}: {raw_p}")
+        adjusted.append({
+            "horizon_sessions": int(horizon),
+            "raw_p_value": p,
+            "bonferroni_p_value": float(min(1.0, p * family_size)),
+        })
+    return adjusted
+
+
 def family_bootstrap(y: np.ndarray, baseline: np.ndarray, predictions: dict[str, np.ndarray], reps: int = BOOTSTRAP_REPS) -> dict:
     names = sorted(predictions)
     if len(names) < 1:
@@ -335,6 +380,11 @@ def run() -> dict:
             m["horizon_sessions"] = h
             m["source_ids"] = candidate_status[method].get("source_ids", [])
             m["feature_columns"] = list(X.columns)
+            if m.get("status") == "EXECUTED" and m.get("n", 0) > 0:
+                paired = paired_baseline_comparison(y, p, baseline)
+                if paired.get("status") != "EXECUTED" or paired.get("n_common") != m["n"]:
+                    raise ValueError(f"candidate/baseline comparison sample mismatch for {method} horizon={h}")
+                m["paired_baseline_comparison"] = paired
             m["mean_future_log_return_when_predicted_up"] = (
                 float(future[np.isfinite(p) & (p >= 0.5)].mean())
                 if np.any(np.isfinite(p) & (p >= 0.5)) else None
@@ -364,6 +414,7 @@ def run() -> dict:
             baseline_metrics = calc_metrics(y, baseline_vector)
             baseline_metrics["horizon_sessions"] = h
             baseline_metrics["description"] = "causal historical positive-rate probability, estimated from each purged training prefix"
+            baseline_metrics["evaluation_scope"] = "all eligible out-of-sample label rows; compare candidates on paired_baseline_comparison rows, not directly to this broader cell if n differs"
             horizon_out["_BASELINE"] = baseline_metrics
             family = family_bootstrap(y, baseline_vector, pred_vectors)
             horizon_out["_FAMILY_TEST"] = family
@@ -376,10 +427,10 @@ def run() -> dict:
     all_results["family_inference"] = {
         "status": "EXECUTED" if mtests else "NOT_APPLICABLE",
         "family_tests": mtests,
-        "bonferroni_adjusted_p_values": [
-            {"horizon_sessions": int(horizon), "raw_p_value": float(p), "bonferroni_p_value": float(min(1.0, p * mtests))}
-            for horizon, p in family_ps
-        ],
+        "family_tests_executed": mtests,
+        "registered_family_size": len(HORIZONS),
+        "registered_horizons": list(HORIZONS),
+        "bonferroni_adjusted_p_values": adjust_horizon_pvalues(family_ps),
         "bootstrap_method": "common-row paired moving-block bootstrap of Brier-loss improvement over a causal training-rate baseline; candidate differentials recentered under the null; max statistic across executed methods",
         "interpretation": "prediction screening only; no candidate promotion from this extension",
     }
