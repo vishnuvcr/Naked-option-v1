@@ -138,3 +138,15 @@ The authoritative current file blob identifiers are the following (these superse
 - Requirements: f54f873bbba4cfd010cabc32bb4432f581520e7f
 
 No hosted test result is verified in this session. Do not convert this list of source blob IDs into an approval hash manifest; that manifest must be based on the workflow's actual SHA-256 output and a fresh independent tester decision.
+
+
+## Additional protected-input audit — NIFTY acquisition script (2026-10-10)
+
+A workflow audit found that the empirical job executes scripts/acquire_nifty_daily_history.py, but the script was absent from the protected SHA-256 set and the push path trigger. This meant the data-acquisition logic for the primary NIFTY input was not covered by the exact-snapshot approval hash gate.
+
+Correction on the developer branch:
+- Added scripts/acquire_nifty_daily_history.py to the workflow push-path triggers.
+- Added it to the exact approval protected-path allowlist.
+- Added it to the workflow's sha256sum output list.
+
+This is a gate-integrity correction, not an empirical result. The workflow changed again, so the earlier static tester report does not cover this latest workflow blob. A new independent review and observable hosted regression pass remain mandatory; empirical execution remains unauthorized.
