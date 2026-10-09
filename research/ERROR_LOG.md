@@ -334,3 +334,13 @@
 - Correction: retain the fixture as a dictionary of aligned feature DataFrames, matching the production `source_map` contract.
 - Prevention: regression fixtures must match function signatures and container types exactly; execute the complete suite after every fixture change.
 - Scientific disposition: no empirical impact; tester authorization and empirical run remain gated.
+
+
+## 2026-10-10 — Available-data prediction extension: benchmark/mask isolation correction before tester gate
+- Category: scientific methodology / benchmark alignment
+- Component: scripts/run_phase7_available_global.py, walk_forward_probabilities
+- Discovery: static review found the candidate's historical-rate benchmark was computed only when that candidate's feature vector was complete. If candidates had different missing-feature masks, their supposed common baseline could differ.
+- Risk: the family Brier improvement comparison could be confounded by candidate-specific benchmark probabilities on rows that differ in feature availability.
+- Correction: compute the historical positive-rate benchmark from all eligible, purged training labels independently of feature completeness; keep the candidate model fit/prediction masked by feature availability; add a deterministic regression test comparing baselines under altered feature masks.
+- Prevention: any future candidate-specific feature mask must not alter the comparator's training labels or predictions. Maintain a benchmark-invariance test across candidate families.
+- Disposition: found and corrected before tester authorization and before any empirical execution. No scientific result was generated from the defective version.
