@@ -269,3 +269,11 @@ No scientific or protocol change was made during this checkpoint.
 
 - Added `Hitjob-Done/indian-stock-market-minute-data` as a possible independent NIFTY spot OHLCV cross-check, not option data. Its card reports MIT license and about 720M rows/10.5GB, but provenance/reupload identity, NIFTY_50 shard completeness, UTC-to-IST conversion and NSE overlap must be verified.
 - No download/merge performed; no Phase 8 method or workflow changed; Phase 8 remains gated on Run #994’s fresh independent Phase 7 artifact review.
+
+
+## 2026-10-09 — Resume: official NSE data-use and free ETL code review
+
+- Read NSE's official data-sharing policy and copyright terms. Because the repo is public, raw NSE archives and source rows must not be committed/re-published unless exact source terms or a specific agreement permit it. Publicly available does not automatically mean redistributable.
+- Logged safe reproducibility alternative: provenance, period/schema, source hashes, license status, validation/reconciliation reports and derived aggregate results public; raw cache only in a permitted access-controlled location. No workflow changed in this step.
+- Added free GitHub method leads (SatvikBajpai/nifty-options-greeks, shayakbanerjee99/nifty-options-elt, Aniruddha1980/Bhavcopy, NikhilSuthar/indian-market-data catalogue, darshkale/nse-options-data-pipeline) for later independent review. They are code/process references, mostly based on the same NSE daily EOD data, and do not supply historical executable bid/ask quotes or independent evidence.
+- Phase 7 Run #994 is still the only authorized fresh empirical target; Phase 8 remains blocked pending its separate empirical tester review.
