@@ -625,3 +625,11 @@
 - Tester gate `research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md` = **REQUEST CHANGES** for authorization binding. Bind both manual/automatic paths to the exact reviewed commit/file hashes and add positive/negative tests.
 - Runs `37935752265` and `37935794939` were dispatched under a stale approval and are preserved as **NON-EVIDENCE**. No results are accepted.
 - Phase 7 remains blocked pending the snapshot-binding fix, tester re-review, then one fresh empirical run with separate post-run audit.
+
+
+## 2026-10-09 — Phase 7 snapshot-bound authorization submitted
+
+- Added a deterministic fail-closed validator with exact protected-file SHA-256 set, reviewed-commit ancestry, tester-branch byte comparison, and tester report digest validation.
+- Added positive/negative tests for matching snapshots, protected-file mutation, changed tester copy, non-ancestor commit and incomplete protected-file manifest; workflow regression verifies caller and reusable paths use the validator.
+- Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol and Phase 7 regression suites. Empirical execution skipped because the correction-specific tester report and approval manifest are absent.
+- Submitted commit `b9fc7c9e7c77efb5149d35e31509251f701122ce` for independent review. Phase 7 and Phase 8 remain blocked pending tester decision.
