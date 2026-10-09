@@ -3,6 +3,13 @@ from __future__ import annotations
 import json
 import math
 import re
+
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score, average_precision_score, balanced_accuracy_score,
+    brier_score_loss, confusion_matrix, log_loss, roc_auc_score,
+)
 from pathlib import Path
 from typing import Any
 
@@ -240,6 +247,260 @@ def validate_result_payload(result: dict) -> None:
             _fail(f"source_state/{source_id} has invalid status")
 
 
+def _metric_summary_from_rows(labels: np.ndarray, probabilities: np.ndarray, name: str) -> dict:
+    y = np.asarray(labels, dtype=float)
+    p = np.asarray(probabilities, dtype=float)
+    mask = np.isfinite(y) & np.isfinite(p)
+    yy = y[mask].astype(int)
+    pp = np.clip(p[mask], 1e-6, 1 - 1e-6)
+    if len(yy) == 0:
+        _fail(f"{name}: row-level panel has no finite forecast rows")
+    pred = (pp >= 0.5).astype(int)
+    tn, fp, fn, tp = confusion_matrix(yy, pred, labels=[0, 1]).ravel()
+    return {
+        "n": int(len(yy)),
+        "positive_rate": float(yy.mean()),
+        "accuracy": float(accuracy_score(yy, pred)),
+        "balanced_accuracy": float(balanced_accuracy_score(yy, pred)),
+        "roc_auc": float(roc_auc_score(yy, pp)) if np.unique(yy).size == 2 else None,
+        "pr_auc": float(average_precision_score(yy, pp)) if np.unique(yy).size == 2 else None,
+        "brier": float(brier_score_loss(yy, pp)),
+        "log_loss": float(log_loss(yy, pp, labels=[0, 1])),
+        "tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp),
+        "prediction_mean": float(pp.mean()),
+        "prediction_std": float(pp.std(ddof=0)),
+    }
+
+
+def _match_metric_fields(expected: dict, actual: dict, name: str) -> None:
+    for key in ("n", "tn", "fp", "fn", "tp"):
+        if actual.get(key) != expected[key]:
+            _fail(f"{name}: row-level {key} does not reconcile")
+    for key in ("positive_rate", "accuracy", "balanced_accuracy", "brier", "log_loss", "prediction_mean", "prediction_std"):
+        value = _finite_number(actual.get(key), f"{name}.{key}")
+        if abs(value - float(expected[key])) > 1e-10:
+            _fail(f"{name}: row-level {key} does not reconcile")
+    for key in ("roc_auc", "pr_auc"):
+        got = actual.get(key)
+        want = expected[key]
+        if got is None or want is None:
+            if got is not None or want is not None:
+                _fail(f"{name}: row-level {key} definedness does not reconcile")
+        elif abs(_finite_number(got, f"{name}.{key}") - float(want)) > 1e-10:
+            _fail(f"{name}: row-level {key} does not reconcile")
+
+
+def _validate_family_from_panels(panel: pd.DataFrame, horizon: int, cells: dict) -> None:
+    rows = panel.loc[panel["horizon_sessions"] == horizon]
+    baseline = rows.loc[(rows["row_type"] == "baseline") & (rows["method"] == "_BASELINE")].sort_values("date")
+    executed = [m for m in METHODS if cells[m].get("status") == "EXECUTED"]
+    family = cells["_FAMILY_TEST"]
+    if not executed:
+        if family.get("status") != "NOT_APPLICABLE":
+            _fail(f"horizon={horizon}: family test executed with no executed candidates")
+        return
+    if baseline.empty:
+        if family.get("status") != "NOT_APPLICABLE":
+            _fail(f"horizon={horizon}: family test executed without baseline panel rows")
+        return
+    baseline_by_date = baseline.set_index("date")["predicted_probability"].astype(float).to_dict()
+    candidate_frames = {}
+    common_dates = set(baseline_by_date)
+    for method in executed:
+        item = rows.loc[(rows["row_type"] == "candidate") & (rows["method"] == method)].copy()
+        item["prediction_available"] = item["prediction_available"].map(
+            lambda v: str(v).strip().lower() in {"true", "1"} if pd.notna(v) else False
+        )
+        available = item.loc[item["prediction_available"]].sort_values("date")
+        candidate_frames[method] = available
+        common_dates &= set(available["date"])
+    dates = sorted(common_dates)
+    if len(dates) < 100:
+        if family.get("status") != "NOT_APPLICABLE":
+            _fail(f"horizon={horizon}: family test executed with fewer than 100 common panel rows")
+        if family.get("n_common", len(dates)) != len(dates):
+            _fail(f"horizon={horizon}: not-applicable family common-row count does not reconcile")
+        return
+    if family.get("status") != "EXECUTED":
+        _fail(f"horizon={horizon}: family test marked not applicable despite sufficient common panel rows")
+
+    y_base = baseline.set_index("date")["actual_direction"].astype(int).to_dict()
+    yy = np.asarray([y_base[d] for d in dates], dtype=int)
+    bb = np.clip(np.asarray([baseline_by_date[d] for d in dates], dtype=float), 1e-6, 1 - 1e-6)
+    names = sorted(executed)
+    pmap = {}
+    for method in names:
+        item = candidate_frames[method].set_index("date")
+        yy_method = item.loc[dates, "actual_direction"].astype(int).to_numpy()
+        if not np.array_equal(yy_method, yy):
+            _fail(f"horizon={horizon}/{method}: actual labels differ within common panel rows")
+        candidate_baseline = item.loc[dates, "baseline_probability"].astype(float).to_numpy()
+        if not np.allclose(candidate_baseline, bb, rtol=0.0, atol=1e-12):
+            _fail(f"horizon={horizon}/{method}: baseline probabilities differ from common baseline panel")
+        pmap[method] = np.clip(item.loc[dates, "predicted_probability"].astype(float).to_numpy(), 1e-6, 1 - 1e-6)
+
+    base_loss = (yy - bb) ** 2
+    differential = np.column_stack([base_loss - (yy - pmap[name]) ** 2 for name in names])
+    observed_by_method = differential.mean(axis=0)
+    observed = float(observed_by_method.max())
+    centered = differential - observed_by_method.reshape(1, -1)
+    rng = np.random.default_rng(42)
+    n = len(yy)
+    length = 20
+    starts = np.arange(0, n - length + 1)
+    blocks_per_rep = int(math.ceil(n / length))
+    max_null = np.empty(500, dtype=float)
+    for b in range(500):
+        chosen = rng.choice(starts, size=blocks_per_rep, replace=True)
+        take = np.concatenate([np.arange(s, s + length) for s in chosen])[:n]
+        max_null[b] = float(centered[take].mean(axis=0).max())
+    p_value = float((1 + np.sum(max_null >= observed)) / 501)
+    if family.get("n_common") != n or family.get("method_count") != len(names):
+        _fail(f"horizon={horizon}: family row/method count does not reconcile with panels")
+    if abs(_finite_number(family.get("max_mean_brier_improvement"), f"horizon={horizon}.max_brier_improvement") - observed) > 1e-10:
+        _fail(f"horizon={horizon}: maximum Brier improvement does not reconcile with panels")
+    improvements = family.get("candidate_mean_brier_improvements", {})
+    if set(improvements) != set(names):
+        _fail(f"horizon={horizon}: family improvement map differs from executed panel methods")
+    for i, name in enumerate(names):
+        value = _finite_number(improvements[name], f"horizon={horizon}/{name}.family_improvement")
+        if abs(value - float(observed_by_method[i])) > 1e-10:
+            _fail(f"horizon={horizon}/{name}: family Brier improvement does not reconcile with panels")
+    reported_p = _finite_number(family.get("family_p_value"), f"horizon={horizon}.family_p_value", 0.0, 1.0)
+    if abs(reported_p - p_value) > 1e-12:
+        _fail(f"horizon={horizon}: family bootstrap p-value does not reproduce from row-level panels")
+
+
+def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
+    """Independently recalculate candidate/baseline metrics and family tests from row-level outputs."""
+    required = {
+        "date", "horizon_sessions", "method", "row_type", "cell_status",
+        "actual_direction", "future_log_return", "predicted_probability",
+        "baseline_probability", "source_ids_json", "feature_columns_json", "prediction_available",
+    }
+    if not required.issubset(panel.columns):
+        _fail(f"prediction panel missing columns: {sorted(required - set(panel.columns))}")
+    if panel.empty:
+        for h in HORIZONS:
+            cells = result["daily"]["horizons"][str(h)]
+            if cells["_BASELINE"].get("status") != "NOT_APPLICABLE" or any(cells[m].get("status") == "EXECUTED" for m in METHODS):
+                _fail("prediction panel is empty despite executed forecast cells")
+        return
+    panel = panel.copy()
+    panel["date"] = pd.to_datetime(panel["date"], errors="raise").dt.strftime("%Y-%m-%d")
+    panel["horizon_sessions"] = pd.to_numeric(panel["horizon_sessions"], errors="raise").astype(int)
+    panel["actual_direction"] = pd.to_numeric(panel["actual_direction"], errors="raise")
+    panel["future_log_return"] = pd.to_numeric(panel["future_log_return"], errors="raise")
+    panel["predicted_probability"] = pd.to_numeric(panel["predicted_probability"], errors="coerce")
+    panel["baseline_probability"] = pd.to_numeric(panel["baseline_probability"], errors="coerce")
+    if not set(panel["horizon_sessions"]).issubset(set(HORIZONS)):
+        _fail("prediction panel contains an unregistered horizon")
+    if panel[["date", "horizon_sessions", "method"]].duplicated().any():
+        _fail("prediction panel has duplicate date/horizon/method keys")
+    if not panel["row_type"].isin(["baseline", "candidate"]).all():
+        _fail("prediction panel has an invalid row_type")
+    if not panel["actual_direction"].isin([0, 1]).all():
+        _fail("prediction panel labels must be binary 0/1")
+    if not np.isfinite(panel["future_log_return"].to_numpy(dtype=float)).all():
+        _fail("prediction panel has non-finite future returns")
+    if not np.isfinite(panel["baseline_probability"].to_numpy(dtype=float)).all():
+        _fail("prediction panel baseline probabilities must be finite")
+    if ((panel["baseline_probability"] < 0) | (panel["baseline_probability"] > 1)).any():
+        _fail("prediction panel baseline probabilities outside [0,1]")
+    direction = np.where(panel["future_log_return"].to_numpy(dtype=float) > 0, 1,
+                         np.where(panel["future_log_return"].to_numpy(dtype=float) < 0, 0, -1))
+    if not np.array_equal(direction, panel["actual_direction"].to_numpy(dtype=int)):
+        _fail("prediction panel actual direction does not match the sign of future log returns")
+    for horizon in HORIZONS:
+        cells = result["daily"]["horizons"][str(horizon)]
+        rows = panel.loc[panel["horizon_sessions"] == horizon]
+        base_rows = rows.loc[(rows["row_type"] == "baseline") & (rows["method"] == "_BASELINE")].sort_values("date")
+        baseline = cells["_BASELINE"]
+        if len(base_rows):
+            if base_rows["cell_status"].nunique() != 1 or base_rows["cell_status"].iloc[0] != baseline.get("status"):
+                _fail(f"horizon={horizon}: baseline panel status mismatch")
+            if base_rows["predicted_probability"].isna().any():
+                _fail(f"horizon={horizon}: baseline panel has missing probability")
+            if not np.allclose(base_rows["predicted_probability"], base_rows["baseline_probability"], rtol=0.0, atol=1e-12):
+                _fail(f"horizon={horizon}: baseline panel probabilities mismatch")
+        if baseline.get("status") == "EXECUTED":
+            if base_rows.empty or len(base_rows) != baseline.get("n"):
+                _fail(f"horizon={horizon}: baseline panel count does not match headline metrics")
+            metric = _metric_summary_from_rows(
+                base_rows["actual_direction"].to_numpy(dtype=float),
+                base_rows["predicted_probability"].to_numpy(dtype=float),
+                f"horizon={horizon}/_BASELINE",
+            )
+            _match_metric_fields(metric, baseline, f"horizon={horizon}/_BASELINE")
+        elif not base_rows.empty:
+            _fail(f"horizon={horizon}: baseline rows exist for a not-applicable baseline")
+
+        for method in METHODS:
+            cell = cells[method]
+            method_state = result["method_status"][method]
+            item = rows.loc[(rows["row_type"] == "candidate") & (rows["method"] == method)].copy()
+            if method_state.get("status") == "BLOCKED_DATA":
+                if not item.empty or cell.get("status") != "BLOCKED_DATA":
+                    _fail(f"horizon={horizon}/{method}: blocked source should not have candidate forecast rows")
+                continue
+            if baseline.get("status") != "EXECUTED" or base_rows.empty:
+                if not item.empty:
+                    _fail(f"horizon={horizon}/{method}: candidate rows exist without baseline row schedule")
+                continue
+            if item.empty or set(item["date"]) != set(base_rows["date"]):
+                _fail(f"horizon={horizon}/{method}: candidate rows do not align with baseline label rows")
+            if item["cell_status"].nunique() != 1 or item["cell_status"].iloc[0] != cell.get("status"):
+                _fail(f"horizon={horizon}/{method}: candidate panel status mismatch")
+            expected_sources = cell.get("source_ids", method_state.get("source_ids", []))
+            expected_features = cell.get("feature_columns", [])
+            if item["source_ids_json"].nunique() != 1 or json.loads(item["source_ids_json"].iloc[0]) != expected_sources:
+                _fail(f"horizon={horizon}/{method}: source IDs do not match candidate metadata")
+            if item["feature_columns_json"].nunique() != 1 or json.loads(item["feature_columns_json"].iloc[0]) != expected_features:
+                _fail(f"horizon={horizon}/{method}: feature columns do not match candidate metadata")
+            item = item.sort_values("date")
+            base_sorted = base_rows.sort_values("date")
+            if not np.array_equal(item["actual_direction"].astype(int).to_numpy(), base_sorted["actual_direction"].astype(int).to_numpy()):
+                _fail(f"horizon={horizon}/{method}: actual labels do not align with baseline panel")
+            if not np.allclose(item["future_log_return"], base_sorted["future_log_return"], rtol=0.0, atol=1e-12):
+                _fail(f"horizon={horizon}/{method}: realized returns do not align with baseline panel")
+            avail_raw = item["prediction_available"]
+            if avail_raw.isna().any():
+                _fail(f"horizon={horizon}/{method}: prediction_available missing for candidate row")
+            available = avail_raw.map(lambda v: str(v).strip().lower() in {"true", "1"})
+            finite_prob = np.isfinite(item["predicted_probability"].to_numpy(dtype=float))
+            if not np.array_equal(available.to_numpy(dtype=bool), finite_prob):
+                _fail(f"horizon={horizon}/{method}: prediction availability flag mismatches probability")
+            if ((item.loc[available, "predicted_probability"] < 0) | (item.loc[available, "predicted_probability"] > 1)).any():
+                _fail(f"horizon={horizon}/{method}: candidate probability outside [0,1]")
+            candidate_rows = item.loc[available]
+            if cell.get("status") == "EXECUTED":
+                metric = _metric_summary_from_rows(
+                    candidate_rows["actual_direction"].to_numpy(dtype=float),
+                    candidate_rows["predicted_probability"].to_numpy(dtype=float),
+                    f"horizon={horizon}/{method}",
+                )
+                _match_metric_fields(metric, cell, f"horizon={horizon}/{method}")
+                paired_base_metric = _metric_summary_from_rows(
+                    candidate_rows["actual_direction"].to_numpy(dtype=float),
+                    candidate_rows["baseline_probability"].to_numpy(dtype=float),
+                    f"horizon={horizon}/{method}/paired_baseline",
+                )
+                paired = cell["paired_baseline_comparison"]
+                _match_metric_fields(paired_base_metric, paired["baseline_metrics"], f"horizon={horizon}/{method}/paired_baseline")
+                candidate_brier = metric["brier"]
+                baseline_brier = paired_base_metric["brier"]
+                if paired.get("n_common") != metric["n"] or abs(float(paired["candidate_brier"]) - candidate_brier) > 1e-10:
+                    _fail(f"horizon={horizon}/{method}: paired candidate sample/Brier mismatch")
+                if abs(float(paired["baseline_brier"]) - baseline_brier) > 1e-10 or abs(float(paired["brier_improvement"]) - (baseline_brier - candidate_brier)) > 1e-10:
+                    _fail(f"horizon={horizon}/{method}: paired baseline improvement sign or metric mismatch")
+            elif cell.get("status") == "BLOCKED_DATA":
+                if len(candidate_rows) or cell.get("n", 0) not in (None, 0):
+                    _fail(f"horizon={horizon}/{method}: blocked cell contains finite predictions")
+            else:
+                _fail(f"horizon={horizon}/{method}: invalid status")
+        _validate_family_from_panels(panel, horizon, cells)
+
+
 def sha256_file(path: Path) -> str:
     import hashlib
 
@@ -271,6 +532,14 @@ def validate_output_file(path: Path = OUTPUT_PATH) -> dict:
         source_path = ROOT / record["path"]
         if not source_path.is_file() or sha256_file(source_path) != record.get("sha256"):
             _fail(f"acquisition source path/hash mismatch: {record.get('id')}")
+    panel_path = ROOT / payload["provenance"].get("prediction_panel_path", "")
+    expected_panel_hash = payload["provenance"].get("prediction_panel_sha256", "")
+    if not panel_path.is_file() or not SHA256_RE.fullmatch(expected_panel_hash):
+        _fail("row-level prediction panel path/hash is missing or invalid")
+    if sha256_file(panel_path) != expected_panel_hash:
+        _fail("row-level prediction panel hash does not match provenance")
+    panel = pd.read_csv(panel_path)
+    validate_prediction_panels(payload, panel)
     return payload
 
 
