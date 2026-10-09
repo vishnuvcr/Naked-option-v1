@@ -18,7 +18,7 @@ def test_prediction_panel_is_row_aligned_and_hashed():
     old_dir = p7.REFERENCE_DIR
     old_records = list(p7.PANEL_RECORDS)
     try:
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory(dir=ROOT / "data" / "reports") as td:
             p7.REFERENCE_DIR = Path(td)
             p7.PANEL_RECORDS.clear()
             ts = pd.to_datetime([
