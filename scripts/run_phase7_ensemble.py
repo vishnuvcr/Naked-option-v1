@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-import json, math, warnings
+import hashlib, importlib.metadata, json, math, os, platform, sys, warnings
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -8,6 +8,8 @@ import run_phase6_novel as p6
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"data/reports"; OUT.mkdir(parents=True,exist_ok=True)
+REFERENCE_DIR=OUT/"phase7_reference"
+PANEL_RECORDS=[]
 DAILY_H=[1,2,3,5,10]; INTRA_H=[5,15,30,60,120]
 METHODS=[f"E{i:02d}" for i in range(1,11)]+[f"I{i:02d}" for i in range(1,11)]
 BLOCKED={"E07","I02","I04","I06","I07","I10"}
@@ -172,7 +174,75 @@ def family_bootstrap(y,candidates,baseline,block_len):
     return {"observed_max_brier_improvement":observed,
             "family_p_value":float(np.mean(boot>=observed)),
             "candidate_mean_brier_improvement":{name:float(v) for name,v in zip(names,means)}}
-def run_layer(df,intraday,horizons):
+
+def _sha256(path):
+    h=hashlib.sha256()
+    with open(path,"rb") as f:
+        for chunk in iter(lambda:f.read(1024*1024),b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def write_prediction_panel(layer,H,df,intraday,y,future,candidates,blocks):
+    if intraday:
+        grid=((df["minute_of_day"]>=570)&(df["minute_of_day"]<=930)&(((df["minute_of_day"]-570)%60)==0))
+        ts=pd.to_datetime(df.loc[grid,"timestamp"],utc=True).reset_index(drop=True)
+    else:
+        ts=pd.to_datetime(df["date"],errors="raise").reset_index(drop=True)
+    if len(ts)!=len(y) or len(future)!=len(y):
+        raise RuntimeError(f"reference panel length mismatch {layer} H={H}: timestamps={len(ts)} y={len(y)} future={len(future)}")
+    block_index=np.full(len(y),-1,dtype=int)
+    for bi,rows in enumerate(blocks):
+        block_index[np.asarray(rows,dtype=int)]=bi
+    if np.any(block_index<0):
+        raise RuntimeError(f"reference panel has unassigned chronological rows: {layer} H={H}")
+    frame=pd.DataFrame({
+        "layer":layer,"horizon":int(H),"source_row_index":np.arange(len(y),dtype=int),
+        "decision_timestamp":ts,"label_direction":np.asarray(y,dtype=float),
+        "future_return":np.asarray(future,dtype=float),"block_index":block_index,
+    })
+    for name in [f"P{i:02d}" for i in range(1,11)]:
+        frame[name]=np.asarray(candidates[name],dtype=float)
+    frame["source_run_id"]=os.environ.get("GITHUB_RUN_ID","local")
+    frame["source_commit"]=os.environ.get("GITHUB_SHA","unknown")
+    REFERENCE_DIR.mkdir(parents=True,exist_ok=True)
+    path=REFERENCE_DIR/f"phase7_predictions_{layer}_H{H}.parquet"
+    frame.to_parquet(path,index=False)
+    PANEL_RECORDS.append({"path":str(path.relative_to(ROOT)),"sha256":_sha256(path),
+                          "rows":int(len(frame)),"layer":layer,"horizon":int(H),
+                          "columns":list(frame.columns)})
+
+def write_reference_manifest(aggregate_path):
+    import numpy, pandas, sklearn, scipy, pyarrow, threadpoolctl
+    sources={
+        "daily_csv":ROOT/"data/cache/raw/phase3/nifty50_daily.csv",
+        "intraday_parquet":ROOT/"data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet",
+    }
+    code_paths=[
+        ROOT/"scripts/run_phase7_ensemble.py",ROOT/"scripts/run_phase6_novel.py",
+        ROOT/"scripts/run_phase3_daily_baselines.py",ROOT/"scripts/run_phase3_intraday_baselines.py",
+    ]
+    missing=[str(p) for p in list(sources.values())+code_paths if not p.is_file()]
+    if missing:
+        raise RuntimeError(f"reference manifest cannot hash required source/code files: {missing}")
+    manifest={
+        "schema_version":1,"status":"COMPLETE","run_id":os.environ.get("GITHUB_RUN_ID","local"),
+        "commit":os.environ.get("GITHUB_SHA","unknown"),
+        "protocol":"research/phase7/PHASE7_METHOD_SPEC.md","seed":SEED,
+        "aggregate_result":{"path":str(aggregate_path.relative_to(ROOT)),"sha256":_sha256(aggregate_path)},
+        "prediction_panels":PANEL_RECORDS,
+        "source_files":{name:{"path":str(path.relative_to(ROOT)),"sha256":_sha256(path)} for name,path in sources.items()},
+        "code_files":{str(path.relative_to(ROOT)):_sha256(path) for path in code_paths},
+        "runtime":{"python":sys.version,"platform":platform.platform(),"machine":platform.machine(),
+                   "numpy":numpy.__version__,"pandas":pandas.__version__,"scikit_learn":sklearn.__version__,
+                   "scipy":scipy.__version__,"pyarrow":pyarrow.__version__,
+                   "threadpoolctl":threadpoolctl.__version__,"threadpools":threadpoolctl.threadpool_info()},
+    }
+    manifest_path=REFERENCE_DIR/"phase7_reference_manifest.json"
+    manifest_path.write_text(json.dumps(manifest,indent=2,sort_keys=True),encoding="utf-8")
+    print(json.dumps({"reference_manifest":str(manifest_path.relative_to(ROOT)),
+                      "panel_count":len(PANEL_RECORDS),"manifest_sha256":_sha256(manifest_path)}))
+
+def run_layer(df,intraday,horizons,layer):
     captured=capture_scope(df,intraday,horizons); blocks=blocks_for(df,intraday)
     vol,trend=regime_inputs(df,intraday); block_len=60 if intraday else 20
     out={}
@@ -182,6 +252,7 @@ def run_layer(df,intraday,horizons):
         for m in BLOCKED: base[m]=np.full(len(y),np.nan)
         p1,p2,p3,p4=combine(base); p7=stacking(base,y,blocks); p8,p9,regime_diag,regime_fallbacks=regimes(p1,p4,y,vol,trend,blocks)
         cand={"P01":p1,"P02":p2,"P03":p3,"P04":p4,"P05":p1.copy(),"P06":p1.copy(),"P07":p7,"P08":p8,"P09":p9,"P10":p9.copy()}
+        write_prediction_panel(layer,H,df,intraday,y,future,cand,blocks)
         ho={}
         baseline=causal_baseline(y,blocks)
         family=family_bootstrap(y,cand,baseline,block_len)
@@ -205,9 +276,11 @@ def main():
         warnings.simplefilter("ignore")
         d=p6.load_daily(); q=p6.load_intraday()
         out={"protocol":"research/phase7/PHASE7_METHOD_SPEC.md","seed":SEED,
-             "daily":{"rows":int(len(d)),"horizons":run_layer(d,False,DAILY_H)},
-             "intraday":{"rows":int(len(q)),"horizons":run_layer(q,True,INTRA_H)}}
-    (OUT/"phase7_ensemble_results.json").write_text(json.dumps(out,indent=2,allow_nan=False),encoding="utf-8")
-    print(json.dumps({"status":"PASS","daily_rows":len(d),"intraday_rows":len(q)}))
+             "daily":{"rows":int(len(d)),"horizons":run_layer(d,False,DAILY_H,"daily")},
+             "intraday":{"rows":int(len(q)),"horizons":run_layer(q,True,INTRA_H,"intraday")}}
+    aggregate_path=OUT/"phase7_ensemble_results.json"
+    aggregate_path.write_text(json.dumps(out,indent=2,allow_nan=False),encoding="utf-8")
+    write_reference_manifest(aggregate_path)
+    print(json.dumps({"status":"PASS","daily_rows":len(d),"intraday_rows":len(q),"panel_count":len(PANEL_RECORDS)}))
 
 if __name__=="__main__": main()
