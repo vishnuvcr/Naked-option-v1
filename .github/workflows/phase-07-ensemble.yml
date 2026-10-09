@@ -45,6 +45,8 @@ jobs:
       - name: Acquire global reference
         run: python scripts/acquire_global_reference.py
       - run: python scripts/test_phase7_ensemble.py
+      - name: Reference artifact regression
+        run: python scripts/test_phase7_reference_artifact.py
 
   empirical:
     needs: regression
@@ -81,3 +83,10 @@ jobs:
         with:
           name: phase7-ensemble-results
           path: data/reports/phase7_ensemble_results.json
+      - name: Upload immutable row-level reference artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-ensemble-reference
+          path: |
+            data/reports/phase7_ensemble_results.json
+            data/reports/phase7_reference/
