@@ -201,3 +201,8 @@ No scientific or protocol change was made during this checkpoint.
 - Compared hosted logs for Run #654 and Run #807. The same HF revision and normalized source SHA-256 were reported; the checked Phase 3/6 dependency source blobs match. Pinning Python 3.11.16 and numerical threads to one did not fix the mismatch. The runtime explanation remains plausible but unproven.
 - Found that Run #654's artifact contains only aggregate JSON, not the historical row-level prediction panel. Proposed a new versioned Phase 7 reference artifact that saves predictions and metrics together, without modifying Run #654.
 - Tester approved the proposal only with scoped restrictions. The separate Phase 7 code gate and artifact audit are still required; no empirical option grid/P&L is authorized.
+
+## 2026-10-09 — Proceed: saved-panel consumer regression
+- Added a standalone Phase 8 saved-panel validator and a path-triggered/manual workflow so its tests do not launch the expensive full reconstruction job.
+- Hosted regression run `37912665449` completed SUCCESS. It confirms synthetic metrics/family-test reconciliation from saved predictions without model refitting.
+- Tester code review approved the validator with restrictions. Real-artifact audit and immutable source-commit code-hash verification remain required before wiring it into the Phase 8 workflow; Run #654 remains unchanged and option-grid execution remains blocked.
