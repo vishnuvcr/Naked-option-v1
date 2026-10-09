@@ -171,3 +171,14 @@ This workflow-only safety change does not alter the frozen metric calculations o
 - Static review of developer P10 correction commit 39e964d: PASS for future runs only, with the current Run #994 remaining immutable and unchanged.
 - Tester → Developer: schedule the next empirical run only through the pre-authorized branch gate, use the reviewed correction commit, and retain all cost/data gates.
 - Developer → Tester: audit the next exact-run artifacts and do not promote a candidate without significant pre-registered evidence and realistic after-cost option P&L.
+
+
+## 2026-10-10 — Phase 7 tester review after hosted Run #37
+
+The hosted Actions API was queried directly. Run #37 (37990522933; developer commit 18773e828f19c0ff2e9fc1af437db6b8ef181739) completed successfully in the regression job: 11 available-global predictor checks and 11 result/panel validator checks passed. The authorization job executed in the intended fail-closed state because no approval JSON/report mirror exists, and the empirical job was skipped. A compare of this run commit to current developer head 14656183f9977c94a178996943e027d09d4a483d shows only status/handoff/log document changes, so no protected code path changed after the run.
+
+Independent tester review then found a reproducibility defect in the NIFTY acquisition script: despite workflow cache restoration, the script unconditionally downloads and overwrites history before checking for a valid cache. It also performs network I/O on import and has no acquisition/cache regression tests. Tester report `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md` records REQUEST CHANGES. No predictions or new metrics were generated; empirical execution and Phase 8 remain blocked.
+
+**Tester → Developer:** Implement import-safe, validated cache reuse and no-network/invalid-cache regression coverage; protect the new test in the workflow and resubmit for an exact-snapshot review.
+
+**Developer → Tester:** After correction, independently verify the cache behavior, hashes, and hosted regression run. Do not approve empirical execution if the cached-source rule or any other gate remains unmet.
