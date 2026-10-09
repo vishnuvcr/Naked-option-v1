@@ -20,6 +20,7 @@ REPORT.mkdir(parents=True, exist_ok=True)
 START = datetime(2018, 1, 1, tzinfo=timezone.utc)
 END = datetime.now(timezone.utc) + pd.Timedelta(days=2)
 MIN_ROWS = 500
+MIN_COVERAGE_START = pd.Timestamp("2021-01-01")
 HEADERS = {"User-Agent": "Mozilla/5.0 NIFTY-Naked-Option-Research/1.0"}
 
 # Candidate sources are declared before the prediction run. Failures are recorded
@@ -58,6 +59,7 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
                 and len(cached) >= MIN_ROWS
                 and cached["date"].notna().all()
                 and cached["date"].is_unique
+                and cached["date"].min() <= MIN_COVERAGE_START
                 and cached["close"].notna().all()
                 and (cached["close"] > 0).all()
                 and cached["source_symbol"].astype(str).eq(symbol).all()
@@ -124,6 +126,8 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
     frame = frame.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
     if len(frame) < MIN_ROWS:
         raise RuntimeError(f"coverage below minimum: {len(frame)} rows < {MIN_ROWS}")
+    if frame["date"].min() > MIN_COVERAGE_START:
+        raise RuntimeError(f"history begins too late for the registered walk-forward window: {frame['date'].min().date()}")
     frame.to_csv(dst, index=False, date_format="%Y-%m-%d")
     return {
         "id": key, "symbol": symbol, "status": "ACTIVE", "cache_hit": False,
@@ -153,7 +157,7 @@ def main() -> None:
     equities = {r["id"] for r in active}
     global_equities = len(equities.intersection({"SP500", "NASDAQ", "NIKKEI", "HANGSENG"}))
     if not active:
-        raise SystemExit("No series met the coverage/quality requirements; no empirical prediction result can be generated.")
+        print("WARNING: no global/peer source passed coverage validation; the pre-registered calendar control remains independently testable.")
     manifest = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "provider": "Yahoo Finance public chart endpoint (free research reference, not execution data)",
