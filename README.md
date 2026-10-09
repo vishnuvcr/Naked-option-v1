@@ -238,3 +238,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - The subsequent [run 37913188030](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913188030) passed both the full synthetic validator and source-code hash verification, including rejection of a tampered hash.
 - Tester follow-ups are on `phase-08-tester`: [full synthetic test report](research/gates/PHASE8_PANEL_VALIDATOR_FULL_TEST_TESTER.md) and [code-hash test report](research/gates/PHASE8_PANEL_VALIDATOR_CODE_HASH_TESTER.md).
 - These tests are not a real-artifact audit. The production workflow must fetch the exact reference commit, validate the real artifact, and receive separate tester approval before the frozen manifest can change.
+
+## Saved-panel integration test — 2026-10-09
+
+- [Hosted regression run 37913391078](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913391078) passed the full synthetic ten-panel artifact test and verified that its output is accepted by the existing Phase 8 forecast-panel validator.
+- Tester report: [PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md) = PASS for synthetic integration only.
+- This does not validate the real Phase 7 artifact or authorize a manifest amendment. The exact source commit must be fetched and checked, then the real artifact must pass independent audit.
