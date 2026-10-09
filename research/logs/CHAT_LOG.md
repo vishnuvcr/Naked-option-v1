@@ -63,3 +63,11 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 - This establishes why the fresh run is justified but does not show improved performance. Run #994 is still in progress without artifacts, and the independent audit has not run.
 - Tester → Developer: reconcile the exact artifact against all four fixes and the frozen protocol; preserve REQUEST CHANGES if any discrepancy remains.
 - Developer → Tester: wait for the exact Run #994 artifacts and source commit; do not accept results from the preflight-only workflow runs.
+
+
+## 2026-10-09 — Resume: P10 diagnostic invariant referred to tester
+
+- The developer identified a possible inconsistency: the frozen spec requires P08/P09/P10 regime diagnostic block count to equal candidate chronological block count, but the current validator only enforces this for P08/P09 because P10 abstention can empty a metric block.
+- Logged on both branches. Run #994's source commit remains immutable and active; no code/spec change was made to its running execution.
+- Tester → Developer: adjudicate the frozen wording against the current output once available; require a tester-approved, pre-registered amendment if the spec must change. Keep Phase 8 blocked while unresolved.
+- Developer → Tester: audit the exact Run #994 artifact and this count invariant explicitly; do not waive a failed check to preserve a run.
