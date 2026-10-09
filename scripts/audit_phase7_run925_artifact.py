@@ -299,6 +299,8 @@ def main():
             "independent audit of finite regime-feature eligibility against the frozen P08/P09/P10 specification",
         ],
         "scientific_promotion": "NOT_GRANTED",
+        "method_specification": "research/phase7/PHASE7_METHOD_SPEC.md",
+        "tester_observation": "A REQUEST CHANGES decision means no empirical candidate or trading strategy can be promoted; source and numerical reconciliations are evaluated separately from protocol-compliance failures.",
     }
 
     try:
@@ -525,17 +527,29 @@ def main():
                         audit.check(f"future_bin_mean:{layer}:H{horizon}:{name}:{bin_name}",
                                     numeric_match(bin_record["mean_future_return"], stored_record.get("mean_future_return")),
                                     {"calculated": bin_record["mean_future_return"], "published": stored_record.get("mean_future_return")})
-                    audit.check(f"abstention_counts:{layer}:H{horizon}:{name}",
-                                (published.get("trade_n") == int(metric_mask.sum())
-                                 and published.get("evaluable_n") == int((np.isfinite(y) & np.isfinite(probs[name])).sum())
-                                 and numeric_match(published.get("coverage"),
-                                                  float(metric_mask.sum() / (np.isfinite(y) & np.isfinite(probs[name])).sum())
-                                                  if (np.isfinite(y) & np.isfinite(probs[name])).sum() else 0.0))
-                                if name in ABSTAIN else
-                                ("trade_n" not in published and "coverage" not in published),
+                    finite_predictions = np.isfinite(probs[name])
+                    if name in ABSTAIN:
+                        lo, hi = ABSTAIN[name]
+                        expected_trade_n = int((finite_predictions & ~((probs[name] >= lo) & (probs[name] <= hi))).sum())
+                        expected_evaluable_n = int(finite_predictions.sum())
+                        expected_coverage = float(expected_trade_n / expected_evaluable_n) if expected_evaluable_n else 0.0
+                        metadata_match = (
+                            published.get("trade_n") == expected_trade_n
+                            and published.get("evaluable_n") == expected_evaluable_n
+                            and numeric_match(published.get("coverage"), expected_coverage)
+                        )
+                    else:
+                        expected_trade_n = None
+                        expected_evaluable_n = None
+                        expected_coverage = None
+                        metadata_match = "trade_n" not in published and "coverage" not in published
+                    audit.check(f"abstention_counts:{layer}:H{horizon}:{name}", metadata_match,
                                 {"published_trade_n": published.get("trade_n"),
-                                 "expected_trade_n": int(metric_mask.sum()) if name in ABSTAIN else None,
-                                 "coverage": published.get("coverage")})
+                                 "expected_trade_n": expected_trade_n,
+                                 "published_evaluable_n": published.get("evaluable_n"),
+                                 "expected_evaluable_n": expected_evaluable_n,
+                                 "published_coverage": published.get("coverage"),
+                                 "expected_coverage": expected_coverage})
                     # Chronological block diagnostics should use the candidate's same eligibility mask,
                     # including the abstention rule where one is frozen.
                     stored_blocks = published.get("chronological_blocks", [])
