@@ -13,3 +13,11 @@
 ## Conversation continuity policy
 
 The repository records research decisions, user requirements, experiment outcomes and errors. Private hidden chain-of-thought is not copied into repository artifacts. Reproducible scientific rationale is recorded as explicit decisions and protocol text instead.
+
+
+## 2026-10-09 — Protocol workflow repair and Run #994 checkpoint
+
+- Research Protocol Check #997 (`37959386545`) failed in `Validate repository contract` because main lacked `scripts/validate_protocol.py`; this was confirmed from the exact GitHub Actions job log, not inferred from the run summary.
+- Synced the missing validator scripts and literature registry from `phase-07-developer` to `main` without changing the research protocol or scientific implementation. Commits: `ed846e48b4129ce72bd759ca7e754b58b692cb44`, `b8f96b1d63e1bc325970797902b459983e3f9169`, `37149b5639215031f653990959b53ed8f6251c09`.
+- Run #994 (`37957677656`) remains in progress at `scripts/run_phase7_ensemble.py`; regression and the exact-snapshot authorization gate passed. No artifacts or accepted metrics are available at this checkpoint.
+- Run #925 remains rejected/non-evidence. Phase 7 promotion and Phase 8 remain blocked until the fresh run is complete and independently audited.
