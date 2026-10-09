@@ -228,3 +228,13 @@
 - Correction: use a real NUL byte in the Git blob header and add a deterministic empty-blob SHA regression test.
 - Tester approval: `research/gates/PHASE8_RUN783_RECON_HASH_APPROVAL_TESTER.md` = PASS.
 - Prevention: test cryptographic/integrity helpers against canonical known vectors before hosted reconstruction.
+
+
+## 2026-10-09 — Phase 8 Run #792 aggregate reconstruction mismatch
+- Category: numerical reproducibility / forecast reconstruction
+- Hosted run: Research Protocol Check #792 (37816655061), attempt 2, developer head `0c5712447239aec30071463a035fffafb5f7cd22`.
+- Protocol, regression, free-source audit and immutable Run #654 artifact verification passed; forecast reconstruction failed at intraday H=60.
+- Exact mismatches under frozen absolute tolerance 1e-9: P07 chronological block 33 Brier actual 0.24826251044249387 vs reference 0.2482625195704263; block 55 actual 0.2516896144466539 vs reference 0.2516896166236784.
+- Impact: Run #792 is NON-EVIDENCE; forecast panel validation and empirical authorization were skipped; no option P&L was generated.
+- Tester gate `research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md` on `phase-08-tester` = REQUEST CHANGES.
+- Required: diagnose reproducibility/runtime/aggregation cause, preserve frozen tolerance and source artifact, add regression coverage, obtain tester approval, then rerun complete gate.
