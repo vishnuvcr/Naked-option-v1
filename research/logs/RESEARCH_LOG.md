@@ -548,3 +548,10 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 ## 2026-10-10 — Run #994 audit and P10 correction review
 
 Exact-run technical audit for source SHA b50be8cfa1ebe008a800e65a53f9c0fb2581aecb: 3,098 checks passed, 0 failed; decision PASS WITH SCOPED RESTRICTIONS. Ten family p-values .784, .690, .938, .764, .506, .262, .994, 1.000, .994, .544; none significant. No strategy promotion. Independently reviewed developer correction 39e964d and approved its code contract for a future run only; this cannot change Run #994. New corrected execution and options-specific after-cost evaluation are still required.
+
+
+## 2026-10-10 — Hosted regression discovered; acquisition-cache defect blocks execution
+
+The previously unresolved hosted-run visibility was resolved by querying the repository's Actions runs endpoint directly. Run #37 (37990522933) is attached to developer commit 18773e828f19c0ff2e9fc1af437db6b8ef181739. The regression job passed all 11 predictor and 11 validator tests; the approval job correctly ran fail-closed because no approval manifest existed, and the empirical job was skipped. Compare metadata shows the only later developer changes were status, handoff and log documents, so the protected source snapshot was unchanged after the run.
+
+During the required current-workflow/source review, the tester identified a new issue: `scripts/acquire_nifty_daily_history.py` always downloads and overwrites NIFTY history before considering any cache. This violates the registered cache reuse requirement and lacks direct tests. Review report: `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md`. The tester disposition is REQUEST CHANGES; no prediction run is authorized and no empirical metrics exist.
