@@ -310,3 +310,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Live logs are unavailable while active (`BlobNotFound`); no failure is inferred.
 - Run #925's corresponding script took 1h 53m 20s. Current run remains within the last observed runtime window.
 - State: **EMPIRICAL SCRIPT ACTIVE — WAIT FOR TERMINAL STATE**. Do not start another empirical run while this one remains active. Phase 8 remains blocked.
+
+
+ 
+## 2026-10-09 — Phase 8 costs: preliminary official-source review only
+
+- Captured current official Paytm Money and NSE source links for the future option-execution cost model.
+- Paytm public information is account-plan-sensitive: its F&O FAQ reports ₹10 per unique executed order, while its older plan notice documents ₹10/₹15 grandfathered and ₹20 newer-account plans. Use ₹10/₹15/₹20 sensitivity until the account-specific tariff/contract note is verified.
+- NSE 2026 option transaction charges: ₹3,553/crore premium turnover per side from 1-Mar-2026; STT 0.15% on option sale premium and 0.15% on intrinsic value on exercise from 1-Apr-2026. Other statutory levies/GST, spread, slippage, latency and premium decay still require explicit handling.
+- This is preparation only. Phase 8 has not advanced; its opening gate remains the fresh Phase 7 Run #994 artifact and independent empirical approval.

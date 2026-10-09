@@ -231,3 +231,13 @@ No scientific or protocol change was made during this checkpoint.
 - Compared runtime with completed Run #925, whose empirical script ran 1h 53m 20s. Run #994 is still inside that observed window, so no duplicate execution was launched.
 - Tester → Developer: wait for the run to terminate, then independently audit the uploaded artifact against the exact source commit.
 - Developer → Tester: the empirical artifact is not accepted until the independent audit report reconciles all ten panels and metrics.
+
+
+ 
+## 2026-10-09 — Resume: preliminary source check for future option costs
+
+- While the single authorized Phase 7 Run #994 remains active, checked current official Paytm Money and NSE pricing/tax references for the later execution-cost gate.
+- Found account-plan differences in Paytm Money's public brokerage references. Recorded ₹10/₹15/₹20 sensitivity instead of assuming the user's tariff, until an account-specific tariff or contract note is verified.
+- Captured NSE 2026 option transaction charge and STT dates/rates plus links for later GST/levy verification. No Phase 8 code or method was changed, and no option-P&L grid was run.
+- Tester → Developer: keep Phase 8 blocked until the Run #994 empirical artifact passes independent audit; then check each cost base/date and reconcile the modeled fees with broker contract-note examples.
+- Developer → Tester: independently verify cost formulae/signs/charge bases, bid-ask execution and timing/expiry assumptions before accepting any net P&L.

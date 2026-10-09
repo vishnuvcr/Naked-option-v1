@@ -666,3 +666,21 @@
 - At the latest check, the same script step remains `in_progress`; schema validation and artifact upload have not started. GitHub's active-job log endpoint returns `BlobNotFound`, while the run and job state still report active.
 - For the same workflow, Run #925's model script ran for 1h 53m 20s (10:01:46–11:55:06 UTC). Current elapsed time is less than that observed runtime; no failure is inferred from the absence of live logs.
 - No duplicate run was launched; no new metrics/artifacts are available or accepted. Continue polling this immutable run and start the independent Run #994 artifact audit only after its artifact upload is confirmed.
+
+
+## 2026-10-09 — Pre-gate Phase 8 execution-cost source reconnaissance (no phase transition)
+
+This was a source review only while the authorized Phase 7 Run #994 remains active. It does **not** initiate Phase 8, change the frozen Phase 7 methods, or authorize an option-P&L run.
+
+Official-source findings for the later cost model:
+
+- Paytm Money's current F&O FAQ states ₹10 brokerage per unique executed order: https://www.paytmmoney.com/stocks/customer/fno-faq/onboarding-and-kyc/account-segment-activation/how-to-activate-fo-from-mobile-app-web
+- Paytm Money's pricing page says statutory, regulatory and exchange charges are levied at actuals and its tariff can change: https://www.paytmmoney.com/stocks/pricing
+- Paytm Money's older brokerage-plan notice documents different historical account cohorts, including ₹10/₹15 grandfathered tariffs and ₹20 per executed order for users opening accounts under the revised plan from 25-Aug-2023: https://www.paytmmoney.com/blog/brokerage-charges-increase-from-25th-aug-23-existing-users-will-continue-on-old-brokerage-charges/
+- The public FAQ/pricing information therefore does not establish the research user's account-specific rate. Do not silently hard-code ₹10. Until an account tariff/contract note is available, the future sensitivity should bracket brokerage at ₹10/₹15/₹20 per executed order and use a clearly labelled conservative primary scenario; verify all executed-order counting semantics.
+- NSE's 27-Feb-2026 transaction-charge circular states equity option transaction charges of ₹3,553 per crore of traded premium value on each side, effective 1-Mar-2026 (0.03553% of premium turnover per side): https://nsearchives.nseindia.com/content/circulars/FA73061.pdf
+- NSE's STT table, effective 1-Apr-2026, sets STT at 0.15% of option premium on sale of an option and 0.15% of intrinsic value on an exercised option: https://www.nseindia.com/static/products-services/equity-derivatives-securities-transaction-tax
+- NSE's levies page should be used for SEBI turnover fees and stamp duty; current published equity-option stamp-duty rate is 0.003% payable by the buyer, and SEBI turnover fee is ₹10 per crore. Re-verify the applicable charge base and current treatment during implementation: https://www.nseindia.com/static/invest/first-time-investor-sebi-turnover-fees-stt-other-levies
+- GST, broker platform/auto-squareoff fees, order-side spread, market impact, quote staleness/latency, expiry/exercise treatment and premium decay still need explicit modelling and contract-note cross-check. Historical option LTP alone must not be treated as an executable bid/ask price.
+
+Next phase is still gated on Run #994's immutable artifact and independent empirical approval; this note is preserved as a preliminary input only.
