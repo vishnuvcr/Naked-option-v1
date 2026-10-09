@@ -528,3 +528,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - The reviewer verified that the source-level corrections are present, including raw-return G13, fixed five-horizon Bonferroni, paired baseline calculations, row-level output/provenance, metric reconstruction and family bootstrap checks. This is not a runtime test pass.
 - Workflow/status lookups returned empty check/run lists, so the actual hosted regression outcome remains unverified. The approval manifest remains absent.
 - Next authorized transition is only: surface an observable green automatic/manual workflow run and its exact run artifact/hashes, then request a separate execution-gate tester decision. No empirical output exists and Phase 8 remains blocked.
+
+
+## 2026-10-10 — Protected NIFTY acquisition-code gap fixed
+
+- Workflow audit found that the empirical job runs scripts/acquire_nifty_daily_history.py, but this input-acquisition code was absent from the protected exact-snapshot hashes and push triggers.
+- Added the script to the push path filter, approval allowlist and SHA-256 report list in the workflow.
+- Workflow blob is now updated after the previous tester resubmission; therefore the prior static report does not cover the current workflow blob.
+- **Execution remains NOT AUTHORIZED.** Need an independent tester review of the latest workflow and a verifiable hosted regression run. No prediction output exists.
