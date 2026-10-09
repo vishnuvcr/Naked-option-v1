@@ -214,3 +214,13 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN807_RECON_TESTER.md): REQUEST CHANGES.
 - No forecast panel was accepted, no option P&L was generated, and the 4,800-cell grid remains blocked. Next step is to reproduce the historical aggregates from immutable per-row predictions/labels and test the frozen aggregation path before any further hosted run.
 - Latest [phase status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md), and [chat/action log](research/logs/CHAT_LOG.md).
+
+
+## Phase 8 reproducibility status — 2026-10-09
+
+- **Current blocker:** Phase 8 reconstruction has repeatedly failed the frozen 1e-9 aggregate replay check for P07 intraday H=60 blocks 33 and 55. Python pinning and single-thread controls did not fix it; the numerical root cause is still unproven.
+- **Run #822:** [hosted workflow](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37911107769) passed upstream protocol/regression/source/artifact checks. Forecast reconstruction was still in progress at the latest status check; no success is claimed until it completes and its diagnostics are audited.
+- **Reproducibility gap:** immutable Run #654 stores aggregate results but not row-level forecasts. A new versioned reference artifact is proposed to store predictions, labels, timestamps, block membership, source/code hashes and runtime fingerprint from the same execution.
+- **Tester gate:** [Phase 8 follow-up proposal review](research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL_TESTER.md) = PASS WITH SCOPED RESTRICTIONS for proposal only. Phase 7 output-code review and new artifact audit remain mandatory.
+- **No empirical option grid or P&L is authorized.** Run #654 remains unchanged; tolerance remains 1e-9; no strategy is promoted.
+- Details: [Research status](research/STATUS.md), [Error log](research/ERROR_LOG.md), [Research log](research/logs/RESEARCH_LOG.md), [Chat log](research/logs/CHAT_LOG.md), [Developer proposal](research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL.md).
