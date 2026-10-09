@@ -174,3 +174,8 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 - Static review of developer commit 39e964d: PASS for future runs only; P10 diagnostic records are filtered to eligible chronological blocks, inclusive abstention endpoints are tested, and validator equality restored. Does not alter immutable Run #994.
 - A fresh authorized run with corrected source is required before any Phase 8 decision; options point-in-time data and net-of-cost execution tests remain unpassed.
 - Audit workflow fallback-report shell syntax defect after report generation was logged and fixed on main; verify the fixed success/fallback paths in a subsequent workflow run.
+
+
+## 2026-10-10 — P10 correction review versus execution authorization
+
+Static review of developer commit 39e964d passed for a future run only. The correction-specific approval report/manifest on both branches were restored to the last verified snapshot after the attempted updated SHA values failed an independent digest check. Therefore the current corrected developer HEAD is **not authorized for empirical execution** yet. Tester → Developer: regenerate/verify the report digest and all 25 protected-file hashes, synchronize identical report/manifest bytes to both branches, and require hosted validator PASS before running. Run #994 remains unchanged; no strategy promoted.
