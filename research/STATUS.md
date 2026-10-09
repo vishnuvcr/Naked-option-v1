@@ -449,3 +449,8 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - Developer correction commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` adds P10 candidate-specific regime-diagnostic filtering, P08/P09/P10 equality validation, and a fully abstained-block regression fixture. Developer workflow run #1068 passed its regression job; empirical/tester-gated jobs were skipped, so this is not independent approval or an empirical run.
 - Correction has been submitted to the isolated tester branch in `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md` for independent review. No change was made to Run #994's source or protocol.
 - Gate state: tester review pending; Run #994 artifact audit pending; Phase 8 blocked.
+
+
+## 2026-10-10 — Exact-snapshot gate remains closed
+
+Tester static review accepted the P10 diagnostic correction in commit 39e964d for a future empirical run only. However, the correction approval manifest was restored to the last verified snapshot because the attempted new report digest and protected hashes did not pass a second verification. Current developer HEAD is not authorized for a fresh empirical execution. Do not set empirical_authorized or proceed until the exact tester report/manifest are byte-identical across branches and all protected SHA-256 values are independently verified. Run #994 remains immutable and non-significant; no strategy selected.
