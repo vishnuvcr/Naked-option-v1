@@ -147,3 +147,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 The tester workflow's manual button now exposes boolean input `run_legacy_run925_audit`, default false. The legacy pinned Run #925 audit runs only when the user deliberately selects that opt-in. All normal tester branch pushes and ordinary manual protocol-validation runs skip the historical audit. Approved fresh-run audits are handled separately by the main-branch workflow, which pins the generic tester script from commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f and publishes each exact-run report to this isolated tester branch.
 
 This workflow-only safety change does not alter the frozen metric calculations or any empirical data.
+
+
+## 2026-10-09 — P10 regime diagnostic block-count contract review
+
+Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md` = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION**. The frozen spec requires P08/P09/P10 regime-diagnostic block counts to equal candidate chronological-block counts, but the current validator only enforces P08/P09 while P10 abstention can empty blocks. Run #994 remains immutable and may still finish for exact-artifact audit; no metric or strategy may be promoted while this protocol/code mismatch remains unresolved. A future implementation or formally approved pre-registered spec amendment must be independently reviewed before another run.
