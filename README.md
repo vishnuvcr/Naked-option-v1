@@ -198,3 +198,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Correction status:** Run #650 bootstrap/diagnostic defects are closed by the corrected implementation and independent artifact audit.
 - **Carry-forward restrictions:** abstention chronological diagnostics are full-series rather than trade-only; intraday P08-P10 regime inputs use the fixed one-minute causal return path sampled at hourly decision rows. These must remain fixed and are to be documented in Phase 8.
 - **Next phase:** Phase 8 long-option execution research, with Paytm Money brokerage/fees, exchange/statutory charges, spread, slippage, latency and premium-decay realism. Phase 9 robustness and Phase 10 fresh-forward validation remain mandatory.
+
+
+## Phase 8 Run #792 diagnosis checkpoint — 2026-10-09
+- The fresh gate failed during forecast reconstruction: two P07 intraday H=60 chronological-block Brier values differ from the immutable Run #654 reference beyond the frozen absolute tolerance 1e-9.
+- Developer compared the hosted runtime logs. Core package versions match; Python patch versions differ, but this is not yet a proven cause.
+- [Developer diagnosis and proposed reproducibility review](research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md). [Tester request-changes report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md).
+- No tolerance change, reference artifact change, forecast-panel acceptance, or empirical option execution. Await independent tester review before any production patch.
+- See also [status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md), and [chat/action log](research/logs/CHAT_LOG.md).
