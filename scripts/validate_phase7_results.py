@@ -29,6 +29,10 @@ def main():
                 if m in ("P08","P09","P10"):
                     assert "regime_diagnostics" in x
                     assert "regime_fallback_count" in x
+                # P10 applies a registered abstention mask, so its evaluated
+                # chronological block count may be smaller than regime diagnostics.
+                # P08/P09 do not abstain and retain the frozen equality invariant.
+                if m in ("P08","P09"):
                     assert len(x["regime_diagnostics"]) == len(x["chronological_blocks"])
     print("Phase 7 result schema PASS")
 
