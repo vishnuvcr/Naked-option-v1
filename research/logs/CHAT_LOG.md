@@ -160,3 +160,9 @@ No scientific or protocol change was made during this checkpoint.
 - Corrected the manifest-test fixture path and triggered fresh hosted Run #852. Existing Phase 7 regression, new artifact regression and tester authorization gate all passed.
 - Tester report `research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md` is archived on the developer branch. The empirical job is running; no output artifact or metric has been accepted yet.
 - Prior runs remain non-evidence where their gate sequence or new regression failed. The next step is post-run artifact inspection and independent audit.
+
+## 2026-10-09 — User: Ok proceed; repeated run reconciliation
+- Rechecked Phase 7 runs #852, #924 and #925. All remain marked in progress at the empirical ensemble script; no artifacts are listed yet.
+- Active-job log retrieval returned GitHub BlobNotFound for some jobs and is treated as an observability issue only. Run #852's run-level updated timestamp remains stale.
+- Updated README, research status, and research log to reflect the current blocker. No new scientific results or strategy claims were made.
+- Next action remains: audit the first eligible completed artifact; keep Phase 8 blocked until independent tester approval.
