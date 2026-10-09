@@ -166,3 +166,13 @@ No scientific or protocol change was made during this checkpoint.
 - Active-job log retrieval returned GitHub BlobNotFound for some jobs and is treated as an observability issue only. Run #852's run-level updated timestamp remains stale.
 - Updated README, research status, and research log to reflect the current blocker. No new scientific results or strategy claims were made.
 - Next action remains: audit the first eligible completed artifact; keep Phase 8 blocked until independent tester approval.
+
+
+## 2026-10-09 — User continuation: Phase 7 empirical gate
+
+- User asked to continue from the prolonged Phase 7 artifact-generation checkpoint.
+- Developer reconciled Runs #852, #924 and #925; all completed and produced both results and reference-panel artifacts. Run #925 was audited as a distinct immutable run.
+- The tester initially corrected an infrastructure issue in the audit workflow (unsupported pip-cache manifest assumption), then completed an independent artifact audit.
+- Tester validated artifact/source/code hashes, all ten panels, source timestamps, labels and future returns, but issued REQUEST CHANGES for four implementation mismatches: P10 abstention omission; missing volatility/trend rows entering low/low regime counts; P05/P06 block diagnostics ignoring abstention masks; and non-evaluable family-bootstrap observations being treated as zero differential.
+- Tester report [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) is archived on both isolated tester and developer branches. README, status, research log and error log have been updated on the developer branch.
+- No metrics or trading strategy are promoted. Phase 7 and Phase 8 remain blocked until developer corrections receive independent code review and one fresh empirical artifact passes post-run audit.
