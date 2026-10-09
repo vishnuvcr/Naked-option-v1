@@ -263,3 +263,9 @@ No scientific or protocol change was made during this checkpoint.
 - The public preview for `artist-23/nifty-options-data` reports a negative volume minimum (-4,288,892,671), extreme maximum volume (1.44 billion) and IV maximum 4,540. These are validation flags requiring Parquet-level inspection, unit checks and official NSE overlap; they do not prove every row invalid.
 - Confirmed `codepyx23/india-index-options-1m` declares itself a duplicate of `thetrademarkk/india-index-options-1m`; they share CC-BY-NC-4.0 labels and are not independent corroborating sources.
 - Logged candidate-quality requirements and source links. No dataset imported, composited or accepted; Phase 8 remains blocked pending Run #994 empirical artifact audit.
+
+
+## 2026-10-09 — Resume: extra HF minute-level spot data source
+
+- Added `Hitjob-Done/indian-stock-market-minute-data` as a possible independent NIFTY spot OHLCV cross-check, not option data. Its card reports MIT license and about 720M rows/10.5GB, but provenance/reupload identity, NIFTY_50 shard completeness, UTC-to-IST conversion and NSE overlap must be verified.
+- No download/merge performed; no Phase 8 method or workflow changed; Phase 8 remains gated on Run #994’s fresh independent Phase 7 artifact review.

@@ -715,3 +715,11 @@ The public dataset `codepyx23/india-index-options-1m` explicitly states it is a 
 The dataset `thetrademarkk/india-index-options-1m` describes partial option coverage, missing OI/settlement on intraday rows and no bid/ask stream. It is Q1 OHLC proxy data, not Q2 quote-executable evidence. Source: https://huggingface.co/datasets/thetrademarkk/india-index-options-1m
 
 Required pre-acceptance checks for any of these candidates: check `high >= max(open, close, low)`, `low <= min(open, close, high)`, positive premium for executable rows, non-negative volume/OI when fields are present, IV unit/range sanity, timestamps/IST alignment, duplicated contract-minute keys, strike/expiry completeness, and overlap with official NSE contract rows. Keep raw input hash and row-level invalid reason codes. Never clamp, impute or drop bad rows silently. This is source QA preparation only: no dataset imported, composite built, or Phase 8 P&L executed.
+
+
+
+## 2026-10-09 — Additional free minute-level spot source lead (not options)
+
+The Hugging Face dataset `Hitjob-Done/indian-stock-market-minute-data` reports approximately 720 million rows/10.5 GB, an MIT license, and minute/day stock/index OHLCV data including symbols such as `NIFTY_50`. It is a candidate for independent underlying-index spot cross-checks, not a substitute for contract-level option records. Its card describes timestamps in UTC (convert to IST explicitly) and OI = 0 where not applicable; validate the actual NIFTY_50 shards, date coverage, timestamp conversion, license/provenance and overlap with NSE before use. Its displayed loading snippets point to dataset `xxparthparekhxx/indian-stock-market-minute-data`; the current page appears to be a source/reupload mirror, so investigate data identity/provenance and do not count mirrors as independent sources. Sources: https://huggingface.co/datasets/Hitjob-Done/indian-stock-market-minute-data and https://huggingface.co/datasets/xxparthparekhxx/indian-stock-market-minute-data.
+
+This source can only help with spot-layer corroboration. It does not provide a contract quote, option bid/ask, or independently validated option premium path. No download or merge occurred; it remains a candidate for the free-source audit.
