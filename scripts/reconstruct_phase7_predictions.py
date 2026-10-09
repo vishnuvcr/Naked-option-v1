@@ -10,6 +10,7 @@ import zipfile
 
 import numpy as np
 import pandas as pd
+from threadpoolctl import threadpool_limits
 
 import run_phase7_ensemble as p7
 
@@ -267,7 +268,10 @@ def main() -> None:
                 )
 
             for H in horizons:
-                built = build_candidates(df, intraday, H)
+                # Match the frozen Run #654 runtime's single-process numerical execution.
+                # The hosted workflow also pins Python and sets BLAS/OpenMP thread limits.
+                with threadpool_limits(limits=1):
+                    built = build_candidates(df, intraday, H)
                 actual = {"_FAMILY_TEST": built["results"]["_FAMILY_TEST"]}
                 actual.update({m: built["results"][m] for m in METHODS})
 
