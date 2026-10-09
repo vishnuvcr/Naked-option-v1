@@ -188,3 +188,11 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Static review found the requested formula and output-audit corrections present in the current file blobs: raw-return G13/fixed constituent set, five-horizon Bonferroni, candidate-paired baseline metrics, row-level forecast output with SHA provenance, and result/panel reconstruction checks.
 - The regression test file contains 11 named checks, but the reviewer did not execute them or see a hosted run result. Status/workflow-run queries returned empty collections; this is not evidence of either success or failure.
 - Developer must keep the authorization manifest absent and obtain an observable, green hosted regression result before requesting the empirical gate.
+
+
+## 2026-10-10 — Phase 7 available-data acquisition review
+
+- Hosted regression evidence is now observable: [Run #37](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37990522933) succeeded, with 11 predictor regressions and 11 result-validator regressions passing.
+- The authorization job correctly failed closed because no independent approval manifest was mirrored; empirical prediction job was skipped.
+- Fresh tester review of the current workflow/acquisition snapshot found that NIFTY acquisition always downloads and overwrites the restored cache rather than validating and reusing a valid cached CSV/manifest.
+- **Disposition:** REQUEST CHANGES for empirical execution. No prediction result or metric exists for this extension. Developer must add a cache-reuse implementation and no-network regression tests, protect those tests, and resubmit.
