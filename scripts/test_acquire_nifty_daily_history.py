@@ -173,10 +173,7 @@ def test_missing_manifest_cannot_bless_existing_csv() -> None:
             writer.writerows(rows)
         with (
             patch.object(mod, "yahoo_daily", return_value=("https://example.invalid/new.json", rows)),
-            patch.object(mod, "compare_spots", return_value=[
-                {"date": day.isoformat(), "close": 1.0, "yahoo_close": 1.0, "abs_diff": 0.0, "within_1_point": True}
-                for day in mod.OVERLAP_DATES
-            ]),
+            patch.object(mod, "compare_spots", return_value=overlap_checks(rows)),
         ):
             result = mod.acquire(path, manifest_path, now=now)
         assert result["cache_hit"] is False, result
