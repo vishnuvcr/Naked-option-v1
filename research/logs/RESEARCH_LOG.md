@@ -35,3 +35,11 @@ The repository records research decisions, user requirements, experiment outcome
 - Preflight found no phase7-ensemble-results artifact and correctly skipped the independent calculation; no Phase 7 evidence or tester approval was produced.
 - The workflow was tightened afterwards to require exact upstream workflow identity, branch, successful completion, source SHA and both required artifact names. The manual path has the same controls and requires a run ID.
 - This validates only the no-artifact safety path. Run #994 remains the active empirical target and still has no artifact published.
+
+
+ 
+## 2026-10-09 — Run #2 verified identity and no-artifact guard
+
+- Workflow run #2 checked source run #1037. The exact Research Protocol Check name, phase-07-developer branch, completed-success status and source SHA passed; the expected aggregate artifact count was zero, so the independent audit correctly did not run.
+- This verifies preflight safety only, not data/model performance. The newly triggered audit workflow runs for later documentation commits should likewise skip until the empirical run uploads both required artifacts.
+- Run #994 is still running at the model script; Phase 8 remains gated.
