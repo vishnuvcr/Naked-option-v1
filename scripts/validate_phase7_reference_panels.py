@@ -112,6 +112,19 @@ def main():
         raise SystemExit("ARTIFACT_ERROR: aggregate JSON SHA-256 mismatch")
     if manifest.get("protocol") != "research/phase7/PHASE7_METHOD_SPEC.md" or manifest.get("seed") != 42:
         raise SystemExit("ARTIFACT_ERROR: protocol/seed mismatch")
+    if not manifest.get("run_id") or not manifest.get("commit"):
+        raise SystemExit("ARTIFACT_ERROR: missing immutable run/commit identity")
+    runtime = manifest.get("runtime", {})
+    if not all(runtime.get(k) for k in ("python", "platform", "machine", "numpy", "pandas", "scikit_learn", "scipy", "pyarrow", "threadpoolctl")):
+        raise SystemExit("ARTIFACT_ERROR: incomplete runtime fingerprint")
+    for name, source in manifest.get("source_files", {}).items():
+        if not source.get("sha256") or len(source["sha256"]) != 64:
+            raise SystemExit(f"ARTIFACT_ERROR: malformed source hash for {name}")
+        source_path = ROOT / source["path"]
+        if not source_path.is_file() or sha256(source_path) != source["sha256"]:
+            raise SystemExit(f"ARTIFACT_ERROR: source file missing/hash mismatch for {name}")
+    if len(manifest.get("code_files", {})) < 4 or any(len(v) != 64 for v in manifest.get("code_files", {}).values()):
+        raise SystemExit("ARTIFACT_ERROR: incomplete/malformed code-file fingerprints")
     if len(manifest.get("prediction_panels", [])) != 10:
         raise SystemExit("ARTIFACT_ERROR: expected exactly ten horizon panels")
 
@@ -130,6 +143,12 @@ def main():
         if sha256(panel_path) != record["sha256"]:
             raise SystemExit(f"ARTIFACT_ERROR: panel SHA-256 mismatch: {panel_path.name}")
         frame = pd.read_parquet(panel_path)
+        if int(record.get("rows", -1)) != len(frame):
+            raise SystemExit(f"ARTIFACT_ERROR: row-count mismatch: {panel_path.name}")
+        if record.get("columns") != list(frame.columns):
+            raise SystemExit(f"ARTIFACT_ERROR: column-schema mismatch: {panel_path.name}")
+        if set(frame["layer"].astype(str)) != {layer} or set(frame["horizon"].astype(int)) != {H}:
+            raise SystemExit(f"ARTIFACT_ERROR: panel identity mismatch: {panel_path.name}")
         intraday, horizons = LAYERS[layer]
         if H not in horizons:
             raise SystemExit(f"ARTIFACT_ERROR: unregistered horizon {layer} H={H}")
