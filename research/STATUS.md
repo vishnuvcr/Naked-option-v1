@@ -511,3 +511,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - The standalone validator now checks panel provenance and key uniqueness, labels versus realized-return sign, metric recomputation for each model and baseline, paired baseline metrics, common-row family Brier improvements and deterministic moving-block bootstrap p-values.
 - Panel export and its validator tests are included in the protected workflow snapshot and artifact upload. Exact blobs are listed in the latest developer submission addendum.
 - **Empirical gate remains closed.** No row-level empirical panel or prediction result has been generated yet. Hosted regression outcome is not verified by the available status tools. The tester must independently review the added panel logic and verify hosted regression before any empirical approval.
+
+
+## 2026-10-10 — Final panel audit-contract update
+
+- Added all-row candidate/baseline-probability reconciliation and independent recomputation of mean realized log return on forecasts classified UP.
+- Added explicit rejection of unknown method/row-type combinations and malformed prediction-availability flags; an empty panel cannot be paired with an executed family result. The saved CSV is serialized to 17 significant digits for round-trip float reproducibility.
+- Added regression fixtures for a mismatched candidate baseline probability and a mutated family p-value, in addition to complete synthetic-panel reconciliation and probability-mutation tests.
+- Current blob identifiers are pinned in the final section of the developer submission. The workflow is intended to run automatically on protected-file commits, but the latest commit-status queries still expose no checks/run result; CI therefore remains unverified.
+- **No model output exists from this extension; empirical execution stays blocked** until a fresh tester report verifies the latest exact files and an actual hosted regression pass is observable.
