@@ -79,3 +79,13 @@
 - Impact: authorization is not yet robust against stale approvals; Phase 8 stays blocked, and no empirical execution may be accepted until commit/hash binding is independently approved.
 - Required correction: include an exact reviewed developer commit plus protected-file hashes (preferred) or reject any protected-path changes since the approved snapshot. Add positive/negative tests for both the automatic caller and manual reusable workflow.
 - Non-evidence: unreviewed-run attempts `37935752265` and `37935794939` remain non-evidence regardless of completion or artifacts.
+
+
+## 2026-10-10 — Phase 7 available-data acquisition-cache gate
+
+- **Evidence:** hosted Phase 7 available-data workflow Run #37 (37990522933) completed successfully at developer commit 18773e828f19c0ff2e9fc1af437db6b8ef181739. Both regression suites passed (11 predictor checks and 11 result-schema/panel checks); the empirical job was skipped by the fail-closed authorization gate.
+- **Finding:** independent review discovered that `scripts/acquire_nifty_daily_history.py` downloads Yahoo history and performs official-source spot checks unconditionally before writing the cached file. The workflow restores a cache, but the acquisition script does not reuse a valid cached CSV/manifest. Importing the script also performs network I/O, leaving this behavior without targeted regression coverage.
+- **Impact:** no prediction output was generated; this is a reproducibility/cache-governance defect. The Phase 7 available-data extension remains blocked for empirical execution.
+- **Tester report:** `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md` = **REQUEST CHANGES — empirical execution not authorized**.
+- **Required correction:** make acquisition import-safe; validate cache schema, coverage, freshness, source and SHA-256; reuse a valid cache; reacquire only when missing/stale/invalid; add no-network test fixtures; and protect the new tests in the workflow/approval path.
+- **Prevention:** hosted regression green status is necessary but not sufficient; data acquisition and cache semantics must have their own regression fixtures and be reviewed before empirical execution.
