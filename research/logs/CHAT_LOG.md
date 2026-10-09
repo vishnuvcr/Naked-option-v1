@@ -130,3 +130,12 @@ No scientific or protocol change was made during this checkpoint.
 - Corrected tester checks confirmed artifact hashes, source/code hashes, panel identities and source-derived labels/returns/timestamps, but issued REQUEST CHANGES for four protocol/implementation defects: P10 abstention omitted, missing regime features classified as low/low, P05/P06 block diagnostics not abstention-aligned, and unavailable rows treated as zero differences in family bootstrap.
 - The gate is recorded at [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md), with corresponding status, README and error-log updates on the isolated tester branch.
 - No metrics or strategy are promoted from Run #925. Phase 8 stays blocked. Next step: developer corrects only the approved defects, adds focused tests, submits the exact commit for independent review, and runs a fresh artifact only after the code gate passes.
+
+
+## 2026-10-09 — Tester review of Phase 7 correction submission
+
+- Tester independently reviewed the developer correction to Run #925. The P10 abstention mask, finite volatility/trend eligibility, candidate-specific block diagnostics, and NaN-versus-zero family-bootstrap differential handling are implemented and have targeted regression coverage. Hosted run #964 passed the regression workflow.
+- Tester then found a separate authorization flaw: a correction-specific PASS is not tied to an exact reviewed source snapshot, so later changes could reuse it.
+- Report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](../gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = REQUEST CHANGES for exact commit/file-hash binding and negative fail-closed tests.
+- Empirical jobs `37935752265` and `37935794939` were started under the stale gate before it was contained. They are strictly non-evidence; results/artifacts must not be accepted.
+- Developer may not run another empirical Phase 7 job until the tester approves the snapshot-binding correction. Phase 8 remains blocked.
