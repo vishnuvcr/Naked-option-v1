@@ -342,3 +342,21 @@ No scientific or protocol change was made during this checkpoint.
 - Run #994 remains active without artifacts; logs are inaccessible via the job-log endpoint, so the run cannot yet be interpreted scientifically.
 - Confirmed developer commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` passes the developer regression workflow, but the workflow skipped empirical and tester-gated jobs.
 - Submitted P10 diagnostic correction for independent tester review. Tester → Developer: issue PASS/REQUEST CHANGES against the exact correction commit; inspect P10 endpoint eligibility, block IDs, P08/P09 invariance and fallback accounting. Developer → Tester: do not approve based on CI alone; keep Phase 8 blocked pending empirical artifact audit.
+
+
+### 2026-10-10 — User requested available-data prediction testing
+
+**User request summary:** “Ignore the data unavailable issue and proceed testing the methods with the available data.” Context clarified that the work is to remain on directional prediction, not option strategies.
+
+**Developer action summary:**
+- Created a finite pre-registered available-data extension covering peer/global daily return predictors, selected free volatility/FX/commodity proxies, a global-equity composite, and a limited calendar control.
+- Retained strict point-in-time session-date alignment, expanding walk-forward validation, horizon purging, fixed model settings, and family-level multiple-comparison inference.
+- Added best-effort cached free-source acquisition, source hashes, independent regression tests, and a CI workflow requiring tester approval before empirical execution.
+- Two early test-fixture mistakes caused regression-only failures and were recorded in research/ERROR_LOG.md. Corrected run #4 passed; cache freshness change triggered another regression run. No empirical job ran.
+- Submitted the exact method/code scope for review. Independent tester review and exact-snapshot SHA-256 authorization remain mandatory.
+
+**Scientific status:** no new prediction metric has been accepted from this extension. The final holdout remains unopened; no trading strategies/options economics were evaluated.
+
+**Developer → Tester:** Independently audit source timestamps, point-in-time joins, model/purge logic, family bootstrap, metrics, source-failure handling, regression coverage, and approval workflow; return an explicit gate decision.
+
+**Tester → Developer:** Reject any methodological, integrity, or numerical mismatch; list corrections required and do not authorize empirical execution until all protected file hashes and the exact reviewed snapshot agree.
