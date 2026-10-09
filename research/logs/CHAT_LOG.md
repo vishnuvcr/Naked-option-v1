@@ -235,3 +235,8 @@ No scientific or protocol change was made during this checkpoint.
 ## 2026-10-09 — Resume: strict reference identity checks
 - Added strict source/code manifest-key validation and per-panel run/commit identity checks. Hosted validator regression `37914278229` passed; tester approval is archived.
 - Real Phase 7 reference build still has no artifact uploaded and remains in progress. Old Phase 8 reconstruction attempts remain in progress without evidence; no option-grid execution is authorized.
+
+## 2026-10-09 — User said “Ok proceed”: bootstrap runtime diagnosis
+- Re-polled Phase 7 Run #852; it remained stale in progress with no artifact. Inspection of the bootstrap implementation found repeated construction of all possible overlapping blocks for every resample.
+- Developer replaced that allocation pattern with direct sampling of the same block starts and added exact legacy-equivalence tests. Hosted regression jobs passed; independent tester approved the optimization with scoped restrictions. Report: `research/gates/PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md`.
+- Mistake: implementation and test were committed separately, which triggered extra empirical workflow attempts while #852 was still reported active. This is recorded in `research/ERROR_LOG.md`; no cancellation control was exposed by the connected GitHub tools. No metrics or artifact are accepted and Phase 8 remains blocked.
