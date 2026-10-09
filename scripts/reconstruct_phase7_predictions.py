@@ -210,7 +210,7 @@ def write_mismatch_diagnostic(layer, H, built, df, intraday, outdir, failures):
     failed_blocks = sorted({
         int(match.group(1))
         for failure in failures
-        if (match := re.search(r"chronological_blocks\\[(\\d+)\\]\\.brier", failure))
+        if (match := re.search(r"chronological_blocks\[(\d+)\]\.brier", failure))
     })
     y = np.asarray(built["y"], dtype=float)
     p = np.asarray(built["predictions"]["P07"], dtype=float)
