@@ -269,3 +269,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Intraday H=60 P07 chronological-block Brier values differed from the frozen Run #654 reference by approximately 9.13e-9 and 2.18e-9, exceeding the frozen absolute tolerance 1e-9.
 - Tester gate `research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md` = REQUEST CHANGES on `phase-08-tester`.
 - Phase 8 remains blocked before forecast-panel validation; no option P&L and no 4,800-cell grid execution. Developer must diagnose and fix with a regression and receive tester approval before fresh hosted execution.
+
+## 2026-10-09 — Run #792 developer diagnosis checkpoint
+- Developer compared Run #654 empirical-job environment logs with Run #792 reconstruction logs: both report NumPy 2.4.6, pandas 3.0.6, scikit-learn 1.9.1, SciPy 1.17.1, pyarrow 25.0.1 and threadpoolctl 3.7.0; Python patch versions differ (3.11.16 versus 3.11.17).
+- Numerical/runtime root cause remains unproven. Developer diagnosis/proposal is archived at `research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md`.
+- Tester must review the proposed minimal runtime/thread determinism controls before code changes. Tolerance remains 1e-9; no option execution authorized.
