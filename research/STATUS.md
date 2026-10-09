@@ -219,3 +219,12 @@ Run #994 remains `in_progress` on immutable source commit `b50be8cfa1ebe008a800e
 - Developer commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb
 - Tester report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md
 - Phase 8 remains gated; a code gate alone cannot promote a method.
+
+## 2026-10-10 — Run #994 result and gate status
+
+- Empirical run: completed successfully; immutable source SHA b50be8cfa1ebe008a800e65a53f9c0fb2581aecb; artifacts available in [Actions run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656).
+- Independent audit: PASS WITH SCOPED RESTRICTIONS; 3,098 passed / 0 failed checks for artifact integrity, source alignment, metric reconciliation and family inference.
+- Statistical conclusion: all 10 family-level p-values exceed 0.05 (range 0.262–1.000). No tested method family shows statistically significant predictive improvement. Best isolated candidates remain exploratory only.
+- No strategy promoted; no after-cost profitability established; Phase 8 blocked.
+- Remaining restrictions: resolve P10 diagnostic-block invariant for future executions, perform option-level point-in-time data/source coverage audit and realistic Paytm Money transaction-cost/slippage backtest, and review source/contract issues before any strategy selection.
+- Audit automation issue: fallback-report step failed with shell “unexpected end of file” after a valid report had already been generated; fixed in main workflow commit 3c0730bbdb31c18a1b0ad9e62c998189ae243dca. The independent audit report remains unchanged.

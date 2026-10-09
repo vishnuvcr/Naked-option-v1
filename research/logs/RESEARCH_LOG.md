@@ -75,3 +75,7 @@ Run #994 remains active on the exact original source SHA with no result artifact
 - Decision: **PASS WITH SCOPED RESTRICTIONS — artifact integrity, source alignment, metric reconciliation and family inference** (3098 passed / 0 failed checks).
 - Full report and JSON are linked in the main README and stored on phase-07-tester.
 - No strategy is promoted from protocol success or technical audit alone.
+
+## 2026-10-10 — Phase 7 Run #994 audited
+
+Run #994 completed successfully (Actions run 37957677656, source commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb). Independent audit reported 3,098 checks passed, 0 failed, with scoped restrictions. The 10 family-level p-values were daily H1=.784, H2=.690, H3=.938, H5=.764, H10=.506; intraday H5=.262, H15=.994, H30=1.000, H60=.994, H120=.544. None is significant at 0.05. Best isolated metrics do not establish a robust edge: daily P10/H10 AUC=.5786 but balanced accuracy=.4963 and family p=.506; intraday P07/H5 AUC=.5297 and family p=.262. No strategy selected. Transaction costs, options-specific execution and net P&L are not validated; Phase 8 remains blocked. Static P10 diagnostic-invariant restriction remains open for future runs. See tester report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md.

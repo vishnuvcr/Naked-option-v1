@@ -234,3 +234,13 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - Tester report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md
 - Full JSON: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_AUDIT.json
 - This technical audit does not independently promote a trading strategy or open Phase 8.
+
+## 2026-10-10 — Run #994 empirical result and independent audit
+
+- [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) completed successfully on immutable source commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb. Both aggregate and row-level reference artifacts are retained.
+- Independent tester: **PASS WITH SCOPED RESTRICTIONS**; 3,098 checks passed, 0 failed. This covers artifact integrity, source alignment, 100 metric cells, and 10 family-level tests—not strategy promotion.
+- All ten family-level moving-block bootstrap tests are non-significant: daily horizons 1/2/3/5/10 have p-values 0.784/0.690/0.938/0.764/0.506; intraday horizons 5/15/30/60/120 have p-values 0.262/0.994/1.000/0.994/0.544. No tested family demonstrates statistically significant predictive improvement.
+- Best isolated headline cells are not confirmatory: daily P10/H10 Brier 0.243729, ROC-AUC 0.5786, balanced accuracy 0.4963 (family p=0.506); intraday P07/H5 Brier 0.249348, ROC-AUC 0.5297, balanced accuracy 0.5212 (family p=0.262). They are candidate-level observations within a multiple-method search, not a validated trading edge.
+- **Decision: no strategy selected; no live-trading recommendation.** Net profitability after option bid/ask spreads, slippage, brokerage, STT, exchange charges, GST and other Paytm Money costs has not been demonstrated. Phase 8 remains blocked.
+- Open restriction: the separate tester static report still flags the P10 diagnostic-block invariant for future runs. The immutable Run #994 audit does not itself clear that future-run protocol/code consistency issue.
+- The audit workflow had a shell syntax defect in its fallback-report step despite a completed technical audit; this was logged and fixed in main commit 3c0730bbdb31c18a1b0ad9e62c998189ae243dca. The audit decision/report itself is preserved.

@@ -77,3 +77,13 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 ## Independent tester finding — P10 diagnostic block invariant (2026-10-09)
 
 The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md) = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION** for a static consistency issue: the frozen spec includes P10 in the regime-diagnostic/chronological-block count equality, while the current validator enforces this invariant only for P08/P09 because P10 abstentions can empty a block. Run #994 may complete and be audited as the already-running immutable execution, but no metric, method or strategy may be promoted until this issue is resolved through an implementation correction or a separate pre-registered tester-approved spec amendment. Phase 8 remains blocked.
+
+## 2026-10-10 — User said Proceed: Run #994 completed and audited
+
+- Confirmed run #994 completed successfully and downloaded both exact-run artifacts.
+- Independent tester decision: PASS WITH SCOPED RESTRICTIONS; 3,098 checks passed, zero failed.
+- The family-level moving-block bootstrap p-values are .784, .690, .938, .764, .506 for daily H1/H2/H3/H5/H10 and .262, .994, 1.000, .994, .544 for intraday H5/H15/H30/H60/H120. No family shows statistically significant improvement.
+- Best isolated daily P10/H10 AUC=.5786 is accompanied by balanced accuracy .4963 and family p=.506; intraday P07/H5 family p=.262. Neither is a strategy recommendation.
+- Main workflow fallback-report shell syntax failure after successful report creation was identified and fixed; preserve the run's tester report.
+- Tester → Developer: retain scoped restrictions and independently review the unresolved P10 diagnostic-block contract before future runs.
+- Developer → Tester: audit future approved snapshots, and do not promote a strategy without a significant pre-registered edge and net-of-costs option execution evidence.
