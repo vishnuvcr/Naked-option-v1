@@ -38,8 +38,8 @@ Current submission snapshot (documentation-only head): `510e2b88a8c07a6ca2176b11
 
 ## Hosted test evidence
 
-- [Run #939 / ID 37936076338](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37936076338): protocol checks and Phase 7 regression/reference-artifact regression passed. The empirical job was skipped because no correction-specific tester PASS is present.
-- [Run #937 / ID 37935917149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935917149): reusable workflow fail-closed check did not find the correction-specific approval; empirical job was skipped. Its overall workflow failure is an expected unapproved-gate stop, not a scientific result.
+- [Run #964 / ID 37936076338](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37936076338): protocol checks and Phase 7 regression/reference-artifact regression passed. The empirical job was skipped because no correction-specific tester PASS is present.
+- [Run #962 / ID 37935917149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935917149): reusable workflow fail-closed check did not find the correction-specific approval; empirical job was skipped. Its overall workflow failure is an expected unapproved-gate stop, not a scientific result.
 - Two older runs started empirical execution before the new authorization guard was committed: [37935752265](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935752265) and [37935794939](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37935794939). They are explicitly **NON-EVIDENCE** regardless of eventual job outcome or artifact availability; no outputs from them may be interpreted or selected. This incident is documented in `research/ERROR_LOG.md`.
 
 ## Protocol preservation
