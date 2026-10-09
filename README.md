@@ -249,3 +249,11 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - Required next step: add exact commit/file-hash binding and positive/negative checks for manual and automatic authorization before resubmitting to tester.
 - Runs `37935752265` and `37935794939` remain **NON-EVIDENCE**; any resulting metrics must not be accepted.
 - No Phase 7 candidate or trading strategy is promoted. Phase 8 is blocked.
+
+
+## Phase 7 correction approval hardening — 2026-10-09
+
+- Snapshot-bound approval validator added at `scripts/validate_phase7_correction_approval.py`; positive/negative tests at `scripts/test_phase7_correction_approval.py`.
+- Both the automatic protocol caller and manual/reusable Phase 7 workflow now fail closed unless the tester branch contains a matching report and JSON manifest for the exact reviewed commit and protected-file SHA-256 set.
+- Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol and all Phase 7 regression suites; empirical execution was skipped because independent tester approval has not yet been issued.
+- Developer snapshot submitted for independent review: `b9fc7c9e7c77efb5149d35e31509251f701122ce`. Phase 7 remains blocked pending tester review; Phase 8 is not authorized.
