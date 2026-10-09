@@ -245,3 +245,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Regression and tester-authorization jobs passed in the later runs, but the real-data artifact audit has not occurred. No Phase 7 metrics are newly accepted, and Phase 8 remains blocked.
 - The moving-block bootstrap allocation optimization has passed equivalence regression and received tester approval with scoped restrictions; this does not waive empirical completion or artifact provenance review.
 - Operational correction: avoid launching additional competing empirical jobs while these runs are active. Reconcile the first completed run and audit its artifact before deciding whether remaining attempts are duplicates or require further action.
+
+
+## 2026-10-09 — repeated live poll
+- No state transition: runs #852, #924 and #925 are still marked `in_progress`, each active at the Phase 7 ensemble script; no artifacts are listed.
+- Added the prolonged-execution/observability issue to `research/ERROR_LOG.md`. The root cause remains unknown; stale run metadata and missing live logs are not interpreted as scientific outcomes.
+- Next gate remains unchanged: first completed artifact → independent source/provenance/statistical audit → tester decision. Phase 8 stays blocked.
