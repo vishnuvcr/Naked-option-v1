@@ -288,6 +288,29 @@ def check_row_level_panel_rejects_invalid_availability_flag() -> None:
     raise AssertionError("invalid row-level prediction availability flag was accepted")
 
 
+def check_row_level_panel_rejects_candidate_baseline_probability_mismatch() -> None:
+    payload, panel = build_reconcilable_panel_case()
+    idx = panel.index[(panel["horizon_sessions"] == 1) & (panel["method"] == "G01_SENSEX")][0]
+    panel.loc[idx, "baseline_probability"] = 0.6
+    try:
+        validator.validate_prediction_panels(payload, panel)
+    except ValueError as exc:
+        assert "baseline probabilities do not match" in str(exc)
+        return
+    raise AssertionError("mismatched candidate baseline probability was accepted")
+
+
+def check_row_level_panel_rejects_family_p_value_mutation() -> None:
+    payload, panel = build_reconcilable_panel_case()
+    payload["daily"]["horizons"]["1"]["_FAMILY_TEST"]["family_p_value"] = 0.25
+    try:
+        validator.validate_prediction_panels(payload, panel)
+    except ValueError as exc:
+        assert "bootstrap p-value does not reproduce" in str(exc)
+        return
+    raise AssertionError("mutated family bootstrap p-value was accepted")
+
+
 def main() -> None:
     checks = [
         check_complete_payload_passes,
@@ -299,6 +322,8 @@ def main() -> None:
         check_row_level_panels_reconcile_metrics_and_family_bootstrap,
         check_row_level_panel_detects_mutated_probability,
         check_row_level_panel_rejects_invalid_availability_flag,
+        check_row_level_panel_rejects_candidate_baseline_probability_mismatch,
+        check_row_level_panel_rejects_family_p_value_mutation,
     ]
     for check in checks:
         check()
