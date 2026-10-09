@@ -627,3 +627,9 @@
 - Numerical root cause remains unproven; candidate explanation is native/runtime variation affecting P07 logistic regression output at billionth-level precision.
 - Developer proposal: tester review of a minimal pinned-runtime/thread-limit reproducibility patch and deterministic regression, preserving the frozen 1e-9 tolerance and reference artifact.
 - No production change or empirical option execution has been made.
+
+## 2026-10-09 — Run #807 determinism patch failed historical reconstruction
+- Fresh hosted Run #807 used Python 3.11.16 and numerical thread limits of one; workflow protocol, regression tests, source audit, immutable Run #654 artifact verification and execution-engine regression passed.
+- Reconstruction still failed at intraday H=60 P07 chronological-block Brier blocks 33 and 55, with differences above the frozen 1e-9 tolerance. Thus the runtime/thread-control patch did not solve the mismatch; its cause is still unknown.
+- Tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` records REQUEST CHANGES. The 4,800-cell option grid remains blocked.
+- Next research action is to isolate the exact historical per-row prediction/label aggregation path, test it against the immutable artifact, and obtain tester review before any further hosted reconstruction run. No metric tolerance or frozen reference was changed.
