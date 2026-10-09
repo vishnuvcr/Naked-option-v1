@@ -16,3 +16,12 @@
 | 11 Manuscript/final conclusion | NOT STARTED | final tester sign-off |
 
 Last updated: 2026-10-07
+
+
+## 2026-10-10 — Uploaded PDF supplement review
+
+- Independent tester report: [PHASE1_UPLOADED_PDF_SUPPLEMENT_TESTER.md](gates/PHASE1_UPLOADED_PDF_SUPPLEMENT_TESTER.md) — PASS WITH SCOPED RESTRICTIONS for literature incorporation only.
+- Reviewed 15 unique papers and new records L037-L051; row structure, IDs, DOI/URL fields, and evidence-status framing passed static checks.
+- Pre-existing L003 semantic column displacement has been corrected in phase-01-developer and documented in its error log.
+- Restriction: this is not a paper-by-paper data/code replication, and the existing CSV validator does not detect semantic column displacement. Future validator improvement requires a separate gate.
+- No prediction metrics were accepted and no empirical execution is authorized by this literature review.
