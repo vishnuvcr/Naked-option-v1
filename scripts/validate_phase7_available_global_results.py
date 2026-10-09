@@ -385,6 +385,8 @@ def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
             cells = result["daily"]["horizons"][str(h)]
             if cells["_BASELINE"].get("status") != "NOT_APPLICABLE" or any(cells[m].get("status") == "EXECUTED" for m in METHODS):
                 _fail("prediction panel is empty despite executed forecast cells")
+            if cells["_FAMILY_TEST"].get("status") != "NOT_APPLICABLE":
+                _fail("empty prediction panel cannot support an executed family test")
         return
     panel = panel.copy()
     panel["date"] = pd.to_datetime(panel["date"], errors="raise").dt.strftime("%Y-%m-%d")
