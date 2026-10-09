@@ -276,6 +276,18 @@ def check_row_level_panel_detects_mutated_probability() -> None:
     raise AssertionError("mutated row-level probability was accepted")
 
 
+def check_row_level_panel_rejects_invalid_availability_flag() -> None:
+    payload, panel = build_reconcilable_panel_case()
+    idx = panel.index[(panel["horizon_sessions"] == 1) & (panel["method"] == "G01_SENSEX")][0]
+    panel.loc[idx, "prediction_available"] = "yes"
+    try:
+        validator.validate_prediction_panels(payload, panel)
+    except ValueError as exc:
+        assert "invalid prediction_available flag" in str(exc)
+        return
+    raise AssertionError("invalid row-level prediction availability flag was accepted")
+
+
 def main() -> None:
     checks = [
         check_complete_payload_passes,
@@ -286,6 +298,7 @@ def main() -> None:
         check_horizon_family_inference_count_reconciles,
         check_row_level_panels_reconcile_metrics_and_family_bootstrap,
         check_row_level_panel_detects_mutated_probability,
+        check_row_level_panel_rejects_invalid_availability_flag,
     ]
     for check in checks:
         check()
