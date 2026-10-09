@@ -263,3 +263,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Hosted validator regression run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914065821) completed successfully, including tests that reject deliberately corrupted labels/returns. Tester approval is in [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md).
 - Two intermediate fixture runs failed because the synthetic test tried to read production cached data; that fixture-only issue is corrected and documented in the error log.
 - No real artifact is accepted yet; the Phase 8 frozen manifest and 4,800-cell option grid remain blocked pending independent audit.
+
+## Strict reference identity gate — 2026-10-09
+
+- [Hosted validator regression](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914278229) passed after adding strict source/code manifest keys and per-panel run/commit identity checks.
+- Tester approval is archived in [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md). This is synthetic code-path approval only; the real Phase 7 reference artifact and its independent audit are still pending.
+- The Phase 7 build is still running without a published artifact at latest poll. No Phase 8 manifest change or option-grid execution is authorized.
