@@ -402,3 +402,13 @@
 - **Interpretation:** this does not prove the hosted regression workflow failed or passed. It prevents independent confirmation that the current protected snapshot ran and passed.
 - **Decision:** tester allows static-source review only and explicitly withholds empirical execution authorization. No approval JSON was created, no empirical predictions were generated, and no result was promoted.
 - **Required resolution:** make a real hosted run record, run URL/ID, exact commit, protected SHA-256 output, both test-suite summaries and artifact validation summary accessible, then request a separate tester execution gate. Do not substitute a code-level assertion or source hash for runtime evidence.
+
+
+## 2026-10-10 — Phase 7 cache/timezone repair and current gate
+
+- **Run #41** (37992643952) failed in regression-only mode because the acquisition test fixture did not include the newly required `exchange_timezone` manifest field. The cache validator correctly rejected the fixture; the fixture manifest was updated.
+- **Run #42** (37992676463) failed in regression-only mode because a reacquisition fixture mocked official close=1.0 while the generated CSV close was approximately 10,000. The stricter validator correctly rejected the inconsistent overlap record; tests were corrected to generate internally consistent comparisons.
+- **Run #43** (37992695619): SUCCESS. 8/8 NIFTY acquisition/cache checks passed, 11/11 predictor checks passed, and 11/11 result-validator checks passed. The empirical job remained skipped because the authorization manifest was absent.
+- The independent tester issued PASS WITH SCOPED RESTRICTIONS authorizing one exact-snapshot Phase 7 prediction batch only; report mirrored on developer branch in commit 119827f09b282b3c4d51c1fb2d73329bfe81932d. Protected SHA-256 values are recorded in the tester report.
+- **Current blocker:** the attempted write of `research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json` was blocked by the platform safety checks. The file remains absent and no prediction batch ran. Do not bypass the protected authorization gate via an alternate trigger.
+- These CI failures are fixture-only non-evidence, and Run #43 is regression evidence only. No empirical prediction metrics were generated; no model or strategy was promoted.
