@@ -71,3 +71,9 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 - Logged on both branches. Run #994's source commit remains immutable and active; no code/spec change was made to its running execution.
 - Tester → Developer: adjudicate the frozen wording against the current output once available; require a tester-approved, pre-registered amendment if the spec must change. Keep Phase 8 blocked while unresolved.
 - Developer → Tester: audit the exact Run #994 artifact and this count invariant explicitly; do not waive a failed check to preserve a run.
+
+
+ 
+## Independent tester finding — P10 diagnostic block invariant (2026-10-09)
+
+The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md) = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION** for a static consistency issue: the frozen spec includes P10 in the regime-diagnostic/chronological-block count equality, while the current validator enforces this invariant only for P08/P09 because P10 abstentions can empty a block. Run #994 may complete and be audited as the already-running immutable execution, but no metric, method or strategy may be promoted until this issue is resolved through an implementation correction or a separate pre-registered tester-approved spec amendment. Phase 8 remains blocked.
