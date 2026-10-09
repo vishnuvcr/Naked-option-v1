@@ -656,3 +656,8 @@
 - Extended the synthetic regression to run the output through both the new saved-panel validator and the existing Phase 8 forecast-panel schema validator.
 - Hosted run `37913391078` completed SUCCESS; tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md` records PASS for synthetic integration only.
 - Real artifact audit, reference-commit fetch, and separately approved frozen-manifest amendment remain pending.
+
+## 2026-10-09 — Phase 8 validator source-version integrity fix
+- Compared Phase 7 and Phase 8 branches and found `run_phase7_ensemble.py` differs. Although code hashes were checked against the reference commit, metric recomputation previously imported the Phase 8 branch module. This was a real source-version integrity gap discovered before accepting any new artifact.
+- Updated the validator to execute the Phase 7 module bytes fetched from the manifest's immutable commit. Added `fetch-depth: 0` to the reconstruction job and regression coverage for loading the exact module and rejecting tampered hashes.
+- Hosted regression `37913662777` is running. No artifact accepted, no Phase 8 manifest amendment, and no option grid execution.
