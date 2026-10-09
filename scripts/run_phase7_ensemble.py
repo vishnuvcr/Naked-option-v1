@@ -147,11 +147,14 @@ def moving_block_resample(n,block_len,rng):
     if n <= 0:
         return np.array([], dtype=int)
     L=min(int(block_len), int(n))
-    starts=np.arange(0,n-L+1,dtype=int)
-    pool=[np.arange(s,s+L,dtype=int) for s in starts]
+    # Sample start indices directly. Building every overlapping block as a
+    # Python list on every bootstrap replicate is O(n) allocations per draw;
+    # direct starts preserve the same uniform block-start distribution and RNG
+    # sequence while avoiding that allocation explosion.
+    n_starts=n-L+1
     n_blocks=int(math.ceil(n/L))
-    selected=rng.integers(0,len(pool),size=n_blocks)
-    idx=np.concatenate([pool[k] for k in selected])[:n]
+    selected=rng.integers(0,n_starts,size=n_blocks)
+    idx=np.concatenate([np.arange(s,s+L,dtype=int) for s in selected])[:n]
     assert len(idx)==n
     return idx
 
