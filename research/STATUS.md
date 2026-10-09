@@ -410,3 +410,12 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The newly installed automatic audit workflow [run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965605363) inspected that exact run, found zero phase7-ensemble-results artifacts, and correctly skipped the independent audit. No tester code was executed and no metric was inferred.
 - The main workflow was subsequently tightened to require the upstream workflow name to be exactly Research Protocol Check in addition to branch, completion, successful conclusion, source SHA and both non-empty artifact checks. Future auto events will recheck these constraints. Manual dispatch requires a run ID and rejects incomplete/missing-artifact runs.
 - This is preflight evidence only, not empirical evidence. Run #994 remains in progress with no artifacts; Phase 8 remains blocked.
+
+
+ 
+## 2026-10-09 — Automatic audit preflight identity check confirmed
+
+- Automatic Phase 7 approved-audit workflow run #2 (Actions run 37966008847) processed completed developer protocol run 37965987043.
+- It accepted the exact source as a successful Research Protocol Check on phase-07-developer, then correctly stopped before audit because there were 0 required aggregate result artifacts. The independent tester job was skipped.
+- This confirms the name/branch/state guard plus fail-closed artifact preflight path. It is not a scientific or tester empirical decision.
+- Run #994 remains active at the ensemble script with no result artifacts. Phase 8 remains blocked.
