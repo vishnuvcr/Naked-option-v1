@@ -163,6 +163,119 @@ def check_horizon_family_inference_count_reconciles() -> None:
     expect_rejected(payload, "registered_family_size must equal five")
 
 
+def build_reconcilable_panel_case():
+    payload = valid_payload()
+    methods = list(validator.METHODS)
+    y = [i % 2 for i in range(100)]
+    baseline_metrics = {
+        "status": "EXECUTED", "n": 100, "positive_rate": 0.5,
+        "accuracy": 0.5, "balanced_accuracy": 0.5, "roc_auc": 0.5, "pr_auc": 0.5,
+        "brier": 0.25, "log_loss": 0.6931471805599453,
+        "tn": 0, "fp": 50, "fn": 0, "tp": 50,
+        "prediction_mean": 0.5, "prediction_std": 0.0, "classification_threshold": 0.5,
+    }
+    candidate_metrics = {
+        "status": "EXECUTED", "n": 100, "positive_rate": 0.5,
+        "accuracy": 1.0, "balanced_accuracy": 1.0, "roc_auc": 1.0, "pr_auc": 1.0,
+        "brier": 0.0625, "log_loss": 0.2876820724517809,
+        "tn": 50, "fp": 0, "fn": 0, "tp": 50,
+        "prediction_mean": 0.5, "prediction_std": 0.25, "classification_threshold": 0.5,
+    }
+    improvement = 0.1875
+    raw_p = 1.0 / 501.0
+    horizon_map = {}
+    panel_rows = []
+    date_values = [str(validator.pd.Timestamp("2020-01-01") + validator.pd.Timedelta(days=i))[:10] for i in range(100)]
+    for h in validator.HORIZONS:
+        cells = {}
+        for method in methods:
+            cell = dict(candidate_metrics)
+            cell.update({
+                "horizon_sessions": h,
+                "source_ids": [method],
+                "feature_columns": ["feature_1"],
+                "mean_future_log_return_when_predicted_up": 0.01,
+                "paired_baseline_comparison": {
+                    "status": "EXECUTED", "n_common": 100,
+                    "candidate_brier": 0.0625, "baseline_brier": 0.25,
+                    "brier_improvement": improvement,
+                    "baseline_metrics": dict(baseline_metrics),
+                },
+            })
+            cells[method] = cell
+        baseline_cell = dict(baseline_metrics)
+        baseline_cell.update({
+            "horizon_sessions": h,
+            "description": "causal history-rate baseline",
+            "evaluation_scope": "all eligible rows; row-level panel exact",
+        })
+        cells["_BASELINE"] = baseline_cell
+        cells["_FAMILY_TEST"] = {
+            "status": "EXECUTED", "n_common": 100, "method_count": len(methods),
+            "bootstrap_reps": 500, "block_length": 20, "seed": 42,
+            "max_mean_brier_improvement": improvement,
+            "candidate_mean_brier_improvements": {m: improvement for m in methods},
+            "family_p_value": raw_p,
+        }
+        horizon_map[str(h)] = cells
+        for i, date in enumerate(date_values):
+            label = y[i]
+            ret = 0.01 if label == 1 else -0.01
+            panel_rows.append({
+                "date": date, "horizon_sessions": h, "method": "_BASELINE",
+                "row_type": "baseline", "cell_status": "EXECUTED",
+                "actual_direction": label, "future_log_return": ret,
+                "predicted_probability": 0.5, "baseline_probability": 0.5,
+                "prediction_available": None, "source_ids_json": "[]", "feature_columns_json": "[]",
+            })
+        for method in methods:
+            for i, date in enumerate(date_values):
+                label = y[i]
+                ret = 0.01 if label == 1 else -0.01
+                prob = 0.75 if label == 1 else 0.25
+                panel_rows.append({
+                    "date": date, "horizon_sessions": h, "method": method,
+                    "row_type": "candidate", "cell_status": "EXECUTED",
+                    "actual_direction": label, "future_log_return": ret,
+                    "predicted_probability": prob, "baseline_probability": 0.5,
+                    "prediction_available": True, "source_ids_json": __import__("json").dumps([method]),
+                    "feature_columns_json": '["feature_1"]',
+                })
+    payload["daily"]["horizons"] = horizon_map
+    payload["family_inference"] = {
+        "status": "EXECUTED",
+        "family_tests": len(validator.HORIZONS),
+        "family_tests_executed": len(validator.HORIZONS),
+        "registered_family_size": len(validator.HORIZONS),
+        "registered_horizons": list(validator.HORIZONS),
+        "bonferroni_adjusted_p_values": [
+            {"horizon_sessions": h, "raw_p_value": raw_p, "bonferroni_p_value": min(1.0, raw_p * 5)}
+            for h in validator.HORIZONS
+        ],
+        "bootstrap_method": "fixed-seed moving-block bootstrap",
+        "interpretation": "synthetic test only",
+    }
+    return payload, validator.pd.DataFrame(panel_rows)
+
+
+def check_row_level_panels_reconcile_metrics_and_family_bootstrap() -> None:
+    payload, panel = build_reconcilable_panel_case()
+    validator.validate_result_payload(payload)
+    validator.validate_prediction_panels(payload, panel)
+
+
+def check_row_level_panel_detects_mutated_probability() -> None:
+    payload, panel = build_reconcilable_panel_case()
+    idx = panel.index[(panel["horizon_sessions"] == 1) & (panel["method"] == "G01_SENSEX")][0]
+    panel.loc[idx, "predicted_probability"] = 0.75
+    try:
+        validator.validate_prediction_panels(payload, panel)
+    except ValueError as exc:
+        assert "row-level" in str(exc) or "does not reconcile" in str(exc) or "availability flag" in str(exc)
+        return
+    raise AssertionError("mutated row-level probability was accepted")
+
+
 def main() -> None:
     checks = [
         check_complete_payload_passes,
@@ -171,6 +284,8 @@ def main() -> None:
         check_blocked_candidate_requires_reason,
         check_paired_baseline_sample_matches_candidate,
         check_horizon_family_inference_count_reconciles,
+        check_row_level_panels_reconcile_metrics_and_family_bootstrap,
+        check_row_level_panel_detects_mutated_probability,
     ]
     for check in checks:
         check()
