@@ -128,9 +128,7 @@ def test_mismatch_diagnostic_preserves_row_level_brier_terms():
             assert block["n"] == 2
             assert block["rows"][0]["label_direction"] == 1
             assert block["rows"][0]["p07_clipped"] == 0.8
-            assert block["rows"][0]["squared_error"] == np.testing.assert_allclose(
-                block["rows"][0]["squared_error"], (0.8 - 1.0) ** 2
-            ) or block["rows"][0]["squared_error"] == (0.8 - 1.0) ** 2
+            np.testing.assert_allclose(block["rows"][0]["squared_error"], (0.8 - 1.0) ** 2)
             assert np.isclose(block["brier_from_row_terms"], ((0.8 - 1.0) ** 2 + (0.3 - 0.0) ** 2) / 2)
     finally:
         ns["p7"].blocks_for = original_blocks_for
