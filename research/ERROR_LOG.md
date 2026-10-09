@@ -344,3 +344,14 @@
 - Correction: compute the historical positive-rate benchmark from all eligible, purged training labels independently of feature completeness; keep the candidate model fit/prediction masked by feature availability; add a deterministic regression test comparing baselines under altered feature masks.
 - Prevention: any future candidate-specific feature mask must not alter the comparator's training labels or predictions. Maintain a benchmark-invariance test across candidate families.
 - Disposition: found and corrected before tester authorization and before any empirical execution. No scientific result was generated from the defective version.
+
+
+## 2026-10-10 — Literature registry semantic column displacement
+
+- **Category:** research metadata / registry validation.
+- **Component:** phase-01-developer research/literature/LITERATURE_REGISTRY.csv, record L003.
+- **Symptom:** The record parsed into 11 columns but its URL, verification status, method families and hypotheses were shifted across fields.
+- **Root cause:** The CSV validator checks header, field count, unique source IDs and minimum record count, but does not validate whether the URL column contains a URL or the status/method fields use appropriate values.
+- **Correction:** The literature developer branch corrected L003; new PDF records L037-L051 were added in header-aligned order. A separate Phase 1 error log now documents the same defect.
+- **Prevention:** The independent reviewer should validate URL/status/method semantics; a validator enhancement should be made only after a separate code review and must remain independent of empirical selection.
+- **Disposition:** Corrected as a documentation/metadata issue; no model or empirical result changed. Available-data empirical execution remains blocked until its own independent exact-snapshot gate passes.
