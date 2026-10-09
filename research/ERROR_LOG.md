@@ -393,3 +393,12 @@
 - **Correction:** write panel float values with 17 significant digits; validate every candidate's paired baseline value against the baseline panel, reconcile predicted-UP mean future log return, reject invalid availability flags and method/row-type values, ensure empty panels cannot support an executed family result, and test for deliberate baseline/p-value mutations.
 - **Residual gate blocker:** the connected status lookup returns empty check collections for the corrected commits and no general workflow-run listing/dispatch action is exposed. This is a visibility blocker, not proof that the workflow failed or passed. Do not claim successful CI and do not authorize empirical execution until an actual hosted regression pass is observable.
 - **Disposition:** no prediction result was generated; no authorization manifest was created.
+
+
+## 2026-10-10 — Empirical gate held due unavailable hosted-run evidence
+
+- **Category:** gate evidence / execution observability.
+- **Finding:** latest commit-status and commit-workflow-run lookups returned empty lists; the available repository connector has no general workflow-run listing/dispatch action in its exposed tool set.
+- **Interpretation:** this does not prove the hosted regression workflow failed or passed. It prevents independent confirmation that the current protected snapshot ran and passed.
+- **Decision:** tester allows static-source review only and explicitly withholds empirical execution authorization. No approval JSON was created, no empirical predictions were generated, and no result was promoted.
+- **Required resolution:** make a real hosted run record, run URL/ID, exact commit, protected SHA-256 output, both test-suite summaries and artifact validation summary accessible, then request a separate tester execution gate. Do not substitute a code-level assertion or source hash for runtime evidence.
