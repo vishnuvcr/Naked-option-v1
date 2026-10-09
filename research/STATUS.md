@@ -157,3 +157,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Phase 7 reusable workflow and Research Protocol caller were independently reviewed.
 - Default-branch registration is the remaining infrastructure action before the manual Run workflow control can be confirmed.
 - Empirical execution remains blocked until regression passes after registration.
+
+
+## 2026-10-09 — Current Phase 7 live checkpoint
+
+- Fresh hosted Run #994 (`37957677656`, execution commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`) passed protocol, Phase 7 regression, correction-approval regression, reference-artifact regression, and exact protected-snapshot tester authorization.
+- The empirical ensemble job remains in progress at `scripts/run_phase7_ensemble.py`; result validation and artifact uploads are pending. No metric is accepted and no strategy is selected.
+- Run #925 remains rejected/non-evidence after independent audit. Do not reuse its results as evidence for Run #994.
+- Main-branch Research Protocol Check #997 exposed a missing-validator packaging issue; the validator scripts and literature registry were copied from the developer branch to main. Await fresh CI confirmation.
+- Phase 8 remains blocked until the independent tester reviews the immutable Run #994 artifacts and passes the empirical gate.
