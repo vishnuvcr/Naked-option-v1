@@ -41,3 +41,9 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 
 - Research Protocol Check #1008 passed both validator steps after the missing validator/registry files and terminology mismatch were fixed.
 - Run #994 still has no artifacts published at the latest query. The developer must continue monitoring and submit its exact immutable artifacts for tester review once uploaded.
+ 
+## 2026-10-09 — Approved tester-audit workflow smoke test
+
+- The automatic audit workflow's first run examined developer run #1033, a successful documentation-only protocol run with no Phase 7 artifacts.
+- It correctly skipped the independent calculation; the skipped audit is not a strategy result or independent approval.
+- Run #994 remains in progress without artifacts. The tester workflow will start only after the exact run is completed successfully and both required artifacts pass preflight.
