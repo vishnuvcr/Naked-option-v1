@@ -224,3 +224,13 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - **P10 correction:** developer commit [`39e964d`](https://github.com/vishnuvcr/Naked-option-v1/commit/39e964d4ae99bb02b113fa4eabecd91c9af46c16) passed the regression job in [developer workflow #1068](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37968150153), but empirical and tester-gated jobs were skipped.
 - **Independent tester review:** pending on [the isolated tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md).
 - **Decision:** no accepted metrics or promoted strategy; Phase 8 remains blocked.
+
+
+## Latest independent Phase 7 audit — Run #37957677656
+
+- Decision: **PASS WITH SCOPED RESTRICTIONS — artifact integrity, source alignment, metric reconciliation and family inference** (3098 passed / 0 failed checks).
+- Source run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656
+- Exact developer commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb
+- Tester report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md
+- Full JSON: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_AUDIT.json
+- This technical audit does not independently promote a trading strategy or open Phase 8.

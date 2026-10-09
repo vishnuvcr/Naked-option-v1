@@ -66,3 +66,12 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 ## 2026-10-09 23:20 IST — Resume checkpoint
 
 Run #994 remains active on the exact original source SHA with no result artifacts. Validation is pending and job logs are unavailable from the API. The developer's P10 diagnostic correction is isolated to the developer branch and passed the CI regression job; its empirical job was skipped. The tester branch has been asked to review the exact correction commit and report PASS or REQUEST CHANGES. No scientific metric has been accepted.
+
+
+## Phase 7 independent tester audit — Run #37957677656
+
+- Source run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656
+- Developer commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb
+- Decision: **PASS WITH SCOPED RESTRICTIONS — artifact integrity, source alignment, metric reconciliation and family inference** (3098 passed / 0 failed checks).
+- Full report and JSON are linked in the main README and stored on phase-07-tester.
+- No strategy is promoted from protocol success or technical audit alone.

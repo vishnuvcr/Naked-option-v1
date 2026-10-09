@@ -211,3 +211,11 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 ## 2026-10-09 23:20 IST — Latest Phase 7 checkpoint
 
 Run #994 remains `in_progress` on immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; no aggregate or row-level artifacts have been published and result validation has not started. The GitHub job log endpoint returns BlobNotFound, so there is no trustworthy empirical progress estimate. Developer correction commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` passed its regression job but did not execute the empirical job and is awaiting independent tester review. The tester report is linked at https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md. Phase 8 and strategy promotion remain blocked.
+
+
+## Phase 7 empirical audit — Run #37957677656
+
+- Decision: **PASS WITH SCOPED RESTRICTIONS — artifact integrity, source alignment, metric reconciliation and family inference** (3098 passed / 0 failed independent checks).
+- Developer commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb
+- Tester report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md
+- Phase 8 remains gated; a code gate alone cannot promote a method.
