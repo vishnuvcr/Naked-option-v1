@@ -88,7 +88,16 @@ def source_features(series_id: str, frame: pd.DataFrame) -> pd.DataFrame:
 def build_feature_frame(nifty: pd.DataFrame, manifest: dict) -> tuple[dict[str, pd.DataFrame], dict]:
     active_records = {r["id"]: r for r in manifest.get("series", []) if r.get("status") == "ACTIVE"}
     feature_by_source: dict[str, pd.DataFrame] = {}
-    source_state = {}
+    # Preserve acquisition failure reasons in the final per-source report rather
+    # than downgrading every absent source to a generic "unavailable" label.
+    source_state = {
+        r["id"]: {
+            "status": "BLOCKED_DATA",
+            "reason": r.get("reason", f"acquisition status was {r.get('status', 'missing')}"),
+        }
+        for r in manifest.get("series", [])
+        if r.get("status") != "ACTIVE"
+    }
     for series_id, record in active_records.items():
         path = ROOT / record["path"]
         if not path.exists():
