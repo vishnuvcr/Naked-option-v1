@@ -228,3 +228,8 @@ Run #994 remains `in_progress` on immutable source commit `b50be8cfa1ebe008a800e
 - No strategy promoted; no after-cost profitability established; Phase 8 blocked.
 - Remaining restrictions: resolve P10 diagnostic-block invariant for future executions, perform option-level point-in-time data/source coverage audit and realistic Paytm Money transaction-cost/slippage backtest, and review source/contract issues before any strategy selection.
 - Audit automation issue: fallback-report step failed with shell “unexpected end of file” after a valid report had already been generated; fixed in main workflow commit 3c0730bbdb31c18a1b0ad9e62c998189ae243dca. The independent audit report remains unchanged.
+
+
+## 2026-10-10 — Follow-up gate check
+
+The independent static review accepts developer commit 39e964d's P10 diagnostic correction for a future run only, but the correction-specific approval manifest has been restored to its last verified snapshot (reviewed commit ccb063fb...) because the newly updated hashes/report digest were not independently verified. The current corrected developer snapshot is therefore **not yet authorized for empirical execution** by the exact-snapshot validator. Do not launch a new run until report/manifest copies and all protected-file SHA-256 hashes validate byte-for-byte across both branches. Run #994's results and non-significant family tests remain unchanged; Phase 8 blocked.
