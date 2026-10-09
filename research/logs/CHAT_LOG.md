@@ -182,3 +182,12 @@ Independent tester review then found a reproducibility defect in the NIFTY acqui
 **Tester → Developer:** Implement import-safe, validated cache reuse and no-network/invalid-cache regression coverage; protect the new test in the workflow and resubmit for an exact-snapshot review.
 
 **Developer → Tester:** After correction, independently verify the cache behavior, hashes, and hosted regression run. Do not approve empirical execution if the cached-source rule or any other gate remains unmet.
+
+
+## 2026-10-10 — Independent Phase 7 follow-up after Run #40
+
+The hosted run [#40](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992378927) passed 4 NIFTY cache regression checks, all 11 predictor regression checks, and all 11 output-validator checks. Its authorization gate remained fail-closed and the empirical step was skipped. Independent tester review did not authorize predictions because the acquisition code still drops exchange timezone when assigning source dates, the UTC download cutoff may include the current India session before close, same-day cache data are not rejected before the completion cutoff, and cached official-source overlap records are not reconciled against CSV close values. The tester report was extended with those actionable findings.
+
+**Tester → Developer:** Fix timezone, cutoff, cache allowed-session date and overlap consistency; include negative fixtures and trigger the automatic workflow.
+
+**Developer → Tester:** Return a fresh exact-snapshot review only after hosted regression and hash verification; no empirical authorization while any point-in-time issue remains.
