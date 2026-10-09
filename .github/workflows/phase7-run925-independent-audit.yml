@@ -1,12 +1,6 @@
 name: Phase 7 Run 925 Independent Artifact Audit
 
 on:
-  push:
-    branches:
-      - phase-07-tester
-    paths:
-      - ".github/workflows/phase7-run925-independent-audit.yml"
-      - "scripts/audit_phase7_run925_artifact.py"
   workflow_dispatch:
 
 permissions:
@@ -38,7 +32,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy==2.4.6 pandas==3.0.6 scikit-learn==1.9.1 scipy==1.17.1 pyarrow==26.0.0 threadpoolctl==3.7.0
 
-      - name: Acquire source snapshot data with manifest-compatible acquisition code
+      - name: Acquire source snapshot data with same acquisition code
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
@@ -61,7 +55,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: audit_artifacts/results
 
-      - name: Audit artifact hashes, source alignment and all metrics independently
+      - name: Audit hashes, source alignment and all metrics independently
         run: |
           python scripts/audit_phase7_run925_artifact.py \
             --artifact-root audit_artifacts/reference \
