@@ -79,6 +79,42 @@ def blocks_from_panel(frame: pd.DataFrame):
     return blocks
 
 
+
+def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
+                                  daily_source: pd.DataFrame, intraday_source: pd.DataFrame) -> None:
+    if layer == "daily":
+        y_expected, future_expected = p7.p6.make_label(daily_source, horizon)
+        expected_times = pd.to_datetime(daily_source["date"], errors="raise").reset_index(drop=True)
+    elif layer == "intraday":
+        grid = ((intraday_source["minute_of_day"] >= 570)
+                & (intraday_source["minute_of_day"] <= 930)
+                & (((intraday_source["minute_of_day"] - 570) % 60) == 0))
+        decision_idx = np.flatnonzero(grid.to_numpy())
+        y_full, future_full, _ = p7.p6.intraday_labels(
+            intraday_source["timestamp"], intraday_source["spot"], horizon
+        )
+        y_expected = y_full.iloc[decision_idx].to_numpy(dtype=float)
+        future_expected = future_full.iloc[decision_idx].to_numpy(dtype=float)
+        expected_times = pd.to_datetime(
+            intraday_source["timestamp"].iloc[decision_idx], utc=True, errors="raise"
+        ).reset_index(drop=True)
+    else:
+        raise SystemExit(f"ARTIFACT_ERROR: unsupported panel layer {layer}")
+
+    y_expected = np.asarray(y_expected, dtype=float)
+    future_expected = np.asarray(future_expected, dtype=float)
+    if len(frame) != len(y_expected) or len(frame) != len(future_expected):
+        raise SystemExit(f"ARTIFACT_ERROR: source-derived row count mismatch for {layer} H={horizon}")
+    if not np.array_equal(frame["label_direction"].to_numpy(dtype=float), y_expected, equal_nan=True):
+        raise SystemExit(f"ARTIFACT_ERROR: source-derived label mismatch for {layer} H={horizon}")
+    if not np.array_equal(frame["future_return"].to_numpy(dtype=float), future_expected, equal_nan=True):
+        raise SystemExit(f"ARTIFACT_ERROR: source-derived future-return mismatch for {layer} H={horizon}")
+
+    actual_times = pd.DatetimeIndex(pd.to_datetime(frame["decision_timestamp"], utc=(layer == "intraday"), errors="raise"))
+    expected_times = pd.DatetimeIndex(pd.to_datetime(expected_times, utc=(layer == "intraday"), errors="raise"))
+    if not np.array_equal(actual_times.asi8, expected_times.asi8):
+        raise SystemExit(f"ARTIFACT_ERROR: source-derived decision timestamp mismatch for {layer} H={horizon}")
+
 def compare_panel(frame: pd.DataFrame, expected_cell: dict, intraday: bool):
     required = {"layer", "horizon", "source_row_index", "decision_timestamp",
                 "label_direction", "future_return", "block_index", *METHODS}
@@ -174,6 +210,8 @@ def main():
     found_specs = {(str(x.get("layer")), int(x.get("horizon"))) for x in manifest["prediction_panels"]}
     if found_specs != expected_specs:
         raise SystemExit(f"ARTIFACT_ERROR: panel coverage mismatch: {sorted(found_specs)}")
+    daily_source = p7.p6.load_daily()
+    intraday_source = p7.p6.load_intraday()
     output_dir.mkdir(parents=True, exist_ok=True)
     cells = []
     prediction_files = []
@@ -193,6 +231,7 @@ def main():
         if set(frame["layer"].astype(str)) != {layer} or set(frame["horizon"].astype(int)) != {H}:
             raise SystemExit(f"ARTIFACT_ERROR: panel identity mismatch: {panel_path.name}")
         intraday, horizons = LAYERS[layer]
+        verify_panel_source_alignment(frame, layer, H, daily_source, intraday_source)
         if H not in horizons:
             raise SystemExit(f"ARTIFACT_ERROR: unregistered horizon {layer} H={H}")
         if int(aggregate[layer]["rows"]) <= 0:
