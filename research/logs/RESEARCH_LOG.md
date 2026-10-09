@@ -851,3 +851,12 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Expanded the workflow path trigger, regression command, protected hash output and authorization protected-file set to include the validator and validator test. Replaced the inline partial check with the full validator.
 - Corrected spec numbering and clarified paired-vs-full baseline reporting without changing the target labels, method universe, source date cutoff, horizons or family bootstrap design.
 - The new regressions are committed to the developer branch, but the hosted run status is not yet independently confirmed here. Do not state that they passed until the exact automatic run is inspected. No empirical predictions were run and no result has been promoted.
+
+
+## 2026-10-10 — Row-level forecast panel added for independent reproduction
+
+- Identified that aggregate summary metrics did not themselves expose held-out probabilities/labels needed to independently recompute candidate metrics and the family bootstrap.
+- Added row-level panel output in data/reports/available_global_prediction_panels.csv with baseline/candidate rows keyed by date and horizon, realized return/direction, forecast probability or abstention, baseline probability, source/feature columns and cell status.
+- Predictor provenance now includes panel path and SHA-256; hosted artifact upload retains the panel; standalone validator verifies its hash and independently reconstructs metrics, paired baselines, common rows, mean Brier improvements and the 500-replicate moving-block p-value.
+- Added synthetic reconciliation and probability-mutation tests to the validator test file; existing workflow includes both test suites and protects the validator files.
+- These are code/data-lineage corrections, not prediction results. No run was authorized or executed by this change. Hosted regression status remains to be independently verified.
