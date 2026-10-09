@@ -15,3 +15,5 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-09 | Phase 7 | Potential mismatch between frozen regime diagnostic count invariant and P10 abstention-masked chronological diagnostics | Frozen spec names P08/P09/P10 count equality; validator now enforces only P08/P09 because P10's abstention can empty a block; current shared regime diagnostics may still retain it | No post-hoc change made. Sent to independent tester for explicit adjudication against exact artifact; any spec change needs separate pre-registered approval before any fresh run | Run #994 pending, no result accepted; Phase 8 blocked |
+
+| 2026-10-09 | Phase 7 | Tester flagged P10 diagnostic block count as protocol mismatch | Frozen spec requires P08/P09/P10 equality; validator only enforces P08/P09 because P10 abstentions may eliminate an eligible block | See [independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md); resolve implementation/spec consistency without post-hoc changes | Run #994 remains immutable pending empirical audit; scientific promotion and Phase 8 blocked |
