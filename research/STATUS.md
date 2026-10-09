@@ -441,3 +441,11 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The production `scripts/run_phase7_ensemble.py` currently attaches the shared regime diagnostics to P08/P09/P10, while its P10 `chronological_blocks` uses the candidate-specific abstention mask. The independent auditor reconciles the shared regime diagnostics and P10 block metrics separately but does not explicitly enforce the frozen spec's stated count equality for P10.
 - This is a **possible protocol/diagnostic-definition inconsistency**, not yet a finding that Run #994's eventual artifact fails. Do not silently amend the spec or disable the check. The tester must determine, from the literal frozen text and fresh artifact, whether (a) the implementation must retain matching P10 diagnostic blocks while preserving P10 abstention semantics, or (b) a formal pre-registered specification amendment is required. Any amendment needs its own tester approval and cannot be applied post hoc to justify results already examined.
 - Run #994 is already executing immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; no code/spec change has been made to that run. The tester report must document this point and keep scientific promotion/Phase 8 blocked if unresolved.
+
+
+## 2026-10-09 23:20 IST — Resume checkpoint
+
+- The authorized empirical target Run #994 remains `in_progress` on immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; ensemble step started 2026-10-09 16:15:48 UTC and has not advanced to validation. The GitHub job log endpoint currently returns BlobNotFound and no artifacts are published. No metrics accepted.
+- Developer correction commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` adds P10 candidate-specific regime-diagnostic filtering, P08/P09/P10 equality validation, and a fully abstained-block regression fixture. Developer workflow run #1068 passed its regression job; empirical/tester-gated jobs were skipped, so this is not independent approval or an empirical run.
+- Correction has been submitted to the isolated tester branch in `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md` for independent review. No change was made to Run #994's source or protocol.
+- Gate state: tester review pending; Run #994 artifact audit pending; Phase 8 blocked.
