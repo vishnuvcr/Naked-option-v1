@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 
 import numpy as np
@@ -26,6 +27,22 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def verify_code_hashes(manifest: dict) -> None:
+    commit = str(manifest.get("commit", ""))
+    if not commit:
+        raise SystemExit("ARTIFACT_ERROR: reference source commit missing")
+    for relative_path, expected_hash in manifest.get("code_files", {}).items():
+        result = subprocess.run(
+            ["git", "show", f"{commit}:{relative_path}"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        if result.returncode != 0:
+            raise SystemExit(f"ARTIFACT_ERROR: source commit/file unavailable: {commit}:{relative_path}")
+        actual_hash = hashlib.sha256(result.stdout).hexdigest()
+        if actual_hash != expected_hash:
+            raise SystemExit(f"ARTIFACT_ERROR: source code SHA-256 mismatch: {relative_path}")
 
 
 def blocks_from_panel(frame: pd.DataFrame):
@@ -125,6 +142,7 @@ def main():
             raise SystemExit(f"ARTIFACT_ERROR: source file missing/hash mismatch for {name}")
     if len(manifest.get("code_files", {})) < 4 or any(len(v) != 64 for v in manifest.get("code_files", {}).values()):
         raise SystemExit("ARTIFACT_ERROR: incomplete/malformed code-file fingerprints")
+    verify_code_hashes(manifest)
     if len(manifest.get("prediction_panels", [])) != 10:
         raise SystemExit("ARTIFACT_ERROR: expected exactly ten horizon panels")
 
