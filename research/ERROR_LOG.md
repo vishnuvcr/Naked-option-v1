@@ -266,3 +266,11 @@
 - Structural limitation: Run #654's immutable artifact contains aggregate result JSON only, not the row-level forecast panel needed to validate historical predictions without re-fitting.
 - Disposition: retain the mismatch as a fail-closed blocker. Proposal research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL.md requests a new versioned same-run artifact with row-level predictions and runtime/source fingerprint, leaving Run #654 immutable. Tester approved the proposal only with scoped restrictions; separate Phase 7 code review and artifact audit are mandatory.
 - Prevention: future research reference artifacts must preserve the exact prediction panel, labels, timestamps, block membership, data/code hashes and runtime fingerprint used to produce published aggregates. Never relax tolerance or overwrite the historical reference to hide replay differences.
+
+## 2026-10-09 — Phase 8 saved-panel validator regression
+- Category: regression verification
+- Component: scripts/validate_phase7_reference_panels.py and scripts/test_phase8_reference_panels.py.
+- Hosted workflow: `Phase 8 Saved-Panel Validator Regression`, run ID `37912665449`.
+- Result: SUCCESS; synthetic saved-panel metrics, chronological-block diagnostics and family-bootstrap comparison passed without re-fitting model predictions.
+- Scope: this validates the synthetic path only. It does not prove the validator accepts the future Phase 7 artifact, does not amend the frozen manifest, and does not authorize empirical option execution.
+- Remaining gate: verify code-file hashes against the immutable artifact commit and independently audit all ten real panels/aggregate metrics after the new Phase 7 artifact is uploaded.
