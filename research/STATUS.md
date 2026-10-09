@@ -196,3 +196,10 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - The authorization job correctly failed closed because no independent approval manifest was mirrored; empirical prediction job was skipped.
 - Fresh tester review of the current workflow/acquisition snapshot found that NIFTY acquisition always downloads and overwrites the restored cache rather than validating and reusing a valid cached CSV/manifest.
 - **Disposition:** REQUEST CHANGES for empirical execution. No prediction result or metric exists for this extension. Developer must add a cache-reuse implementation and no-network regression tests, protect those tests, and resubmit.
+
+
+## 2026-10-10 — Phase 7 acquisition follow-up gate
+
+- [Run #40](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992378927) passed 4 acquisition/cache checks, 11 predictor checks and 11 result-validator checks. Authorization remained correctly closed; no empirical job ran.
+- Independent tester review found additional point-in-time risks: UTC calendar-date conversion instead of exchange-local session dates, a UTC chart cutoff inconsistent with the IST completion rule, same-day cache rows accepted before close, and official overlap manifest values not checked against CSV rows.
+- **Gate status: REQUEST CHANGES; empirical execution NOT AUTHORIZED.** Fix date/time alignment and overlap consistency, add targeted tests, then submit a fresh exact snapshot.
