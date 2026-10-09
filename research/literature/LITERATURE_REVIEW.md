@@ -189,3 +189,14 @@ Use: inspect feature engineering, model families and split conventions; treat re
 3. Option surface and OI features are high-priority but require strict as-of validation.
 4. Global markets and overnight information should be separated from intraday information.
 5. Novel metrics should be tested only after strong baselines and multiple-testing accounting are established.
+
+
+## Supplemental review — 15 newly uploaded PDFs (2026-10-10)
+
+A structured paper-by-paper review of the 15 unique PDFs added to this conversation is now available in [UPLOADED_PDF_REVIEW_2026-10-10.md](UPLOADED_PDF_REVIEW_2026-10-10.md); records L037–L051 have been added to the machine-readable registry. This is a literature supplement, not a protocol amendment and not project-generated empirical evidence.
+
+The most directly useful recent methodological comparator is Sain and Singh (2026), which compares 12 regressors to Naive Persistence across 5-, 10- and 20-year NIFTY windows and reports stronger stability for linear models on longer windows than for tree ensembles in its setting. Other direct NIFTY papers provide replication leads on RNN/LSTM/CNN/TCN, LSTM with feature selection, ANN, and sentiment. The two sentiment/fundamental feature studies motivate tests of time-aligned news sentiment, FII/DII, India VIX, PCR and USD/INR, while not proving that those inputs add predictive skill.
+
+Important audit warnings from the corpus: headline “accuracy” often refers to normalized price fit rather than direction; some test partitions are tiny or training-sample based; price correlation is not predictive value; and strategy papers do not establish net profitability without exact option contracts and full execution costs. A reported moving-average crossover test in the 2025 JIER paper is non-significant at 5% (t = −1.271, p = 0.1079).
+
+All newly uploaded paper claims remain replication targets or contextual literature in the registry. No existing result is changed and no model or trading strategy is promoted. See also the [Phase 7 available-data prediction specification](../phase7/AVAILABLE_DATA_PREDICTION_SPEC.md): empirical execution still requires independent tester approval of the exact protected code snapshot.
