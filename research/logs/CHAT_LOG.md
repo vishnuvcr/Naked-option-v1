@@ -319,3 +319,11 @@ No scientific or protocol change was made during this checkpoint.
 - This is expected safe behavior for the documentation-only run #1037, not an audit outcome. The pinned tester calculation did not run.
 - Tester -> Developer: only audit after the exact run finishes and both artifacts are present.
 - Developer -> Tester: Run #994 remains the sole empirical target; no duplicate empirical run and no Phase 8 transition.
+
+## 2026-10-09 — Resume: frozen-method code delta verified
+
+- Compared exact Run #925 and Run #994 source commits. The protocol specification file is byte-identical, but the implementation/test change adds P10 abstention semantics, finite volatility/trend eligibility for regime training, preservation of non-evaluable rows in family Brier differentials and candidate-specific block-diagnostic masks.
+- Added explicit regression tests for those defects and amended result validator semantics so P10's candidate-eligible block diagnostics may differ from regime diagnostic counts; P08/P09 equality remains required.
+- This supports the reason for a fresh empirical run, but it is not proof of empirical success. Run #994 is still active without results/artifacts. Tester must independently verify all of these exact fixes against the fresh row-level panels.
+- Tester → Developer: compare the fresh artifact to the exact frozen spec and recompute metrics/masks; do not waive failures.
+- Developer → Tester: provide only the immutable Run #994 artifact/source and accept the tester decision without altering the method.

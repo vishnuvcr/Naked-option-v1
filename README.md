@@ -389,3 +389,16 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The newly installed automatic audit workflow [run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37965605363) inspected that exact run, found zero phase7-ensemble-results artifacts, and correctly skipped the independent audit. No tester code was executed and no metric was inferred.
 - The main workflow was subsequently tightened to require the upstream workflow name to be exactly Research Protocol Check in addition to branch, completion, successful conclusion, source SHA and both non-empty artifact checks. Future auto events will recheck these constraints. Manual dispatch requires a run ID and rejects incomplete/missing-artifact runs.
 - This is preflight evidence only, not empirical evidence. Run #994 remains in progress with no artifacts; Phase 8 remains blocked.
+
+
+## 2026-10-09 — Exact implementation comparison: Run #925 vs Run #994
+
+- Compared the frozen Phase 7 source at Run #925 commit `682eadf2a9eb4de250bc3db27d02e57f88687fa1` with Run #994 source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`.
+- The method specification file `research/phase7/PHASE7_METHOD_SPEC.md` is byte-identical at both commits (Git blob SHA `964b323f5ed86b12f743dea1c9b842aba166996a`). Thus the frozen protocol text was not amended between runs.
+- The implementation and tests differ materially in fixes that target the prior independent audit defects:
+  1. `P10` is included in the registered abstention mask `[0.45, 0.55]`, including both endpoints.
+  2. P08/P09 regime-state counts now require finite volatility **and** trend; missing features are no longer silently classified as low/low.
+  3. Family-bootstrap Brier differentials now leave rows non-evaluable when label, forecast or causal baseline is unavailable; only eligible abstentions receive zero differential, preventing missing data from diluting family means.
+  4. Chronological-block diagnostics can receive the method-specific eligibility mask, so P05/P06/P10 diagnostics use the same registered row eligibility as the reported metrics.
+  5. Regression tests now include explicit cases for these abstention, missing-regime-feature, family-missingness and candidate-mask conditions. Result validation permits P10's candidate-eligible block count to differ from the underlying regime diagnostic count, while P08/P09 retain their equality invariant.
+- These are implementation corrections toward the frozen protocol, not changes to the protocol file. They do not guarantee that the new run passes; only the independent exact-run artifact audit can establish that. Run #994 remains active, has no artifacts at the latest poll, and Phase 8 remains blocked.

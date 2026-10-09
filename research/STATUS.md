@@ -419,3 +419,16 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - It accepted the exact source as a successful Research Protocol Check on phase-07-developer, then correctly stopped before audit because there were 0 required aggregate result artifacts. The independent tester job was skipped.
 - This confirms the name/branch/state guard plus fail-closed artifact preflight path. It is not a scientific or tester empirical decision.
 - Run #994 remains active at the ensemble script with no result artifacts. Phase 8 remains blocked.
+
+
+## 2026-10-09 — Exact implementation comparison: Run #925 vs Run #994
+
+- Compared the frozen Phase 7 source at Run #925 commit `682eadf2a9eb4de250bc3db27d02e57f88687fa1` with Run #994 source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`.
+- The method specification file `research/phase7/PHASE7_METHOD_SPEC.md` is byte-identical at both commits (Git blob SHA `964b323f5ed86b12f743dea1c9b842aba166996a`). Thus the frozen protocol text was not amended between runs.
+- The implementation and tests differ materially in fixes that target the prior independent audit defects:
+  1. `P10` is included in the registered abstention mask `[0.45, 0.55]`, including both endpoints.
+  2. P08/P09 regime-state counts now require finite volatility **and** trend; missing features are no longer silently classified as low/low.
+  3. Family-bootstrap Brier differentials now leave rows non-evaluable when label, forecast or causal baseline is unavailable; only eligible abstentions receive zero differential, preventing missing data from diluting family means.
+  4. Chronological-block diagnostics can receive the method-specific eligibility mask, so P05/P06/P10 diagnostics use the same registered row eligibility as the reported metrics.
+  5. Regression tests now include explicit cases for these abstention, missing-regime-feature, family-missingness and candidate-mask conditions. Result validation permits P10's candidate-eligible block count to differ from the underlying regime diagnostic count, while P08/P09 retain their equality invariant.
+- These are implementation corrections toward the frozen protocol, not changes to the protocol file. They do not guarantee that the new run passes; only the independent exact-run artifact audit can establish that. Run #994 remains active, has no artifacts at the latest poll, and Phase 8 remains blocked.
