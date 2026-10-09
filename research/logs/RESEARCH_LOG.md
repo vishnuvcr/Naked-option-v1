@@ -651,3 +651,8 @@
 - The saved-panel validator now emits the prediction_files manifest contract expected by the existing Phase 8 panel validator.
 - Dedicated synthetic full-artifact validation passed in run `37912985007`; the subsequent regression including Git-commit code-hash verification passed in run `37913188030`.
 - The test verifies that tampered source-code hashes are rejected. Real artifact audit and a workflow step to fetch the immutable reference commit are still required before production integration.
+
+## 2026-10-09 — Phase 8 existing-validator integration PASS
+- Extended the synthetic regression to run the output through both the new saved-panel validator and the existing Phase 8 forecast-panel schema validator.
+- Hosted run `37913391078` completed SUCCESS; tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md` records PASS for synthetic integration only.
+- Real artifact audit, reference-commit fetch, and separately approved frozen-manifest amendment remain pending.
