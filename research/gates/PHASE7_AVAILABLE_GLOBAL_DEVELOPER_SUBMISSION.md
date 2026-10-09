@@ -158,3 +158,20 @@ After the protected-input audit, the current workflow blob is 6eb5de6bbd1e377316
 A fresh status query for commit 18773e828f19c0ff2e9fc1af437db6b8ef181739 returned no status checks and no workflow runs. The available workflow-run connector only returns pull-request-triggered runs, so this is not proof of workflow failure; it is also not proof of a passing run. The latest workflow has not received a fresh independent tester decision.
 
 **Execution remains NOT AUTHORIZED.** Tester must review this exact workflow blob, verify a real automatic/manual regression run and its output hashes, and only then decide whether one empirical run may proceed. No approval JSON is created by the developer.
+
+
+## 2026-10-10 — Exact-snapshot handoff after cache/timezone gate
+
+### Completed and verified
+- NIFTY acquisition now has an import-safe entry point and validated cache reuse.
+- Session dates use the exchange timezone (Asia/Kolkata), provider requests are bounded at local midnight, incomplete same-day data are excluded before the conservative 18:30 IST cutoff, and cache validation enforces the same latest-permitted session.
+- Cached official-source overlaps are reconciled against matching CSV close values and the absolute-difference calculation.
+- Hosted [Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed 8 acquisition/cache, 11 predictor, and 11 result-validator regressions. Run #41 and #42 fixture failures are logged and remain non-evidence.
+- The independent tester's exact-snapshot report is PASS WITH SCOPED RESTRICTIONS and authorizes one empirical batch only. It includes the protected SHA-256 hashes and has been mirrored at `research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md` in the developer branch.
+
+### Current blocker
+The attempt to create `research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json` was blocked by platform safety checks. The approval manifest remains absent, so the fail-closed workflow has not entered the empirical prediction job. No predictions, model metrics, or new strategy results were generated. Do not work around this blocker by dispatching an alternate workflow.
+
+**Developer → Tester:** Keep the current pass scoped to the single reviewed snapshot. Audit the exact output artifacts after an authorized batch, including source hashes, panel reconstruction, baseline comparisons and family inference.
+
+**Tester → Developer:** Do not claim execution or results without an observable run. Keep Phase 8 blocked until a separate immutable-artifact review authorizes the next stage.
