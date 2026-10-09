@@ -156,3 +156,13 @@ This workflow-only safety change does not alter the frozen metric calculations o
 ## 2026-10-09 — P10 regime diagnostic block-count contract review
 
 Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md` = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION**. The frozen spec requires P08/P09/P10 regime-diagnostic block counts to equal candidate chronological-block counts, but the current validator only enforces P08/P09 while P10 abstention can empty blocks. Run #994 remains immutable and may still finish for exact-artifact audit; no metric or strategy may be promoted while this protocol/code mismatch remains unresolved. A future implementation or formally approved pre-registered spec amendment must be independently reviewed before another run.
+
+
+## Run #37957677656 independent empirical artifact audit
+
+- Source run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656
+- Developer commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb
+- Decision: **PASS WITH SCOPED RESTRICTIONS — artifact integrity, source alignment, metric reconciliation and family inference**
+- Checks: 3098 passed / 0 failed
+- Report: research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md and JSON companion.
+- Scientific promotion: **NOT GRANTED by the technical audit alone**. Phase 8 stays blocked unless the empirical gate passes and all remaining data/cost gates pass.

@@ -155,3 +155,10 @@ No scientific or protocol change was made during this checkpoint.
 The tester workflow's manual button now exposes boolean input `run_legacy_run925_audit`, default false. The legacy pinned Run #925 audit runs only when the user deliberately selects that opt-in. All normal tester branch pushes and ordinary manual protocol-validation runs skip the historical audit. Approved fresh-run audits are handled separately by the main-branch workflow, which pins the generic tester script from commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f and publishes each exact-run report to this isolated tester branch.
 
 This workflow-only safety change does not alter the frozen metric calculations or any empirical data.
+
+
+## Run #37957677656 independent empirical artifact audit
+
+- Automatically audited the completed developer run and preserved the decision, checks and artifacts on the isolated tester branch.
+- Tester to Developer: resolve discrepancies without changing the frozen method; resubmit through the same gate.
+- Developer to Tester: Phase 8 remains blocked unless this empirical audit passes and the remaining source/economic gates are approved.
