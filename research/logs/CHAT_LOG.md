@@ -194,3 +194,10 @@ No scientific or protocol change was made during this checkpoint.
 - Python 3.11.16 and single-thread environment controls were confirmed in the hosted reconstruction job; these controls did not resolve the mismatch.
 - Tester independently recorded REQUEST CHANGES in `research/gates/PHASE8_RUN807_RECON_TESTER.md`. No empirical option grid or P&L is authorized.
 - Decision: next isolate the exact immutable per-row predictions/labels and aggregate formula, add historical-path regression coverage, and resubmit to tester. The cause remains unproven; no tolerance changes or result rounding.
+
+
+## 2026-10-09 — User said Proceed: Run #822 and durable-reference proposal
+- Checked Run #822 (37911107769): protocol, regression, free-source audit and immutable Run #654 artifact checks passed; reconstruction was still running at the latest status poll. Live logs were not yet available; no outcome was guessed.
+- Compared hosted logs for Run #654 and Run #807. The same HF revision and normalized source SHA-256 were reported; the checked Phase 3/6 dependency source blobs match. Pinning Python 3.11.16 and numerical threads to one did not fix the mismatch. The runtime explanation remains plausible but unproven.
+- Found that Run #654's artifact contains only aggregate JSON, not the historical row-level prediction panel. Proposed a new versioned Phase 7 reference artifact that saves predictions and metrics together, without modifying Run #654.
+- Tester approved the proposal only with scoped restrictions. The separate Phase 7 code gate and artifact audit are still required; no empirical option grid/P&L is authorized.
