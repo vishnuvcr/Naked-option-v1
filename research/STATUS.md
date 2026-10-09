@@ -298,3 +298,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Dedicated regression workflow `.github/workflows/phase8-panel-validator-test.yml` completed successfully: run ID `37912665449`, conclusion SUCCESS. This confirms the synthetic saved-panel aggregation path passes; it does not validate a real Phase 7 artifact or authorize a manifest amendment.
 - The separate proposal gate `research/gates/PHASE8_PANEL_CONSUMER_PROPOSAL_TESTER.md` remains proposal-only approval. Run #654 and the current Phase 8 manifest are unchanged. The panel consumer is not yet wired into the Phase 8 production workflow; it must wait for the new Phase 7 artifact and separate artifact audit.
 - Run #822 and the proposal-triggered Run #839 remain in progress at the latest check; neither has produced a confirmed accepted diagnostic artifact. Empirical option execution remains BLOCKED.
+
+## 2026-10-09 — Phase 8 full synthetic artifact and code-hash tests PASS
+- Dedicated workflow run `37912985007` passed full synthetic validation of all ten panel files, hashes, source-file fingerprints, row keys/timestamps/block assignments and aggregate metric reconciliation.
+- After aligning the reconstruction-manifest output with the existing forecast-panel validator contract, the dedicated workflow run `37913188030` also passed. It verifies immutable Git-commit source-code SHA-256 values and rejects a tampered code hash, in addition to full synthetic ten-panel validation.
+- Tester follow-ups on `phase-08-tester`: `research/gates/PHASE8_PANEL_VALIDATOR_FULL_TEST_TESTER.md` and `research/gates/PHASE8_PANEL_VALIDATOR_CODE_HASH_TESTER.md` = PASS for synthetic tests only.
+- Production integration still requires the Phase 8 workflow to fetch the immutable reference commit before running the validator. Real artifact audit and a separate manifest amendment remain mandatory.
+- Run #822 and proposal-triggered Run #839 are still in progress at the latest poll; no diagnostic output has been accepted. Phase 7 Run #852 empirical job is also still running; no new artifact is accepted yet.
