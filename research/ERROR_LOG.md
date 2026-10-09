@@ -255,3 +255,14 @@
 - Impact: Run #807 is NON-EVIDENCE for forecast reconstruction; no option P&L or 4,800-cell empirical grid was produced.
 - Tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` = REQUEST CHANGES.
 - Root cause remains unproven. Required next step: reproduce aggregation from immutable per-row predictions/labels and frozen aggregation code, add historical-path regression coverage, and resubmit for tester review. Do not alter reference values, round metrics, or relax tolerance.
+
+
+## 2026-10-09 — Phase 8 Run #822 follow-up / reference artifact limitation
+- Category: numerical reproducibility / research artifact design
+- Component: Phase 8 reconstruction of P07 intraday H=60 chronological-block Brier values from Phase 7 Run #654.
+- Symptom: Run #792 and #807 reproduced two Brier values outside the frozen absolute tolerance 1e-9 despite matching reported Python/scientific package versions in the relevant attempts; Run #807 also used single-thread numerical controls. Runner-image releases differed between Run #654 (Ubuntu 24.04 image 20260927.320.1) and Run #807 (20261004.327.1).
+- Additional checks: Run #654 and #807 logs report the same Hugging Face revision and normalized intraday source SHA-256; Phase 3/6 dependency code blobs checked against Run #654 also match.
+- Root cause: not proven. Runtime/runner-image numerical drift is plausible, but current evidence does not establish it conclusively.
+- Structural limitation: Run #654's immutable artifact contains aggregate result JSON only, not the row-level forecast panel needed to validate historical predictions without re-fitting.
+- Disposition: retain the mismatch as a fail-closed blocker. Proposal research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL.md requests a new versioned same-run artifact with row-level predictions and runtime/source fingerprint, leaving Run #654 immutable. Tester approved the proposal only with scoped restrictions; separate Phase 7 code review and artifact audit are mandatory.
+- Prevention: future research reference artifacts must preserve the exact prediction panel, labels, timestamps, block membership, data/code hashes and runtime fingerprint used to produce published aggregates. Never relax tolerance or overwrite the historical reference to hide replay differences.
