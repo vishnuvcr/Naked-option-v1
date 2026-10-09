@@ -202,7 +202,7 @@ jobs:
           fi
           echo "Auditor finished with exit code $auditor_rc; report will be archived before final gate."
 
-      - name: Ensure durable failure report exists
+      - name: Ensure durable audit report exists
         if: always()
         env:
           RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
@@ -210,28 +210,25 @@ jobs:
         run: |
           mkdir -p audit_out
           if [ ! -s audit_out/phase7_audit.json ]; then
-            python - <<'PY'
-            import json, os
-            from pathlib import Path
-            fallback = {
-                "purpose": "Independent Phase 7 audit fail-closed fallback",
-                "expected_run_id": os.environ["RUN_ID"],
-                "expected_commit": os.environ["SOURCE_COMMIT"],
-                "scientific_promotion": "NOT_GRANTED",
-                "decision": "REQUEST CHANGES — audit did not produce its report",
-                "audit": {
-                    "checks_passed": 0,
-                    "checks_failed": 1,
-                    "failures": [{
-                        "check": "audit_runner_or_setup",
-                        "details": "No report was produced by the audit script; inspect this workflow's failed step logs."
-                    }],
-                    "notes": []
-                },
-                "exception": "Audit setup, data acquisition, artifact retrieval, or script execution failed before a report was written."
-            }
-            Path("audit_out/phase7_audit.json").write_text(json.dumps(fallback, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            PY
+            cat > audit_out/phase7_audit.json <<'JSON'
+          {
+            "purpose": "Independent Phase 7 audit fail-closed fallback",
+            "expected_run_id": "${RUN_ID}",
+            "expected_commit": "${SOURCE_COMMIT}",
+            "scientific_promotion": "NOT_GRANTED",
+            "decision": "REQUEST CHANGES — audit did not produce its report",
+            "audit": {
+              "checks_passed": 0,
+              "checks_failed": 1,
+              "failures": [{
+                "check": "audit_runner_or_setup",
+                "details": "No report was produced by the audit script; inspect this workflow's failed step logs."
+              }],
+              "notes": []
+            },
+            "exception": "Audit setup, data acquisition, artifact retrieval, or script execution failed before a report was written."
+          }
+          JSON
           fi
 
       - name: Score the exact report and generate durable Markdown
