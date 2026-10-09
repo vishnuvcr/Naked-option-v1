@@ -607,3 +607,12 @@
 - Run #852 metadata remains stale at 09:39:25 UTC. Live log retrieval for active empirical jobs returned `BlobNotFound`; this is recorded as an observability limitation, not a run conclusion.
 - The latest script contains the allocation-light moving-block sampler and fixed-seed legacy-equivalence tests; regression and tester authorization jobs in the newer attempts completed successfully. That evidence validates the code change only, not empirical results.
 - No new strategy metrics were accepted. Do not launch more duplicate runs while the three empirical jobs remain active. First completed, provenance-valid artifact is the next required review target.
+
+
+## 2026-10-09 — Phase 7 Run #925 independent audit — tester REQUEST CHANGES
+
+- Runs #852, #924 and #925 completed; Run #925 was selected as the immutable source of the new artifact audit.
+- Tester workflow Run #943 verified panel/code/source hashes and source alignment, but found 2,775 pass checks and 323 failures across 10 panels.
+- Root causes: no P10 abstention in [0.45, 0.55]; non-finite volatility/trend values classified into low/low state counts; P05/P06 per-block diagnostics not aligned to their masks; family-bootstrap rows with unavailable labels/probability/baseline treated as zero differential.
+- Tester report [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
+- Run #925 is non-accepted evidence. Phase 7 and Phase 8 stay blocked until a corrected code commit is approved by the independent tester and a fresh artifact passes the full source/hash/metric/inference audit.
