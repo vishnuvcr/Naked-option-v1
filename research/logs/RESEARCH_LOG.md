@@ -544,3 +544,7 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 - Checks passed/failed: 3098/0
 - Full JSON and Markdown report are committed in research/gates/.
 - The result is an audit of this immutable run only; it does not automatically select a method or open Phase 8.
+
+## 2026-10-10 — Run #994 audit and P10 correction review
+
+Exact-run technical audit for source SHA b50be8cfa1ebe008a800e65a53f9c0fb2581aecb: 3,098 checks passed, 0 failed; decision PASS WITH SCOPED RESTRICTIONS. Ten family p-values .784, .690, .938, .764, .506, .262, .994, 1.000, .994, .544; none significant. No strategy promotion. Independently reviewed developer correction 39e964d and approved its code contract for a future run only; this cannot change Run #994. New corrected execution and options-specific after-cost evaluation are still required.

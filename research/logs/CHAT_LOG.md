@@ -162,3 +162,12 @@ This workflow-only safety change does not alter the frozen metric calculations o
 - Automatically audited the completed developer run and preserved the decision, checks and artifacts on the isolated tester branch.
 - Tester to Developer: resolve discrepancies without changing the frozen method; resubmit through the same gate.
 - Developer to Tester: Phase 8 remains blocked unless this empirical audit passes and the remaining source/economic gates are approved.
+
+## 2026-10-10 — Proceed: empirical audit complete
+
+- Tester downloaded and reconciled the exact Run #994 artifacts; 3,098 checks passed, none failed.
+- Decision: PASS WITH SCOPED RESTRICTIONS; this is technical/data integrity approval, not a strategy recommendation.
+- All ten family-level bootstrap p-values are >.05; no statistically significant family edge.
+- Static review of developer P10 correction commit 39e964d: PASS for future runs only, with the current Run #994 remaining immutable and unchanged.
+- Tester → Developer: schedule the next empirical run only through the pre-authorized branch gate, use the reviewed correction commit, and retain all cost/data gates.
+- Developer → Tester: audit the next exact-run artifacts and do not promote a candidate without significant pre-registered evidence and realistic after-cost option P&L.

@@ -160,3 +160,7 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 - Tester report: research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md
 - Full JSON: research/gates/PHASE7_RUN_37957677656_AUDIT.json
 - Technical PASS does not promote a model or itself authorize Phase 8.
+
+## 2026-10-10 — Run #994 tester conclusion
+
+Run #994 technical audit: **PASS WITH SCOPED RESTRICTIONS** (3,098 checks passed, 0 failed). This is not strategy promotion. All 10 family-level moving-block bootstrap p-values are non-significant: daily H1/H2/H3/H5/H10 = .784/.690/.938/.764/.506; intraday H5/H15/H30/H60/H120 = .262/.994/1.000/.994/.544. No candidate family establishes a predictive edge. Daily P10/H10 AUC=.5786 but balanced accuracy=.4963, family p=.506; intraday P07/H5 family p=.262. No strategy selected. The P10 diagnostic-count code correction was reviewed as PASS for future runs only; it cannot retroactively change Run #994. Phase 8 remains blocked pending a corrected authorized empirical run and option-level cost/slippage evidence.

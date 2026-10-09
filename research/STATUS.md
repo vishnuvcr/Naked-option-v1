@@ -166,3 +166,11 @@ Static tester report: `research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md`
 - Checks: 3098 passed / 0 failed
 - Report: research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md and JSON companion.
 - Scientific promotion: **NOT GRANTED by the technical audit alone**. Phase 8 stays blocked unless the empirical gate passes and all remaining data/cost gates pass.
+
+## 2026-10-10 — Independent tester disposition
+
+- Run #994 exact artifact audit: PASS WITH SCOPED RESTRICTIONS, 3,098 passed / 0 failed.
+- All ten family-level tests non-significant (p=.262–1.000); no strategy promoted.
+- Static review of developer commit 39e964d: PASS for future runs only; P10 diagnostic records are filtered to eligible chronological blocks, inclusive abstention endpoints are tested, and validator equality restored. Does not alter immutable Run #994.
+- A fresh authorized run with corrected source is required before any Phase 8 decision; options point-in-time data and net-of-cost execution tests remain unpassed.
+- Audit workflow fallback-report shell syntax defect after report generation was logged and fixed on main; verify the fixed success/fallback paths in a subsequent workflow run.
