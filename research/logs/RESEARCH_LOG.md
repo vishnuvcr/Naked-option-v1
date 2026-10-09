@@ -495,3 +495,12 @@
 - Several apparent daily accuracy/AUC elevations were observed, but none is promotion-grade because multiple comparisons, chronological stability, option economics, cost stress, robustness and fresh-forward validation remain outstanding.
 - Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Phase 7 ensemble/regime research is authorized; direct Phase 6 strategy promotion is prohibited.
+
+
+## 2026-10-09 — Phase 7 Run #925 independent audit: REQUEST CHANGES
+
+- Developer run #925 completed successfully and produced aggregate and row-level artifacts; technical workflow success is not equivalent to scientific acceptance.
+- Independent tester reacquired the pinned source data and verified manifest/source/code/panel hashes, all ten expected panel identities, timestamps, labels and future-return alignment.
+- The corrected independent audit executed 2,775 passing checks and 323 failures. Findings cluster into four issues: omitted P10 abstention, missing regime features silently classified as low/low, P05/P06 per-block diagnostics not using abstention masks, and invalid observations receiving zero family-bootstrap differential rather than remaining missing.
+- The exact findings and required regression coverage are recorded in [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md).
+- No Phase 7 metrics are accepted, no candidate is selected, and Phase 8 remains blocked. A fresh developer correction commit must pass tester code review before any fresh empirical execution.
