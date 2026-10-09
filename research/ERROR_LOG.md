@@ -310,3 +310,15 @@
 - The frozen Phase 7 spec requires P08/P09/P10 regime diagnostic block counts to equal candidate chronological block counts, but the current schema validator enforces this only for P08/P09 because P10 abstentions can remove all eligible metrics from a block.
 - The production output carries shared P08/P09/P10 regime diagnostics, while P10 chronological metrics apply abstention. The independent auditor does not currently explicitly gate the P10 count invariant.
 - No post-hoc spec or result change is authorized. Tester must resolve the literal-spec interpretation against the fresh artifact, record PASS or REQUEST CHANGES, and require a pre-registered tester-approved amendment if the protocol itself must change. Run #994 is unchanged and Phase 8 remains blocked.
+
+
+## 2026-10-09 — Available-data prediction extension: first regression fixture failure
+- Category: regression-fixture expectation
+- Component: `scripts/test_phase7_available_global.py::check_strict_asof_excludes_same_date`
+- Hosted workflow: [Phase 7 Available-Data Prediction Extension run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37983764374).
+- Symptom: the assertion expected a missing value for target date 2024-01-02, although the source had a valid 2024-01-01 observation.
+- Root cause: the test incorrectly required no history rather than checking that the same-date source value (2024-01-02) is excluded and the latest strictly prior source row is selected.
+- Impact: mandatory regression failed before any empirical execution. No predictor metrics were generated or accepted.
+- Correction: assert that target dates Jan 2, Jan 3 and Jan 4 use source values from Jan 1, Jan 2 and Jan 3 respectively.
+- Prevention: construct as-of fixtures with an explicit expected previous-row mapping and separately assert same-date exclusion before enabling empirical jobs.
+- Scientific disposition: no impact on empirical evidence because the research execution was not authorized and the empirical job was skipped.
