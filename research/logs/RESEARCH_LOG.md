@@ -601,3 +601,9 @@
 - Fresh Run #852 passed protocol, existing regression suite, new reference-artifact regression and tester authorization. The tester report is archived at `research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md`.
 - The new empirical job is in progress. No metric, artifact, or downstream Phase 8 reference is accepted until the post-run tester audit verifies the ten panels and paired aggregate JSON.
 - Runs #831/#835/#837/#838 remain non-evidence for the new artifact output contract.
+
+## 2026-10-09 — Reconciliation checkpoint after bootstrap optimization
+- Re-polled runs #852 (37912587739), #924 (37914896724), and #925 (37914905848). All three still report `in_progress`; their empirical jobs remain at `python scripts/run_phase7_ensemble.py`. Artifact listing is empty for each run.
+- Run #852 metadata remains stale at 09:39:25 UTC. Live log retrieval for active empirical jobs returned `BlobNotFound`; this is recorded as an observability limitation, not a run conclusion.
+- The latest script contains the allocation-light moving-block sampler and fixed-seed legacy-equivalence tests; regression and tester authorization jobs in the newer attempts completed successfully. That evidence validates the code change only, not empirical results.
+- No new strategy metrics were accepted. Do not launch more duplicate runs while the three empirical jobs remain active. First completed, provenance-valid artifact is the next required review target.
