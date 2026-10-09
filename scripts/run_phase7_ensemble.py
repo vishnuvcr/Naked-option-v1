@@ -17,7 +17,7 @@ METHODS=[f"E{i:02d}" for i in range(1,11)]+[f"I{i:02d}" for i in range(1,11)]
 BLOCKED={"E07","I02","I04","I06","I07","I10"}
 CAPTURE_ORDER=[m for m in METHODS if m not in BLOCKED]+["I09"]
 SEED=42; EPS=1e-12
-ABSTAIN={"P05":(0.45,0.55),"P06":(0.40,0.60)}
+ABSTAIN={"P05":(0.45,0.55),"P06":(0.40,0.60),"P10":(0.45,0.55)}
 
 def capture_scope(df,intraday,horizons):
     captured={}
@@ -102,10 +102,12 @@ def regimes(p1,p4,y,vol,trend,blocks):
         if len(vv)<200 or len(tt)<200: continue
         vc=float(np.median(vv)); tc=float(np.median(tt))
         valid_y=np.isfinite(y[tr]); pooled=float(np.mean(y[tr][valid_y])) if valid_y.any() else 0.5
+        valid_regime=np.isfinite(vol[tr])&np.isfinite(trend[tr])
         state_rates={}; train_counts={}
         for vs in (0,1):
             for ts in (0,1):
-                m=valid_y & ((vol[tr]>vc).astype(int)==vs) & ((trend[tr]>tc).astype(int)==ts)
+                # Missing feature values do not imply a low-volatility/low-trend state.
+                m=valid_y & valid_regime & ((vol[tr]>vc).astype(int)==vs) & ((trend[tr]>tc).astype(int)==ts)
                 n=int(m.sum()); train_counts[f"{vs}{ts}"]=n
                 if n>=50: state_rates[(vs,ts)]=float(np.mean(y[tr][m]))
                 else: state_rates[(vs,ts)]=pooled; fallback+=1
@@ -131,10 +133,13 @@ def causal_baseline(y,blocks):
         if len(yy)>=200: b[rows]=float(np.mean(yy))
     return b
 
-def block_diagnostics(y,p,blocks):
+def block_diagnostics(y,p,blocks,eligibility_mask=None):
     out=[]
+    eligibility=None if eligibility_mask is None else np.asarray(eligibility_mask,dtype=bool)
     for rows in blocks:
         mask=np.isfinite(y[rows])&np.isfinite(p[rows])
+        if eligibility is not None:
+            mask &= eligibility[rows]
         if not mask.any(): continue
         yy=y[rows][mask].astype(int); pp=np.clip(p[rows][mask],1e-6,1-1e-6)
         pred=(pp>=0.5).astype(int)
@@ -158,17 +163,26 @@ def moving_block_resample(n,block_len,rng):
     assert len(idx)==n
     return idx
 
+def candidate_brier_differential(y,p,baseline,name):
+    y=np.asarray(y,dtype=float); p=np.asarray(p,dtype=float); baseline=np.asarray(baseline,dtype=float)
+    finite=np.isfinite(y)&np.isfinite(p)&np.isfinite(baseline)
+    differential=np.full(len(y),np.nan,dtype=float)
+    if name in ABSTAIN:
+        lo,hi=ABSTAIN[name]
+        trade=finite&~((p>=lo)&(p<=hi))
+        # Abstentions are benchmark-equivalent only when label, forecast and causal
+        # baseline are all evaluable. Missing rows remain NaN and cannot dilute means.
+        differential[finite]=0.0
+        differential[trade]=(baseline[trade]-y[trade])**2-(p[trade]-y[trade])**2
+    else:
+        differential[finite]=(baseline[finite]-y[finite])**2-(p[finite]-y[finite])**2
+    return differential
+
 def family_bootstrap(y,candidates,baseline,block_len):
     names=list(candidates); n=len(y); diffs=np.full((n,len(names)),np.nan)
     for j,name in enumerate(names):
         p=candidates[name].copy()
-        finite=np.isfinite(y)&np.isfinite(p)&np.isfinite(baseline)
-        if name in ABSTAIN:
-            lo,hi=ABSTAIN[name]; trade=finite&~((p>=lo)&(p<=hi))
-            d=np.zeros(n); d[trade]=(baseline[trade]-y[trade])**2-(p[trade]-y[trade])**2
-            diffs[:,j]=d
-        else:
-            diffs[finite,j]=(baseline[finite]-y[finite])**2-(p[finite]-y[finite])**2
+        diffs[:,j]=candidate_brier_differential(y,p,baseline,name)
     means=np.nanmean(diffs,axis=0); observed=float(np.nanmax(means))
     centered=diffs-means
     rng=np.random.default_rng(SEED)
@@ -267,7 +281,7 @@ def run_layer(df,intraday,horizons,layer):
                 lo,hi=ABSTAIN[name]; finite=np.isfinite(p); mask=finite&~((p>=lo)&(p<=hi))
                 extra={"coverage":float(mask.sum()/finite.sum()) if finite.sum() else 0.0,"trade_n":int(mask.sum()),"evaluable_n":int(finite.sum())}
             res=p6.metrics(y,p,future,block_len,extra=extra,mask=mask)
-            res["chronological_blocks"]=block_diagnostics(y,p,blocks)
+            res["chronological_blocks"]=block_diagnostics(y,p,blocks,mask)
             if name in ("P08","P09","P10"):
                 res["regime_diagnostics"]=regime_diag
                 res["regime_fallback_count"]=int(regime_fallbacks)
