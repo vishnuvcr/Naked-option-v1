@@ -762,3 +762,13 @@ Read-only repository search identified four further leads:
 - **NSE historical archive bank / API tools** — https://github.com/Aniruddha1980/Bhavcopy and https://github.com/Teja-Ram-Pooniya/nser-r-programming-option-data-nse include methods for historical F&O bhavcopy and selected NSE reports, but are overlapping retrieval wrappers over the same official data source, not independent price observations.
 
 No candidate raw data was downloaded or copied. These leads are listed for the next permitted data/method gate only. Current Run #994 remains the active empirical target; Phase 8 remains blocked until its independent artifact gate.
+
+
+## 2026-10-09 — Automatic independent audit orchestration added
+
+- Added main-branch workflow [.github/workflows/phase7-approved-artifact-audit.yml](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase7-approved-artifact-audit.yml).
+- Automatic path: after a successful completed Research Protocol Check on phase-07-developer, preflight retrieves the exact run metadata and proceeds only when the run is successful and has one non-expired, non-empty phase7-ensemble-results artifact and one phase7-ensemble-reference artifact. Non-eligible automatic events are skipped.
+- Manual path: the same workflow exposes workflow_dispatch with a required run_id; the same source branch/status/artifact checks apply, and invalid manual inputs fail closed.
+- Independence: the audit uses the generic tester script from pinned tester commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f, checks out the exact developer source SHA, downloads only artifacts for the requested run, and writes its JSON/Markdown report and phase status/log entries to phase-07-tester. The final workflow gate fails unless the report identity is exact and all checks pass.
+- The legacy Run #925 audit on phase-07-tester is now manual-only and also requires an explicit boolean opt-in; normal tester-branch pushes no longer repeat the rejected historical audit.
+- **Run #994 has not yet completed** at this checkpoint (its empirical step remains in progress and no artifacts are published). No audit was run on it yet, no metrics were accepted, and Phase 8 remains blocked.

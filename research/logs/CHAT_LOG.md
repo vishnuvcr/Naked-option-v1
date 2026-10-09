@@ -293,3 +293,12 @@ No scientific or protocol change was made during this checkpoint.
 - Logged `SantoshSrinivas79/NSE-FNO-Data-bank` (daily NSE archive, EOD only), `Am1n1602/jugaad-rs` (Rust retrieval CLI), `kfinance/nifty-iv-event-vol-tracker` (overnight straddle / event-IV hypothesis code), and further NSE bhavcopy wrappers as read-only leads.
 - The overnight-straddle README is not independent evidence: any candidate needs synthetic-data exclusion, source/price reconstruction, chronological validation and complete net-of-cost audit. Do not add it post-hoc to the frozen Phase 7 experiment; a later pre-result Phase 8 amendment would require independent tester approval.
 - No raw data imported/mirrored, no method/workflow modified, and no phase advanced.
+
+## 2026-10-09 — Resume: automatic and manual tester audit workflow added
+
+- Main-branch workflow now triggers when a successful completed Research Protocol Check run from phase-07-developer finishes; it also exposes a manual run_id input.
+- Preflight checks exact branch, successful terminal state, commit SHA and exactly one non-empty, non-expired artifact for both required names. Missing artifacts on automatic events are skipped; invalid manual run IDs are rejected.
+- It executes the independently pinned tester script from commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f, checks out the exact source commit and downloads only that run's outputs. Test report and structured JSON are published to phase-07-tester and the workflow fails closed unless all checks pass.
+- The old Run #925 audit is manual-only and now additionally requires explicit opt-in. Run #994 remains active with no output artifact at this check.
+- Tester → Developer: do not bypass preflight or edit tester code from the developer branch.
+- Developer → Tester: review the exact-run report; do not promote or open Phase 8 until the empirical audit passes and remaining data/economic gates pass.
