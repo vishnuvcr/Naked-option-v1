@@ -674,3 +674,8 @@
 ## 2026-10-09 — Strict manifest and panel identity gate passed
 - The validator now rejects missing/extra source and code manifest entries and panels whose run ID/commit differs from the manifest.
 - Hosted regression `37914278229` SUCCESS; tester reviewed and approved the synthetic code path with restrictions. Actual artifact audit remains pending.
+
+## 2026-10-09 — Phase 7 bootstrap performance correction
+- Inspection found that each moving-block bootstrap replicate rebuilt a Python list containing every possible overlapping block. The sampler now draws the same block-start indices directly, preserving the same fixed-seed indices and all frozen statistical settings while avoiding repeated allocation.
+- Regression tests compare the optimized sampler bit-for-bit against the legacy implementation for representative daily/intraday sizes and edge cases. Hosted regression jobs passed; independent tester report `PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md` is PASS WITH SCOPED RESTRICTIONS.
+- Separate code and test commits triggered additional empirical workflow attempts while Run #852 was still active. This orchestration mistake is recorded in the error log. No artifact or scientific result is accepted; one completed artifact must pass independent audit before Phase 8 can advance.
