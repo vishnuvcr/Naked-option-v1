@@ -504,3 +504,12 @@
 - The corrected independent audit executed 2,775 passing checks and 323 failures. Findings cluster into four issues: omitted P10 abstention, missing regime features silently classified as low/low, P05/P06 per-block diagnostics not using abstention masks, and invalid observations receiving zero family-bootstrap differential rather than remaining missing.
 - The exact findings and required regression coverage are recorded in [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md).
 - No Phase 7 metrics are accepted, no candidate is selected, and Phase 8 remains blocked. A fresh developer correction commit must pass tester code review before any fresh empirical execution.
+
+
+## 2026-10-09 — Phase 7 correction code review follow-up — REQUEST CHANGES
+
+- Independent review found the four code defects identified in Run #925 are corrected in the current developer source; targeted regression cases and hosted protocol/regression/reference-panel regression all passed at run #964.
+- A distinct workflow safety defect remains: the correction approval file is checked only for presence and two text phrases, not for the exact source/test/validator/spec/workflow snapshot approved by the tester.
+- Tester gate [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](../gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = **REQUEST CHANGES** for authorization binding only. Require exact reviewed commit/file hashes and negative tests to ensure later protected changes invalidate the PASS.
+- Runs `37935752265` and `37935794939` started empirical execution before the stale-gate issue was contained; they remain non-evidence.
+- No metric or strategy is promoted. Phase 7 and Phase 8 remain blocked.
