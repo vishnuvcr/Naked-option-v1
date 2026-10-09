@@ -95,8 +95,8 @@ def stacking(base,y,blocks):
 
 def regimes(p1,p4,y,vol,trend,blocks):
     p8=np.full(len(p1),np.nan); p9=np.full(len(p1),np.nan)
-    diag=[]; fallback=0
-    for rows in blocks:
+    diag=[]; diag_block_ids=[]; fallback=0
+    for block_id,rows in enumerate(blocks):
         tr=np.arange(rows[0])
         vv=vol[tr][np.isfinite(vol[tr])]; tt=trend[tr][np.isfinite(trend[tr])]
         if len(vv)<200 or len(tt)<200: continue
@@ -123,7 +123,23 @@ def regimes(p1,p4,y,vol,trend,blocks):
                     test_counts[f"{state[0]}{state[1]}"]+=1
         if eval_mask.any():
             diag.append({"train_counts":train_counts,"test_counts":test_counts,"vol_cut":vc,"trend_cut":tc})
-    return p8,p9,diag,fallback
+            diag_block_ids.append(block_id)
+    return p8,p9,diag,fallback,diag_block_ids
+
+def candidate_regime_diagnostics(regime_diag,diag_block_ids,y,p,blocks,name):
+    # The frozen spec requires each method's diagnostics to match its eligible
+    # chronological metric blocks. P10 abstentions can eliminate a whole block.
+    assert len(regime_diag)==len(diag_block_ids)
+    if name not in ABSTAIN:
+        return regime_diag
+    lo,hi=ABSTAIN[name]; filtered=[]
+    for diagnostic,block_id in zip(regime_diag,diag_block_ids):
+        rows=blocks[block_id]
+        eligible=np.isfinite(y[rows])&np.isfinite(p[rows])
+        eligible &= ~((p[rows]>=lo)&(p[rows]<=hi))
+        if eligible.any():
+            filtered.append(diagnostic)
+    return filtered
 
 def causal_baseline(y,blocks):
     b=np.full(len(y),np.nan)
@@ -269,7 +285,7 @@ def run_layer(df,intraday,horizons,layer):
         base={m:captured[(str(H),m)]["p"] for m in METHODS if (str(H),m) in captured}
         y=captured[(str(H),"E01")]["y"]; future=captured[(str(H),"E01")]["future"]
         for m in BLOCKED: base[m]=np.full(len(y),np.nan)
-        p1,p2,p3,p4=combine(base); p7=stacking(base,y,blocks); p8,p9,regime_diag,regime_fallbacks=regimes(p1,p4,y,vol,trend,blocks)
+        p1,p2,p3,p4=combine(base); p7=stacking(base,y,blocks); p8,p9,regime_diag,regime_fallbacks,regime_diag_block_ids=regimes(p1,p4,y,vol,trend,blocks)
         cand={"P01":p1,"P02":p2,"P03":p3,"P04":p4,"P05":p1.copy(),"P06":p1.copy(),"P07":p7,"P08":p8,"P09":p9,"P10":p9.copy()}
         write_prediction_panel(layer,H,df,intraday,y,future,cand,blocks)
         ho={}
@@ -283,7 +299,7 @@ def run_layer(df,intraday,horizons,layer):
             res=p6.metrics(y,p,future,block_len,extra=extra,mask=mask)
             res["chronological_blocks"]=block_diagnostics(y,p,blocks,mask)
             if name in ("P08","P09","P10"):
-                res["regime_diagnostics"]=regime_diag
+                res["regime_diagnostics"]=candidate_regime_diagnostics(regime_diag,regime_diag_block_ids,y,p,blocks,name)
                 res["regime_fallback_count"]=int(regime_fallbacks)
             ho[name]=res
         ho["_FAMILY_TEST"]=family

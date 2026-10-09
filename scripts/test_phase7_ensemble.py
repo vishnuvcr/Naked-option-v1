@@ -41,8 +41,8 @@ def main():
 
     vol=np.ones(500); trend=np.ones(500)
     p1=np.full(500,0.6); p4=np.full(500,0.4)
-    r8,r9,diag,fb=ns["regimes"](p1,p4,y,vol,trend,blocks)
-    assert len(diag)>=1
+    r8,r9,diag,fb,diag_block_ids=ns["regimes"](p1,p4,y,vol,trend,blocks)
+    assert len(diag)>=1 and len(diag)==len(diag_block_ids)
     assert all(sum(d["test_counts"].values())>0 for d in diag)
     assert np.allclose(r8[220:],0.55)
     assert np.allclose(r9[220:],0.45)
@@ -104,13 +104,28 @@ def main():
     regime_vol[:20]=np.nan; regime_trend[:20]=np.nan
     regime_p1=np.full(230,0.60); regime_p4=np.full(230,0.40)
     regime_blocks=[np.arange(0,20),np.arange(200,220),np.arange(220,230)]
-    _,_,regime_diag,_=ns["regimes"](
+    _,_,regime_diag,_,regime_diag_block_ids=ns["regimes"](
         regime_p1,regime_p4,regime_y,regime_vol,regime_trend,regime_blocks
     )
-    assert len(regime_diag)==1
+    assert len(regime_diag)==1 and regime_diag_block_ids==[2]
     state_counts=regime_diag[0]["train_counts"]
     assert sum(state_counts.values())==200, state_counts
     assert state_counts["00"]==200, state_counts
+
+    # A fully abstained P10 block is omitted from its regime diagnostics; mixed
+    # and eligible blocks remain, so diagnostic and metric block counts agree.
+    diag_fixture=[{"id":0},{"id":1},{"id":2}]
+    diag_ids=[0,1,2]
+    diag_y=np.ones(6)
+    diag_p10=np.array([0.45,0.55,0.60,0.50,0.40,0.449999])
+    diag_blocks=[np.arange(0,2),np.arange(2,4),np.arange(4,6)]
+    p10_diag=ns["candidate_regime_diagnostics"](
+        diag_fixture,diag_ids,diag_y,diag_p10,diag_blocks,"P10"
+    )
+    p10_mask=np.isfinite(diag_p10)&~((diag_p10>=0.45)&(diag_p10<=0.55))
+    p10_blocks=ns["block_diagnostics"](diag_y,diag_p10,diag_blocks,p10_mask)
+    assert [d["id"] for d in p10_diag]==[1,2]
+    assert len(p10_diag)==len(p10_blocks)==2
     print("Phase 7 regression checks PASS")
 
 if __name__=="__main__": main()
