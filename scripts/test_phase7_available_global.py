@@ -79,7 +79,7 @@ def check_family_bootstrap_is_deterministic_and_bounded() -> None:
 def check_registry_has_explicit_blocked_status() -> None:
     frame = pd.DataFrame({
         "SENSEX": pd.DataFrame({"SENSEX_ret1": [0.1], "SENSEX_ret5": [0.2], "SENSEX_vol20": [0.01]}),
-        "SP500": pd.DataFrame({"SP500_ret1": [0.1], "SP500_ret5": [0.2], "SP500_vol20": [0.01]}),
+        "SP500": pd.DataFrame({"SP500_ret1": [0.1], "SP500_ret5": [0.2], "SP500_vol20": [0.01], "SP500_ret1_z20": [0.1], "SP500_ret5_z20": [0.2]}),
     })
     # A partial source map must never fabricate a blocked peer-market feature.
     _, status = mod.build_candidates(pd.DataFrame({"date": pd.to_datetime(["2024-01-01"])}), frame, {})
