@@ -171,3 +171,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 ## Preliminary cost-source check for later Phase 8 (2026-10-09)
 
 Phase 8 is not open yet. The initial public-source review found account-plan variation in Paytm Money brokerage material; the future model should bracket ₹10/₹15/₹20 per executed order until verified against the actual account tariff/contract note. NSE's public 2026 pages list ₹3,553 per crore premium-turnover transaction charges per side from 1 March 2026 and STT of 0.15% on sale premium / 0.15% of intrinsic value on exercise from 1 April 2026. Other applicable levies/GST, spread, slippage, latency and premium decay remain required. See the [official source list and restrictions](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md).
+
+
+## Live checkpoint — 2026-10-09
+
+- **Phase 7 Run #994:** [hosted run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656). At the last verified check, the empirical ensemble step was still running; regression and the independent exact-snapshot authorization gate passed. Result validation and immutable artifact uploads were pending. No metrics are accepted and no strategy is selected.
+- **Rejected evidence:** Run #925 remains non-evidence following independent tester review; do not substitute it for Run #994.
+- **CI repair:** [Research Protocol Check #997](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37959386545) identified missing protocol/literature validator files on `main`. The exact scripts and literature registry were copied from `phase-07-developer`; a fresh protocol check is required to confirm the repair.
+- **Gate rule:** Phase 8 remains blocked until Run #994 artifacts are uploaded and independently audited by the tester branch. Include broker tariff, statutory charges, spread, slippage and premium-decay assumptions before any option strategy is judged.
+- **Logs:** [status](research/STATUS.md) · [research log](research/logs/RESEARCH_LOG.md) · [error log](research/logs/ERROR_LOG.md) · [conversation/decision log](research/logs/CHAT_LOG.md) · [Phase 7 tester gates](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-07-tester/research/gates).
