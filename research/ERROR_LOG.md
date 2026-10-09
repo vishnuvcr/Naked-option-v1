@@ -282,3 +282,11 @@
 - Correction: added the `prediction_files` contract while retaining detailed cell diagnostics; commit `cf5244352bb08d89525400a8c1a29595d196e749`.
 - Follow-up: added immutable Git commit code-hash verification and a regression that confirms correct hashes pass and tampered hashes fail. Hosted dedicated validator regression run `37913188030` completed SUCCESS.
 - Scope: synthetic regression only. The production workflow must fetch the reference commit before validation; the real Phase 7 artifact still requires an independent audit.
+
+## 2026-10-09 — Phase 8 code-hash verifier exposed stale synthetic fixture
+- Category: regression/test fixture sequencing
+- Component: `scripts/test_phase8_reference_panels.py` full artifact fixture after adding immutable Git-commit code-hash checks.
+- Hosted run: dedicated validator run ID `37913154487` (commit `8a26f2ef3c2f4841be108cede9db830ccab75b77`) failed because the synthetic artifact uses a fake commit SHA and the test had not yet stubbed the code-hash verifier.
+- Root cause: the production validator correctly failed closed when the synthetic fixture's commit was unavailable; the test fixture had not been adapted to the new production contract.
+- Correction: isolate the synthetic artifact-directory test from real Git verification, and add a separate unit test against the current real Git commit that proves valid hashes pass and a tampered hash is rejected. Hosted run `37913188030` passed.
+- Disposition: run `37913154487` is non-evidence; no production artifact or research result was accepted.
