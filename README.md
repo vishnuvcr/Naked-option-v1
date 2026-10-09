@@ -265,6 +265,10 @@ The P10 diagnostic code correction has static tester approval for a future run o
 - The supplement does not turn paper-reported accuracy/returns into project results. In particular, normalized price-fit “accuracy” is not directional accuracy; small or in-sample tests are not equivalent to untouched chronological evaluation; and option-strategy papers are context only for the current prediction extension.
 - Registry row L003's pre-existing semantic column displacement was corrected and recorded in the research error logs.
 
+### Latest workflow integrity check (2026-10-10)
+
+A further audit found that the NIFTY acquisition script used by the empirical job was not included in the protected hash allowlist. The developer workflow has now been amended to include \`scripts/acquire_nifty_daily_history.py\` in its push triggers, approval allowlist, and SHA-256 report. This changes the exact workflow snapshot after the previous static tester review. The hosted regression result is still not visible, so the latest code remains **NOT AUTHORIZED** for empirical execution pending a fresh independent review and observable green workflow run.
+
 ### Active prediction extension
 
 - **Phase 7 available-data/global-feature prediction extension:** still **NOT AUTHORIZED for empirical execution**. The initial tester review requested changes for G13 using z-scores instead of the frozen raw-return composite definition, Bonferroni adjustment using only executed rather than all five registered horizons, unclear paired baseline comparability, and incomplete result validation.
