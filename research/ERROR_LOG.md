@@ -300,3 +300,8 @@
 - Correction: validator now loads and executes the exact `scripts/run_phase7_ensemble.py` bytes from the manifest commit, after hash verification. The Phase 8 reconstruction job now fetches full Git history (`fetch-depth: 0`) so the source commit can be retrieved. Regression added to load the immutable metric module and exercise hash tamper rejection.
 - Validation status: dedicated hosted regression run `37913662777` still in progress at log time. Fix is not considered validated until hosted tests pass and an independent tester reviews it.
 - Prevention: for reproducible research, the implementation whose hash is checked must be the same implementation that is executed; never rely on current-branch imports after validating a different commit.
+
+## 2026-10-09 — Resolution status: validator metric-code source mismatch
+- The identified mismatch between Phase 7 and Phase 8 `run_phase7_ensemble.py` implementations is corrected at code level: validator loads the exact source module bytes from the manifest commit after SHA-256 verification.
+- Dedicated hosted regression `37913662777` = SUCCESS. Tester reviewed the fix and approved with scoped restrictions in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
+- The defect is closed for the synthetic code path only. Real-artifact audit remains pending, and no new reference artifact or Phase 8 manifest change is accepted until the post-run audit passes.
