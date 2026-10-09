@@ -9,13 +9,13 @@
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
-| Phase 7 Ensemble/regime | BLOCKED | freeze gate |
+| Phase 7 Ensemble/regime | **BLOCKED — RUN #925 REQUEST CHANGES** | P10 abstention, finite regime-state, masked block diagnostics and family-bootstrap eligibility corrections required; see [Run #925 tester report](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-07
+Last updated: 2026-10-09
 
 ## Phase 5 current state
 
@@ -116,3 +116,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent tester gate `research/gates/PHASE6_RUN581_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - Technical validity is accepted; no Phase 6 method is promoted to a trading strategy.
 - Phase 7 ensemble/regime research is now authorized, subject to a fresh tester gate. Phase 8 option execution, costs, robustness and fresh-forward validation remain mandatory.
+
+
+## 2026-10-09 — Phase 7 Run #925 independent empirical gate
+
+- Runs #852, #924 and #925 all completed with artifacts; #925 (run ID `37914905848`) was selected for the frozen-source audit.
+- Independent audit executed on tester workflow Run #943 (`37935031119`) and downloaded the immutable reference/result artifacts for source commit `682eadf2a9eb4de250bc3db27d02e57f88687fa1`.
+- Artifact, code and source hashes, ten panel identities, source-derived timestamps/labels/future returns and row-level source alignment reconciled.
+- Corrected audit disposition: **REQUEST CHANGES** (2,775 checks passed; 323 checks failed). Key causes: omitted P10 abstention, non-finite volatility/trend observations entering the low/low state, P05/P06 per-block diagnostics ignoring abstention masks, and family-bootstrap invalid rows being treated as zero differentials.
+- Tester report: [PHASE7_RUN925_EMPIRICAL_TESTER.md](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md).
+- Run #925 is non-accepted evidence. No Phase 7 metric/model/strategy is promoted. Phase 8 option-execution research remains blocked until a corrected fresh empirical run receives an independent pass.
