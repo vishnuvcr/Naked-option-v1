@@ -176,3 +176,13 @@ No scientific or protocol change was made during this checkpoint.
 - Tester validated artifact/source/code hashes, all ten panels, source timestamps, labels and future returns, but issued REQUEST CHANGES for four implementation mismatches: P10 abstention omission; missing volatility/trend rows entering low/low regime counts; P05/P06 block diagnostics ignoring abstention masks; and non-evaluable family-bootstrap observations being treated as zero differential.
 - Tester report [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) is archived on both isolated tester and developer branches. README, status, research log and error log have been updated on the developer branch.
 - No metrics or trading strategy are promoted. Phase 7 and Phase 8 remain blocked until developer corrections receive independent code review and one fresh empirical artifact passes post-run audit.
+
+
+## 2026-10-09 — Developer correction submission and independent review
+
+- Following the Run #925 REQUEST CHANGES report, developer corrected P10 abstention handling, regime finite-input eligibility, masked chronological diagnostics and family-bootstrap missingness; targeted regression tests and the result validator were updated.
+- Hosted Run #964 passed protocol and regression/reference artifact checks; the empirical job was skipped.
+- The independent tester then issued REQUEST CHANGES because the correction-specific authorization tests only file/text presence and do not bind approval to the reviewed code snapshot.
+- Tester report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](../gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) is archived on the developer branch.
+- An old-approval defect had also triggered empirical runs `37935752265` and `37935794939`; these are non-evidence and cannot be used regardless of outputs. This was logged in the error log, and the authorization workflow is being tightened.
+- Next action: implement exact commit/hash binding for both automatic and manual authorization paths, submit positive/negative tests to the tester, and do not run another empirical execution until the tester PASS is bound to that snapshot.
