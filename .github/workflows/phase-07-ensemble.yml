@@ -61,7 +61,12 @@ jobs:
           test -f research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
           grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
           grep -q "artifact-output code only" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
-          echo "Phase 7 row-level artifact code tester gate PASS"
+          # Every manual/automatic empirical path also requires the separate
+          # independent review of the Run 925 corrections.
+          test -f research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
+          grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
+          grep -q "fresh empirical execution only" research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
+          echo "Phase 7 row-level artifact and Run 925 correction tester gates PASS"
 
   empirical:
     needs: [regression, reference-artifact-authorization]
