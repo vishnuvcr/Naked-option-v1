@@ -665,3 +665,8 @@
 ## 2026-10-09 — Exact-commit metric loader regression PASS
 - Dedicated validator regression run `37913662777` completed SUCCESS. Test coverage now verifies the immutable source module can be loaded, SHA-256 tampering is rejected, and a synthetic ten-panel artifact reconciles metrics and family inference without model refitting.
 - Tester approved the source-version correction with scoped restrictions. Real Phase 7 artifact integrity and independent metric audit are still required before manifest amendment.
+
+## 2026-10-09 — Source-derived label and future-return checks PASS
+- The Phase 8 panel validator now verifies saved labels, future returns, timestamps and row counts against hashed daily/intraday source data, using the exact Phase 7 metric module and verified dependency code from the manifest commit.
+- Hosted regression run `37914065821` SUCCESS. The test rejects deliberately mutated daily labels and intraday future returns. Tester approval is archived in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
+- Synthetic fixture failures in runs #10/#11 were caused by invoking production data loaders without cached data in the standalone test job; the fixture now isolates only the loaders for the synthetic case. Real artifact audit still pending.
