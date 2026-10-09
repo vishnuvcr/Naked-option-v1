@@ -279,3 +279,16 @@ A further audit found that the NIFTY acquisition script used by the empirical jo
 
 **Developer → Tester:** independently verify the corrected Phase 7 exact snapshot and actual hosted regression outcome; approve at most one empirical run only if every formula, mask, protected hash and result-validation contract passes.  
 **Tester → Developer:** return a decision with exact reviewed commit/hashes and explicit execution authorization status. A literature review pass or code correction is not empirical approval.
+
+
+## Latest Phase 7 gate status — 2026-10-10
+
+- Hosted [Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed **8 NIFTY acquisition/cache**, **11 predictor**, and **11 result-validator** regression checks. It does not contain prediction metrics; earlier Run #41 and #42 fixture failures remain documented as non-evidence.
+- The NIFTY downloader now reuses a valid hashed cache, converts source timestamps using `Asia/Kolkata`, sets query boundaries at exchange-local midnight, blocks incomplete same-day bars before the 18:30 IST cutoff, and reconciles manifest overlap checks with exact CSV closes.
+- The independent tester's current [exact-snapshot gate report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md) is **PASS WITH SCOPED RESTRICTIONS**, authorizing a single Phase 7 available-data prediction batch only. Its mirrored copy is available [on the developer branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md).
+- **No empirical prediction batch has run.** The approval JSON write was blocked by platform safety checks; the manifest remains absent and the workflow correctly remains fail-closed. Do not interpret green regression checks as predictive performance.
+- See the [research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), [research log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md), [chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md), and [Phase 7 developer handoff](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md) for full details.
+
+**Developer → Tester:** Audit exact hashes and regression evidence independently; when the authorized immutable prediction batch is produced, reconcile its source and row-level artifacts before any statistical or strategy promotion.
+
+**Tester → Developer:** Keep execution fail-closed absent the one-run exact-snapshot manifest and keep Phase 8 blocked until empirical output passes independent review.
