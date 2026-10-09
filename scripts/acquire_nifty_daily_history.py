@@ -21,7 +21,8 @@ START_DATE = dt.date(2020, 1, 1)
 SYMBOL = "^NSEI"
 SOURCE_NAME = "Yahoo Finance public chart with official NSE overlap validation"
 CACHE_MAX_AGE_DAYS = 7
-IST = ZoneInfo("Asia/Kolkata")
+NIFTY_TIMEZONE = "Asia/Kolkata"
+IST = ZoneInfo(NIFTY_TIMEZONE)
 UTC = dt.timezone.utc
 HEADERS = {
     "User-Agent": "Mozilla/5.0 NIFTY-Naked-Option-Research/1.0",
@@ -78,7 +79,7 @@ def _write_csv_atomic(path: Path, rows: list[dict]) -> None:
     tmp.replace(path)
 
 
-def _validate_rows(rows: list[dict], manifest: dict, today: dt.date) -> tuple[bool, str]:
+def _validate_rows(rows: list[dict], manifest: dict, now: dt.datetime) -> tuple[bool, str]:
     if len(rows) < 1000:
         return False, f"row count below minimum: {len(rows)}"
     if set(CSV_FIELDS) - set(rows[0].keys()):
@@ -97,7 +98,14 @@ def _validate_rows(rows: list[dict], manifest: dict, today: dt.date) -> tuple[bo
         return False, "manifest observed_start does not match CSV"
     if manifest.get("observed_end") != dates[-1].isoformat():
         return False, "manifest observed_end does not match CSV"
-    age_days = (today - dates[-1]).days
+    local_now = now_ist(now)
+    max_allowed_session = exclusive_end_date(local_now) - dt.timedelta(days=1)
+    if dates[-1] > max_allowed_session:
+        return False, (
+            f"latest row {dates[-1].isoformat()} exceeds the currently allowed "
+            f"complete session date {max_allowed_session.isoformat()}"
+        )
+    age_days = (local_now.date() - dates[-1]).days
     if age_days < 0 or age_days > CACHE_MAX_AGE_DAYS:
         return False, (
             f"latest row age {age_days} days is outside the "
@@ -118,12 +126,32 @@ def _validate_rows(rows: list[dict], manifest: dict, today: dt.date) -> tuple[bo
     if not isinstance(checks, list):
         return False, "manifest is missing official NSE overlap checks"
     check_by_date = {str(item.get("date")): item for item in checks if isinstance(item, dict)}
+    by_date = {row["date"]: row for row in rows}
     for day in OVERLAP_DATES:
         item = check_by_date.get(day.isoformat())
-        if not item or item.get("within_1_point") is not True:
-            return False, f"missing or failed NSE overlap validation for {day.isoformat()}"
-    if manifest.get("source") != SOURCE_NAME or manifest.get("index") != "Nifty 50":
-        return False, "manifest source or index identity mismatch"
+        csv_row = by_date.get(day.isoformat())
+        if not item or not csv_row:
+            return False, f"missing CSV row or NSE overlap record for {day.isoformat()}"
+        try:
+            official_close = float(item["close"])
+            reported_yahoo_close = float(item["yahoo_close"])
+            reported_diff = float(item["abs_diff"])
+            csv_close = float(csv_row["close"])
+        except (KeyError, TypeError, ValueError):
+            return False, f"malformed NSE overlap record for {day.isoformat()}"
+        values = (official_close, reported_yahoo_close, reported_diff, csv_close)
+        if not all(math.isfinite(value) for value in values) or min(official_close, reported_yahoo_close, csv_close) <= 0:
+            return False, f"non-finite or non-positive NSE overlap value for {day.isoformat()}"
+        computed_diff = abs(reported_yahoo_close - official_close)
+        if abs(reported_yahoo_close - csv_close) > 1e-8:
+            return False, f"manifest Yahoo close differs from cached CSV on {day.isoformat()}"
+        if abs(reported_diff - computed_diff) > 1e-8:
+            return False, f"manifest overlap difference arithmetic mismatch on {day.isoformat()}"
+        if computed_diff > 1.0 or item.get("within_1_point") is not True:
+            return False, f"failed NSE overlap validation for {day.isoformat()}"
+    if (manifest.get("source") != SOURCE_NAME or manifest.get("index") != "Nifty 50"
+            or manifest.get("exchange_timezone") != NIFTY_TIMEZONE):
+        return False, "manifest source, index, or exchange timezone identity mismatch"
     if not manifest.get("fetched_at_utc"):
         return False, "manifest lacks fetched_at_utc"
     return True, "cached CSV, manifest, coverage, freshness and NSE-overlap checks passed"
@@ -156,20 +184,33 @@ def validate_cache(
             rows = list(reader)
     except (OSError, UnicodeError, csv.Error) as exc:
         return None, f"cannot parse cached CSV: {type(exc).__name__}"
-    ok, reason = _validate_rows(rows, manifest, now_ist(now).date())
+    ok, reason = _validate_rows(rows, manifest, now_ist(now))
     if not ok:
         return None, reason
     return manifest, reason
 
 
-def yahoo_daily(now: dt.datetime | None = None) -> tuple[str, list[dict]]:
+def chart_period_timestamps(now: dt.datetime | None = None) -> tuple[int, int]:
+    """Build exclusive provider-query boundaries at midnight in the NIFTY exchange timezone."""
     local_now = now_ist(now)
     end_date = exclusive_end_date(local_now)
-    end = dt.datetime.combine(end_date, dt.time.min, tzinfo=UTC)
-    start = dt.datetime.combine(START_DATE, dt.time.min, tzinfo=UTC)
+    start = dt.datetime.combine(START_DATE, dt.time.min, tzinfo=IST)
+    end = dt.datetime.combine(end_date, dt.time.min, tzinfo=IST)
+    return int(start.timestamp()), int(end.timestamp())
+
+
+def session_date_from_timestamp(timestamp: int | float, exchange_timezone_name: str) -> dt.date:
+    """Convert a provider epoch timestamp to the exchange-local calendar session date."""
+    zone = ZoneInfo(exchange_timezone_name)
+    return dt.datetime.fromtimestamp(float(timestamp), UTC).astimezone(zone).date()
+
+
+def yahoo_daily(now: dt.datetime | None = None) -> tuple[str, list[dict]]:
+    local_now = now_ist(now)
+    period1, period2 = chart_period_timestamps(local_now)
     qs = urllib.parse.urlencode({
-        "period1": int(start.timestamp()),
-        "period2": int(end.timestamp()),
+        "period1": period1,
+        "period2": period2,
         "interval": "1d",
         "events": "history",
         "includeAdjustedClose": "true",
@@ -184,6 +225,12 @@ def yahoo_daily(now: dt.datetime | None = None) -> tuple[str, list[dict]]:
     result = ((payload.get("chart") or {}).get("result") or [None])[0]
     if not result:
         raise RuntimeError("Yahoo chart returned no result")
+    meta = result.get("meta") or {}
+    timezone_name = meta.get("exchangeTimezoneName") or NIFTY_TIMEZONE
+    if timezone_name != NIFTY_TIMEZONE:
+        raise RuntimeError(f"unexpected exchange timezone for {SYMBOL}: {timezone_name}")
+    # Validate the timezone name even when it was supplied by the provider.
+    ZoneInfo(timezone_name)
     timestamps = result.get("timestamp") or []
     quote = ((result.get("indicators") or {}).get("quote") or [{}])[0]
     rows = []
@@ -195,7 +242,7 @@ def yahoo_daily(now: dt.datetime | None = None) -> tuple[str, list[dict]]:
         }
         if vals["close"] is None:
             continue
-        day = dt.datetime.fromtimestamp(timestamp, UTC).date().isoformat()
+        day = session_date_from_timestamp(timestamp, timezone_name).isoformat()
         rows.append({
             "date": day,
             "open": vals["open"],
@@ -296,10 +343,26 @@ def acquire(
 
     source_url, rows = yahoo_daily(local_now)
     checks = compare_spots(rows)
+    provisional = {
+        "source": SOURCE_NAME,
+        "index": "Nifty 50",
+        "exchange_timezone": NIFTY_TIMEZONE,
+        "requested_start": START_DATE.isoformat(),
+        "requested_end": (exclusive_end_date(local_now) - dt.timedelta(days=1)).isoformat(),
+        "observed_start": rows[0]["date"],
+        "observed_end": rows[-1]["date"],
+        "rows": len(rows),
+        "official_nse_overlap_checks": checks,
+        "fetched_at_utc": checked_at,
+    }
+    ok, reason = _validate_rows(rows, provisional, local_now)
+    if not ok:
+        raise RuntimeError(f"acquired NIFTY history failed validation: {reason}")
     _write_csv_atomic(path, rows)
     manifest = {
         "source": SOURCE_NAME,
         "index": "Nifty 50",
+        "exchange_timezone": NIFTY_TIMEZONE,
         "requested_start": START_DATE.isoformat(),
         "requested_end": (exclusive_end_date(local_now) - dt.timedelta(days=1)).isoformat(),
         "observed_start": rows[0]["date"],
