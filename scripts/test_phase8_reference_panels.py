@@ -54,6 +54,27 @@ def test_saved_panel_metrics_reconcile_without_model_refit():
     assert outcome == {"rows": n, "blocks": len(blocks), "metric_comparison": "PASS"}
 
 
+def test_code_hashes_are_checked_against_git_commit():
+    import hashlib
+    import subprocess
+
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    paths = [
+        "scripts/run_phase7_ensemble.py", "scripts/run_phase6_novel.py",
+        "scripts/run_phase3_daily_baselines.py", "scripts/run_phase3_intraday_baselines.py",
+    ]
+    code_files = {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in paths}
+    validator.verify_code_hashes({"commit": commit, "code_files": code_files})
+    tampered = dict(code_files)
+    tampered[paths[0]] = "0" * 64
+    try:
+        validator.verify_code_hashes({"commit": commit, "code_files": tampered})
+    except SystemExit as exc:
+        assert "source code SHA-256 mismatch" in str(exc)
+    else:
+        raise AssertionError("tampered code hash was not rejected")
+
+
 def test_full_artifact_directory_validation():
     import hashlib
     import json
@@ -186,5 +207,6 @@ def test_full_artifact_directory_validation():
 
 if __name__ == "__main__":
     test_saved_panel_metrics_reconcile_without_model_refit()
+    test_code_hashes_are_checked_against_git_commit()
     test_full_artifact_directory_validation()
     print("Phase 8 saved-panel validator regression PASS")
