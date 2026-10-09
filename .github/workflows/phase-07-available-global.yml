@@ -8,6 +8,7 @@ on:
       - "scripts/acquire_global_history.py"
       - "scripts/run_phase7_available_global.py"
       - "scripts/test_phase7_available_global.py"
+      - "requirements-phase7-available.txt"
       - "research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json"
       - ".github/workflows/phase-07-available-global.yml"
   workflow_dispatch:
@@ -37,7 +38,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy pandas scikit-learn
+          pip install -r requirements-phase7-available.txt
       - name: Run leakage and arithmetic regressions
         run: python scripts/test_phase7_available_global.py
       - name: Report protected snapshot hashes for independent review
@@ -48,6 +49,7 @@ jobs:
             scripts/acquire_global_history.py \
             scripts/run_phase7_available_global.py \
             scripts/test_phase7_available_global.py \
+            requirements-phase7-available.txt \
             .github/workflows/phase-07-available-global.yml
 
   authorization:
@@ -100,6 +102,7 @@ jobs:
               "scripts/acquire_global_history.py",
               "scripts/run_phase7_available_global.py",
               "scripts/test_phase7_available_global.py",
+              "requirements-phase7-available.txt",
               ".github/workflows/phase-07-available-global.yml",
           ]
           if sorted(protected) != sorted(required):
