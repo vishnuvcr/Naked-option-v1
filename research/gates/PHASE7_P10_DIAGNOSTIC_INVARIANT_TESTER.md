@@ -41,3 +41,17 @@ Proposed changes for the tester to independently inspect:
 - The already-running Run #994 is immutable at source SHA `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; the proposed correction cannot retroactively alter its output.
 
 **Tester disposition required:** review the proposed code and test independently; verify block IDs stay aligned when a regime diagnostic is omitted; confirm P10 eligibility semantics and inclusive endpoints; ensure P08/P09 output and fallback accounting are unaffected; check the test's expected block counts against `block_diagnostics`; and issue PASS or REQUEST CHANGES. Do not approve based only on the developer workflow's regression pass. Even after code review, no Phase 8 promotion until the exact empirical artifact audit passes and the current immutable run is properly dispositioned.
+ 
+## Independent review of developer correction commit 39e964d — 2026-10-10
+
+**Code-review disposition: PASS FOR A FUTURE RUN ONLY; NO RETROACTIVE CHANGE TO RUN #994.**
+
+Review performed against developer commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16`, the frozen specification, the new synthetic regression and the unchanged Run #994 audit:
+
+- The helper retains block IDs from the original regime diagnostic list and filters only P10 diagnostics whose block has no finite label/probability outside the inclusive [0.45, 0.55] abstention band.
+- P08/P09 return the original diagnostics unchanged.
+- The fixture exercises both endpoints (0.45 and 0.55 are abstained), a mixed block, and eligible probabilities below the lower endpoint; expected retained diagnostic IDs [1,2] and two metric blocks are consistent with `block_diagnostics`.
+- The validator restores the stated count equality for P08/P09/P10.
+- The Phase 7 developer CI run #1068 passed the regression step. This tester review is a static/code-contract review, not an independently executed hosted test job.
+
+**Scope restriction:** this correction is on the developer branch after Run #994's immutable source SHA `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`. It does not alter Run #994's predictions or its report. The Run #994 technical audit remains PASS WITH SCOPED RESTRICTIONS; its family tests are all non-significant and it promotes no strategy. A fresh, pre-authorized run using the corrected commit must still pass the exact-run artifact audit, and options-level point-in-time data, costs/slippage and after-cost profitability gates remain mandatory before Phase 8.
