@@ -9,7 +9,7 @@
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
-| Phase 7 Ensemble/regime | **BLOCKED — RUN #925 REQUEST CHANGES** | P10 abstention, finite regime-state, masked block diagnostics and family-bootstrap eligibility corrections required; see [Run #925 tester report](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) |
+| Phase 7 Ensemble/regime | **BLOCKED — CORRECTION AUTHORIZATION REQUEST CHANGES** | Four result defects have a developer correction, but the correction-specific approval is not bound to the exact reviewed source snapshot; see [correction review](gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
@@ -126,3 +126,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Corrected audit disposition: **REQUEST CHANGES** (2,775 checks passed; 323 checks failed). Key causes: omitted P10 abstention, non-finite volatility/trend observations entering the low/low state, P05/P06 per-block diagnostics ignoring abstention masks, and family-bootstrap invalid rows being treated as zero differentials.
 - Tester report: [PHASE7_RUN925_EMPIRICAL_TESTER.md](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md).
 - Run #925 is non-accepted evidence. No Phase 7 metric/model/strategy is promoted. Phase 8 option-execution research remains blocked until a corrected fresh empirical run receives an independent pass.
+
+
+## 2026-10-09 — Review of Phase 7 correction submission
+
+- Developer source fixes for P10 abstention, finite regime-state eligibility, candidate-masked block diagnostics and family-bootstrap missingness were confirmed by independent code inspection; targeted regression cases and hosted Run #964 passed.
+- Tester found the correction-specific workflow gate only checks approval text/file presence. It does not bind approval to the exact source/workflow/protocol revision, so later changes could reuse a stale PASS.
+- Gate report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = **REQUEST CHANGES — authorization binding**.
+- Runs `37935752265` and `37935794939` started empirical execution before the binding guard existed and are **NON-EVIDENCE**.
+- Phase 7 remains blocked; Phase 8 must not start. Developer must bind the tester approval to an exact reviewed code snapshot and add positive/negative tests before the tester can approve fresh execution.
