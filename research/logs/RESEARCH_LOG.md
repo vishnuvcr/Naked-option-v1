@@ -596,3 +596,8 @@
 - Tester code review `research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md` = PASS WITH SCOPED RESTRICTIONS. Required test/workflow integration and post-run artifact audit remain mandatory.
 - New manifest regression failed in hosted Runs #835/#837/#838 because one temporary aggregate JSON was created outside repository ROOT. Corrected the remaining temporary-directory occurrence in commit `14d20380632e365b2a0b6b63afe58f2775375950`.
 - Run #846 skipped Phase 7 because a test-only path did not satisfy the workflow detector's science-path trigger. Next action is a no-science-change trigger commit after the approved correction, followed by hosted regression and tester audit.
+
+## 2026-10-09 — Phase 7 reference artifact regression gate passed
+- Fresh Run #852 passed protocol, existing regression suite, new reference-artifact regression and tester authorization. The tester report is archived at `research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md`.
+- The new empirical job is in progress. No metric, artifact, or downstream Phase 8 reference is accepted until the post-run tester audit verifies the ten panels and paired aggregate JSON.
+- Runs #831/#835/#837/#838 remain non-evidence for the new artifact output contract.
