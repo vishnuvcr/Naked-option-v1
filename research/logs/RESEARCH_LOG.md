@@ -522,3 +522,10 @@
 - A separate main-branch orchestrator will invoke this pinned tester script automatically after a successful `Research Protocol Check` on `phase-07-developer` completes, but only if that exact run has both `phase7-ensemble-results` and `phase7-ensemble-reference` artifacts. It will also expose a manual run-ID input.
 - The orchestrator checks out this tester code at a fixed commit before executing it, downloads only the source run's artifacts, publishes the full JSON/Markdown tester report onto this tester branch, and fails the final gate unless the report says PASS. It does not use model selection logic or modify developer forecast code.
 - This commit adds the generic audit entry point and records the separation rule; it is not an empirical result. The legacy pinned Run #925 audit remains available via manual `workflow_dispatch` only.
+
+
+## 2026-10-09 — Legacy Run #925 audit now requires explicit manual opt-in
+
+The tester workflow's manual button now exposes boolean input `run_legacy_run925_audit`, default false. The legacy pinned Run #925 audit runs only when the user deliberately selects that opt-in. All normal tester branch pushes and ordinary manual protocol-validation runs skip the historical audit. Approved fresh-run audits are handled separately by the main-branch workflow, which pins the generic tester script from commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f and publishes each exact-run report to this isolated tester branch.
+
+This workflow-only safety change does not alter the frozen metric calculations or any empirical data.

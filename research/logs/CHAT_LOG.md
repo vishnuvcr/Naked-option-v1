@@ -148,3 +148,10 @@ No scientific or protocol change was made during this checkpoint.
 - The main orchestrator will checkout this tester script by immutable commit SHA; artifact identity and run eligibility are independently checked before it runs. Reports are written to the tester branch, and the orchestration gate fails unless the audit decision passes.
 - Developer → Tester: only run on a successful completed developer branch run with both uploaded artifacts; fail closed for missing/expired artifacts or source identity mismatch.
 - Tester → Developer: report the exact run/commit, counts and failures; no promotion until all numerical, source, hash, panel and family-inference checks pass.
+
+
+## 2026-10-09 — Legacy Run #925 audit now requires explicit manual opt-in
+
+The tester workflow's manual button now exposes boolean input `run_legacy_run925_audit`, default false. The legacy pinned Run #925 audit runs only when the user deliberately selects that opt-in. All normal tester branch pushes and ordinary manual protocol-validation runs skip the historical audit. Approved fresh-run audits are handled separately by the main-branch workflow, which pins the generic tester script from commit 50334eb728a85ae8ca88f9ded5246b867c9cb56f and publishes each exact-run report to this isolated tester branch.
+
+This workflow-only safety change does not alter the frozen metric calculations or any empirical data.
