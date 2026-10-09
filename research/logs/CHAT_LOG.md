@@ -120,3 +120,13 @@ No scientific or protocol change was made during this checkpoint.
 - Tester found no arithmetic/schema inconsistency in executed cells. Apparent performance elevations are treated as research leads only, not validated strategies.
 - Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Developer may archive the gate and proceed to Phase 7 ensemble/regime research; Phase 8 option economics and later robustness/fresh-forward gates remain mandatory.
+
+
+## 2026-10-09 — User continuation: Phase 7 Run #925 independent audit
+
+- User asked to continue from the Phase 7 long-running artifact checkpoint.
+- Developer/tester reconciled Run #852, #924 and #925; all completed and uploaded aggregate/reference artifacts. Run #925 was chosen for a frozen-source independent review rather than pooling results from multiple duplicate runs.
+- The first tester audit workflow failed before audit because its pip-cache setting required a missing dependency manifest. That workflow configuration failure was corrected; a second workflow run failed at artifact audit, producing a preserved independent report.
+- Corrected tester checks confirmed artifact hashes, source/code hashes, panel identities and source-derived labels/returns/timestamps, but issued REQUEST CHANGES for four protocol/implementation defects: P10 abstention omitted, missing regime features classified as low/low, P05/P06 block diagnostics not abstention-aligned, and unavailable rows treated as zero differences in family bootstrap.
+- The gate is recorded at [PHASE7_RUN925_EMPIRICAL_TESTER.md](../gates/PHASE7_RUN925_EMPIRICAL_TESTER.md), with corresponding status, README and error-log updates on the isolated tester branch.
+- No metrics or strategy are promoted from Run #925. Phase 8 stays blocked. Next step: developer corrects only the approved defects, adds focused tests, submits the exact commit for independent review, and runs a fresh artifact only after the code gate passes.
