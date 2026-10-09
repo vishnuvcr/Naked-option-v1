@@ -1,5 +1,24 @@
 # NIFTY Naked-Option Direction Research
 
+
+## Latest prediction-only checkpoint — 2026-10-10
+
+The user asked us to continue testing prediction methods with available data and explicitly defer trading strategies. A new available-data extension is prepared on the isolated `phase-07-developer` branch; the tester must independently approve it before any empirical prediction run.
+
+- **Scope:** peer/global daily prices (SENSEX, Bank Nifty, S&P 500, Nasdaq, Nikkei, Hang Seng) and free VIX/FX/gold/crude histories where coverage validation succeeds; candidate methods G01/G02, G04/G05/G06, G08/G09/G11/G12/G13/G16 and a limited weekday/annual-cycle G18 control.
+- **Protocol:** [Available-data prediction spec](research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md)
+- **Developer submission:** [Tester handoff](research/gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md)
+- **Implementation:** [Source acquisition](scripts/acquire_global_history.py), [walk-forward predictor](scripts/run_phase7_available_global.py), [regression tests](scripts/test_phase7_available_global.py), [automatic/manual gated workflow](.github/workflows/phase-07-available-global.yml).
+- **Latest regression:** [workflow run #5](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37984078118) passed the deterministic regression suite. The empirical job was correctly skipped because no independent tester approval was present.
+- **Errors:** first-run fixture mistakes are recorded in [research error log](research/ERROR_LOG.md); failed regression-only runs generated no empirical results.
+- **Current conclusion:** no prediction metric has yet been produced by this extension. Run #994 remains the latest accepted Phase 7 empirical result; its ten family-level tests were non-significant. No strategy is promoted, Phase 8 remains out of scope, and the final untouched holdout remains unopened.
+
+**Developer → Tester:** independently audit chronology, point-in-time alignment, purge rules, formulae, family inference, source failure handling, hashes, and workflow authorization before permitting a fresh run.
+
+**Tester → Developer:** provide a verified gate decision and protected SHA-256 manifest. Request changes for any defect; do not authorize empirical execution until exact-snapshot integrity passes.
+
+---
+
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
 ## Research status
