@@ -305,3 +305,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester follow-ups on `phase-08-tester`: `research/gates/PHASE8_PANEL_VALIDATOR_FULL_TEST_TESTER.md` and `research/gates/PHASE8_PANEL_VALIDATOR_CODE_HASH_TESTER.md` = PASS for synthetic tests only.
 - Production integration still requires the Phase 8 workflow to fetch the immutable reference commit before running the validator. Real artifact audit and a separate manifest amendment remain mandatory.
 - Run #822 and proposal-triggered Run #839 are still in progress at the latest poll; no diagnostic output has been accepted. Phase 7 Run #852 empirical job is also still running; no new artifact is accepted yet.
+
+## 2026-10-09 — Phase 8 saved-panel integration regression PASS
+- Dedicated hosted run `37913391078` completed SUCCESS after exercising the full synthetic ten-panel artifact, source/code hash checks, aggregate metric reconciliation, and the existing `validate_phase8_forecast_panel.py` consumer contract.
+- Tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md` on `phase-08-tester` = PASS for synthetic integration only.
+- This closes the synthetic validator test path. It does not validate the real Phase 7 artifact or authorize a manifest change. Production workflow must fetch the recorded source commit, then audit the actual artifact and all ten panels.
+- Run #822 and Run #839 remain in progress at the latest poll; Run #852 Phase 7 empirical execution also remains in progress. No new research artifact is accepted yet.
