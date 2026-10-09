@@ -49,3 +49,13 @@
 - Regression verifies the exact-commit module can be loaded and the hash verifier rejects tampered hashes. Full synthetic artifact validation still passes with its code-loader bypass isolated to synthetic fixtures.
 
 **Restrictions remain:** This is code/test approval only. The actual Phase 7 artifact must pass a distinct post-run audit for all ten panels, hashes, source files, immutable code commit, all metrics/family inference, and paired aggregate integrity. The consumer must preserve P08–P10 regime diagnostics in the aggregate JSON. No Phase 8 frozen-manifest amendment or 4,800-cell option grid is authorized by this report.
+
+
+## Independent Tester Follow-up — source-data alignment validation
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — source alignment code/test**
+
+- Hosted regression run `37914065821` completed SUCCESS.
+- The validator now independently recomputes daily labels/future returns and intraday labels/future returns from the hashed source data using the exact Phase 7/6/3 implementation versions recorded in the manifest. It also checks source-derived decision timestamps and row counts.
+- Regression tests exercise daily and intraday alignment and verify that a deliberately mutated label or future return is rejected. The full synthetic artifact test isolates source loading/alignment only for its synthetic fixture and still passes.
+- This closes the identified label/return provenance gap for the tested code path. It does not accept any real artifact. Actual post-run audit must still validate the downloaded Phase 7 artifact, all ten panels, all hashes and aggregate/family statistics before the Phase 8 manifest can change. No option-grid execution is authorized.
