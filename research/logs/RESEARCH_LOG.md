@@ -839,3 +839,15 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Literature highlights are hypotheses only: strong baselines/multi-window stability; avoid interpreting normalized-price “accuracy” as direction accuracy; candidate cross-market, sentiment, FII/DII, India VIX and PCR features require causal timestamp alignment; and paper-reported results require independent reproduction.
 - During schema-semantic audit, found the pre-existing L003 row had the DOI and method/hypothesis fields shifted. Corrected it on phase-01-developer and recorded the defect in that branch's ERROR_LOG.md. The current lightweight CSV validator does not detect semantic displacement; tester should confirm field alignment for the new rows and L003.
 - No research-code change or empirical run was triggered by the paper review. Phase 7 available-data empirical execution remains blocked pending independent approval of the exact protected code snapshot. No prediction/strategy promoted.
+
+
+## 2026-10-10 — Phase 7 extension corrected after independent REQUEST CHANGES
+
+- The isolated tester reviewed the exact available-data extension and rejected it for four substantive issues plus a spec numbering typo. See phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md.
+- Corrected G13 so its definition matches the frozen specification: equal-weight means of raw 1-session and 5-session log returns across the frozen available global-equity constituent set. Missing rows are not averaged over a changing subset.
+- Corrected horizon-family multiple testing: the Bonferroni multiplier is the full registered count of five horizons; the count of tests that actually executed is reported separately.
+- Added candidate-specific paired baseline metrics and Brier improvement using the exact same held-out rows as the candidate. Kept the baseline vector independent of candidate feature masks and labeled the full baseline cell's broader sample.
+- Added standalone result validation and negative regression fixtures for missing baseline cells, incorrect family-size adjustment, blocked cells without reasons, paired-sample mismatch, and horizon metadata/inference mismatch.
+- Expanded the workflow path trigger, regression command, protected hash output and authorization protected-file set to include the validator and validator test. Replaced the inline partial check with the full validator.
+- Corrected spec numbering and clarified paired-vs-full baseline reporting without changing the target labels, method universe, source date cutoff, horizons or family bootstrap design.
+- The new regressions are committed to the developer branch, but the hosted run status is not yet independently confirmed here. Do not state that they passed until the exact automatic run is inspected. No empirical predictions were run and no result has been promoted.
