@@ -810,3 +810,10 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The production `scripts/run_phase7_ensemble.py` currently attaches the shared regime diagnostics to P08/P09/P10, while its P10 `chronological_blocks` uses the candidate-specific abstention mask. The independent auditor reconciles the shared regime diagnostics and P10 block metrics separately but does not explicitly enforce the frozen spec's stated count equality for P10.
 - This is a **possible protocol/diagnostic-definition inconsistency**, not yet a finding that Run #994's eventual artifact fails. Do not silently amend the spec or disable the check. The tester must determine, from the literal frozen text and fresh artifact, whether (a) the implementation must retain matching P10 diagnostic blocks while preserving P10 abstention semantics, or (b) a formal pre-registered specification amendment is required. Any amendment needs its own tester approval and cannot be applied post hoc to justify results already examined.
 - Run #994 is already executing immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; no code/spec change has been made to that run. The tester report must document this point and keep scientific promotion/Phase 8 blocked if unresolved.
+
+
+## 2026-10-09 23:20 IST — Resume and P10 correction resubmission
+
+Run #994 (GitHub Actions run 37957677656) remains active on immutable source `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; its ensemble script has not completed, validation remains pending, and no artifacts exist. Job log retrieval returned BlobNotFound, so the current calculation's internal progress cannot be verified. Do not infer completion or strategy performance.
+
+The proposed follow-up correction is committed on the developer branch as `39e964d4ae99bb02b113fa4eabecd91c9af46c16`. Developer workflow run #1068 passed the regression suite, including the updated Phase 7 regression script, but correctly skipped empirical and independent tester-gated jobs. The isolated tester report was updated to request explicit review. Phase 8 remains blocked until tester review and the exact empirical artifact audit are both resolved.
