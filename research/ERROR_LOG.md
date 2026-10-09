@@ -156,3 +156,11 @@
 - Result: original Phase 7 regression and new reference-artifact regression both PASS; tester authorization gate PASS.
 - The prior fixture defect is considered corrected for this code path. Earlier failed runs remain non-evidence and are not overwritten.
 - Empirical execution is still in progress; artifact integrity and scientific acceptance remain pending separate tester audit.
+
+## 2026-10-09 — Phase 7 reference artifact runs remain active without artifacts
+- Category: workflow/runtime observability; root cause not yet established.
+- Components: GitHub Actions runs #852 (37912587739), #924 (37914896724), and #925 (37914905848), empirical job `python scripts/run_phase7_ensemble.py`.
+- Symptom: repeated live polls show all three workflow runs and empirical jobs still `in_progress`; no artifacts are listed. Run #852's run metadata remains stale at 09:39:25 UTC. Live log requests for active jobs have returned `BlobNotFound`.
+- Impact: immutable reference panels and manifest are unavailable for audit, so no new Phase 7 results can be accepted and Phase 8 remains blocked.
+- Evidence classification: unknown/still running; do not label as success or failure based only on missing logs or stale metadata.
+- Immediate prevention: do not spawn additional competing empirical runs. Reconcile the first completed attempt and inspect its artifact. If execution remains unbounded, amend the workflow with explicit job timeout and periodic progress checkpoints after tester review; ensure failure uploads diagnostics and partial outputs are clearly marked non-evidence.
