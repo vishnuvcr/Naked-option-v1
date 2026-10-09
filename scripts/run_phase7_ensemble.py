@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+# Reference artifact regression fixture correction trigger; no scientific logic change.
 from pathlib import Path
 import hashlib, importlib.metadata, json, math, os, platform, sys, warnings
 import numpy as np
