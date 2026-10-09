@@ -208,3 +208,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - All 100 P01-P10 layer/horizon cells executed and independently reconciled.
 - No family-level test reached alpha=0.05; no Phase 7 candidate is promoted.
 - **Next phase:** Phase 8 long-option execution translation with realistic Paytm Money brokerage/charges, exchange/statutory costs, bid/ask spread, slippage, latency and premium decay. The final untouched holdout remains sealed.
+
+
+## Phase 7 reference artifact status — 2026-10-09
+
+- A same-run reference-artifact writer now emits 10 horizon panels containing P01-P10 forecasts, labels, future returns, timestamps and chronological block IDs, plus source/code/runtime fingerprints. The scientific method and existing metric calls are unchanged.
+- Tester code gate: [PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md](research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md) = PASS WITH SCOPED RESTRICTIONS.
+- Hosted regression runs #835/#837/#838 failed only in the new manifest-test fixture because a temporary JSON path was outside the repository root. The fixture correction is commit `14d20380632e365b2a0b6b63afe58f2775375950`; fresh hosted verification is still pending.
+- Runs #831 and the failed fixture runs are non-evidence for the new reference artifact. No Phase 7 metric is promoted and Phase 8 empirical option execution remains blocked.
+- Follow the [research status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md) and [chat log](research/logs/CHAT_LOG.md) for gate history.
