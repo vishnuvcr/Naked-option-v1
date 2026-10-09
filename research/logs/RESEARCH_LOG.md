@@ -641,3 +641,8 @@
 - Identified a structural reproducibility gap: Run #654 artifact retains aggregate metrics but no row-level predictions. Root cause remains unproven; no tolerance change or empirical execution.
 - Developer proposal commit d316da04e301977e62c6ee2c1fcba2602e608326 requests a new, versioned Phase 7 artifact that captures predictions and aggregate metrics from the same execution. Tester proposal gate commit b25dec552a735369ed1f15c6926c396f18620f75 approves this proposal with scoped restrictions only.
 - Next: implement panel/artifact output and tests, submit to a distinct tester code review, then run a gated Phase 7 artifact build and independent artifact audit before a separately reviewed Phase 8 manifest amendment.
+
+## 2026-10-09 — Phase 8 saved-panel validator regression PASS
+- Added a separate workflow with automatic path-based execution and manual dispatch for the saved-panel consumer regression.
+- Hosted run `37912665449` completed SUCCESS. Synthetic row-level predictions were used to recompute metrics and family-bootstrap output without model refitting, and the frozen 1e-9 comparator passed.
+- This is a code-path regression only. The validator is not wired into the production Phase 8 workflow; it still requires real-artifact audit, code-hash verification and a separately approved manifest amendment.
