@@ -830,3 +830,12 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Regression run #1 (37983764374) failed on an incorrect expected value in the as-of fixture; regression run #3 (37983879350) failed on a fixture container-type error. Both are logged in `research/ERROR_LOG.md` and both stopped before empirical execution. The corrected regression run #4 (37983973028) passed.
 - Updated global-cache freshness to force refresh when the newest cached source row is older than ten calendar days. Run #5 (37984078118) was started for the amended code; check its final regression result before tester authorization.
 - Developer submission is archived at `research/gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md`. Independent tester review remains pending. No empirical metrics or method promotions exist from this extension.
+
+
+## 2026-10-10 — Uploaded literature corpus added while resuming Phase 7 prediction
+
+- Re-read README, STATUS, RESEARCH_PROTOCOL, method/hypothesis registries, recent run/tester reports, research/error/chat logs, and current available-data extension specification/handoff before changing research artifacts.
+- Reviewed 15 unique attached PDFs and added a source-by-source appraisal on phase-01-developer at [UPLOADED_PDF_REVIEW_2026-10-10.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-01-developer/research/literature/UPLOADED_PDF_REVIEW_2026-10-10.md), registry rows L037-L051.
+- Literature highlights are hypotheses only: strong baselines/multi-window stability; avoid interpreting normalized-price “accuracy” as direction accuracy; candidate cross-market, sentiment, FII/DII, India VIX and PCR features require causal timestamp alignment; and paper-reported results require independent reproduction.
+- During schema-semantic audit, found the pre-existing L003 row had the DOI and method/hypothesis fields shifted. Corrected it on phase-01-developer and recorded the defect in that branch's ERROR_LOG.md. The current lightweight CSV validator does not detect semantic displacement; tester should confirm field alignment for the new rows and L003.
+- No research-code change or empirical run was triggered by the paper review. Phase 7 available-data empirical execution remains blocked pending independent approval of the exact protected code snapshot. No prediction/strategy promoted.
