@@ -397,3 +397,13 @@ Current tester authorization remains absent. The prior REQUEST CHANGES report is
 **Developer → Tester:** independently test the row-level validator, especially fixed family membership, paired baseline calculations, and exact reproduction of the moving-block p-value; verify hosted regression if available; do not authorize on static inspection alone if CI is still unverified.
 
 **Tester → Developer:** return a new exact-snapshot disposition and report whether hosted tests could be verified. Do not generate or mirror an empirical approval JSON unless all findings and hash checks pass.
+
+
+## 2026-10-10 — Final panel-validation change before tester resubmission
+
+The final output audit was tightened to check baseline probabilities on every date, candidate mean realized return for UP predictions, panel method/row-type membership, prediction-availability flag vocabulary, and empty-panel consistency. CSV serialization now uses 17 significant digits. Regression fixtures deliberately mutate a candidate baseline value and a family bootstrap p-value and require rejection.
+
+This closes the code/spec changes found so far, but is not a claim that tests ran. The GitHub status calls have returned empty check lists; the actual hosted regression result is not visible through the current tools. A fresh independent report will therefore remain restricted and must not authorize an empirical run unless CI is later verified. No model was fitted on fresh data and no prediction output exists.
+
+**Developer → Tester:** independently review current blobs from the developer submission; verify that the new guard tests are protected by the workflow; report exact CI evidence or keep execution blocked.
+**Tester → Developer:** return an exact-snapshot report and explicit execution status; no approval JSON until all gates pass.
