@@ -206,3 +206,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Developer diagnosis and proposed reproducibility review](research/gates/PHASE8_RUN792_RECON_DEVELOPER_DIAGNOSIS.md). [Tester request-changes report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN792_RECON_METRIC_TESTER.md).
 - No tolerance change, reference artifact change, forecast-panel acceptance, or empirical option execution. Await independent tester review before any production patch.
 - See also [status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md), and [chat/action log](research/logs/CHAT_LOG.md).
+
+
+## Phase 8 Run #807 checkpoint — 2026-10-09
+- [Hosted Run #807](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37876792124) failed at historical forecast reconstruction even though protocol, regression, free-source audit and immutable Run #654 artifact checks passed.
+- The reconstruction job used Python 3.11.16 and single-thread numerical-library controls; the two P07 intraday H=60 Brier mismatches persisted beyond the frozen (10^{-9}) tolerance. The root cause remains unproven.
+- [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN807_RECON_TESTER.md): REQUEST CHANGES.
+- No forecast panel was accepted, no option P&L was generated, and the 4,800-cell grid remains blocked. Next step is to reproduce the historical aggregates from immutable per-row predictions/labels and test the frozen aggregation path before any further hosted run.
+- Latest [phase status](research/STATUS.md), [error log](research/ERROR_LOG.md), [research log](research/logs/RESEARCH_LOG.md), and [chat/action log](research/logs/CHAT_LOG.md).
