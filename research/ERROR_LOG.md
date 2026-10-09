@@ -305,3 +305,10 @@
 - The identified mismatch between Phase 7 and Phase 8 `run_phase7_ensemble.py` implementations is corrected at code level: validator loads the exact source module bytes from the manifest commit after SHA-256 verification.
 - Dedicated hosted regression `37913662777` = SUCCESS. Tester reviewed the fix and approved with scoped restrictions in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
 - The defect is closed for the synthetic code path only. Real-artifact audit remains pending, and no new reference artifact or Phase 8 manifest change is accepted until the post-run audit passes.
+
+## 2026-10-09 — Phase 8 source-alignment validator test fixture correction
+- Category: regression fixture / data isolation
+- Runs: dedicated validator run #10 `37913980329` and run #11 `37914006972` failed. Run #10 executed the new validator against a synthetic artifact but the fixture had not isolated the real daily/intraday source loaders; it attempted to read `data/cache/raw/phase3/nifty50_daily.csv`, which is not provisioned in the standalone regression job. Run #11 also exposed the same issue before the fixture correction.
+- Root cause: the synthetic artifact test bypassed the source-alignment assertion but still invoked production data loaders.
+- Correction: patch the daily/intraday loaders only within the synthetic fixture and restore them in `finally`; added separate positive and mutation-negative tests for daily and intraday source alignment using synthetic frames. Production validator loaders and checks remain enabled.
+- Verification: run #12 `37914065821` SUCCESS; tester reviewed and approved the source-alignment code/test with scoped restrictions. Earlier failures remain recorded and are not treated as passes.
