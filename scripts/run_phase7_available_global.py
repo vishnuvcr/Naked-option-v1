@@ -488,7 +488,7 @@ def run() -> dict:
         "feature_columns_json",
     ]
     panel_frame = pd.DataFrame(prediction_panels, columns=panel_columns)
-    panel_frame.to_csv(PANEL_PATH, index=False)
+    panel_frame.to_csv(PANEL_PATH, index=False, float_format="%.17g")
     all_results["provenance"] = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "git_sha": os.environ.get("GITHUB_SHA", "local_or_unspecified"),
