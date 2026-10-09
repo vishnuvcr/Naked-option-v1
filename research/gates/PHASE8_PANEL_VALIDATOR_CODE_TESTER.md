@@ -59,3 +59,13 @@
 - The validator now independently recomputes daily labels/future returns and intraday labels/future returns from the hashed source data using the exact Phase 7/6/3 implementation versions recorded in the manifest. It also checks source-derived decision timestamps and row counts.
 - Regression tests exercise daily and intraday alignment and verify that a deliberately mutated label or future return is rejected. The full synthetic artifact test isolates source loading/alignment only for its synthetic fixture and still passes.
 - This closes the identified label/return provenance gap for the tested code path. It does not accept any real artifact. Actual post-run audit must still validate the downloaded Phase 7 artifact, all ten panels, all hashes and aggregate/family statistics before the Phase 8 manifest can change. No option-grid execution is authorized.
+
+
+## Independent Tester Follow-up — manifest and panel identity hardening
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — hosted regression run `37914278229` SUCCESS.**
+
+- Validator now requires the exact declared daily/intraday source entries and the four expected code-file fingerprints; extra/missing entries fail closed.
+- Each panel must identify the same run ID and commit as the manifest, in addition to matching layer, horizon, row count, schema and SHA-256.
+- The dedicated hosted synthetic validator regression passed with these checks enabled. This remains a synthetic code-path pass, not acceptance of a real artifact.
+- Actual artifact audit must still verify all ten panels, source-derived labels/returns/timestamps, code hashes, aggregate metrics and family-level inference. The Phase 8 manifest and 4,800-cell grid remain blocked until that audit passes.
