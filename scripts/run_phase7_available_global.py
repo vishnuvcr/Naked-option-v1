@@ -330,8 +330,20 @@ def run() -> dict:
                 float(future[np.isfinite(p) & (p >= 0.5)].mean())
                 if np.any(np.isfinite(p) & (p >= 0.5)) else None
             )
+            if m["n"] <= 0:
+                # The source may exist but still fail to produce any eligible
+                # walk-forward rows (e.g., insufficient point-in-time overlap).
+                # Do not publish a fake EXECUTED metric cell.
+                m = {
+                    "status": "BLOCKED_DATA",
+                    "reason": "no eligible out-of-sample predictions after point-in-time and training guards",
+                    "horizon_sessions": h,
+                    "source_ids": candidate_status[method].get("source_ids", []),
+                    "feature_columns": list(X.columns),
+                    "n": 0,
+                }
             horizon_out[method] = m
-            if m["n"] > 0:
+            if m["status"] == "EXECUTED" and m["n"] > 0:
                 pred_vectors[method] = p
         for method, state in candidate_status.items():
             if state.get("status") == "BLOCKED_DATA":
