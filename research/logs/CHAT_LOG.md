@@ -187,3 +187,10 @@ No scientific or protocol change was made during this checkpoint.
 - Retrieved the completed Run #792 reconstruction log and Run #654 empirical-job log.
 - Compared logged runtime/package versions and documented that the root cause is not proven; Python patch versions differ but the listed scientific package versions match.
 - Added developer diagnosis proposal and updated research status. Independent tester review remains required before production changes; no tolerance relaxation or empirical execution.
+
+## 2026-10-09 — User said Proceed: Run #807 follow-up
+- Checked hosted Research Protocol Check #807 (37876792124) and inspected job outcomes/logs.
+- Protocol, regression, free-source audit and immutable Run #654 artifact verification passed, but historical forecast reconstruction failed again at the same two P07 intraday H=60 Brier aggregates under the frozen 1e-9 tolerance.
+- Python 3.11.16 and single-thread environment controls were confirmed in the hosted reconstruction job; these controls did not resolve the mismatch.
+- Tester independently recorded REQUEST CHANGES in `research/gates/PHASE8_RUN807_RECON_TESTER.md`. No empirical option grid or P&L is authorized.
+- Decision: next isolate the exact immutable per-row predictions/labels and aggregate formula, add historical-path regression coverage, and resubmit to tester. The cause remains unproven; no tolerance changes or result rounding.
