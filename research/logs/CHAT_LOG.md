@@ -155,3 +155,8 @@ No scientific or protocol change was made during this checkpoint.
 - Hosted regression exposed a test fixture path error in the manifest test. Corrected the second temporary-directory occurrence; no scientific code or frozen metrics changed.
 - Runs #831/#835/#837/#838 are not accepted as the new artifact gate; #831 began before the new tester gate and later runs failed the new regression. Run #846 skipped because its test-only change did not activate the Phase 7 detector.
 - Next: one fresh hosted run must pass the existing and new regression suites before the reference artifact is considered.
+
+## 2026-10-09 — Proceed: fresh Phase 7 artifact-output gate
+- Corrected the manifest-test fixture path and triggered fresh hosted Run #852. Existing Phase 7 regression, new artifact regression and tester authorization gate all passed.
+- Tester report `research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md` is archived on the developer branch. The empirical job is running; no output artifact or metric has been accepted yet.
+- Prior runs remain non-evidence where their gate sequence or new regression failed. The next step is post-run artifact inspection and independent audit.
