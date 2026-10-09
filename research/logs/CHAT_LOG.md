@@ -277,3 +277,12 @@ No scientific or protocol change was made during this checkpoint.
 - Logged safe reproducibility alternative: provenance, period/schema, source hashes, license status, validation/reconciliation reports and derived aggregate results public; raw cache only in a permitted access-controlled location. No workflow changed in this step.
 - Added free GitHub method leads (SatvikBajpai/nifty-options-greeks, shayakbanerjee99/nifty-options-elt, Aniruddha1980/Bhavcopy, NikhilSuthar/indian-market-data catalogue, darshkale/nse-options-data-pipeline) for later independent review. They are code/process references, mostly based on the same NSE daily EOD data, and do not supply historical executable bid/ask quotes or independent evidence.
 - Phase 7 Run #994 is still the only authorized fresh empirical target; Phase 8 remains blocked pending its separate empirical tester review.
+
+
+
+## 2026-10-09 16:53 UTC — Resume checkpoint, Run #994 unchanged
+
+- Re-polled Run #994's immutable run, job and artifacts APIs. The empirical script remains active, validation/upload are pending and no artifact is available.
+- Current elapsed runtime is still below the prior comparable run's measured 1h53m20s. No new workflow was launched and no failure inferred from stale run metadata.
+- Tester → Developer: wait for this run's terminal result; if uploaded, audit its exact run/commit and all ten panels before promotion.
+- Developer → Tester: maintain the separate post-run audit gate and keep Phase 8 blocked until an independent PASS.

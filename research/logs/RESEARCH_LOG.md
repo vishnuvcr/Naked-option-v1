@@ -740,3 +740,13 @@ Free-source code candidates for later independent methodology review:
 - https://github.com/darshkale/nse-options-data-pipeline — option EOD enrichment/execution-modeling code; treat outputs as derived from the same NSE source family until lineage proves otherwise.
 
 These do not provide historically executable bid/ask quotes. They must not be counted as independent price evidence when their output derives from the same official bhavcopy source. This is a governance/methodology preflight only: no files imported, no Phase 8 specification/workflow changed, and no option-P&L run authorized.
+
+
+
+## 2026-10-09 16:53 UTC — Run #994 active-state recheck
+
+- Same immutable workflow: [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656), source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`.
+- Empirical job `113912548214` still reports `in_progress` at `scripts/run_phase7_ensemble.py` (started 16:15:48 UTC); validation and artifact upload remain pending. No Run #994 artifacts are listed.
+- GitHub run-level `updated_at` remains stale and active live logs are unavailable in earlier polls; that is an observability constraint, not a terminal failure.
+- At this poll elapsed runtime is about 37 minutes, less than the previous completed Run #925's 1h 53m 20s model-step duration.
+- No duplicate was dispatched, no data/result was accepted, and Phase 8 remains blocked.
