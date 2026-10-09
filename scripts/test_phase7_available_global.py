@@ -53,6 +53,21 @@ def check_labels_and_walk_forward_are_future_invariant() -> None:
     assert np.allclose(p1[:450], p2[:450], equal_nan=True, atol=1e-12), "future labels affected earlier forecasts"
 
 
+def check_benchmark_is_independent_of_candidate_feature_mask() -> None:
+    rng = np.random.default_rng(123)
+    n = 660
+    x = pd.DataFrame({"x1": rng.normal(size=n), "x2": rng.normal(size=n)})
+    y = (rng.normal(size=n) > 0).astype(float)
+    y[-10:] = np.nan
+    p_full, b_full = mod.walk_forward_probabilities(y, x, 1)
+    x_missing = x.copy()
+    x_missing.loc[420, "x1"] = np.nan
+    p_missing, b_missing = mod.walk_forward_probabilities(y, x_missing, 1)
+    assert np.allclose(b_full, b_missing, equal_nan=True, atol=1e-12), "historical-rate baseline depends on candidate feature mask"
+    assert np.isfinite(b_missing[420]), "benchmark should remain available when a candidate feature is missing"
+    assert np.isnan(p_missing[420]), "candidate prediction should abstain when its test feature is missing"
+
+
 def check_metrics_reconcile() -> None:
     y = np.array([0., 0., 1., 1., 1., 0.])
     p = np.array([0.2, 0.7, 0.6, 0.4, 0.9, 0.3])
@@ -93,6 +108,7 @@ def main() -> None:
         check_strict_asof_excludes_same_date,
         check_source_features_are_causal,
         check_labels_and_walk_forward_are_future_invariant,
+        check_benchmark_is_independent_of_candidate_feature_mask,
         check_metrics_reconcile,
         check_family_bootstrap_is_deterministic_and_bounded,
         check_registry_has_explicit_blocked_status,
