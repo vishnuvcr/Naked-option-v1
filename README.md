@@ -204,3 +204,8 @@ The automatic workflow [run #1](https://github.com/vishnuvcr/Naked-option-v1/act
 ## Phase 7 code-delta check — 2026-10-09
 
 A direct source comparison found the frozen Phase 7 method specification is unchanged between Run #925 and Run #994, while Run #994's implementation adds the registered P10 abstention handling, finite volatility/trend eligibility for regime counts, missing-row protection in family-bootstrap Brier differentials, and candidate-specific chronological-block masks. Added regressions cover those cases. This is a method-compliance correction, **not a passed result**; [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) remains active with no output artifact at the latest check. The independent tester audit is required before any result/strategy promotion or Phase 8 transition. Details: [developer research log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md).
+
+
+## Open tester review item — P10 regime diagnostic block counts (2026-10-09)
+
+The frozen Phase 7 specification says regime-diagnostic block counts must equal candidate chronological-block counts for P08/P09/P10, but the current validator enforces equality only for P08/P09 because P10's [0.45, 0.55] abstention can leave empty candidate blocks. Run #994 is still active, so no artifact has yet been adjudicated. This inconsistency has been logged for the independent tester; do not change the frozen spec or promote any result post hoc. The tester must resolve whether implementation can satisfy both rules or a pre-registered, separately approved amendment is needed. Phase 8 remains blocked. Details: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md
