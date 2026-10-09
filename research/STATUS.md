@@ -237,3 +237,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester report `research/gates/PHASE7_REFERENCE_ARTIFACT_REGRESSION_TESTER.md` = PASS for regression only. The Phase 7 empirical job is in progress; no new reference artifact or metrics are accepted until post-run audit.
 - Run #831 remains non-evidence because it started before the new code gate. Runs #835/#837/#838 remain non-evidence because the new regression fixture failed in those runs. Run #852 is the first correctly gated run for the new output contract.
 - Phase 8 manifest amendment and the 4,800-cell option grid remain blocked pending a complete, hash-verified artifact and independent audit.
+
+## 2026-10-09 — Phase 7 immutable reference artifact checkpoint
+
+- Reconciled GitHub Actions runs #852 (37912587739), #924 (37914896724), and #925 (37914905848). At this checkpoint all three still report `in_progress`; their empirical jobs are executing `scripts/run_phase7_ensemble.py`, and none has published an artifact.
+- Run #852 remains unusually stale: its run metadata last updated at 09:39:25 UTC despite the empirical job still being marked active. Live log retrieval for #852 and #925 returned GitHub `BlobNotFound`; this is treated as an observability limitation, not evidence of success or failure.
+- Regression and tester-authorization jobs passed in the later runs, but the real-data artifact audit has not occurred. No Phase 7 metrics are newly accepted, and Phase 8 remains blocked.
+- The moving-block bootstrap allocation optimization has passed equivalence regression and received tester approval with scoped restrictions; this does not waive empirical completion or artifact provenance review.
+- Operational correction: avoid launching additional competing empirical jobs while these runs are active. Reconcile the first completed run and audit its artifact before deciding whether remaining attempts are duplicates or require further action.
