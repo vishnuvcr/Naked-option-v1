@@ -62,6 +62,7 @@ def test_full_artifact_directory_validation():
     n = 240
     original_root = validator.ROOT
     original_family = p7.family_bootstrap
+    original_verify = validator.verify_code_hashes
     original_argv = sys.argv[:]
     try:
         with tempfile.TemporaryDirectory() as td:
@@ -76,6 +77,7 @@ def test_full_artifact_directory_validation():
             source_daily.write_text("date,close\n2024-01-01,100\n", encoding="utf-8")
             source_intra.write_bytes(b"synthetic-intraday-source")
             validator.ROOT = root
+            validator.verify_code_hashes = lambda manifest: None
             p7.family_bootstrap = lambda *args, **kwargs: {"observed": 0.001, "p_value": 0.5}
 
             aggregate = {"protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42}
@@ -177,6 +179,7 @@ def test_full_artifact_directory_validation():
             assert len(list(output.glob("phase7_predictions_*.parquet"))) == 10
     finally:
         validator.ROOT = original_root
+        validator.verify_code_hashes = original_verify
         p7.family_bootstrap = original_family
         sys.argv = original_argv
 
