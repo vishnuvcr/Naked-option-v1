@@ -1,5 +1,32 @@
 # Research Status
 
+## Current checkpoint — 2026-10-10, available-data prediction extension
+
+| Workstream | Current state | Evidence / next gate |
+|---|---|---|
+| Previously accepted Phase 7 Run #994 | Accepted technical artifact with scoped restrictions; no significant family-level predictive improvement | [Independent empirical audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md); all ten family p-values were non-significant |
+| Available-data prediction extension | **Developer submission prepared; independent tester review pending** | [Method specification](phase7/AVAILABLE_DATA_PREDICTION_SPEC.md) and [developer handoff](gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md) |
+| Extension regression | **PASS on run #5** | [Workflow run #5](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37984078118); 6 deterministic regression checks passed |
+| Extension empirical execution | **NOT AUTHORIZED / SKIPPED** | Workflow correctly skipped predictions because no independent tester approval JSON had been mirrored |
+| Options strategy research | **OUT OF SCOPE for this user request** | Do not enter Phase 8; no option trades or strategy P&L are being tested |
+| Final untouched holdout | **UNOPENED** | Retain for a later independently approved forward-validation gate |
+
+### Current extension scope
+
+- Candidate data: SENSEX, Bank Nifty, S&P 500, Nasdaq Composite, Nikkei 225, Hang Seng, Cboe VIX, USD/INR, gold, crude oil, and India VIX where free historical acquisition passes validation.
+- Candidate methods: G01/G02, G04/G05/G06, G08/G09/G11/G12/G13/G16, plus a deliberately limited G18 weekday/annual-cycle control.
+- Horizons: 1, 2, 3, 5, and 10 NIFTY sessions.
+- Method code: [acquisition](../scripts/acquire_global_history.py), [predictor](../scripts/run_phase7_available_global.py), [regression tests](../scripts/test_phase7_available_global.py), [gated workflow](../.github/workflows/phase-07-available-global.yml).
+- Strict point-in-time rule remains unchanged: global source session date must be strictly earlier than the NIFTY session date. Source failures are isolated and recorded; no fabricated data or backfilled values.
+- Regression runs #1 and #3 failed on test-fixture mistakes and are preserved/logged as non-evidence. Run #4 passed after fixture correction; run #5 passed after cache-freshness refinement. No empirical prediction result has yet been created for this extension.
+- Next step: independent tester must audit source timing, leakage/purging, feature and result formulas, family bootstrap, code hashes, and workflow fail-closed behavior. Empirical execution is authorized only if the tester explicitly approves the exact protected code snapshot.
+
+Developer → Tester: review all submitted files independently and issue a gate report; do not infer scientific validity from regression success alone.
+
+Tester → Developer: report any mathematical, data-alignment, leakage, or workflow issue; provide verified protected SHA-256 values and explicit approval/rejection for one empirical prediction run.
+
+---
+
 | Phase | Status | Gate |
 |---|---|---|
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
