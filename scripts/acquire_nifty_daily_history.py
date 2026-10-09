@@ -89,8 +89,8 @@ def _validate_rows(rows: list[dict], manifest: dict, today: dt.date) -> tuple[bo
         return False, "one or more dates are not ISO calendar dates"
     if any(a >= b for a, b in zip(dates, dates[1:])):
         return False, "dates are not strictly increasing and unique"
-    if dates[0] > START_DATE:
-        return False, f"coverage starts after {START_DATE.isoformat()}"
+    if dates[0] > START_DATE + dt.timedelta(days=7):
+        return False, f"coverage starts more than 7 days after requested start {START_DATE.isoformat()}"
     if manifest.get("rows") != len(rows):
         return False, "manifest row count does not match CSV"
     if manifest.get("observed_start") != dates[0].isoformat():
