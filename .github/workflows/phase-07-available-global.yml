@@ -7,6 +7,7 @@ on:
       - "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md"
       - "scripts/acquire_global_history.py"
       - "scripts/acquire_nifty_daily_history.py"
+      - "scripts/test_acquire_nifty_daily_history.py"
       - "scripts/run_phase7_available_global.py"
       - "scripts/test_phase7_available_global.py"
       - "scripts/validate_phase7_available_global_results.py"
@@ -44,6 +45,7 @@ jobs:
           pip install -r requirements-phase7-available.txt
       - name: Run leakage and arithmetic regressions
         run: |
+          python scripts/test_acquire_nifty_daily_history.py
           python scripts/test_phase7_available_global.py
           python scripts/test_validate_phase7_available_global_results.py
       - name: Report protected snapshot hashes for independent review
@@ -53,6 +55,7 @@ jobs:
             research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md \
             scripts/acquire_global_history.py \
             scripts/acquire_nifty_daily_history.py \
+            scripts/test_acquire_nifty_daily_history.py \
             scripts/run_phase7_available_global.py \
             scripts/test_phase7_available_global.py \
             scripts/validate_phase7_available_global_results.py \
@@ -109,6 +112,7 @@ jobs:
               "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md",
               "scripts/acquire_global_history.py",
               "scripts/acquire_nifty_daily_history.py",
+              "scripts/test_acquire_nifty_daily_history.py",
               "scripts/run_phase7_available_global.py",
               "scripts/test_phase7_available_global.py",
               "scripts/validate_phase7_available_global_results.py",
