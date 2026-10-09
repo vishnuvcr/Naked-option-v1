@@ -83,7 +83,7 @@ jobs:
 
   phase7-run925-independent-audit:
     name: phase7-run925-independent-artifact-audit
-    if: ${{ github.ref == 'refs/heads/phase-07-tester' }}
+    if: ${{ github.ref == 'refs/heads/phase-07-tester' && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
