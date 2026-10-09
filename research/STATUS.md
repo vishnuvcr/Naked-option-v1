@@ -329,3 +329,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Hosted dedicated validator regression run `37914065821` completed SUCCESS. Tests verify daily/intraday source alignment and reject deliberately mutated labels/returns. Tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md` = PASS WITH SCOPED RESTRICTIONS for this code/test path.
 - Intermediate run #10 (`37913980329`) and run #11 (`37914006972`) failed because the synthetic full-artifact test did not isolate the newly added source loaders; run #12 passed after the fixture was isolated. Failures are retained in the error log.
 - Run #852 (`37912587739`) still has the Phase 7 empirical job running at latest poll, with no artifact available. Phase 8 Run #822/#839 reconstruction attempts also remain in progress without uploaded artifacts. No real artifact accepted; frozen manifest and empirical option grid remain blocked.
+
+## 2026-10-09 — Strict manifest/panel identity regression PASS
+- Hosted saved-panel validator run `37914278229` completed SUCCESS after requiring exact source-file and code-file manifest entries plus panel run/commit identity checks.
+- Tester follow-up `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md` = PASS WITH SCOPED RESTRICTIONS for the synthetic code path. Code review gates are now passed for exact-commit module loading, source-derived label/return checks, strict panel identity and aggregate reconciliation.
+- Phase 7 Run #852 (`37912587739`) remains active at `run_phase7_ensemble.py` with no artifact uploaded as of the latest poll. Phase 8 legacy reconstruction attempts #822 and #839 also remain active without artifacts; no empirical result is inferred from their ongoing status.
+- Next gate is the real Phase 7 reference artifact build and independent post-run audit. Frozen Phase 8 manifest and 4,800-cell grid remain blocked.
