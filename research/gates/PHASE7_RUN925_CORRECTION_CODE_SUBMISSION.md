@@ -55,3 +55,42 @@ Please independently inspect the complete source diff, the new regression cases,
 **Developer → Tester:** Review the exact proposed commits and hosted regression run; do not approve based solely on this summary.
 
 **Tester → Developer:** Verify mathematics, data alignment, masks, family bootstrap missingness, validator semantics and both workflow gates independently. Do not authorize empirical execution until the correction-specific report passes.
+
+
+## Round 2 — correction approval snapshot binding
+
+**Exact protected-code snapshot submitted for independent review:** `b9fc7c9e7c77efb5149d35e31509251f701122ce`  
+**Hosted workflow evidence:** [Run #981 / ID 37938077088](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088)  
+**Disposition:** SUBMITTED FOR INDEPENDENT REVIEW; fresh empirical execution is still not authorized.
+
+### Added fail-closed approval validator
+
+- `scripts/validate_phase7_correction_approval.py` requires the exact correction-specific Markdown PASS plus a machine-readable `research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json`.
+- The JSON approval binds a reviewed developer commit, tester-report SHA-256 and an exact hash map for every listed protected source, label/feature, candidate, test, protocol and workflow file.
+- The validator fetches `phase-07-tester`, verifies the local Markdown/JSON copies are byte-identical to the independent tester branch versions, confirms the reviewed commit exists and is an ancestor of the current checkout, rejects missing/extra protected paths, and recomputes every protected-file hash. Any missing file, fetch problem, stale approval or mismatch fails closed.
+- Both automatic caller and reusable/manual Phase 7 workflow run this validator before allowing empirical execution. The validator itself and its tests are in the protected path set.
+- The Phase 7 regression workflow now runs `scripts/test_phase7_correction_approval.py` with positive and negative cases: matching snapshot, mutated protected file, modified tester copy, non-ancestor reviewed commit, and incomplete protected-file map.
+
+### Hosted evidence
+
+Run #981 passed:
+- Repository protocol/literature validators.
+- Phase 7 regression suite, including the corrections to P10 abstention, finite regime inputs, candidate-specific block diagnostics, and family-bootstrap missingness.
+- Approval-validator positive/negative regression suite.
+- Row-level reference-artifact regression suite.
+
+The authorization and empirical jobs were **SKIPPED** because no independent tester PASS/approval manifest has been archived. This is the expected safe behavior, not a workflow failure.
+
+### Request to tester
+
+Independently review the exact commit `b9fc7c9e7c77efb5149d35e31509251f701122ce`, including the protected path list, validator, positive/negative tests, and both automatic/manual workflow paths. Verify the current gate and manifest are absent and empirical execution cannot start from this unapproved state.
+
+If approved, create on `phase-07-tester`:
+1. `research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md` with **PASS WITH SCOPED RESTRICTIONS — fresh empirical execution only**, and the exact reviewed developer commit line.
+2. `research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json` with schema_version 1, status PASS, that reviewed commit SHA, the SHA-256 of the exact tester report bytes, and the SHA-256 values of every protected file listed in `scripts/validate_phase7_correction_approval.py`.
+
+Archive both files byte-for-byte on `phase-07-developer`. Any mismatch must instead result in REQUEST CHANGES. Approval permits only one fresh empirical execution; it does not accept metrics or promote a strategy.
+
+**Developer → Tester:** Review the exact snapshot and both authorization paths; do not approve based only on this description.
+
+**Tester → Developer:** Independently verify the protected-path list and hash comparison, prove stale/modified approvals fail closed, then issue PASS for fresh execution only or REQUEST CHANGES. No Phase 8 until the fresh empirical artifact independently passes.
