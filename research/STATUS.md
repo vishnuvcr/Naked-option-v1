@@ -9,7 +9,7 @@
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
-| Phase 7 Ensemble/regime | **BLOCKED — RUN #925 REQUEST CHANGES** | Fresh immutable artifact audit found four protocol/implementation defects; see [Run #925 tester report](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) |
+| Phase 7 Ensemble/regime | **BLOCKED — CORRECTION WORKFLOW REQUEST CHANGES** | Four result defects have implementation/test corrections, but tester requires approval to bind to exact protected-code snapshot; see [correction review](gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
@@ -261,3 +261,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent tester report: [PHASE7_RUN925_EMPIRICAL_TESTER.md](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
 - Run #925 is **NON-ACCEPTED EVIDENCE**. Older Run #654 remains an archived technical artifact but does not override this newer protocol-compliance finding.
 - Phase 7/8 progression is blocked. Developer must correct these defects on `phase-07-developer`, add regression tests, and submit the exact correction commit for independent tester review before fresh empirical execution. The Phase 8 4,800-cell grid must not start until the fresh Phase 7 artifact passes.
+
+
+## 2026-10-09 — Phase 7 correction submission reviewed; fresh-run gate remains blocked
+
+- Developer correction submitted at `research/gates/PHASE7_RUN925_CORRECTION_CODE_SUBMISSION.md`.
+- The targeted source fixes were independently verified and hosted Run #964 (`37936076338`) passed protocol/regression/reference-panel regression checks; empirical execution was skipped.
+- Tester report `research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md` = **REQUEST CHANGES** because the correction-specific PASS is not bound to the exact reviewed snapshot. Any later source/workflow/protocol change could reuse stale approval text.
+- Next developer action: bind approval to exact reviewed commit and hashes of protected source/test/validator/spec/workflow files; add positive and negative authorization tests for both manual and automatic paths.
+- Runs `37935752265` and `37935794939` began empirical execution before the guard was corrected. They remain **NON-EVIDENCE**, regardless of artifact availability.
+- No Phase 7 metric or strategy is promoted. Phase 8 remains blocked.
