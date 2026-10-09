@@ -560,3 +560,8 @@ During the required current-workflow/source review, the tester identified a new 
 ## 2026-10-10 — Follow-up tester audit after Run #40
 
 The cache-reuse patch passed hosted tests in [Run #40](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992378927): 4 NIFTY cache tests, 11 predictor tests and 11 output-validator tests. The approval job ran fail-closed and empirical prediction was skipped. Static review then found remaining acquisition timing issues: Yahoo timestamp date extraction discards exchange timezone, the historical query boundary is set in UTC although cutoff policy is IST, cache validation accepts a same-day row before cutoff, and overlap validation does not reconcile manifest close/difference fields with corresponding CSV values. Tester report is updated with exact blobs and protected-file hashes. No prediction output exists and empirical authorization remains withheld.
+
+
+## 2026-10-10 — Tester PASS for one exact-snapshot prediction batch
+
+Tester reviewed developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8` and hosted Run #43. Regression evidence is 8/8 acquisition/cache, 11/11 predictor and 11/11 result-validator tests passing. The corrected source timestamp conversion, IST query boundary, pre-close cache cutoff and overlap/CSV reconciliation were reviewed; exact protected SHA-256 values are recorded in `research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md`. Decision is PASS WITH SCOPED RESTRICTIONS for one prediction batch only, pending the exact-snapshot approval manifest in the developer branch. The manifest write was blocked by platform safety checks, so no empirical output exists yet.
