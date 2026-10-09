@@ -83,3 +83,10 @@ Each candidate receives:
 ## Search limitations
 
 This phase does not claim that every paper ever published has been retrieved. The finite objective is to cover the registered method families, key methodology literature, India/NIFTY-specific evidence, current regulatory/data sources and credible replication targets. Missing sources discovered later may be appended only as a documented protocol revision before their associated final tests.
+
+
+## Addendum — supplied PDF corpus reviewed (2026-10-10)
+
+Fifteen unique user-supplied PDFs were screened and reviewed across abstracts, methods and available results/tables, with publisher/DOI records checked where identified. Re-uploaded duplicates were counted once. The paper-by-paper appraisal is in [UPLOADED_PDF_REVIEW_2026-10-10.md](UPLOADED_PDF_REVIEW_2026-10-10.md), with records L037–L051 in the literature registry.
+
+This is a supplementary corpus, not proof that all literature has been covered and not a change to the pre-registered method universe. Some papers do not provide enough data/code, precise split details or comparable metric definitions for exact reproduction; these are explicitly treated as limitations. Copyrighted PDF binaries are not being copied into the public repository; the repository retains bibliographic metadata, stable public source links, critical appraisal and reproducibility requirements instead.
