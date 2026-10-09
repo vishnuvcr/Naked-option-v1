@@ -231,3 +231,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - The test proves the synthetic saved-panel path can recompute metrics, chronological-block diagnostics and family-bootstrap inference at the frozen 1e-9 tolerance. It does **not** validate a real artifact or authorize changing the Phase 8 manifest.
 - Tester review is [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md), PASS WITH SCOPED RESTRICTIONS. Code hashes must be verified against the artifact's immutable source commit, and all ten real panels need an independent post-run audit.
 - Run #654 and the current frozen manifest remain unchanged; the 4,800-cell empirical option grid remains blocked.
+
+## Validator hardening update — 2026-10-09
+
+- The full synthetic ten-panel artifact validation passed in [run 37912985007](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37912985007).
+- The subsequent [run 37913188030](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913188030) passed both the full synthetic validator and source-code hash verification, including rejection of a tampered hash.
+- Tester follow-ups are on `phase-08-tester`: [full synthetic test report](research/gates/PHASE8_PANEL_VALIDATOR_FULL_TEST_TESTER.md) and [code-hash test report](research/gates/PHASE8_PANEL_VALIDATOR_CODE_HASH_TESTER.md).
+- These tests are not a real-artifact audit. The production workflow must fetch the exact reference commit, validate the real artifact, and receive separate tester approval before the frozen manifest can change.
