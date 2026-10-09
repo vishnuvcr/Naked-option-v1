@@ -25,3 +25,13 @@ Earlier project artifacts reported:
 - option-surface/skew information remained an interesting signal.
 
 Those are prior findings to be revalidated, not accepted as current conclusions.
+
+
+## 2026-10-09 — Resume checkpoint
+
+- User instructed: “Ok proceed”.
+- Verified Phase 7 Run #994 (`37957677656`) remains in progress at the empirical ensemble step; regression and tester authorization gates passed, and artifact upload has not started. No metric is accepted.
+- Investigated main-branch Research Protocol Check #997 (`37959386545`): job logs showed a deterministic infrastructure defect, `scripts/validate_protocol.py` missing from main. The workflow had skipped the literature check and all gated phase jobs as a result.
+- Developer fix copied `scripts/validate_protocol.py`, `scripts/validate_literature_registry.py`, and `research/literature/LITERATURE_REGISTRY.csv` byte-for-byte from `phase-07-developer` to `main`. This is infrastructure synchronization only; no research code, results, or phase authorization changed.
+- Next: confirm a fresh main protocol run passes, keep monitoring Run #994, and have the independent tester audit the exact new artifact after it uploads.
+- Private hidden chain-of-thought is not archived; decisions and verifiable actions are recorded instead.
