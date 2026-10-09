@@ -21,3 +21,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Synced the missing validator scripts and literature registry from `phase-07-developer` to `main` without changing the research protocol or scientific implementation. Commits: `ed846e48b4129ce72bd759ca7e754b58b692cb44`, `b8f96b1d63e1bc325970797902b459983e3f9169`, `37149b5639215031f653990959b53ed8f6251c09`.
 - Run #994 (`37957677656`) remains in progress at `scripts/run_phase7_ensemble.py`; regression and the exact-snapshot authorization gate passed. No artifacts or accepted metrics are available at this checkpoint.
 - Run #925 remains rejected/non-evidence. Phase 7 promotion and Phase 8 remain blocked until the fresh run is complete and independently audited.
+
+
+## 2026-10-09 — CI repair verified
+
+- Main Research Protocol Check #1008 (`37960307076`) passed repository contract and literature registry validation.
+- The repair was infrastructure-only; phase authorization and scientific status are unchanged.
+- Run #994 still has no published artifacts at the latest query, so no empirical results are accepted and the tester audit cannot yet begin.
