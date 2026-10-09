@@ -150,3 +150,11 @@ Correction on the developer branch:
 - Added it to the workflow's sha256sum output list.
 
 This is a gate-integrity correction, not an empirical result. The workflow changed again, so the earlier static tester report does not cover this latest workflow blob. A new independent review and observable hosted regression pass remain mandatory; empirical execution remains unauthorized.
+
+## Post-fix workflow snapshot — 2026-10-10
+
+After the protected-input audit, the current workflow blob is 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce. Static re-fetch confirms scripts/acquire_nifty_daily_history.py is present in all three required places: push path filter, protected approval-path allowlist, and sha256sum output list. The workflow also retains the manual workflow_dispatch entry and row-level prediction panel artifact upload.
+
+A fresh status query for commit 18773e828f19c0ff2e9fc1af437db6b8ef181739 returned no status checks and no workflow runs. The available workflow-run connector only returns pull-request-triggered runs, so this is not proof of workflow failure; it is also not proof of a passing run. The latest workflow has not received a fresh independent tester decision.
+
+**Execution remains NOT AUTHORIZED.** Tester must review this exact workflow blob, verify a real automatic/manual regression run and its output hashes, and only then decide whether one empirical run may proceed. No approval JSON is created by the developer.
