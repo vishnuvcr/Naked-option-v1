@@ -166,3 +166,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run #925 remains rejected/non-evidence after independent audit. Do not reuse its results as evidence for Run #994.
 - Main-branch Research Protocol Check #997 exposed a missing-validator packaging issue; the validator scripts and literature registry were copied from the developer branch to main. Await fresh CI confirmation.
 - Phase 8 remains blocked until the independent tester reviews the immutable Run #994 artifacts and passes the empirical gate.
+
+
+## 2026-10-09 — Main-branch protocol gate restored
+
+- Research Protocol Check #1008 (`37960307076`) passed both repository contract and literature registry validation after validator scripts/registry were restored and the untouched-holdout terminology was clarified.
+- This is an infrastructure gate only; it does not authorize any new empirical phase or strategy.
+- Run #994 (`37957677656`) remains the active Phase 7 empirical evidence target; the latest artifact query returned no artifacts. Independent tester review is still pending.
