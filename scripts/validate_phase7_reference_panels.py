@@ -50,7 +50,7 @@ def compare_panel(frame: pd.DataFrame, expected_cell: dict, intraday: bool):
         raise SystemExit("PANEL_ERROR: empty prediction panel")
     if frame["source_row_index"].tolist() != list(range(len(frame))):
         raise SystemExit("PANEL_ERROR: source_row_index is not a unique ordered zero-based sequence")
-    ts = pd.to_datetime(frame["decision_timestamp"], utc=intraday, errors="raise")
+    ts = pd.DatetimeIndex(pd.to_datetime(frame["decision_timestamp"], utc=intraday, errors="raise"))
     if not ts.is_monotonic_increasing or ts.has_duplicates:
         raise SystemExit("PANEL_ERROR: decision timestamps must be strictly increasing and unique")
     if set(frame["layer"].astype(str)) != {str(frame["layer"].iloc[0])}:
