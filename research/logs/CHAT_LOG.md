@@ -206,3 +206,8 @@ No scientific or protocol change was made during this checkpoint.
 - Added a standalone Phase 8 saved-panel validator and a path-triggered/manual workflow so its tests do not launch the expensive full reconstruction job.
 - Hosted regression run `37912665449` completed SUCCESS. It confirms synthetic metrics/family-test reconciliation from saved predictions without model refitting.
 - Tester code review approved the validator with restrictions. Real-artifact audit and immutable source-commit code-hash verification remain required before wiring it into the Phase 8 workflow; Run #654 remains unchanged and option-grid execution remains blocked.
+
+## 2026-10-09 — Proceed: validator hardening
+- Extended the synthetic test to cover a full ten-panel artifact directory and discovered the output manifest needed the existing Phase 8 `prediction_files` contract; corrected it without changing scientific calculations.
+- Added source-code SHA-256 verification against the recorded Git commit and a negative test for tampered hashes. Hosted run `37913188030` completed SUCCESS.
+- Tester recorded follow-up PASS on `phase-08-tester`. Real Phase 7 artifact and production workflow integration remain pending; no manifest amendment or option-grid execution.
