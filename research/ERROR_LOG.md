@@ -89,3 +89,12 @@
 - **Tester report:** `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md` = **REQUEST CHANGES — empirical execution not authorized**.
 - **Required correction:** make acquisition import-safe; validate cache schema, coverage, freshness, source and SHA-256; reuse a valid cache; reacquire only when missing/stale/invalid; add no-network test fixtures; and protect the new tests in the workflow/approval path.
 - **Prevention:** hosted regression green status is necessary but not sufficient; data acquisition and cache semantics must have their own regression fixtures and be reviewed before empirical execution.
+
+
+## 2026-10-10 — NIFTY acquisition timezone/cutoff/cache integrity follow-up
+
+- **Hosted evidence:** [Phase 7 available-data Run #40](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992378927) completed with 4 new acquisition/cache checks, 11 prediction regression checks and 11 result-validator checks passing. The empirical job was skipped by the missing-approval guard; this was not a prediction run.
+- **Finding:** independent tester review of `scripts/acquire_nifty_daily_history.py` blob `734c5ac1b5e4f193c5cc68ded8f717f83dff4a3d` found (1) timestamps converted to UTC calendar dates rather than Yahoo exchange-local dates, (2) a chart period-2 boundary formed at midnight UTC despite an IST end-of-day policy, (3) cache validation accepting same-day rows before the bar-complete cutoff, and (4) cached manifest overlap checks not reconciled to the CSV's same-date close values and difference arithmetic.
+- **Impact:** a green synthetic test suite is insufficient to establish point-in-time-safe session dates. No empirical prediction was run; Phase 7 remains blocked.
+- **Tester report:** `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md` — REQUEST CHANGES.
+- **Required correction:** exchange-local timestamp conversion; Asia/Kolkata chart boundaries; same allowed-date rule for cache and network path; overlap CSV/manifest cross-field reconciliation; tests for date conversion, pre/post-close behavior and malformed overlap records.
