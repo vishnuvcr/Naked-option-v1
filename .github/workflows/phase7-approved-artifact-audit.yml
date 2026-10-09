@@ -183,13 +183,45 @@ jobs:
           set -e
           echo "auditor_exit_code=$auditor_rc" >> "$GITHUB_OUTPUT"
           if [ ! -s audit_out/phase7_audit.json ]; then
-            echo "Tester audit failed without producing its required JSON report."
-            exit 2
+            echo "Tester audit did not create a JSON report; durable fallback report will be generated."
           fi
           echo "Auditor finished with exit code $auditor_rc; report will be archived before final gate."
 
+      - name: Ensure durable failure report exists
+        if: always()
+        env:
+          RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+        run: |
+          mkdir -p audit_out
+          if [ ! -s audit_out/phase7_audit.json ]; then
+            python - <<'PY'
+            import json, os
+            from pathlib import Path
+            fallback = {
+                "purpose": "Independent Phase 7 audit fail-closed fallback",
+                "expected_run_id": os.environ["RUN_ID"],
+                "expected_commit": os.environ["SOURCE_COMMIT"],
+                "scientific_promotion": "NOT_GRANTED",
+                "decision": "REQUEST CHANGES — audit did not produce its report",
+                "audit": {
+                    "checks_passed": 0,
+                    "checks_failed": 1,
+                    "failures": [{
+                        "check": "audit_runner_or_setup",
+                        "details": "No report was produced by the audit script; inspect this workflow's failed step logs."
+                    }],
+                    "notes": []
+                },
+                "exception": "Audit setup, data acquisition, artifact retrieval, or script execution failed before a report was written."
+            }
+            Path("audit_out/phase7_audit.json").write_text(json.dumps(fallback, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+            PY
+          fi
+
       - name: Score the exact report and generate durable Markdown
         id: score
+        if: always()
         env:
           RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
           SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
@@ -299,8 +331,8 @@ jobs:
           git -C tester_writer checkout -B phase-07-tester origin/phase-07-tester
 
           mkdir -p tester_writer/research/gates
-          cp audit_out/PHASE7_RUN_$RUN_ID_AUDIT.json tester_writer/research/gates/PHASE7_RUN_$RUN_ID_AUDIT.json
-          cp audit_out/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md tester_writer/research/gates/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md
+          cp "audit_out/PHASE7_RUN_"$RUN_ID"_AUDIT.json" "tester_writer/research/gates/PHASE7_RUN_"$RUN_ID"_AUDIT.json"
+          cp "audit_out/PHASE7_RUN_"$RUN_ID"_EMPIRICAL_TESTER.md" "tester_writer/research/gates/PHASE7_RUN_"$RUN_ID"_EMPIRICAL_TESTER.md"
 
           if ! grep -Fq "Run #$RUN_ID independent empirical artifact audit" tester_writer/research/STATUS.md; then
             printf '\n\n## Run #%s independent empirical artifact audit\n\n- Source run: %s\n- Developer commit: %s\n- Decision: **%s**\n- Checks: %s passed / %s failed\n- Report: research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md and JSON companion.\n- Scientific promotion: **NOT GRANTED by the technical audit alone**. Phase 8 stays blocked unless the empirical gate passes and all remaining data/cost gates pass.\n' "$RUN_ID" "https://github.com/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" "$SOURCE_COMMIT" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$RUN_ID" >> tester_writer/research/STATUS.md
@@ -318,7 +350,7 @@ jobs:
             printf '\n\n## Latest independent Phase 7 audit — Run #%s\n\n- Decision: **%s** (%s passed / %s failed checks).\n- Tester report: research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md\n- Full JSON: research/gates/PHASE7_RUN_%s_AUDIT.json\n- Technical PASS does not promote a model or itself authorize Phase 8.\n' "$RUN_ID" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$RUN_ID" "$RUN_ID" >> tester_writer/README.md
           fi
 
-          git -C tester_writer add README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md research/logs/ERROR_LOG.md research/gates/PHASE7_RUN_$RUN_ID_AUDIT.json research/gates/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md
+          git -C tester_writer add README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md research/logs/ERROR_LOG.md "research/gates/PHASE7_RUN_"$RUN_ID"_AUDIT.json" "research/gates/PHASE7_RUN_"$RUN_ID"_EMPIRICAL_TESTER.md"
           if git -C tester_writer diff --cached --quiet; then
             echo "Tester report and status already committed; no duplicate commit needed."
           else
