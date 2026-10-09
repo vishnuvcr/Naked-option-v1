@@ -13,6 +13,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - The current implementation uses the tester-approved session-based 20-trading-session intraday refit cadence while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. Run #19 is non-evidence because it timed out before artifact creation. Run #20 is non-evidence because the earlier intraday D13-D15 sequence cache was built on the hourly matrix and yielded n=0. The developer corrected the sequence path to the full 1-minute causal representation, the tester approved that correction, and fresh run #23 completed successfully. The independent tester gate for run #23 is PASS WITH SCOPED RESTRICTIONS. No D model is promoted; option economics, multiple-testing, robustness and fresh-forward validation remain mandatory.
 - Phase 6 method specification and implementation code gate have now passed independent tester review. The exact E07 global composite amendment is frozen pre-result. Empirical execution is authorized through a gated GitHub Actions workflow; no Phase 6 metric is accepted until the immutable artifact is independently audited.
 - **Phase 7 Run #925 is now REQUEST CHANGES / NON-ACCEPTED EVIDENCE.** Independent audit reconciled source hashes, row-level labels/returns/timestamps and all ten panels, but found protocol mismatches in P10 abstention, regime rows with missing volatility/trend, P05/P06 block diagnostics, and family-bootstrap treatment of non-evaluable observations. No Phase 7 metric or candidate is promoted; Phase 8 remains blocked. See [Run #925 tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md), [Phase status](research/STATUS.md), and [Error log](research/ERROR_LOG.md).
+- **Phase 7 correction-code review also remains BLOCKED.** Core code fixes and tests look consistent and hosted regression passed, but the tester found the correction approval can be reused after protected code changes because it is not bound to the exact reviewed snapshot. The tester returned REQUEST CHANGES in [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md). No fresh empirical execution is authorized.
 
 ### Current Phase 5 scope
 
@@ -35,6 +36,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Data source registry](research/DATA_SOURCE_REGISTRY.md)
 - [Phase status](research/STATUS.md)
 - [Phase 7 Run #925 empirical tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md)
+- [Phase 7 correction authorization review](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md)
 - [Research log](research/logs/RESEARCH_LOG.md)
 - [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
 - [Error log](research/ERROR_LOG.md)
@@ -121,3 +123,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - P10 was evaluated without its frozen [0.45, 0.55] abstention mask; missing regime features entered the low/low bucket; P05/P06 chronological block diagnostics ignored abstention masks; and family bootstrap treated non-evaluable abstaining-candidate rows as zero differentials.
 - Run #925 is preserved as **NON-ACCEPTED EVIDENCE**. The corrected frozen-source implementation must receive a fresh code review and a fresh empirical artifact audit before Phase 8.
 - No Phase 7 candidate is selected. Option-premium returns, Paytm Money charges, bid/ask spread, slippage, execution feasibility, multiple-testing controls and untouched-forward validation remain outstanding.
+
+
+## Latest Phase 7 correction-review checkpoint — 2026-10-09
+
+- The Run #925 empirical defects were corrected in the submitted developer code, with targeted tests and hosted regression passing.
+- Independent tester report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = **REQUEST CHANGES** because approval text/file presence is not tied to the protected source/workflow/spec snapshot.
+- The workflow gate must bind the PASS to an exact reviewed commit and protected file hashes (or reject any such changes since the approval). Add tests that a later protected change prevents authorization, and that both manual and automatic paths fail closed.
+- Runs `37935752265` and `37935794939` are preserved as NON-EVIDENCE; no metrics accepted. Phase 8 stays blocked.
