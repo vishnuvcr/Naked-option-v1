@@ -61,3 +61,8 @@ The frozen Phase 7 spec says P08/P09/P10 regime diagnostic block counts must equ
 ## Independent tester finding — P10 diagnostic block invariant (2026-10-09)
 
 The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md) = **REQUEST CHANGES FOR SCIENTIFIC PROMOTION** for a static consistency issue: the frozen spec includes P10 in the regime-diagnostic/chronological-block count equality, while the current validator enforces this invariant only for P08/P09 because P10 abstentions can empty a block. Run #994 may complete and be audited as the already-running immutable execution, but no metric, method or strategy may be promoted until this issue is resolved through an implementation correction or a separate pre-registered tester-approved spec amendment. Phase 8 remains blocked.
+
+
+## 2026-10-09 23:20 IST — Resume checkpoint
+
+Run #994 remains active on the exact original source SHA with no result artifacts. Validation is pending and job logs are unavailable from the API. The developer's P10 diagnostic correction is isolated to the developer branch and passed the CI regression job; its empirical job was skipped. The tester branch has been asked to review the exact correction commit and report PASS or REQUEST CHANGES. No scientific metric has been accepted.
