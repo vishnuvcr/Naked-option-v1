@@ -13,6 +13,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 - The current implementation uses the tester-approved session-based 20-trading-session intraday refit cadence while predictions remain on the frozen hourly grid. Run #16 is preserved as non-accepted evidence because of a D07 protocol/implementation mismatch. Run #19 is non-evidence because it timed out before artifact creation. Run #20 is non-evidence because the earlier intraday D13-D15 sequence cache was built on the hourly matrix and yielded n=0. The developer corrected the sequence path to the full 1-minute causal representation, the tester approved that correction, and fresh run #23 completed successfully. The independent tester gate for run #23 is PASS WITH SCOPED RESTRICTIONS. No D model is promoted; option economics, multiple-testing, robustness and fresh-forward validation remain mandatory.
 - Phase 6 method specification and implementation code gate have now passed independent tester review. The exact E07 global composite amendment is frozen pre-result. Empirical execution is authorized through a gated GitHub Actions workflow; no Phase 6 metric is accepted until the immutable artifact is independently audited.
 - **Phase 7 Run #925 is NON-ACCEPTED EVIDENCE; the independent tester issued REQUEST CHANGES.** The tester confirmed row-level source alignment but identified four protocol mismatches: P10 abstention was omitted, missing volatility/trend rows entered the low/low regime, P05/P06 block diagnostics ignored abstention masks, and family-bootstrap non-evaluable rows were set to zero. Phase 7 and Phase 8 remain blocked. See [Run #925 tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md), [Phase status](research/STATUS.md), and [Error log](research/ERROR_LOG.md).
+- Developer fixed the four reported implementation defects and added tests, but tester review [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) returned REQUEST CHANGES on the correction-specific workflow gate: the approval must be bound to the exact protected-code snapshot so later changes cannot reuse a stale PASS. No new empirical run is authorized.
 
 ### Current Phase 5 scope
 
@@ -35,6 +36,7 @@ D07 now uses chronological training-only calibration for its base-probability st
 - [Data source registry](research/DATA_SOURCE_REGISTRY.md)
 - [Phase status](research/STATUS.md)
 - [Phase 7 Run #925 empirical tester report](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md)
+- [Phase 7 correction authorization review](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md)
 - [Research log](research/logs/RESEARCH_LOG.md)
 - [Phase 5 run-1 research addendum](research/logs/PHASE5_RUN1_RESEARCH_LOG.md)
 - [Error log](research/ERROR_LOG.md)
@@ -238,3 +240,12 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - Required fixes: implement the P10 [0.45, 0.55] abstention consistently; exclude rows lacking finite volatility/trend from regime state counts; align P05/P06 block metrics with their abstention masks; and treat non-evaluable family-bootstrap rows as missing, not zero differential.
 - Gate: [PHASE7_RUN925_EMPIRICAL_TESTER.md](research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
 - Run #925 is not accepted evidence; no candidate or trading strategy is selected. Phase 8 remains blocked until a corrected Phase 7 code gate and fresh empirical artifact pass independent review.
+
+
+## Latest Phase 7 correction checkpoint — 2026-10-09
+
+- Developer correction source/test/validator commits are in the Phase 7 developer branch; hosted [Run #964](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37936076338) passed protocol/regression/reference-panel regression, with empirical execution skipped.
+- Tester confirmed the four Run #925 corrections but issued **REQUEST CHANGES** because the approval mechanism does not bind the PASS to a specific reviewed source/workflow/protocol snapshot.
+- Required next step: add exact commit/file-hash binding and positive/negative checks for manual and automatic authorization before resubmitting to tester.
+- Runs `37935752265` and `37935794939` remain **NON-EVIDENCE**; any resulting metrics must not be accepted.
+- No Phase 7 candidate or trading strategy is promoted. Phase 8 is blocked.
