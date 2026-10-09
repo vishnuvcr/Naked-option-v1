@@ -661,3 +661,7 @@
 - Compared Phase 7 and Phase 8 branches and found `run_phase7_ensemble.py` differs. Although code hashes were checked against the reference commit, metric recomputation previously imported the Phase 8 branch module. This was a real source-version integrity gap discovered before accepting any new artifact.
 - Updated the validator to execute the Phase 7 module bytes fetched from the manifest's immutable commit. Added `fetch-depth: 0` to the reconstruction job and regression coverage for loading the exact module and rejecting tampered hashes.
 - Hosted regression `37913662777` is running. No artifact accepted, no Phase 8 manifest amendment, and no option grid execution.
+
+## 2026-10-09 — Exact-commit metric loader regression PASS
+- Dedicated validator regression run `37913662777` completed SUCCESS. Test coverage now verifies the immutable source module can be loaded, SHA-256 tampering is rejected, and a synthetic ten-panel artifact reconciles metrics and family inference without model refitting.
+- Tester approved the source-version correction with scoped restrictions. Real Phase 7 artifact integrity and independent metric audit are still required before manifest amendment.
