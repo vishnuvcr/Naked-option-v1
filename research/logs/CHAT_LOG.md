@@ -373,3 +373,16 @@ User requested that research resume and that the newly added research PDFs be in
 - One pre-existing semantic field shift in registry row L003 was found and fixed; a defect record was added. No current empirical result was generated during this update.
 - Developer → Tester: independently review the PDF supplement and bibliography, confirm CSV semantics/URLs/status values, and preserve the empirical gate hold.
 - Tester → Developer: report any concrete factual/schema/governance defects before the next authorized empirical step.
+
+
+## 2026-10-10 — Tester rejection and correction cycle for the available-data extension
+
+The independent Phase 7 tester reported REQUEST CHANGES and kept empirical execution unauthorized. It found that G13 used standardized source returns while the frozen spec called for raw log returns, row-wise skip-NaN averaging could change composite composition, the Bonferroni correction used only executed horizon tests, candidate and baseline summary metrics could use different test rows, and the hosted output validator omitted required baseline/inference/blocked-reason checks.
+
+The developer branch now contains corrections to the predictor, added deterministic regression fixtures, a standalone full result validator with negative tests, workflow updates protecting the new validator files, and clarification of the baseline reporting in the specification. The method universe, source strict-as-of rule, label horizons, training/purge schedule and holdout boundary remain unchanged.
+
+The tester's rejection remains the active disposition until a fresh report is written to phase-07-tester for the exact new snapshot. No empirical output was produced, and no option strategy research was opened.
+
+**Developer → Tester:** Audit the corrected G13 formula and fixed-row behavior, family-size correction under missing horizons, paired baseline sample matching, complete result validation, workflow protected path list and regression fixtures. Do not authorize until hosted regression is verified.
+
+**Tester → Developer:** Return a new exact-snapshot report with all findings and approval/rejection; reject any mismatch in definitions or p-value adjustment.
