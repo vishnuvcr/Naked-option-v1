@@ -8,6 +8,8 @@ on:
       - "scripts/acquire_global_history.py"
       - "scripts/run_phase7_available_global.py"
       - "scripts/test_phase7_available_global.py"
+      - "scripts/validate_phase7_available_global_results.py"
+      - "scripts/test_validate_phase7_available_global_results.py"
       - "requirements-phase7-available.txt"
       - "research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json"
       - ".github/workflows/phase-07-available-global.yml"
@@ -40,8 +42,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-phase7-available.txt
       - name: Run leakage and arithmetic regressions
-        run: python scripts/test_phase7_available_global.py
-      - name: Report protected snapshot hashes for independent review
+        run: |
+          python scripts/test_phase7_available_global.py
+          python scripts/test_validate_phase7_available_global_results.py
         run: |
           set -euo pipefail
           sha256sum \
@@ -49,6 +52,8 @@ jobs:
             scripts/acquire_global_history.py \
             scripts/run_phase7_available_global.py \
             scripts/test_phase7_available_global.py \
+            scripts/validate_phase7_available_global_results.py \
+            scripts/test_validate_phase7_available_global_results.py \
             requirements-phase7-available.txt \
             .github/workflows/phase-07-available-global.yml
 
@@ -150,38 +155,8 @@ jobs:
         run: python scripts/acquire_global_history.py
       - name: Run pre-registered walk-forward prediction suite
         run: python scripts/run_phase7_available_global.py
-      - name: Validate complete result grid and inference
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p = Path("data/reports/available_global_prediction_results.json")
-          r = json.loads(p.read_text(encoding="utf-8"))
-          horizons = r["daily"]["horizons"]
-          assert set(horizons) == {"1", "2", "3", "5", "10"}
-          required = {
-              "G01_SENSEX", "G02_BANKNIFTY", "G04_SP500", "G05_NASDAQ",
-              "G06_ASIA_COMPOSITE", "G08_VIX", "G09_USDINR", "G11_GOLD",
-              "G12_CRUDE", "G13_GLOBAL_EQUITY_COMPOSITE", "G16_INDIAVIX",
-              "G18_CALENDAR_CONTROL", "_FAMILY_TEST"
-          }
-          for h, cells in horizons.items():
-              assert required.issubset(cells), (h, sorted(required - set(cells)))
-              for name, cell in cells.items():
-                  if name.startswith("_") or cell.get("status") == "BLOCKED_DATA":
-                      continue
-                  assert cell["status"] == "EXECUTED", (h, name, cell.get("status"))
-                  n = int(cell["n"])
-                  assert n > 0
-                  assert n == int(cell["tn"] + cell["fp"] + cell["fn"] + cell["tp"])
-                  assert abs(float(cell["accuracy"]) - (cell["tn"] + cell["tp"]) / n) < 1e-12
-                  assert 0 <= float(cell["brier"]) <= 1
-                  assert float(cell["log_loss"]) >= 0
-                  if cell.get("roc_auc") is not None:
-                      assert 0 <= float(cell["roc_auc"]) <= 1
-          assert r["provenance"]["holdout_status"] == "final untouched holdout not opened"
-          print("Result grid, metrics, provenance and holdout-boundary validation PASS")
-          PY
+      - name: Validate complete result grid, paired baselines, and inference
+        run: python scripts/validate_phase7_available_global_results.py
       - name: Upload immutable prediction and source artifacts
         if: always()
         uses: actions/upload-artifact@v4
