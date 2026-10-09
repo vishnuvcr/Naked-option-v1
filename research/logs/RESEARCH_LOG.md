@@ -670,3 +670,7 @@
 - The Phase 8 panel validator now verifies saved labels, future returns, timestamps and row counts against hashed daily/intraday source data, using the exact Phase 7 metric module and verified dependency code from the manifest commit.
 - Hosted regression run `37914065821` SUCCESS. The test rejects deliberately mutated daily labels and intraday future returns. Tester approval is archived in `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
 - Synthetic fixture failures in runs #10/#11 were caused by invoking production data loaders without cached data in the standalone test job; the fixture now isolates only the loaders for the synthetic case. Real artifact audit still pending.
+
+## 2026-10-09 — Strict manifest and panel identity gate passed
+- The validator now rejects missing/extra source and code manifest entries and panels whose run ID/commit differs from the manifest.
+- Hosted regression `37914278229` SUCCESS; tester reviewed and approved the synthetic code path with restrictions. Actual artifact audit remains pending.
