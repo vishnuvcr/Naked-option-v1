@@ -168,6 +168,7 @@ jobs:
           if-no-files-found: warn
           path: |
             data/reports/available_global_prediction_results.json
+            data/reports/available_global_prediction_panels.csv
             data/reports/available_global_source_manifest.json
             data/cache/raw/global_history/*.csv
             data/cache/raw/phase3/nifty50_daily.csv
