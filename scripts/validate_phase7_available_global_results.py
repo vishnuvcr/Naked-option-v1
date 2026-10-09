@@ -399,6 +399,12 @@ def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
         _fail("prediction panel has duplicate date/horizon/method keys")
     if not panel["row_type"].isin(["baseline", "candidate"]).all():
         _fail("prediction panel has an invalid row_type")
+    allowed_methods = set(METHODS) | {"_BASELINE"}
+    if not set(panel["method"]).issubset(allowed_methods):
+        _fail("prediction panel contains an unregistered method")
+    bad_type = ((panel["row_type"] == "baseline") & (panel["method"] != "_BASELINE")) | ((panel["row_type"] == "candidate") & (panel["method"] == "_BASELINE"))
+    if bad_type.any():
+        _fail("prediction panel method and row_type are inconsistent")
     if not panel["actual_direction"].isin([0, 1]).all():
         _fail("prediction panel labels must be binary 0/1")
     if not np.isfinite(panel["future_log_return"].to_numpy(dtype=float)).all():
@@ -466,7 +472,10 @@ def validate_prediction_panels(result: dict, panel: pd.DataFrame) -> None:
             avail_raw = item["prediction_available"]
             if avail_raw.isna().any():
                 _fail(f"horizon={horizon}/{method}: prediction_available missing for candidate row")
-            available = avail_raw.map(lambda v: str(v).strip().lower() in {"true", "1"})
+            flag_text = avail_raw.map(lambda v: str(v).strip().lower())
+            if not flag_text.isin({"true", "false", "1", "0"}).all():
+                _fail(f"horizon={horizon}/{method}: invalid prediction_available flag")
+            available = flag_text.isin({"true", "1"})
             finite_prob = np.isfinite(item["predicted_probability"].to_numpy(dtype=float))
             if not np.array_equal(available.to_numpy(dtype=bool), finite_prob):
                 _fail(f"horizon={horizon}/{method}: prediction availability flag mismatches probability")
