@@ -658,3 +658,11 @@
 - Run #993 on the isolated tester branch repeated the old Run #925 artifact audit (2,775 checks passed, 323 failed); this is the known rejected artifact and does not affect the separate correction-code gate.
 - Fresh developer hosted run [#994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, Phase 7 regression, approval-validator regression, reference-artifact regression and the independent snapshot authorization job. The validator accepted all 25 protected hashes and byte-identical tester copies for reviewed commit `ccb063fb414db971c9a43ed0e0cd85ef9d3c4c4f`.
 - The single authorized empirical job has started. Its output is pending; no new metrics, model promotion, or Phase 8 progression has been accepted.
+
+
+## 2026-10-09 — Run #994 runtime/observability checkpoint
+
+- Fresh Run #994 (`37957677656`, source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`) passed the exact snapshot authorization gate and began its empirical script at 16:15:48 UTC.
+- At the latest check, the same script step remains `in_progress`; schema validation and artifact upload have not started. GitHub's active-job log endpoint returns `BlobNotFound`, while the run and job state still report active.
+- For the same workflow, Run #925's model script ran for 1h 53m 20s (10:01:46–11:55:06 UTC). Current elapsed time is less than that observed runtime; no failure is inferred from the absence of live logs.
+- No duplicate run was launched; no new metrics/artifacts are available or accepted. Continue polling this immutable run and start the independent Run #994 artifact audit only after its artifact upload is confirmed.

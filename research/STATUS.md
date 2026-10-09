@@ -302,3 +302,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Hosted [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, regression, approval-validator, reference-artifact regression and snapshot authorization. All 25 protected-file hashes and the exact tester report/manifest copies validated.
 - The empirical job is currently **IN PROGRESS**. No output is accepted yet; its artifact must undergo separate independent post-run audit, including all ten method panels, P10 abstention, finite regime eligibility, P05/P06 masks, family inference, hashes and metric reconciliation.
 - Run #925 remains rejected (including the re-audit in tester Run #993). Run #992 remains a logged authorization-refusal attempt. Phase 8 stays blocked until the fresh empirical gate passes.
+
+
+## 2026-10-09 — Run #994 active empirical execution: runtime guardrail
+
+- Run #994's snapshot authorization and regression gates passed; its empirical script started at 16:15:48 UTC and remains active. Validator/upload steps are pending.
+- Live logs are unavailable while active (`BlobNotFound`); no failure is inferred.
+- Run #925's corresponding script took 1h 53m 20s. Current run remains within the last observed runtime window.
+- State: **EMPIRICAL SCRIPT ACTIVE — WAIT FOR TERMINAL STATE**. Do not start another empirical run while this one remains active. Phase 8 remains blocked.

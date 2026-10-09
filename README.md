@@ -280,3 +280,10 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed protocol, all Phase 7 regression suites and the tester-authorization job. The hosted validator confirmed report/manifest byte identity, reviewed-commit ancestry and all 25 protected-file hashes.
 - One fresh Phase 7 empirical job is in progress; no new metric is accepted until artifact validation and a separate independent tester audit finish.
 - The tester branch’s [Run #993](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957295201) repeated the prior Run #925 rejection (2,775 pass checks / 323 fails); Run #925 remains non-evidence. Phase 8 remains blocked pending Run #994’s artifact gate. See [status](research/STATUS.md), [research log](research/logs/RESEARCH_LOG.md) and [error log](research/ERROR_LOG.md).
+
+
+## Run #994 runtime checkpoint — 2026-10-09
+
+- [Run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656) passed the snapshot-authorization gate and is executing the empirical Phase 7 script. No output artifact has been uploaded yet.
+- GitHub's live-log endpoint returns `BlobNotFound` while active; this is recorded as an observability limitation, not a scientific result.
+- The prior completed Run #925 script took about 1h 53m, so Run #994 remains inside the earlier observed duration. No duplicate execution was launched. See [status](research/STATUS.md), [research log](research/logs/RESEARCH_LOG.md), and [error log](research/ERROR_LOG.md).

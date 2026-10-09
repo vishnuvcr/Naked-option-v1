@@ -222,3 +222,12 @@ No scientific or protocol change was made during this checkpoint.
 - The single fresh Phase 7 empirical job is now in progress. Wait for its immutable artifact, schema/metric reconciliation and separate independent tester review before accepting a result or opening Phase 8.
 - Tester → Developer: inspect the completed Run #994 artifact and submit all row/panel/hash/metric/inference checks independently.
 - Developer → Tester: provide the immutable artifact and logs; do not promote any method or claim profitability until the post-run gate passes.
+
+
+## 2026-10-09 — Resume: active Run #994 runtime recheck
+
+- Checked the immutable hosted Run #994 and its job/step status. The empirical step has been running since 16:15:48 UTC and remains active; later validation/upload steps are pending.
+- Live-job log retrieval returned `BlobNotFound`; this is an observability limitation, not a failure result.
+- Compared runtime with completed Run #925, whose empirical script ran 1h 53m 20s. Run #994 is still inside that observed window, so no duplicate execution was launched.
+- Tester → Developer: wait for the run to terminate, then independently audit the uploaded artifact against the exact source commit.
+- Developer → Tester: the empirical artifact is not accepted until the independent audit report reconciles all ten panels and metrics.
