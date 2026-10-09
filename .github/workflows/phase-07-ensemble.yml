@@ -48,8 +48,23 @@ jobs:
       - name: Reference artifact regression
         run: python scripts/test_phase7_reference_artifact.py
 
-  empirical:
+  reference-artifact-authorization:
+    name: phase7-reference-artifact-tester-gate
     needs: regression
+    if: ${{ inputs.empirical_authorized == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require tester review of row-level reference artifact code
+        run: |
+          set -euo pipefail
+          test -f research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
+          grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
+          grep -q "artifact-output code only" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
+          echo "Phase 7 row-level artifact code tester gate PASS"
+
+  empirical:
+    needs: [regression, reference-artifact-authorization]
     if: ${{ inputs.empirical_authorized == true }}
     runs-on: ubuntu-latest
     steps:
