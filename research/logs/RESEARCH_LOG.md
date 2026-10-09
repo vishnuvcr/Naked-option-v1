@@ -28,3 +28,10 @@ The repository records research decisions, user requirements, experiment outcome
 - Main Research Protocol Check #1008 (`37960307076`) passed repository contract and literature registry validation.
 - The repair was infrastructure-only; phase authorization and scientific status are unchanged.
 - Run #994 still has no published artifacts at the latest query, so no empirical results are accepted and the tester audit cannot yet begin.
+ 
+## 2026-10-09 — Approved tester-audit workflow preflight verified
+
+- Automatic workflow run #1 was triggered following a successful documentation-only developer protocol run #1033.
+- Preflight found no phase7-ensemble-results artifact and correctly skipped the independent calculation; no Phase 7 evidence or tester approval was produced.
+- The workflow was tightened afterwards to require exact upstream workflow identity, branch, successful completion, source SHA and both required artifact names. The manual path has the same controls and requires a run ID.
+- This validates only the no-artifact safety path. Run #994 remains the active empirical target and still has no artifact published.
