@@ -51,3 +51,32 @@ Do not approve based only on a green workflow. If any defect is found, issue REQ
 **Developer → Tester:** Review the exact developer snapshot and independently determine whether it is safe to run one empirical prediction batch.
 
 **Tester → Developer:** Return a report with the exact reviewed commit, independent checks, protected-file SHA-256 values, all discrepancies, and explicit authorization or rejection for the empirical run.
+
+
+## Developer resubmission after independent tester REQUEST CHANGES — 2026-10-10
+
+The initial exact-snapshot review was rejected and remains preserved on phase-07-tester. The developer corrected the reported items before any empirical run:
+
+- G13 now follows the frozen specification: equal-weight means of raw causal 1-session and 5-session log returns from the pre-run frozen constituent set; a missing constituent makes that row unavailable rather than changing weights.
+- adjust_horizon_pvalues now always adjusts against all five registered horizons, while reporting the number actually executed separately.
+- Each executed candidate includes paired_baseline_comparison computed on the exact rows used for that candidate; the full _BASELINE metric cell remains an explicitly broader, feature-mask-independent diagnostic.
+- Added scripts/validate_phase7_available_global_results.py and scripts/test_validate_phase7_available_global_results.py; wired both into regression, protected-snapshot hashes, exact approval allowlist, and the hosted output-validation step.
+- Regression additions check raw-vs-zscore distinction/fixed G13 membership, five-horizon Bonferroni with fewer available tests, paired baseline rows, missing baseline cells, wrong family adjustment, blocked-data reasons, pair-sample mismatch, and family-inference counts.
+- Spec numbering and baseline sample semantics were clarified without changing labels, horizons, candidate universe, source-date cut-off, walk-forward training/purge, bootstrap, or holdout boundary.
+
+### Current reviewed blobs
+
+- Spec: feecc38f36711575eb10e6150b18cea32f35ee27
+- Acquisition: 401fdacd3aa562b4907d422eb296fec502aa8f3c (unchanged)
+- Predictor: af03f554dc3952b17678544c951efff89ed6ce5d
+- Predictor regression tests: 34dd77ce9f16e339a5785f3ee337bd8a29b1e7c5
+- Complete result validator: 606b504552a2e437a170b5fbe0d95d3c37d5e467
+- Validator regression tests: bcae89c03c4047dc60f3a3d0fb9037a33c8c5410
+- Workflow: 4ebdeece0060b0dd51d602085afb558705dbaee1
+- Requirements: requirements-phase7-available.txt (must be hashed by workflow gate as protected path)
+
+**Important execution state:** a successful hosted regression run has not yet been verified in the current tool session. These changes are not an approval and no empirical run has been authorized. Do not prepare or mirror an execution-approving JSON. A fresh tester report must examine the exact updated blobs and the automatic hosted regression result before deciding whether one empirical run may proceed.
+
+**Developer → Tester:** Re-review these exact blobs independently. Verify formulas, missingness masks, family p-value adjustment, paired row equality, schema validator and workflow protected path set; record the exact CI run if visible. Do not authorize empirical execution if the hosted regression has not passed or any mismatch remains.
+
+**Tester → Developer:** Return PASS / PASS WITH SCOPED RESTRICTIONS or REQUEST CHANGES with verified hashes and explicit one-run authorization status. Keep the old rejection as historical record; no strategy work or result promotion is permitted by a code review alone.
