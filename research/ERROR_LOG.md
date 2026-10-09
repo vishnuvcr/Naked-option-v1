@@ -290,3 +290,13 @@
 - Root cause: the production validator correctly failed closed when the synthetic fixture's commit was unavailable; the test fixture had not been adapted to the new production contract.
 - Correction: isolate the synthetic artifact-directory test from real Git verification, and add a separate unit test against the current real Git commit that proves valid hashes pass and a tampered hash is rejected. Hosted run `37913188030` passed.
 - Disposition: run `37913154487` is non-evidence; no production artifact or research result was accepted.
+
+
+## 2026-10-09 — Phase 8 validator loaded the wrong branch's metric module
+- Category: research integrity / version provenance
+- Component: `scripts/validate_phase7_reference_panels.py` and Phase 8 reconstruction workflow.
+- Detection: branch comparison showed `scripts/run_phase7_ensemble.py` has different Git blob IDs on `phase-07-developer` and `phase-08-developer`. The validator verified source code hashes against the manifest commit but then imported the local Phase 8 checkout's module for metric recomputation. Thus the checked code could differ from the code actually used to recompute metrics.
+- Root cause: verification and execution were separate: hashes were verified from `git show`, while Python imported by module name from the current working tree.
+- Correction: validator now loads and executes the exact `scripts/run_phase7_ensemble.py` bytes from the manifest commit, after hash verification. The Phase 8 reconstruction job now fetches full Git history (`fetch-depth: 0`) so the source commit can be retrieved. Regression added to load the immutable metric module and exercise hash tamper rejection.
+- Validation status: dedicated hosted regression run `37913662777` still in progress at log time. Fix is not considered validated until hosted tests pass and an independent tester reviews it.
+- Prevention: for reproducible research, the implementation whose hash is checked must be the same implementation that is executed; never rely on current-branch imports after validating a different commit.
