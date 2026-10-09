@@ -105,6 +105,47 @@ def test_threadpool_limit_repeats_logistic_predictions():
         b = LogisticRegression(C=1.0, solver="lbfgs", max_iter=500, random_state=42).fit(X_train, y_train).predict_proba(X_test)[:, 1]
     np.testing.assert_array_equal(a, b)
 
+
+def test_mismatch_diagnostic_preserves_row_level_brier_terms():
+    ns = exec_source_namespace()
+    original_blocks_for = ns["p7"].blocks_for
+    ns["p7"].blocks_for = lambda df, intraday: [np.array([0, 1])]
+    try:
+        built = {
+            "y": np.array([1.0, 0.0]),
+            "predictions": {f"P{i:02d}": np.array([0.8, 0.3]) for i in range(1, 11)},
+            "timestamps": pd.to_datetime(["2026-01-01 09:30:00", "2026-01-01 10:30:00"]),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = ns["write_mismatch_diagnostic"](
+                "intraday", 60, built, pd.DataFrame({"unused": [0, 1]}),
+                True, Path(tmp), ["root.P07.chronological_blocks[0].brier: mismatch"]
+            )
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["status"] == "FAIL"
+            assert payload["diagnostic_only"] is True
+            block = payload["p07_failed_blocks"][0]
+            assert block["n"] == 2
+            assert block["rows"][0]["label_direction"] == 1
+            assert block["rows"][0]["p07_clipped"] == 0.8
+            assert block["rows"][0]["squared_error"] == np.testing.assert_allclose(
+                block["rows"][0]["squared_error"], (0.8 - 1.0) ** 2
+            ) or block["rows"][0]["squared_error"] == (0.8 - 1.0) ** 2
+            assert np.isclose(block["brier_from_row_terms"], ((0.8 - 1.0) ** 2 + (0.3 - 0.0) ** 2) / 2)
+    finally:
+        ns["p7"].blocks_for = original_blocks_for
+
+
+def test_reconstruction_writes_panel_before_fail_closed_exit():
+    src = load_source()
+    compare = src.index("failures = recursive_compare(expected, actual)")
+    panel = src.index("frame = canonical_prediction_rows(layer, H, built)", compare)
+    failure = src.index('if failures:', panel)
+    exit_point = src.index('raise SystemExit(', failure)
+    assert compare < panel < failure < exit_point
+    assert "write_mismatch_diagnostic(" in src
+    assert "tolerance_abs\": TOL" in src
+
 def test_manifest_is_json():
     data = json.loads((ROOT / "research" / "phase8" / "PHASE8_FROZEN_INPUT_MANIFEST.json").read_text())
     assert data["artifact_id"] == 11551679532
@@ -121,5 +162,7 @@ if __name__ == "__main__":
     test_canonical_rows_do_not_drop_future_audit_fields()
     test_reconstruction_pins_numerical_threadpool()
     test_threadpool_limit_repeats_logistic_predictions()
+    test_mismatch_diagnostic_preserves_row_level_brier_terms()
+    test_reconstruction_writes_panel_before_fail_closed_exit()
     test_manifest_is_json()
     print("Phase 8 reconstruction regression PASS")
