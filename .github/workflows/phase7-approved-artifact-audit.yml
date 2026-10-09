@@ -1,0 +1,340 @@
+name: Phase 7 Approved Artifact Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Completed successful Research Protocol Check run ID from phase-07-developer"
+        required: true
+        type: string
+  workflow_run:
+    workflows: ["Research Protocol Check"]
+    types: [completed]
+    branches:
+      - phase-07-developer
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  preflight:
+    name: Validate completed developer run and artifacts
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.head_branch == 'phase-07-developer' && github.event.workflow_run.conclusion == 'success') }}
+    runs-on: ubuntu-latest
+    outputs:
+      audit_ready: ${{ steps.check.outputs.audit_ready }}
+      target_run_id: ${{ steps.check.outputs.target_run_id }}
+      source_commit: ${{ steps.check.outputs.source_commit }}
+    steps:
+      - name: Validate run identity and immutable artifacts
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            target_id="$INPUT_RUN_ID"
+          else
+            target_id="${{ github.event.workflow_run.id }}"
+          fi
+          if ! [[ "$target_id" =~ ^[0-9]+$ ]]; then
+            echo "Invalid run_id: $target_id"
+            exit 1
+          fi
+          echo "target_run_id=$target_id" >> "$GITHUB_OUTPUT"
+
+          if ! run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$target_id")"; then
+            if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+              echo "Requested run is not accessible."
+              exit 1
+            fi
+            echo "audit_ready=false" >> "$GITHUB_OUTPUT"
+            echo "Skipped: upstream run metadata is unavailable."
+            exit 0
+          fi
+          branch="$(jq -r '.head_branch // ""' <<< "$run_json")"
+          status="$(jq -r '.status // ""' <<< "$run_json")"
+          conclusion="$(jq -r '.conclusion // ""' <<< "$run_json")"
+          source_commit="$(jq -r '.head_sha // ""' <<< "$run_json")"
+          echo "source_commit=$source_commit" >> "$GITHUB_OUTPUT"
+
+          eligible=true
+          reason=""
+          if [ "$branch" != "phase-07-developer" ] || [ "$status" != "completed" ] || [ "$conclusion" != "success" ] || ! [[ "$source_commit" =~ ^[0-9a-f]{40}$ ]]; then
+            eligible=false
+            reason="run must be completed, successful, and from phase-07-developer"
+          fi
+          if [ "$eligible" = true ]; then
+            artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$target_id/artifacts?per_page=100")"
+            for required_name in phase7-ensemble-results phase7-ensemble-reference; do
+              count="$(jq --arg n "$required_name" '[.artifacts[] | select(.name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$artifacts")"
+              if [ "$count" != "1" ]; then
+                eligible=false
+                reason="expected exactly one non-expired, non-empty artifact named $required_name; found $count"
+                break
+              fi
+            done
+          fi
+
+          if [ "$eligible" != true ]; then
+            if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+              echo "Preflight rejected run $target_id: $reason"
+              exit 1
+            fi
+            echo "audit_ready=false" >> "$GITHUB_OUTPUT"
+            echo "Skipped run $target_id: $reason"
+            {
+              echo "### Phase 7 audit skipped"
+              echo
+              echo "- Run: $target_id"
+              echo "- Reason: $reason"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "audit_ready=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Phase 7 audit preflight passed"
+            echo
+            echo "- Run: $target_id"
+            echo "- Source commit: $source_commit"
+            echo "- Both required artifacts exist and are non-empty."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  independent-audit:
+    name: Run pinned independent tester audit
+    needs: preflight
+    if: ${{ needs.preflight.outputs.audit_ready == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      actions: read
+      contents: write
+    env:
+      TARGET_RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
+      SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+      TESTER_AUDIT_REF: 50334eb728a85ae8ca88f9ded5246b867c9cb56f
+    steps:
+      - name: Checkout pinned independent tester code
+        uses: actions/checkout@v4
+        with:
+          ref: 50334eb728a85ae8ca88f9ded5246b867c9cb56f
+          path: tester_code
+          persist-credentials: false
+
+      - name: Checkout exact developer source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.preflight.outputs.source_commit }}
+          path: source_snapshot
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout isolated tester report destination
+        uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester_writer
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Set up pinned Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.17"
+
+      - name: Install pinned audit dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy==2.4.6 pandas==3.0.6 scikit-learn==1.9.1 scipy==1.17.1 pyarrow==26.0.0 threadpoolctl==3.7.0
+
+      - name: Re-acquire source inputs with frozen source code
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python source_snapshot/scripts/acquire_nifty_daily_history.py
+          python source_snapshot/scripts/acquire_hf_intraday_sample.py
+
+      - name: Download aggregate results from this exact run
+        uses: actions/download-artifact@v4
+        with:
+          name: phase7-ensemble-results
+          run-id: ${{ needs.preflight.outputs.target_run_id }}
+          github-token: ${{ github.token }}
+          path: audit_artifacts/results
+
+      - name: Download row-level reference panels from this exact run
+        uses: actions/download-artifact@v4
+        with:
+          name: phase7-ensemble-reference
+          run-id: ${{ needs.preflight.outputs.target_run_id }}
+          github-token: ${{ github.token }}
+          path: audit_artifacts/reference
+
+      - name: Independently reconcile hashes, source alignment, all ten panels, metrics and family inference
+        id: run_audit
+        shell: bash
+        run: |
+          set +e
+          python tester_code/scripts/audit_phase7_artifact.py             --artifact-root audit_artifacts/reference             --results-root audit_artifacts/results             --source-root source_snapshot             --expected-run-id "$TARGET_RUN_ID"             --expected-commit "$SOURCE_COMMIT"             --report audit_out/phase7_audit.json
+          auditor_rc=$?
+          set -e
+          echo "auditor_exit_code=$auditor_rc" >> "$GITHUB_OUTPUT"
+          if [ ! -s audit_out/phase7_audit.json ]; then
+            echo "Tester audit failed without producing its required JSON report."
+            exit 2
+          fi
+          echo "Auditor finished with exit code $auditor_rc; report will be archived before final gate."
+
+      - name: Score the exact report and generate durable Markdown
+        id: score
+        env:
+          RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          report_path = Path("audit_out/phase7_audit.json")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          audit = report.get("audit", {})
+          checks_passed = int(audit.get("checks_passed", 0))
+          checks_failed = int(audit.get("checks_failed", 1))
+          identity_ok = (
+              str(report.get("expected_run_id")) == os.environ["RUN_ID"]
+              and report.get("expected_commit") == os.environ["SOURCE_COMMIT"]
+          )
+          gate_pass = (
+              identity_ok and checks_passed > 0 and checks_failed == 0
+              and str(report.get("decision", "")).startswith("PASS")
+              and not report.get("exception")
+          )
+          decision = report.get("decision", "REQUEST CHANGES — no decision")
+          run_id = os.environ["RUN_ID"]
+          source_commit = os.environ["SOURCE_COMMIT"]
+          summary = report.get("summary", {})
+          out_json = Path(f"audit_out/PHASE7_RUN_{run_id}_AUDIT.json")
+          out_json.write_text(json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
+
+          lines = [
+              f"# Independent Tester Report — Phase 7 Run #{run_id}",
+              "",
+              f"**Decision: {decision}**",
+              "",
+              f"- Source run: https://github.com/{os.environ.get('GITHUB_REPOSITORY','')}/actions/runs/{run_id}",
+              f"- Exact developer commit: {source_commit}",
+              f"- Pinned tester audit-code commit: {os.environ.get('TESTER_AUDIT_REF','')}",
+              f"- Independent checks passed: {checks_passed}",
+              f"- Independent checks failed: {checks_failed}",
+              f"- Exact run/commit identity verified: {identity_ok}",
+              "- Scientific promotion: **NOT GRANTED by this technical audit alone**",
+              "- Phase 8 remains gated until this report is reviewed and any other required data/source gates pass.",
+              "",
+              "## Audit summary",
+              "",
+              json.dumps(summary, indent=2, sort_keys=True),
+          ]
+          failures = audit.get("failures", [])
+          if failures:
+              lines += ["", "## Failed checks", ""]
+              for failure in failures[:100]:
+                  lines.append(f"- {failure.get('check','unknown')}: {failure.get('details','')}")
+              if len(failures) > 100:
+                  lines.append(f"- Remaining failure details ({len(failures)-100}) are retained in the JSON report.")
+          lines += [
+              "",
+              "## Tester to Developer",
+              "",
+              "Resolve failed integrity/source/numerical checks, preserve this report, and resubmit through the same independent gate. Do not change the frozen scientific method to make a failure disappear.",
+              "",
+              "## Developer to Tester",
+              "",
+              "Audit all ten panels, row alignment, P10 abstention, regime eligibility, P05/P06 masks, family bootstrap, hashes, aggregate metrics and inference independently. Do not advance Phase 8 based on a code-gate pass or a failed empirical audit.",
+              "",
+          ]
+          md_path = Path(f"audit_out/PHASE7_RUN_{run_id}_EMPIRICAL_TESTER.md")
+          md_path.write_text("\n".join(lines), encoding="utf-8")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"gate_pass={'true' if gate_pass else 'false'}\n")
+              f.write(f"checks_passed={checks_passed}\n")
+              f.write(f"checks_failed={checks_failed}\n")
+              f.write(f"decision={decision.replace(chr(10), ' ')}\n")
+              f.write("report_exists=true\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(f"## Independent tester audit — Run #{run_id}\n\n")
+              f.write(f"- Decision: **{decision}**\n")
+              f.write(f"- Checks: {checks_passed} passed / {checks_failed} failed\n")
+              f.write(f"- Gate pass: {gate_pass}\n")
+          PY
+
+      - name: Upload complete independent tester report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-independent-audit-${{ needs.preflight.outputs.target_run_id }}
+          path: |
+            audit_out/PHASE7_RUN_${{ needs.preflight.outputs.target_run_id }}_AUDIT.json
+            audit_out/PHASE7_RUN_${{ needs.preflight.outputs.target_run_id }}_EMPIRICAL_TESTER.md
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Publish audit report and status to isolated tester branch
+        if: ${{ always() && steps.score.outputs.report_exists == 'true' }}
+        env:
+          RUN_ID: ${{ needs.preflight.outputs.target_run_id }}
+          SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+          GATE_PASS: ${{ steps.score.outputs.gate_pass }}
+          DECISION: ${{ steps.score.outputs.decision }}
+          CHECKS_PASSED: ${{ steps.score.outputs.checks_passed }}
+          CHECKS_FAILED: ${{ steps.score.outputs.checks_failed }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C tester_writer config user.name "github-actions[bot]"
+          git -C tester_writer config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C tester_writer fetch origin phase-07-tester
+          git -C tester_writer checkout -B phase-07-tester origin/phase-07-tester
+
+          mkdir -p tester_writer/research/gates
+          cp audit_out/PHASE7_RUN_$RUN_ID_AUDIT.json tester_writer/research/gates/PHASE7_RUN_$RUN_ID_AUDIT.json
+          cp audit_out/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md tester_writer/research/gates/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md
+
+          if ! grep -Fq "Run #$RUN_ID independent empirical artifact audit" tester_writer/research/STATUS.md; then
+            printf '\n\n## Run #%s independent empirical artifact audit\n\n- Source run: %s\n- Developer commit: %s\n- Decision: **%s**\n- Checks: %s passed / %s failed\n- Report: research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md and JSON companion.\n- Scientific promotion: **NOT GRANTED by the technical audit alone**. Phase 8 stays blocked unless the empirical gate passes and all remaining data/cost gates pass.\n' "$RUN_ID" "https://github.com/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" "$SOURCE_COMMIT" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$RUN_ID" >> tester_writer/research/STATUS.md
+          fi
+          if ! grep -Fq "Run #$RUN_ID independent empirical artifact audit" tester_writer/research/logs/RESEARCH_LOG.md; then
+            printf '\n\n## Run #%s independent empirical artifact audit\n\n- Source run: https://github.com/%s/actions/runs/%s\n- Developer commit: %s\n- Decision: **%s**\n- Checks passed/failed: %s/%s\n- Full JSON and Markdown report are committed in research/gates/.\n- The result is an audit of this immutable run only; it does not automatically select a method or open Phase 8.\n' "$RUN_ID" "$GITHUB_REPOSITORY" "$RUN_ID" "$SOURCE_COMMIT" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" >> tester_writer/research/logs/RESEARCH_LOG.md
+          fi
+          if ! grep -Fq "Run #$RUN_ID independent empirical artifact audit" tester_writer/research/logs/CHAT_LOG.md; then
+            printf '\n\n## Run #%s independent empirical artifact audit\n\n- Automatically audited the completed developer run and preserved the decision, checks and artifacts on the isolated tester branch.\n- Tester to Developer: resolve discrepancies without changing the frozen method; resubmit through the same gate.\n- Developer to Tester: Phase 8 remains blocked unless this empirical audit passes and the remaining source/economic gates are approved.\n' "$RUN_ID" >> tester_writer/research/logs/CHAT_LOG.md
+          fi
+          if [ "$GATE_PASS" != "true" ] && ! grep -Fq "Run #$RUN_ID independent audit failed" tester_writer/research/logs/ERROR_LOG.md; then
+            printf '\n| 2026-10-09 | Phase 7 | Run #%s independent artifact audit returned REQUEST CHANGES | Independent source/hash/panel/metric/inference audit reported %s passed and %s failed checks for developer commit %s | Full failure details retained in research/gates/PHASE7_RUN_%s_AUDIT.json; developer must correct causes and resubmit without altering frozen scientific rules | Phase 8 remains blocked |\n' "$RUN_ID" "$CHECKS_PASSED" "$CHECKS_FAILED" "$SOURCE_COMMIT" "$RUN_ID" >> tester_writer/research/logs/ERROR_LOG.md
+          fi
+          if ! grep -Fq "Latest independent Phase 7 audit — Run #$RUN_ID" tester_writer/README.md; then
+            printf '\n\n## Latest independent Phase 7 audit — Run #%s\n\n- Decision: **%s** (%s passed / %s failed checks).\n- Tester report: research/gates/PHASE7_RUN_%s_EMPIRICAL_TESTER.md\n- Full JSON: research/gates/PHASE7_RUN_%s_AUDIT.json\n- Technical PASS does not promote a model or itself authorize Phase 8.\n' "$RUN_ID" "$DECISION" "$CHECKS_PASSED" "$CHECKS_FAILED" "$RUN_ID" "$RUN_ID" >> tester_writer/README.md
+          fi
+
+          git -C tester_writer add README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md research/logs/ERROR_LOG.md research/gates/PHASE7_RUN_$RUN_ID_AUDIT.json research/gates/PHASE7_RUN_$RUN_ID_EMPIRICAL_TESTER.md
+          if git -C tester_writer diff --cached --quiet; then
+            echo "Tester report and status already committed; no duplicate commit needed."
+          else
+            git -C tester_writer commit -m "tester: publish independent Phase 7 Run $RUN_ID artifact audit"
+            git -C tester_writer push origin HEAD:phase-07-tester
+          fi
+
+      - name: Enforce independent empirical gate
+        if: always()
+        env:
+          GATE_PASS: ${{ steps.score.outputs.gate_pass }}
+          DECISION: ${{ steps.score.outputs.decision }}
+        shell: bash
+        run: |
+          if [ "$GATE_PASS" != "true" ]; then
+            echo "Independent empirical gate did not pass: $DECISION"
+            exit 1
+          fi
+          echo "Independent technical audit passed. No strategy is promoted solely by this gate."
