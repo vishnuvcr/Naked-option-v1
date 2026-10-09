@@ -37,3 +37,15 @@
 2. The actual artifact audit must verify source hashes against the data available in the audited checkout, code hashes against the exact manifest commit, ten panel hashes/schema/row counts, all registered aggregate metrics and family-level statistics.
 3. Confirm P08–P10 regime diagnostic metadata remains intact in the paired aggregate JSON; the current consumer does not independently regenerate that metadata.
 4. Do not amend the frozen Phase 8 manifest or launch the 4,800-cell option grid until the new Phase 7 artifact is complete and a separate artifact audit passes.
+
+
+## Independent Tester Follow-up — exact-commit metric implementation
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — source-version integrity correction**
+
+- Hosted validator regression run `37913662777` completed SUCCESS.
+- The Phase 7 and Phase 8 `scripts/run_phase7_ensemble.py` files were independently confirmed to differ, so importing the Phase 8 working-tree module after checking hashes for the Phase 7 commit was not acceptable.
+- The correction now loads and executes the exact Phase 7 module bytes from the immutable commit named in the manifest, after checking declared source hashes. The Phase 8 reconstruction checkout fetches full history so the Git source commit is available.
+- Regression verifies the exact-commit module can be loaded and the hash verifier rejects tampered hashes. Full synthetic artifact validation still passes with its code-loader bypass isolated to synthetic fixtures.
+
+**Restrictions remain:** This is code/test approval only. The actual Phase 7 artifact must pass a distinct post-run audit for all ten panels, hashes, source files, immutable code commit, all metrics/family inference, and paired aggregate integrity. The consumer must preserve P08–P10 regime diagnostics in the aggregate JSON. No Phase 8 frozen-manifest amendment or 4,800-cell option grid is authorized by this report.
