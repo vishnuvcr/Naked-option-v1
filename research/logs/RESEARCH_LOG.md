@@ -646,3 +646,8 @@
 - Added a separate workflow with automatic path-based execution and manual dispatch for the saved-panel consumer regression.
 - Hosted run `37912665449` completed SUCCESS. Synthetic row-level predictions were used to recompute metrics and family-bootstrap output without model refitting, and the frozen 1e-9 comparator passed.
 - This is a code-path regression only. The validator is not wired into the production Phase 8 workflow; it still requires real-artifact audit, code-hash verification and a separately approved manifest amendment.
+
+## 2026-10-09 — Phase 8 validator contract and code-hash regression PASS
+- The saved-panel validator now emits the prediction_files manifest contract expected by the existing Phase 8 panel validator.
+- Dedicated synthetic full-artifact validation passed in run `37912985007`; the subsequent regression including Git-commit code-hash verification passed in run `37913188030`.
+- The test verifies that tampered source-code hashes are rejected. Real artifact audit and a workflow step to fetch the immutable reference commit are still required before production integration.
