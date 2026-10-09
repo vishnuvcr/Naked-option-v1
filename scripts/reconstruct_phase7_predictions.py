@@ -201,6 +201,55 @@ def canonical_prediction_rows(layer, H, built):
     return frame
 
 
+
+def write_mismatch_diagnostic(layer, H, built, df, intraday, outdir, failures):
+    """Persist row-level evidence for failed aggregate checks without changing metrics."""
+    import re
+
+    blocks = p7.blocks_for(df, intraday)
+    failed_blocks = sorted({
+        int(match.group(1))
+        for failure in failures
+        if (match := re.search(r"chronological_blocks\\[(\\d+)\\]\\.brier", failure))
+    })
+    y = np.asarray(built["y"], dtype=float)
+    p = np.asarray(built["predictions"]["P07"], dtype=float)
+    timestamps = built["timestamps"]
+    details = []
+    for block_id in failed_blocks:
+        rows = np.asarray(blocks[block_id], dtype=int)
+        valid = np.isfinite(y[rows]) & np.isfinite(p[rows])
+        selected = rows[valid]
+        clipped = np.clip(p[selected], 1e-6, 1 - 1e-6)
+        labels = y[selected].astype(int)
+        squared_error = (clipped - labels) ** 2
+        details.append({
+            "block_index": block_id,
+            "n": int(len(selected)),
+            "brier_from_row_terms": float(np.mean(squared_error)) if len(selected) else None,
+            "rows": [{
+                "source_row_index": int(row),
+                "decision_timestamp": str(timestamps[row]),
+                "label_direction": int(y[row]),
+                "p07_raw": float(p[row]),
+                "p07_clipped": float(clipped[i]),
+                "squared_error": float(squared_error[i]),
+            } for i, row in enumerate(selected)],
+        })
+    payload = {
+        "status": "FAIL",
+        "diagnostic_only": True,
+        "layer": layer,
+        "horizon": int(H),
+        "tolerance_abs": TOL,
+        "failures": failures,
+        "p07_failed_blocks": details,
+        "note": "Uses the existing reconstructed prediction/label arrays and Phase 7 block membership; does not alter the reference or acceptance tolerance.",
+    }
+    path = outdir / f"phase8_reconstruction_diagnostics_{layer}_H{H}.json"
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
 def git_blob_sha(path: Path) -> str:
     data = path.read_bytes()
     header = b"blob " + str(len(data)).encode("ascii") + b"\x00"
@@ -285,13 +334,10 @@ def main() -> None:
                     "first_failures": failures[:20],
                 }
                 reconciliation["cells"].append(cell)
-                if failures:
-                    reconciliation["status"] = "FAIL"
-                    raise SystemExit(
-                        "RECONSTRUCTION_ERROR: Run #654 aggregate reproduction failed for "
-                        f"{layer} H={H}: {failures[:5]}"
-                    )
 
+                # Preserve the exact row-level panel even when the frozen aggregate
+                # comparison fails, so the mismatch can be diagnosed without relaxing
+                # the gate or changing the reference.
                 frame = canonical_prediction_rows(layer, H, built)
                 out = outdir / f"phase7_predictions_{layer}_H{H}.parquet"
                 frame.to_parquet(out, index=False)
@@ -305,6 +351,16 @@ def main() -> None:
                 })
                 cell["prediction_sha256"] = digest
                 cell["prediction_rows"] = int(len(frame))
+
+                if failures:
+                    reconciliation["status"] = "FAIL"
+                    diagnostic = write_mismatch_diagnostic(
+                        layer, H, built, df, intraday, outdir, failures
+                    )
+                    raise SystemExit(
+                        "RECONSTRUCTION_ERROR: Run #654 aggregate reproduction failed for "
+                        f"{layer} H={H}: {failures[:5]}; row panel {out.name}; diagnostic {diagnostic.name}"
+                    )
 
     manifest_out = outdir / "phase8_forecast_reconstruction_manifest.json"
     manifest_payload = {
