@@ -334,3 +334,11 @@ No scientific or protocol change was made during this checkpoint.
 - The active Run #994 is immutable; no source/protocol file changed in the run and no result is yet available. This issue is recorded for tester adjudication, not silently fixed post hoc.
 - Tester → Developer: independently decide whether P10 diagnostic semantics can satisfy both abstention and count invariants; if a specification amendment is needed, require a dated pre-registered tester approval before any fresh run, and keep Run #994 non-promotable until resolved.
 - Developer → Tester: provide the exact frozen spec, validator/source commit and artifact once published; do not advance Phase 8 while the inconsistency is unresolved.
+
+
+## 2026-10-09 23:20 IST — User requested resume
+
+- Rechecked required repository status, active run, recent workflow outcomes and artifact list.
+- Run #994 remains active without artifacts; logs are inaccessible via the job-log endpoint, so the run cannot yet be interpreted scientifically.
+- Confirmed developer commit `39e964d4ae99bb02b113fa4eabecd91c9af46c16` passes the developer regression workflow, but the workflow skipped empirical and tester-gated jobs.
+- Submitted P10 diagnostic correction for independent tester review. Tester → Developer: issue PASS/REQUEST CHANGES against the exact correction commit; inspect P10 endpoint eligibility, block IDs, P08/P09 invariance and fallback accounting. Developer → Tester: do not approve based on CI alone; keep Phase 8 blocked pending empirical artifact audit.
