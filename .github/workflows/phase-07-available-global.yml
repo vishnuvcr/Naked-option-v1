@@ -40,6 +40,15 @@ jobs:
           pip install numpy pandas scikit-learn
       - name: Run leakage and arithmetic regressions
         run: python scripts/test_phase7_available_global.py
+      - name: Report protected snapshot hashes for independent review
+        run: |
+          set -euo pipefail
+          sha256sum \
+            research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md \
+            scripts/acquire_global_history.py \
+            scripts/run_phase7_available_global.py \
+            scripts/test_phase7_available_global.py \
+            .github/workflows/phase-07-available-global.yml
 
   authorization:
     name: independent-tester-approval-check
@@ -60,7 +69,8 @@ jobs:
         run: |
           set -euo pipefail
           report="research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json"
-          if [ ! -f "$report" ]; then
+          tester_report="research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md"
+          if [ ! -f "$report" ] || [ ! -f "$tester_report" ]; then
             echo "authorized=false" >> "$GITHUB_OUTPUT"
             echo "No independent tester approval is mirrored; regression-only submission run."
             exit 0
@@ -78,11 +88,19 @@ jobs:
           if not reviewed or subprocess.run(["git", "merge-base", "--is-ancestor", reviewed, os.environ["GITHUB_SHA"]]).returncode != 0:
               raise SystemExit("reviewed developer commit is absent or not an ancestor of this run")
           protected = approval.get("protected_file_sha256", {})
+          tester_report_path = Path("research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md")
+          report_hash = hashlib.sha256(tester_report_path.read_bytes()).hexdigest()
+          if report_hash != approval.get("tester_report_sha256"):
+              raise SystemExit("mirrored independent tester report digest mismatch")
+          report_text = tester_report_path.read_text(encoding="utf-8")
+          if "Decision: PASS" not in report_text and "Decision: PASS WITH SCOPED RESTRICTIONS" not in report_text:
+              raise SystemExit("mirrored tester report does not contain a passing disposition")
           required = [
               "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md",
               "scripts/acquire_global_history.py",
               "scripts/run_phase7_available_global.py",
               "scripts/test_phase7_available_global.py",
+              ".github/workflows/phase-07-available-global.yml",
           ]
           if sorted(protected) != sorted(required):
               raise SystemExit("protected path set does not match the required exact code/spec set")
