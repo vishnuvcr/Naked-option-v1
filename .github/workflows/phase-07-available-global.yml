@@ -6,6 +6,7 @@ on:
     paths:
       - "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md"
       - "scripts/acquire_global_history.py"
+      - "scripts/acquire_nifty_daily_history.py"
       - "scripts/run_phase7_available_global.py"
       - "scripts/test_phase7_available_global.py"
       - "scripts/validate_phase7_available_global_results.py"
@@ -106,6 +107,7 @@ jobs:
           required = [
               "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md",
               "scripts/acquire_global_history.py",
+              "scripts/acquire_nifty_daily_history.py",
               "scripts/run_phase7_available_global.py",
               "scripts/test_phase7_available_global.py",
               "scripts/validate_phase7_available_global_results.py",
