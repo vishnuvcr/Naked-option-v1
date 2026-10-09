@@ -373,3 +373,14 @@
 - **Correction E:** numbering was corrected without changing the scientific method.
 - **Prevention:** tester approval is required for the exact new hashes; regression success alone is insufficient. The current request-changes report remains active until a fresh report passes.
 - **Scientific disposition:** all fixes were made before any empirical run from this available-data extension. No new metrics were generated, and no model or strategy was promoted.
+
+
+## 2026-10-10 — Row-level forecast evidence missing from initial extension output
+
+- **Category:** research reproducibility / output lineage.
+- **Component:** scripts/run_phase7_available_global.py and result artifact contract.
+- **Symptom:** The summary JSON held only aggregate metrics, so an independent reviewer could not directly recompute the candidate-specific held-out score, paired baseline score, or the maximum-statistic moving-block family test from the stored output alone.
+- **Root cause:** initial output schema recorded aggregate result cells and source hashes but did not preserve per-date predicted probabilities and realized labels.
+- **Correction:** added the row-level CSV panel data/reports/available_global_prediction_panels.csv, recorded its path/SHA-256 in JSON provenance, included it in the hosted artifact upload, and extended the standalone validator to recompute candidate/baseline metrics, paired comparisons, common-row family improvements and bootstrap p-values.
+- **Prevention:** do not accept summary-only artifacts for empirical promotion; all future forecast results need immutable row-level outputs with hash-based provenance and an independent reconciliation gate.
+- **Disposition:** fixed in the developer branch before any empirical run from the available-data extension. No result was generated; the independent tester must re-review the exact updated snapshot and hosted regressions.
