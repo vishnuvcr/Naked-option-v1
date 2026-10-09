@@ -105,12 +105,9 @@ jobs:
             ref="refs/heads/${{ github.event.pull_request.head.ref }}"
           fi
           if [ "${ref}" = "refs/heads/phase-07-developer" ]; then
-            # The earlier Phase 7 code approval predates the Run 925
-            # REQUEST CHANGES report. Require a correction-specific tester PASS
-            # before any automatic or manual caller authorizes empirical work.
-            if [ -f "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md" ] \
-              && grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md" \
-              && grep -q "fresh empirical execution only" "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md"; then
+            # Fail closed unless the independent tester's exact reviewed
+            # commit and protected-file hashes match this checkout.
+            if python scripts/validate_phase7_correction_approval.py --head "${GITHUB_SHA}"; then
               empirical_authorized=true
             fi
             if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
@@ -123,7 +120,7 @@ jobs:
               changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
               while IFS= read -r f; do
                 case "${f}" in
-                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md|research/gates/PHASE7_RUN608_REGRESSION_APPROVAL_TESTER.md|research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md|research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md)
+                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/test_phase7_reference_artifact.py|scripts/test_phase7_correction_approval.py|scripts/validate_phase7_results.py|scripts/validate_phase7_correction_approval.py|scripts/run_phase6_novel.py|scripts/run_phase5_family_d.py|scripts/run_phase3_daily_baselines.py|scripts/run_phase3_intraday_baselines.py|scripts/acquire_nifty_daily_history.py|scripts/acquire_hf_intraday_sample.py|scripts/acquire_global_reference.py|scripts/validate_protocol.py|scripts/validate_literature_registry.py|research/phase7/*|research/phase6/*|research/RESEARCH_PROTOCOL.md|research/METHOD_REGISTRY.md|research/RESEARCH_PLAN.md|.github/workflows/phase-07-ensemble.yml|.github/workflows/research-protocol.yml|research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json)
                     run_phase7=true
                     ;;
                 esac

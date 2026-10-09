@@ -45,6 +45,8 @@ jobs:
       - name: Acquire global reference
         run: python scripts/acquire_global_reference.py
       - run: python scripts/test_phase7_ensemble.py
+      - name: Correction-approval validator regression
+        run: python scripts/test_phase7_correction_approval.py
       - name: Reference artifact regression
         run: python scripts/test_phase7_reference_artifact.py
 
@@ -53,20 +55,24 @@ jobs:
     needs: regression
     if: ${{ inputs.empirical_authorized == true }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Require tester review of row-level reference artifact code
+        with:
+          fetch-depth: 0
+      - name: Require independent tester approval for the exact protected snapshot
         run: |
           set -euo pipefail
           test -f research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
           grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
           grep -q "artifact-output code only" research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md
-          # Every manual/automatic empirical path also requires the separate
-          # independent review of the Run 925 corrections.
           test -f research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
+          test -f research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json
           grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
           grep -q "fresh empirical execution only" research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md
-          echo "Phase 7 row-level artifact and Run 925 correction tester gates PASS"
+          python scripts/validate_phase7_correction_approval.py --head "${GITHUB_SHA}"
+          echo "Phase 7 tester report, manifest, reviewed commit and protected-file hashes PASS"
 
   empirical:
     needs: [regression, reference-artifact-authorization]
