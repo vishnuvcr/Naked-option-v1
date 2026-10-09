@@ -27,3 +27,17 @@ However, the current implementation and validator are inconsistent with that exp
 **Tester → Developer:** Resolve the exact frozen-spec invariant above, add a regression test for a fully abstained chronological block, and resubmit the proposed patch/spec amendment for independent review. Do not alter Run #994's immutable source or use its results to select a strategy.
 
 **Developer → Tester:** Continue the exact-run audit if Run #994 artifacts appear, include this invariant in the report, and preserve REQUEST CHANGES/no-promotion if the artifact or code contract fails. Phase 8 remains blocked.
+ 
+## Developer resubmission — correction for independent review (2026-10-09)
+
+Developer commit submitted: [`39e964d4ae99bb02b113fa4eabecd91c9af46c16`](https://github.com/vishnuvcr/Naked-option-v1/commit/39e964d4ae99bb02b113fa4eabecd91c9af46c16) on `phase-07-developer`.
+
+Proposed changes for the tester to independently inspect:
+- `regimes(...)` now retains original chronological block IDs alongside diagnostic records.
+- New `candidate_regime_diagnostics(...)` filters P10 regime diagnostic records using the registered P10 eligible-row mask (finite label/probability and outside the inclusive [0.45, 0.55] abstention interval); P08/P09 diagnostics remain unchanged.
+- `scripts/validate_phase7_results.py` now enforces regime diagnostic block-count equality for P08/P09/P10.
+- `scripts/test_phase7_ensemble.py` includes a synthetic three-block fixture in which block 0 is fully abstained at the interval endpoints, block 1 is partly eligible, and block 2 has eligible rows just outside the endpoints; it asserts two retained P10 diagnostics and two metric blocks.
+- The developer protocol workflow's regression job passed for this commit, but its empirical and tester-gated jobs were skipped because this was a source-code change on the developer branch, not an authorized empirical execution. This is not tester approval.
+- The already-running Run #994 is immutable at source SHA `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; the proposed correction cannot retroactively alter its output.
+
+**Tester disposition required:** review the proposed code and test independently; verify block IDs stay aligned when a regime diagnostic is omitted; confirm P10 eligibility semantics and inclusive endpoints; ensure P08/P09 output and fallback accounting are unaffected; check the test's expected block counts against `block_diagnostics`; and issue PASS or REQUEST CHANGES. Do not approve based only on the developer workflow's regression pass. Even after code review, no Phase 8 promotion until the exact empirical artifact audit passes and the current immutable run is properly dispositioned.
