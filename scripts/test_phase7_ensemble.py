@@ -48,6 +48,20 @@ def main():
     assert np.allclose(r9[220:],0.45)
 
     baseline=ns["causal_baseline"](y,blocks)
+    # Verify the allocation-light implementation is bit-for-bit equivalent
+    # to the frozen legacy sampler for fixed seeds and representative edge cases.
+    def legacy_resample(n, block_len, rng):
+        if n <= 0: return np.array([], dtype=int)
+        L=min(int(block_len),int(n))
+        starts=np.arange(0,n-L+1,dtype=int)
+        pool=[np.arange(s,s+L,dtype=int) for s in starts]
+        n_blocks=int(np.ceil(n/L))
+        selected=rng.integers(0,len(pool),size=n_blocks)
+        return np.concatenate([pool[k] for k in selected])[:n]
+    for n0, L0 in [(10,4),(1000,20),(2500,60),(3,20),(1,1),(0,20)]:
+        fast=ns["moving_block_resample"](n0,L0,np.random.default_rng(42))
+        legacy=legacy_resample(n0,L0,np.random.default_rng(42))
+        assert np.array_equal(fast,legacy), (n0,L0)
     idx=ns["moving_block_resample"](10,4,np.random.default_rng(42))
     assert len(idx)==10
     assert any(idx[i+3]-idx[i]==3 for i in range(7))
