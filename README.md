@@ -264,3 +264,11 @@ Runs [#852](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3791258773
 - Research Protocol Check [#989](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37953177951) failed in a correction-approval regression assertion after protocol and the standard Phase 7 regression passed. Empirical execution did not run.
 - Root cause: the test compared a bare filename against a tuple containing full repository-relative paths. Developer corrected the assertion to the exact protected path; this is a test-only change, not a scientific-method change.
 - [Error log](research/ERROR_LOG.md) and [detailed research log](research/logs/RESEARCH_LOG.md) preserve the incident. Run #989 remains non-evidence; no metric or strategy is promoted. Phase 7 awaits a fresh hosted regression and independent tester review; Phase 8 remains blocked.
+
+
+## Latest checkpoint — 2026-10-09: snapshot approval corrected
+
+- Research Protocol Check [#990](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37953853119) passed the regression suites after the path-assertion fix.
+- The first approval mirror, [Run #992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957038797), correctly failed closed before empirical execution because the tester report line/scope format, report digest and one protected-file hash did not all match. Run #992 is non-evidence.
+- The independent tester corrected the report and JSON manifest on `phase-07-tester`; developer is mirroring those exact blobs. See [Phase 7 correction tester gate](research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md), [snapshot manifest](research/gates/PHASE7_RUN925_CORRECTION_APPROVAL.json), and [error log](research/ERROR_LOG.md).
+- State: waiting for the fresh hosted validator to confirm the exact snapshot. No new metric is accepted, no strategy promoted, and Phase 8 stays blocked pending the fresh empirical artifact's separate audit.

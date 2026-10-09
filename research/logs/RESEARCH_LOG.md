@@ -641,3 +641,12 @@
 - Confirmed the production validator's protected list includes `research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md`; the failed assertion was a test-fixture path mismatch, not missing production coverage.
 - Corrected the test expectation to the full repository-relative path. No forecast logic or frozen scientific method changed.
 - This step remains engineering-only pending fresh hosted regression and independent tester review. Run #989 remains non-evidence, no new metric is accepted, and Phase 8 remains blocked.
+
+
+## 2026-10-09 — Phase 7 Run #992 snapshot validator refusal and correction
+
+- Developer archived the first tester report/manifest pair and triggered Research Protocol Check [#992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957038797).
+- The guard rejected authorization as designed: report line formatting did not match the validator's exact regex/string contract, the stored report SHA-256 therefore did not match the report bytes, and the Phase 6 method-spec hash had a transcription error.
+- Protocol and regression suites passed, but the reference-artifact authorization and empirical jobs were skipped. Run #992 is not scientific evidence.
+- Tester corrected the report line to the exact `Reviewed developer commit: `commit`` form, explicitly stated `fresh empirical execution only`, recomputed the report SHA-256 and Phase 6 file hash, and recommitted the report/manifest on `phase-07-tester`.
+- Developer is mirroring these exact tester blobs without changing any protected source, specification or workflow file. Next step is a new hosted validator run; only an explicit authorized=true result can release one fresh Phase 7 empirical execution.

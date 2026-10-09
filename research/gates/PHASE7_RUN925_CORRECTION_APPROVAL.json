@@ -4,7 +4,7 @@
   "decision": "PASS WITH SCOPED RESTRICTIONS",
   "approval_scope": "fresh empirical execution only",
   "reviewed_developer_commit": "ccb063fb414db971c9a43ed0e0cd85ef9d3c4c4f",
-  "tester_report_sha256": "90d737eed90299ae230d753e0d76fc7a416dd4b3b3d3c1aad2dfe9b1d7fcda80",
+  "tester_report_sha256": "ff1e70945dce83bb3e7313f120f77bf0d2a555d991b369d5d1eca60b43a6c963",
   "protected_files": {
     ".github/workflows/phase-07-ensemble.yml": "eeb4fedd60b1e9ddf1413856fa597d9dd4853dd07b4b58b557a792399ee68258",
     ".github/workflows/research-protocol.yml": "a63b8c93a04da769ddcca6446a0319ef26009178010d7d950890f8dc74572f65",
@@ -12,7 +12,7 @@
     "research/RESEARCH_PLAN.md": "cef248428b33b57a422ec6f054ed4df473a1f116c365405908c96448789e31c0",
     "research/RESEARCH_PROTOCOL.md": "7431a2f65fa6eb767029fe23898c30fedc022645dc1698ba46a2b17a08a46994",
     "research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md": "bf6dc0d7d058264b1a84cb574b1dd26583d37ee65764baa7297daa645dfd383f",
-    "research/phase6/PHASE6_METHOD_SPEC.md": "4d9c27ac6e6e467a7222e0cb06f20d568133cf6f397b6de216d728c5a8714759",
+    "research/phase6/PHASE6_METHOD_SPEC.md": "4d9c27ac6e6e467a7222e0cb06f20d568133fc6f397b6de216d728c5a8714759",
     "research/phase7/PHASE7_METHOD_SPEC.md": "b91402ccdc45254f927344a9a9d309606b50f4d9fd8900742d01ddb43024e2e1",
     "scripts/acquire_global_reference.py": "090cc61ccf707d40b05d3e9d7964fd21f76498bcafb998e412ddd085186b5556",
     "scripts/acquire_hf_intraday_sample.py": "53dfbeffc5b0ae19b5db5d3bdee48b59cecb4cbb2d7bc037716a17001a3172c2",

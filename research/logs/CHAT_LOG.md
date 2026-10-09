@@ -202,3 +202,13 @@ No scientific or protocol change was made during this checkpoint.
 - Root cause was a mismatched assertion: the test used the bare filename while `PROTECTED_FILES` uses the full path. The test now asserts the exact full path.
 - Logged the failure and planned prevention in both error-log files and the research status/log. No scientific result is implied by this engineering repair.
 - Tester instruction: independently review the corrected test and rerun the hosted engineering gate. Do not authorize empirical execution until the exact snapshot passes independent review.
+
+
+## 2026-10-09 — Resume: correction-specific snapshot approval retry
+
+- Rechecked all Phase 7 governance and the latest hosted run before advancing.
+- Tester independently reviewed the snapshot-binding implementation after Run #990 passed regression. The first mirrored approval attempt, Run #992, correctly failed closed because of an exact report-line/scope contract mismatch, a mismatching report digest, and a manually transcribed protected-file hash.
+- Recorded Run #992 in both error logs and the detailed research log; no empirical execution occurred.
+- Tester corrected the report/manifest on the isolated tester branch. Developer is copying their exact blobs and logging the denial. No protected scientific source or model file changes in this step.
+- Tester → Developer: verify the hosted validator response and do not advance unless it authorizes the exact protected snapshot.
+- Developer → Tester: once one fresh empirical execution completes, independently audit its immutable result and report a separate empirical gate; do not infer strategy validity from this code gate.

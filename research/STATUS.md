@@ -286,3 +286,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Latest hosted check [#989](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37953177951) failed after protocol and the standard Phase 7 tests passed; the correction-approval regression asserted a bare filename against full-path registry entries.
 - Developer corrected the assertion to the canonical full path. The production protected-file registry already covered that report; no scientific logic or model metrics changed.
 - State: **ENGINEERING RE-RUN AND INDEPENDENT TESTER REVIEW REQUIRED**. Run #989 is non-evidence; no new Phase 7 artifact/metric is accepted. Phase 8 remains blocked until Phase 7 correction approval and a fresh post-run artifact audit pass.
+
+
+## 2026-10-09 — Phase 7 snapshot approval retry
+
+- Run #990: protocol, Phase 7 regression, correction-approval regression and reference-artifact regression passed on the corrected test snapshot.
+- Tester issued a correction-specific code-gate approval with 25 protected-file hashes. The first mirrored attempt, Run #992, was correctly refused by the fail-closed validator due to a report-format/digest mismatch and one protected hash transcription error.
+- Tester corrected the report and manifest on the isolated `phase-07-tester` branch. Developer mirrors the exact tester blob versions and records the Run #992 refusal.
+- State: **AWAITING FRESH HOSTED SNAPSHOT VALIDATION**. Run #992 is non-evidence; no empirical metrics are accepted. Phase 8 remains blocked.
