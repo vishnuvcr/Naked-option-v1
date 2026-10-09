@@ -52,7 +52,18 @@ def fetch_series(key: str, symbol: str, expected_timezone: str) -> dict:
     if dst.exists() and dst.stat().st_size > 0:
         try:
             cached = pd.read_csv(dst, parse_dates=["date"])
-            if len(cached) >= MIN_ROWS and cached["date"].max() >= (pd.Timestamp.now().normalize() - pd.Timedelta(days=10)):
+            cached["close"] = pd.to_numeric(cached.get("close"), errors="coerce")
+            cache_valid = (
+                {"date", "close", "source_symbol"}.issubset(cached.columns)
+                and len(cached) >= MIN_ROWS
+                and cached["date"].notna().all()
+                and cached["date"].is_unique
+                and cached["close"].notna().all()
+                and (cached["close"] > 0).all()
+                and cached["source_symbol"].astype(str).eq(symbol).all()
+                and cached["date"].max() >= (pd.Timestamp.now().normalize() - pd.Timedelta(days=10))
+            )
+            if cache_valid:
                 cached["date"] = pd.to_datetime(cached["date"]).dt.date.astype(str)
                 return {
                     "id": key, "symbol": symbol, "status": "ACTIVE", "cache_hit": True,
