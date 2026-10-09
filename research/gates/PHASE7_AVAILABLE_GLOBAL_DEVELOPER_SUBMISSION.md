@@ -122,3 +122,19 @@ The panel validation was tightened once more after adding its first regression f
 - Acquisition requirements: f54f873bbba4cfd010cabc32bb4432f581520e7f
 
 The hosted workflow is set to trigger for the protected predictor/spec/test/validator/workflow files, run both regression suites, print the protected file hashes, fail closed without tester approval, and upload the row-level forecast panel with summary/source artifacts. However, the available commit-status endpoint currently returns no checks for the latest commits and the connector exposes no general workflow-run listing/dispatch action. Treat the hosted test result as **unverified**, not green. The tester must not authorize an empirical run until the actual workflow regression result is visible and passes. No approval JSON has been created.
+
+
+## Superseding exact blob references — final panel audit version
+
+The authoritative current file blob identifiers are the following (these supersede any earlier list in this submission; the hosted sha256sum output is still required separately):
+
+- Spec: 71d2d8a9cfef5c138a75715c88bd2f17be3a2afc
+- Acquisition: 401fdacd3aa562b4907d422eb296fec502aa8f3c
+- Predictor: eec628a0c4760e862c2107ecb4b3262c29da2150
+- Predictor regressions: 34dd77ce9f16e339a5785f3ee337bd8a29b1e7c5
+- Result/panel validator: 6654b8f083083b666be3ee796a53687e64ce4389
+- Validator regressions: 04da3f067a80270a09369104937af4d2989be2ff
+- Workflow: c6fbf25e62a9882064cc350d558fd560f3afce35
+- Requirements: f54f873bbba4cfd010cabc32bb4432f581520e7f
+
+No hosted test result is verified in this session. Do not convert this list of source blob IDs into an approval hash manifest; that manifest must be based on the workflow's actual SHA-256 output and a fresh independent tester decision.
