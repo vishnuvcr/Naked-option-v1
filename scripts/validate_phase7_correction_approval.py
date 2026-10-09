@@ -25,6 +25,7 @@ PROTECTED_FILES = (
     "research/METHOD_REGISTRY.md",
     "research/RESEARCH_PLAN.md",
     "research/RESEARCH_PROTOCOL.md",
+    "research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md",
     "research/phase6/PHASE6_METHOD_SPEC.md",
     "research/phase7/PHASE7_METHOD_SPEC.md",
     "scripts/acquire_global_reference.py",
