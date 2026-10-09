@@ -62,7 +62,7 @@ def test_manifest_records_hashes_and_runtime():
     old_dir = p7.REFERENCE_DIR
     old_records = list(p7.PANEL_RECORDS)
     try:
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory(dir=ROOT / "data" / "reports") as td:
             p7.REFERENCE_DIR = Path(td)
             p7.PANEL_RECORDS.clear()
             aggregate = Path(td) / "aggregate.json"
