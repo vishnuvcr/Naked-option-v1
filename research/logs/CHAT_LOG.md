@@ -181,3 +181,9 @@ No scientific or protocol change was made during this checkpoint.
 - Tester independently verified that the source blob in the repository already matches the frozen Run #654 SHA; the failure was in the checker’s Git object-header implementation.
 - Tester requested changes. Developer replaced the literal backslash-x sequence with a real NUL byte and added a known-vector regression using Git’s canonical empty-blob SHA.
 - Tester re-approved the correction. Empirical option execution remains disabled.
+
+
+## 2026-10-09 — Proceed: Run #792 follow-up diagnosis
+- Retrieved the completed Run #792 reconstruction log and Run #654 empirical-job log.
+- Compared logged runtime/package versions and documented that the root cause is not proven; Python patch versions differ but the listed scientific package versions match.
+- Added developer diagnosis proposal and updated research status. Independent tester review remains required before production changes; no tolerance relaxation or empirical execution.
