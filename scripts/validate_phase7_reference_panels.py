@@ -134,6 +134,7 @@ def main():
         raise SystemExit(f"ARTIFACT_ERROR: panel coverage mismatch: {sorted(found_specs)}")
     output_dir.mkdir(parents=True, exist_ok=True)
     cells = []
+    prediction_files = []
     for record in manifest["prediction_panels"]:
         layer, H = str(record["layer"]), int(record["horizon"])
         # Upload-artifact strips the common data/reports prefix.
@@ -158,15 +159,19 @@ def main():
         metrics = compare_panel(frame, expected_cell, intraday)
         out = output_dir / panel_path.name
         shutil.copy2(panel_path, out)
+        copied_path = str(out.relative_to(ROOT)) if out.is_relative_to(ROOT) else str(out)
         cells.append({"layer": layer, "horizon": H, "rows": metrics["rows"],
                       "blocks": metrics["blocks"], "reference_match": True,
-                      "copied_path": str(out.relative_to(ROOT)) if out.is_relative_to(ROOT) else str(out)})
+                      "copied_path": copied_path})
+        prediction_files.append({"path": copied_path, "sha256": sha256(out),
+                                 "rows": metrics["rows"], "layer": layer, "horizon": H})
     result = {
         "status": "PASS", "mode": "saved-row-level-panel-no-model-refit",
         "reference_run_id": manifest.get("run_id"), "reference_commit": manifest.get("commit"),
         "artifact_manifest_sha256": sha256(manifest_path),
         "aggregate_sha256": sha256(aggregate_path), "tolerance_abs": TOL,
-        "cells": cells, "total_cells": len(cells), "all_cells_reproduced": len(cells) == 10,
+        "cells": cells, "prediction_files": prediction_files,
+        "total_cells": len(cells), "all_cells_reproduced": len(cells) == 10,
     }
     (output_dir / "phase8_forecast_reconstruction_manifest.json").write_text(
         json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
