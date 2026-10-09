@@ -139,3 +139,12 @@ No scientific or protocol change was made during this checkpoint.
 - Report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](../gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = REQUEST CHANGES for exact commit/file-hash binding and negative fail-closed tests.
 - Empirical jobs `37935752265` and `37935794939` were started under the stale gate before it was contained. They are strictly non-evidence; results/artifacts must not be accepted.
 - Developer may not run another empirical Phase 7 job until the tester approves the snapshot-binding correction. Phase 8 remains blocked.
+
+
+## 2026-10-09 — Tester workflow isolation and generic artifact audit entry point
+
+- Changed the legacy Run #925 audit trigger to manual-only so unrelated tester-branch pushes cannot repeatedly audit the rejected artifact.
+- Added a generic tester-side audit entry point that uses the same frozen audit checks but derives run/commit identity from explicit required inputs.
+- The main orchestrator will checkout this tester script by immutable commit SHA; artifact identity and run eligibility are independently checked before it runs. Reports are written to the tester branch, and the orchestration gate fails unless the audit decision passes.
+- Developer → Tester: only run on a successful completed developer branch run with both uploaded artifacts; fail closed for missing/expired artifacts or source identity mismatch.
+- Tester → Developer: report the exact run/commit, counts and failures; no promotion until all numerical, source, hash, panel and family-inference checks pass.

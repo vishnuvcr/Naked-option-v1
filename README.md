@@ -131,3 +131,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Independent tester report [PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md](research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) = **REQUEST CHANGES** because approval text/file presence is not tied to the protected source/workflow/spec snapshot.
 - The workflow gate must bind the PASS to an exact reviewed commit and protected file hashes (or reject any such changes since the approval). Add tests that a later protected change prevents authorization, and that both manual and automatic paths fail closed.
 - Runs `37935752265` and `37935794939` are preserved as NON-EVIDENCE; no metrics accepted. Phase 8 stays blocked.
+
+
+## 2026-10-09 — Generic approved-run tester audit entry point
+
+- Preserved the legacy Run #925 audit as a historical, manually dispatched re-audit only; branch pushes no longer trigger it.
+- Added `scripts/audit_phase7_artifact.py`, an independently held generic entry point with the same frozen numerical and data-integrity checks, parameterized by expected run ID and exact source commit.
+- A separate main-branch orchestrator will invoke this pinned tester script automatically after a successful `Research Protocol Check` on `phase-07-developer` completes, but only if that exact run has both `phase7-ensemble-results` and `phase7-ensemble-reference` artifacts. It will also expose a manual run-ID input.
+- The orchestrator checks out this tester code at a fixed commit before executing it, downloads only the source run's artifacts, publishes the full JSON/Markdown tester report onto this tester branch, and fails the final gate unless the report says PASS. It does not use model selection logic or modify developer forecast code.
+- This commit adds the generic audit entry point and records the separation rule; it is not an empirical result. The legacy pinned Run #925 audit remains available via manual `workflow_dispatch` only.
