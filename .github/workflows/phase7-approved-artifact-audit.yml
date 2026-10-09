@@ -215,7 +215,7 @@ jobs:
                 },
                 "exception": "Audit setup, data acquisition, artifact retrieval, or script execution failed before a report was written."
             }
-            Path("audit_out/phase7_audit.json").write_text(json.dumps(fallback, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+            Path("audit_out/phase7_audit.json").write_text(json.dumps(fallback, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             PY
           fi
 
