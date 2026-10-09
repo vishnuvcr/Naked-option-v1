@@ -327,3 +327,10 @@ No scientific or protocol change was made during this checkpoint.
 - This supports the reason for a fresh empirical run, but it is not proof of empirical success. Run #994 is still active without results/artifacts. Tester must independently verify all of these exact fixes against the fresh row-level panels.
 - Tester → Developer: compare the fresh artifact to the exact frozen spec and recompute metrics/masks; do not waive failures.
 - Developer → Tester: provide only the immutable Run #994 artifact/source and accept the tester decision without altering the method.
+
+## 2026-10-09 — Resume: P10 diagnostic invariant escalated for independent review
+
+- Compared frozen specification wording, production validator logic and tester auditor checks. Spec says P08/P09/P10 regime diagnostic count must equal candidate chronological diagnostic count; current validator only requires P08/P09 equality because P10 abstentions can leave empty candidate blocks.
+- The active Run #994 is immutable; no source/protocol file changed in the run and no result is yet available. This issue is recorded for tester adjudication, not silently fixed post hoc.
+- Tester → Developer: independently decide whether P10 diagnostic semantics can satisfy both abstention and count invariants; if a specification amendment is needed, require a dated pre-registered tester approval before any fresh run, and keep Run #994 non-promotable until resolved.
+- Developer → Tester: provide the exact frozen spec, validator/source commit and artifact once published; do not advance Phase 8 while the inconsistency is unresolved.

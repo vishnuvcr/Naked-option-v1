@@ -304,3 +304,9 @@
 - Run #925 independent audit returned REQUEST CHANGES (2,775 checks passed, 323 failed). The exact code delta to Run #994, while leaving the Phase 7 specification byte-identical, adds the required P10 abstention interval, prevents missing regime features from being counted in low/low regimes, preserves unevaluable candidate rows as NaN in family bootstrap differentials, and applies candidate-specific eligibility masks to block diagnostics.
 - Added regression coverage for those defects and adjusted the validator's P10 block-count invariant accordingly. These changes target the frozen protocol; they do not constitute a passing empirical result.
 - Run #994 is still in progress; no artifacts/metrics have been accepted. If any analogous inconsistency remains, the dynamic tester audit must record REQUEST CHANGES and the developer must repair without changing the protocol.
+
+## 2026-10-09 — Open protocol consistency risk: P10 diagnostic block counts
+
+- The frozen Phase 7 spec requires P08/P09/P10 regime diagnostic block counts to equal candidate chronological block counts, but the current schema validator enforces this only for P08/P09 because P10 abstentions can remove all eligible metrics from a block.
+- The production output carries shared P08/P09/P10 regime diagnostics, while P10 chronological metrics apply abstention. The independent auditor does not currently explicitly gate the P10 count invariant.
+- No post-hoc spec or result change is authorized. Tester must resolve the literal-spec interpretation against the fresh artifact, record PASS or REQUEST CHANGES, and require a pre-registered tester-approved amendment if the protocol itself must change. Run #994 is unchanged and Phase 8 remains blocked.

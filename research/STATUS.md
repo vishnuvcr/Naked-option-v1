@@ -432,3 +432,12 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
   4. Chronological-block diagnostics can receive the method-specific eligibility mask, so P05/P06/P10 diagnostics use the same registered row eligibility as the reported metrics.
   5. Regression tests now include explicit cases for these abstention, missing-regime-feature, family-missingness and candidate-mask conditions. Result validation permits P10's candidate-eligible block count to differ from the underlying regime diagnostic count, while P08/P09 retain their equality invariant.
 - These are implementation corrections toward the frozen protocol, not changes to the protocol file. They do not guarantee that the new run passes; only the independent exact-run artifact audit can establish that. Run #994 remains active, has no artifacts at the latest poll, and Phase 8 remains blocked.
+
+
+## 2026-10-09 — OPEN TESTER CHECK: P10 regime-diagnostic block-count invariant
+
+- Frozen protocol `research/phase7/PHASE7_METHOD_SPEC.md` currently says the P08/P09/P10 regime-diagnostic block count must equal the candidate chronological-block count.
+- The current `scripts/validate_phase7_results.py` explicitly enforces that equality only for P08/P09 because P10's registered abstention mask can remove every eligible metric observation from a chronological block.
+- The production `scripts/run_phase7_ensemble.py` currently attaches the shared regime diagnostics to P08/P09/P10, while its P10 `chronological_blocks` uses the candidate-specific abstention mask. The independent auditor reconciles the shared regime diagnostics and P10 block metrics separately but does not explicitly enforce the frozen spec's stated count equality for P10.
+- This is a **possible protocol/diagnostic-definition inconsistency**, not yet a finding that Run #994's eventual artifact fails. Do not silently amend the spec or disable the check. The tester must determine, from the literal frozen text and fresh artifact, whether (a) the implementation must retain matching P10 diagnostic blocks while preserving P10 abstention semantics, or (b) a formal pre-registered specification amendment is required. Any amendment needs its own tester approval and cannot be applied post hoc to justify results already examined.
+- Run #994 is already executing immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; no code/spec change has been made to that run. The tester report must document this point and keep scientific promotion/Phase 8 blocked if unresolved.
