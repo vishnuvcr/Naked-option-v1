@@ -95,10 +95,12 @@ jobs:
       - run: python scripts/run_phase7_ensemble.py
       - run: python scripts/validate_phase7_results.py
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: phase7-ensemble-results
           path: data/reports/phase7_ensemble_results.json
       - name: Upload immutable row-level reference artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase7-ensemble-reference
