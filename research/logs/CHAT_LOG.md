@@ -231,3 +231,7 @@ No scientific or protocol change was made during this checkpoint.
 - Added checks that saved daily/intraday labels, future returns and timestamps exactly match source-derived values; added tests that reject mutated labels/returns.
 - Two intermediate hosted regression runs failed because the synthetic fixture tried to read real cached data. Isolated those loaders in the synthetic fixture without bypassing production checks.
 - Hosted run `37914065821` passed, and tester approval is archived. The actual Phase 7 reference artifact is still running/not available; Phase 8 empirical grid remains blocked.
+
+## 2026-10-09 — Resume: strict reference identity checks
+- Added strict source/code manifest-key validation and per-panel run/commit identity checks. Hosted validator regression `37914278229` passed; tester approval is archived.
+- Real Phase 7 reference build still has no artifact uploaded and remains in progress. Old Phase 8 reconstruction attempts remain in progress without evidence; no option-grid execution is authorized.
