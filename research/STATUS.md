@@ -188,3 +188,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Automatic approved-audit workflow run #2 ([run 37966008847](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37966008847)) checked completed developer protocol run #1037.
 - It validated the triggering workflow identity, branch, successful completion and source SHA, then skipped because the aggregate Phase 7 artifact was absent. The independent-audit job remained skipped.
 - The skip path is the intended fail-closed behavior for documentation-only changes. Run #994 still has no artifacts at the latest poll; no new metrics have been accepted.
+
+
+## 2026-10-09 — Phase 7 implementation correction versus frozen specification
+
+A direct comparison of the exact Run #925 source commit (`682eadf2a9eb4de250bc3db27d02e57f88687fa1`) and Run #994 source commit (`b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`) found the Phase 7 method-spec file is identical at both commits (blob SHA `964b323f5ed86b12f743dea1c9b842aba166996a`). The implementation changed to address the tester's four material findings: P10's inclusive [0.45, 0.55] abstention mask; excluding rows with non-finite volatility/trend from regime counts; retaining non-evaluable rows as NaN in family-bootstrap Brier differentials; and applying each candidate's eligible-row mask to chronological block diagnostics. Explicit regression coverage was added, and the current result validator keeps the P08/P09 regime diagnostic invariant while permitting P10's abstention-masked block-count difference.
+
+These are implementation repairs toward the frozen specification, **not a passing result**. Run #994 is still active and has no published aggregate or row-level artifacts at the last poll. No metric or strategy is accepted. Its artifacts must pass the independent tester workflow before Phase 8 can be considered.

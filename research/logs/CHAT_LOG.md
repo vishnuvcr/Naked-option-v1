@@ -55,3 +55,11 @@ Those are prior findings to be revalidated, not accepted as current conclusions.
 - Main workflow audit runs #1 and #2 inspected completed developer protocol runs with no Phase 7 artifacts. Run #2 also verified the exact workflow-name guard, then skipped because the aggregate artifact was absent.
 - Neither workflow ran the tester calculation. These are safety-gate checks only.
 - Phase 7 Run #994 still has no artifacts; continue tracking this same run until completion and then audit its exact outputs.
+
+## 2026-10-09 — Research resume: validated code-delta reason for fresh Run #994
+
+- Compared Run #925 and Run #994 exact source code. The frozen protocol specification did not change; the new implementation fixes four prior independent-audit mismatches: P10 inclusive abstention, finite regime feature eligibility, NaN-preserving family-bootstrap missingness, and candidate-specific chronological block masks.
+- The test suite includes explicit boundary/sign/missingness tests for those changes; the latest empirical workflow's regression step passed before the model calculation began.
+- This establishes why the fresh run is justified but does not show improved performance. Run #994 is still in progress without artifacts, and the independent audit has not run.
+- Tester → Developer: reconcile the exact artifact against all four fixes and the frozen protocol; preserve REQUEST CHANGES if any discrepancy remains.
+- Developer → Tester: wait for the exact Run #994 artifacts and source commit; do not accept results from the preflight-only workflow runs.
