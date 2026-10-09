@@ -271,3 +271,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Next developer action: bind approval to exact reviewed commit and hashes of protected source/test/validator/spec/workflow files; add positive and negative authorization tests for both manual and automatic paths.
 - Runs `37935752265` and `37935794939` began empirical execution before the guard was corrected. They remain **NON-EVIDENCE**, regardless of artifact availability.
 - No Phase 7 metric or strategy is promoted. Phase 8 remains blocked.
+
+
+## 2026-10-09 — Phase 7 approval snapshot binding implemented
+
+- Developer commit `b9fc7c9e7c77efb5149d35e31509251f701122ce` adds a fail-closed approval validator and positive/negative regression tests, and wires it into both the automatic caller and reusable/manual execution workflow.
+- Protected source, tests, input/acquisition logic, method specifications and workflow files must match SHA-256 values in a tester-branch approval manifest. The reviewed commit must exist and be an ancestor; tester report and manifest must match byte-for-byte across branches and the report hash must match the manifest.
+- Hosted [Run #981](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37938077088) passed protocol, Phase 7 regression, correction-approval validator regression and reference-artifact regression. Authorization and empirical jobs were skipped, as expected, because independent approval/manifest are not yet present.
+- State: **AWAITING INDEPENDENT TESTER REVIEW**. No empirical run authorized, no metric accepted, Phase 8 blocked.
