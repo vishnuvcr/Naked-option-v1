@@ -192,6 +192,15 @@ def main():
     runtime = manifest.get("runtime", {})
     if not all(runtime.get(k) for k in ("python", "platform", "machine", "numpy", "pandas", "scikit_learn", "scipy", "pyarrow", "threadpoolctl")):
         raise SystemExit("ARTIFACT_ERROR: incomplete runtime fingerprint")
+    expected_source_paths = {"daily_csv", "intraday_parquet"}
+    if set(manifest.get("source_files", {})) != expected_source_paths:
+        raise SystemExit("ARTIFACT_ERROR: required source-file manifest entries missing or unexpected")
+    expected_code_paths = {
+        "scripts/run_phase7_ensemble.py", "scripts/run_phase6_novel.py",
+        "scripts/run_phase3_daily_baselines.py", "scripts/run_phase3_intraday_baselines.py",
+    }
+    if set(manifest.get("code_files", {})) != expected_code_paths:
+        raise SystemExit("ARTIFACT_ERROR: required immutable source-code fingerprints missing or unexpected")
     for name, source in manifest.get("source_files", {}).items():
         if not source.get("sha256") or len(source["sha256"]) != 64:
             raise SystemExit(f"ARTIFACT_ERROR: malformed source hash for {name}")
@@ -230,6 +239,10 @@ def main():
             raise SystemExit(f"ARTIFACT_ERROR: column-schema mismatch: {panel_path.name}")
         if set(frame["layer"].astype(str)) != {layer} or set(frame["horizon"].astype(int)) != {H}:
             raise SystemExit(f"ARTIFACT_ERROR: panel identity mismatch: {panel_path.name}")
+        if set(frame["source_run_id"].astype(str)) != {str(manifest["run_id"])}:
+            raise SystemExit(f"ARTIFACT_ERROR: panel run identity mismatch: {panel_path.name}")
+        if set(frame["source_commit"].astype(str)) != {str(manifest["commit"])}:
+            raise SystemExit(f"ARTIFACT_ERROR: panel commit identity mismatch: {panel_path.name}")
         intraday, horizons = LAYERS[layer]
         verify_panel_source_alignment(frame, layer, H, daily_source, intraday_source)
         if H not in horizons:
