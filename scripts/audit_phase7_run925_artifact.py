@@ -22,7 +22,7 @@ METRIC_FIELDS = (
     "n", "positive_rate", "accuracy", "balanced_accuracy", "brier",
     "log_loss", "tn", "fp", "fn", "tp", "roc_auc", "pr_auc",
 )
-ABSTAIN = {"P05": (0.45, 0.55), "P06": (0.40, 0.60)}
+ABSTAIN = {"P05": (0.45, 0.55), "P06": (0.40, 0.60), "P10": (0.45, 0.55)}
 TOL = 1e-9
 
 
@@ -104,6 +104,116 @@ def independently_calculate_metrics(y, p, name):
     }
 
 
+def nearly_equal_json(actual, expected, tol=TOL):
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            nearly_equal_json(actual[k], expected[k], tol) for k in actual
+        )
+    if isinstance(actual, list) and isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            nearly_equal_json(a, b, tol) for a, b in zip(actual, expected)
+        )
+    if isinstance(actual, (int, float, np.number)) and isinstance(expected, (int, float, np.number)):
+        return numeric_match(actual, expected, tol)
+    return actual == expected
+
+
+def independently_calculate_accuracy_bootstrap(y, p, block_len, reps=200, seed=42):
+    z = pd.DataFrame({"y": np.asarray(y, float), "p": np.asarray(p, float)}).dropna()
+    if len(z) < block_len:
+        return {"lower": None, "upper": None, "median": None}
+    rng = np.random.default_rng(seed)
+    n = len(z)
+    blocks = [np.arange(i, min(i + block_len, n)) for i in range(0, n, block_len)]
+    yy, pp = z["y"].to_numpy(), z["p"].to_numpy()
+    values = []
+    for _ in range(reps):
+        selected = rng.integers(0, len(blocks), size=len(blocks))
+        idx = np.concatenate([blocks[j] for j in selected])[:n]
+        values.append(float(np.mean((pp[idx] >= 0.5) == yy[idx])))
+    return {
+        "lower": float(np.quantile(values, 0.025)),
+        "upper": float(np.quantile(values, 0.975)),
+        "median": float(np.median(values)),
+    }
+
+
+def independently_calculate_fixed_bins(y, p, future):
+    z = pd.DataFrame({
+        "y": np.asarray(y, float), "p": np.asarray(p, float), "future": np.asarray(future, float)
+    }).replace([np.inf, -np.inf], np.nan).dropna(subset=["y", "p", "future"])
+    edges = [0.0, 0.45, 0.50, 0.55, 0.60, 1.0000001]
+    names = ["<0.45", "0.45-0.50", "0.50-0.55", "0.55-0.60", ">=0.60"]
+    output = {}
+    for lo, hi, name in zip(edges[:-1], edges[1:], names):
+        mask = (z["p"] >= lo) & (z["p"] < hi)
+        output[name] = {
+            "n": int(mask.sum()),
+            "mean_future_return": float(z.loc[mask, "future"].mean()) if mask.any() else None,
+        }
+    return output
+
+
+def independently_calculate_regime_predictions(y, p1, p4, vol, trend, block_index):
+    n = len(y)
+    p8 = np.full(n, np.nan, dtype=float)
+    p9 = np.full(n, np.nan, dtype=float)
+    diagnostics = []
+    fallback_count = 0
+    for block_id in range(int(np.max(block_index)) + 1):
+        rows = np.flatnonzero(block_index == block_id)
+        if not len(rows):
+            continue
+        train_rows = np.arange(int(rows[0]))
+        train_vol = vol[train_rows][np.isfinite(vol[train_rows])]
+        train_trend = trend[train_rows][np.isfinite(trend[train_rows])]
+        if len(train_vol) < 200 or len(train_trend) < 200:
+            continue
+        vol_cut = float(np.median(train_vol))
+        trend_cut = float(np.median(train_trend))
+        valid_y = np.isfinite(y[train_rows])
+        pooled = float(np.mean(y[train_rows][valid_y])) if valid_y.any() else 0.5
+        valid_state = valid_y & np.isfinite(vol[train_rows]) & np.isfinite(trend[train_rows])
+        state_rates = {}
+        train_counts = {}
+        for vol_state in (0, 1):
+            for trend_state in (0, 1):
+                state_mask = (
+                    valid_state
+                    & ((vol[train_rows] > vol_cut).astype(int) == vol_state)
+                    & ((trend[train_rows] > trend_cut).astype(int) == trend_state)
+                )
+                count = int(state_mask.sum())
+                key = f"{vol_state}{trend_state}"
+                train_counts[key] = count
+                if count >= 50:
+                    state_rates[(vol_state, trend_state)] = float(np.mean(y[train_rows][state_mask]))
+                else:
+                    state_rates[(vol_state, trend_state)] = pooled
+                    fallback_count += 1
+        test_counts = {f"{v}{t}": 0 for v in (0, 1) for t in (0, 1)}
+        eval_mask = (
+            np.isfinite(y[rows]) & np.isfinite(p1[rows]) & np.isfinite(p4[rows])
+            & np.isfinite(vol[rows]) & np.isfinite(trend[rows])
+        )
+        for row in rows:
+            if np.isfinite(p1[row]) and np.isfinite(p4[row]) and np.isfinite(vol[row]) and np.isfinite(trend[row]):
+                state = (int(vol[row] > vol_cut), int(trend[row] > trend_cut))
+                rate = state_rates[state]
+                p8[row] = 0.5 * p1[row] + 0.5 * rate
+                p9[row] = 0.5 * p4[row] + 0.5 * rate
+                if np.isfinite(y[row]):
+                    test_counts[f"{state[0]}{state[1]}"] += 1
+        if eval_mask.any():
+            diagnostics.append({
+                "train_counts": train_counts,
+                "test_counts": test_counts,
+                "vol_cut": vol_cut,
+                "trend_cut": trend_cut,
+            })
+    return p8, p9, diagnostics, fallback_count
+
+
 def block_resample(n, block_len, rng):
     if n <= 0:
         return np.array([], dtype=int)
@@ -135,7 +245,8 @@ def independently_calculate_family_test(y, candidates, block_index, block_len):
         if name in ABSTAIN:
             lo, hi = ABSTAIN[name]
             trade = finite & ~((p >= lo) & (p <= hi))
-            d = np.zeros(n, dtype=float)
+            d = np.full(n, np.nan, dtype=float)
+            d[finite] = 0.0
             d[trade] = (baseline[trade] - y[trade]) ** 2 - (p[trade] - y[trade]) ** 2
             differences[:, col] = d
         else:
@@ -182,8 +293,10 @@ def main():
             "immutable manifest, source and code hashes",
             "all ten Parquet panels and provenance columns",
             "source-derived labels, future returns, timestamps and block assignments",
-            "independent reconciliation of 100 method/horizon metric cells",
-            "independent reproduction of ten family-level moving-block bootstrap tests",
+            "independent reconciliation of 100 method/horizon metric cells and bootstrap accuracy intervals",
+            "independent reconciliation of probability-bin future returns and chronological block diagnostics",
+            "independent reproduction of ten family-level moving-block bootstrap tests against frozen abstention semantics",
+            "independent audit of finite regime-feature eligibility against the frozen P08/P09/P10 specification",
         ],
         "scientific_promotion": "NOT_GRANTED",
     }
@@ -341,8 +454,46 @@ def main():
                             np.array_equal(block_index, expected_blocks),
                             {"actual_blocks": int(block_index.max()) + 1, "expected_blocks": int(expected_blocks.max()) + 1})
 
+                # Independently apply the frozen regime definition. Rows without finite vol/trend
+                # cannot belong to a low/low state; they remain eligible only for the pooled prior.
+                regime_source = daily if layer == "daily" else intraday
+                if layer == "daily":
+                    regime_returns = daily["log_close"].diff().to_numpy(dtype=float)
+                    selected_rows = np.arange(len(daily), dtype=int)
+                else:
+                    regime_returns = np.log(intraday["spot"].astype(float)).diff().to_numpy(dtype=float)
+                    selected_rows = decision_idx
+                full_vol = pd.Series(regime_returns).rolling(20).std(ddof=1).to_numpy()
+                full_trend = np.abs(pd.Series(regime_returns).rolling(20).mean().to_numpy()) / (full_vol + 1e-12)
+                regime_vol, regime_trend = full_vol[selected_rows], full_trend[selected_rows]
+                expected_p8, expected_p9, expected_regime_diag, expected_fallback = (
+                    independently_calculate_regime_predictions(
+                        y, probs["P01"], probs["P04"], regime_vol, regime_trend, block_index
+                    )
+                )
+                audit.check(f"spec_regime_P08_predictions:{layer}:H{horizon}",
+                            arrays_match(probs["P08"], expected_p8),
+                            "P08 should use state rates built only from training rows with finite volatility and trend")
+                audit.check(f"spec_regime_P09_predictions:{layer}:H{horizon}",
+                            arrays_match(probs["P09"], expected_p9),
+                            "P09 should use state rates built only from training rows with finite volatility and trend")
+
                 # Recalculate the published per-method metrics independently from the panel arrays.
                 published_horizon = aggregate[layer]["horizons"][str(horizon)]
+                actual_regime_diag = published_horizon["P08"].get("regime_diagnostics", [])
+                audit.check(f"spec_regime_training_counts:{layer}:H{horizon}",
+                            nearly_equal_json(actual_regime_diag, expected_regime_diag),
+                            {"published_first": actual_regime_diag[:1], "spec_first": expected_regime_diag[:1]})
+                audit.check(f"spec_regime_fallback_count:{layer}:H{horizon}",
+                            published_horizon["P08"].get("regime_fallback_count") == expected_fallback,
+                            {"published": published_horizon["P08"].get("regime_fallback_count"),
+                             "spec": expected_fallback})
+                audit.check(f"spec_regime_P09_diagnostics:{layer}:H{horizon}",
+                            nearly_equal_json(published_horizon["P09"].get("regime_diagnostics", []), expected_regime_diag),
+                            "")
+                audit.check(f"spec_regime_P10_diagnostics:{layer}:H{horizon}",
+                            nearly_equal_json(published_horizon["P10"].get("regime_diagnostics", []), expected_regime_diag),
+                            "")
                 for name in METHODS:
                     calculated = independently_calculate_metrics(y, probs[name], name)
                     published = published_horizon[name]
@@ -350,6 +501,64 @@ def main():
                         audit.check(f"metric:{layer}:H{horizon}:{name}:{field}",
                                     numeric_match(calculated.get(field), published.get(field)),
                                     {"calculated": calculated.get(field), "published": published.get(field)})
+
+                    metric_mask = np.isfinite(y) & np.isfinite(probs[name])
+                    if name in ABSTAIN:
+                        lo, hi = ABSTAIN[name]
+                        metric_mask &= ~((probs[name] >= lo) & (probs[name] <= hi))
+                    yy = y[metric_mask].astype(int)
+                    pp = np.clip(probs[name][metric_mask], 1e-6, 1 - 1e-6)
+                    ff = future[metric_mask]
+                    accuracy_ci = independently_calculate_accuracy_bootstrap(yy, pp, block_len)
+                    stored_ci = published.get("accuracy_block_bootstrap_95", {})
+                    for field in ("lower", "upper", "median"):
+                        audit.check(f"accuracy_ci:{layer}:H{horizon}:{name}:{field}",
+                                    numeric_match(accuracy_ci.get(field), stored_ci.get(field)),
+                                    {"calculated": accuracy_ci.get(field), "published": stored_ci.get(field)})
+                    fixed_bins = independently_calculate_fixed_bins(yy, pp, ff)
+                    stored_bins = published.get("future_return_by_probability_bin", {})
+                    for bin_name, bin_record in fixed_bins.items():
+                        stored_record = stored_bins.get(bin_name, {})
+                        audit.check(f"future_bin_n:{layer}:H{horizon}:{name}:{bin_name}",
+                                    bin_record["n"] == stored_record.get("n"),
+                                    {"calculated": bin_record["n"], "published": stored_record.get("n")})
+                        audit.check(f"future_bin_mean:{layer}:H{horizon}:{name}:{bin_name}",
+                                    numeric_match(bin_record["mean_future_return"], stored_record.get("mean_future_return")),
+                                    {"calculated": bin_record["mean_future_return"], "published": stored_record.get("mean_future_return")})
+                    audit.check(f"abstention_counts:{layer}:H{horizon}:{name}",
+                                (published.get("trade_n") == int(metric_mask.sum())
+                                 and published.get("evaluable_n") == int((np.isfinite(y) & np.isfinite(probs[name])).sum())
+                                 and numeric_match(published.get("coverage"),
+                                                  float(metric_mask.sum() / (np.isfinite(y) & np.isfinite(probs[name])).sum())
+                                                  if (np.isfinite(y) & np.isfinite(probs[name])).sum() else 0.0))
+                                if name in ABSTAIN else
+                                ("trade_n" not in published and "coverage" not in published),
+                                {"published_trade_n": published.get("trade_n"),
+                                 "expected_trade_n": int(metric_mask.sum()) if name in ABSTAIN else None,
+                                 "coverage": published.get("coverage")})
+                    # Chronological block diagnostics should use the candidate's same eligibility mask,
+                    # including the abstention rule where one is frozen.
+                    stored_blocks = published.get("chronological_blocks", [])
+                    expected_blocks_diag = []
+                    for block_id in range(int(block_index.max()) + 1):
+                        rows = np.flatnonzero(block_index == block_id)
+                        keep = np.isfinite(y[rows]) & np.isfinite(probs[name][rows])
+                        if name in ABSTAIN:
+                            lo, hi = ABSTAIN[name]
+                            keep &= ~((probs[name][rows] >= lo) & (probs[name][rows] <= hi))
+                        if not keep.any():
+                            continue
+                        by = y[rows][keep].astype(int)
+                        bp = np.clip(probs[name][rows][keep], 1e-6, 1 - 1e-6)
+                        expected_blocks_diag.append({
+                            "n": int(len(by)),
+                            "accuracy": float(np.mean((bp >= 0.5) == by)),
+                            "balanced_accuracy": float(balanced_accuracy_score(by, (bp >= 0.5).astype(int))),
+                            "brier": float(np.mean((bp - by) ** 2)),
+                        })
+                    audit.check(f"chronological_block_metrics:{layer}:H{horizon}:{name}",
+                                nearly_equal_json(stored_blocks, expected_blocks_diag),
+                                {"published_count": len(stored_blocks), "expected_count": len(expected_blocks_diag)})
                     summary["per_cell_metrics_checked"] += 1
 
                 # Independently reproduce the family-wise maximum-statistic block bootstrap.
