@@ -536,3 +536,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Added the script to the push path filter, approval allowlist and SHA-256 report list in the workflow.
 - Workflow blob is now updated after the previous tester resubmission; therefore the prior static report does not cover the current workflow blob.
 - **Execution remains NOT AUTHORIZED.** Need an independent tester review of the latest workflow and a verifiable hosted regression run. No prediction output exists.
+
+
+## 2026-10-10 — Phase 7 available-data gate after Run #43
+
+- Acquisition/cache and timezone fixes are in the developer snapshot. [Hosted Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed all regression suites: 8 acquisition/cache, 11 predictor and 11 result-validator checks.
+- [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md) is **PASS WITH SCOPED RESTRICTIONS**, authorizing one exact-snapshot prediction batch only. The identical report is mirrored at [developer branch handoff](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md).
+- **The prediction batch has not run.** The exact-snapshot approval manifest write was blocked by platform safety checks; the approval JSON remains absent. The automatic workflow therefore has no authority to enter empirical execution.
+- Run #41 and #42 failed only on test fixtures, were corrected, and are logged as non-evidence. Run #43 is regression evidence, not model performance evidence.
+- Phase 7 remains at the empirical-execution authorization boundary. Phase 8 and any strategy promotion remain blocked.
