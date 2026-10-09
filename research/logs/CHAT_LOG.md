@@ -417,3 +417,12 @@ The tester report is research/gates/PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.
 
 **Developer → Tester:** obtain observable hosted regression evidence with exact commit and protected hashes, then review the result artifacts independently before any empirical authorization.
 **Tester → Developer:** maintain the no-execution hold until a verified workflow run passes; return a distinct execution-gate report rather than reusing the static review.
+
+## 2026-10-10 — Proceed checkpoint after workflow protection fix
+
+On the user's “Ok proceed” instruction, the developer re-fetched the Phase 7 workflow and verified the NIFTY acquisition script is now included in the trigger, protected approval allowlist and SHA-256 list. Manual dispatch and row-level panel artifact upload are still configured. Current workflow blob: 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce.
+
+The current connected GitHub status query returned no checks and the run-list connector returned no workflow runs for the latest workflow-change commit. Since that connector only returns pull-request-triggered runs, the result is inconclusive. The developer must not claim CI passed, cannot independently execute GitHub Actions through the available tools, and must not bypass the isolated tester branch or create the execution approval JSON. No empirical prediction was generated.
+
+**Developer → Tester:** Review workflow blob 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce plus the exact protected code snapshot, verify an observable hosted regression run, and return a new execution-gate disposition.
+**Tester → Developer:** Do not authorize prediction execution without actual run evidence and hash reconciliation; report any additional issues to the developer.
