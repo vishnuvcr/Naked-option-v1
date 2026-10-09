@@ -205,27 +205,36 @@ def walk_forward_probabilities(y: np.ndarray, X: pd.DataFrame, horizon: int) -> 
     baseline = np.full(len(y), np.nan, dtype=float)
     for start in range(MIN_TRAIN + horizon, len(y), TEST_BLOCK):
         train_end = max(0, start - horizon)
-        train_idx = np.arange(0, train_end)
-        train_ok = np.isfinite(y[train_idx]) & np.isfinite(x[train_idx]).all(axis=1)
-        train_idx = train_idx[train_ok]
+        label_idx = np.arange(0, train_end)
+        label_idx = label_idx[np.isfinite(y[label_idx])]
+        if len(label_idx) < MIN_TRAIN or np.unique(y[label_idx]).size < 2:
+            continue
+        # The causal historical-rate benchmark is independent of source feature
+        # completeness; this keeps the benchmark identical across candidates.
+        y_benchmark = y[label_idx].astype(int)
+        baseline_p = float(y_benchmark.mean())
+        if not 0 < baseline_p < 1:
+            continue
+        block_end = min(start + TEST_BLOCK, len(y))
+        for i in range(start, block_end):
+            if np.isfinite(y[i]):
+                baseline[i] = baseline_p
+
+        train_idx = label_idx[np.isfinite(x[label_idx]).all(axis=1)]
         if len(train_idx) < MIN_TRAIN or np.unique(y[train_idx]).size < 2:
             continue
         y_train = y[train_idx].astype(int)
-        baseline_p = float(y_train.mean())
-        if not 0 < baseline_p < 1:
-            continue
         mu = x[train_idx].mean(axis=0)
         sd = x[train_idx].std(axis=0)
         sd[~np.isfinite(sd) | (sd < EPS)] = 1.0
         x_train = (x[train_idx] - mu) / sd
         model = LogisticRegression(C=1.0, solver="lbfgs", max_iter=1000, random_state=SEED)
         model.fit(x_train, y_train)
-        for i in range(start, min(start + TEST_BLOCK, len(y))):
+        for i in range(start, block_end):
             if not np.isfinite(y[i]) or not np.isfinite(x[i]).all():
                 continue
             x_test = (x[i:i+1] - mu) / sd
             pred[i] = float(model.predict_proba(x_test)[0, 1])
-            baseline[i] = baseline_p
     return pred, baseline
 
 
