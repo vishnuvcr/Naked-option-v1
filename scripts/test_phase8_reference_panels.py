@@ -88,6 +88,8 @@ def test_full_artifact_directory_validation():
     n = 240
     original_root = validator.ROOT
     original_family = p7.family_bootstrap
+    original_load_daily = p7.p6.load_daily
+    original_load_intraday = p7.p6.load_intraday
     original_verify = validator.verify_code_hashes
     original_source_alignment = validator.verify_panel_source_alignment
     original_loader = validator.load_reference_phase7_module
@@ -113,6 +115,8 @@ def test_full_artifact_directory_validation():
             validator.verify_panel_source_alignment = lambda frame, layer, horizon, daily, intraday: None
             validator.load_reference_phase7_module = lambda commit: p7
             validator.p7 = p7
+            p7.p6.load_daily = lambda: pd.DataFrame()
+            p7.p6.load_intraday = lambda: pd.DataFrame()
             p7.family_bootstrap = lambda *args, **kwargs: {"observed": 0.001, "p_value": 0.5}
 
             aggregate = {"protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42}
@@ -228,6 +232,8 @@ def test_full_artifact_directory_validation():
         phase8_panel_validator.REPORT = original_panel_report
         phase8_panel_validator.MANIFEST = original_panel_manifest
         p7.family_bootstrap = original_family
+        p7.p6.load_daily = original_load_daily
+        p7.p6.load_intraday = original_load_intraday
         sys.argv = original_argv
 
 
