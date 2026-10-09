@@ -269,3 +269,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Hosted validator regression](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914278229) passed after adding strict source/code manifest keys and per-panel run/commit identity checks.
 - Tester approval is archived in [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md). This is synthetic code-path approval only; the real Phase 7 reference artifact and its independent audit are still pending.
 - The Phase 7 build is still running without a published artifact at latest poll. No Phase 8 manifest change or option-grid execution is authorized.
+
+## Bootstrap runtime correction — 2026-10-09
+
+- The moving-block bootstrap sampler was optimized to draw the same block-start indices directly, avoiding repeated construction of every possible block. The frozen scientific specification, random seed, block lengths, 500 replications and candidate formulas are unchanged.
+- Independent tester report: [PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md](research/gates/PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md) = PASS WITH SCOPED RESTRICTIONS. Hosted regression jobs passed; empirical results remain unaccepted.
+- Separate implementation and test commits triggered additional empirical workflow attempts while Run #852 was still reported active. This orchestration issue is recorded in [the error log](research/ERROR_LOG.md). No Phase 8 grid is authorized; reconcile run status and audit a complete immutable artifact before progressing.
