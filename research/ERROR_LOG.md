@@ -68,3 +68,14 @@
 - Tester disposition: `research/gates/PHASE7_RUN925_EMPIRICAL_TESTER.md` = **REQUEST CHANGES**.
 - Correction: pending developer implementation and focused regression coverage. Do not alter the frozen Phase 7 specification, candidate universe, horizons, random seed, block lengths, 500 bootstrap replications or thresholds.
 - Prevention: add negative regression cases for each abstention boundary, non-finite regime inputs, candidate-specific block masking, and missing-versus-zero benchmark differentials; require a fresh immutable artifact plus independent source/hash/metric/family audit before progression.
+
+
+## 2026-10-09 — Phase 7 correction review: stale approval could authorize changed code
+
+- Category: workflow authorization / independent gate integrity
+- Component: `.github/workflows/research-protocol.yml`, `.github/workflows/phase-07-ensemble.yml`.
+- Tester report: `research/gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md` = **REQUEST CHANGES**.
+- Finding: correction-specific authorization checked only for file existence and expected text. It did not bind the tester PASS to the exact source/test/validator/spec/workflow snapshot. A later change to protected code could retain the old PASS and still trigger empirical execution.
+- Impact: authorization is not yet robust against stale approvals; Phase 8 stays blocked, and no empirical execution may be accepted until commit/hash binding is independently approved.
+- Required correction: include an exact reviewed developer commit plus protected-file hashes (preferred) or reject any protected-path changes since the approved snapshot. Add positive/negative tests for both the automatic caller and manual reusable workflow.
+- Non-evidence: unreviewed-run attempts `37935752265` and `37935794939` remain non-evidence regardless of completion or artifacts.
