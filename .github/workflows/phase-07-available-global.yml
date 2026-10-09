@@ -1,0 +1,174 @@
+name: Phase 7 Available-Data Prediction Extension
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md"
+      - "scripts/acquire_global_history.py"
+      - "scripts/run_phase7_available_global.py"
+      - "scripts/test_phase7_available_global.py"
+      - "research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json"
+      - ".github/workflows/phase-07-available-global.yml"
+  workflow_dispatch:
+    inputs:
+      empirical_authorized:
+        description: "Run empirical predictions only when the mirrored tester approval and all protected hashes validate"
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: phase7-available-global-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    name: independent-fixture-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn
+      - name: Run leakage and arithmetic regressions
+        run: python scripts/test_phase7_available_global.py
+
+  authorization:
+    name: independent-tester-approval-check
+    needs: regression
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.gate.outputs.authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fail closed unless tester approved the exact protected code
+        id: gate
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_AUTHORIZED: ${{ inputs.empirical_authorized }}
+        run: |
+          set -euo pipefail
+          report="research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json"
+          if [ ! -f "$report" ]; then
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "No independent tester approval is mirrored; regression-only submission run."
+            exit 0
+          fi
+          python - <<'PY'
+          import hashlib, json, os, subprocess, sys
+          from pathlib import Path
+          report_path = Path("research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json")
+          approval = json.loads(report_path.read_text(encoding="utf-8"))
+          if approval.get("decision") not in {"PASS", "PASS WITH SCOPED RESTRICTIONS"}:
+              raise SystemExit("tester disposition does not authorize empirical execution")
+          if approval.get("empirical_execution_authorized") is not True:
+              raise SystemExit("tester report does not explicitly authorize empirical execution")
+          reviewed = approval.get("reviewed_developer_commit", "")
+          if not reviewed or subprocess.run(["git", "merge-base", "--is-ancestor", reviewed, os.environ["GITHUB_SHA"]]).returncode != 0:
+              raise SystemExit("reviewed developer commit is absent or not an ancestor of this run")
+          protected = approval.get("protected_file_sha256", {})
+          required = [
+              "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md",
+              "scripts/acquire_global_history.py",
+              "scripts/run_phase7_available_global.py",
+              "scripts/test_phase7_available_global.py",
+          ]
+          if sorted(protected) != sorted(required):
+              raise SystemExit("protected path set does not match the required exact code/spec set")
+          for name in required:
+              digest = hashlib.sha256(Path(name).read_bytes()).hexdigest()
+              if digest != protected[name]:
+                  raise SystemExit(f"protected-file SHA-256 mismatch: {name}")
+          if os.environ.get("EVENT_NAME") == "workflow_dispatch" and os.environ.get("DISPATCH_AUTHORIZED") != "true":
+              raise SystemExit("manual dispatch authorization input is false")
+          print("Exact-snapshot tester approval and protected hashes PASS")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write("authorized=true\n")
+          PY
+
+  empirical:
+    name: available-global-prediction-suite
+    needs: [regression, authorization]
+    if: ${{ needs.authorization.outputs.authorized == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install empirical dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scikit-learn pyarrow
+      - name: Restore cached historical data
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/cache/raw/phase3
+            data/cache/raw/global_history
+          key: phase7-available-data-${{ runner.os }}-${{ hashFiles('scripts/acquire_nifty_daily_history.py','scripts/acquire_global_history.py') }}
+          restore-keys: |
+            phase7-available-data-${{ runner.os }}-
+      - name: Acquire and validate NIFTY daily history
+        run: python scripts/acquire_nifty_daily_history.py
+      - name: Acquire free global/peer-market history (best effort per source)
+        run: python scripts/acquire_global_history.py
+      - name: Run pre-registered walk-forward prediction suite
+        run: python scripts/run_phase7_available_global.py
+      - name: Validate complete result grid and inference
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("data/reports/available_global_prediction_results.json")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          horizons = r["daily"]["horizons"]
+          assert set(horizons) == {"1", "2", "3", "5", "10"}
+          required = {
+              "G01_SENSEX", "G02_BANKNIFTY", "G04_SP500", "G05_NASDAQ",
+              "G06_ASIA_COMPOSITE", "G08_VIX", "G09_USDINR", "G11_GOLD",
+              "G12_CRUDE", "G13_GLOBAL_EQUITY_COMPOSITE", "G16_INDIAVIX",
+              "G18_CALENDAR_CONTROL", "_FAMILY_TEST"
+          }
+          for h, cells in horizons.items():
+              assert required.issubset(cells), (h, sorted(required - set(cells)))
+              for name, cell in cells.items():
+                  if name.startswith("_") or cell.get("status") == "BLOCKED_DATA":
+                      continue
+                  assert cell["status"] == "EXECUTED", (h, name, cell.get("status"))
+                  n = int(cell["n"])
+                  assert n > 0
+                  assert n == int(cell["tn"] + cell["fp"] + cell["fn"] + cell["tp"])
+                  assert abs(float(cell["accuracy"]) - (cell["tn"] + cell["tp"]) / n) < 1e-12
+                  assert 0 <= float(cell["brier"]) <= 1
+                  assert float(cell["log_loss"]) >= 0
+                  if cell.get("roc_auc") is not None:
+                      assert 0 <= float(cell["roc_auc"]) <= 1
+          assert r["provenance"]["holdout_status"] == "final untouched holdout not opened"
+          print("Result grid, metrics, provenance and holdout-boundary validation PASS")
+          PY
+      - name: Upload immutable prediction and source artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-available-global-results
+          if-no-files-found: warn
+          path: |
+            data/reports/available_global_prediction_results.json
+            data/reports/available_global_source_manifest.json
+            data/cache/raw/global_history/*.csv
+            data/cache/raw/phase3/nifty50_daily.csv
