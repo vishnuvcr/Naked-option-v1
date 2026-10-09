@@ -69,7 +69,7 @@ Regression success alone cannot resolve these scientific-definition and inferenc
 
 ## 2026-10-10 — Current exact-snapshot execution gate review after Run #43
 
-**Current decision: PASS WITH SCOPED RESTRICTIONS.**  
+**Decision: PASS WITH SCOPED RESTRICTIONS.**  
 **Empirical execution authorization: YES, for one Phase 7 available-data prediction batch only, on the exact protected snapshot listed below.**  
 **Run #43 / 37992695619:** https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619
 
