@@ -347,3 +347,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Code review identified avoidable repeated allocation in the moving-block bootstrap sampler. A performance-only change now samples the same block-start indices directly instead of rebuilding every possible block on each replicate; the random-number sequence and sampled indices are intended to remain bit-for-bit identical.
 - Added fixed-seed equivalence tests for daily/intraday-scale sizes and edge cases. Hosted regression-only runs `37914896724` and `37914905848` are in progress; neither is being treated as empirical evidence. Tester review is required before a fresh empirical rerun.
 - Phase 8 remains blocked until the real Phase 7 artifact passes its separate independent audit.
+
+## 2026-10-09 — Recheck after bootstrap optimization
+- Latest GitHub Actions poll shows Runs #852 (`37912587739`), #924 (`37914896724`) and #925 (`37914905848`) all still reported in progress at the Phase 7 empirical script, with no published artifacts. #852 metadata remains stale; the newer attempts have passed regression and tester authorization jobs but their empirical jobs are also active.
+- This is a workflow orchestration issue caused by separate implementation and test commits. The error log records it. No result is accepted by run order or completion order alone. Phase 8 remains blocked pending a full audit of one complete immutable artifact.
+- Tester has approved the optimization only for exact sampler equivalence/regression. Empirical acceptance is still pending.
