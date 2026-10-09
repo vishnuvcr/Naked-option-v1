@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import run_phase7_ensemble as p7
 import validate_phase7_reference_panels as validator
+import validate_phase8_forecast_panel as phase8_panel_validator
 from validate_phase7_reference_panels import compare_panel
 
 
@@ -84,6 +85,9 @@ def test_full_artifact_directory_validation():
     original_root = validator.ROOT
     original_family = p7.family_bootstrap
     original_verify = validator.verify_code_hashes
+    original_panel_root = phase8_panel_validator.ROOT
+    original_panel_report = phase8_panel_validator.REPORT
+    original_panel_manifest = phase8_panel_validator.MANIFEST
     original_argv = sys.argv[:]
     try:
         with tempfile.TemporaryDirectory() as td:
@@ -197,10 +201,19 @@ def test_full_artifact_directory_validation():
             assert result["status"] == "PASS"
             assert result["total_cells"] == 10
             assert result["all_cells_reproduced"] is True
+            assert len(result["prediction_files"]) == 10
             assert len(list(output.glob("phase7_predictions_*.parquet"))) == 10
+            phase8_panel_validator.ROOT = root
+            phase8_panel_validator.REPORT = output
+            phase8_panel_validator.MANIFEST = output / "phase8_forecast_reconstruction_manifest.json"
+            phase8_panel_validator.main()
+            assert (output / "phase8_forecast_panel_validation.json").is_file()
     finally:
         validator.ROOT = original_root
         validator.verify_code_hashes = original_verify
+        phase8_panel_validator.ROOT = original_panel_root
+        phase8_panel_validator.REPORT = original_panel_report
+        phase8_panel_validator.MANIFEST = original_panel_manifest
         p7.family_bootstrap = original_family
         sys.argv = original_argv
 
