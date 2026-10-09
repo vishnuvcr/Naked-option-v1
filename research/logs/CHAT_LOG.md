@@ -221,3 +221,8 @@ No scientific or protocol change was made during this checkpoint.
 - During resume, compared the Phase 7 and Phase 8 copies of the metric module and found they differ. The validator had verified the Phase 7 source commit's hashes but then imported the Phase 8 working-tree module to recompute metrics.
 - Corrected this by loading the exact source bytes from the manifest commit and enabling full history fetch in the Phase 8 reconstruction job. Added hosted regression coverage; run `37913662777` is in progress.
 - This was caught before any new reference artifact was accepted. Phase 8 manifest and empirical option gate remain unchanged/blocked.
+
+## 2026-10-09 — Resume: immutable metric-loader correction passed
+- Hosted saved-panel validator regression `37913662777` completed SUCCESS after loading the exact Phase 7 module from the manifest's immutable commit.
+- Tester reviewed and approved the code/test correction with scoped restrictions; report is archived at `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
+- The real Phase 7 reference-artifact run is still in progress. The Phase 8 manifest and empirical option grid remain blocked pending artifact audit.
