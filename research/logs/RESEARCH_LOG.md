@@ -817,3 +817,16 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 Run #994 (GitHub Actions run 37957677656) remains active on immutable source `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; its ensemble script has not completed, validation remains pending, and no artifacts exist. Job log retrieval returned BlobNotFound, so the current calculation's internal progress cannot be verified. Do not infer completion or strategy performance.
 
 The proposed follow-up correction is committed on the developer branch as `39e964d4ae99bb02b113fa4eabecd91c9af46c16`. Developer workflow run #1068 passed the regression suite, including the updated Phase 7 regression script, but correctly skipped empirical and independent tester-gated jobs. The isolated tester report was updated to request explicit review. Phase 8 remains blocked until tester review and the exact empirical artifact audit are both resolved.
+
+
+## 2026-10-10 — User-directed available-data prediction expansion
+
+- User requested that testing continue with data already available or obtainable for free rather than abandoning a method family solely because one input layer is missing. The scope remains prediction-only; options strategy research is explicitly out of scope.
+- Added pre-registered Phase 7 extension `research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md` for historical SENSEX/Bank Nifty, global equity indices and available VIX/FX/gold/crude daily references. A source-specific acquisition failure blocks only candidates requiring that source.
+- Added `scripts/acquire_global_history.py`, preserving source timezone, date coverage, cache state and SHA-256 in `data/reports/available_global_source_manifest.json`.
+- Added `scripts/run_phase7_available_global.py` with source-date-strict as-of joins, return/volatility features, fixed expanding logistic walk-forward, H-label purging, daily horizons 1/2/3/5/10 and family-level moving-block Brier inference.
+- Added regression tests for strict prior-date alignment, causal features, future-label mutation invariance, metric reconciliation, bootstrap determinism and explicit blocked statuses.
+- Added automatic/manual workflow `.github/workflows/phase-07-available-global.yml`; empirical execution is fail-closed until an independent tester approves the exact protected snapshot and the protected SHA-256 manifest matches.
+- Regression run #1 (37983764374) failed on an incorrect expected value in the as-of fixture; regression run #3 (37983879350) failed on a fixture container-type error. Both are logged in `research/ERROR_LOG.md` and both stopped before empirical execution. The corrected regression run #4 (37983973028) passed.
+- Updated global-cache freshness to force refresh when the newest cached source row is older than ten calendar days. Run #5 (37984078118) was started for the amended code; check its final regression result before tester authorization.
+- Developer submission is archived at `research/gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md`. Independent tester review remains pending. No empirical metrics or method promotions exist from this extension.
