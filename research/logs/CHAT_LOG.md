@@ -226,3 +226,8 @@ No scientific or protocol change was made during this checkpoint.
 - Hosted saved-panel validator regression `37913662777` completed SUCCESS after loading the exact Phase 7 module from the manifest's immutable commit.
 - Tester reviewed and approved the code/test correction with scoped restrictions; report is archived at `research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md`.
 - The real Phase 7 reference-artifact run is still in progress. The Phase 8 manifest and empirical option grid remain blocked pending artifact audit.
+
+## 2026-10-09 — Resume: source-data alignment gate
+- Added checks that saved daily/intraday labels, future returns and timestamps exactly match source-derived values; added tests that reject mutated labels/returns.
+- Two intermediate hosted regression runs failed because the synthetic fixture tried to read real cached data. Isolated those loaders in the synthetic fixture without bypassing production checks.
+- Hosted run `37914065821` passed, and tester approval is archived. The actual Phase 7 reference artifact is still running/not available; Phase 8 empirical grid remains blocked.
