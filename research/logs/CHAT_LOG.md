@@ -407,3 +407,13 @@ This closes the code/spec changes found so far, but is not a claim that tests ra
 
 **Developer → Tester:** independently review current blobs from the developer submission; verify that the new guard tests are protected by the workflow; report exact CI evidence or keep execution blocked.
 **Tester → Developer:** return an exact-snapshot report and explicit execution status; no approval JSON until all gates pass.
+
+
+## 2026-10-10 — Latest tester disposition
+
+The corrected developer snapshot was reviewed on the isolated tester branch. The tester found the required source-level corrections present and returned PASS WITH SCOPED RESTRICTIONS for static source review only. No runtime test pass is claimed: the repository status tool did not expose workflow check or run results, and the public action API lookup was inaccessible.
+
+The tester report is research/gates/PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md on phase-07-tester. No authorization JSON has been created, no empirical predictions were generated, and the strategy phase remains blocked.
+
+**Developer → Tester:** obtain observable hosted regression evidence with exact commit and protected hashes, then review the result artifacts independently before any empirical authorization.
+**Tester → Developer:** maintain the no-execution hold until a verified workflow run passes; return a distinct execution-gate report rather than reusing the static review.
