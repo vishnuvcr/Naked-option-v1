@@ -355,3 +355,21 @@
 - **Correction:** The literature developer branch corrected L003; new PDF records L037-L051 were added in header-aligned order. A separate Phase 1 error log now documents the same defect.
 - **Prevention:** The independent reviewer should validate URL/status/method semantics; a validator enhancement should be made only after a separate code review and must remain independent of empirical selection.
 - **Disposition:** Corrected as a documentation/metadata issue; no model or empirical result changed. Available-data empirical execution remains blocked until its own independent exact-snapshot gate passes.
+
+
+## 2026-10-10 — Phase 7 extension: independent tester found specification/inference gaps
+
+- **Category:** research-method implementation / statistical validation.
+- **Component:** scripts/run_phase7_available_global.py, scripts/test_phase7_available_global.py, result validation workflow.
+- **Symptom A:** G13 used standardized ret1/ret5 z-scores when the frozen spec declared raw 1-/5-session log returns. The pandas mean skipped missing sources, allowing row-wise constituent count to vary.
+- **Correction A:** changed G13 to the raw-return formula and used skipna=False so any missing frozen constituent makes that row unavailable. Added a test where raw and z-score values differ and one constituent is missing.
+- **Symptom B:** horizon Bonferroni correction multiplied by the number of family tests that executed, rather than the registered five horizons.
+- **Correction B:** introduced a deterministic helper applying the fixed factor len(HORIZONS)=5 and reports executed test count separately. Added a fixture where only one horizon p-value is available.
+- **Symptom C:** the top-level baseline metric included held-out rows where the candidate feature was missing, while candidate headline metrics did not, making direct cell-to-cell comparisons ambiguous.
+- **Correction C:** retained mask-independent causal baseline predictions, added paired baseline metrics and Brier improvement on the exact candidate rows, and clarified the distinction between full baseline and paired comparisons.
+- **Symptom D:** the workflow's inline validation omitted the _BASELINE cell, exact paired row counts, complete family-inference/Bonferroni checks and required reasons for blocked cells.
+- **Correction D:** added scripts/validate_phase7_available_global_results.py and scripts/test_validate_phase7_available_global_results.py; included them in automatic/manual workflow regression, protected hashes and approval path set.
+- **Symptom E:** the frozen spec numbered two data rules as item 7.
+- **Correction E:** numbering was corrected without changing the scientific method.
+- **Prevention:** tester approval is required for the exact new hashes; regression success alone is insufficient. The current request-changes report remains active until a fresh report passes.
+- **Scientific disposition:** all fixes were made before any empirical run from this available-data extension. No new metrics were generated, and no model or strategy was promoted.
