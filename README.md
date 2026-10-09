@@ -256,3 +256,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Hosted saved-panel validator regression](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913662777) completed successfully after the validator was changed to execute the exact Phase 7 metric module from the immutable manifest commit.
 - Independent tester approval: [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md), PASS WITH SCOPED RESTRICTIONS. This is code/test approval only; the real artifact must still pass its separate audit.
 - Phase 7 Run #852 remains in progress at the latest poll. No new artifact has been accepted, and the Phase 8 frozen manifest / 4,800-cell option grid remain blocked.
+
+## Source-data alignment gate — 2026-10-09
+
+- The saved-panel validator now checks source-derived labels, future returns, timestamps and row counts against the manifest's hashed daily/intraday data, using the exact metric implementation from the immutable source commit.
+- [Hosted validator regression run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37914065821) completed successfully, including tests that reject deliberately corrupted labels/returns. Tester approval is in [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md).
+- Two intermediate fixture runs failed because the synthetic test tried to read production cached data; that fixture-only issue is corrected and documented in the error log.
+- No real artifact is accepted yet; the Phase 8 frozen manifest and 4,800-cell option grid remain blocked pending independent audit.
