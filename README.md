@@ -249,3 +249,8 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 ## Authorization note — 2026-10-10
 
 The P10 diagnostic code correction has static tester approval for a future run only, but the exact-snapshot approval manifest remains at the last verified snapshot. A fresh empirical run is not yet authorized: updated report digest/protected hashes must be recomputed and independently verified before the hosted snapshot validator can pass. This is a governance hold, not a change to Run #994's result. No strategy is selected; Phase 8 remains blocked.
+
+
+## Current research checkpoint — 2026-10-10
+
+**Phase 7 is blocked pending exact-snapshot authorization.** Run #994 remains the latest accepted empirical evidence; all ten family-level tests were non-significant, and no strategy is selected. The latest audit workflow validated existing artifacts but skipped the pinned independent tester job, so it does not constitute a new empirical result. Phase 8 remains blocked until a fresh run is explicitly authorized, independently audited, and evaluated net of options spreads, slippage, Paytm Money brokerage and statutory charges. See [research status](research/STATUS.md).
