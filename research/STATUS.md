@@ -282,3 +282,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Reconstruction job confirms Python 3.11.16 and thread limits of 1, so pinning Python and constraining numerical threads did not resolve the discrepancy. Root cause remains unproven.
 - Independent tester gate `research/gates/PHASE8_RUN807_RECON_TESTER.md` on `phase-08-tester` = REQUEST CHANGES. No forecast panel accepted; empirical 4,800-cell grid and option P&L remain blocked.
 - Next action: inspect exact immutable per-row Run #654 predictions/labels and frozen aggregation path, isolate the mismatch, add historical-path regression coverage, and submit a targeted proposal for tester review before another hosted reconstruction attempt.
+
+
+## 2026-10-09 — Phase 8 Run #822 diagnostic attempt and durable-reference proposal
+- Run #822 (37911107769; developer head 967f612b2ffa94007c1164d0f5fd4f051852bf34) passed protocol, regression, free-source audit and immutable Run #654 artifact verification. The forecast-reconstruction job remains in progress at the latest check; no completion or diagnostic artifact is yet confirmed.
+- Cross-run evidence: Run #654 and Run #807 use the same reported HF revision 0f4800e43e6f96cec0794369d78eb4d3c4211ef5 and normalized source SHA-256 5f5c91b1c29db13ccaa6ffbb3a83a526a82bedf30092e9b9585384efcec5f6d2; checked Phase 3/6 dependency source blobs match. Python/package pinning and single-thread controls did not fix the two P07 intraday H=60 Brier mismatches. Runtime/runner-image variation remains plausible but unproven.
+- Root structural limitation: immutable Run #654 artifact stores aggregate metrics only, not the row-level predictions needed for exact replay without refitting.
+- Developer proposal research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL.md (commit d316da04e301977e62c6ee2c1fcba2602e608326) proposes a new, explicitly versioned Phase 7 reference artifact that includes same-run row-level forecasts and a runtime/source fingerprint, leaving Run #654 unchanged.
+- Tester proposal gate research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL_TESTER.md (tester commit b25dec552a735369ed1f15c6926c396f18620f75) = PASS WITH SCOPED RESTRICTIONS for proposal only. A distinct Phase 7 output-code review and a distinct artifact audit remain required.
+- Empirical option execution and the 4,800-cell grid remain BLOCKED. No tolerance change, strategy promotion, or option P&L accepted.
