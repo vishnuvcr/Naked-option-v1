@@ -520,3 +520,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Added regression fixtures for a mismatched candidate baseline probability and a mutated family p-value, in addition to complete synthetic-panel reconciliation and probability-mutation tests.
 - Current blob identifiers are pinned in the final section of the developer submission. The workflow is intended to run automatically on protected-file commits, but the latest commit-status queries still expose no checks/run result; CI therefore remains unverified.
 - **No model output exists from this extension; empirical execution stays blocked** until a fresh tester report verifies the latest exact files and an actual hosted regression pass is observable.
+
+
+## 2026-10-10 — Tester resubmission report and execution hold
+
+- Independent tester resubmission: [PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RESUBMISSION_TESTER.md). Verdict: **PASS WITH SCOPED RESTRICTIONS for static source review only; empirical execution NOT AUTHORIZED**.
+- The reviewer verified that the source-level corrections are present, including raw-return G13, fixed five-horizon Bonferroni, paired baseline calculations, row-level output/provenance, metric reconstruction and family bootstrap checks. This is not a runtime test pass.
+- Workflow/status lookups returned empty check/run lists, so the actual hosted regression outcome remains unverified. The approval manifest remains absent.
+- Next authorized transition is only: surface an observable green automatic/manual workflow run and its exact run artifact/hashes, then request a separate execution-gate tester decision. No empirical output exists and Phase 8 remains blocked.
