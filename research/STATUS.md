@@ -1,5 +1,32 @@
 # Research Status
 
+**Current checkpoint — 2026-10-10 (verified against GitHub Actions and branch heads)**
+
+| Phase | Current status | Evidence / gate |
+|---|---|---|
+| Phases 0–6 | Prior phase records retained; scoped restrictions remain where documented | Historical phase reports are not overridden by this checkpoint |
+| Phase 7 | **BLOCKED — new empirical execution not authorized** | Run #994 was completed and independently audited; P10 correction reviewed for future use, but exact-snapshot authorization is still pending |
+| Phase 8 | **BLOCKED** | No strategy has passed statistical and net-of-cost options execution gates |
+| Phases 9–11 | **BLOCKED** | Robustness, untouched-forward validation and final manuscript require prior gates |
+
+## Current empirical conclusion
+
+- Run #994, source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`, is the latest accepted Phase 7 empirical evidence: [Actions run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656).
+- Independent technical audit: **PASS WITH SCOPED RESTRICTIONS**, 3,098 checks passed, 0 failed. This is an artifact/inference audit, not a strategy approval.
+- All ten family-level moving-block bootstrap tests are non-significant (p-values 0.262–1.000). No strategy is selected and after-cost profitability is not established.
+- The latest Phase 7 audit workflow (#18) validated the existing developer run/artifacts, but its pinned independent tester audit job was **skipped**. A successful workflow status must not be interpreted as a new empirical run or tester approval.
+- Developer static correction for the P10 diagnostic-block invariant was reviewed for a future run only. The exact-snapshot manifest is still bound to an earlier reviewed commit and must not be treated as authorization for the corrected developer HEAD. Do not launch a new empirical run until report/manifest copies match byte-for-byte and the hosted validator verifies all protected hashes.
+- Phase 8 remains blocked until a separately authorized fresh run passes its exact-run tester gate and option-level point-in-time data, spread, slippage, Paytm Money brokerage, statutory charges and net P&L are validated.
+
+## Next required actions
+
+1. Developer: rebuild the correction-specific tester report/manifest from the exact current reviewed snapshot using verified SHA-256 tooling; synchronize both files byte-for-byte across developer/tester branches.
+2. Tester: independently recompute the report digest and every protected-file hash; verify ancestry, exact protected-path coverage and fail-closed behavior.
+3. Only after hosted authorization passes: run one fresh Phase 7 empirical job, retain immutable artifacts and submit them for independent audit.
+4. Do not promote a strategy or open Phase 8 unless the empirical evidence supports it and net-of-cost option profitability is independently demonstrated.
+
+# Research Status
+
 | Phase | Status | Gate |
 |---|---|---|
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
