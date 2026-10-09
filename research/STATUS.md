@@ -223,3 +223,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent audit reconciled all 100 candidate cells, confusion-matrix arithmetic, metric ranges, chronological/regime diagnostic counts, and family-bootstrap p-values.
 - No Phase 7 family-level test is significant at alpha=0.05; therefore no P01-P10 candidate is promoted.
 - Phase 7 is closed. Phase 8 is authorized to begin only as the pre-planned long-option execution/cost translation, with final holdout still sealed.
+
+
+## 2026-10-09 — Phase 7 row-level reference artifact implementation checkpoint
+- Tester proposal gate `research/gates/PHASE8_RUN822_FOLLOWUP_PROPOSAL_TESTER.md` on Phase 8 tester branch authorized artifact-output infrastructure only. Tester code review `research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md` passed with scoped restrictions; report is archived on this developer branch.
+- Developer added same-run Parquet panels containing P01-P10 forecasts, labels, future returns, timestamps and block IDs, plus hashes and runtime/source manifest. Existing metric calls and scientific method definitions are unchanged.
+- Hosted Run #831 (`37912024282`) passed the existing Phase 7 regression suite but started before the new tester code gate and must be treated as NON-EVIDENCE for accepting the new reference artifact. Run #835 (`37912125332`), #837 (`37912165684`) and #838 (`37912206197`) exposed a defect in the new manifest regression fixture: its aggregate JSON temporary path was outside repository ROOT, causing `Path.relative_to(ROOT)` to raise `ValueError`.
+- Corrected the fixture to create temporary files under `data/reports`; commit `14d20380632e365b2a0b6b63afe58f2775375950`. Run #846 (`37912507182`) skipped the Phase 7 gate because the changed paths did not include a science trigger; a fresh hosted regression gate is still required.
+- Next: trigger one fresh Phase 7 hosted gate from the reviewed source path, verify both original and new reference-artifact regression suites, then independently audit the uploaded artifact. No new Phase 7 metrics or Phase 8 option execution is accepted yet.
