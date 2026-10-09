@@ -876,3 +876,9 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Static source review found the requested G13, family correction, paired-baseline and row-level artifact/validator corrections present.
 - Tester decision is limited to static review. Regression functions have not been verified as executed, because workflow/check lookups returned empty results. The report explicitly withholds empirical execution authorization.
 - Approval JSON remains absent. No predictions were generated; no method promoted. Next gate requires observable CI run evidence, hash reconciliation and a separate execution decision.
+
+## 2026-10-10 — Protected acquisition snapshot rechecked
+
+Re-fetched the current workflow after adding scripts/acquire_nifty_daily_history.py to the push trigger, exact approval allowlist and SHA-256 output. Static verification confirms all three locations now include the acquisition script; manual dispatch and row-level artifact upload remain present. Current workflow blob: 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce.
+
+A fresh combined-status query and the connected workflow-run lookup for commit 18773e828f19c0ff2e9fc1af437db6b8ef181739 both returned empty lists. The run lookup is limited to pull-request-triggered runs; therefore CI outcome remains unverified rather than failed. No empirical output was generated and the tester has not reviewed this final workflow snapshot.
