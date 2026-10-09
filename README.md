@@ -250,3 +250,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - A branch comparison found the Phase 7 and Phase 8 `run_phase7_ensemble.py` files differ. The validator had checked the recorded source commit's hashes but still imported the Phase 8 checkout's module. This could have recomputed metrics using a different implementation.
 - The validator now loads the exact Phase 7 metric module bytes from the manifest's immutable Git commit; the reconstruction job fetches full history so the source commit is available. A hosted regression run is in progress: [run 37913662777](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913662777).
 - This fix is not accepted until hosted regression passes and the tester reviews it. No real artifact has been promoted; the Phase 8 manifest and 4,800-cell option grid remain blocked.
+
+## Exact-commit metric loader — 2026-10-09
+
+- [Hosted saved-panel validator regression](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913662777) completed successfully after the validator was changed to execute the exact Phase 7 metric module from the immutable manifest commit.
+- Independent tester approval: [PHASE8_PANEL_VALIDATOR_CODE_TESTER.md](research/gates/PHASE8_PANEL_VALIDATOR_CODE_TESTER.md), PASS WITH SCOPED RESTRICTIONS. This is code/test approval only; the real artifact must still pass its separate audit.
+- Phase 7 Run #852 remains in progress at the latest poll. No new artifact has been accepted, and the Phase 8 frozen manifest / 4,800-cell option grid remain blocked.
