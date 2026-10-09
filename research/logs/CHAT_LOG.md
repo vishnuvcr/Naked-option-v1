@@ -191,3 +191,12 @@ The hosted run [#40](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3
 **Tester → Developer:** Fix timezone, cutoff, cache allowed-session date and overlap consistency; include negative fixtures and trigger the automatic workflow.
 
 **Developer → Tester:** Return a fresh exact-snapshot review only after hosted regression and hash verification; no empirical authorization while any point-in-time issue remains.
+
+
+## 2026-10-10 — Post-approval operational status
+
+Tester independently reviewed the final exact snapshot and authorized one Phase 7 available-data prediction batch only. Run #43 passed all three test suites (8, 11, and 11 checks respectively). The developer mirrored the report; the attempt to write the accompanying hash-bound approval manifest was blocked by platform safety checks. The empirical job remains skipped and no model metrics have been produced. Do not replace this gate with a manual alternate trigger; request intervention for a permitted authorization path.
+
+**Tester → Developer:** Preserve the exact-snapshot PASS and hashes; do not alter protected code after approval. Use only a permitted authorization mechanism, then submit immutable run artifacts for independent audit.
+
+**Developer → Tester:** Keep Phase 8 blocked until the single approved batch actually runs and its source/data/prediction artifacts pass an independent audit.
