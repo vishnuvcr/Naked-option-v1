@@ -2,6 +2,12 @@ name: Research Protocol Check
 
 on:
   workflow_dispatch:
+    inputs:
+      run_legacy_run925_audit:
+        description: "Opt in to re-audit the historical rejected Run #925 only"
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       - main
@@ -83,7 +89,7 @@ jobs:
 
   phase7-run925-independent-audit:
     name: phase7-run925-independent-artifact-audit
-    if: ${{ github.ref == 'refs/heads/phase-07-tester' && github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.ref == 'refs/heads/phase-07-tester' && github.event_name == 'workflow_dispatch' && inputs.run_legacy_run925_audit == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
