@@ -589,3 +589,10 @@
 - All 100 P01-P10 cells executed; arithmetic and schema checks reconciled.
 - Family-level p-values were 0.742, 0.738, 0.962, 0.788, 0.464 (daily) and 0.248, 0.992, 1.000, 0.994, 0.512 (intraday).
 - No candidate is promoted. Phase 7 is closed; Phase 8 execution/cost translation is the next finite planned phase.
+
+
+## 2026-10-09 — Phase 7 same-run reference artifact output
+- Added output-only row-level prediction panels and a provenance manifest; the existing P01-P10 forecast and metric computation path was not altered.
+- Tester code review `research/gates/PHASE7_REFERENCE_ARTIFACT_CODE_TESTER.md` = PASS WITH SCOPED RESTRICTIONS. Required test/workflow integration and post-run artifact audit remain mandatory.
+- New manifest regression failed in hosted Runs #835/#837/#838 because one temporary aggregate JSON was created outside repository ROOT. Corrected the remaining temporary-directory occurrence in commit `14d20380632e365b2a0b6b63afe58f2775375950`.
+- Run #846 skipped Phase 7 because a test-only path did not satisfy the workflow detector's science-path trigger. Next action is a no-science-change trigger commit after the approved correction, followed by hosted regression and tester audit.
