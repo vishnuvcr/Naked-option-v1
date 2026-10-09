@@ -150,3 +150,9 @@
 - Root cause: the first fixture path was moved under `data/reports`, but the second fixture occurrence was not updated in the same edit.
 - Correction: update the second temporary-directory call to use `dir=ROOT / "data" / "reports"` in commit `14d20380632e365b2a0b6b63afe58f2775375950`.
 - Prevention: search all occurrences of fixture constructors after scripted edits and ensure manifest paths obey production path assumptions. A fresh hosted run must pass before accepting the output contract.
+
+## 2026-10-09 — Phase 7 reference artifact regression correction verified
+- Hosted run: Research Protocol Check #852 (`37912587739`), developer head `ac6b30090e5146d527bb0af6dd9352a9b6a7fc93`.
+- Result: original Phase 7 regression and new reference-artifact regression both PASS; tester authorization gate PASS.
+- The prior fixture defect is considered corrected for this code path. Earlier failed runs remain non-evidence and are not overwritten.
+- Empirical execution is still in progress; artifact integrity and scientific acceptance remain pending separate tester audit.
