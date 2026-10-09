@@ -882,3 +882,12 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 Re-fetched the current workflow after adding scripts/acquire_nifty_daily_history.py to the push trigger, exact approval allowlist and SHA-256 output. Static verification confirms all three locations now include the acquisition script; manual dispatch and row-level artifact upload remain present. Current workflow blob: 6eb5de6bbd1e3773160a8f65be7c2cc81e0178ce.
 
 A fresh combined-status query and the connected workflow-run lookup for commit 18773e828f19c0ff2e9fc1af437db6b8ef181739 both returned empty lists. The run lookup is limited to pull-request-triggered runs; therefore CI outcome remains unverified rather than failed. No empirical output was generated and the tester has not reviewed this final workflow snapshot.
+
+
+## 2026-10-10 — Cache and timestamp fixes completed; empirical batch not triggered
+
+The NIFTY acquisition patch now uses the provider's exchange timezone (Asia/Kolkata for NIFTY) to derive the session date, constructs the Yahoo API boundaries at India-local midnight, excludes an incomplete same-day bar before the 18:30 IST cutoff, refuses same-day cache rows before that cutoff, and checks that official overlap records reconcile with corresponding CSV closes and difference arithmetic. Valid recent cache data is reused without network calls; invalid, stale, missing, or hash-mismatched caches reacquire.
+
+Hosted [Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed 8 acquisition/cache tests, 11 predictor tests and 11 result-validator tests. The independent tester report on phase-07-tester approves **one batch only** at developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8` with the exact protected SHA-256 inventory in the report. The same report was mirrored onto phase-07-developer in commit `119827f09b282b3c4d51c1fb2d73329bfe81932d`.
+
+The approval-manifest write was blocked by the platform safety checks. No approval JSON is present, the fail-closed authorization is not satisfied, and the empirical job has not run. No forecasts/metrics were generated in this extension. Runs #41 and #42 were failed regression fixtures, corrected and preserved as non-evidence.
