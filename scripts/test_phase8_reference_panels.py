@@ -89,6 +89,7 @@ def test_full_artifact_directory_validation():
     original_root = validator.ROOT
     original_family = p7.family_bootstrap
     original_verify = validator.verify_code_hashes
+    original_source_alignment = validator.verify_panel_source_alignment
     original_loader = validator.load_reference_phase7_module
     original_validator_p7 = validator.p7
     original_panel_root = phase8_panel_validator.ROOT
@@ -109,6 +110,7 @@ def test_full_artifact_directory_validation():
             source_intra.write_bytes(b"synthetic-intraday-source")
             validator.ROOT = root
             validator.verify_code_hashes = lambda manifest: None
+            validator.verify_panel_source_alignment = lambda frame, layer, horizon, daily, intraday: None
             validator.load_reference_phase7_module = lambda commit: p7
             validator.p7 = p7
             p7.family_bootstrap = lambda *args, **kwargs: {"observed": 0.001, "p_value": 0.5}
@@ -219,6 +221,7 @@ def test_full_artifact_directory_validation():
     finally:
         validator.ROOT = original_root
         validator.verify_code_hashes = original_verify
+        validator.verify_panel_source_alignment = original_source_alignment
         validator.load_reference_phase7_module = original_loader
         validator.p7 = original_validator_p7
         phase8_panel_validator.ROOT = original_panel_root
@@ -228,8 +231,60 @@ def test_full_artifact_directory_validation():
         sys.argv = original_argv
 
 
+def test_source_alignment_checks_daily_and_intraday_labels():
+    daily_ts = pd.date_range("2025-01-01", periods=30, freq="D")
+    daily_source = pd.DataFrame({
+        "date": daily_ts,
+        "close": 100.0 * np.exp(np.arange(30) * 0.001 + np.sin(np.arange(30)) * 0.002),
+    })
+    y, future = p7.p6.make_label(daily_source, 2)
+    daily_panel = pd.DataFrame({
+        "decision_timestamp": daily_ts,
+        "label_direction": y.to_numpy(dtype=float),
+        "future_return": future.to_numpy(dtype=float),
+    })
+    validator.verify_panel_source_alignment(daily_panel, "daily", 2, daily_source, pd.DataFrame())
+    bad_daily = daily_panel.copy()
+    bad_daily.loc[0, "label_direction"] = 1.0 - bad_daily.loc[0, "label_direction"]
+    try:
+        validator.verify_panel_source_alignment(bad_daily, "daily", 2, daily_source, pd.DataFrame())
+    except SystemExit as exc:
+        assert "source-derived label mismatch" in str(exc)
+    else:
+        raise AssertionError("mutated daily label was not rejected")
+
+    intra_ts = pd.date_range("2025-01-02 09:30:00", periods=391, freq="min", tz="UTC")
+    spots = 20000.0 * np.exp(np.arange(len(intra_ts)) * 0.00001 + np.sin(np.arange(len(intra_ts)) / 7) * 0.0001)
+    intraday_source = pd.DataFrame({
+        "timestamp": intra_ts,
+        "minute_of_day": intra_ts.hour * 60 + intra_ts.minute,
+        "date": intra_ts.date,
+        "spot": spots,
+    })
+    grid = ((intraday_source["minute_of_day"] >= 570)
+            & (intraday_source["minute_of_day"] <= 930)
+            & (((intraday_source["minute_of_day"] - 570) % 60) == 0))
+    idx = np.flatnonzero(grid.to_numpy())
+    yi, fi, _ = p7.p6.intraday_labels(intraday_source["timestamp"], intraday_source["spot"], 5)
+    intra_panel = pd.DataFrame({
+        "decision_timestamp": intraday_source["timestamp"].iloc[idx].reset_index(drop=True),
+        "label_direction": yi.iloc[idx].to_numpy(dtype=float),
+        "future_return": fi.iloc[idx].to_numpy(dtype=float),
+    })
+    validator.verify_panel_source_alignment(intra_panel, "intraday", 5, daily_source, intraday_source)
+    bad_intra = intra_panel.copy()
+    bad_intra.loc[0, "future_return"] += 0.01
+    try:
+        validator.verify_panel_source_alignment(bad_intra, "intraday", 5, daily_source, intraday_source)
+    except SystemExit as exc:
+        assert "source-derived future-return mismatch" in str(exc)
+    else:
+        raise AssertionError("mutated intraday future return was not rejected")
+
+
 if __name__ == "__main__":
     test_saved_panel_metrics_reconcile_without_model_refit()
     test_code_hashes_are_checked_against_git_commit()
+    test_source_alignment_checks_daily_and_intraday_labels()
     test_full_artifact_directory_validation()
     print("Phase 8 saved-panel validator regression PASS")
