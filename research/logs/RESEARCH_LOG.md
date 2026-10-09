@@ -860,3 +860,11 @@ The proposed follow-up correction is committed on the developer branch as `39e96
 - Predictor provenance now includes panel path and SHA-256; hosted artifact upload retains the panel; standalone validator verifies its hash and independently reconstructs metrics, paired baselines, common rows, mean Brier improvements and the 500-replicate moving-block p-value.
 - Added synthetic reconciliation and probability-mutation tests to the validator test file; existing workflow includes both test suites and protects the validator files.
 - These are code/data-lineage corrections, not prediction results. No run was authorized or executed by this change. Hosted regression status remains to be independently verified.
+
+
+## 2026-10-10 — Final row-panel validation tightening
+
+- Validator now compares each candidate row's baseline probability to the baseline panel at every date, recalculates mean future log return among predicted-UP rows, rejects malformed prediction availability values and row-type/method mismatches, and requires a non-executed family result if no row-level panel exists.
+- Predictor writes floating-point values to CSV with 17 significant digits to support round-trip reproducibility of the fixed-seed moving-block bootstrap.
+- Added tests for candidate baseline probability mismatch and family p-value mutation. The current registry includes these tests in the automatic/manual workflow trigger and protected hash set.
+- Current file identifiers are recorded in the developer submission. Checks remain unavailable from the current commit-status endpoint; no CI pass is claimed. No empirical result was generated and no approval manifest exists.
