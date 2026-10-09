@@ -244,3 +244,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Hosted regression run 37913391078](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913391078) passed the full synthetic ten-panel artifact test and verified that its output is accepted by the existing Phase 8 forecast-panel validator.
 - Tester report: [PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_PANEL_VALIDATOR_INTEGRATION_TESTER.md) = PASS for synthetic integration only.
 - This does not validate the real Phase 7 artifact or authorize a manifest amendment. The exact source commit must be fetched and checked, then the real artifact must pass independent audit.
+
+## Validator source-version integrity — 2026-10-09
+
+- A branch comparison found the Phase 7 and Phase 8 `run_phase7_ensemble.py` files differ. The validator had checked the recorded source commit's hashes but still imported the Phase 8 checkout's module. This could have recomputed metrics using a different implementation.
+- The validator now loads the exact Phase 7 metric module bytes from the manifest's immutable Git commit; the reconstruction job fetches full history so the source commit is available. A hosted regression run is in progress: [run 37913662777](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37913662777).
+- This fix is not accepted until hosted regression passes and the tester reviews it. No real artifact has been promoted; the Phase 8 manifest and 4,800-cell option grid remain blocked.
