@@ -360,3 +360,16 @@ No scientific or protocol change was made during this checkpoint.
 **Developer → Tester:** Independently audit source timestamps, point-in-time joins, model/purge logic, family bootstrap, metrics, source-failure handling, regression coverage, and approval workflow; return an explicit gate decision.
 
 **Tester → Developer:** Reject any methodological, integrity, or numerical mismatch; list corrections required and do not authorize empirical execution until all protected file hashes and the exact reviewed snapshot agree.
+
+
+## 2026-10-10 — Resume request and newly attached PDFs
+
+User requested that research resume and that the newly added research PDFs be included in analysis.
+
+- Before proceeding, developer checked the main README, current Phase 7 status, accepted Run #994 tester report, P10 static gate, available-data extension spec/handoff, research/error/chat logs, and phase developer/tester status.
+- Latest accepted prediction evidence remains Run #994: 100 method/horizon cells reconciled with 3,098 independent checks passing and zero failed; all ten family-level predictive-improvement p-values are non-significant. No model is promoted.
+- Available-data extension regression is passing, but empirical execution is still not authorized because exact-snapshot independent tester review remains pending.
+- Fifteen unique PDFs were reviewed; duplicates were counted once. New paper-by-paper review and registry entries L037-L051 are committed to phase-01-developer. The supplement does not alter the registered universe or open option strategy research.
+- One pre-existing semantic field shift in registry row L003 was found and fixed; a defect record was added. No current empirical result was generated during this update.
+- Developer → Tester: independently review the PDF supplement and bibliography, confirm CSV semantics/URLs/status values, and preserve the empirical gate hold.
+- Tester → Developer: report any concrete factual/schema/governance defects before the next authorized empirical step.
