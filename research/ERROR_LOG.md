@@ -322,3 +322,15 @@
 - Correction: assert that target dates Jan 2, Jan 3 and Jan 4 use source values from Jan 1, Jan 2 and Jan 3 respectively.
 - Prevention: construct as-of fixtures with an explicit expected previous-row mapping and separately assert same-date exclusion before enabling empirical jobs.
 - Scientific disposition: no impact on empirical evidence because the research execution was not authorized and the empirical job was skipped.
+
+
+## 2026-10-09 — Available-data prediction extension: candidate-map fixture construction failure
+- Category: regression-fixture construction
+- Component: `scripts/test_phase7_available_global.py::check_registry_has_explicit_blocked_status`
+- Hosted workflow: [Phase 7 Available-Data Prediction Extension run #3](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37983879350).
+- Symptom: test fixture construction raised `ValueError: If using all scalar values, you must pass an index`.
+- Root cause: a dictionary mapping candidate source IDs to one-row feature DataFrames was incorrectly wrapped as a single pandas DataFrame.
+- Impact: regression suite stopped before empirical execution; no empirical predictions were generated or accepted.
+- Correction: retain the fixture as a dictionary of aligned feature DataFrames, matching the production `source_map` contract.
+- Prevention: regression fixtures must match function signatures and container types exactly; execute the complete suite after every fixture change.
+- Scientific disposition: no empirical impact; tester authorization and empirical run remain gated.
