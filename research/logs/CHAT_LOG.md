@@ -211,3 +211,8 @@ No scientific or protocol change was made during this checkpoint.
 - Extended the synthetic test to cover a full ten-panel artifact directory and discovered the output manifest needed the existing Phase 8 `prediction_files` contract; corrected it without changing scientific calculations.
 - Added source-code SHA-256 verification against the recorded Git commit and a negative test for tampered hashes. Hosted run `37913188030` completed SUCCESS.
 - Tester recorded follow-up PASS on `phase-08-tester`. Real Phase 7 artifact and production workflow integration remain pending; no manifest amendment or option-grid execution.
+
+## 2026-10-09 — Proceed: downstream validator integration
+- Added an end-to-end synthetic check that the saved-panel validator's output is accepted by the existing Phase 8 forecast-panel validator.
+- Hosted run `37913391078` completed SUCCESS. The tester recorded a scoped follow-up PASS on `phase-08-tester`.
+- No real Phase 7 artifact has been accepted yet; Run #822/#839 and Phase 7 Run #852 are still running, and the frozen manifest/option-grid gate remains unchanged.
