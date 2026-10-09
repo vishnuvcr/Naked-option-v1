@@ -105,7 +105,12 @@ jobs:
             ref="refs/heads/${{ github.event.pull_request.head.ref }}"
           fi
           if [ "${ref}" = "refs/heads/phase-07-developer" ]; then
-            if [ -f "research/gates/PHASE7_CODE_APPROVAL_TESTER.md" ]; then
+            # The earlier Phase 7 code approval predates the Run 925
+            # REQUEST CHANGES report. Require a correction-specific tester PASS
+            # before any automatic or manual caller authorizes empirical work.
+            if [ -f "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md" ] \
+              && grep -q "Decision: PASS WITH SCOPED RESTRICTIONS" "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md" \
+              && grep -q "fresh empirical execution only" "research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md"; then
               empirical_authorized=true
             fi
             if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
@@ -118,7 +123,7 @@ jobs:
               changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
               while IFS= read -r f; do
                 case "${f}" in
-                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md|research/gates/PHASE7_RUN608_REGRESSION_APPROVAL_TESTER.md|research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md)
+                  scripts/run_phase7_ensemble.py|scripts/test_phase7_ensemble.py|scripts/validate_phase7_results.py|research/phase7/*|.github/workflows/phase-07-ensemble.yml|research/gates/PHASE7_CODE_APPROVAL_TESTER.md|research/gates/PHASE7_RUN608_REGRESSION_APPROVAL_TESTER.md|research/gates/PHASE7_RUN628_HORIZON_APPROVAL_TESTER.md|research/gates/PHASE7_RUN925_CORRECTION_CODE_TESTER.md)
                     run_phase7=true
                     ;;
                 esac
