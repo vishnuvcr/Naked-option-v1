@@ -244,3 +244,8 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - **Decision: no strategy selected; no live-trading recommendation.** Net profitability after option bid/ask spreads, slippage, brokerage, STT, exchange charges, GST and other Paytm Money costs has not been demonstrated. Phase 8 remains blocked.
 - Open restriction: the separate tester static report still flags the P10 diagnostic-block invariant for future runs. The immutable Run #994 audit does not itself clear that future-run protocol/code consistency issue.
 - The audit workflow had a shell syntax defect in its fallback-report step despite a completed technical audit; this was logged and fixed in main commit 3c0730bbdb31c18a1b0ad9e62c998189ae243dca. The audit decision/report itself is preserved.
+
+
+## Authorization note — 2026-10-10
+
+The P10 diagnostic code correction has static tester approval for a future run only, but the exact-snapshot approval manifest remains at the last verified snapshot. A fresh empirical run is not yet authorized: updated report digest/protected hashes must be recomputed and independently verified before the hosted snapshot validator can pass. This is a governance hold, not a change to Run #994's result. No strategy is selected; Phase 8 remains blocked.
