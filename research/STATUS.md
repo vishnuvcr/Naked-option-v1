@@ -9,13 +9,13 @@
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
-| Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
+| Phase 7 Ensemble/regime | **BLOCKED — RUN #925 REQUEST CHANGES** | Fresh immutable artifact audit found four protocol/implementation defects; see [Run #925 tester report](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) |
 | Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-08
+Last updated: 2026-10-09
 
 ## Phase 5 current state
 
@@ -251,3 +251,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - No state transition: runs #852, #924 and #925 are still marked `in_progress`, each active at the Phase 7 ensemble script; no artifacts are listed.
 - Added the prolonged-execution/observability issue to `research/ERROR_LOG.md`. The root cause remains unknown; stale run metadata and missing live logs are not interpreted as scientific outcomes.
 - Next gate remains unchanged: first completed artifact → independent source/provenance/statistical audit → tester decision. Phase 8 stays blocked.
+
+
+## 2026-10-09 — Phase 7 Run #925 independent empirical audit — REQUEST CHANGES
+
+- Runs #852, #924 and #925 completed and uploaded artifacts. The tester selected Run #925 (ID `37914905848`) on immutable source commit `682eadf2a9eb4de250bc3db27d02e57f88687fa1`.
+- Independent tester workflow Run #943 (`37935031119`) reconciled artifact/source/code hashes, ten panel identities, timestamps, labels and future returns, then found 2,775 passing checks and 323 failing checks clustered into four implementation defects.
+- Defects: P10's frozen [0.45, 0.55] abstention is absent; rows with missing volatility/trend enter low/low regime counts; P05/P06 block diagnostics do not use abstention masks; non-evaluable rows are incorrectly treated as zero in family-bootstrap differential arrays.
+- Independent tester report: [PHASE7_RUN925_EMPIRICAL_TESTER.md](gates/PHASE7_RUN925_EMPIRICAL_TESTER.md) = **REQUEST CHANGES**.
+- Run #925 is **NON-ACCEPTED EVIDENCE**. Older Run #654 remains an archived technical artifact but does not override this newer protocol-compliance finding.
+- Phase 7/8 progression is blocked. Developer must correct these defects on `phase-07-developer`, add regression tests, and submit the exact correction commit for independent tester review before fresh empirical execution. The Phase 8 4,800-cell grid must not start until the fresh Phase 7 artifact passes.
