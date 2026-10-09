@@ -98,3 +98,11 @@
 - **Impact:** a green synthetic test suite is insufficient to establish point-in-time-safe session dates. No empirical prediction was run; Phase 7 remains blocked.
 - **Tester report:** `research/gates/PHASE7_AVAILABLE_GLOBAL_ACQUISITION_GATE_TESTER.md` — REQUEST CHANGES.
 - **Required correction:** exchange-local timestamp conversion; Asia/Kolkata chart boundaries; same allowed-date rule for cache and network path; overlap CSV/manifest cross-field reconciliation; tests for date conversion, pre/post-close behavior and malformed overlap records.
+
+
+## 2026-10-10 — Tester PASS; execution manifest not created
+
+- The exact-snapshot tester report now has **PASS WITH SCOPED RESTRICTIONS**, authorizing one Phase 7 prediction batch at reviewed developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8`.
+- Hosted Run #43 passed 8 acquisition/cache, 11 predictor and 11 result-validator tests; the empirical job was skipped because approval was not yet mirrored.
+- The developer attempted to create the hash-bound approval JSON after mirroring the tester report, but the write was blocked by platform safety checks. The file remains absent. No alternative trigger has been used and no prediction outputs exist.
+- Current disposition: tester code gate passed for one exact snapshot, but operational execution remains blocked until the protected authorization step can be completed through a permitted route.
