@@ -98,8 +98,8 @@ def request_json(
     opener_factory: Callable[[], Any] = _no_redirect_opener,
     now: float | None = None,
     live_authorized: bool = False,
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Call exactly one allowlisted POST and return data plus redacted metadata.
+) -> tuple[dict[str, Any], dict[str, Any], bytes]:
+    """Call exactly one allowlisted POST and return parsed data, redacted metadata and raw bytes.
 
     This helper never follows redirects, never logs the token, and never reads
     HTTP-error bodies. Live calls must be authorized by a separate workflow and
@@ -189,7 +189,7 @@ def request_json(
             "cumulative_response_bytes": budget.bytes_read,
             "network_enabled": True,
         }
-        return payload, meta
+        return payload, meta, data
     finally:
         try:
             response.close()
@@ -440,6 +440,8 @@ def atomic_cache_bundle(
         raise ValueError("cache_source_url_unregistered")
     if not isinstance(payload_bytes, bytes) or not payload_bytes:
         raise ValueError("cache_payload_empty")
+    if not isinstance(request_metadata, dict):
+        raise ValueError("cache_response_metadata_invalid")
     if len(payload_bytes) > MAX_RESPONSE_BYTES:
         raise ValueError("cache_response_byte_cap_exceeded")
     try:
@@ -469,6 +471,10 @@ def atomic_cache_bundle(
     if recomputed_validation != validation:
         raise ValueError("cache_validation_report_mismatch")
     digest = hashlib.sha256(payload_bytes).hexdigest()
+    if request_metadata.get("response_sha256") != digest:
+        raise ValueError("cache_response_hash_mismatch")
+    if request_metadata.get("response_bytes") != len(payload_bytes):
+        raise ValueError("cache_response_byte_count_mismatch")
     root = pathlib.Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
     destination = root / digest
@@ -481,7 +487,7 @@ def atomic_cache_bundle(
         "validation": validation,
         "request_metadata": {
             key: request_metadata[key]
-            for key in ("http_status", "content_type", "response_bytes", "request_count", "cumulative_response_bytes")
+            for key in ("http_status", "content_type", "response_sha256", "response_bytes", "request_count", "cumulative_response_bytes")
             if key in request_metadata
         },
         "request_parameters": request_parameters,
