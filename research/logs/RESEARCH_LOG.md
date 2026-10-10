@@ -616,3 +616,8 @@ The independent tester passed the frozen spec blob `52b030e09213cb30c4de6a1633da
 ## 2026-10-10 — Discovery 3 exact-snapshot code review returned REQUEST CHANGES
 
 Tester inspected sampler, tests and workflows at commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` and found six blockers: stale spec provenance in the output, conflicting recognized date fields accepted if one matches, non-finite CSV values accepted, signature-like keys not redacted, unsanitized dated links in HTML reports, and manifest reviewed commit not bound to exact protected tree in the report. The report is mirrored on developer branch. No network call occurred. Developer must fix all six with offline fixtures and resubmit a new exact snapshot.
+
+
+## 2026-10-10 — Discovery 3 code review: REQUEST CHANGES
+
+Tester reviewed snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7` and returned REQUEST CHANGES despite the 29/29 offline suite. Blockers: stale spec ID in report output; conflicting record dates can pass; CSV NaN/Inf validation; signature-like fields not fully redacted; dated HTML links emitted unsanitized; workflow reviewer commit not pinned to the protected file tree it is supposed to approve. See `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`. No live requests. Developer must fix and retest; fresh tester review required.
