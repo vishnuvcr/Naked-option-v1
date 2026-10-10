@@ -40,6 +40,16 @@ A method is not promoted on a single backtest metric.
 - Perform independent tester gates at every phase.
 - Produce a reproducible final manuscript with tables, figures, appendices and machine-readable experiment manifests.
 
+## 4A. User-directed source-availability continuation amendment — 2026-10-11
+
+This amendment records a direct user decision: accept Dhan price output as returned, do not require further independent NSE/third-party price-value reconciliation, and never stop the research programme merely because a data field/source is unavailable.
+
+Dhan is the primary source for its documented daily, intraday and rolling expired-options fields. The existing Dhan one-row sample is accepted for development research under `research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json`; original provider bytes, source-request metadata and hashes are immutable. This acceptance is user-authorized and is not a claim that one row alone is statistically sufficient.
+
+When any Dhan or other provider fails for a specific series, the acquisition workflow logs the source-specific error, uses the next predeclared free-source fallback, and merges compatible sources only with row-level provenance. If no eligible free source remains, only the affected feature/candidate cells are labelled `NOT_ESTIMABLE`; other sources, features, paper replications, methods and phases continue. Missing values are not fabricated, prices/options are not zero-filled, and proxy features are registered separately. Free sources must be searched before any paid source is considered.
+
+This amendment changes the **response to source unavailability**, not the separate requirement for an exact-snapshot tester decision before a guarded bulk-request workflow runs, nor the sealed prospective holdout protocol. Gate checks protect reproducibility and security; they must not be used as a generic “data unavailable” stop condition. The detailed source matrix and acquisition rules are in `research/phase7/PPR4_DHAN_OPEN_SOURCE_ACQUISITION_PLAN.md`.
+
 ## 5. Pre-registered phase catalog
 
 ### Phase 0 — Governance/bootstrap
