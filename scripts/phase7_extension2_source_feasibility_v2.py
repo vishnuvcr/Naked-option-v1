@@ -231,7 +231,7 @@ def inspect_fii_history() -> dict[str, Any]:
                 missing_field_rows.append({"row": i, "fields": absent})
             normalized = normalize_date(row.get("date"))
             try:
-                if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", normalized):
+                if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", normalized):
                     raise ValueError("date did not normalize to ISO YYYY-MM-DD")
                 dt.date.fromisoformat(normalized)
                 dates.append(normalized)
