@@ -84,7 +84,7 @@
     },
     "prospective_holdout_proposal": {
       "path": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
-      "blob": "adac4f96b44dfde4e6622cd8e574da134e860490",
+      "blob": "0381c9dbbcc3a98eea398aef65750f2988c8465f",
       "status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
       "description": "Prospective future holdout proposal; no existing boundary claimed, no split created, no data/model operation authorized."
     }
@@ -261,8 +261,9 @@
     "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values.",
     "prospective_holdout_proposal": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
     "prospective_holdout_proposal_status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
-    "prospective_holdout_proposal_blob": "adac4f96b44dfde4e6622cd8e574da134e860490",
+    "prospective_holdout_proposal_blob": "0381c9dbbcc3a98eea398aef65750f2988c8465f",
     "ppr4_exit_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
-    "proposed_next_gate": "Tester may review the prospective holdout design only. A design PASS does not authorize source downloads, data-panel acceptance, fitting/tuning/scoring, forecast capture or label release."
+    "proposed_next_gate": "Tester may review the prospective holdout design only. A design PASS does not authorize source downloads, data-panel acceptance, fitting/tuning/scoring, forecast capture or label release.",
+    "prospective_holdout_design_scope": "A design-only proposal for a future 252-origin forward holdout plus 10-session maturity tail. It is not yet approved or implemented; all download/model/holdout permissions remain false."
   }
 }
