@@ -668,3 +668,12 @@ The guarded Dhan run passed its exact manifest/hash checks, spent the manifest b
 **Tester → Developer:** Review the status-reporting correction and new offline test; keep the previous manifest spent.
 
 **Developer → Tester:** Submit a fresh exact-snapshot review before any diagnostic retry. Do not broaden source scope or fit models.
+
+
+## 2026-10-10 — Dhan diagnostic retry review
+
+The first guarded Dhan run did not reach candle requests. The independent artifact audit requested changes because the instrument metadata HTTP status was missing. The adapter now retains a numeric status and safe Content-Type only; offline tests prove that provider error body, cookies, auth headers and token do not enter the report. The validator now checks protected blobs in the reviewed commit tree and current HEAD. Hosted Run `38043456200` passed 29/29 tests, and the tester approved one bounded diagnostic retry only. Previous manifest remains SPENT; a new manifest is required.
+
+**Tester → Developer:** Recompute byte hashes and blob IDs and create one new exact manifest only for the reviewed snapshot.
+
+**Developer → Tester:** Verify the new manifest; audit the diagnostic artifact independently. If metadata remains non-200, stop and do not fetch candles or broaden scope.
