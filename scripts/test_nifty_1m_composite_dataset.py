@@ -163,5 +163,47 @@ class TestEncryptedComposite(unittest.TestCase):
             self.assertEqual(parts[0].read_bytes(), gz)
 
 
+
+    def test_cumulative_request_attempt_ledger_survives_reload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old_path = collector.ATTEMPT_LEDGER_PATH
+            collector.ATTEMPT_LEDGER_PATH = pathlib.Path(tmp) / "request_attempt_ledger.jsonl"
+            try:
+                ledger = collector.load_attempt_ledger()
+                ledger["request_attempts_by_id"]["request-a"] = 1
+                ledger["total_wire_attempts"] += 1
+                collector.save_attempt_ledger(ledger)
+
+                resumed = collector.load_attempt_ledger()
+                self.assertEqual(resumed["total_wire_attempts"], 1)
+                self.assertEqual(resumed["request_attempts_by_id"]["request-a"], 1)
+                self.assertEqual(resumed["total_retry_attempts"], 0)
+
+                resumed["request_attempts_by_id"]["request-a"] = 2
+                resumed["total_wire_attempts"] += 1
+                resumed["total_retry_attempts"] += 1
+                resumed["permanent_failure_requests"]["request-b"] = "http_status_400"
+                collector.save_attempt_ledger(resumed)
+
+                again = collector.load_attempt_ledger()
+                self.assertEqual(again["total_wire_attempts"], 2)
+                self.assertEqual(again["total_retry_attempts"], 1)
+                self.assertEqual(again["request_attempts_by_id"]["request-a"], 2)
+                self.assertEqual(again["permanent_failure_requests"]["request-b"], "http_status_400")
+            finally:
+                collector.ATTEMPT_LEDGER_PATH = old_path
+
+    def test_cumulative_attempt_ledger_corruption_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old_path = collector.ATTEMPT_LEDGER_PATH
+            collector.ATTEMPT_LEDGER_PATH = pathlib.Path(tmp) / "request_attempt_ledger.jsonl"
+            try:
+                collector.ATTEMPT_LEDGER_PATH.write_text("{not-json}\\n")
+                ledger = collector.load_attempt_ledger()
+                self.assertGreater(ledger["total_wire_attempts"], 8701)
+                self.assertIn("__ALL__", ledger["permanent_failure_families"])
+            finally:
+                collector.ATTEMPT_LEDGER_PATH = old_path
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
