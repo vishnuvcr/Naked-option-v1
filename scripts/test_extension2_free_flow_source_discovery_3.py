@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 from pathlib import Path
+import subprocess
 from unittest.mock import patch
 
 import extension2_free_flow_source_discovery_3 as mod
@@ -362,8 +363,14 @@ def test_csv_edge_marks_seeded_rows_as_synthetic() -> None:
 
 
 def test_report_metadata_pins_current_spec_blob() -> None:
+    root = Path(mod.__file__).resolve().parents[1]
     source = Path(mod.__file__).read_text(encoding="utf-8")
+    actual_spec_blob = subprocess.check_output(
+        ["git", "hash-object", str(root / "research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md")],
+        text=True,
+    ).strip()
     assert mod.CURRENT_SPEC_GIT_BLOB == "4e30415632545c04a2875d627afa0191afe3f383"
+    assert actual_spec_blob == mod.CURRENT_SPEC_GIT_BLOB
     assert '"spec_git_blob": CURRENT_SPEC_GIT_BLOB' in source
     assert '"spec_git_blob": "52b030e09213cb30c4de6a1633da38e6b2558b1f"' not in source
 
