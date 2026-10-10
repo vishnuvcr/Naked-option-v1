@@ -836,3 +836,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Artifact fields: `http_status=302`, `redirect_scheme=https`, `redirect_host=s3.ap-south-1.amazonaws.com`, `request_count=1`, `bytes_read=0`, `status=REDIRECT_TARGET_RECORDED`. No redirect was followed and no price-history payload was acquired.
 - Automatic artifact preflight passed in audit run [#473 / 38047812286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047812286); the pinned independent tester job was skipped because this report type is not yet an approved empirical data artifact. Thus independent tester sign-off remains pending.
 - **Gate decision:** diagnostic succeeded within its narrow scope, but it only identifies the HTTPS redirect host. Do not follow the redirect or request market data under this authorization. A separately reviewed next-step plan/gate is required before any source request.
+
+
+## 2026-10-10 — Run #9 independently reviewed; Extension 3 proposed
+
+- Independent tester report [PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md](gates/PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md) was committed to isolated `phase-07-tester` at `76f73b8003367261b4a27577a0f7244bdcbcbfb2`: **PASS WITH SCOPED RESTRICTIONS — diagnostic artifact only**.
+- The tester independently inspected run #9 logs and the 340-byte artifact: HTTP 302, HTTPS hostname `s3.ap-south-1.amazonaws.com`, one request, zero body bytes, no redirect-follow, no price data. Offline tests 38/38 passed and the manifest was spent before the request.
+- Official Dhan documentation review found directly documented instrument-master CSV URLs: compact `https://images.dhan.co/api-data/api-scrip-master.csv` and detailed `https://images.dhan.co/api-data/api-scrip-master-detailed.csv` ([official instrument docs](https://dhanhq.co/docs/v2/instruments/)). This was public documentation research only; no request/download occurred.
+- Developer proposal [Extension 3 — Official Dhan Instrument-Source Validation Plan](phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md) committed at `21c70a054c4272d2280da5872858e0d52934103d`. It is PROPOSED only and authorizes no network request.
+- **Next gate:** independent tester review of the Extension 3 proposal. No live request, CSV download, price history, modeling, or holdout access is authorized. The prior redirect manifest remains SPENT and must not be reused.
