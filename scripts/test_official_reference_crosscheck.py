@@ -31,6 +31,11 @@ CSV_HEADER = (
     "SEM_TRADING_SYMBOL,SM_SYMBOL_NAME,SEM_CUSTOM_SYMBOL,SEM_EXCH_INSTRUMENT_TYPE\n"
 )
 GOOD_CSV = (CSV_HEADER + "13,NSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX\n").encode()
+DHAN_SAMPLE_RAW = b'{"open":[21751.35],"high":[21755.6],"low":[21555.65],"close":[21665.8],"volume":[2.63711568E8],"timestamp":[1.7041338E9]}'
+DHAN_SAMPLE_PARAMS = {
+    "exchangeSegment": "IDX_I", "fromDate": "2024-01-02", "instrument": "INDEX",
+    "oi": False, "securityId": "13", "toDate": "2024-01-03",
+}
 GOOD_NIFTY_ROW = {
     "INDEX_NAME": "NIFTY 50",
     "HistoricalDate": "02 Jan 2024",
@@ -308,7 +313,40 @@ def test_runner_refuses_to_run_without_outer_authorization() -> None:
         assert report["data_accepted_for_prediction"] is False
 
 
-def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
+def _write_cached_dhan_sample(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
+    bundle = root / "cached-dhan-sample"
+    bundle.mkdir(exist_ok=True)
+    response_path = bundle / "response.json"
+    manifest_path = bundle / "manifest.json"
+    response_path.write_bytes(DHAN_SAMPLE_RAW)
+    sample_manifest = {
+        "fetched_at_utc": "2026-10-10T13:18:25.096341Z",
+        "request_metadata": {
+            "content_type": "application/json",
+            "cumulative_response_bytes": len(DHAN_SAMPLE_RAW),
+            "http_status": 200,
+            "request_count": 1,
+            "response_bytes": len(DHAN_SAMPLE_RAW),
+            "response_sha256": mod.EXPECTED_DHAN_SAMPLE_RESPONSE_SHA256,
+        },
+        "request_parameters": DHAN_SAMPLE_PARAMS,
+        "response_bytes": len(DHAN_SAMPLE_RAW),
+        "response_sha256": mod.EXPECTED_DHAN_SAMPLE_RESPONSE_SHA256,
+        "schema_version": 1,
+        "source_url": "https://api.dhan.co/v2/charts/historical",
+        "validation": {
+            "fields": ["open", "high", "low", "close", "volume"],
+            "first_timestamp": 1704133800,
+            "last_timestamp": 1704133800,
+            "row_count": 1,
+            "timestamp_sha256": "c9409b29365d6be13af702d451f59081ae96e6f549628aa5f1933905ed6ed5b9",
+        },
+    }
+    manifest_path.write_text(json.dumps(sample_manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    return response_path, manifest_path
+
+
+def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path]:
     source_specs = [
         {
             "source": "nifty_indices",
@@ -338,6 +376,7 @@ def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Pa
         "source_specs": source_specs,
         "expected_date": mod.EXPECTED_DATE,
         "expected_dhan_row": mod.EXPECTED_DHAN_ROW,
+        "dhan_sample_response_sha256": mod.EXPECTED_DHAN_SAMPLE_RESPONSE_SHA256,
         "expected_mapping": mod.EXPECTED_MAPPING,
     }
     canonical = json.dumps(
@@ -364,7 +403,8 @@ def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Pa
         "spent_from_commit": "a" * 40,
     }
     approval_path.write_text(json.dumps(approval, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    return manifest_path, approval_path
+    sample_response_path, sample_manifest_path = _write_cached_dhan_sample(root)
+    return manifest_path, approval_path, sample_response_path, sample_manifest_path
 
 
 class SequenceOpenerFactory:
@@ -395,7 +435,7 @@ def _good_csv_response() -> FakeResponse:
 def test_runner_success_fetches_exactly_two_sources_and_caches_atomically() -> None:
     with tempfile.TemporaryDirectory() as folder:
         root = pathlib.Path(folder)
-        manifest_path, approval_path = _write_test_spent_gate(root)
+        manifest_path, approval_path, sample_response_path, sample_manifest_path = _write_test_spent_gate(root)
         factory = SequenceOpenerFactory([
             (_good_nifty_response(), mod.NIFTY_INDICES_URL, "POST", mod.make_nifty_request_body()),
             (_good_csv_response(), mod.DHAN_COMPACT_MASTER_URL, "GET", None),
@@ -407,6 +447,8 @@ def test_runner_success_fetches_exactly_two_sources_and_caches_atomically() -> N
             opener_factory=factory,
             manifest_path=manifest_path,
             approval_path=approval_path,
+            cached_dhan_response_path=sample_response_path,
+            cached_dhan_manifest_path=sample_manifest_path,
             cache_root=cache_root,
             report_path=report_path,
             fetched_at_utc="2026-10-10T00:00:00Z",
@@ -450,7 +492,7 @@ def test_runner_never_creates_partial_cache_if_second_source_or_comparison_fails
     for responses, failure in scenarios:
         with tempfile.TemporaryDirectory() as folder:
             root = pathlib.Path(folder)
-            manifest_path, approval_path = _write_test_spent_gate(root)
+            manifest_path, approval_path, sample_response_path, sample_manifest_path = _write_test_spent_gate(root)
             factory = SequenceOpenerFactory(responses)
             cache_root = root / "cache"
             report_path = root / "report.json"
@@ -471,6 +513,36 @@ def test_runner_never_creates_partial_cache_if_second_source_or_comparison_fails
             assert report["cache_created"] is False
             assert report["data_accepted_for_prediction"] is False
             assert report["raw_provider_error_saved"] is False
+
+
+def test_cached_dhan_sample_is_verified_before_official_sources() -> None:
+    for missing, raw, expected in [
+        (True, DHAN_SAMPLE_RAW, "crosscheck_cached_dhan_sample_missing"),
+        (False, DHAN_SAMPLE_RAW + b" ", "crosscheck_cached_dhan_sample_hash_mismatch"),
+    ]:
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder)
+            manifest_path, approval_path, sample_response_path, sample_manifest_path = _write_test_spent_gate(root)
+            if missing:
+                sample_response_path.unlink()
+            else:
+                sample_response_path.write_bytes(raw)
+            factory = SequenceOpenerFactory([])
+            cache_root = root / "cache"
+            report_path = root / "report.json"
+            result = runner.run_crosscheck(
+                env={"OFFICIAL_CROSSCHECK_AUTHORIZED": "1"},
+                opener_factory=factory,
+                manifest_path=manifest_path,
+                approval_path=approval_path,
+                cached_dhan_response_path=sample_response_path,
+                cached_dhan_manifest_path=sample_manifest_path,
+                cache_root=cache_root,
+                report_path=report_path,
+            )
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            assert result == 1 and report["failure_code"] == expected
+            assert not factory.openers and not cache_root.exists()
 
 
 TESTS = [v for k, v in globals().copy().items() if k.startswith("test_") and callable(v)]
