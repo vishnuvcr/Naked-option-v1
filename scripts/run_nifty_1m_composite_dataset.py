@@ -933,7 +933,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
                     writer.writerow(row)
                     monthly_rows[month] += 1
                 for handle, _writer in month_writers.values():
-                    handle[0].flush()
+                    handle.flush()
                 for path in temp_files:
                     try:
                         path.unlink()
@@ -1062,8 +1062,10 @@ def main() -> int:
     result = collect_run(root, requests, token, key)
     EXPORT_ROOT.mkdir(parents=True, exist_ok=True)
     encrypt_outputs(key, result)
-    for error in result.get("errors", []):
+    for error in result.get("errors", [])[:50]:
         print("SOURCE_ERROR " + json.dumps({k: error.get(k) for k in ("request_id", "source_family", "reason", "http_status")}, sort_keys=True))
+    if len(result.get("errors", [])) > 50:
+        print("SOURCE_ERROR_LOG_TRUNCATED " + json.dumps({"total_error_records": len(result.get("errors", [])), "printed": 50}))
     print(json.dumps({
         "status": result["status"],
         "request_count_processed": result["summary"].get("request_count_processed"),
