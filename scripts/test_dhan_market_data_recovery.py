@@ -269,6 +269,30 @@ def test_candle_schema_rejects_nan() -> None:
     assert result["status"] == "REJECTED_NONFINITE_CANDLE"
 
 
+def test_live_workflow_checks_and_spends_manifest_before_source_step() -> None:
+    workflow = (ROOT / ".github/workflows/phase-07-dhan-market-data-live.yml").read_text(encoding="utf-8")
+    check = workflow.index("python scripts/validate_dhan_sample_approval.py check")
+    spend = workflow.index("python scripts/validate_dhan_sample_approval.py spend")
+    source = workflow.index("python scripts/dhan_market_data_recovery.py")
+    assert check < spend < source
+    assert "paths:\\n      - \\"research/gates/DHAN_MARKET_DATA_SAMPLE_APPROVAL.json\\"" in workflow
+    assert "default: false" in workflow
+    assert "DHAN_ACCESS_TOKEN: \${{ secrets.DHAN_ACCESS_TOKEN }}" in workflow
+    assert workflow.count("DHAN_ACCESS_TOKEN: \${{ secrets.DHAN_ACCESS_TOKEN }}") == 1
+    assert "if: github.ref == 'refs/heads/phase-07-developer'" in workflow
+
+
+def test_manifest_validator_protects_exact_scope_and_spends_first() -> None:
+    validator = (ROOT / "scripts/validate_dhan_sample_approval.py").read_text(encoding="utf-8")
+    assert 'manifest.get("decision") != "APPROVED_ONE_RUN"' in validator
+    assert 'manifest.get("status") != "READY"' in validator
+    assert 'manifest["status"] = "SPENT"' in validator
+    assert 'manifest["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"' in validator
+    assert "tester_report_sha256" in validator
+    assert "git_blob" in validator and "sha256" in validator
+    assert "full_history_authorized" in validator and "model_fitting_authorized" in validator
+
+
 def test_workflow_or_test_suite_does_not_invoke_live_sample() -> None:
     # The offline workflow invokes only this fixture suite and contains no live authorization.
     adapter = (ROOT / "scripts/dhan_market_data_recovery.py").read_text(encoding="utf-8")
@@ -304,6 +328,8 @@ def main() -> None:
         test_candle_schema_rejects_duplicate_or_unsorted_timestamps,
         test_candle_schema_rejects_invalid_ohlc,
         test_candle_schema_rejects_nan,
+        test_live_workflow_checks_and_spends_manifest_before_source_step,
+        test_manifest_validator_protects_exact_scope_and_spends_first,
         test_workflow_or_test_suite_does_not_invoke_live_sample,
     ]
     for test in tests:
