@@ -450,3 +450,14 @@ Independent tester review is recorded at `research/gates/PHASE7_AVAILABLE_GLOBAL
 **Developer → Tester:** Keep the artifact audit and negative family conclusion independent; do not promote G06/G13 based on descriptive rankings.
 
 **Tester → Developer:** Phase 8 remains blocked. Any further prediction family must be preregistered, reviewed on the isolated tester branch, and separately authorized before execution.
+
+
+## 2026-10-10 — After Run #44: continue prediction-only research
+
+Run #44 completed and the independent tester reproduced all metrics and the five family bootstrap p-values. No candidate was statistically promoted. Rather than enter Phase 8 options execution (outside the current prediction-only request), the developer proposed another registered prediction family: sector leadership, FII/FPI and DII flows, advance/decline breadth, and NIFTY option OI/volume features. The proposal uses official NSE source leads and a single global max-statistic bootstrap over all 35 candidate/horizon combinations to control the extra search.
+
+Proposal: `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md`. Submission: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md`. Full-history downloads and model fitting have not started; the isolated tester must review the exact specification first.
+
+**Developer → Tester:** Review formulas, timing, source/vintage assumptions, expiry filters, missingness and global multiplicity control; if passing, authorize only small-sample source feasibility.
+
+**Tester → Developer:** Do not fit models or download full history before the spec and source-feasibility gates are passed.
