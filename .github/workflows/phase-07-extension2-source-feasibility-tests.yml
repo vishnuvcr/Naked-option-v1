@@ -1,0 +1,36 @@
+name: Phase 7 Extension 2 Source Feasibility — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/phase7_extension2_source_feasibility.py"
+      - "scripts/test_phase7_extension2_source_feasibility.py"
+      - "scripts/phase7_extension2_source_feasibility_v2.py"
+      - "scripts/test_phase7_extension2_source_feasibility_v2.py"
+      - ".github/workflows/phase-07-extension2-source-feasibility-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-extension2-offline-tests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-source-schema-tests:
+    name: offline-source-schema-tests-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run bounded source-parser regressions (no source requests)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_phase7_extension2_source_feasibility.py
+          python scripts/test_phase7_extension2_source_feasibility_v2.py
