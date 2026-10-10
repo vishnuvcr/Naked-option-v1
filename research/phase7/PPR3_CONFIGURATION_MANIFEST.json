@@ -17,10 +17,10 @@
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "REQUEST_CHANGES_FROM_TESTER_REVIEW1",
-    "ppr3_test_scope": "Staging documentation-only corrections to the native-task ledger and fit-call arithmetic; validator explicitly skips all structure/hash checks while staging_mode=true. No data/model operation is authorized.",
-    "ppr3_model_settings_note": "CCI20 is added only as a project-defined spot-direction adaptation. It is not an exact replication of the source's long-option strategy.",
-    "current_work_mode": "Staging PPR3 corrections; snapshot_checks_enabled is false while the native task ledger, tuning arithmetic, CCI adaptation and validator assertions are being finalized. All execution permissions remain false."
+    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "ppr3_test_scope": "Run exact-snapshot offline configuration and blob-pin validation only. This does not authorize PPR-4 source requests or any model execution.",
+    "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is float 1.0, distinct from integer 1. Source-native methods remain in the separate documentation ledger.",
+    "current_work_mode": "Configuration matrix, source-native task ledger, CCI adaptation, label semantics, float parameter semantics and fit-call accounting corrected. Exact pins are enabled; the next hosted run must pass before tester re-review. All empirical permissions remain false."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -57,19 +57,19 @@
     },
     "model_settings": {
       "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
-      "blob": "fd895b27de3dc9210f4bc45b9fd43b4377882d39"
+      "blob": "331bc28050f4d6ef6a9343db8e47b25d86734aaa"
     },
     "target_inference_contract": {
       "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
-      "blob": "7e9fa1916f0ef39f1d22c7f4d0147ea9c94aa36e"
+      "blob": "049f5d3529ff5e82b3798fdb8e27bad10c413d80"
     },
     "protocol_freeze": {
       "path": "research/phase7/PPR3_PROTOCOL_FREEZE.md",
-      "blob": "3f1d8ea0984941451b3c98297fa779aea9b87fe4"
+      "blob": "26983a0f267be548a7fa694434f06d28e7b6b623"
     },
     "ppr3_validator": {
       "path": "scripts/validate_ppr3_configuration.py",
-      "blob": "472687b23f4f66a8f406b61a49a8e93158176585"
+      "blob": "32fd29e3d8e8b73291cc8b36541eca8ef2a6b8dd"
     },
     "ppr3_workflow": {
       "path": ".github/workflows/phase-07-ppr-contract-tests.yml",
@@ -122,7 +122,7 @@
       "rf_candidate_settings_per_cell": 18,
       "xgboost_candidate_settings_per_cell": 8,
       "chronological_inner_splits": 5,
-      "final_refit_per_hyperparameter_setting": true,
+      "final_refit_per_hyperparameter_setting": false,
       "counted_fit_calls": 780,
       "exact_cells": [
         "R010|CORE_OHLCV_TECH|1",
@@ -221,6 +221,6 @@
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
   ],
-  "snapshot_checks_enabled": false,
-  "staging_mode": true
+  "snapshot_checks_enabled": true,
+  "staging_mode": false
 }
