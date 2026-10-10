@@ -591,3 +591,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Workflow now runs offline tests first, then validates an exact tester report/manifest and hashes before any source request; manual source sampling defaults to off.
 - [Run #1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed on an over-escaped ISO-date regex before live acquisition; source fetching and artifact upload were skipped.
 - **Current gate:** exact-snapshot tester review and current hosted offline test evidence pending. Approval JSON remains absent. No live source requests, full history, feature table, labels or model fits are authorized at this checkpoint.
+
+
+## 2026-10-10 — Gate A approval guard strengthened; exact review snapshot refreshed
+
+- Current guarded workflow blob: `fdc0a6bef97796b38424048304b704d86f80c450`. The previous workflow blob `c535610e69c2e90934ab4e59d754b584e29ff6ec` is superseded.
+- The guard now requires a specific current tester-decision line, explicit denial of full-history/model fitting, matching report SHA-256, protected file SHA-256 values, protected Git blob IDs quoted in the report, and reviewed-commit ancestry. Manual source sampling remains off by default and fails closed without the exact manifest.
+- Current review request: [sampler v2 exact-snapshot review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
+- No current approval manifest exists. No live source requests or artifact generation are authorized pending a new tester PASS and green hosted offline tests.
