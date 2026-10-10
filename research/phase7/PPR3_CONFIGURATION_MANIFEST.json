@@ -17,10 +17,10 @@
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "RESUBMISSION_CORRECTIONS_IN_PROGRESS_AFTER_NATIVE_LINK_AUDIT",
-    "ppr3_test_scope": "Staging after the latest CI pass: correcting source-native ledger links discovered during review. CI in staging mode is documentation staging only and not an exact validation PASS.",
-    "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is JSON float 1.0, distinct from integer 1; the validator asserts that distinction.",
-    "current_work_mode": "Current native ledger links: the Twitter-mood pipeline was incorrectly mapped to BERT-LSTM; SOFNN was incorrectly linked to active BERT-LSTM rather than blocked C011; two descriptive/options strategy records were incorrectly linked to MA crossover adaptations. Correct and re-pin all updated files before requesting tester re-review. All empirical operations remain disabled."
+    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "ppr3_test_scope": "Exact-trigger-commit offline contract, source-link, configuration/cell arithmetic, fit-budget and blob-pin validation only. No source acquisition, modeling, scoring or holdout access authorized.",
+    "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication. RF all-features uses JSON floating-point 1.0. The offline checker asserts native-to-adaptation semantics and excludes native-ledger rows from all fit authorizations.",
+    "current_work_mode": "Corrected native links: NT022 links only to the sentiment pipeline, NT023 points to blocked C011, and NT045/NT046 have no crossover-model link. New assertions added to validator. Exact snapshot pinned; all empirical permissions remain false."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -65,11 +65,11 @@
     },
     "protocol_freeze": {
       "path": "research/phase7/PPR3_PROTOCOL_FREEZE.md",
-      "blob": "26983a0f267be548a7fa694434f06d28e7b6b623"
+      "blob": "613945ddc9f668cf723a6fe95ee7adab5520b52b"
     },
     "ppr3_validator": {
       "path": "scripts/validate_ppr3_configuration.py",
-      "blob": "32fd29e3d8e8b73291cc8b36541eca8ef2a6b8dd"
+      "blob": "8821cf773a75979eec1ffb756bf2ddb1d43508b5"
     },
     "ppr3_workflow": {
       "path": ".github/workflows/phase-07-ppr-contract-tests.yml",
@@ -77,7 +77,7 @@
     },
     "paper_native_task_ledger": {
       "path": "research/phase7/PPR3_PAPER_NATIVE_TASK_LEDGER.csv",
-      "blob": "7b0e45a977425fd52e5769032fa731317df4f9f5"
+      "blob": "828cccbf24532dad74d6d9be95cb4dc0e195c251"
     }
   },
   "inventory": {
@@ -146,7 +146,7 @@
     "total_model_fit_calls_upper_bound": 4344,
     "repository_global_hard_limit": 8000,
     "fit_call_definition": "Outer selected-setting fits are counted once per predeclared seed in the outer fit budget. Tuning adds only five inner chronological fold fits per setting; no full-prefix refit per hyperparameter setting.",
-    "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout.",
+    "snapshot_rule": "All pinned files in frozen_files and source_artifacts are compared with `git hash-object` values from the exact triggering commit checkout. A mismatch fails CI. Staging mode must be false for any validation receipt submitted to the tester.",
     "theoretical_outer_fit_calls": 5580,
     "theoretical_inner_tuning_calls": 2000,
     "theoretical_total_fit_calls_upper_bound": 7580,
@@ -221,7 +221,7 @@
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
   ],
-  "snapshot_checks_enabled": false,
-  "staging_mode": true,
+  "snapshot_checks_enabled": true,
+  "staging_mode": false,
   "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout."
 }
