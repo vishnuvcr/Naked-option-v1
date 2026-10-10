@@ -197,6 +197,40 @@ class LimitedHTTP:
                 "error": "URL or HTTP method is not registered in the frozen probe inventory",
                 "history": [], "bytes_read": 0,
             }
+        if probe_id in {"HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
+            allowed_cap = MAX_RANGE_BYTES
+            allowed_headers = {"range"}
+        elif probe_id == "HF-2-HEAD":
+            allowed_cap = 0
+            allowed_headers = set()
+        else:
+            allowed_cap = PROBE_CAPS.get(probe_id, -1)
+            allowed_headers = set()
+        if max_body_bytes < 0 or allowed_cap < 0 or max_body_bytes > allowed_cap:
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": f"requested body cap exceeds the frozen {allowed_cap}-byte cap",
+                "history": [], "bytes_read": 0,
+            }
+        if hf_redirects and probe_id not in {"HF-2-HEAD", "HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": "redirect following is registered only for HF HEAD/range probes",
+                "history": [], "bytes_read": 0,
+            }
+        supplied = headers or {}
+        if any(k.lower() not in allowed_headers for k in supplied):
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": "unregistered request header for this probe",
+                "history": [], "bytes_read": 0,
+            }
+        if "range" in {k.lower() for k in supplied} and probe_id not in {"HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": "Range is only permitted for the two registered HF range probes",
+                "history": [], "bytes_read": 0,
+            }
         self.budget.start_initial(probe_id, url)
         current_url = url
         redirect_count = 0
