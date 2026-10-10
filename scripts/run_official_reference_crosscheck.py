@@ -10,12 +10,14 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import pathlib
 import re
 import shutil
 import sys
 import tempfile
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 
 import official_reference_crosscheck as adapter
