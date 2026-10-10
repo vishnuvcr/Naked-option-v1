@@ -1031,3 +1031,12 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Correction:** The blocker is evidence and authorization: the existing one-row Dhan sample remains quarantined pending official OHLC and instrument-mapping verification; its one-use approval is spent; PPR-4 data acquisition requires a new exact-snapshot tester PASS. Wave 1 was documentation-only and explicitly required no authentication.
 - **Security note:** Never log the token value. The connector cannot verify the current GitHub secret value or expiry. Dhan documentation says individual access tokens are valid for 24 hours, so current validity must be established only by a guarded, explicitly authorized workflow.
 - **Prevention:** Status reports must distinguish (1) credential configured, (2) credential current and API entitled, (3) source request authorized, (4) source/field coverage verified, (5) point-in-time/licensing checks passed, and (6) data accepted for model use.
+
+## 2026-10-11 — PPR-4 continuation-policy offline test iteration 1
+
+- **Category:** Test-contract wording mismatch.
+- **Workflow:** [Run 38077986545](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38077986545), commit `d4fbe97a676aae420c9f982aea1dd537ca0a107e`.
+- **Observed:** Python compile passed; 3 of 4 policy tests passed. The main consistency test failed because the validator expected the literal phrases “only 90 days per request”, “only 30 days per request” and “Paytm Money” in the plan. The plan expressed those limits as maximum request windows and omitted the future cost-model note in that section.
+- **Impact:** policy gate is not passed; no source requests or data reads occurred.
+- **Correction:** align assertions to the documented maximum-window wording and add a dedicated later-phase cost section covering Paytm Money brokerage, statutory/exchange costs, spread, slippage, latency, fill assumptions and premium decay.
+- **Disposition:** rerun the exact-snapshot offline workflow and log its outcome. This is a documentation/test issue, not evidence of a Dhan data failure.
