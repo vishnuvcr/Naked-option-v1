@@ -91,3 +91,14 @@ Tester report `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_
 **Developer → Tester:** Verify all-row date validation and both mixed-date tests; if passed, the Gate A workflow may be added and run for small samples only.
 
 **Tester → Developer:** Do not enable the workflow until a fresh explicit code-gate PASS is recorded.
+
+
+## G17 source fallback amendment submitted for tester review — 2026-10-10
+
+Run #1 found that the official Advances/Declines page exposed no dated historical rows in the bounded sample. The developer has amended the spec to include a deterministic source-selection rule: use official dated A/D history only if Gate A verifies at least 500 dated sessions; otherwise derive daily breadth from official equity bhavcopy using a frozen `SERIES=EQ`, `ISIN` prefix and positive-close/volume filter, matched by ISIN. This is a source fallback, not a post-result candidate choice.
+
+Current spec blob: `a5e65b56f9aa23c8292b718403c3db4448dad2e3`. The amendment also records the exact official daily index CSV pattern for G03. Please independently review the G17 fallback universe and formula before the revised source sampler is run.
+
+**Developer → Tester:** Review the exact G17 amendment and decide whether the derived breadth definition is acceptable under the registered prediction-only scope.
+
+**Tester → Developer:** Do not run the revised sampler or build breadth features until the amendment is explicitly passed.
