@@ -179,3 +179,99 @@
 
 **Developer → Tester:** Review this matrix against the exact PDFs and the updated protocol before authorizing PPR-2.  
 **Tester → Developer:** Keep empirical work blocked until all flagged target/window/metric ambiguities are recorded in a frozen manifest or explicitly excluded.
+
+
+## Individual method fidelity ledger
+
+This ledger makes each named method visible as a separate row. `AUTHOR-IMPLEMENTED` means the source describes an actual evaluation for the stated *paper-native task*; it does not imply the same method has been replicated on NIFTY spot direction in this repository. Feature components are listed separately when they are not models. `AMBIGUOUS` means the extracted text does not support a sufficiently faithful implementation. No paper's result is an accepted project result.
+
+| Paper | Individual method / component | Fidelity label | Source locator | Paper-native task / notes |
+|---:|---|---|---|---|
+| 1 | K-Nearest Neighbors regressor | AUTHOR-IMPLEMENTED | PDF pp. 9–13 | Stock-price regression across the paper's 12-company panel; paper split/date conflicts remain |
+| 1 | Linear Regression | AUTHOR-IMPLEMENTED | PDF pp. 9–13 | Same stock-price regression task |
+| 1 | Support Vector Regression | AUTHOR-IMPLEMENTED | PDF pp. 9–13 | Same stock-price regression task |
+| 1 | Decision Tree Regression | AUTHOR-IMPLEMENTED | PDF pp. 9–13 | Same stock-price regression task |
+| 1 | LSTM regressor | AUTHOR-IMPLEMENTED | PDF pp. 9–13 | Same stock-price regression task |
+| 2 | Logistic Regression classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | KNN classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | Decision Tree classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | Bagging classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | Boosting classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | Random Forest classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | ANN classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | SVM classifier | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Binary normalized-close movement classification |
+| 2 | Multivariate regression | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close prediction; keep separate from binary classification |
+| 2 | Decision Tree regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | Bagging regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | Boosting regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | Random Forest regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | ANN regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | SVM regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | LSTM regressor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | One-week normalized-close regression |
+| 2 | Four-class Twitter mood pipeline | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Sentiment component; exact original text archive/vintages are not established here |
+| 2 | SOFNN with ellipsoidal basis | AUTHOR-IMPLEMENTED | PDF pp. 4–5 | Sentiment-augmented prediction method; architecture/source replication details still need configuration capture |
+| 2 | Granger-causality diagnostic | AUTHOR-IMPLEMENTED | PDF p. 5 | Diagnostic on sentiment/returns, not itself a deployable forecast model |
+| 3 | Random Forest classifier | AUTHOR-IMPLEMENTED | PDF pp. 5–6 | Option Buy/Sell signal; do not classify as exact spot-direction replication |
+| 3 | XGBoost classifier | AUTHOR-IMPLEMENTED | PDF pp. 5–6 | Option Buy/Sell signal; option strategy assumptions apply |
+| 3 | LSTM classifier | AUTHOR-IMPLEMENTED | PDF pp. 5–6 | Option Buy/Sell signal; option strategy assumptions apply |
+| 4 | Single-Layer Perceptron | AUTHOR-IMPLEMENTED | PDF pp. 4–7 | Daily NIFTY close regression using FII buys/sells and USD/INR |
+| 4 | Multi-Layer Perceptron | AUTHOR-IMPLEMENTED | PDF pp. 4–7 | Same close-regression study |
+| 4 | Radial-Basis Function network | AUTHOR-IMPLEMENTED | PDF pp. 4–7 | Same close-regression study |
+| 4 | SVM comparison | AUTHOR-IMPLEMENTED | PDF pp. 4–7 | Comparison model for the close-regression task |
+| 5 | Linear Regression | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Next-session open and close price regression; 5/10/20-year windows |
+| 5 | Lasso | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Ridge | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Elastic Net | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | SGD Regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | SVR | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | KNN regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Decision Tree regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Random Forest regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Gradient Boosting regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | AdaBoost regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | XGBoost regressor | AUTHOR-IMPLEMENTED | PDF pp. 6–18 | Same price-regression task |
+| 5 | Naïve Persistence baseline | AUTHOR-IMPLEMENTED | PDF pp. 6–10 | Baseline, not a learned estimator |
+| 6 | Simple-average/seasonality calculations | AUTHOR-IMPLEMENTED | PDF pp. 3–4 | Descriptive strategy calculations, not a fully specified fitted NIFTY direction predictor |
+| 6 | Options simple-average strategy | AUTHOR-IMPLEMENTED | PDF p. 10 | Strategy-only; not authorized for PPR prediction phase |
+| 7 | LSTM sequence predictor | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Fusion with context fields; source-vintage and label definitions remain incomplete |
+| 7 | BERT financial-news sentiment model | AUTHOR-IMPLEMENTED | PDF pp. 4–5 | Sentiment task; source reports accuracy/precision without enough detail for comparison |
+| 7 | Combined BERT-sentiment + LSTM workflow | AUTHOR-IMPLEMENTED | PDF pp. 4–5 | Fusion task; not equivalent to a generic LSTM or sentiment row |
+| 7 | FII/DII features | AUTHOR-IMPLEMENTED component | PDF pp. 3–5 | Flow inputs; same-day point-in-time availability must be verified before any project use |
+| 7 | India VIX feature | AUTHOR-IMPLEMENTED component | PDF pp. 3–5 | Volatility input; availability-time check required |
+| 7 | Nearest two expiry PCR feature | AUTHOR-IMPLEMENTED component | PDF pp. 3, 6 | Options context input; expiry mapping/vintage needs point-in-time evidence |
+| 8 | Standalone NIFTY direction estimator | BACKGROUND-ONLY / no method identified | PDF pp. 2–15 | Review of options concepts/strategies; no fitted forecast model identified |
+| 9 | LSTM predictor in paper/app | AMBIGUOUS | PDF pp. 1–5 | Model is named, but architecture/training/split/accuracy formula are insufficient for faithful reproduction |
+| 9 | AR/ARMA/ARIMA methods | BACKGROUND-ONLY | PDF pp. 2–4 | General time-series background; not demonstrated as evaluated comparators in the inspected pages |
+| 10 | Linear Regression | AUTHOR-IMPLEMENTED | PDF pp. 10–12 | Source dataset's option-like fields mean dependent variable/spot-index mapping is unresolved |
+| 10 | LSTM | AUTHOR-IMPLEMENTED | PDF pp. 6–12 | Same target/schema ambiguity |
+| 10 | GRU | AUTHOR-IMPLEMENTED | PDF pp. 6–12 | Same target/schema ambiguity |
+| 10 | CNN | AUTHOR-IMPLEMENTED | PDF pp. 6–12 | Same target/schema ambiguity |
+| 10 | RNN | AUTHOR-IMPLEMENTED | PDF pp. 6–12 | Same target/schema ambiguity |
+| 10 | TCN | AUTHOR-IMPLEMENTED | PDF pp. 6–12 | Same target/schema ambiguity |
+| 10 | LSTM+GRU hybrid | AUTHOR-IMPLEMENTED | PDF pp. 10–12 | Same target/schema ambiguity |
+| 10 | CNN+RNN hybrid | AUTHOR-IMPLEMENTED | PDF pp. 10–12 | Same target/schema ambiguity |
+| 10 | CNN+TCN hybrid | AUTHOR-IMPLEMENTED | PDF pp. 10–12 | Same target/schema ambiguity |
+| 10 | LSTM+TCN hybrid | AUTHOR-IMPLEMENTED | PDF pp. 10–12 | Same target/schema ambiguity |
+| 11 | EMA 50/200 crossover analysis | AUTHOR-IMPLEMENTED / parameter ambiguity | PDF pp. 6, 8–13 | Paper also mentions EMA 50/100; date coverage inconsistent; crossover t-test reported p=.1079 |
+| 11 | Moving-average price regressions/correlations | AUTHOR-IMPLEMENTED | PDF pp. 6–13 | Price-level analysis, not a validated forecast; no clear independent chronological holdout located |
+| 12 | RNN architecture | AUTHOR-IMPLEMENTED | PDF pp. 11–18 | Price regression; paper-specific layers/activations/features and “accuracy” definition need exact config |
+| 12 | LSTM architecture | AUTHOR-IMPLEMENTED | PDF pp. 11–18 | Same price-regression task |
+| 12 | CNN architecture | AUTHOR-IMPLEMENTED | PDF pp. 11–18 | Same price-regression task |
+| 12 | Sigmoid/ReLU/Softmax activation variants | AUTHOR-IMPLEMENTED comparisons | PDF pp. 11–18 | Exact activations/configs must be assigned separate manifest rows as applicable |
+| 12 | Input-feature combinations and epoch comparisons | AUTHOR-IMPLEMENTED comparisons | PDF pp. 11–18 | Selection must remain training-only in project adaptation |
+| 13 | Feed-forward MLP with backpropagation | AUTHOR-IMPLEMENTED | PDF pp. 3–5 | Next-day OHLC price forecast; 70:30 split ordering and precise target shift need confirmation |
+| 13 | “99.2152% average accuracy” metric | AMBIGUOUS metric definition | PDF p. 1 (abstract) | Locate source claim; formula/target are not established as directional accuracy |
+| 13 | Normalized RMSE result | AUTHOR-IMPLEMENTED metric | PDF pp. 4–5 | Reported normalized-space training/testing RMSE; do not compare to raw index point errors |
+| 14 | LSTM | AUTHOR-IMPLEMENTED | PDF pp. 9–13, 18–20 | Closing-price and next-30-day task; target and metric rows must remain separate |
+| 14 | Backward-Elimination LSTM (BE-LSTM) | AUTHOR-IMPLEMENTED | PDF pp. 9–13, 15–20 | Full-sample feature-selection path is leakage-prone for causal testing |
+| 14 | Regression p-value backward elimination | AUTHOR-IMPLEMENTED component | PDF pp. 12–16 | The published full-sample selection must not leak into confirmatory project test |
+| 14 | RSI average feature | AUTHOR-IMPLEMENTED component | PDF p. 15 | Input feature; availability/source vintage needs validation |
+| 15 | CCI-based long-call/put option rule | AUTHOR-IMPLEMENTED strategy; not a forecast model | PDF pp. 6–11 | Strategy-only; 68-vs-80 source table mismatch; historical brokerage/slippage assumptions not current costs |
+| 15 | Spot-direction CCI proxy | PROJECT-ADAPTATION (not tested) | Not in source | Candidate only if explicitly amended and tester-approved; no current permission to fit/test |
+
+### Limitations of this fidelity ledger
+
+The tags refer to what the uploaded source describes, and some are necessarily coarse when the PDF itself omits architecture or data definitions. “AUTHOR-IMPLEMENTED” does not resolve target/schema ambiguity or guarantee reproducibility. Items marked `AMBIGUOUS` or strategy-only cannot be upgraded by analogy. Before PPR-3, the final machine-readable run manifest must have one row for each configuration, task, source locator, target schema, split, feature pipeline and fidelity status; this evidence matrix is not itself authorization to fit any method.
+
+**Developer → Tester:** Audit these individual method tags and the cited source pages against the original PDFs.  
+**Tester → Developer:** Keep ambiguous methods and strategy-only studies out of the common confirmatory set unless a separate reviewed amendment defines their target and task.
