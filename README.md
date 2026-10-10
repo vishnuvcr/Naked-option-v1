@@ -569,3 +569,10 @@ The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phas
 - The independent tester passed the source-plan proposal with restrictions: [tester report](research/gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_PLAN_TESTER.md).
 - The plan identifies official Dhan instrument-master CSV URLs but authorizes no request. Developer added an offline-only CSV validator/cache helper and tests: [adapter](scripts/dhan_instrument_master.py), [tests](scripts/test_dhan_instrument_master.py), [offline workflow](.github/workflows/phase-07-dhan-instrument-master-tests.yml).
 - Hosted offline tests [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were pending at the last status check. No live request/data acquisition has occurred; no new prediction result is available.
+
+
+### Extension 3 offline code gate — 2026-10-10
+
+- Hosted offline tests [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) passed: 9 tests. Repository protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) passed.
+- Independent tester [report](research/gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md) passed the offline CSV validation/cache foundation with restrictions. No network fetch or cache population has occurred.
+- Next gate is independent review of a separate bounded fetch implementation. The previous redirect manifest remains SPENT; no live source request is authorized.
