@@ -1,0 +1,36 @@
+name: Dhan Sample Tester Report — SHA-256 Check
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md"
+      - ".github/workflows/phase-07-dhan-daily-sample-tester-report-hash.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  hash-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compute actual raw-file SHA-256 with Python hashlib
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          path = pathlib.Path("research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md")
+          raw = path.read_bytes()
+          print("TESTER_REPORT_FINGERPRINT=" + json.dumps({
+              "path": str(path),
+              "git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + str(path)], text=True).strip(),
+              "sha256": hashlib.sha256(raw).hexdigest(),
+              "byte_count": len(raw),
+              "live_request_authorized_by_hash_job": False,
+          }, sort_keys=True))
+          PY
