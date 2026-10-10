@@ -22,7 +22,9 @@
     "neural_max_epochs": 100,
     "neural_batch_size": 32,
     "neural_optimizer": "Adam",
-    "neural_learning_rate": 0.001
+    "neural_learning_rate": 0.001,
+    "outer_seed_policy": "For stochastic neural cells use the three frozen neural_seeds. For stochastic tree ensembles that are part of the frozen tuning subset, the selected model may also be fitted with the same three predeclared outer seeds. These seeds are repeated fits of the same configuration, not additional hypothesis cells.",
+    "seed_prediction_aggregation": "Average class-probability vectors across seeds for classification; average raw-scale point forecasts across seeds for regression. Apply the primary metric once to the aggregated prediction for the candidate cell. Deterministic rules/estimators may run once; budget conservatively counts three fits per candidate cell."
   },
   "feature_pipeline_definitions": {
     "CORE_OHLCV_TECH": {
@@ -1243,7 +1245,7 @@
       "scheme": "five chronological expanding-origin splits within outer training only",
       "purge_rule": "drop any inner-training label whose endpoint is at or after that inner validation decision cutoff",
       "selection_metric": "mean MAE over inner validation folds",
-      "final_refit": "For each candidate setting, fit only the five inner chronological folds and average their validation MAE. Select the best setting, then fit the selected model on the complete purged outer training prefix as the outer prediction fit; this selected fit is already counted in the outer-fit budget. Do not refit every candidate setting on the full outer prefix."
+      "final_refit": "After selecting the parameter setting with the best mean MAE across five inner chronological validation folds, fit the selected model on the complete purged outer-training prefix. This selected fit is the outer prediction fit and is counted in the outer-fit budget. Do not refit each hyperparameter setting on the full prefix."
     },
     "grids": {
       "RANDOM_FOREST_REGRESSION": {
@@ -1465,7 +1467,7 @@
     "actual_candidate_cells": 12,
     "calculated_tuning_fit_calls": 780,
     "no_other_search": true,
-    "counted_fit_calls_definition": "Inner search only: 6 Random Forest cells × 18 settings × 5 chronological folds + 6 XGBoost cells × 8 settings × 5 chronological folds = 780. The final selected-settings fits are the corresponding outer fits and are already included in the outer-fit budget."
+    "counted_fit_calls_definition": "Inner search only: 6 Random Forest cells × 18 settings × 5 chronological folds + 6 XGBoost cells × 8 settings × 5 chronological folds = 780. After selecting the winning settings for a tuned cell, the selected model is fit on the complete outer training prefix as its outer fit; those fits are already included in the outer-fit budget. No full-prefix refit is run for every hyperparameter setting."
   },
   "blocked_settings": {
     "BLOCKED_NATIVE_30_SESSION": {
