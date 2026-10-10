@@ -218,7 +218,7 @@ def test_request_once_sends_csv_get_without_credentials() -> None:
         byte_cap=mod.MAX_CSV_BYTES, timeout_seconds=20, opener_factory=lambda: opener,
     )
     req, _ = opener.calls[0]
-    header_names = {k.lower() for k in req.header_items()}
+    header_names = {k.lower() for k, _ in req.header_items()}
     assert not header_names.intersection({"authorization", "access-token", "cookie", "dhanclientid"})
     assert raw == GOOD_CSV and meta["request_count"] == 1 and meta["retry_count"] == 0
 
