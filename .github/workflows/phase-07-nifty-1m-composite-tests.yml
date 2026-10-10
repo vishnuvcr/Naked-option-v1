@@ -11,6 +11,8 @@ on:
       - "scripts/validate_nifty_1m_composite_manifest.py"
       - "scripts/test_nifty_1m_composite_manifest.py"
       - "scripts/test_nifty_1m_composite_dataset.py"
+      - "scripts/validate_nifty_1m_composite_approval.py"
+      - ".github/workflows/phase-07-nifty-1m-composite-live.yml"
       - "requirements-composite.txt"
       - ".github/workflows/phase-07-nifty-1m-composite-tests.yml"
   workflow_dispatch:
@@ -46,6 +48,7 @@ jobs:
           scripts/validate_nifty_1m_composite_manifest.py
           scripts/test_nifty_1m_composite_dataset.py
           scripts/test_nifty_1m_composite_manifest.py
+          scripts/validate_nifty_1m_composite_approval.py
       - name: Run offline manifest and data-pipeline tests
         working-directory: scripts
         run: |
@@ -54,5 +57,7 @@ jobs:
           python -m unittest -v test_nifty_1m_composite_dataset
       - name: Verify exact request grid
         run: python scripts/validate_nifty_1m_composite_manifest.py
+      - name: Validate acquisition approval helper offline
+        run: python scripts/validate_nifty_1m_composite_approval.py self-test
 
 # No secrets, internet API calls, data payloads, model fitting or holdout access are permitted in this workflow.
