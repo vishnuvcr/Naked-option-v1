@@ -169,3 +169,6 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-10 | Phase 7 authorization | Updated P10 correction report/manifest did not pass independent digest verification | Restored the last verified report/manifest snapshot to both branches; the new correction remains unexecuted | Recompute report SHA-256 and all 25 protected-file SHA-256 values using a verified implementation, synchronize byte-identical copies, and pass the hosted validator before any fresh run | Fail closed; Run #994 unchanged; no new empirical authorization |
+
+
+| 2026-10-10 | Phase 7 / paper replication | Existing registry family coverage could be mistaken for testing every paper's exact method | Prior artifacts contain 112 registered candidate names and family runs, but the 15 mounted PDFs specify different targets, feature pipelines, horizons, variants and sometimes sentiment/sequence architectures | Added paper-specific full-text crosswalk and gated finite replication protocol; no candidate is called replicated without a matching result artifact and independent tester report | PPR-1 tester review and later per-run regression/artifact audit pending |
