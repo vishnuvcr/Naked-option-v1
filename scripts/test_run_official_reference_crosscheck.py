@@ -336,6 +336,99 @@ def test_second_source_failure_preserves_no_partial_cache_and_safe_report() -> N
         assert "PRIVATE_ERROR" not in json.dumps(out) and out["credentials_sent"] is False
 
 
+def test_cached_dhan_sample_hash_and_manifest_are_required_before_sources() -> None:
+    cases = [
+        (DHAN_SAMPLE_RAW + b" ", None, "crosscheck_cached_dhan_sample_hash_mismatch"),
+        (DHAN_SAMPLE_RAW, {"request_parameters": {"securityId": "wrong"}}, "crosscheck_cached_dhan_manifest_mismatch"),
+    ]
+    for raw, override, expected in cases:
+        with tempfile.TemporaryDirectory() as temp:
+            folder = pathlib.Path(temp)
+            manifest, approval = fixtures(folder)
+            sample_response_path, sample_manifest_path = create_cached_sample(
+                folder, response_raw=raw, manifest_override=override
+            )
+            opener = SequentialOpener([])
+            report = folder / "report.json"
+            cache = folder / "cache"
+            code = mod.run_crosscheck(
+                env={"OFFICIAL_CROSSCHECK_AUTHORIZED": "1"},
+                opener_factory=lambda: opener,
+                manifest_path=manifest,
+                approval_path=approval,
+                cached_dhan_response_path=sample_response_path,
+                cached_dhan_manifest_path=sample_manifest_path,
+                cache_root=cache,
+                report_path=report,
+            )
+            result = json.loads(report.read_text())
+            assert code == 1 and result["failure_code"] == expected
+            assert not opener.calls and not cache.exists()
+
+
+def test_existing_bundle_with_corrupt_manifest_is_not_reused() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        root = pathlib.Path(temp)
+        sample_response_path, sample_manifest_path = create_cached_sample(root)
+        sample_row, sample_meta = mod._load_verified_dhan_sample(sample_response_path, sample_manifest_path)
+        nifty_raw = NIFTY_RAW
+        csv_raw = CSV
+        nifty_row = mod.adapter.parse_nifty_indices_response(nifty_raw)
+        mapping_row = mod.adapter.parse_dhan_instrument_mapping(csv_raw)
+        comparison = mod.adapter.compare_ohlc(nifty_row, sample_row)
+        nifty_meta = {
+            "source": "nifty_indices", "url": mod.adapter.NIFTY_INDICES_URL, "method": "POST",
+            "http_status": 200, "content_type": "application/json", "response_bytes": len(nifty_raw),
+            "response_sha256": hashlib.sha256(nifty_raw).hexdigest(), "request_count": 1,
+            "retry_count": 0, "redirect_followed": False,
+        }
+        master_meta = {
+            "source": "dhan_instrument_master", "url": mod.adapter.DHAN_COMPACT_MASTER_URL, "method": "GET",
+            "http_status": 200, "content_type": "text/csv", "response_bytes": len(csv_raw),
+            "response_sha256": hashlib.sha256(csv_raw).hexdigest(), "request_count": 1,
+            "retry_count": 0, "redirect_followed": False,
+        }
+        manifest_sha = "a" * 64
+        cache_root = root / "crosscheck-cache"
+        bundle = mod._atomic_bundle(
+            nifty_raw=nifty_raw,
+            master_raw=csv_raw,
+            nifty_meta=nifty_meta,
+            master_meta=master_meta,
+            nifty_row=nifty_row,
+            master_row=mapping_row,
+            comparison=comparison,
+            manifest_sha256=manifest_sha,
+            dhan_sample_row=sample_row,
+            dhan_sample_response_sha256=sample_meta["response_sha256"],
+            dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"],
+            cache_root=cache_root,
+            fetched_at_utc="2026-10-10T00:00:00Z",
+        )
+        target = pathlib.Path(bundle["path"])
+        (target / "manifest.json").write_text("{bad", encoding="utf-8")
+        try:
+            mod._atomic_bundle(
+                nifty_raw=nifty_raw,
+                master_raw=csv_raw,
+                nifty_meta=nifty_meta,
+                master_meta=master_meta,
+                nifty_row=nifty_row,
+                master_row=mapping_row,
+                comparison=comparison,
+                manifest_sha256=manifest_sha,
+                dhan_sample_row=sample_row,
+                dhan_sample_response_sha256=sample_meta["response_sha256"],
+                dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"],
+                cache_root=cache_root,
+                fetched_at_utc="2026-10-10T00:01:00Z",
+            )
+        except ValueError as exc:
+            assert str(exc) == "crosscheck_existing_manifest_invalid"
+        else:
+            raise AssertionError("corrupt cache manifest must not be reused")
+
+
 TESTS = [v for k, v in globals().copy().items() if k.startswith("test_") and callable(v)]
 for test in TESTS:
     test()
