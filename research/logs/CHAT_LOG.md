@@ -914,3 +914,12 @@ Resume actions:
 - Next: rerun adapter and runner tests; resolve any further regressions before submitting the exact snapshot to the tester.
 
 **Developer → Tester:** When the full mocked suite passes, inspect both prior failure corrections and the compact-segment mapping distinction before code approval. No request authorization yet.
+
+
+## 2026-10-10 — Official-reference cross-check offline test iteration 3
+
+- The hosted offline workflow [38056116315](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056116315) reached a static request-header test and failed because Request.header_items() returns (key, value) tuples, while the test called lower() on the tuple.
+- Corrected test logic at commit c2e07b62f93e72e2987fdc72e4f31d5f26e0a922 / blob 0436144c26edd4de19364529a96a6b12cdc38f31.
+- The failure was test-only, offline; no requests to NiftyIndices or the Dhan compact master were made. Next is a new hosted run and independent code review after the complete test suite passes.
+
+**Developer → Tester:** Re-review the exact adapter/test/runner snapshot only after the current hosted mocked suite passes; verify no credentials are sent to either source and compact CSV segments are kept distinct from API enums.
