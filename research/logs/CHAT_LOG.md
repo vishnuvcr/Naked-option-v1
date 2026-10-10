@@ -1152,3 +1152,32 @@ Begin PPR-4 by inventorying files and existing data caches in the repository, th
 **Developer → Tester:** Review the PPR-4 source/availability manifest and sealed-holdout metadata-only proof before any bulk dataset acquisition.
 **Tester → Developer:** Permit only read-only feasibility work now; keep data-panel acceptance, model fitting, scoring and holdout access blocked until PPR-4 passes a new exact-snapshot gate.
 
+
+
+## 2026-10-10 — Resume: PPR-4 tester review and metadata-only blocker
+
+### Developer work performed
+- Built a 32-entry read-only source availability register across official NSE/BSE, derivatives/options, India VIX, FII/FPI/DII, FX/rates, gold/crude, global volatility/equity, GDELT/news, social archive, corporate actions, contract master, license and local-cache topics. Each entry preserves source coverage claims separately from verified data, source-specific licensing/timing limitations, a permitted next action, `bulk_acquisition_authorized=false`, and `model_panel_accepted=false`.
+- Inventoried five Git tree entries under data/cache/reports. The only raw market response there is the existing 121-byte, one-row Dhan sample for 2024-01-02; associated approval status is SPENT. The raw response values were not opened or used.
+- Searched public source pages/dataset-card/README metadata only. Potential free source leads were recorded; source availability, licenses, vintage and PIT usability remain unverified; no source data or pretrained model weights were fetched. Paid sources were not pursued.
+- Enumerated all 23 current GitHub branches and searched their tree paths for split/holdout/origin-index/row-hash conventions. Reviewed relevant Phase 7 specs/tester reports and workflow artifact names/metadata; workflow artifact contents were not downloaded.
+- Found no machine-readable sealed-holdout boundary. A row-ID hash, date cutoff, dataset ID or split ID could not be established from existing metadata. Existing prose says “holdout unopened” but is not enough to prove which rows are withheld. No data row, value or label from a holdout was opened.
+
+### Errors and fixes recorded
+- The first PPR-4 register export had column-shift defects caused by inconsistent row field counts. A parser audit detected it; all 32 rows were reconstructed and the validator now requires all columns, IDs and no-acceptance flags.
+- A workflow-creation call omitted the branch parameter, briefly adding the PPR4 workflow to `main`. It was deleted from `main` (cleanup commit `fea6c177f4a43b802913f6ed05784b6e970de34e`) and recreated on `phase-07-developer` (commit `cb5d4ce3e97f087e6058c067be8a6505c7eebaf9`). The issue is preserved in the error log.
+- Run `38075262090` first failed because the PPR4 manifest omitted the required `frozen_files` section; the manifest and validator setup were corrected.
+- Run `38075537411` failed after a manifest update changed the frozen `audit_status` string. The value was corrected to `READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED` while keeping `gate_decision=BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`; run `38075566251` passed on exact commit `c4860ea31ae4a6a472eb4ddc32cab03a0f48d71d`. Failures remain logged as failures, not relabeled as passes.
+
+### Tester result
+- PPR-4 tester review 1: **REQUEST CHANGES / PPR-4 EXIT BLOCKED**, report [PHASE7_PPR4_TESTER_REVIEW1.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md), blob `1cf137d83c6b285cff093163b886484d1d9c55cb`, commit `749d8f02b2764edf5428df5f9b1e3d301de3d862`.
+- Exact-snapshot offline inventory check [run 38075342074](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075342074) passed on `ee5890e0cbe96b3ba934e16f1d018dd0699f6d52`. Follow-up manifest update then triggered a failed status-literal check, which was repaired and rerun. Latest recorded pass before the current manifest receipt update is [run 38075566251](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075566251).
+- PPR-4 overall status remains `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`. Passing offline inventory validation does not mean the source data is usable or authorize a model.
+- No new dataset has been accepted; no bulk download, feature/label generation, fit/tune/score, holdout access or option P&L occurred. The spent Dhan approval remains spent.
+
+### Immediate permitted work
+Continue with read-only GitHub code/content search for an existing split boundary under non-obvious names. The prior Phase 7 spec describes expanding samples, 20-session test blocks and purge logic, and the tester report mentions a row-level panel SHA, but these do not by themselves identify a sealed final-holdout row/date boundary. If no genuine boundary artifact exists, draft a separate pre-outcome split/holdout governance proposal and obtain tester review before implementing it.
+
+**Developer → Tester:** Search for any exact existing split boundary in code/config/protected metadata and document positive or negative evidence.
+**Tester → Developer:** Keep every source download, panel acceptance, fit/tune/score and holdout access blocked until a genuine boundary is proven or a newly proposed split is approved before outcomes are observed.
+
