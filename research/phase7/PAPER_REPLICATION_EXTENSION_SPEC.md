@@ -126,3 +126,62 @@ This proposal does **not** authorize:
 **Developer → Tester:** Review the paper-method list, label/horizon definitions, per-paper feature/target mapping, familywise inference and the current source constraints. Return an exact-snapshot PASS/REQUEST CHANGES. If passing, authorize only the next stated gate—not an unrestricted empirical run.
 
 **Tester → Developer:** Keep all new method fitting and full-history source acquisition fail-closed until the exact protocol and relevant source/code gates pass.
+
+
+## 8. Tester-requested amendments — v1.1 (2026-10-10)
+
+This section responds to the PPR-1 tester report. It narrows the future confirmatory scope; it does not authorize data pulls or model fitting.
+
+### 8.1 Distinct inferential families and exact statistic
+
+Do not combine regression and classification scores into one maximum statistic.
+
+- **Directional primary endpoint:** Brier score loss against the causal training-rate baseline on identical evaluation timestamps. Define per-row improvement as baseline squared probability error minus model squared probability error. Positive values favor the candidate. The familywise statistic is the maximum studentized mean improvement across all frozen directional candidate × feature-pipeline × horizon rows. Studentization uses the bootstrap standard error for that row.
+- **Directional secondary metrics:** log loss, ROC AUC, PR AUC, balanced accuracy, sensitivity, specificity and calibration are descriptive/supporting; they do not determine the confirmatory winner. Log loss clips probabilities only at a frozen epsilon of 1e-6. AUC/PR AUC are NOT_ESTIMABLE when the evaluation labels lack either class; record n and class prevalence.
+- **Price-regression family:** use paired per-row absolute-error improvement against last-close persistence for close forecasts (and a separately specified last-observation baseline for open forecasts). Apply a separate max-studentized-mean-improvement family. Do not combine this family's statistic with directional metrics.
+- **Resampling:** use a moving-block bootstrap over the chronological evaluation sequence, preserving paired model/baseline rows. Freeze block length at max(5, forecast horizon) sessions; use 10,000 replicates and a recorded deterministic seed. For each replicate, recompute the maximum statistic over every eligible frozen row. Familywise adjusted p-value is (1 + count(bootstrap max statistic >= observed statistic))/(1 + B). Report 95% bootstrap confidence intervals and raw paired effects. If a row has insufficient valid samples or an undefined statistic, retain it as NOT_ESTIMABLE with a reason; do not drop it silently or treat it as zero.
+- **Scope control:** only the exact configuration manifest frozen at PPR-3 belongs to confirmatory inference. Later additions are exploratory and cannot replace the frozen family.
+
+### 8.2 Target and endpoint alignment contract
+
+Every experiment manifest must include: paper_id, method_id, task_type, decision_timestamp, timezone, decision_price_field, target_formula, forecast_endpoint, horizon_unit, neutral_tolerance, forecast_to_direction_rule, and eligible-row count.
+
+- Common direction task: at decision close C_t, forecast the sign of C_(t+h)/C_t - 1 for h in {1,2,3,5,10} exchange sessions. The decision occurs only after official close data for session t is published and marked available. A forecast made before that publication must use the prior session close and cannot use t's close or indicators containing it.
+- A price forecast is scored only against the exact endpoint it claims to forecast. A next-session close forecast maps to direction using predicted C_(t+1) versus the same C_t; a 30-session forecast is scored against C_(t+30), not a next-session label. Open-price forecasts are regression tasks and are not automatically treated as close-direction predictions.
+- For all tasks, training row i is eligible at decision time t only if its label endpoint timestamp is strictly earlier than t. The forecast endpoint must equal the label endpoint. Ambiguous “30 days” versus “30 trading sessions” remains blocked until the source's wording is verified and the choice recorded.
+- Flat handling: primary direction is UP for return > 0, DOWN for return < 0, and FLAT only when absolute return <= 1e-8. If a paper requires binary labels, map FLAT using a separately declared paper-native rule; do not silently merge classes.
+
+### 8.3 Point-in-time availability rules
+
+All timestamps are stored in Asia/Kolkata and normalized to UTC for comparisons; exchange-session identity follows the official NSE calendar.
+
+- Daily OHLCV and close-derived indicators are usable for a decision only after the official close value for that session is available. If the forecast decision is pre-close, use the last completed session.
+- FII/DII and exchange report features use publication/availability timestamp, not just event date. A daily record with no defensible publication timestamp is excluded from PIT predictors for that day and may be used only under a predeclared lag rule.
+- VIX, option-chain/OI/PCR/Greeks and other market snapshots must have capture timestamps no later than the decision cutoff; expiry/contract mapping must be point-in-time. No backfilled end-of-day snapshot is allowed for an earlier decision.
+- News and social text require original publication timestamp and, where available, ingestion timestamp. Both must precede cutoff; later edits/corrections are not retroactively available. Text with date-only timestamps is excluded from same-day PIT use unless a fixed lag is preregistered.
+- Corrected/revised vendor records must preserve vintage metadata. If historical vintage cannot be reconstructed, mark the feature pipeline as adapted/limited and do not claim exact PIT replication.
+- Regression tests must assert: no same-day close feature before close publication; no training label endpoint equal to or after decision time; no news/publication timestamp at or after cutoff; no future source revision; and exact horizon endpoint alignment.
+
+### 8.4 Exact replication versus leakage-safe adaptation
+
+Create separate manifest rows for each paper-native configuration and its leakage-safe adaptation. Record the paper's reported split, target, feature selection, horizon and metric separately from the project adaptation. A random split or full-sample feature selection may be reproduced only as a clearly labelled descriptive fidelity analysis if it does not contaminate the confirmatory evaluation; it cannot be used as evidence of deployable predictive performance. If the source does not sufficiently specify a method, label BLOCKED_METHOD and list the unresolved details instead of inventing hyperparameters.
+
+### 8.5 Bounds on the confirmatory search
+
+PPR-3 must freeze a machine-readable manifest before any fitting. Initial upper bound: 80 distinct estimator/architecture configurations, 5 common horizons, 4 feature-pipeline classes (OHLCV/causal technicals; external market; flows/options; timestamp-valid sentiment), and at most 3 predeclared seeds for stochastic neural methods. The actual manifest may be smaller; it may not exceed these bounds without a reviewed protocol amendment. At most 20 candidate configurations may receive hyperparameter search, each with at most 20 configurations per inner chronological search. All tuning remains inside training folds. No candidate may be added to the confirmatory family after any evaluation result has been inspected.
+
+### 8.6 Metric edge cases and baselines
+
+- Causal training-rate baseline: the expanding training-only class frequency, with Laplace smoothing alpha=1, recomputed at each decision point.
+- Previous-direction baseline: sign of the most recent completed close-to-close return, with probability mapping frozen in the runner; it is not the same as a 50/50 random predictor.
+- 50/50 is a reference only, not the primary baseline. Report class prevalence, n, and confusion matrix counts.
+- AUC metrics require both classes. Percentage errors must define zero/near-zero denominator behavior before execution; MAPE is not used for return targets. Undefined metrics are stored as null with a reason code, never coerced to zero.
+
+### 8.7 Source evidence requirement
+
+Before PPR-1 can pass, add a page/section evidence locator for every paper-method, date-window, split, target, horizon and metric claim. Each row must distinguish (a) author-implemented method, (b) method only discussed/background, and (c) ambiguous/unverified. The existing crosswalk has not yet met this evidence-locator requirement. This correction is a precondition to the next tester submission.
+
+**Status after amendment:** protocol corrections drafted; source-page evidence and exact target/source manifest remain incomplete. Tester re-review required. PPR-2, data pulls, fitting and scoring remain unauthorized.
+
+**Developer → Tester:** Review this amended protocol and the source-evidence additions in the crosswalk against the exact new blobs.  
+**Tester → Developer:** Reject any snapshot that lacks page/section evidence or a machine-checkable manifest; no empirical authorization from this amendment alone.
