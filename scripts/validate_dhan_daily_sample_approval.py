@@ -215,23 +215,48 @@ def validate_gate_metadata(
         raise ValueError("approval_manifest_blob_mismatch")
 
 
-def review_check() -> None:
-    manifest = read_json(MANIFEST_PATH, "request_manifest_unreadable")
-    validate_manifest_structure(manifest)
-    _validate_protected_files(manifest)
-    approval = read_json(APPROVAL_PATH, "approval_gate_unreadable")
+def validate_pending_review_gate(
+    approval: dict[str, Any],
+    *,
+    manifest_sha256: str,
+    manifest_git_blob: str,
+    authorization_sha256: str,
+) -> None:
+    """Require the PENDING gate to pin this exact manifest before review."""
     if approval.get("status") != "PENDING_REVIEW":
         raise ValueError("approval_gate_not_pending")
     if approval.get("decision") != "AWAITING_INDEPENDENT_MANIFEST_REVIEW":
         raise ValueError("approval_gate_decision_invalid")
     if approval.get("scope_id") != SCOPE_ID:
         raise ValueError("approval_gate_scope_mismatch")
+    validate_gate_metadata(
+        approval, manifest_git_blob=manifest_git_blob, manifest_review_commit=None
+    )
+    if approval.get("request_manifest_sha256") != manifest_sha256:
+        raise ValueError("approval_manifest_sha256_mismatch")
+    if approval.get("approved_authorization_sha256") != authorization_sha256:
+        raise ValueError("approved_authorization_digest_mismatch")
+
+
+def review_check() -> None:
+    manifest = read_json(MANIFEST_PATH, "request_manifest_unreadable")
+    validate_manifest_structure(manifest)
+    _validate_protected_files(manifest)
+    approval = read_json(APPROVAL_PATH, "approval_gate_unreadable")
     manifest_bytes = MANIFEST_PATH.read_bytes()
+    manifest_sha = sha256_bytes(manifest_bytes)
+    manifest_blob = git("rev-parse", "HEAD:" + str(MANIFEST_PATH.relative_to(ROOT)))
+    validate_pending_review_gate(
+        approval,
+        manifest_sha256=manifest_sha,
+        manifest_git_blob=manifest_blob,
+        authorization_sha256=manifest["authorization_sha256"],
+    )
     print(json.dumps({
         "status": "PASS_MANIFEST_REVIEW_PREFLIGHT",
         "scope_id": SCOPE_ID,
-        "request_manifest_sha256": sha256_bytes(manifest_bytes),
-        "request_manifest_git_blob": git("rev-parse", "HEAD:" + str(MANIFEST_PATH.relative_to(ROOT))),
+        "request_manifest_sha256": manifest_sha,
+        "request_manifest_git_blob": manifest_blob,
         "authorization_sha256": manifest["authorization_sha256"],
         "reviewed_developer_commit": manifest["authorization"]["reviewed_developer_commit"],
         "live_request_authorized": False,
