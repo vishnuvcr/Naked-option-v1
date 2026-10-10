@@ -42,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: phase-07-developer
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -68,27 +69,37 @@ jobs:
           set -euo pipefail
           if [[ -f research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json ]]; then
             python - <<'PY'
-          import hashlib, json, pathlib, subprocess
+          import hashlib, json, pathlib, subprocess, sys
           path = pathlib.Path("research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json")
           manifest = json.loads(path.read_text(encoding="utf-8"))
-          auth = manifest["authorization"]
+          auth = manifest.get("authorization")
+          if not isinstance(auth, dict):
+              raise SystemExit("manifest_authorization_missing")
+          protected = auth.get("protected_files")
+          if not isinstance(protected, dict) or not protected:
+              raise SystemExit("manifest_protected_files_missing")
           canonical = json.dumps(auth, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
           actual = {}
-          for rel in sorted(auth.get("protected_files", {})):
+          for rel in sorted(protected):
               p = pathlib.Path(rel)
               actual[rel] = {
                   "git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + rel], text=True).strip(),
                   "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
               }
-          print("OFFICIAL_CROSSCHECK_FINGERPRINTS=" + json.dumps({
+          result = {
               "head_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
               "manifest_git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + str(path)], text=True).strip(),
               "manifest_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
               "authorization_sha256": hashlib.sha256(canonical).hexdigest(),
               "protected_files": actual,
-              "protected_files_match_manifest": all(actual[k] == v for k, v in auth.get("protected_files", {}).items()),
+              "protected_files_match_manifest": all(actual[k] == v for k, v in protected.items()),
               "authorization_digest_matches_manifest": hashlib.sha256(canonical).hexdigest() == manifest.get("authorization_sha256"),
-          }, sort_keys=True))
+          }
+          print("OFFICIAL_CROSSCHECK_FINGERPRINTS=" + json.dumps(result, sort_keys=True))
+          if not result["protected_files_match_manifest"]:
+              raise SystemExit("protected_file_hash_mismatch")
+          if not result["authorization_digest_matches_manifest"]:
+              raise SystemExit("authorization_digest_mismatch")
           PY
           else
             echo "No new cross-check manifest exists yet; no live source calls are performed by this workflow."
