@@ -941,3 +941,8 @@ The current workflow now binds the tester report to the exact current snapshot i
 ## 2026-10-10 — Gate A F&O archive sampling gap repaired
 
 A code audit showed the v2 workflow sampled cash-market equity archives but never executed the v1 bounded F&O archive sampler. This omitted the exact legacy 2024-07-05 / UDiFF 2024-07-08 options-data transition from the v2 artifact. Workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` now runs both samplers and uploads both source-feasibility JSON reports. The exact review request records this gap and correction. No live source was fetched; independent tester approval of the current workflow is required before the report is generated.
+
+
+## 2026-10-10 — Hosted check scope verified
+
+The latest repository [Research Protocol Check](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38020253978) succeeded, but its jobs validate the repository contract and literature registry. It does not execute the v1/v2 Gate A source-schema tests, so current sampler regression evidence remains pending. The bounded source workflow has not been triggered because the exact current-snapshot tester manifest is absent.
