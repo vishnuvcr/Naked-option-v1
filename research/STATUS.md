@@ -1,5 +1,11 @@
 # Research Status
 
+## Cross-branch checkpoint — 2026-10-10
+
+The latest Phase 7 developer ledger adds a daily cross-market extension (12 methods × five horizons; no candidate promoted) and a guarded one-row Dhan sample that is not accepted for modeling pending official cross-check and instrument mapping. The older accepted Run #994 result also had no family-level significant candidate. Do not treat a green workflow/code gate as empirical model validation.
+
+Paper-method coverage is **not exhaustive**: the registry contains 112 method candidates and 36 literature records, while 15 PDFs are mounted in the conversation. See [first-pass uploaded paper method audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md); it marks paper-level replication as unverified unless an exact artifact and tester report exist.
+
 **Current checkpoint — 2026-10-10 (verified against GitHub Actions and branch heads)**
 
 | Phase | Current status | Evidence / gate |
