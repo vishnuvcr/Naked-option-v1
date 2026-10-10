@@ -1,43 +1,47 @@
-# Developer Handoff — Dhan Historical Pipeline Offline Code Gate (Latest Exact Review Snapshot)
+# Developer Handoff — Dhan Historical Pipeline Offline Code Gate (Corrected Snapshot)
 
-**State: SUBMITTED FOR INDEPENDENT CODE REVIEW. Live acquisition is NOT authorized.**  
-**Exact code/test snapshot commit:** 79e7ae5b2a02841d83e4848b22be67980aab6096  
-**Hosted offline regression:** [Run 38049609609](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609609), success; **36 offline/mock tests passed**.  
-**Hosted protocol check:** [Run 38049609776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609776), success.  
-This revision supersedes all prior code handoffs. Its source/test blobs were pinned to the exact snapshot above.
+**State: RESUBMITTED FOR INDEPENDENT REVIEW. Live acquisition is NOT authorized.**  
+**Exact snapshot commit:** 85ebfef015f2188c983d3977ad6fb3b4e11dc29e  
+**Hosted offline regression:** [Run 38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413), success; **41 offline/mock tests passed**.  
+**Hosted protocol check:** [Run 38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603), success.
 
 ## Exact files and Git blob SHA
 
 | File | Git blob SHA |
 |---|---|
-| scripts/dhan_history_pipeline.py | 6533b11456efbaa99f470d5ca20887862c2ca6b3 |
-| scripts/test_dhan_history_pipeline.py | e156c0915320a9ed075e8ba6d55857a56bca9f61 |
-| .github/workflows/phase-07-dhan-history-pipeline-tests.yml | dc0de4688bfac5ee932c32ccd25fdd586effd3c2 |
-| research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md | 9145f88ec99169a900d9ff2c7b77c0592781f5ae |
-| Planning gate report on tester branch | d49298d7070cba557b1ccd31df39cdaad334a571 |
+| `scripts/dhan_history_pipeline.py` | `af560a7e1208d67fc7eb6275639ada701907c752` |
+| `scripts/test_dhan_history_pipeline.py` | `cf31bfa5538d449ee57abece6a68e959e22c7892` |
+| `.github/workflows/phase-07-dhan-history-pipeline-tests.yml` | `dc0de4688bfac5ee932c32ccd25fdd586effd3c2` |
+| `research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md` | `9145f88ec99169a900d9ff2c7b77c0592781f5ae` |
+| Prior independent planning gate (tester branch) | `d49298d7070cba557b1ccd31df39cdaad334a571` |
+| Independent code REQUEST CHANGES report (tester branch, amended) | `e9c9d3f59f7e267ed317b250df529c03c5f9598d` |
 
-## Implementation controls
+## Fixes made after independent review
 
-- Restricts POST requests to the three documented HTTPS api.dhan.co history endpoints: daily candles, intraday candles and rolling expired options. No profile/account/order endpoint is exposed.
-- The request helper only accepts the literal boolean live_authorized=True; it defaults to False. Import and CLI are offline-only. The current workflow has read-only contents permission, no Dhan secret environment, and runs only offline/mocked tests plus an offline status CLI.
-- Requires ASCII, nonempty, CR/LF-free token values if called; exact endpoint request-field allowlists; positive scalar numeric security IDs; nonempty exchange/instrument strings; permitted intervals/options; boolean OI; nonnegative expiry code; and required rolling-option fields.
-- Enforces conservative inclusive calendar-date caps: daily <=365 calendar dates, intraday <=90 and rolling options <=30. Timezone-offset-bearing intraday input is rejected rather than silently reinterpreted.
-- Uses a redirect-rejecting opener, 20-second timeout, 2 MiB response cap with cap+1 read, 8 MiB total budget, one-request default budget, minimum 3-second pacing, HTTP/content-type/Content-Length checks, object-only JSON and redacted exception messages.
-- Validates positive integral strictly increasing timestamps; alignment of every list-valued response field; finite numeric values; nonnegative prices/volume/OI/IV/strike/spot; and consistent OHLC rows.
-- Rolling-option validation checks aligned timestamp/OHLC/volume and any requested IV/OI/strike/spot arrays. Rolling moneyness is not treated as a complete contract-level historical chain or historical bid/ask.
-- The request helper returns parsed JSON, redacted metadata and the original HTTP response bytes. Before cache creation, code binds byte count and SHA-256 to those original bytes, recomputes source-specific validation and compares the full validation report, validates exact request parameters, and verifies all timestamps fall inside the requested Asia/Kolkata date/time window. Cache bundles are content-addressed and atomically written only after every check passes.
-- Cache metadata keys are screened for token/authorization/cookie-like names and unknown request keys. No cache write happens after a hash, schema, date-range or validation-report mismatch.
+1. **Exclusive end dates.** Dhan explicitly documents `toDate` as non-inclusive on the daily-candle and rolling-expired-option endpoints. Their date-only caps now calculate the actual exclusive range duration, and cache validation enforces `fromDate <= returned local date < toDate`. Intraday behavior remains separately validated with local-naive Asia/Kolkata timestamps because its documentation does not explicitly state the end-boundary rule.
+2. **Hard request/byte ceiling.** With this snapshot's `MAX_REQUESTS=1` and `MAX_TOTAL_BYTES=8 MiB`, the Budget object and request path reject caller-provided ceilings above those constants and validate budget state before opening a network connection. Future bulk acquisition requires a separately reviewed code/workflow scope.
+3. **Optional numeric arrays.** Present known numeric arrays, including daily `open_interest`, are checked for type, finite values and non-negativity, not merely length.
+4. **Rolling-option optional arrays.** Empty arrays for unrequested optional fields such as IV/OI/strike/spot are allowed, matching Dhan's published response example; those fields are required to align when explicitly requested, and populated optional arrays must align and pass numeric checks.
+5. **Strike scope.** This initial pipeline accepts only `strike="ATM"` for rolling-option acquisition. Offset grids are not enabled until their documented expiry/instrument-specific bounds receive a separate implementation review.
 
-## Regression coverage and latest result
+## Test evidence
 
-36 offline/mock tests cover import/CLI offline behavior, literal live-authorization gating, host/path/body allowlists, malformed/missing token checks and redaction, scalar instrument IDs, redirects/error-body non-reading, error redaction, content-type/Content-Length/byte caps, request/pacing budgets, OHLC arithmetic, timestamp validity/order, all-array alignment, rolling-option schemas, date/timezone/OI/strike constraints, exact raw response bytes, cache hash/byte-count binding, full validation-report recomputation, in-window timestamps, cache idempotence/atomic behavior, and credential-key rejection.
+The 41 offline/mock tests include the prior URL allowlist, literal authorization guard, token validation/redaction, redirect rejection, HTTP/body handling, byte caps, request budgets, JSON checks, OHLC math and array alignment, plus new cases for exact exclusive-end 30-/365-day ranges, rejecting a timestamp on the excluded `toDate`, preventing caller-widened request/byte budgets, malformed/non-finite/negative optional OI, the documented empty optional rolling arrays, required optional-field alignment, and non-ATM strike rejection.
 
-Hosted run 38049609609 passed all 36 tests. Hosted protocol run 38049609776 passed. Previous test failures and corrections are fully recorded in research/ERROR_LOG.md; all runs were offline and no failed run invoked Dhan.
+All failing earlier iterations are retained in `research/ERROR_LOG.md`. No earlier failed or passed offline run contacted Dhan, used a Dhan secret, populated a market-data cache, fitted a model, inspected the holdout or changed scientific results.
 
-## Explicit non-claims
+## Remaining source/documentation limitation
 
-This code gate has not made an actual Dhan API request. Token entitlement, actual response schemas, source coverage, quotas, date continuity and source quality remain unverified. No data cache was populated, no feature matrix/model rerun occurred, existing results are unchanged, and the untouched final holdout stays sealed. This code gate alone does not authorize a live request.
+Dhan's expired-options documentation states up to 30 days per request and shows `toDate` non-inclusive, but its request example uses 2021-08-01 to 2021-09-01, a 31-calendar-day difference. The implementation uses the conservative stated 30-day duration. The exact allowed edge will be recorded as unverified until a separately authorized bounded source feasibility test; no wider window is permitted by this code snapshot.
 
-**Developer → Tester:** Independently inspect these exact blobs and hosted run. Review endpoint and request-body allowlists, credential boundary, literal authorization guard, redirects, timeout/byte/pacing/date limits, raw response-byte/hash contract, Asia/Kolkata time semantics, numerical and array validation, source-aware cache provenance/atomicity, secret redaction, tests and workflow permissions. Return PASS or REQUEST CHANGES. Do not authorize a live API request at this gate.
+## Explicit non-claims and authorization boundary
 
-**Tester → Developer:** If the code passes, issue only a restricted authorization to prepare a fresh one-use manifest for a single tiny daily NIFTY index-history sample. The manifest must be independently reviewed before any API call. Bulk history, feature fitting and model reruns remain prohibited.
+- No actual Dhan API request has been made by this pipeline.
+- Token entitlement, real response schema, data coverage, historical continuity, quotas and price/option data quality remain unverified.
+- No data cache exists from this pipeline, no feature matrix/model rerun occurred, previous prediction results remain unchanged, and the untouched final holdout remains sealed.
+- The workflow remains offline-only with contents-read permission, no Dhan secret environment and no live-request step.
+- This code gate does **not** authorize data acquisition. After an independent tester PASS, a separate exact-snapshot single-use manifest and guarded manual workflow must be reviewed for one tiny daily NIFTY index-history request only.
+
+**Developer → Tester:** Independently re-review this exact snapshot and latest hosted run. Confirm findings 1–5 are resolved; review date/array boundary arithmetic, request-budget cap bypasses, cache/source-window consistency, tests and workflow permissions. Return PASS or REQUEST CHANGES. Do not authorize a live request within this report.
+
+**Tester → Developer:** If the code passes, authorize only preparation of a fresh one-use manifest. Independently verify its exact commit and protected blobs before any API call; no bulk download, feature fitting or model rerun is authorized.
