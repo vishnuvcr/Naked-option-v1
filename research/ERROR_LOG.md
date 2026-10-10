@@ -535,3 +535,13 @@
 ## 2026-10-10 — Source Discovery 3 spec-review link check (non-evidence)
 
 During proposal validation, a web-reader attempt to open the two fixed CDSL historical XLS URLs returned unsupported-content-type/internal-error responses. No table values were parsed or stored and the attempts do not establish schema or history coverage. Treat as non-accepted activity; disclose it in the step report. Do not cite it as Gate A evidence. Subsequent source requests still require implementation/test code to pass an independent code gate and a new one-run manifest. No full history, features/labels or fitting authorized.
+
+
+## 2026-10-10 — Discovery 3 offline fixture failures during Range hardening (rectified)
+
+- `38028616625` and `38028628011`: failed after the HTTP wrapper was tightened to reject incorrect range shapes; one redirect fixture still used a 4-byte Range and assumed an HTTP status would be returned.
+- `38028642847`: the wrong-host redirect fixture still sent the old `bytes=0-3` header, so the client correctly rejected the request before redirect testing.
+- `38028701466`: a stale assertion still expected `Content-Range: bytes 0-3/10` after the fixture was upgraded to the exact 8 KiB sample.
+- Correction: every live-path Range fixture now uses the registered `bytes=0-8191` range; expected Content-Range/body length are consistent; bad range values are separately tested for pre-network rejection.
+- Latest exact-snapshot run [38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968) passes **27/27 offline checks**. No source request was made in any of the failed test runs.
+- Snapshot now submitted for independent code/workflow review. One-run manifest absent; do not treat a code PASS as source-sampling authorization.
