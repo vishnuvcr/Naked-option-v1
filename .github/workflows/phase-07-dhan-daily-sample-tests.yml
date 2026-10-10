@@ -1,0 +1,42 @@
+name: Phase 7 Dhan Daily Sample Gate — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/dhan_history_pipeline.py"
+      - "scripts/test_dhan_history_pipeline.py"
+      - "scripts/run_dhan_daily_sample.py"
+      - "scripts/test_run_dhan_daily_sample.py"
+      - "scripts/validate_dhan_daily_sample_approval.py"
+      - "scripts/test_validate_dhan_daily_sample_approval.py"
+      - ".github/workflows/phase-07-dhan-daily-sample-tests.yml"
+      - ".github/workflows/phase-07-dhan-daily-sample-live.yml"
+      - "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json"
+      - "research/gates/DHAN_DAILY_SAMPLE_APPROVAL.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-dhan-daily-sample-offline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-tests-only-no-secrets-no-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run all Dhan history and one-use gate regressions offline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_dhan_history_pipeline.py
+          python scripts/test_run_dhan_daily_sample.py
+          python scripts/test_validate_dhan_daily_sample_approval.py
+          python scripts/dhan_history_pipeline.py
