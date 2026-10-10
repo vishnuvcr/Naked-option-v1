@@ -419,6 +419,29 @@ def test_candle_schema_rejects_nan() -> None:
     assert result["status"] == "REJECTED_NONFINITE_CANDLE"
 
 
+def test_redirect_probe_workflow_spends_manifest_before_single_probe() -> None:
+    workflow = (ROOT / ".github/workflows/phase-07-dhan-redirect-probe-live.yml").read_text(encoding="utf-8")
+    check = workflow.index("python scripts/validate_dhan_redirect_probe_approval.py check")
+    spend = workflow.index("python scripts/validate_dhan_redirect_probe_approval.py spend")
+    source = workflow.index("python scripts/dhan_market_data_recovery.py")
+    assert check < spend < source
+    assert "default: false" in workflow
+    secret_expr = "DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}"
+    assert workflow.count(secret_expr) == 1
+    assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED: \\"1\\"" in workflow
+    assert "Location path" in workflow or "never follows the redirect" in workflow
+
+
+def test_redirect_manifest_validator_enforces_single_request_scope() -> None:
+    validator = (ROOT / "scripts/validate_dhan_redirect_probe_approval.py").read_text(encoding="utf-8")
+    assert 'manifest.get("decision") != "APPROVED_ONE_RUN"' in validator
+    assert 'manifest.get("status") != "READY"' in validator
+    assert "requests_max") != 1" in validator
+    assert "response_bytes_max") != 1024" in validator
+    assert "reviewed_commit_tree_blob_mismatch" in validator
+    assert 'manifest["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"' in validator
+
+
 def test_live_workflow_checks_and_spends_manifest_before_source_step() -> None:
     workflow = (ROOT / ".github/workflows/phase-07-dhan-market-data-live.yml").read_text(encoding="utf-8")
     check = workflow.index("python scripts/validate_dhan_sample_approval.py check")
@@ -486,6 +509,8 @@ def main() -> None:
         test_candle_schema_rejects_duplicate_or_unsorted_timestamps,
         test_candle_schema_rejects_invalid_ohlc,
         test_candle_schema_rejects_nan,
+        test_redirect_probe_workflow_spends_manifest_before_single_probe,
+        test_redirect_manifest_validator_enforces_single_request_scope,
         test_live_workflow_checks_and_spends_manifest_before_source_step,
         test_manifest_validator_protects_exact_scope_and_spends_first,
         test_workflow_or_test_suite_does_not_invoke_live_sample,
