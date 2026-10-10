@@ -805,3 +805,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Created `research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json` after pinning SHA-256 and Git blob IDs for the ten required files, reviewed commit, and tester report. The permitted scope is one request to record redirect scheme/hostname only, capped at 1 KiB; no redirect follow, candles/history, full-history access, or model fitting.
 - The dedicated workflow has no push trigger. Manifest creation did not make a source request; manual `workflow_dispatch` with `confirm_probe=true` is required, and the manifest must validate and be spent before token injection.
 - **Current state: READY manifest prepared, but runtime validation and live diagnostic have not run.** The available GitHub connector exposes inspection and rerun actions but no workflow-dispatch action. No request has been attempted and no market data has been downloaded. Do not infer validation from the manifest READY field alone.
+
+
+## 2026-10-10 — Hosted log diagnosis and exact manifest-pin verification
+
+- Retrieved job logs for failed guarded run [38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209). All 38 offline regressions passed; manifest validation failed with `FileNotFoundError` because the run's older push-triggered checkout did not contain `research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json`.
+- The confirmation step was skipped on that push event. Manifest spend and the live source step were skipped too. This run made no Dhan request and is non-evidence.
+- Checked the current developer branch's ten protected file Git blob IDs against the READY manifest; all ten matched the manifest's pinned blob IDs. This is a repository-content cross-check, **not** a runtime execution of the validator and does not prove the SHA-256/ancestry checks pass on the hosted runner.
+- Current manifest remains one-use and scoped to one request recording redirect scheme/hostname only (maximum 1 KiB), with no redirect follow, candles/history, or model fitting. The workflow is manual-dispatch-only.
+- Current GitHub connector has no workflow-dispatch action. No unsafe trigger was added, no historical run was rerun, and no live request was made. Continue only through a supported explicit manual dispatch; do not infer source feasibility or alter prediction conclusions.
