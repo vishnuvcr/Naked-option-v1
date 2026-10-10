@@ -246,11 +246,13 @@ def test_candle_schema_rejects_nan() -> None:
 
 
 def test_workflow_or_test_suite_does_not_invoke_live_sample() -> None:
-    # Static check: offline test file contains no live call and adapter import is side-effect free.
-    text = pathlib.Path(__file__).read_text(encoding="utf-8")
-    assert "mod.live_sample()" not in text.replace("assert mod.live_sample() == {", "assert LIVE_SAMPLE == {")
-    assert "if __name__ == \"__main__\"" in (ROOT / "scripts/dhan_market_data_recovery.py").read_text(encoding="utf-8")
-
+    # The offline workflow invokes only this fixture suite and contains no live authorization.
+    adapter = (ROOT / "scripts/dhan_market_data_recovery.py").read_text(encoding="utf-8")
+    assert 'if __name__ == "__main__"' in adapter
+    workflow = (ROOT / ".github/workflows/phase-07-dhan-market-data-tests.yml").read_text(encoding="utf-8")
+    assert "test_dhan_market_data_recovery.py" in workflow
+    assert "live_sample" not in workflow
+    assert "DHAN_ACCESS_TOKEN" not in workflow
 
 def main() -> None:
     tests = [
