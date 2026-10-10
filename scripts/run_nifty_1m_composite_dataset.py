@@ -658,6 +658,10 @@ def get_cached_payload(request: dict[str, Any], key: bytes) -> tuple[bytes, dict
     if not enc_path.exists() or not meta_path.exists():
         return None
     try:
+        # A trusted cache object cannot exceed its response cap plus encryption
+        # framing; reject oversized cache files before reading them into memory.
+        if enc_path.stat().st_size > int(request["max_response_bytes"]) + 32 or meta_path.stat().st_size > 65536:
+            raise ValueError("cache_object_byte_cap_exceeded")
         meta = load_json(meta_path)
         if meta.get("request_scope_sha256") != request_scope_hash(request):
             raise ValueError("cache_request_scope_mismatch")
@@ -670,6 +674,20 @@ def get_cached_payload(request: dict[str, Any], key: bytes) -> tuple[bytes, dict
         return raw, meta
     except Exception:
         return None
+
+
+def remove_invalid_cache(request: dict[str, Any]) -> None:
+    """Remove a failed exact-key cache hit so the same authorized request can refill it."""
+    for path in safe_cache_paths(request["request_id"]):
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError:
+            # Leaving an unreadable object must not create an unbounded retry loop;
+            # later request accounting still limits any actual network access.
+            pass
+
 
 
 def store_cached_payload(request: dict[str, Any], raw: bytes, key: bytes, http_status: int,
@@ -1001,13 +1019,17 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
             _validate_request_payload(payload, request)
             return payload, "CACHE_HIT", meta["response_sha256"], int(meta.get("http_status", 200)), len(raw)
         except SourceRequestError as exc:
+            remove_invalid_cache(request)
             if exc.reason.startswith("dhan_api_auth_or_entitlement"):
                 auth_state["failed"] = True
-            budget["errors"].append(_error_record(request, exc.reason, exc.http_status))
-            return None, "CACHE_INVALID", "", exc.http_status or 0, 0
+                attempt_ledger["permanent_failure_families"][family] = "cached_auth_or_entitlement_error"
+                save_attempt_ledger(attempt_ledger)
+                budget["errors"].append(_error_record(request, "cached_auth_or_entitlement_error", exc.http_status))
+                return None, "CACHE_INVALID_AUTH_FAILURE", "", exc.http_status or 0, 0
+            budget["errors"].append(_error_record(request, "cached_payload_invalid_refetch:" + exc.reason, exc.http_status))
         except Exception as exc:
-            budget["errors"].append(_error_record(request, "cached_payload_invalid_" + type(exc).__name__, None))
-            return None, "CACHE_INVALID", "", 0, 0
+            remove_invalid_cache(request)
+            budget["errors"].append(_error_record(request, "cached_payload_invalid_refetch:" + type(exc).__name__, None))
     if auth_state.get("failed") or family in attempt_ledger.get("permanent_failure_families", {}):
         budget["errors"].append(_error_record(request, "Dhan source halted after authentication/entitlement failure", None))
         return None, "SKIPPED_AUTH_FAILURE", "", 0, 0
