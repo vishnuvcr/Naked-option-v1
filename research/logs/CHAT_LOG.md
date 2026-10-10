@@ -1000,3 +1000,13 @@ Current prediction checkpoint remains negative: Phase 7 Run #994 accepted with s
 Developer → Tester: Independently review the paper inventory for omissions and the exact method-to-registry crosswalk. Require full-text method extraction, frozen protocol, and source/test/workflow hash verification before any paper-specific empirical claim is accepted.
 
 Tester → Developer: Send corrections and missing-method findings from the isolated tester branch. Do not mark any listed PDF reproduced based on name-level or family-level similarity alone.
+
+
+## 2026-10-10 — User said “Resume”: uploaded-paper method extraction
+
+- Re-read the developer-branch research status, uploaded-paper audit and literature registry before continuing.
+- Extracted method details from the mounted PDFs, including multi-model regression, sentiment plus LSTM, BERT/news plus market features, multi-window next-day regression, MLP/ANN OHLC forecasting, backward-elimination LSTM, CCI option rules and option Greeks/IV-based signal models.
+- Confirmed the distinction between methods mentioned in a paper's related-work section and methods actually evaluated by that paper.
+- Updated `research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md`, `research/STATUS.md` and `README.md` on `phase-07-developer`.
+- No new empirical run was authorized or launched; no new model or strategy was promoted. The exact-snapshot Phase 7 gate and independent tester review remain mandatory.
+- Tester handoff: independently check the method extraction and paper-to-registry crosswalk on the isolated tester branch; flag omitted methods, incorrect target/horizon mappings, and unsupported replication claims.
