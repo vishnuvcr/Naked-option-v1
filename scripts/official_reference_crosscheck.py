@@ -36,7 +36,6 @@ EXPECTED_DHAN_ROW = {
 EXPECTED_MAPPING = {
     "security_id": "13",
     "exchange": "NSE",
-    "segment": "IDX_I",
     "instrument_name": "INDEX",
     "symbol": "NIFTY",
 }
@@ -121,6 +120,12 @@ def request_once(
     if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 20:
         raise ValueError("source_timeout_invalid")
 
+    forbidden_headers = {
+        "authorization", "access-token", "cookie", "set-cookie",
+        "dhanclientid", "client-id", "client_id",
+    }
+    if any(str(key).strip().lower() in forbidden_headers for key in headers):
+        raise ValueError("source_credentials_forbidden")
     req = urllib.request.Request(url=url, data=body, headers=headers, method=method)
     opener = opener_factory()
     try:
@@ -281,39 +286,49 @@ def parse_dhan_instrument_mapping(
     *,
     expected: dict[str, str] = EXPECTED_MAPPING,
 ) -> dict[str, str]:
-    """Validate the official public CSV and require one consistent index mapping row."""
+    """Validate Dhan's compact-master schema without confusing its codes with API enums."""
     validation, rows = validate_instrument_csv(raw, max_bytes=MAX_CSV_BYTES)
-    matches = [
-        row for row in rows
-        if row.get("SEM_SMST_SECURITY_ID") == expected["security_id"]
-        and row.get("SEM_SEGMENT") == expected["segment"]
-    ]
+    matches = [row for row in rows if row.get("SEM_SMST_SECURITY_ID") == expected["security_id"]]
     if len(matches) != 1:
         raise ValueError("dhan_mapping_row_count_not_one")
     row = matches[0]
     exchange = (row.get("SEM_EXM_EXCH_ID") or "").strip().upper()
-    segment = (row.get("SEM_SEGMENT") or "").strip().upper()
+    compact_segment = (row.get("SEM_SEGMENT") or "").strip().upper()
     instrument = (row.get("SEM_INSTRUMENT_NAME") or "").strip().upper()
-    symbol = (row.get("SEM_TRADING_SYMBOL") or "").strip().upper()
+    trading_symbol = (row.get("SEM_TRADING_SYMBOL") or "").strip().upper()
+    symbol_name = (row.get("SM_SYMBOL_NAME") or "").strip().upper()
+    custom_symbol = (row.get("SEM_CUSTOM_SYMBOL") or "").strip().upper()
+    instrument_type = (row.get("SEM_EXCH_INSTRUMENT_TYPE") or "").strip().upper()
     if exchange != expected["exchange"]:
         raise ValueError("dhan_mapping_exchange_mismatch")
-    if segment != expected["segment"]:
-        raise ValueError("dhan_mapping_segment_mismatch")
+    # Instrument List uses its own compact codes C/D/E/M. IDX_I is an API enum,
+    # not a value to compare directly with SEM_SEGMENT.
+    if compact_segment not in {"C", "D", "E", "M"}:
+        raise ValueError("dhan_mapping_compact_segment_invalid")
     if instrument != expected["instrument_name"]:
         raise ValueError("dhan_mapping_instrument_mismatch")
-    if "NIFTY" not in symbol or "INDIAVIX" in symbol or "BANK" in symbol:
+    labels = [x for x in (trading_symbol, symbol_name, custom_symbol) if x]
+    if not labels or not any("NIFTY" in label for label in labels):
         raise ValueError("dhan_mapping_symbol_mismatch")
+    if any("BANK" in label or "INDIAVIX" in label or "VIX" in label for label in labels):
+        raise ValueError("dhan_mapping_symbol_mismatch")
+    if symbol_name and not ("NIFTY 50" in symbol_name or symbol_name == "NIFTY"):
+        raise ValueError("dhan_mapping_symbol_name_mismatch")
+    if custom_symbol and not ("NIFTY 50" in custom_symbol or custom_symbol == "NIFTY"):
+        raise ValueError("dhan_mapping_display_name_mismatch")
     return {
         "security_id": expected["security_id"],
         "exchange": exchange,
-        "segment": segment,
+        "compact_segment": compact_segment,
         "instrument_name": instrument,
-        "trading_symbol": symbol,
+        "trading_symbol": trading_symbol,
+        "symbol_name": symbol_name,
+        "display_name": custom_symbol,
+        "exchange_instrument_type": instrument_type,
         "csv_sha256": validation.sha256,
         "csv_row_count": str(validation.row_count),
         "csv_bytes": str(len(raw)),
     }
-
 
 def compare_ohlc(
     nifty_reference: dict[str, str],
