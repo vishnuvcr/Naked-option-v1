@@ -414,6 +414,9 @@ def test_source_json_redaction_is_recursive_and_preserves_nonsecret_data() -> No
         "nested": {
             "Authorization": "Bearer top-secret",
             "apiKey": "secret-key",
+            "signature": "signed-secret",
+            "sig": "short-signature-secret",
+            "requestSignature": "nested-signature-secret",
             "safe_label": "observed",
             "signed_url": "https://files.example/data.csv?date=2026-10-01&X-Amz-Signature=secretvalue&mode=csv",
         },
@@ -422,6 +425,9 @@ def test_source_json_redaction_is_recursive_and_preserves_nonsecret_data() -> No
     assert safe["date"] == "2026-10-01" and safe["fii_buy"] == 100
     assert "Authorization" not in safe["nested"]
     assert "apiKey" not in safe["nested"]
+    assert "signature" not in safe["nested"]
+    assert "sig" not in safe["nested"]
+    assert "requestSignature" not in safe["nested"]
     assert safe["nested"]["safe_label"] == "observed"
     assert "secretvalue" not in safe["nested"]["signed_url"]
     assert "X-Amz-Signature=%5BREDACTED%5D" in safe["nested"]["signed_url"]
