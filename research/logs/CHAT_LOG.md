@@ -470,3 +470,12 @@ The tester rejected the initial spec before data acquisition. The developer corr
 **Developer → Tester:** Re-review the exact corrected spec and authorize only Gate A small-sample source feasibility if all formulas and source rules are now precise.
 
 **Tester → Developer:** Keep source/empirical work closed until a new explicit PASS is recorded.
+
+
+## 2026-10-10 — Extension 2 Gate A Run #1
+
+The bounded workflow ran successfully. Official NSE legacy F&O (2024-07-05) and UDiFF (2024-07-08) archive samples passed date/schema validation. The official FII/DII endpoint only demonstrated current-date schema; the available GitHub history mirror contains 164 dated rows, not enough for the registered 500-date inference minimum. The attempted sector API was incorrect/returned HTML, and the Advances/Declines page did not expose historical rows. Tester report returned REQUEST CHANGES, identifying the official `ind_close_all` daily index CSV and equity bhavcopy as next sample leads. No full history, feature table, or model fit was produced.
+
+**Developer → Tester:** Review the next bounded sampler with official index/equity CSV samples and free historical flow-source discovery.
+
+**Tester → Developer:** Do not proceed to full history or model fitting until the Gate A source report passes; do not claim FII/DII or breadth unavailable until more free sources are checked.
