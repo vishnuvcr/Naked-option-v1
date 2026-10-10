@@ -1217,3 +1217,19 @@ The new local-only Actions workflow [PPR-4 User-Directed Data Continuation Polic
 
 **Developer → Tester:** Review the user-authorized no-cross-check waiver, the no-source-stop policy and the exact bounded acquisition plan; check the source-fallback and security/reproducibility controls, not Dhan-versus-NSE price equality.
 **Tester → Developer:** Preserve the prior failed CI run, independently review the corrected exact snapshot and approve live acquisition only if the new request manifest, size/rate/checkpoint and fallback controls pass.
+
+## 2026-10-11 — PPR-4 source plan corrected following tester REQUEST CHANGES
+
+The isolated tester branch reviewed the user-directed Dhan waiver and fallback plan and returned [REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_USER_DIRECTED_CONTINUATION_TESTER_REVIEW1.md): source acceptance/no-source-stop behavior passed, but cache persistence and numerical acquisition caps needed operational precision.
+
+Developer fixes:
+- Persisted cache hierarchy now distinguishes committed Git cache, durable versioned GitHub Release/Git LFS objects, metadata-only retention when source terms prohibit storing payloads, and temporary Actions artifacts. Valid cached objects are hash-verified and reused before fetch.
+- Parent plan and machine policy now include numerical caps for full-history daily index (calendar-year chunks), intraday history (30-day chunks below the documented 90-day limit) and rolling options (30-day chunks, five-minute bars, WEEK/MONTH expiry flags, expiry codes 0/1/2, ATM±5, CALL/PUT, exact request/byte/row caps).
+- Corrected options-grid arithmetic: 61 30-day chunks × 2 expiry flags × 3 expiry codes × 11 relative strikes × 2 sides = 8,052 possible calls; explicit cap is 8,100.
+- The policy validator and regression tests now verify the cache and budget contract. Automated exact-snapshot offline tests will be rerun.
+- User's waiver remains unchanged: no Dhan-versus-NSE/third-party price-value cross-check is required. Missing-source failure remains family-local, not a global research stop.
+
+No live source requests or model operations have occurred in this policy correction. The next exact-snapshot tester decision is still required before drafting the live acquisition manifest and guarded workflow.
+
+**Developer → Tester:** Review the newly pinned cache hierarchy, arithmetic, source request ceilings and regression receipt; do not request the waived value cross-check.  
+**Tester → Developer:** Return a precise review of the corrected exact snapshot; if approved, authorize only the exact acquisition manifest/workflow drafting step, not an unreviewed live request.
