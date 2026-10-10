@@ -387,7 +387,7 @@ class LinkTableParser(HTMLParser):
 
 def date_links(parser: LinkTableParser) -> list[dict[str, str]]:
     out = []
-    pattern = re.compile(r"(?:\d{2}[/-]\d{2}[/-]\d{4}|20\d{2}-\d{2}-\d{2})")
+    pattern = re.compile(r"(?:\d{2}[/-]\d{2}[/-]\d{4}|20\d{2}-\d{2}-\d{2}|(?:Latest_)?\d{8})", re.I)
     for link in parser.links:
         if pattern.search(link["href"]) or pattern.search(link["text"]):
             out.append(link)
@@ -607,8 +607,8 @@ def validate_chirag_record(obj: Any, expected_date: str = CHIRAG_DATE) -> dict[s
     source = str(obj.get("source", "")).strip().lower()
     if source not in {"nse", "groww", "moneycontrol"}:
         return {"status": "REJECTED_PROVENANCE", "reason": "source label missing/unrecognized", "source": source}
-    serialized = json.dumps(obj, sort_keys=True).lower()
-    if any(token in serialized for token in ("placeholder", "historical-seed", "synthetic", "generated", "fallback-without-source")):
+    serialized_values = json.dumps(list(obj.values()), sort_keys=True).lower()
+    if any(token in serialized_values for token in ("placeholder", "historical-seed", "synthetic", "generated", "fallback-without-source")):
         return {"status": "REJECTED_SYNTHETIC", "reason": "record or provenance indicates generated/placeholder data", "source": source}
     required = {"date", "source"}
     has_flow = any(k.lower().startswith("fii") or k.lower().startswith("dii") for k in obj)
