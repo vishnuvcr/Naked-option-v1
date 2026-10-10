@@ -113,7 +113,7 @@
     "bootstrap_statistic": "For each replicate b, compute mean(d0_star[,j]) for every candidate j using the same sampled block origins; T_star[b]=max_j(mean(d0_star[,j])/SE_boot[j]). Reject only when the one-sided max-statistic tail probability is <= 0.05.",
     "adjusted_p_value": "(1 + count(T_star >= T_obs))/(1 + B)",
     "simultaneous_95pct_ci": "Let c95 be the 95th percentile of max_j(abs(mean(d0_star[,j])/SE_boot[j])) across the null-centered block replicates. The familywise simultaneous interval for candidate j is mean(d[,j]) +/- c95*SE_boot[j]. Report the raw paired mean loss improvement and interval even when the family test is non-significant. Any ordinary unadjusted percentile interval is descriptive only.",
-    "missing_candidate_rule": "Before the first fit, freeze an eligible common evaluation-origin index per family. If any pre-frozen candidate/horizon lacks sufficient common rows, finite predictions/losses, or positive finite SE, mark the whole family INCOMPLETE_NOT_PROMOTABLE; do not emit a confirmatory family p-value or promote a candidate. Do not silently remove or pairwise-drop a candidate after results are viewed. If data/source availability prevents a configuration, decide this before PPR-3 freeze and record BLOCKED_DATA/BLOCKED_METHOD.",
+    "missing_candidate_rule": "Before the first fit, PPR-4 must finalize an eligible model/pipeline/horizon manifest and common evaluation-origin index using data coverage and point-in-time evidence only, with no prediction outcomes inspected. Source/config rows failing data or method gates are explicitly BLOCKED_DATA/BLOCKED_METHOD before the final PPR4 execution manifest; they are not quietly dropped post-result. Within every inferential family defined by that final manifest, all candidates must have finite predictions/losses on the same common origins; if a planned candidate in that frozen family lacks sufficient common rows, finite predictions/losses, or positive finite SE, mark the whole family INCOMPLETE_NOT_PROMOTABLE and do not issue a confirmatory p-value or promote a candidate.",
     "minimum_valid_rows": 250,
     "undefined_metrics": "Store null with reason code; never coerce undefined values to zero or silently drop a planned candidate.",
     "repeated_evaluation_rule": "No additions to confirmatory families after any evaluation outcome is inspected; amendments are exploratory unless reviewed before the first fit.",
@@ -137,7 +137,7 @@
     "max_inner_hyperparameter_trials_total": 400,
     "max_inner_chronological_splits": 5,
     "max_total_fit_calls_including_inner_folds": 8000,
-    "budget_rule": "PPR-3 freezes at most 93 base configuration rows across all target/output schemas, four additive feature-pipeline classes and five common horizons. Conservative upper bound: 93x4x5=1860 outer cells; up to three predeclared seeds gives 5580 outer fits. Tuning is capped at 20 candidate rows x 20 inner configurations x (up to five chronological folds plus one refit)=2400 additional fit calls. Combined upper bound is 7980, within the global 8000-call cap. The manifest must calculate actual eligible cells, seeds, folds and refits before any fit; blocked/out-of-scope rows stay logged but execute zero fits. If a candidate is added after results are seen, it is exploratory and requires a protocol amendment.",
+    "budget_rule": "PPR-3 freezes at most 93 base configuration rows across all target/output schemas, four feature-pipeline classes and five common horizons. Conservative upper bound: 93x4x5=1860 outer cells; up to three predeclared seeds gives 5580 outer fit calls. Tuning is capped at 20 candidate cells x 20 inner settings x (up to five chronological folds plus one refit)=2400 additional fit calls. Combined upper bound is 7980, within the global 8000-call cap. The current matrix has 71 active candidate rows and 1183 feature-pipeline/horizon cells, so its conservative 3-seed outer fit cap is 3549; the 12 predeclared tuning cells require at most 936 additional calls under their specified 18/8-setting grids. The current configuration plan is therefore at most 4485 fit calls. Count a fit call as one top-level estimator fit for one specified cell/seed; the manifest must separately record any calibration or preprocessing estimator fit. All fitting is on the purged training prefix; one outer fit per cell/seed is used for the frozen PPR3 validation segment. Blocked/out-of-scope rows execute zero fits. If a candidate is added after outcomes are inspected, it is exploratory and needs a new protocol amendment.",
     "configuration_unit": "A base configuration row is a unique estimator/architecture + task_type/target_schema + required model setting combination, before expansion over feature pipeline and horizon. The total of these rows across all target types is at most 80. If an estimator is used for a different target/output schema, that is a separate row and consumes the same cap."
   },
   "required_manifest_fields": [
@@ -167,7 +167,11 @@
     "bootstrap_block_length_sessions",
     "config_id",
     "config_disposition",
-    "counts_toward_93_cap"
+    "counts_toward_93_cap",
+    "outer_split_id",
+    "sealed_holdout_exclusion_manifest_sha256",
+    "training_label_purge_count",
+    "validation_origin_index_sha256"
   ],
   "hard_boundary": {
     "empirical_execution_authorized": false,
@@ -175,5 +179,20 @@
     "final_holdout_access_authorized": false,
     "options_pnl_authorized": false,
     "next_phase_authorized": "none_until_exact_snapshot_tester_pass"
+  },
+  "evaluation_protocol": {
+    "protocol_id": "PPR3_FIXED_FIT_HOLD_FORWARD_V1",
+    "status": "PROPOSED_FOR_TESTER_REVIEW",
+    "eligible_development_panel": "Only source- and PIT-valid decision origins that remain outside the sealed final holdout, as proven by a pre-existing holdout metadata/manifest. PPR-4 must verify the exclusion before any modelling. If it cannot be verified without opening holdout observations or labels, PPR-4 is blocked.",
+    "split": "After restricting to eligible development origins, sort by official NSE session and split chronologically: first 80% of eligible origins for training, following 20% for validation. No shuffle. Freeze the row-ID lists and hashes in the PPR-4 manifest before fitting.",
+    "training_purge": "For every training observation, label_endpoint_timestamp must be strictly earlier than the first validation decision timestamp. Purge rows whose label endpoints overlap or reach the validation interval. Fit scalers, imputers, feature selection, text aggregation/model mapping, calibrators and hyperparameters using training history only.",
+    "minimum_training_rows": 252,
+    "minimum_common_validation_origins": 250,
+    "fit_cadence": "Fit each candidate/configuration × eligible feature pipeline × horizon × predeclared seed once on the purged training prefix. Keep learned model parameters frozen through the validation block. Feature values at each validation decision may update only from point-in-time inputs available by that decision. No refits on validation observations.",
+    "cadence_deviation": "This PPR3 benchmark intentionally differs from the existing Phase 7 method specification that refits every 20 trading sessions. Record separate results and do not compare its performance metrics as if the refit cadence were identical. A single frozen validation fit is selected to provide a bounded common comparison across many source-derived models and to keep the pre-registered fit-call budget finite.",
+    "row_alignment": "Within each inferential family, freeze one ordered validation decision-origin index common to every candidate/pipeline/horizon. Use the same date rows even where some output horizons mature later; each target endpoint must be observed before the sealed holdout boundary. If the common set has fewer than 250 origins, mark the family NOT_ESTIMABLE and do not promote a model.",
+    "final_holdout": "The final untouched holdout is explicitly excluded from the PPR3 panel, split calculation, feature coverage choice, hyperparameter tuning, model selection, and all reported PPR3 metrics. Do not inspect its observations or labels.",
+    "refit_policy": "No repeated 20-session refits, no periodic retuning, and no test-block updates to model parameters. Online training-rate baseline updates may use only labels whose endpoint is strictly earlier than the current decision time.",
+    "reproducibility": "Record eligible panel row IDs, split boundary, decision-origin index, label endpoint per horizon, holdout-exclusion proof, source cache digests, preprocessing parameters and fit count before permitting execution."
   }
 }
