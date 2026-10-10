@@ -9,11 +9,19 @@ The current user-directed scope is to test the **actual prediction methods from 
 - [Latest tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW2_TESTER_REPORT.md) — exact prior snapshot reviewed; decision REQUEST CHANGES.
 - [Developer submission for independent review](research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md) and [issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6).
 
-**Current status: PPR-1 remains REQUEST CHANGES; corrected files are being resubmitted for review. No new paper-specific model fit has been launched.** The offline contract check [passed on commit bf48db3](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068745869), verifying document structure and fail-closed flags only. It is not a scientific gate PASS. The 15-PDF source matrix is not yet reconciled with the repository's separate 36-record literature inventory; that is PPR-2 and remains unauthorized until PPR-1 passes.
+**Current status: PPR-1 PASS WITH SCOPED RESTRICTIONS; PPR-2 registry crosswalk is drafted and its exact-commit offline check passed, with tester review pending.** PPR-1 tester-role report: [review 3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW3_TESTER_REPORT.md). PPR-2 handoff: [developer submission](research/gates/PHASE7_PPR2_DEVELOPER_SUBMISSION.md), [36-row crosswalk](research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv), [overview](research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md), [validator](scripts/validate_ppr2_literature_crosswalk.py), and [offline Actions run 38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564). The CI check passed on exact trigger commit `974bed3013fa1a0a608f83a56220ed449514580a`, confirming IDs/fields and explicit dispositions, not source validity or predictive value. No market-data requests, model fitting/scoring, final holdout access or options P&L are authorized at this gate.
 
 The most recent independently audited daily artifact (Run #44) contains 1,676 NIFTY rows from 2020-01-01 to 2026-10-09 with 11 global/peer series. Its 12-method × five-horizon extension had no significant horizon-family result after multiplicity correction. It cannot provide exact 5-, 10- or 20-year replication from that artifact alone. Full-history and auxiliary-feature acquisition, the spent one-row Dhan approval, and the untouched holdout remain governed by their existing gates.
 
 Option strategy/P&L research remains separate from this prediction-only request.
+
+## Latest PPR-2 registry crosswalk — 2026-10-10
+
+- PPR-1 tester-role decision: [PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW3_TESTER_REPORT.md). Next scope restricted to PPR-2 documentation.
+- All 36 literature registry rows L001–L036 are represented once in the [PPR-2 row-level crosswalk](research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv); overview in [PPR2_LITERATURE_REGISTRY_CROSSWALK.md](research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md).
+- The pre-existing L003 registry semantic column shift was fixed (DOI restored to `url_or_doi`). The exact-commit PPR-2 validator initially rejected the review-depth string `REPOSITORY_README_VERIFIED`; the allowlist was corrected and the retry [run 38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564) passed on its exact trigger commit.
+- The CSV records all 36 registry records as no exact identity match to the 15 uploaded PDFs; any model-family overlap is explicitly conceptual. Several newer sources remain abstract-, metadata- or README-only review depth and are not validated replication results.
+- **PPR-2 tester review is pending.** No new source pulls, fitting, scoring, holdout access or option P&L is authorized. If PPR-2 passes, only PPR-3 documentation-only configuration freeze is next.
 
 ## Latest PPR-1 correction checkpoint — 2026-10-10
 
