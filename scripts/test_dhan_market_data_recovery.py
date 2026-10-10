@@ -162,6 +162,22 @@ def test_instrument_mapping_accepts_official_csv_headers() -> None:
     assert got["INDIA VIX"]["security_id"] == "102"
 
 
+def test_blocked_metadata_report_keeps_status_and_redacts_body() -> None:
+    budget = mod.Budget(requests=2, bytes_read=123)
+    result = mod.blocked_metadata_result(
+        403,
+        {"content-type": "application/json", "set-cookie": "private"},
+        budget,
+        {"http_status": 200, "token_valid": True, "data_plan_active": True, "status": "TOKEN_VALID"},
+    )
+    encoded = json.dumps(result)
+    assert result["status"] == "BLOCKED_INSTRUMENT_METADATA"
+    assert result["instrument_metadata_http_status"] == 403
+    assert result["request_count"] == 2 and result["bytes_read"] == 123
+    assert "private" not in encoded and "set-cookie" not in encoded
+    assert "secret" not in encoded
+
+
 def test_http_error_returns_status_without_provider_body() -> None:
     class Opener:
         def open(self, req, timeout):
@@ -317,6 +333,7 @@ def main() -> None:
         test_instrument_mapping_requires_unique_exact_ids,
         test_instrument_mapping_accepts_official_csv_headers,
         test_http_error_returns_status_without_provider_body,
+        test_blocked_metadata_report_keeps_status_and_redacts_body,
         test_instrument_mapping_rejects_ambiguous_security_id,
         test_windows_are_fixed_and_non_overlapping,
         test_payload_uses_non_inclusive_end_and_resolved_id,
