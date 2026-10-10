@@ -137,7 +137,7 @@ def test_nifty_parser_rejects_invalid_envelope_json_rows_and_date() -> None:
 
 def test_nifty_parser_rejects_nonfinite_and_inconsistent_ohlc() -> None:
     for field, value, expected in [
-        ("OPEN", "NaN", "nifty_reference_ohlc_inconsistent"),
+        ("OPEN", "NaN", "nifty_reference_numeric_invalid_open"),
         ("HIGH", "not-a-number", "nifty_reference_numeric_invalid_high"),
         ("LOW", "21760.00", "nifty_reference_ohlc_inconsistent"),
     ]:
