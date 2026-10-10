@@ -127,6 +127,31 @@ def validate() -> list[str]:
         errors.append(f"expanded ledger missing {len(missing)} matrix-derived cells; first={sorted(missing)[:5]}")
     if extra:
         errors.append(f"expanded ledger has {len(extra)} cells not permitted by active matrix; first={sorted(extra)[:5]}")
+    # Source-native records are documented separately and never authorize fitting.
+    native = read_csv(NATIVE_LEDGER_PATH)
+    native_ids = [r.get("native_task_id", "") for r in native]
+    native_papers = {r.get("source_paper_id", "") for r in native}
+    if len(native) != 81:
+        errors.append(f"paper-native task ledger has {len(native)} rows; expected 81")
+    if any(not x for x in native_ids) or len(native_ids) != len(set(native_ids)):
+        errors.append("paper-native native_task_id values are blank or duplicated")
+    if native_papers != {f"P{i:02d}" for i in range(1, 16)}:
+        errors.append("paper-native ledger must cover all P01-P15")
+    all_config_ids = set(ids)
+    for native_row in native:
+        if not native_row.get("source_method_or_component") or not native_row.get("method_source_locator"):
+            errors.append(f"{native_row.get('native_task_id')}: method name and source locator are required")
+        if native_row.get("ppr3_native_fidelity_row_only") != "true" or native_row.get("counts_toward_93_common_config_cap") != "false":
+            errors.append(f"{native_row.get('native_task_id')}: native fidelity record must remain outside active model-fit cap")
+        if native_row.get("executable_candidate_cell_count") != "0" or native_row.get("model_fit_authorized") != "false":
+            errors.append(f"{native_row.get('native_task_id')}: native fidelity record cannot authorize execution")
+        for link in [x for x in native_row.get("common_adaptation_links", "").split("|") if x and x != "NONE"]:
+            if link.startswith(("PIPELINE:", "BASELINE:")):
+                continue
+            config_link = link.split(":", 1)[1] if link.startswith("CONFIG:") else link
+            if config_link not in all_config_ids:
+                errors.append(f"{native_row.get('native_task_id')}: unknown adaptation link {link}")
+
     for row in cells:
         cid = row.get("config_id", "")
         if cid not in active:
