@@ -468,7 +468,6 @@ def atomic_cache_bundle(
         )
     if recomputed_validation != validation:
         raise ValueError("cache_validation_report_mismatch")
-    _validate_payload_timestamps_in_request(parsed_payload, source_url, request_parameters)
     digest = hashlib.sha256(payload_bytes).hexdigest()
     root = pathlib.Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
@@ -509,6 +508,7 @@ def atomic_cache_bundle(
     if not isinstance(request_parameters, dict) or not set(request_parameters).issubset(allowed_parameter_keys):
         raise ValueError("cache_request_parameters_unapproved")
     validate_request_window(source_url, request_parameters)
+    _validate_payload_timestamps_in_request(parsed_payload, source_url, request_parameters)
     encoded_manifest = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode("utf-8")
     if destination.exists():
         existing = destination / "manifest.json"
