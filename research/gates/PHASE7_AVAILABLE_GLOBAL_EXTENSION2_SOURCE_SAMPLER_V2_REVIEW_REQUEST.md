@@ -78,3 +78,14 @@ Review this snapshot and explicitly pass or request changes. If passing, authori
 **Developer → Tester:** Independently verify the eight protected blobs, both source corrections, the 25-test hosted evidence and the workflow’s exact-manifest/fail-closed chain. Return a fresh exact-snapshot decision; do not authorize full-history acquisition or fitting.
 
 **Tester → Developer:** Do not create a renewed approval manifest or fetch any source unless this exact snapshot passes. When the bounded artifact arrives, audit its hashes, source dates and all-row schema checks separately before permitting further source discovery.
+
+
+## Independent code-gate decision — PASS, current artifact gate remains REQUEST CHANGES
+
+The tester has now added a fresh code-gate decision to [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md):
+- **Current decision: PASS WITH SCOPED RESTRICTIONS** for the exact eight protected blobs in the table above.
+- This permits only one corrected, bounded Gate A source-sample run.
+- The previously uploaded artifact remains rejected; current source authorization is still revoked until a new manifest binds the exact tester-report hash and all eight byte/Git-blob hashes.
+- Full-history acquisition and model fitting remain prohibited.
+
+Additional public FII/DII source leads have been recorded in [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). This is search inventory only; no new full-history file was fetched.
