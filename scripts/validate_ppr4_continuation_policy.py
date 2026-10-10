@@ -95,8 +95,10 @@ def validate() -> list[str]:
         errors.append("rolling_options_budget_or_grid_mismatch")
     if budget.get("base_planned_requests") != 8601 or budget.get("max_wire_requests_including_retries") != 8701:
         errors.append("composite_request_total_mismatch")
-    if options.get("greeks_policy", "").find("otherwise") < 0:
-        errors.append("historical_greeks_missing_input_policy_missing")
+    greek_policy = options.get("greeks_policy", "").lower()
+    for required in ("proxy greeks", "zero-rate/zero-dividend", "greek_status"):
+        if required not in greek_policy:
+            errors.append("historical_greeks_proxy_policy_missing:" + required)
     cache = policy.get("cache_contract", {})
     if cache.get("verify_before_fetch") is not True:
         errors.append("persisted_cache_must_be_verified_before_fetch")
