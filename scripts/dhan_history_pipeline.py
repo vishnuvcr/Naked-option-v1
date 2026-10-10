@@ -358,7 +358,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("request_fields_unrecognized")
     if url == DAILY_URL:
         start_date, end_date = body.get("fromDate"), body.get("toDate")
-        if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
+        if any(k not in body for k in ("securityId", "exchangeSegment", "instrument")):
             raise ValueError("daily_request_instrument_fields_missing")
         _validate_instrument_fields(body, "daily_request")
         # Program safeguard: daily bulk requests are partitioned into <=365-day windows.
@@ -369,7 +369,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
 
     if url == INTRADAY_URL:
         start_date, end_date = body.get("fromDate"), body.get("toDate")
-        if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
+        if any(k not in body for k in ("securityId", "exchangeSegment", "instrument")):
             raise ValueError("intraday_request_instrument_fields_missing")
         _validate_instrument_fields(body, "intraday_request")
         if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
@@ -384,8 +384,6 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         "expiryCode", "strike", "drvOptionType", "requiredData",
     )):
         raise ValueError("rolling_option_request_fields_missing")
-    if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
-        raise ValueError("rolling_option_instrument_fields_missing")
     _validate_instrument_fields(body, "rolling_option_request")
     if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
         raise ValueError("rolling_option_interval_invalid")
