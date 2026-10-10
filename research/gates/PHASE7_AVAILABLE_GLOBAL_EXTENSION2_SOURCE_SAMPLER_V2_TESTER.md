@@ -163,3 +163,44 @@ Containment was verified: the old workflow `.github/workflows/phase-07-extension
 **Tester → Developer:** Mirror this exact report to the developer branch and create only the hash-bound one-run Gate A approval manifest. Confirm the hosted job passes offline tests and the authorization guard before treating any bounded source report as evidence; submit both reports for separate post-run review. Keep full-history acquisition and model fitting closed.
 
 **Developer → Tester:** Independently audit both uploaded Gate A JSON reports, source hashes/URLs, date coverage, all-row schema checks, official-versus-third-party provenance, and the historical F&O transition. If source identity/coverage remains unresolved, return REQUEST CHANGES rather than expanding the request beyond the approved sample.
+
+
+## Post-run Gate A artifact audit — Run #38026272245
+
+**Artifact decision: REQUEST CHANGES — do not accept this Gate A artifact as a passed source-feasibility gate.** This is a separate artifact decision; the prior code-gate PASS did not validate live source outcomes.  
+**Run:** [38026272245](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026272245)  
+**Artifact ID:** `11660395594`, name `phase7-extension2-gate-a-source-feasibility-v2`  
+**ZIP SHA-256:** `0a854524a857854aae050cdf35cf4b9e88fb90ed19a0fa061f869ed16984667a`  
+**F&O/page/API JSON SHA-256:** `64e7a93a14c7a2c9baada1d576651e092b9f6204abec3b2a73ac5223a86c1d81`  
+**Index/equity/FII-DII JSON SHA-256:** `131ce0e2905630ca6d83e574e93f83ea914aa8c316ba2278c269f81d761e8263`
+
+### Findings that pass
+
+- Official legacy F&O archive 2024-07-05: 33,930 rows, one trade date, required columns present and 1,634 NIFTY option rows; schema status PASS.
+- Official UDiFF F&O archive 2024-07-08: 34,390 rows, one trade date, required columns present and 1,634 NIFTY option rows; schema status PASS.
+- Official cash-equity archives 2024-07-05 and 2024-07-08 passed schema/date checks with 1,699 and 1,701 rows meeting the sampler's EQ/INE/positive-close/positive-volume filter.
+- FII/DII request sizes were within the declared limits. The official current endpoint returned two current rows. The sampled GitHub mirror had 164 unique dated rows from 2026-01-14 through 2026-09-30.
+
+### Blocking finding 1 — official index CSVs fail date validation
+
+Both official index CSV downloads contain all ten frozen sector-index names plus NIFTY 50, and expose the expected close column. However, both records are marked `schema_status: FAIL` because every `Index Date` is formatted `DD-MM-YYYY` (for example, `05-07-2024`), which the current date normalizer does not recognize. The date samples therefore fail the point-in-time date check despite the correct requested date and all expected index names being present.
+
+**Required:** add deterministic `%d-%m-%Y` parsing, change/add an offline fixture using the exact official `DD-MM-YYYY` format, rerun both offline test suites, and submit a fresh exact-snapshot code review before another source fetch.
+
+### Blocking finding 2 — NSE date-filtered FII/DII API ignored the requested window
+
+The request for `fromDate=01-07-2024&toDate=10-07-2024` returned the same 217-byte payload/hash as the unfiltered current endpoint: two records dated `09-Oct-2026`. Both rows are outside the requested window. The current implementation reports `JSON_PARSED` rather than identifying that the response is not a valid sample for the requested historical range.
+
+**Required:** validate every returned row's date against the requested window. If any response row is outside the requested window or has no parseable date, mark the sample as rejected/unverified and do not treat the endpoint as a historical source. Add regression fixtures for out-of-window dates and in-window dates, then re-run the bounded sample only after renewed exact-snapshot approval.
+
+### Historical FII/DII coverage still unestablished
+
+The sampled ChartDrift page exposes only 16 recent rows around late September 2026; the sampled Fundata page does not expose a populated dated history table; the official page renders only general/current content in this sample; and the public GitHub mirror contains only 164 unique records (January–September 2026). This does not establish the 500+ aligned historical sessions required for the registered confirmatory family test. Do not declare the history unavailable yet: the free-source search must continue in a later approved source-discovery step before any paid source is considered.
+
+### Disposition
+
+This sample run stays **NON-ACCEPTED for Gate A completion** because the index date validator failed and the official historical FII/DII API request returned out-of-window rows. The F&O format/schema probe and cash-equity archive probe did succeed; retain their hashes as bounded evidence but do not treat the combined artifact as passing. No features, labels, predictions, metrics, p-values, full-history datasets or model fits were produced.
+
+**Tester → Developer:** Correct both issues, add exact regression fixtures, update the error log/status and submit the new source/code snapshot for a separate tester gate. Expand the free FII/DII source discovery plan; do not download full history or fit models.
+
+**Developer → Tester:** Re-review the date normalization and out-of-window response tests. After code approval, authorize only one corrected bounded sample run; the resulting artifact requires a separate post-run audit.
