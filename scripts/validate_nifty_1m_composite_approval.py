@@ -86,12 +86,17 @@ def tester_report_check(approval: dict[str, Any]) -> None:
         raise ValueError("tester_report_reference_mismatch")
     try:
         remote_blob = git("rev-parse", "origin/" + APPROVED_TESTER_BRANCH + ":" + tester["path"])
-        text = git("show", "origin/" + APPROVED_TESTER_BRANCH + ":" + tester["path"])
+        raw_result = subprocess.run(
+            ["git", "show", "origin/" + APPROVED_TESTER_BRANCH + ":" + tester["path"]],
+            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+        )
+        raw_report = raw_result.stdout
+        text = raw_report.decode("utf-8")
     except Exception:
         raise ValueError("tester_branch_or_report_unavailable") from None
     if remote_blob != tester.get("git_blob"):
         raise ValueError("tester_report_blob_mismatch")
-    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(raw_report).hexdigest()
     if digest != tester.get("sha256"):
         raise ValueError("tester_report_sha256_mismatch")
     required = [
