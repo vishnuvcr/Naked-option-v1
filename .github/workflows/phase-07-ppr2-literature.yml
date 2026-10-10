@@ -1,0 +1,34 @@
+name: PPR-2 Literature Registry Crosswalk Check
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/literature/LITERATURE_REGISTRY.csv"
+      - "research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv"
+      - "research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md"
+      - "scripts/validate_ppr2_literature_crosswalk.py"
+      - ".github/workflows/phase-07-ppr2-literature.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ppr2-literature-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-crosswalk-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate exact source mapping, schema and blockers
+        run: python scripts/validate_ppr2_literature_crosswalk.py
