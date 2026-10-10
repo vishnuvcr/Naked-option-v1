@@ -597,3 +597,14 @@ The code review snapshot is commit `b3a6c3dcde845923a0dba55a0f350d5e67361a76`. E
 **Developer → Tester:** Review the exact current six-file snapshot and one-run workflow protection; return PASS/REQUEST CHANGES for code only.
 
 **Tester → Developer:** A code PASS does not start data collection. Require a new single-use manifest and a separate post-run artifact audit. Full history/model fitting remain prohibited.
+
+
+## 2026-10-10 — Discovery 3 current exact code snapshot
+
+The final code snapshot is commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. New tests validate bounded CDSL candidate flow values and recursive JSON/signed-query redaction. Hosted offline Run `38029034365` passed 29 tests. The current code review request pins all six protected Git blob IDs and byte SHA-256 hashes.
+
+**No live source requests have been made.** The next step is independent tester review of exact sampler, tests and workflows. A PASS permits preparation of a fresh single-use manifest only; the previous Gate A manifest is spent and cannot be reused.
+
+**Developer → Tester:** Verify the exact current protected file hashes, source probes, and manifest consume-before-fetch path.
+
+**Tester → Developer:** Pass or reject only this exact code snapshot; keep live source requests blocked until separate one-run manifest validation.
