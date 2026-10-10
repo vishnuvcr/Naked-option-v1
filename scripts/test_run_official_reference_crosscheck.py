@@ -18,11 +18,11 @@ sys.modules[spec.name] = mod
 assert spec.loader is not None
 spec.loader.exec_module(mod)
 
-CSV = (
+CSV_HEADER = (
     "SEM_SMST_SECURITY_ID,SEM_EXM_EXCH_ID,SEM_SEGMENT,SEM_INSTRUMENT_NAME,"
     "SEM_TRADING_SYMBOL,SM_SYMBOL_NAME,SEM_CUSTOM_SYMBOL,SEM_EXCH_INSTRUMENT_TYPE\n"
-    "13,NSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX\n"
-).encode()
+)
+CSV = (CSV_HEADER + "13,NSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX\n").encode()
 NIFTY_ROW = {
     "INDEX_NAME": "NIFTY 50",
     "HistoricalDate": "02 Jan 2024",
