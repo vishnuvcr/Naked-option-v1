@@ -213,6 +213,60 @@ def test_hf_tail_parser_uses_head_header_and_skips_partial_line() -> None:
     assert result["date_values"] == ["2024-09-30", "2024-10-01"]
 
 
+
+def test_github_directory_parser_uses_metadata_only_and_rejects_inline_content() -> None:
+    good = [
+        {"name": "history.json", "path": "data/history.json", "size": 1234,
+         "sha": "a" * 40, "type": "file"},
+        {"name": "notes.txt", "path": "data/notes.txt", "size": 12,
+         "sha": "b" * 40, "type": "file"},
+    ]
+    report = mod.parse_gh_directory_metadata(good)
+    assert report["schema_status"] == "COVERAGE_LEAD_ONLY"
+    assert report["directory_file_metadata_sample"] == [good[0]]
+    unsafe = [{"name": "history.json", "path": "data/history.json", "size": 12,
+               "sha": "a" * 40, "type": "file", "content": "raw file bytes"}]
+    rejected = mod.parse_gh_directory_metadata(unsafe)
+    assert rejected["schema_status"] == "REJECTED_SCOPE"
+    malformed = [{"name": "history.json", "path": "data/history.json", "size": "12",
+                  "sha": "not-a-sha", "type": "file"}]
+    assert mod.parse_gh_directory_metadata(malformed)["schema_status"] == "REJECTED_SCHEMA"
+
+
+def test_chirag_url_must_be_pinned_commit_and_exact_date() -> None:
+    valid = mod.CHIRAG_URL_TEMPLATE.format(commit="a" * 40)
+    assert mod.is_registered_probe_url("CHIRAG-1", valid, "GET")
+    assert not mod.is_registered_probe_url(
+        "CHIRAG-1",
+        "https://raw.githubusercontent.com/chirag127/fii-dii-activity-api/main/data/2026-10-01.json",
+        "GET",
+    )
+    assert not mod.is_registered_probe_url(
+        "CHIRAG-1",
+        mod.CHIRAG_URL_TEMPLATE.format(commit="a" * 40).replace("2026-10-01", "2026-10-02"),
+        "GET",
+    )
+
+
+def test_head_missing_length_skips_hf_range_requests() -> None:
+    class FakeClient:
+        def __init__(self):
+            self.calls = []
+        def request(self, probe_id, url, **kwargs):
+            self.calls.append((probe_id, url, kwargs))
+            return {
+                "probe_id": probe_id, "url": url, "status": "FETCHED",
+                "http_status": 200, "content_length_header": None,
+                "content_type": "text/csv", "bytes_read": 0, "sha256": mod.sha256_bytes(b""),
+                "history": [], "body": b"",
+            }
+    client = FakeClient()
+    report = mod.hf_file_probe(client, {})
+    assert report["schema_status"] == "COVERAGE_LEAD_ONLY"
+    assert len(client.calls) == 1
+    assert client.calls[0][0] == "HF-2-HEAD"
+
+
 def test_fixed_probe_list_is_finite_and_fits_budget() -> None:
     initial = len(mod.FIXED_URLS) + 1 + 3  # Chirag single record; HF HEAD + two Range requests.
     assert initial == mod.MAX_INITIAL_REQUESTS == 15
@@ -234,6 +288,9 @@ def main() -> None:
         test_cdsl_xls_parser_uses_expected_date_and_equity_row,
         test_chirag_record_date_and_provenance_are_required,
         test_hf_tail_parser_uses_head_header_and_skips_partial_line,
+        test_github_directory_parser_uses_metadata_only_and_rejects_inline_content,
+        test_chirag_url_must_be_pinned_commit_and_exact_date,
+        test_head_missing_length_skips_hf_range_requests,
         test_fixed_probe_list_is_finite_and_fits_budget,
     ]
     for test in tests:
