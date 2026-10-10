@@ -108,3 +108,30 @@ After Gate A, developer must submit a source-feasibility report with the exact s
 **Tester → Developer:** Perform Gate A only under this scope and submit a sample-source manifest. Do not expand downloads or run a predictor.
 
 **Developer → Tester:** Independently audit the sample hashes/schema/transition mapping and explicitly pass or reject Gate A output before full-history acquisition or model fitting.
+
+
+## G17 source fallback amendment review — 2026-10-10
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — amended specification may proceed to revised Gate A source sampling only.**  
+**Reviewed amended spec blob:** `a5e65b56f9aa23c8292b718403c3db4448dad2e3`.  
+**Full-history acquisition/model fitting remain NOT AUTHORIZED.**
+
+### Review finding
+
+The official Advances/Declines page sample did not expose a dated historical table. The amended proposal therefore uses a deterministic source-selection rule: use official historical A/D only if Gate A verifies at least 500 dated sessions; otherwise derive the same directional breadth form from official daily equity bhavcopy, provided the derived source passes the sample and schema checks. The fallback is defined before fitting and cannot be chosen based on model results.
+
+The derived-universe rule is explicit: `SERIES=EQ`, ISIN prefix `INE`, positive close and positive traded quantity on both source sessions, matched by ISIN; counts advances, declines and unchanged closes; computes net breadth and its causal five-session sum. The definition is acceptable for a separately labelled derived-breadth source variant, with these restrictions:
+
+1. Record the source variant (`official_archive` or `derived_equity_bhavcopy`) in the source manifest and freeze the choice before full-history acquisition/model fitting.
+2. Gate A must confirm the actual legacy and UDiFF equity-bhavcopy column names, units, ISIN coverage and distinct trade dates on both sample dates.
+3. The derived fallback must not be described as the official exchange-published breadth series. It is a reproducible breadth estimate from the frozen eligible equity universe.
+4. Keep row-level eligible-security counts and source hashes. If source/ISIN coverage is inadequate or date alignment fails, mark G17 `BLOCKED_DATA`; do not relax the filter or substitute current constituents.
+5. This source-selection rule is part of the registered spec and may not be changed after model results are seen.
+
+### Next gate
+
+The developer may revise the Gate A sampler to include official `ind_close_all_DDMMYYYY.csv` samples and two daily equity bhavcopy samples, then submit the exact revised sampler for code review before its workflow runs. No full history, feature table, labels, or model fit is authorized.
+
+**Tester → Developer:** Proceed with a revised bounded sampler and tests, then request independent code review. The source feasibility output must verify both sector-index identity and derived-breadth field mapping.
+
+**Developer → Tester:** Do not run a revised workflow until the exact sampler/tests receive a code-gate PASS; do not proceed beyond small samples without a separate artifact review.
