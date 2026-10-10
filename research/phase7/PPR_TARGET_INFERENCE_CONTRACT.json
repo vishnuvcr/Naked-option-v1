@@ -13,8 +13,18 @@
       "decision_clock": "after official close value for session t is published and available",
       "decision_price_field": "close_t",
       "target_formula": "r(t,h)=close[t+h]/close[t]-1",
-      "horizons_sessions": [1, 2, 3, 5, 10],
-      "classes_in_fixed_order": ["DOWN", "FLAT", "UP"],
+      "horizons_sessions": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
+      "classes_in_fixed_order": [
+        "DOWN",
+        "FLAT",
+        "UP"
+      ],
       "neutral_tolerance_abs_return": 1e-8,
       "label_rule": "FLAT if abs(r)<=1e-8; UP if r>1e-8; DOWN if r< -1e-8",
       "forecast_endpoint": "close[t+h]",
@@ -33,7 +43,13 @@
       "decision_clock": "after official close value for session t is published and available",
       "decision_price_field": "close_t",
       "target_formula": "close[t+h]",
-      "horizons_sessions": [1, 2, 3, 5, 10],
+      "horizons_sessions": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
       "forecast_endpoint": "close[t+h]",
       "primary_metric": "absolute_error_in_index_points",
       "baseline_prediction_formula": "baseline_close_hat[t+h]=close[t]",
@@ -48,7 +64,9 @@
       "decision_clock": "after official close value for session t is published and available",
       "decision_price_field": "close_t",
       "target_formula": "open[t+1]",
-      "horizons_sessions": [1],
+      "horizons_sessions": [
+        1
+      ],
       "forecast_endpoint": "open[t+1]",
       "primary_metric": "absolute_error_in_index_points",
       "baseline_prediction_formula": "baseline_open_hat[t+1]=close[t]",
@@ -86,24 +104,31 @@
     "test": "one-sided familywise max-studentized-mean-improvement test; positive improvement favors the candidate",
     "directional_effect_per_row": "d[i,j]=baseline_brier[i]-model_brier[i,j]",
     "regression_effect_per_row": "d[i,j]=baseline_absolute_error[i]-model_absolute_error[i,j]",
-    "observed_statistic": "T_obs=max_j(mean(d[,j])/SE_boot[j]) where SE_boot[j] is the sample standard deviation of bootstrap means for the null-centered loss differential",
+    "observed_statistic": "For each candidate j, SE_boot[j] is the sample standard deviation of its 10000 bootstrapped means from the null-centered loss differentials. T_obs=max_j(mean(d[,j])/SE_boot[j]). All candidate/horizon loss differentials are defined on the same fixed family-specific decision-origin rows.",
     "null_centering": "Before resampling, for every candidate j form d0[i,j]=d[i,j]-mean(d[,j]); resample d0 under the zero-mean null",
-    "resampling": "moving-block bootstrap over chronological decision-origin rows; in each replicate use the same sampled block indexes for every candidate and horizon within a family to preserve cross-candidate and cross-horizon dependence",
-    "block_length_sessions": "max(5, horizon_sessions) for each decision-origin block; specify the exact numeric length per family/horizon in the frozen manifest",
+    "resampling": "Within each inferential family, freeze one common ordered decision-origin index shared by every candidate and horizon in that family. Use a moving-block bootstrap over those origins. In each replicate, use the same sampled block indexes for all candidates and horizons to preserve paired and cross-horizon dependence. Every planned candidate/horizon must have a finite prediction and loss on the common index; otherwise the family is incomplete.",
+    "block_length_sessions": "Use one block length per family: max(5, maximum forecast horizon in that family). Thus the common 1/2/3/5/10-session direction and close-regression families use 10 sessions; the one-session next-open family uses 5 sessions. A separately authorized native-horizon family uses max(5, its longest horizon). Do not use different block lengths inside one max-statistic family.",
     "replicates": 10000,
     "seed": 20261010,
-    "bootstrap_statistic": "For each replicate b compute mean(d0_star[,j]) for each candidate; T_star[b]=max_j(mean(d0_star[,j])/SE_boot[j])",
+    "bootstrap_statistic": "For each replicate b, compute mean(d0_star[,j]) for every candidate j using the same sampled block origins; T_star[b]=max_j(mean(d0_star[,j])/SE_boot[j]). Reject only when the one-sided max-statistic tail probability is <= 0.05.",
     "adjusted_p_value": "(1 + count(T_star >= T_obs))/(1 + B)",
-    "simultaneous_95pct_ci": "Use c95=95th percentile of max_j(abs(mean(d0_star[,j])/SE_boot[j])); candidate j interval is mean(d[,j]) +/- c95*SE_boot[j]. Also report unadjusted percentile bootstrap intervals as descriptive only.",
-    "missing_candidate_rule": "If any pre-frozen confirmatory candidate/horizon lacks sufficient rows, valid predictions, finite loss or positive finite SE, mark the whole family INCOMPLETE_NOT_PROMOTABLE; report available cells descriptively but do not issue a confirmatory family p-value or promote a candidate. Exclusions for unavailable sources must be decided before the manifest is frozen and recorded as BLOCKED_DATA.",
+    "simultaneous_95pct_ci": "Let c95 be the 95th percentile of max_j(abs(mean(d0_star[,j])/SE_boot[j])) across the null-centered block replicates. The familywise simultaneous interval for candidate j is mean(d[,j]) +/- c95*SE_boot[j]. Report the raw paired mean loss improvement and interval even when the family test is non-significant. Any ordinary unadjusted percentile interval is descriptive only.",
+    "missing_candidate_rule": "Before the first fit, freeze an eligible common evaluation-origin index per family. If any pre-frozen candidate/horizon lacks sufficient common rows, finite predictions/losses, or positive finite SE, mark the whole family INCOMPLETE_NOT_PROMOTABLE; do not emit a confirmatory family p-value or promote a candidate. Do not silently remove or pairwise-drop a candidate after results are viewed. If data/source availability prevents a configuration, decide this before PPR-3 freeze and record BLOCKED_DATA/BLOCKED_METHOD.",
     "minimum_valid_rows": 250,
     "undefined_metrics": "Store null with reason code; never coerce undefined values to zero or silently drop a planned candidate.",
-    "repeated_evaluation_rule": "No additions to confirmatory families after any evaluation outcome is inspected; amendments are exploratory unless reviewed before the first fit."
+    "repeated_evaluation_rule": "No additions to confirmatory families after any evaluation outcome is inspected; amendments are exploratory unless reviewed before the first fit.",
+    "family_membership": "Each base configuration row is assigned exactly one task_type and target_schema_id. The direction family contains only the fixed three-class DOWN/FLAT/UP Brier task; each regression family contains only its fixed target and absolute-error loss. Within a family, include every pre-frozen configuration × feature pipeline × horizon candidate. Do not combine binary and three-class labels, or regression and classification loss, in the same max-statistic family."
   },
   "search_bounds": {
     "max_estimator_or_architecture_configs": 80,
     "max_feature_pipeline_classes": 4,
-    "common_horizons": [1, 2, 3, 5, 10],
+    "common_horizons": [
+      1,
+      2,
+      3,
+      5,
+      10
+    ],
     "max_outer_model_cells": 1600,
     "max_neural_seeds_per_cell": 3,
     "max_outer_fit_calls_including_seeds": 4800,
@@ -112,7 +137,8 @@
     "max_inner_hyperparameter_trials_total": 400,
     "max_inner_chronological_splits": 5,
     "max_total_fit_calls_including_inner_folds": 8000,
-    "budget_rule": "The frozen manifest must calculate its expected fit calls, including inner-fold fits, seed repeats and refits, and fail validation if it exceeds the global cap."
+    "budget_rule": "The machine-readable PPR-3 manifest must calculate the expected fit calls including feature-pipeline × horizon expansion, up to 3 seeds per stochastic cell, inner chronological fold fits and final refits. Under this bound, outer cells <=80x4x5=1600 and outer fit calls <=4800; tuning work <=20x20x(5 folds + 1 refit)=2400. Total <=7200, below the global cap 8000. Fail validation before fitting if manifest estimate exceeds any cap.",
+    "configuration_unit": "A base configuration row is a unique estimator/architecture + task_type/target_schema + required model setting combination, before expansion over feature pipeline and horizon. The total of these rows across all target types is at most 80. If an estimator is used for a different target/output schema, that is a separate row and consumes the same cap."
   },
   "required_manifest_fields": [
     "paper_id",
@@ -135,7 +161,10 @@
     "split_id",
     "train_label_end_before_decision",
     "expected_evaluation_rows",
-    "max_fit_calls"
+    "max_fit_calls",
+    "evaluation_origin_index_id",
+    "inferential_family_id",
+    "bootstrap_block_length_sessions"
   ],
   "hard_boundary": {
     "empirical_execution_authorized": false,
