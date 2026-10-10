@@ -814,3 +814,15 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Checked the current developer branch's ten protected file Git blob IDs against the READY manifest; all ten matched the manifest's pinned blob IDs. This is a repository-content cross-check, **not** a runtime execution of the validator and does not prove the SHA-256/ancestry checks pass on the hosted runner.
 - Current manifest remains one-use and scoped to one request recording redirect scheme/hostname only (maximum 1 KiB), with no redirect follow, candles/history, or model fitting. The workflow is manual-dispatch-only.
 - Current GitHub connector has no workflow-dispatch action. No unsafe trigger was added, no historical run was rerun, and no live request was made. Continue only through a supported explicit manual dispatch; do not infer source feasibility or alter prediction conclusions.
+
+
+## 2026-10-10 — Resume audit: redirect-probe authorization remains blocked
+
+- Re-read the developer branch status, research log, chat log, error log, guarded workflow, manifest validator, redirect-probe specification and the isolated tester's exact-snapshot report before proceeding.
+- Independent tester report `PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md` remains **PASS WITH SCOPED RESTRICTIONS — code/workflow only; live request authorized: NONE**. It is bound to developer commit `9bfd1d61c05f8658d5b6165759a735e317740328`.
+- Cross-checked the current `phase-07-developer` Git blob IDs for all ten protected files in `DHAN_REDIRECT_TARGET_APPROVAL.json`; all ten matched the manifest. This is a repository-content cross-check only, not execution of the workflow's SHA-256/ancestry validator.
+- Manifest still reads `READY`; the hosted validator has not run, and the one-request diagnostic has not run. No source request or market data acquisition occurred.
+- Current GitHub connection exposes workflow run inspection and rerun operations but no `workflow_dispatch` operation. The live workflow is intentionally manual-only and requires `confirm_probe=true`; no trigger was weakened and no old push-event run was misrepresented as a fresh diagnostic.
+- **Disposition:** remain in Phase 7 prediction research only. No new data, predictions, statistical results or strategy conclusions are accepted. Do not follow the HTTP 302 or request candles/history under this manifest. A supported authorized manual dispatch and independent audit of the resulting artifact are required before any next data step.
+
+**Developer → Tester:** Independently verify that this checkpoint preserves the role boundary and does not treat the manifest pin check as runtime authorization. If a manually dispatched run later exists, inspect its exact run/commit, manifest-spend step, HTTP status, request/byte counters and artifact redaction before issuing a separate artifact decision.
