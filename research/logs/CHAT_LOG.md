@@ -522,3 +522,14 @@ A successful repository-level protocol workflow (`38020253978`) is visible, but 
 **Developer → Tester:** Review current workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` and the exact source sampler/test/spec blobs listed in the review request.
 
 **Tester → Developer:** Approval must explicitly authorize only the bounded sample job. Keep full history and model fitting blocked.
+
+
+## 2026-10-10 — Continued: current exact-snapshot Gate A PASS
+
+Tester PASS was recorded for the current six protected blobs and mirrored byte-identically. Hosted offline run `38026024826` passed 22 unique checks, and legacy workflow safety run `38026080844` passed with no source-fetch step. One bounded Gate A source-sampling run is permitted only once the hash-bound manifest validates.
+
+An earlier automatic legacy workflow had run without tester approval (Run `38025793938`). It retrieved only the two daily F&O archive samples and bounded pages/API data, without full history or model work. Its artifact `11659904438` is non-accepted evidence and will not be used to claim that Gate A passed. The legacy workflow is now offline-only and the incident is in `research/ERROR_LOG.md`.
+
+**Developer → Tester:** The exact PASS report is mirrored; the source workflow will rerun offline checks and validate all protected hashes before its one bounded sample. After upload, audit both JSON reports separately.
+
+**Tester → Developer:** Do not progress beyond Gate A until post-run artifact review passes; full history and model fitting are still prohibited.
