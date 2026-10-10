@@ -477,3 +477,12 @@ The access token is bound only to the guarded workflow's final source step and i
 - The READY manifest permits one redirect scheme/hostname-only request (1 KiB maximum), with no redirect follow or candle/history/model access.
 - The workflow remains manual-only. No dispatch action is available in this session's GitHub connection; no live request or new market data is claimed. Prediction results remain unchanged.
 - Details: [Research status](research/STATUS.md) · [Error log](research/ERROR_LOG.md) · [One-use manifest](research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json) · [Guarded workflow](.github/workflows/phase-07-dhan-redirect-probe-live.yml).
+
+
+## Resume checkpoint — 10 October 2026
+
+- The ten protected Git blob pins in the READY one-use Dhan redirect-target manifest match the current `phase-07-developer` file blobs.
+- This does **not** establish that the hosted manifest validator passed: the runtime check is still pending.
+- The isolated tester's code/workflow approval is restricted to code only; **no live request is authorized by that report**.
+- The guarded workflow remains manual-only (`confirm_probe=true`, default false). The currently connected GitHub interface does not expose a workflow-dispatch action, so no live probe was launched and no data or prediction results changed.
+- Phase 7 prediction research remains active; no candidate is promoted, no strategy test is authorized, and Phase 8 remains blocked pending the permitted data/gate workflow and independent review.
