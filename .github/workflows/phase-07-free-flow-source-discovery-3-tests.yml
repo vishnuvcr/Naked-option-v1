@@ -9,6 +9,7 @@ on:
       - "scripts/test_extension2_free_flow_source_discovery_3.py"
       - "requirements-source-discovery-3.txt"
       - ".github/workflows/phase-07-free-flow-source-discovery-3-tests.yml"
+      - ".github/workflows/phase-07-free-flow-source-discovery-3.yml"
   workflow_dispatch:
 
 permissions:
