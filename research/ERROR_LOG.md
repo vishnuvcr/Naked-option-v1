@@ -713,3 +713,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - Root cause is the intentional job condition: `if: github.ref == 'refs/heads/phase-07-developer'`. The run ref was `main`, so the guarded job never started. No manifest validation/spend, secret use, Dhan request, or artifact occurred.
 - Corrective action: dispatch a fresh run from the default-branch workflow page but select `phase-07-developer` in the **Run workflow branch selector**, then explicitly set `confirm_probe=true`. Do not rerun these skipped main-branch runs; rerun does not change the ref or input.
 - No workflow guard was weakened. The one-use manifest remains subject to hosted validation and spending before the one permitted redirect-target-only request.
+
+
+## 2026-10-10 — Dhan redirect-target probe run #9 completed; tester gate still pending
+
+- Run [#9](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667) succeeded on the required `phase-07-developer` ref. 38/38 offline regressions passed; manifest validation passed; manifest was spent before the single request.
+- Report artifact [dhan-redirect-target-probe](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667/artifacts/11668017741) records HTTP 302, HTTPS redirect host `s3.ap-south-1.amazonaws.com`, one request and zero response-body bytes read. No redirect-follow or history request occurred.
+- The automated approved-artifact audit preflight passed, but its independent tester job was skipped for this diagnostic artifact class. This is not tester approval and does not authorize a follow-up request.
+- No error in the probe itself is recorded. Remaining blocker is independent tester review and a new scoped authorization for any subsequent acquisition.
