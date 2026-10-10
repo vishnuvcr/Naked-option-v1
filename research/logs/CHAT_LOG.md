@@ -758,3 +758,13 @@ Resume actions:
 - No CSV/data request was made; no market dataset, prediction metrics or strategy results changed.
 
 **Developer → Tester:** Once the hosted offline tests complete, independently review the exact adapter/test/workflow snapshot, especially CSV header assumptions, duplicate-ID semantics, byte caps, atomic-cache behavior and proof that no network path exists. Do not authorize live acquisition until a separate code gate passes.
+
+
+## 2026-10-10 — Extension 3 offline tests and tester code gate
+
+- Hosted offline workflow #38048191811 passed; log confirms 9 tests and `network_enabled=false`. Research Protocol Check #38048191923 passed.
+- Independent tester report `research/gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md` on `phase-07-tester` commit `a7a77f790bd407f1ac72056e5fab7cd7c784e2b6` passed the offline validation/cache foundation with scoped restrictions.
+- No network request, CSV download, secret use, cache population, historical data acquisition or model execution occurred.
+- Next: developer prepares a separate fetch adapter and mocked tests; tester must independently review exact code/workflow snapshot. No live request is authorized at this point.
+
+**Developer → Tester:** Review any future fetch implementation and verify no credentials, exact documented URL allowlist, redirects disabled, byte/time caps and fail-closed error handling before a new one-use manifest is prepared.
