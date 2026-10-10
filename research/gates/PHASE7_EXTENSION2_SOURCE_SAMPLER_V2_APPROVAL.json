@@ -1,23 +1,10 @@
 {
   "schema_version": 1,
-  "decision": "PASS WITH SCOPED RESTRICTIONS",
-  "authorized_scope": "Gate A small-sample source feasibility only; no full-history acquisition, no feature tables or labels, no model fitting, no metrics or p-values, and no final holdout access.",
-  "reviewed_developer_commit": "6050908b98c53d75c10175140e84e87f48934896",
-  "tester_report_sha256": "9aed8c012f18bbe81105572b24c8176072de615d9b9b14592a3126b85b3c612c",
-  "protected_file_sha256": {
-    "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md": "df57634e69a8696e47184f066713d9dc06d47487a5111b534f7b754ed9b7ff26",
-    "scripts/phase7_extension2_source_feasibility.py": "feedd15bcb33530dbecb22293ec00cccc1bcb8748ec4a9444fbcf8c14357dc11",
-    "scripts/test_phase7_extension2_source_feasibility.py": "149d6237ac5ee78866089912b840cfd4e42e42c3f2efd96023352755905060db",
-    "scripts/phase7_extension2_source_feasibility_v2.py": "cd0ec89b1bd3b1e8525bba71885fde5f9872edf4313c5414796bc91dbe330d20",
-    "scripts/test_phase7_extension2_source_feasibility_v2.py": "ac6036e639ea3f2938a21bdbf56f4427d2160b2cfe553607a21b5556acf16175",
-    ".github/workflows/phase-07-extension2-source-feasibility-v2.yml": "e60724dad5cf77038c445360c300d097000a4b22e3724312f335ea10c0718c5c"
-  },
-  "protected_git_blob_sha": {
-    "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md": "a5e65b56f9aa23c8292b718403c3db4448dad2e3",
-    "scripts/phase7_extension2_source_feasibility.py": "532c1212fad29dbd771d609b1e0ddb85d46d9e50",
-    "scripts/test_phase7_extension2_source_feasibility.py": "4b470468a4aef23ba59d5efef8755be33ce23fe0",
-    "scripts/phase7_extension2_source_feasibility_v2.py": "aa714264481034c52b9e2b75d020a270212c8204",
-    "scripts/test_phase7_extension2_source_feasibility_v2.py": "43bd50df257ecc6d094ca64c6770f26a50340ecf",
-    ".github/workflows/phase-07-extension2-source-feasibility-v2.yml": "20470b88d29b1d97e8060936e5ed7a40fe28a80d"
-  }
+  "decision": "REVOKED — GATE A ARTIFACT REQUEST CHANGES",
+  "empirical_execution_authorized": false,
+  "authorized_scope": "No source-sampling authorization. The previous artifact gate returned REQUEST CHANGES. Do not fetch data, build features/labels, fit models, produce metrics/p-values, or open the final holdout.",
+  "prior_reviewed_developer_commit": "6050908b98c53d75c10175140e84e87f48934896",
+  "prior_artifact_run_id": 38026272245,
+  "prior_artifact_id": 11660395594,
+  "revocation_reason": "Independent post-run audit found official index DD-MM-YYYY date parsing failure and out-of-window NSE FII/DII API response. A new exact-snapshot code review and separately approved bounded sample are required."
 }
