@@ -1023,3 +1023,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Observed:** commit `50f79a629b580063fbe561117da57cf7c9e2b044` has no status in the connected status response, and the available commit-run wrapper returned no runs. Its documented behavior filters to pull-request-triggered runs, so it cannot establish whether the push-triggered workflow ran.
 - **Impact:** hosted test outcome remains unknown; the independent tester's REQUEST CHANGES decision remains valid. No test success/failure is inferred; no network request was made.
 - **Next correction:** obtain the run ID and conclusion from a repository Actions run-listing page or a connector capability that lists push-triggered runs. Then verify the tested commit and current source/test/workflow blobs before requesting tester re-review.
+
+## 2026-10-11 — Dhan token versus source-gate wording clarification
+
+- **Category:** Research-status communication / gate distinction.
+- **Issue:** A prior statement that historical datasets were not yet complete/usable could be read as implying Dhan authentication was missing, despite the recorded successful bounded Dhan sample.
+- **Correction:** The blocker is evidence and authorization: the existing one-row Dhan sample remains quarantined pending official OHLC and instrument-mapping verification; its one-use approval is spent; PPR-4 data acquisition requires a new exact-snapshot tester PASS. Wave 1 was documentation-only and explicitly required no authentication.
+- **Security note:** Never log the token value. The connector cannot verify the current GitHub secret value or expiry. Dhan documentation says individual access tokens are valid for 24 hours, so current validity must be established only by a guarded, explicitly authorized workflow.
+- **Prevention:** Status reports must distinguish (1) credential configured, (2) credential current and API entitled, (3) source request authorized, (4) source/field coverage verified, (5) point-in-time/licensing checks passed, and (6) data accepted for model use.
