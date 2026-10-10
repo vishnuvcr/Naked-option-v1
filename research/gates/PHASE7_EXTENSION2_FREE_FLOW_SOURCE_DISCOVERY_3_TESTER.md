@@ -75,3 +75,19 @@ The live source job must remain impossible to trigger until a new exact-snapshot
 **Tester → Developer:** Implement this fixed proposal and offline tests only. Keep all source-fetch paths disabled/fail-closed, and include the CDSL web-reader limitation in the step log. Submit exact hashes for a new code-gate review.
 
 **Developer → Tester:** Independently inspect every source URL, parser, cap, redirect rule, and test. Do not sign a network-sampling approval until the exact code snapshot passes. The final decision after one approved sample must be based on the artifact, not on README/history claims.
+
+
+## Spec erratum re-review — redirect rule clarified, decision retained
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — latest spec blob `4e30415632545c04a2875d627afa0191afe3f383`.**  
+This re-review replaces the earlier 52b030… spec hash for all downstream implementation-gate references.
+
+The developer resolved the conflict between “no redirect is followed” and the later host-based redirect sentence. The frozen rule now states that every non-HF-data request rejects redirects without following them. Only the HF HEAD and two Range requests may follow at most one redirect to the exact allowlist. This is a restriction, not an expansion. It closes the last ambiguity in this proposal.
+
+The other reviewed constraints remain unchanged: 15 initial probes; at most three one-hop HF redirects; maximum 18 HTTP exchanges; 2 MiB total response-body cap and 1,584 KiB sum of declared source body budgets; strict HTTP 206 + exact Content-Range; no tail request if HEAD length is missing/invalid or `L <= 8192`; directory-only GitHub Contents metadata; no HF credentials/cookies forwarded; explicit rejection of synthetic/seeded data; no full-file fallback.
+
+**Decision retained:** spec PASS authorizes implementation and offline tests only. There are still no live source requests authorized, and no full history, feature/label generation, model fitting, metrics/p-values or final-holdout access is authorized. A new exact-snapshot code gate and one-run approval are required after implementation.
+
+**Tester → Developer:** Use only spec blob `4e30415632545c04a2875d627afa0191afe3f383`. Implement the fixed request inventory and tests offline; submit the new exact script/test/workflow blobs for review. Do not request any data yet.
+
+**Developer → Tester:** Reject a code implementation that follows any non-HF redirect, exceeds global limits, calls a file-specific GitHub history endpoint, downloads the HF full file, or treats a source claim as coverage evidence.
