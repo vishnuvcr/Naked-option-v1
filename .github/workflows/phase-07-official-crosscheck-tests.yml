@@ -105,5 +105,39 @@ jobs:
               raise SystemExit("authorization_digest_mismatch")
           PY
           else
-            echo "No new cross-check manifest exists yet; no live source calls are performed by this workflow."
+            python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          paths = [
+              "scripts/dhan_instrument_master.py",
+              "scripts/test_dhan_instrument_master.py",
+              "scripts/official_reference_crosscheck.py",
+              "scripts/test_official_reference_crosscheck.py",
+              "scripts/run_official_reference_crosscheck.py",
+              "scripts/test_run_official_reference_crosscheck.py",
+              "scripts/validate_official_reference_crosscheck_approval.py",
+              "scripts/test_validate_official_reference_crosscheck_approval.py",
+              ".github/workflows/phase-07-official-crosscheck-tests.yml",
+              ".github/workflows/phase-07-official-crosscheck-live.yml",
+              "research/phase7/DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_PLAN.md",
+              "research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_PLAN_TESTER.md",
+              "research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md",
+              "research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_SUBMISSION.md",
+              "research/gates/PHASE7_DHAN_SAMPLE_ARTIFACT_TESTER.md",
+              "data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/response.json",
+              "data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/manifest.json",
+          ]
+          actual = {}
+          for rel in paths:
+              path_obj = pathlib.Path(rel)
+              actual[rel] = {
+                  "git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + rel], text=True).strip(),
+                  "sha256": hashlib.sha256(path_obj.read_bytes()).hexdigest(),
+              }
+          print("CANDIDATE_PROTECTED_FINGERPRINTS=" + json.dumps({
+              "head_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "protected_files": actual,
+              "live_request_authorized": False,
+          }, sort_keys=True))
+          PY
+            echo "No cross-check manifest exists; this output is only for preparing a separately reviewed manifest. No public-source calls are performed."
           fi
