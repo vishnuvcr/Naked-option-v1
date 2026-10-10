@@ -434,3 +434,10 @@ The finite source-discovery implementation is now in place, and its latest hoste
 The sampler uses fixed CDSL, Hugging Face, one-date public JSON, page and directory-metadata probes only. It enforces shared request/byte caps, strict HTTP 206/Content-Range checks, URL/host/range allowlists, no credential forwarding, synthetic/provenance rejection, and safe metadata-only GitHub directory parsing. The live workflow consumes the single-use manifest before source access; the offline workflow invokes only fixtures.
 
 **No live source probes have been made by this implementation.** The previous Gate A manifest is spent; this work requires a separate code-gate PASS and then a new one-run manifest. Even after the sample, the artifact must pass its own independent audit. Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain unauthorized.
+
+
+### Discovery 3 code handoff refreshed — 2026-10-10
+
+The source-discovery code has been tightened again and the current hosted offline suite [Run 38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed **29/29 checks** on commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. The CDSL probe now reports candidate same-column numeric buy/sell/net values from the bounded equity-row sample, but explicitly does not accept them as model features before grouped-header reconciliation. The public JSON probe recursively removes credential-like fields and redacts sensitive URL query values.
+
+The [current code-gate review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md) pins the exact six protected file Git blobs and byte SHA-256 hashes. **No live source requests have been made.** The spec-only PASS is not a code gate. A fresh isolated tester code PASS and a separate one-run manifest are required; even after the sample, its artifact must receive an independent audit. Full-history acquisition and model fitting remain unauthorized.
