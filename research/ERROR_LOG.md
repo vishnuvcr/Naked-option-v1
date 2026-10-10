@@ -591,3 +591,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Run `38042956380` failed from a malformed workflow assertion string. Run `38042983388` failed because a Python string assertion incorrectly escaped the literal GitHub Actions secret expression. Both assertions were corrected.
 - Current [Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27/27 offline regressions.
 - These were offline fixture/guard errors only; no Dhan token was passed to test jobs and no Dhan API request occurred.
+
+
+## 2026-10-10 — Dhan sample stopped at index instrument metadata
+
+- Run `38043148580` validated and consumed the exact one-run manifest, then made two requests. It stopped at the `/v2/instrument/IDX_I` endpoint before any historical candle requests.
+- Artifact `11666064550`, ZIP SHA-256 `45f2b23a0835cb6b1af52ac12913bf86062f9c82a0d3edcef4c810a3f30f38d9`, contained only `request_count: 2` and `status: BLOCKED_INSTRUMENT_METADATA`. No raw token/profile fields were included.
+- Tester artifact audit returned REQUEST CHANGES because the numeric HTTP status was missing. Adapter now includes only the status code and counts in blocked metadata results; an offline redaction regression was added.
+- The spent manifest must not be reused. A fresh exact-snapshot code review and single-use manifest are required for any diagnostic retry. No candle data/model analysis was produced.
