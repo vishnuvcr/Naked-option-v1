@@ -1341,7 +1341,7 @@ This bundle contains encrypted monthly CSV parts (.csv.gz.enc) and metadata. It 
 To decrypt locally, use scripts/decrypt_nifty_1m_composite.py and set HF_TOKEN to the same secret value used by the collection workflow. The token value is never written to this bundle.
 After decryption, each part is a gzip-compressed CSV. Parts can be read individually with pandas/pyarrow and concatenated offline.
 
-The columns include NIFTY spot bars, Dhan rolling-option OHLC, IV, OI, volume, strike, spot, provenance and reason-coded historical Greek fields. Historical Greeks remain null unless a timestamp-aligned expiry/rate/dividend table is available. This endpoint is a rolling ATM-relative dataset, not every historical option contract/strike.
+The columns include NIFTY spot bars, Dhan rolling-option OHLC, IV, OI, volume, strike, spot, provenance and reason-coded Greek fields. If a point-in-time expiry/rate/dividend table is available, Greeks use those sourced inputs; otherwise approximate proxy Greeks may use a rule-derived expiry and explicit zero-rate/zero-dividend assumptions. Proxy rows carry `CALCULATED_BS_V1_PROXY_INPUTS` plus assumption/provenance columns; if expiry cannot be mapped, Greeks remain null. No current option-chain Greek snapshots are backfilled. This endpoint is a rolling ATM-relative dataset, not every historical option contract/strike.
 
 See dataset_manifest.json and coverage_and_errors.json for completeness, request IDs, checksums, response counts and source gaps. COMPLETE_REQUEST_GRID means all enumerated requests were resolved; partial/empty responses and missing Greek inputs are not hidden.
 """
