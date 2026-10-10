@@ -218,3 +218,12 @@ Tester returned REQUEST CHANGES before data acquisition. The proposal had five b
 **Tester → Developer:** Correct formulas and source-format boundaries; no source feasibility or empirical work until the new exact spec passes.
 
 **Developer → Tester:** Re-review the corrected spec and synthetic family-bootstrap fixture; only a PASS can authorize small-sample source feasibility.
+
+
+## 2026-10-10 — Tester rejected Gate A sampler before live fetch
+
+The independent tester found that the source sampler checked the requested trade date only on the first archive row, which could hide mixed-date records. The developer must validate all rows, record distinct date count, and add negative fixtures for both legacy and UDiFF. No workflow or live download has run.
+
+**Tester → Developer:** Fix row-wise date validation and tests, then resubmit exact blobs.
+
+**Developer → Tester:** Keep Gate A workflow disabled until the corrected sampler is independently approved.
