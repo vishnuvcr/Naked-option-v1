@@ -1233,3 +1233,30 @@ No live source requests or model operations have occurred in this policy correct
 
 **Developer → Tester:** Review the newly pinned cache hierarchy, arithmetic, source request ceilings and regression receipt; do not request the waived value cross-check.  
 **Tester → Developer:** Return a precise review of the corrected exact snapshot; if approved, authorize only the exact acquisition manifest/workflow drafting step, not an unreviewed live request.
+
+## 2026-10-11 — Composite one-minute NIFTY spot/options CSV request
+
+### User request
+Create a composite CSV of minute-level NIFTY spot and historical options data, including Greeks where possible, by combining bounded API requests and provide it as an offline/reference data package so the research does not repeatedly download history. User reiterated “Continue” to resume implementation.
+
+### Developer decisions and work completed
+- Followed the existing PPR-4 Dhan-first plan and checked the prior policy, tester review, error log, chat log and README before continuing. The explicit user waiver remains in force: accept Dhan values as provided; no Dhan-vs-NSE/third-party price-value cross-check is required. Do not treat missing data for one feature family as a global research stop.
+- Used current Dhan documentation to structure intraday requests in 30-day non-overlapping shards (within the provider's 90-day limit) and rolling-option requests in 30-day shards (the endpoint's documented per-request limit). The output scope is the five-year Dhan rolling ATM-relative options dataset, not every historical contract and strike.
+- Added an explicit root acquisition manifest and year-indexed per-request manifests covering 2021-10-11 through 2026-10-10 (end exclusive at 2026-10-11).
+- Request arithmetic: 61 thirty-day windows; 8,540 rolling-option calls (2 expiry flags × 21 relative strikes for expiryCode 0 plus 7 each for expiryCode 1/2 × 2 option sides × 61 windows) and 61 NIFTY spot calls = 8,601 planned requests. The hard cap is 100 retries and 8,701 total wire requests, one retry per request, serial pacing no faster than 2 requests/second, and response/aggregate byte/row limits.
+- Built a collector/exporter with timestamp-zone normalization (UTC/IST), exact timestamp spot joins, separate Dhan rolling spot and NIFTY index spot fields, source-request IDs, SHA-256 provenance, encrypted resumable raw-response cache, append-only cumulative attempt/retry ledger, monthly CSV partitions, schema/coverage/error manifest, encrypted downloadable artifact, and offline decryption/merge script.
+- Market rows are not committed as plaintext to the public repo. AES-256-GCM-encrypted CSV parts are planned for the artifact, with the same `HF_TOKEN` value used as key-derivation input to the local decryptor. Keep that token value available until the downloaded files have been decrypted and safely stored offline.
+- Historical Dhan rolling-option data does not include stored historical delta/gamma/theta/vega. The code never backfills current option-chain Greeks. It derives Black–Scholes Greeks from source-based expiry/rate/dividend data when available, and otherwise emits visibly tagged proxy Greeks based on rule-derived expiries and zero-rate/zero-dividend assumptions. Rows include `greek_status`, `expiry_mapping_source`, `risk_free_rate_source`, `dividend_yield_source` and `greek_assumption`; if expiry cannot be mapped, Greek columns remain null.
+- Fixed a relative-strike validator parse error, stale Greek-status assertions, expiry-transition test assumptions, a policy validator's stale wording check and the live workflow's malformed condition. These issues and corrections are recorded in `research/ERROR_LOG.md`.
+
+### Test results and gate state
+- [Manifest validator run 38079523634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38079523634): passed exact request-grid checks after the signed ATM-offset parser correction.
+- [Composite pipeline run 38081041667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081041667): offline tests passed after the expiry-calendar fixture correction.
+- [Composite pipeline run 38081173079](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081173079): passed collector/decryptor, request-grid and offline safety checks after the Greek-provenance wording update.
+- [PPR-4 policy run 38081202899](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081202899): passed after the validator was aligned with the explicitly labelled proxy-Greek policy.
+- A newer regression adds a static check that the live workflow requires tester approval before approval-spend and uploads only encrypted market-data CSV parts. The latest workflow run for this addition is tracked at [38081257358](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081257358).
+- No authenticated Dhan market-data calls, model fitting, prediction scoring, holdout access or trading-P&L calculations occurred in this implementation/testing step. The live acquisition manifest still has `live_requests_authorized=false` and remains behind the separate isolated tester review and approval file.
+
+**Developer → Tester:** Review the exact current developer commit (root manifest, all six request-list files, collector, decryptor, validators/tests and guarded workflows). Independently check arithmetic, endpoints/windows, option selectors, Greek source/proxy treatment, the retry/byte limits, encryption/decryption round trip, branch pins and approval-before-network ordering. Do not perform the waived Dhan value cross-check. Return a scoped decision on the tester branch; no live request is authorized by offline tests alone.
+
+**Tester → Developer:** Verify every pinned blob independently; provide precise findings and PASS/REQUEST CHANGES for the exact snapshot. If passed, the developer may create the pinned single-use approval file and then initiate only the enumerated live requests.
