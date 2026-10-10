@@ -88,3 +88,10 @@ After the original 27-test handoff, implementation was further hardened: the CDS
 Current code-gate snapshot: `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Latest hosted offline run [38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed **29/29 checks**. The refreshed request with final file-byte hashes/Git blobs is [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
 
 No live data were requested and the source-probe manifest remains absent. The isolated tester code gate is still pending.
+
+
+## Corrected code-gate resubmission — 2026-10-10
+
+After the tester returned REQUEST CHANGES, the developer corrected the six reported issues. The latest protected-code snapshot is `1706a17d268e2b139fc9dba4504f498acc4f5de0`. Hosted offline run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32. Exact hashes and the review scope are pinned in [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+
+No source requests were made. The prior test failure from nested `requestSignature` handling was corrected before the latest green run. A fresh tester PASS is required, followed by a new one-run manifest. Full history and model fitting remain unauthorized.
