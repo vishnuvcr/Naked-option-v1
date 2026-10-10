@@ -32,19 +32,23 @@ Each URL below is fixed in code before the workflow runs. A source can be marked
 
 | ID | Exact probe | Maximum requests | Response cap | Allowed use |
 |---|---|---:|---:|---|
-| CDSL-1 | `https://www.cdslindia.com/Publications/ForeignPortInvestor.html` | 1 | 256 KiB | Parse dated report links/visible archive span only |
-| CDSL-2 | `https://www.cdslindia.com/downloads/Publications/Latest/Latest_30092024.xls` | 1 | 512 KiB | One single-day historical FPI report; validate date/schema only |
-| CDSL-3 | `https://www.cdslindia.com/downloads/Publications/Latest/Latest_09102024.xls` | 1 | 512 KiB | One single-day historical FPI report; validate date/schema only |
-| CDSL-4 | `https://www.cdslindia.com/Publications/FIITrends.aspx` | 1 | 128 KiB | Archive-form/page metadata; no form submission, session workaround or broad date query |
-| HF-1 | Dataset metadata for `johnwick3690/stocks` at immutable commit `f90f7acad633ba5a803f25cf431fb5f13ce3d162` | 1 | 128 KiB | File path, size, revision metadata only |
-| HF-2 | HEAD + byte range `0-8191` and tail range of the file `nifty historical data/fii dii data/fii_dii_2024_to_today.csv` at the pinned commit | 3 | 8 KiB per range; HEAD has no body | Inspect CSV header and small head/tail samples only; maximum 16 KiB of CSV bytes total |
-| CHIRAG-1 | Pin current repository commit metadata for `chirag127/fii-dii-activity-api`, then fetch `data/2026-10-01.json` from that exact commit | 2 | 32 KiB total, 8 KiB file body | Single dated JSON row/schema/source probe |
-| SEBI-1 | `https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html` | 1 | 256 KiB | Archive link/date metadata only; do not download monthly transaction files |
-| NSE-1 | `https://www.nseindia.com/reports/fii-dii/` | 1 | 256 KiB | Visible fields/CSV link metadata only; do not submit date-range queries |
-| CALCSETU-1 | `https://calcsetu.com/Utility/Diifii/` | 1 | 128 KiB | At most 20 visible recent table rows, page metadata only; no pagination/range requests |
-| GH-META-1 | Git tree/README metadata for `marketcalls/fii-dii-data` and `r7sh7/fii-dii-data` | 2 | 128 KiB per response | Repository metadata and tracked-file sizes only; no raw history files |
+| CDSL-1 | `https://www.cdslindia.com/Publications/ForeignPortInvestor.html` | 1 | 128 KiB | Parse dated report links/visible archive span only |
+| CDSL-2 | `https://www.cdslindia.com/downloads/Publications/Latest/Latest_30092024.xls` | 1 | 384 KiB | One single-day historical FPI report; validate date/schema only |
+| CDSL-3 | `https://www.cdslindia.com/downloads/Publications/Latest/Latest_09102024.xls` | 1 | 384 KiB | One single-day historical FPI report; validate date/schema only |
+| CDSL-4 | `https://www.cdslindia.com/Publications/FIITrends.aspx` | 1 | 64 KiB | Archive-form/page metadata; no form submission, session workaround or broad date query |
+| HF-1 | `https://huggingface.co/api/datasets/johnwick3690/stocks/revision/f90f7acad633ba5a803f25cf431fb5f13ce3d162` | 1 | 128 KiB | File path, size, revision metadata only |
+| HF-2 | HEAD + ranges `0-8191` and `L-8192` through `L-1` on `https://huggingface.co/datasets/johnwick3690/stocks/resolve/f90f7acad633ba5a803f25cf431fb5f13ce3d162/nifty%20historical%20data/fii%20dii%20data/fii_dii_2024_to_today.csv` | 3 | 8 KiB per range; HEAD has no body | Inspect CSV header and small head/tail samples only; maximum 16 KiB of CSV bytes total |
+| CHIRAG-1 | `https://api.github.com/repos/chirag127/fii-dii-activity-api/commits/main`, then `https://raw.githubusercontent.com/chirag127/fii-dii-activity-api/{resolved_commit_sha}/data/2026-10-01.json` | 2 | 32 KiB total, 8 KiB file body | Single dated JSON row/schema/source probe |
+| SEBI-1 | `https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html` | 1 | 128 KiB | Archive link/date metadata only; do not download monthly transaction files |
+| NSE-1 | `https://www.nseindia.com/reports/fii-dii/` | 1 | 128 KiB | Visible fields/CSV link metadata only; do not submit date-range queries |
+| CALCSETU-1 | `https://calcsetu.com/Utility/Diifii/` | 1 | 64 KiB | At most 20 visible recent table rows, page metadata only; no pagination/range requests |
+| GH-META-1 | GitHub Contents API metadata-only calls to `/repos/marketcalls/fii-dii-data/contents/data/history.json` and `/repos/r7sh7/fii-dii-data/contents/data/history.json` | 2 | 64 KiB per response | Repository metadata and tracked-file sizes only; no raw history files |
 
-**Global limits:** maximum 15 HTTP requests in total, maximum 2 MiB received across all sources, no redirects to unregistered hosts, and no automatic retries outside the alternate-host/URL allowlist pinned in code. Any request returning HTTP 200 to a byte-range request must be read only up to 8 KiB and rejected unless it includes a valid `Content-Range` proving the requested range was honored. The sampler must never read more than the defined cap plus one byte for overflow detection.
+**Global limits:** maximum 15 HTTP requests in total and maximum 2 MiB (2,097,152 bytes) read across all response bodies, including redirects, errors and partial responses. The sum of all declared maximum body budgets is 1,584 KiB, leaving 464 KiB headroom under the global cap. A shared byte/request budget must be enforced across the whole run; any unregistered URL/host, non-allowlisted redirect, exceeded request count or exhausted global byte budget stops all subsequent requests.
+
+For Hugging Face, the immutable metadata URL is `https://huggingface.co/api/datasets/johnwick3690/stocks/revision/f90f7acad633ba5a803f25cf431fb5f13ce3d162`; file requests use the exact pinned-commit `resolve` URL for the encoded CSV path. HEAD plus two byte-range requests are allowed. Follow at most one redirect per request, and only through the frozen redirect-host allowlist: `huggingface.co`, `www.huggingface.co`, `hf.co`, `cdn-lfs.huggingface.co`, `cas-bridge.xethub.hf.co`, `cas-server.xethub.hf.co`, and `us.aws.cdn.hf.co`. If an additional host is returned, record it and mark the source NOT_VERIFIED; do not follow or broaden the allowlist. No HF token, cookies, or authorization headers are forwarded to a redirected host. For other sources, redirects must remain on the corresponding source host (CDSL, NSE, SEBI, CalcSetu, GitHub API/raw) and any cross-host redirect is rejected.
+
+**Range rule (strict):** the HF byte-range requests must return HTTP 206 with an exact `Content-Range` matching the requested inclusive start/end and a consistent total length. HTTP 200 is always rejected for a range request, even if it includes `Content-Range`; read at most 8 KiB plus one byte for overflow detection. Any missing/malformed/mismatched Content-Range is rejected. The sampler must never read more than the defined per-request cap plus one byte for overflow detection.
 
 No other source, URL, date, time range, path, or endpoint may be added after results are seen. New sources must enter a separately versioned proposal and tester gate.
 
