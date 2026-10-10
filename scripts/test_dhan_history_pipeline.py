@@ -243,7 +243,7 @@ def test_cap_plus_one_read_and_global_byte_budget_reject() -> None:
                             headers={"Content-Type": "application/json"})
     must_raise(
         lambda: mod.request_json(
-            mod.DAILY_URL, {}, token="x", budget=mod.RequestBudget(),
+            mod.DAILY_URL, DAILY_REQ, token="x", budget=mod.RequestBudget(),
             opener_factory=lambda: FakeOpener(response), live_authorized=True, now=100,
         ),
         "dhan_response_byte_cap_exceeded",
@@ -358,6 +358,44 @@ def test_expired_option_request_window_and_allowed_fields_validate() -> None:
     must_raise(lambda: mod.validate_request_window(
         mod.ROLLING_OPTION_URL, {**body, "requiredData": ["token"]}
     ), "rolling_option_required_data_unrecognized")
+
+
+def test_daily_window_has_conservative_365_day_cap() -> None:
+    too_long = {**DAILY_REQ, "toDate": "2025-01-02"}
+    must_raise(lambda: mod.validate_request_window(mod.DAILY_URL, too_long),
+               "date_range_exceeds_documented_cap")
+
+
+def test_timezone_offsets_are_rejected_for_intraday_windows() -> None:
+    intraday = {"securityId": "13", "exchangeSegment": "IDX_I", "instrument": "INDEX",
+                "interval": "1", "fromDate": "2024-01-01T09:15:00+05:30",
+                "toDate": "2024-01-02T15:30:00+05:30"}
+    must_raise(lambda: mod.validate_request_window(mod.INTRADAY_URL, intraday),
+               "datetime_timezone_not_allowed")
+
+
+def test_rolling_option_validator_handles_custom_required_fields() -> None:
+    minimal = {
+        "data": {"ce": {key: ROLLING["data"]["ce"][key]
+                          for key in ("timestamp", "open", "high", "low", "close", "volume")}}
+    }
+    result = mod.validate_rolling_option_payload(
+        minimal, option_type="CALL",
+        required_fields=("open", "high", "low", "close", "volume"),
+    )
+    assert result["row_count"] == 2
+
+
+def test_cache_bundle_rejects_invalid_json_or_validation() -> None:
+    with tempfile.TemporaryDirectory() as temp:
+        must_raise(lambda: mod.atomic_cache_bundle(
+            b"not-json", {}, cache_root=temp, source_url=mod.DAILY_URL,
+            request_metadata={}, request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
+        ), "cache_response_json_invalid")
+        must_raise(lambda: mod.atomic_cache_bundle(
+            b"{}", {}, cache_root=temp, source_url=mod.DAILY_URL,
+            request_metadata={}, request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
+        ), "cache_response_json_root_invalid")
 
 
 def test_invalid_request_windows_and_intervals_rejected() -> None:
