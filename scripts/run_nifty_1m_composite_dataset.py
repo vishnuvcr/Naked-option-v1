@@ -41,6 +41,7 @@ EXPORT_ROOT = ROOT / "data/exports/nifty_1m_composite"
 PLAIN_ROOT = EXPORT_ROOT / "plain"
 ENCRYPTED_ROOT = EXPORT_ROOT / "encrypted"
 REPORTS_ROOT = ROOT / "data/reports/nifty_1m_composite"
+ATTEMPT_LEDGER_PATH = REPORTS_ROOT / "request_attempt_ledger.json"
 IST = ZoneInfo("Asia/Kolkata")
 UTC = dt.timezone.utc
 MAGIC = b"N1C1"
@@ -701,6 +702,39 @@ class RequestPacer:
             if remaining > 0:
                 time.sleep(remaining)
         self.last = time.monotonic()
+
+
+def load_attempt_ledger() -> dict[str, Any]:
+    base = {
+        "schema_version": 1, "total_wire_attempts": 0, "total_retry_attempts": 0,
+        "request_attempts_by_id": {}, "permanent_failure_requests": {},
+        "permanent_failure_families": {}, "updated_at_utc": utc_now(),
+    }
+    if not ATTEMPT_LEDGER_PATH.exists():
+        return base
+    try:
+        loaded = load_json(ATTEMPT_LEDGER_PATH)
+        if loaded.get("schema_version") != 1:
+            raise ValueError("attempt_ledger_schema_mismatch")
+        for key in ("total_wire_attempts", "total_retry_attempts"):
+            if type(loaded.get(key)) is not int or loaded[key] < 0:
+                raise ValueError("attempt_ledger_counter_invalid")
+        for key in ("request_attempts_by_id", "permanent_failure_requests", "permanent_failure_families"):
+            if not isinstance(loaded.get(key), dict):
+                raise ValueError("attempt_ledger_map_invalid")
+        base.update(loaded)
+        return base
+    except Exception:
+        # Never reset an untrusted/corrupt request budget to zero.
+        base["total_wire_attempts"] = 10**12
+        base["total_retry_attempts"] = 10**12
+        base["permanent_failure_families"]["__ALL__"] = "attempt_ledger_corrupt"
+        return base
+
+
+def save_attempt_ledger(ledger: dict[str, Any]) -> None:
+    ledger["updated_at_utc"] = utc_now()
+    atomic_write(ATTEMPT_LEDGER_PATH, (json.dumps(ledger, sort_keys=True, indent=2) + "\n").encode("utf-8"))
 
 
 def fetch_live(request: dict[str, Any], token: str, pacer: RequestPacer,
