@@ -22,7 +22,7 @@ Provider docs currently describe daily history back to instrument inception, int
 |---|---|---|---|---|
 | NIFTY 50 daily index | `POST https://api.dhan.co/v2/charts/historical` | Earliest returned history through 2026-10-10; deterministic calendar-year chunks if needed | timestamp, OHLC, volume | Begin with one bounded schema-checked request; then fetch chronological year shards under a new exact manifest |
 | NIFTY 50 intraday index | `POST https://api.dhan.co/v2/charts/intraday` | Five-year provider window ending 2026-10-10 | 1-minute OHLCV; derive 5/15/30/60-minute bars from raw 1-minute data using session-aware aggregation and verify aggregation invariants | Calendar chunks no longer than 90 days; maximum 16 MiB/response; checkpoint each shard before proceeding |
-| NIFTY index options — expired/rolling | `POST https://api.dhan.co/v2/charts/rollingoption` | Five-year provider window ending 2026-10-10 | 5-minute OHLC, IV, volume, OI, absolute strike, spot; relative-strike identifier retained | Calendar chunks no longer than 30 days; weekly/monthly expiry selection kept as separate fields; CALL/PUT separate; start ATM ±5, expand to ATM ±10 only where pre-registered tasks need it |
+| NIFTY index options — expired/rolling | `POST https://api.dhan.co/v2/charts/rollingoption` | Five-year provider window 2021-10-11 through 2026-10-10, 1-minute bars, 30-day chunks | OHLC, IV, volume, OI, returned strike, rolling spot and timestamp | Current/near expiryCode 0: ATM±10; next/far expiryCode 1/2: ATM±3; both WEEK/MONTH flags and CALL/PUT sides; exact request manifest lists 8,540 request keys |
 | Dhan public instrument list | Published compact/detailed CSV URL in official docs | Current mapping metadata only | Security ID, segment, instrument, underlying, expiry/strike/type/lot/tick fields when present | Use only to aid request configuration and effective-dated contract metadata; per user's instruction it is not a price-value cross-check |
 
 Provider references:
@@ -57,13 +57,23 @@ These are parent-plan ceilings; the next exact request manifest must repeat/free
 |---|---|---:|---:|---:|---:|
 | Dhan daily NIFTY candles | One non-overlapping calendar-year shard per request, `toDate` exclusive, from 1990-01-01 through 2026-10-10 | 40 | 1 MiB | 20 MiB | 400 |
 | Dhan 1-minute NIFTY intraday | 30-calendar-day non-overlapping shards over the latest five-year window; 1-minute raw grid is the canonical intraday input | 70 | 8 MiB | 256 MiB | 12,000 |
-| Dhan rolling expired NIFTY options | 30-calendar-day non-overlapping shards; interval 5 minutes; `expiryFlag` in WEEK/MONTH; `expiryCode` in 0/1/2; strikes ATM−5 through ATM+5; `drvOptionType` CALL/PUT; include OHLC/IV/volume/strike/OI/spot | 8,100 | 2 MiB | 2 GiB | 2,500 |
+| Dhan rolling expired NIFTY options | 30-calendar-day non-overlapping shards; interval 1 minute; `expiryFlag` WEEK/MONTH; `expiryCode=0`: ATM±10; `expiryCode=1/2`: ATM±3; CALL/PUT; OHLC/IV/volume/strike/OI/spot | 8,540 | 2 MiB | 4 GiB | 10,000 |
 | Initial other-free-source pilot | At most 10 named sources with direct, pinned request URLs/query/revisions; one bounded sample request per planned source unless its manifest records an archive-file fetch | 20 | 4 MiB | 32 MiB | 20 rows for tabular samples; file archive requests must declare a source-specific archive cap |
 
-The endpoint-specific date window remains subject to provider limits: the intraday request may never exceed 90 days, and the rolling-option request may never exceed 30 days. Proposed initial windows are at most 30 days for both. The 8,100 rolling-option call cap is a maximum, derived from no more than 61 date chunks × 2 expiry flags × 3 expiry codes × 11 relative strikes × 2 option types = 8,052 theoretical cells. The exact manifest must list every request key explicitly and may not exceed 8,100 calls. No implicit Cartesian expansion at runtime is allowed.
+The endpoint-specific date window remains subject to provider limits: the intraday request may never exceed 90 days, and the rolling-option request may never exceed 30 days. Proposed initial windows are at most 30 days for both. The 8,540 rolling-option request count is derived from 61 date chunks × 2 expiry flags × (21 strikes for expiryCode 0 + 7 strikes for expiryCode 1 + 7 strikes for expiryCode 2) × 2 option types = 8,540 requests. The separate NIFTY spot stream uses 61 additional 30-day requests. Allow at most 100 total retry requests across the entire run; maximum wire requests are 8,701. The exact manifest explicitly lists every request key, and runtime code must not use an implicit Cartesian expansion. No implicit Cartesian expansion at runtime is allowed.
 
 Budgets are hard stops. No retry loop or alternate endpoint is permitted unless included in the manifest. On a size/row cap, quarantine the affected response, log it, and either use only a pre-registered smaller shard within the remaining approved request budget or skip that shard and invoke a free fallback. Never exceed per-request provider windows or aggregate budgets. Any broader window/contract grid needs a new manifest and independent tester PASS. Request pacing is serial at no more than 2 requests/second; maximum planned Dhan request count per execution day is 8,250, below the provider's published daily ceiling. The workflow checkpoints state and resumes cache-missing shards only, with bounded workflow time; it must not start over on every run.
 
+
+### 2.3 One-minute composite CSV and Greek derivation
+
+The deliverable is a chronological long-form composite CSV with one row per minute × rolling-option selector (expiry flag/code, relative strike and option side). Attach NIFTY spot OHLCV from the one-minute index endpoint on exact timestamp matches, retain the rolling endpoint's own `spot` field in a separate column, and do not overwrite or reconcile either value. Export compressed yearly CSV parts plus a dataset manifest and request-coverage/error report, keeping each yearly part independently downloadable and uploadable.
+
+Required fields: dataset/source version, epoch/UTC/IST timestamp, local session date, underlying, expiry flag/code, relative strike, returned strike, option side, option OHLC, volume, OI, IV, rolling spot, joined NIFTY spot OHLCV, source request ID, raw response hash, cache status, actual expiry date, time-to-expiry, risk-free/dividend inputs, delta, gamma, theta/day, vega per 1% IV, rho, Greek model and reason-coded `greek_status`.
+
+**Historical Greek limitation:** the Dhan rolling-options endpoint provides OHLC/IV/OI/volume/strike/spot/timestamp, not historical delta/gamma/theta/vega. Current Option Chain Greeks are snapshots and must not be copied backward as if they were historical. Greeks will be derived using a disclosed Black–Scholes model only when the row has a historically valid actual expiry date and risk-free/dividend input series. An independently sourced effective-dated expiry calendar is needed for that purpose; if it is missing, keep raw option features and IV, set Greek columns null, and report `greek_status=EXPIRY_OR_RATE_INPUT_MISSING`. This is an explicit missing-feature result, not a reason to stop collection of the rest of the dataset.
+
+The coverage label must say “complete requested Dhan rolling grid” only if every planned request is successfully resolved (a valid empty response may count as resolved) and all expected timestamp/selector keys are represented. Otherwise report partial coverage with failed request IDs. This grid is the five-year **provider-supported rolling option range**, not every strike/contract available historically; the API's ATM-relative range and expiry codes define its scope.
 
 ## 3. Free-source fallback matrix
 
@@ -117,7 +127,7 @@ The accepted one-row sample is covered by the user waiver, and no cross-source p
 The first live wave should prioritize:
 1. Dhan daily NIFTY history and a small schema-controlled first intraday window;
 2. Dhan intraday history in resumable 90-day shards;
-3. Dhan expired rolling options in resumable 30-day shards at five-minute cadence, ATM ±5 first;
+3. Dhan expired rolling options in resumable 30-day shards at one-minute cadence, expiryCode 0 ATM±10 and expiryCode 1/2 ATM±3, both CALL/PUT sides and WEEK/MONTH flags;
 4. free-source acquisition for VIX, official derivatives/participant data, institutional flows, cross-market/macro, news and calendar/corporate actions;
 5. composite panel generation with immutable source lineage and field-level missingness;
 6. feature/label generation and development-only prediction runs after the required execution/holdout gates pass.
