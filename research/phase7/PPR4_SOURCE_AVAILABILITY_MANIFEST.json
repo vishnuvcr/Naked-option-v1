@@ -84,7 +84,7 @@
     },
     "prospective_holdout_proposal": {
       "path": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
-      "blob": "0381c9dbbcc3a98eea398aef65750f2988c8465f",
+      "blob": "23f19a3e8068f6687545df15917fce23498ba462",
       "status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
       "description": "Prospective future holdout proposal; no existing boundary claimed, no split created, no data/model operation authorized."
     }
@@ -245,7 +245,7 @@
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
     "ppr4_inventory_validation": "OFFLINE_METADATA_ONLY_VALIDATION_PASSED_BEFORE_TESTER_REPORT_PIN_UPDATE; RETRY_REQUIRED_AFTER_CONTRACT_STATUS_CORRECTION",
-    "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED",
+    "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED_UNTIL_DESIGN_REVIEW_AND_BOUNDARY_IMPLEMENTATION_GATE",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
     "ppr4_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075566251",
@@ -261,9 +261,12 @@
     "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values.",
     "prospective_holdout_proposal": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
     "prospective_holdout_proposal_status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
-    "prospective_holdout_proposal_blob": "0381c9dbbcc3a98eea398aef65750f2988c8465f",
+    "prospective_holdout_proposal_blob": "23f19a3e8068f6687545df15917fce23498ba462",
     "ppr4_exit_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
     "proposed_next_gate": "Tester may review the prospective holdout design only. A design PASS does not authorize source downloads, data-panel acceptance, fitting/tuning/scoring, forecast capture or label release.",
-    "prospective_holdout_design_scope": "A design-only proposal for a future 252-origin forward holdout plus 10-session maturity tail. It is not yet approved or implemented; all download/model/holdout permissions remain false."
+    "prospective_holdout_design_scope": "A design-only proposal for a future 252-origin forward holdout plus 10-session maturity tail. It is not yet approved or implemented; all download/model/holdout permissions remain false.",
+    "prospective_holdout_budget": "Cumulative upper bound: PPR3 development run 4344 fits + prospective final model fitting 3564 fits = 7908, under global 8000, assuming no unbudgeted fitted calibration/feature estimators.",
+    "prospective_holdout_window": "252 official NSE decision origins plus 10-session label-maturity tail; boundary selector uses first official session whose IST local date is strictly after the final development/configuration freeze commit's IST local date.",
+    "prospective_holdout_missingness_rule": "No candidate-specific row dropping; any missing frozen forecast makes that inferential family incomplete/not promotable. Target-row unavailability can only exclude a whole origin family-wide before outcome values are opened."
   }
 }
