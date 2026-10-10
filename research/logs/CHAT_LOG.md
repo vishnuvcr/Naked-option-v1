@@ -1193,3 +1193,14 @@ Continue with read-only GitHub code/content search for an existing split boundar
 
 **Developer → Tester:** Review the revised source register and any exact data-sample request before any data endpoint is called.
 **Tester → Developer:** Keep all data/model/holdout permissions false until a new exact-source PASS.
+
+## 2026-10-11 — User asked whether the Dhan token resolves the data blocker
+
+The developer re-read the default README, phase status, PPR-4 Wave 1 manifest/result, Dhan market-data workflow and approval, and the prior Dhan sample evidence. The repo's guarded workflows reference `secrets.DHAN_ACCESS_TOKEN`; the one-use Dhan daily NIFTY sample request [38055202149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202149) succeeded (one POST, HTTP 200, 121 bytes). The current secret value/expiry is not readable through the connector and must never be logged.
+
+The present blocker is not “no token”: the single row remains quarantined until official NSE OHLC and Dhan instrument mapping are verified; the single-use approval is spent; the PPR-4 documentation-only approval did not authorize data pulls; and the exact next data request requires its own manifest/workflow review and independent tester PASS. The current Wave 1 manifest states `authentication: NONE` because it concerns three public documentation pages, not Dhan historical-data endpoints.
+
+Dhan documentation says individual access tokens are valid for 24 hours and distinguishes daily from intraday history. A token also does not prove API entitlement, full history completeness, point-in-time correctness or model acceptance. README, status and this log were clarified to separate credentials, source coverage, authorization and acceptance. No new network request, modeling or holdout access occurred.
+
+**Developer → Tester:** Review the exact-snapshot test receipt and next official-source request before data access; retain the blocked gate until an explicit PASS.
+**Tester → Developer:** Ensure credential presence is not conflated with source completeness or model acceptance; review exact requests, coverage and boundary before authorizing progression.
