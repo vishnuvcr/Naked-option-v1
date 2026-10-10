@@ -510,3 +510,15 @@ The 15 uploaded PDFs are under a paper-by-paper method audit. Full-text extracti
 
 - [Uploaded Paper Method Coverage Audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md)
 - Current status: prediction-only; no candidate promoted; Phase 7 exact-snapshot gate pending; Phase 8 blocked.
+
+
+## Latest paper-replication gate update — 2026-10-10
+
+PPR-1 received an independent **REQUEST CHANGES** decision; the report is archived on the tester branch. Developer corrections now separate directional and regression inference families, define the primary paired Brier improvement / regression absolute-error improvement tests, specify moving-block max-statistic inference, strengthen endpoint and point-in-time rules, bound the confirmatory search, and add PDF page-range navigation aids for the 15 uploaded papers. These amendments are not yet tester-approved. Page ranges are not a substitute for claim-level source citations.
+
+- [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PAPER_REPLICATION_TESTER_REPORT.md)
+- [Updated protocol](research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md)
+- [Updated paper crosswalk](research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md)
+- [Current research status](research/STATUS.md)
+
+**Gate remains closed:** no PPR-2 reconciliation, new data pull, model fit/tune/score, final-holdout access, or option P&L until an exact-snapshot independent tester PASS.
