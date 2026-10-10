@@ -545,3 +545,15 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - **The prediction batch has not run.** The exact-snapshot approval manifest write was blocked by platform safety checks; the approval JSON remains absent. The automatic workflow therefore has no authority to enter empirical execution.
 - Run #41 and #42 failed only on test fixtures, were corrected, and are logged as non-evidence. Run #43 is regression evidence, not model performance evidence.
 - Phase 7 remains at the empirical-execution authorization boundary. Phase 8 and any strategy promotion remain blocked.
+
+
+## 2026-10-10 — Phase 7 Run #44 completed; no model promoted
+
+- [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915) completed successfully: regression job, exact-snapshot approval job, empirical prediction job, result validation and artifact upload all succeeded.
+- Immutable artifact ID: `11657636547`, `phase7-available-global-results`; artifact SHA-256: `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
+- Independent tester audit passed artifact integrity and metric/inference reconciliation. Panel: 91,988 rows; 12 registered methods across five horizons; all 60 cells executed. Source/panel hashes match the results JSON.
+- **Statistical result: no candidate promoted.** Raw family p-values by horizon 1/2/3/5/10 = 0.9840 / 0.8882 / 0.6786 / 0.7745 / 0.9800. Every Bonferroni-adjusted p-value = 1.0.
+- Descriptive leaders: G13 global-equity composite at 1 and 2 sessions; G06 Asia composite at 3 and 5 sessions; G02 Bank Nifty at 10 sessions. Largest observed Brier improvement is G06 at 5 sessions (+0.001623), but its family p=0.7745 and ROC AUC=0.556; this is not persuasive evidence of predictive skill.
+- Global-source cache entries all report `cache_hit: false` in this run; the previous cached schema was not accepted and the series were reacquired. The post-cache action completed; a future separately authorized run should verify cache reuse.
+- [Full result summary](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md); [independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md).
+- **Phase 8 remains BLOCKED.** The final untouched holdout remains unopened; no strategy has been tested or promoted. Further prediction work requires a new preregistered family and independent tester gate.
