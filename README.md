@@ -486,7 +486,7 @@ The DhanHQ adapter, offline tests, and guarded single-sample workflow are now in
 - [Offline regression tests](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/test_dhan_market_data_recovery.py)
 - [Guarded single-sample workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-market-data-live.yml)
 
-[Hosted offline Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27 checks. Earlier test-fixture/assertion failures were corrected and logged. The independent tester has passed the workflow code only; a one-run manifest is required before the first Dhan API request. The token has not been read or exposed.
+[Hosted offline Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27 checks. Earlier test-fixture/assertion failures were corrected and logged. The independent tester has passed the workflow code only; a one-run manifest is required before the first Dhan API request. The access token is scoped to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
 
 The first Dhan sample is limited to token/data-plan status, official index instrument mapping, and two short historical-candle windows for NIFTY 50 and India VIX. This may improve index/price coverage but does not provide the combined daily FII/FPI/DII flow series. No full-history download, features/labels, model fitting or prediction rerun is authorized until the sample is audited and a separate data-integration/model gate passes.
 
@@ -519,3 +519,24 @@ The Dhan index metadata endpoint returns HTTP 302 despite a valid token and acti
 - [Dedicated one-request workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-redirect-probe-live.yml)
 
 [Offline Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 37 checks. Tester approval is limited to one diagnostic request after a fresh exact-hash manifest. Following the redirect, downloading instrument metadata/candles, full history, and rerunning prediction analyses remain blocked until this diagnostic is audited and any next source step receives its own approval.
+
+
+## Current research checkpoint — 10 October 2026
+
+**Current phase: Phase 7, prediction research only.** No option strategy is promoted or being tested, and the registered final holdout remains unopened. Previously reported statistical conclusions are unchanged: none of the five horizon-level tests passed multiplicity correction, so no prediction method has been promoted as reliable.
+
+### Dhan data-coverage blocker and gate status
+
+The bounded Dhan sample [Run 38043667443](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043667443) confirmed that the profile endpoint returned HTTP 200 and the Data API plan was active, but `GET /v2/instrument/IDX_I` returned HTTP 302. No redirect was followed, no candle history was fetched, and no Dhan price series was added. The combined FII/FPI/DII aggregate-flow gap remains open; the Dhan endpoint result is a feasibility failure, not a source-availability pass.
+
+The redirect-target-only proposal and code gate are recorded in [the tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md). The exact developer snapshot was further hardened to require HTTPS, reject actual CR/LF/NUL and malformed host values, ignore Location outside 3xx status, enforce one request and a 1 KiB response budget, and require explicit manual confirmation (`confirm_probe=true`, default false). The JSON artifact writer is regression-tested for a proper newline.
+
+- [Latest offline regression run 38044495634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044495634) passed.
+- [Guarded workflow run 38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209) passed its 38 offline tests, then blocked at manifest validation because the new redirect-probe manifest was absent. The source step was skipped.
+- [Dedicated redirect-probe workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-redirect-probe-live.yml)
+- [Redirect-target specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md)
+- [Redirect workflow REQUEST CHANGES report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md)
+
+**Current gate:** another independent exact-snapshot review is pending after the latest workflow and artifact-writer changes. No new single-use manifest exists and no further live request is authorized yet. Even after the one permitted diagnostic, following the redirect or requesting instrument master/candle/history data requires a separate review; no full-history download, feature/label creation, model fitting, prediction rerun or final-holdout access is authorized at this stage.
+
+The access token is bound only to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
