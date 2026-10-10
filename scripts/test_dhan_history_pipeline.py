@@ -26,6 +26,11 @@ CANDLES = {
     "close": [101.0, 102.0],
     "volume": [200, 250],
 }
+DAILY_REQ = {
+    "securityId": "13", "exchangeSegment": "IDX_I", "instrument": "INDEX",
+    "fromDate": "2024-01-01", "toDate": "2024-01-03", "oi": False,
+}
+
 ROLLING = {
     "data": {
         "ce": {
@@ -153,7 +158,7 @@ def test_request_posts_only_to_allowlisted_dhan_host_and_redacts_token() -> None
     opener = FakeOpener(response, expected_url=mod.DAILY_URL)
     budget = mod.RequestBudget()
     result, meta = mod.request_json(
-        mod.DAILY_URL, {"securityId": "13"}, token="TEST_TOKEN_DO_NOT_LEAK",
+        mod.DAILY_URL, DAILY_REQ, token="TEST_TOKEN_DO_NOT_LEAK",
         budget=budget, opener_factory=lambda: opener, live_authorized=True, now=100,
     )
     req, timeout = opener.calls[0]
@@ -178,7 +183,7 @@ def test_redirect_is_rejected_without_reading_error_body_or_following() -> None:
     budget = mod.RequestBudget()
     must_raise(
         lambda: mod.request_json(
-            mod.DAILY_URL, {}, token="secret", budget=budget,
+            mod.DAILY_URL, DAILY_REQ, token="secret", budget=budget,
             opener_factory=lambda: opener, live_authorized=True, now=100,
         ),
         "dhan_redirect_rejected",
@@ -197,7 +202,7 @@ def test_http_error_does_not_leak_body_or_headers() -> None:
     )
     b = mod.RequestBudget()
     try:
-        mod.request_json(mod.DAILY_URL, {}, token="secret", budget=b,
+        mod.request_json(mod.DAILY_URL, DAILY_REQ, token="secret", budget=b,
                          opener_factory=lambda: FakeOpener(error), live_authorized=True, now=100)
     except ValueError as exc:
         assert str(exc) == "dhan_http_status_403"
@@ -211,7 +216,7 @@ def test_non_json_content_type_rejected() -> None:
     response = FakeResponse(b"not-json", headers={"Content-Type": "text/html", "Content-Length": "8"})
     must_raise(
         lambda: mod.request_json(
-            mod.DAILY_URL, {}, token="x", budget=mod.RequestBudget(),
+            mod.DAILY_URL, DAILY_REQ, token="x", budget=mod.RequestBudget(),
             opener_factory=lambda: FakeOpener(response), live_authorized=True, now=100,
         ),
         "dhan_unexpected_content_type",
@@ -225,7 +230,7 @@ def test_invalid_content_length_and_oversized_length_rejected_before_read() -> N
         response = FakeResponse(b"{}", headers={"Content-Type": "application/json", "Content-Length": length})
         must_raise(
             lambda response=response, expected=expected: mod.request_json(
-                mod.DAILY_URL, {}, token="x", budget=mod.RequestBudget(),
+                mod.DAILY_URL, DAILY_REQ, token="x", budget=mod.RequestBudget(),
                 opener_factory=lambda: FakeOpener(response), live_authorized=True, now=100,
             ),
             expected,
@@ -393,14 +398,15 @@ def test_atomic_cache_bundle_hashes_and_preserves_content() -> None:
 
 
 def test_cache_rejects_unapproved_host_and_credential_key() -> None:
-    raw = b"{}"
+    raw = json.dumps(CANDLES, sort_keys=True).encode()
+    valid = mod.validate_candle_payload(CANDLES)
     with tempfile.TemporaryDirectory() as temp:
         must_raise(lambda: mod.atomic_cache_bundle(
-            raw, {}, cache_root=temp, source_url="https://evil.example/data",
+            raw, valid, cache_root=temp, source_url="https://evil.example/data",
             request_metadata={}, request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_source_url_unregistered")
         must_raise(lambda: mod.atomic_cache_bundle(
-            raw, {}, cache_root=temp, source_url=mod.DAILY_URL,
+            raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
             request_metadata={}, request_parameters={"auth_token": "should-not-persist"},
             fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_manifest_contains_forbidden_key")
