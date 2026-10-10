@@ -835,3 +835,14 @@ Resume actions:
 - No Dhan API request, credential use, data cache population, feature engineering, model rerun or holdout access occurred. Existing prediction results remain unchanged. Next is an independent tester re-review only.
 
 **Developer → Tester:** Re-review exact snapshot in the refreshed handoff against the five earlier findings and hosted run; return PASS or REQUEST CHANGES. No live request is authorized by the code review.
+
+
+## 2026-10-10 — Dhan cache-provenance correction and final tester re-review handoff
+
+- Independent tester re-review confirmed that the prior five changes were present, but requested one more fail-closed guard: the cache writer itself must validate HTTP status, JSON content type and sample request/byte metadata rather than relying only on its caller.
+- Developer implemented this on `phase-07-developer` at code commit `986d78cf4e3297f203c4960493ef86e2a8663697`. New tests cover missing/non-200 status, wrong content type, request-count violations and cumulative-byte mismatches; rejected cache writes must leave no new cache directory.
+- Latest hosted offline suite [38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed 42/42 tests. Protocol check [38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed.
+- Exact handoff updated to source blob `84e30b0d45ffb2a9b6985601b934c66db435b201`, test blob `e58ffd6d4b4daf8e049c0be0c2edca44dc16a161`, workflow blob `dc0de4688bfac5ee932c32ccd25fdd586effd3c2`, snapshot commit `986d78cf4e3297f203c4960493ef86e2a8663697`.
+- No Dhan API call, Dhan token use, cache population, feature engineering, model rerun or holdout access occurred. Next gate is an independent tester report against this exact snapshot only.
+
+**Developer → Tester:** Re-review the latest handoff, specifically the new cache metadata checks and no-write regressions. Return a code-only PASS or REQUEST CHANGES. Do not authorize a live request directly.

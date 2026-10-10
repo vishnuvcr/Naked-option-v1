@@ -853,3 +853,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Correction: commit `85ebfef015f2188c983d3977ad6fb3b4e11dc29e` updates date-only caps and cache timestamp bounds to the documented exclusive-end semantics, hardens request budget limits, validates populated optional numeric arrays, allows empty unrequested rolling fields while enforcing requested array alignment, and restricts this initial rolling-option sample adapter to ATM.
 - Verification: hosted offline run [38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413) passed `41/41` tests; protocol check [38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603) passed. No live request occurred.
 - Disposition: corrected code has been submitted for a new independent tester review. It is not authorized for live acquisition until that gate passes and a separate fresh one-use manifest is approved.
+
+
+## 2026-10-10 — Dhan cache-provenance review finding and correction
+
+- Category: cache boundary / acquisition artifact integrity.
+- Independent second code review inspected corrected snapshot `85ebfef015f2188c983d3977ad6fb3b4e11dc29e` and found that `atomic_cache_bundle` did not independently require HTTP 200, JSON content type, a one-request count or consistent cumulative byte metadata. The normal request helper enforced status/content type, but the cache writer was too dependent on correct upstream call sequencing.
+- Impact: no live request occurred and no cache was created; tester issued a further REQUEST CHANGES report. This is a correctness/integrity gap, not a source or model result.
+- Correction: commit `986d78cf4e3297f203c4960493ef86e2a8663697` now requires integer HTTP status 200, normalized JSON content type, exactly one request, cumulative bytes equal to the observed body and within the global cap, in addition to existing raw-byte hash/length and schema/window validation.
+- Regression cases added for missing/non-200 status, non-JSON content type, missing/incorrect request count, missing/mismatched cumulative bytes and cache-root emptiness after every rejected case.
+- Verification: hosted offline run [38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed `42/42` tests; protocol check [38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed.
+- Disposition: exact code snapshot refreshed in `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md` and submitted for the final independent tester code review. No live request, data cache, feature fit or model rerun is authorized.
