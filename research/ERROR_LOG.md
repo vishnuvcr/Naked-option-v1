@@ -568,3 +568,10 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Index date-format bug is corrected: both official NSE daily index CSV samples pass with NIFTY 50 and all ten required sector indices. F&O and equity sample schemas pass.
 - NSE date-filtered FII/DII endpoint returns 2026-10-09 rows for a July 2024 request; the corrected code rejects these rows. Current endpoint is current-only. GitHub mirror provides 164 dates from Jan–Sep 2026 only; sampled pages do not establish the required 500+ aligned historical sessions.
 - Outcome: corrected source validation works, but historical FII/DII availability remains unresolved. The one-run manifest is spent. No new live requests are allowed until the separate Discovery 3 code gate passes and a new single-use manifest is created.
+
+
+## 2026-10-10 — Discovery 3 tester report mirror blocked
+
+- Fresh tester code gate PASS WITH SCOPED RESTRICTIONS was committed to `phase-07-tester` at report blob `d0d5d3dc68b11a6d9ac689300257896cb2a562eb`; it permits code/workflow progression only and does not authorize live source calls.
+- The attempt to mirror that exact report byte-for-byte to `phase-07-developer` was blocked by platform safety checks.
+- No approval manifest was created and no live source request was made. Do not create a substitute report, loosen the workflow, or bypass the mirror requirement. Resume only after a permitted exact mirror path exists.
