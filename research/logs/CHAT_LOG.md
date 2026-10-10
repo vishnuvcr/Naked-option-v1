@@ -923,3 +923,13 @@ Resume actions:
 - The failure was test-only, offline; no requests to NiftyIndices or the Dhan compact master were made. Next is a new hosted run and independent code review after the complete test suite passes.
 
 **Developer → Tester:** Re-review the exact adapter/test/runner snapshot only after the current hosted mocked suite passes; verify no credentials are sent to either source and compact CSV segments are kept distinct from API enums.
+
+
+## 2026-10-10 — Official-reference runner test iteration 4
+
+- The runner was hardened so bare CLI invocation only prints OFFLINE_VALIDATION_ONLY; live mode requires exactly --live and environment flag OFFICIAL_CROSSCHECK_AUTHORIZED=1. This avoids a normal smoke test writing an error report and makes live intent explicit.
+- The mocked runner manifest fixture was corrected from a literal backslash-n suffix to a real newline, so its JSON is parseable. The remaining older runner test also had a tuple iteration bug in Request.header_items() when checking credential headers; fixed in commit f84f30b0579cbcd35208c7bf0e42b858276ff11e.
+- Hosted workflow 38056387090 passed the newer combined adapter/runner suite, including 16 tests and explicit safe failure reports. Older duplicate workflow runs 38056387108 and 38056403364 failed due the duplicate test harness, not source logic. No official-source call occurred.
+- Next: rerun the old and new mocked workflows, then freeze the exact source/test/workflow snapshot for the independent tester. The official-reference request gate remains unapproved and no manifest has been created.
+
+**Developer → Tester:** Review only after both live-disabled workflows pass. Check the offline CLI no-network default, two exact host budgets, compact CSV mapping rules and no cache on mismatches before code approval.
