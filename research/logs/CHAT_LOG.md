@@ -904,3 +904,13 @@ Resume actions:
 - Next: rerun offline suites, correct any additional defects, then seek independent implementation review. The proposal plan/tester gate is for planning only; a separate exact-snapshot tester review and fresh one-use authorization are still required before official-source requests.
 
 **Developer → Tester:** Review the latest corrected adapter, tests and runner after hosted test runs conclude; verify compact Dhan CSV fields are not confused with API enums and the exact two-source scope remains fail-closed. Do not authorize requests until code/workflow/manifest gates separately pass.
+
+
+## 2026-10-10 — Official-reference cross-check offline test iteration 2
+
+- Second hosted run [38056067954](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056067954) passed the 9 existing Dhan instrument-master tests but exposed a test expectation mismatch for a duplicate SEM_SEGMENT/SEM_SMST_SECURITY_ID row. The existing generic CSV validator rejects it before cross-check mapping logic.
+- Correction: changed the mock to expect the validator's earlier safe rejection csv_duplicate_segment_security_id in commit 2c5d6b3866839bf8937940a4d0cd1f008108afc5.
+- The earlier NaN expectation mismatch was fixed in ec6817eb3b0892a185c2d863a0794a008ffe591a. Both failures were offline fixture assertions; no official-source request occurred.
+- Next: rerun adapter and runner tests; resolve any further regressions before submitting the exact snapshot to the tester.
+
+**Developer → Tester:** When the full mocked suite passes, inspect both prior failure corrections and the compact-segment mapping distinction before code approval. No request authorization yet.
