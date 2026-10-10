@@ -1,29 +1,11 @@
 {
   "schema_version": 1,
-  "decision": "PASS WITH SCOPED RESTRICTIONS",
-  "empirical_execution_authorized": true,
-  "authorized_run_count": 1,
-  "authorized_scope": "Gate A small-sample source feasibility only; no full-history acquisition, no feature tables or labels, no model fitting, no metrics or p-values, and no final holdout access.",
-  "reviewed_developer_commit": "784474de59a050ba6229ee5cb9a708c0f74ca2dc",
-  "tester_report_sha256": "7020d19e489b041ce172c58d22c87d614545c07bc02eeb6eea25e58e18c497e7",
-  "protected_file_sha256": {
-    "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md": "df57634e69a8696e47184f066713d9dc06d47487a5111b534f7b754ed9b7ff26",
-    "scripts/phase7_extension2_source_feasibility.py": "feedd15bcb33530dbecb22293ec00cccc1bcb8748ec4a9444fbcf8c14357dc11",
-    "scripts/test_phase7_extension2_source_feasibility.py": "149d6237ac5ee78866089912b840cfd4e42e42c3f2efd96023352755905060db",
-    "scripts/phase7_extension2_source_feasibility_v2.py": "6b182e135cf047ebdd212d7585b9f9fe72af65787f92ccd8d23a114f3ba3fcbf",
-    "scripts/test_phase7_extension2_source_feasibility_v2.py": "e95d1098ab0439aa1e353a516c36ae01f993e9557f65598911946a7a6f177d30",
-    ".github/workflows/phase-07-extension2-source-feasibility-v2.yml": "26cfd955a61c56686287ee2a83a4a80ec47067fac46e72f32761edb56395c765",
-    ".github/workflows/phase-07-extension2-source-feasibility.yml": "1a27ee4896bb6a6a16bb044c9036e0bb076a3a220fcb76fa12fd72dd43496241",
-    ".github/workflows/phase-07-extension2-source-feasibility-tests.yml": "dac5ea2495ffb6e3010d504a823aca9f435c75bcb67ada305293723bea12ef7d"
-  },
-  "protected_git_blob_sha": {
-    "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md": "a5e65b56f9aa23c8292b718403c3db4448dad2e3",
-    "scripts/phase7_extension2_source_feasibility.py": "532c1212fad29dbd771d609b1e0ddb85d46d9e50",
-    "scripts/test_phase7_extension2_source_feasibility.py": "4b470468a4aef23ba59d5efef8755be33ce23fe0",
-    "scripts/phase7_extension2_source_feasibility_v2.py": "1f5013a43c5394ea92bdd300a67e299c1bdb079f",
-    "scripts/test_phase7_extension2_source_feasibility_v2.py": "9b90eb50eae7974ce583fc5201fedcd53b35ae19",
-    ".github/workflows/phase-07-extension2-source-feasibility-v2.yml": "a699eaf8af92978da2ae6961cb3c5dabb44a47a4",
-    ".github/workflows/phase-07-extension2-source-feasibility.yml": "f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3",
-    ".github/workflows/phase-07-extension2-source-feasibility-tests.yml": "593da783fa81788a1041d17d82945e24d76caf4d"
-  }
+  "decision": "SPENT — ONE APPROVED GATE A RUN COMPLETED",
+  "empirical_execution_authorized": false,
+  "authorized_scope": "No additional source-sampling authorization. The one approved sample run has completed. Any further source discovery requires a new scoped proposal, separate tester review, and a new exact-snapshot manifest. No full-history acquisition, feature/label construction, model fitting, metrics/p-values, or final-holdout access.",
+  "completed_reviewed_developer_commit": "784474de59a050ba6229ee5cb9a708c0f74ca2dc",
+  "completed_run_id": 38026993369,
+  "completed_artifact_id": 11661065266,
+  "completed_artifact_sha256": "10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a",
+  "disposition": "Post-run independent artifact audit required; historical FII/DII coverage is not yet established. Do not rerun this manifest."
 }
