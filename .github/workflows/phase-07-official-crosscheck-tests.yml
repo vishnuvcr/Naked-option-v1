@@ -55,12 +55,15 @@ jobs:
             scripts/dhan_instrument_master.py \
             scripts/official_reference_crosscheck.py \
             scripts/run_official_reference_crosscheck.py \
+            scripts/validate_official_reference_crosscheck_approval.py \
+            scripts/test_validate_official_reference_crosscheck_approval.py \
             scripts/test_dhan_instrument_master.py \
             scripts/test_official_reference_crosscheck.py \
             scripts/test_run_official_reference_crosscheck.py
           python scripts/test_dhan_instrument_master.py
           python scripts/test_official_reference_crosscheck.py
           python scripts/test_run_official_reference_crosscheck.py
+          python scripts/test_validate_official_reference_crosscheck_approval.py
           python scripts/official_reference_crosscheck.py
           python scripts/run_official_reference_crosscheck.py
       - name: Verify manifest-protected hashes when a proposal exists
