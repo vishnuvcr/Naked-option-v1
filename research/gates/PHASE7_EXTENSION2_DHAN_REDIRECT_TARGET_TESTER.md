@@ -54,3 +54,34 @@ This code gate does **not** authorize the diagnostic network call. A separate si
 **Tester → Developer:** Mirror this exact code-gate report. Build a dedicated one-request workflow and manifest validator for this diagnostic, then submit those exact workflow/validator blobs for another independent gate. Do not reuse either spent Dhan manifest.
 
 **Developer → Tester:** Verify the dedicated workflow only exposes `DHAN_ACCESS_TOKEN` to the one probe step and spends a hash-bound manifest before the call. Audit the result artifact separately.
+
+
+## Final guarded-workflow code gate — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — one redirect-target-only request may be authorized by a fresh exact manifest.**  
+**Reviewed developer commit:** `4f8c327c72c741d32babfdcad0b35422ec2ac0ab`.
+
+Exact reviewed blobs:
+- `research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md`: `7044afeb8ddc242059490686727a3fe354e87b6d`
+- `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md`: `0eb3bb41af846b1970cb712602c99cc979b4f400`
+- `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md`: `9db93dfb56e309dcccf549e51da09004e5f4b276`
+- `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md`: `f2310d6f8802141c452cb8b83b15c35c25e19bc1`
+- `scripts/dhan_market_data_recovery.py`: `3d2c8a911fc7b0cfea1cc953a04d6fd5c02735b5`
+- `scripts/test_dhan_market_data_recovery.py`: `66a32fd8376a6105f14135758dcbaa4312bc3283`
+- `scripts/validate_dhan_redirect_probe_approval.py`: `6f349bd29102daeff777c2423df63bd156ef4c64`
+- `.github/workflows/phase-07-dhan-market-data-tests.yml`: `b43ce4dadca4e5867173136531e71c63bb74e9a3`
+- `.github/workflows/phase-07-dhan-redirect-probe-live.yml`: `8bec6a3071abd11fadf51f5978eff63b684d220a`
+
+### Hosted tests and checks
+
+[Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed **37/37 offline regressions**. It includes tests for URL parsing/redaction, HTTPS-only recorded status, one-request budget, workflow ordering and manifest scope.
+
+The dedicated redirect workflow is valid and guarded. It runs offline tests, validates the exact manifest, spends/pushes the manifest before the source step, injects the secret only into the final diagnostic step, and uploads only the bounded redirect report. It does not follow the redirect or call any candle/history/order endpoint. The manifest validator checks current byte hashes and Git blobs, reviewed commit ancestry and reviewed-tree blob IDs for non-report files; report digests are separately pinned to avoid self-reference.
+
+### Decision and exact limit
+
+This PASS permits a fresh exact-hash manifest for **one GET to `/v2/instrument/IDX_I` solely to report status, safe content type, redirect scheme and hostname**. The existing manifest is spent. This gate does not permit following a redirect, downloading the instrument master, candle/history requests, full history, features/labels, modeling, metrics or holdout access.
+
+**Tester → Developer:** Mirror this report and create a new one-request manifest only after computing the current byte hashes. The manifest must bind all nine protected files and the current tester-report digest.
+
+**Developer → Tester:** Independently verify the manifest before the request. After the one diagnostic call, audit the artifact. Any redirect-follow policy requires another explicit proposal and gate.
