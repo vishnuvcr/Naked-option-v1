@@ -54,3 +54,39 @@ After the corrected Gate A parser/code snapshot gets its independent code gate a
 - repository metadata/README and source-file history to resolve the current size/count discrepancy without importing full data.
 
 The next decision should be based on an independent artifact audit. Do not advance to full history or model fitting until 500+ valid dated sessions, source lineage and historical-vintage limitations are sufficiently established and a later exact-snapshot gate authorizes the acquisition.
+
+
+## 6. Further free-source leads found on 2026-10-10 (metadata/page only)
+
+### CDSL archive — promising independent FPI data source
+
+- The [CDSL Daily Trends page](https://www.cdslindia.com/publications/FIIDailyData.aspx) provides daily FPI investment reports and explains that confirmed figures are based on custodian reports covering trades on and up to previous trading days. A web-rendered historical report was visible for 30-Aug-2024, including equity gross purchases/sales/net investment; that report is FPI-only, not DII.
+- The [CDSL FPI archive index](https://www.cdslindia.com/Publications/ForeignPortInvestor.html) contains date links for daily FPI reports including 2024 dates. Example linked XLS URL observed on the index: `https://www.cdslindia.com/downloads/Publications/Latest/Latest_30092024.xls`. An additional example was `Latest_09102024.xls`. The browser inspection couldn't decode XLS, so no values from these files were accepted.
+- CDSL exposes an archive form at [FIITrends.aspx](https://www.cdslindia.com/Publications/FIITrends.aspx) labelled "1999-Till Date", but that route returned HTTP 403 through the web reader. This is a failed bounded discovery attempt, not evidence that the archive itself is unavailable.
+- Coverage in the visible daily link list goes back to at least September 2024, but this list alone does not establish 500+ sessions. A next approved sampler should test only two or three exact historical XLS links and inspect the archive metadata page, with strict byte limits. CDSL offers FPI, not DII; it cannot fill G15 alone.
+
+### Hugging Face candidate — requires bounded sample validation
+
+- Dataset: [johnwick3690/stocks](https://huggingface.co/datasets/johnwick3690/stocks).
+- A public dataset commit listing showed a file at `nifty historical data/fii dii data/fii_dii_2024_to_today.csv` with 503 added lines, plus a separate `fii_derivatives_historical_2024_2026.csv` and an F&O contract file.
+- The 503-line indication is a promising lead for daily cash flows, but it does not prove there are 500 unique valid market sessions, that each row contains both FII/FPI and DII, or that values are real and sourced correctly. The dataset card/API metadata and tiny head/tail byte-range samples must be checked under a newly approved scope. No file content was downloaded in the search that identified this link.
+
+### Provenance correction — Mr. Chartist seed code and one out-of-scope read
+
+- GitHub repository source-code review of [MrChartist/fii-dii-data](https://github.com/MrChartist/fii-dii-data) found `scripts/seed_history.js` explicitly says it **generates realistic per-day FII/DII records from known monthly/yearly aggregate totals for roughly the last six months**. Therefore any rows marked `historical-seed` are synthetic/backfilled estimates, not observed daily cash-flow records; they must be excluded from empirical training and confirmation. The repository's raw history file has mixed source labels and must not be accepted wholesale.
+- During this source review, the entire public `data/history.json` file (143,498 bytes) was inadvertently retrieved while inspecting the repository. It was **not copied into project research data, not treated as a valid dataset, and no model or feature was run on it**. This exceeded the intended metadata/code-only discovery scope and is logged in `research/ERROR_LOG.md` as non-accepted evidence. Future source discovery must fetch repository metadata/code only until an exact bounded sample gate authorizes data probes; never request the history file itself just to inspect its README or code.
+
+### Additional official lead — SEBI FPI transaction data
+
+- [SEBI Trade-wise Equity Data of FPI](https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html) lists monthly transaction-level equity archive files going back to 2003. The page documents fields including transaction date/type, value, ISIN and report date. This is not directly equivalent to the daily combined FII/FPI/DII cash market totals required by G14/G15, and it contains no DII side. Consider it only as a possible separately specified FPI proxy if daily cash-flow aggregate sources cannot be reconciled, with reporting lag/vintage constraints treated explicitly.
+
+## 7. New next step needed
+
+A new bounded source-discovery spec should separately define:
+1. CDSL archive-page metadata plus at most three exact daily XLS samples, each under a fixed response-size cap.
+2. Hugging Face dataset metadata and two strict byte-range CSV samples (header/first records and tail records), refusing any response that ignores Range; maximum bytes/rows checked in tests.
+3. A single-date `chirag127` JSON sample and small metadata/row-count probes of `marketcalls`/`r7sh7`, rejecting placeholder or synthetic-seed provenance.
+4. Metadata/code-only review of the seed scripts for these candidate repos; no raw full-history file pulls.
+5. An explicit audit rule to reject synthetic/generated/backfilled “realistic” day-level values, and no source switching based on observed predictive results.
+
+This phase needs its own independent tester review, code/test gate, one-run manifest and post-sample artifact audit. **No further source request is authorized by the spent Gate A manifest, and no full-history acquisition/model fitting is allowed.**
