@@ -306,3 +306,9 @@ Tester reviewed exact commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` after 29
 - **Next developer step:** create the one-use acquisition approval with exact reviewed blobs and the tester report pin, then execute the guarded workflow. When collection finishes, return the coverage/errors and encrypted artifact to the tester for an independent data-coverage review. A PARTIAL result must remain partial; unresolved features must go through a separate free-source fallback plan rather than stopping unrelated research.
 
 **Tester → Developer:** Proceed with the one-use approval and enumerated acquisition only. Re-submit the realized coverage snapshot for independent review before modeling.
+
+## Acquisition execution update — 2026-10-11
+
+The developer's one-use approval was consumed before the first request. [Guarded Dhan acquisition run 38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220) is in progress. The workflow's offline regression, tester report/blob pin validation and secret-configuration checks passed. The tester has not yet received a final dataset artifact or coverage report, so there is no accepted realized coverage result yet.
+
+**Next:** developer finishes collection/export and posts the redacted coverage report and encrypted artifact. Tester independently evaluates actual request completion, empty responses, source gaps, row totals/checksums and encrypted artifact existence. Only after this post-acquisition review may the data be admitted to prediction experiments; the current approval still forbids fitting, scoring and holdout access.
