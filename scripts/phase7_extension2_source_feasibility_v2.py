@@ -1,0 +1,288 @@
+from __future__ import annotations
+
+import csv
+import datetime as dt
+import io
+import json
+import re
+import zipfile
+from pathlib import Path
+from typing import Any
+
+from phase7_extension2_source_feasibility import TableSampler, fetch_bytes, sha256_bytes
+
+ROOT = Path(__file__).resolve().parents[1]
+REPORT_PATH = ROOT / "data/reports/extension2_gate_a_source_feasibility_v2.json"
+
+SECTOR_NAMES = [
+    "NIFTY Auto", "NIFTY Bank", "NIFTY Financial Services", "NIFTY FMCG",
+    "NIFTY IT", "NIFTY Media", "NIFTY Metal", "NIFTY Pharma", "NIFTY Realty",
+    "NIFTY Energy",
+]
+INDEX_NAMES = SECTOR_NAMES + ["NIFTY 50"]
+
+INDEX_SAMPLES = [
+    ("nse_indices_2024_07_05", "2024-07-05", [
+        "https://archives.nseindia.com/content/indices/ind_close_all_05072024.csv",
+        "https://nsearchives.nseindia.com/content/indices/ind_close_all_05072024.csv",
+    ]),
+    ("nse_indices_2024_07_08", "2024-07-08", [
+        "https://archives.nseindia.com/content/indices/ind_close_all_08072024.csv",
+        "https://nsearchives.nseindia.com/content/indices/ind_close_all_08072024.csv",
+    ]),
+]
+
+EQUITY_SAMPLES = [
+    {
+        "key": "legacy_equity_2024_07_05",
+        "date": "2024-07-05",
+        "format": "legacy",
+        "urls": [
+            "https://archives.nseindia.com/content/historical/EQUITIES/2024/JUL/cm05JUL2024bhav.csv.zip",
+            "https://nsearchives.nseindia.com/content/historical/EQUITIES/2024/JUL/cm05JUL2024bhav.csv.zip",
+        ],
+    },
+    {
+        "key": "udiff_equity_2024_07_08",
+        "date": "2024-07-08",
+        "format": "udiff",
+        "urls": [
+            "https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20240708_F_0000.csv.zip",
+            "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20240708_F_0000.csv.zip",
+        ],
+    },
+]
+
+FII_JSON = "https://raw.githubusercontent.com/MrChartist/fii-dii-data/main/data/history.json"
+FII_PAGES = [
+    ("chartdrift_fii_dii", "https://www.chartdrift.com/fii-dii"),
+    ("fundata_fii_dii", "https://www.fundata.in/FIIDII.html"),
+    ("traderscockpit_fii_dii", "https://www.traderscockpit.com/?pageView=fii-dii-activity"),
+]
+NSE_FII_URLS = [
+    ("nse_fii_current", "https://www.nseindia.com/api/fiidiiTradeReact"),
+    ("nse_fii_date_params", "https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-01-2020&toDate=31-12-2025"),
+]
+
+
+def normalize_date(value: Any) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
+        return raw[:10]
+    for fmt in ("%d-%b-%Y", "%d %b %Y", "%d-%B-%Y", "%d %B %Y"):
+        try:
+            return dt.datetime.strptime(raw[:20].title(), fmt).date().isoformat()
+        except ValueError:
+            continue
+    return raw
+
+
+def inspect_index_csv(key: str, date: str, urls: list[str]) -> dict[str, Any]:
+    attempts = []
+    data = None
+    source_url = None
+    for url in urls:
+        blob, meta = fetch_bytes(url, timeout=45)
+        attempts.append(meta)
+        if blob is not None:
+            data, source_url = blob, url
+            break
+    if data is None:
+        return {"key": key, "requested_date": date, "attempts": attempts, "schema_status": "NOT_VERIFIED"}
+    text = data.decode("utf-8-sig", errors="replace")
+    reader = csv.DictReader(io.StringIO(text))
+    headers = [str(x).strip() for x in (reader.fieldnames or [])]
+    rows = list(reader)
+    name_col = next((x for x in headers if x.casefold().strip() == "index name"), None)
+    date_col = next((x for x in headers if x.casefold().strip() == "index date"), None)
+    close_col = next((x for x in headers if x.casefold().strip() in {"closing index value", "close"}), None)
+    distinct_dates = sorted({normalize_date(row.get(date_col)) for row in rows if date_col and normalize_date(row.get(date_col))})
+    date_ok = bool(rows) and bool(date_col) and all(normalize_date(row.get(date_col)) == date for row in rows)
+    found = {}
+    if name_col and close_col:
+        for row in rows:
+            name = str(row.get(name_col, "")).strip()
+            normalized = re.sub(r"\s+", " ", name).casefold()
+            expected = next((n for n in INDEX_NAMES if re.sub(r"\s+", " ", n).casefold() == normalized), None)
+            if expected:
+                found[expected] = {
+                    "source_name": name,
+                    "date": normalize_date(row.get(date_col)),
+                    "close": row.get(close_col),
+                }
+    missing_indices = [name for name in INDEX_NAMES if name not in found]
+    return {
+        "key": key,
+        "requested_date": date,
+        "source_url": source_url,
+        "attempts": attempts,
+        "content_bytes": len(data),
+        "sha256": sha256_bytes(data),
+        "headers": headers,
+        "row_count": len(rows),
+        "distinct_date_count": len(distinct_dates),
+        "observed_dates": distinct_dates[:10],
+        "date_check_all_rows": date_ok,
+        "index_name_column": name_col,
+        "close_column": close_col,
+        "expected_indices_found": found,
+        "missing_expected_indices": missing_indices,
+        "schema_status": "PASS" if name_col and date_col and close_col and date_ok and not missing_indices else "FAIL",
+    }
+
+
+def inspect_equity_archive(spec: dict[str, Any]) -> dict[str, Any]:
+    attempts = []
+    data = None
+    source_url = None
+    for url in spec["urls"]:
+        blob, meta = fetch_bytes(url, timeout=45)
+        attempts.append(meta)
+        if blob is not None:
+            data, source_url = blob, url
+            break
+    if data is None:
+        return {"key": spec["key"], "requested_date": spec["date"], "attempts": attempts, "schema_status": "NOT_VERIFIED"}
+    base = {
+        "key": spec["key"], "requested_date": spec["date"], "format": spec["format"],
+        "source_url": source_url, "attempts": attempts, "zip_bytes": len(data),
+        "zip_sha256": sha256_bytes(data),
+    }
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+            if len(names) != 1:
+                return {**base, "schema_status": "FAIL", "reason": f"expected one CSV, found {len(names)}"}
+            raw = zf.read(names[0])
+        reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig", errors="strict")))
+        headers = [str(h).strip() for h in (reader.fieldnames or [])]
+        rows = list(reader)
+        if spec["format"] == "legacy":
+            date_col, series_col, isin_col, close_col, volume_col = "TIMESTAMP", "SERIES", "ISIN", "CLOSE", "TOTTRDQTY"
+            required = ["SYMBOL", "SERIES", "ISIN", "CLOSE", "TOTTRDQTY", "TIMESTAMP"]
+        else:
+            date_col, series_col, isin_col, close_col, volume_col = "TradDt", "SctySrs", "ISIN", "ClsPric", "TtlTradgVol"
+            required = ["TradDt", "TckrSymb", "SctySrs", "ISIN", "ClsPric", "TtlTradgVol"]
+        observed_dates = sorted({normalize_date(row.get(date_col)) for row in rows if normalize_date(row.get(date_col))})
+        date_ok = bool(rows) and all(normalize_date(row.get(date_col)) == spec["date"] for row in rows)
+        missing = sorted(set(required) - set(headers))
+        eligible = []
+        for row in rows:
+            if str(row.get(series_col, "")).strip().upper() != "EQ":
+                continue
+            if not str(row.get(isin_col, "")).strip().upper().startswith("INE"):
+                continue
+            try:
+                close = float(row.get(close_col, ""))
+                volume = float(row.get(volume_col, ""))
+            except (TypeError, ValueError):
+                continue
+            if close > 0 and volume > 0:
+                eligible.append(row)
+        sample = []
+        for row in eligible[:5]:
+            sample.append({k: row.get(k) for k in (["SYMBOL", "SERIES", "ISIN", "CLOSE", "TOTTRDQTY", "TIMESTAMP"] if spec["format"] == "legacy" else ["TckrSymb", "SctySrs", "ISIN", "ClsPric", "TtlTradgVol", "TradDt"])})
+        return {
+            **base,
+            "csv_entry": names[0],
+            "csv_sha256": sha256_bytes(raw),
+            "csv_bytes": len(raw),
+            "headers": headers,
+            "row_count": len(rows),
+            "distinct_date_count": len(observed_dates),
+            "observed_dates": observed_dates[:10],
+            "date_check_all_rows": date_ok,
+            "missing_required_columns": missing,
+            "eq_series_ine_rows_positive_close_volume": len(eligible),
+            "eligible_sample": sample,
+            "schema_status": "PASS" if date_ok and not missing and eligible else "FAIL",
+        }
+    except Exception as exc:
+        return {**base, "schema_status": "FAIL", "reason": f"{type(exc).__name__}: {str(exc)[:300]}"}
+
+
+def inspect_fii_history() -> dict[str, Any]:
+    data, meta = fetch_bytes(FII_JSON, timeout=30)
+    if data is None:
+        return {"key": "fii_dii_github_history", **meta, "schema_status": "NOT_VERIFIED"}
+    try:
+        rows = json.loads(data.decode("utf-8"))
+        dates = [normalize_date(row.get("date")) for row in rows if isinstance(row, dict)]
+        required = ["date", "fii_buy", "fii_sell", "dii_buy", "dii_sell"]
+        missing = [k for k in required if not rows or k not in rows[0]]
+        return {
+            "key": "fii_dii_github_history",
+            **meta,
+            "row_count": len(rows),
+            "distinct_date_count": len(set(dates)),
+            "min_date": min(dates) if dates else None,
+            "max_date": max(dates) if dates else None,
+            "missing_required_fields": missing,
+            "source_labels": sorted({str(row.get("_source", "missing")) for row in rows if isinstance(row, dict)}),
+            "zero_flow_rows": sum(1 for row in rows if all(float(row.get(k, 0) or 0) == 0 for k in ["fii_buy", "fii_sell", "dii_buy", "dii_sell"])),
+            "sample": rows[:3],
+            "schema_status": "PASS" if not missing and len(set(dates)) == len(rows) else "FAIL",
+        }
+    except Exception as exc:
+        return {"key": "fii_dii_github_history", **meta, "schema_status": "FAIL", "reason": f"{type(exc).__name__}: {str(exc)[:300]}"}
+
+
+def inspect_fii_page(key: str, url: str) -> dict[str, Any]:
+    data, meta = fetch_bytes(url, timeout=30)
+    if data is None:
+        return {"key": key, **meta, "schema_status": "NOT_VERIFIED"}
+    text = data.decode("utf-8", errors="replace")
+    parser = TableSampler()
+    parser.feed(text)
+    title = re.search(r"<title[^>]*>(.*?)</title>", text, flags=re.I | re.S)
+    return {
+        "key": key,
+        **meta,
+        "page_title": re.sub(r"\s+", " ", title.group(1)).strip()[:200] if title else "",
+        "html_table_row_count": len(parser.rows),
+        "table_sample": parser.rows[:12],
+        "schema_status": "PAGE_FETCHED_TABLE_REQUIRES_REVIEW" if parser.rows else "PAGE_FETCHED_NO_STATIC_TABLE",
+    }
+
+
+def main() -> None:
+    report = {
+        "schema_version": 2,
+        "gate": "A_SOURCE_FEASIBILITY_ONLY",
+        "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "scope": "Bounded dated index/equity CSV samples plus small FII/DII source samples; no full history, feature table, labels or model fitting.",
+        "index_samples": [inspect_index_csv(*item) for item in INDEX_SAMPLES],
+        "equity_samples": [inspect_equity_archive(item) for item in EQUITY_SAMPLES],
+        "fii_dii_history": [inspect_fii_history()],
+        "fii_dii_endpoints": [inspect_fii_page(key, url) for key, url in FII_PAGES],
+        "nse_fii_api": [],
+    }
+    for key, url in NSE_FII_URLS:
+        data, meta = fetch_bytes(url, timeout=30)
+        if data is None:
+            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NOT_VERIFIED"})
+            continue
+        try:
+            obj = json.loads(data.decode("utf-8"))
+            report["nse_fii_api"].append({
+                "key": key, **meta, "schema_status": "JSON_PARSED",
+                "row_count": len(obj) if isinstance(obj, list) else None,
+                "sample": obj[:4] if isinstance(obj, list) else obj,
+            })
+        except json.JSONDecodeError:
+            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NON_JSON_RESPONSE", "body_prefix": data[:300].decode("utf-8", errors="replace")})
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+    print(json.dumps({
+        "report_path": str(REPORT_PATH.relative_to(ROOT)),
+        "index_samples": {x["key"]: x["schema_status"] for x in report["index_samples"]},
+        "equity_samples": {x["key"]: x["schema_status"] for x in report["equity_samples"]},
+        "fii_history": report["fii_dii_history"][0].get("row_count"),
+        "report_sha256": sha256_bytes(REPORT_PATH.read_bytes()),
+    }, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
