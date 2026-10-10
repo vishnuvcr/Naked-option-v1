@@ -1204,3 +1204,16 @@ Dhan documentation says individual access tokens are valid for 24 hours and dist
 
 **Developer → Tester:** Review the exact-snapshot test receipt and next official-source request before data access; retain the blocked gate until an explicit PASS.
 **Tester → Developer:** Ensure credential presence is not conflated with source completeness or model acceptance; review exact requests, coverage and boundary before authorizing progression.
+
+## 2026-10-11 — User-directed Dhan acceptance and no-source-stop policy
+
+User directed: accept the existing Dhan sample as supplied without any further NSE/third-party price-value cross-check; use alternative free/open sources for feature families Dhan does not provide; never stop the overall research because one source is unavailable. This is recorded in `research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json`, policy `research/phase7/PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY.json`, acquisition plan `research/phase7/PPR4_DHAN_OPEN_SOURCE_ACQUISITION_PLAN.md`, and fallback register `research/phase7/PPR4_SOURCE_SUPPLEMENT_USER_DIRECTED.csv`.
+
+The waiver accepts the existing one-row sample for development research under the user's authority, keeps its raw response/cache hash immutable, and waives source-to-source value reconciliation. It does not claim one row is sufficient to train a predictor. The prior single-use approval remains SPENT and cannot authorize more requests. A new exact-snapshot acquisition manifest/workflow needs tester review before its endpoints are called.
+
+The new policy states that source failures apply to individual source/feature-family/candidate cells. It mandates serial resumable Dhan daily/intraday/expired-option history acquisition, source lineage, Dhan error logging and free-source fallback through official NSE/BSE/regulator/provider sources and then license-eligible open datasets. Missing values remain missing; no fabricated zeros or silent proxy renaming. If every fallback for one family fails, that family is marked NOT_ESTIMABLE and unrelated research continues.
+
+The new local-only Actions workflow [PPR-4 User-Directed Data Continuation Policy — Offline Tests](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-ppr4-data-continuation-policy-tests.yml) ran as [run 38077986545](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38077986545). Compile passed; 3/4 tests passed; the validator's literal wording assertions failed. This run is preserved as FAILED; no data source was contacted. The mismatch is being corrected before tester submission.
+
+**Developer → Tester:** Review the user-authorized no-cross-check waiver, the no-source-stop policy and the exact bounded acquisition plan; check the source-fallback and security/reproducibility controls, not Dhan-versus-NSE price equality.
+**Tester → Developer:** Preserve the prior failed CI run, independently review the corrected exact snapshot and approve live acquisition only if the new request manifest, size/rate/checkpoint and fallback controls pass.
