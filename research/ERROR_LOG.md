@@ -114,3 +114,11 @@
 - The only cache note is that all 11 global-source records reported `cache_hit: false`; the old cache did not satisfy the current cache contract and the sources were reacquired. The job completed and the updated data were retained in the artifact/cache.
 - No statistically significant candidate was found; all adjusted horizon-family p-values were 1.0. This is a negative result, not an infrastructure failure.
 - Report: `research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md`.
+
+
+## 2026-10-10 — Extension 2 specification gate REQUEST CHANGES
+
+- Tester rejected the initial proposal before source feasibility.
+- Corrections required: define legacy-to-UDiFF F&O schema transition; replace undefined "NIFTY traded value" denominator for FII/DII flows with a fixed available denominator; define F04 delta/acceleration and F05 aggregate volume/OI formula exactly; provide canonical NSE sector index names/symbols; and specify how candidate abstentions enter the common-grid max-statistic bootstrap with a synthetic fixture.
+- No data acquisition or model fitting occurred. This is a pre-implementation specification rejection, not an empirical model result.
+- Report: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md`.
