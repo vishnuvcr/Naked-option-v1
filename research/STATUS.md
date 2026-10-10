@@ -2,6 +2,8 @@
 
 **Current gate: PPR-1 developer submission ready; independent tester review is still required. No new paper-specific model fitting was launched.**
 
+Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
+
 The user's latest instruction is to test the prediction methods actually described in the research papers, rather than assuming a registry family name proves replication.
 
 - Full-text method extraction and a method-by-method crosswalk for the 15 PDFs mounted in the conversation have been committed to [PAPER_PREDICTION_METHOD_CROSSWALK.md](literature/PAPER_PREDICTION_METHOD_CROSSWALK.md).
