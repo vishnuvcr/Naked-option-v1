@@ -871,3 +871,13 @@ Resume actions:
 - Current approval remains PENDING_REVIEW after these corrections; next is a single controlled READY attempt on the updated exact pins. No Dhan request, data cache, feature engineering, prediction rerun or holdout access occurred.
 
 **Developer → Tester:** Independently audit the corrected spend-transition code and literal report markers against the exact blobs above. The live one-use gate may only be attempted after the hosted PENDING preflight passes; any new failure must be logged and fixed before a further attempt.
+
+
+## 2026-10-10 — Corrected report pins and clean READY preflight
+
+- READY attempt [38054773227](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054773227) failed closed at the report-marker gate because the exact sample scope ID was absent. It did not spend approval or contact Dhan.
+- Tester amended its isolated report with `dhan-nifty50-daily-2024-01-02-one-request`; developer copied the file byte-for-byte to the canonical path. Exact Git blob `f99205683c02fcbc4514b15292350f6b0b4fcc6b`; raw SHA-256 `47ad9b6c5515d072907f9920c83fce405175f08684febe2568c6dcf2c98bcaf8`.
+- READY preflight [run 38054945942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054945942) passed 42 pipeline tests, 7 sample-runner tests, 16 validator tests, all manifest/protected/report pins, and the full READY `check()`. The final safe output was `PASS: exact manifest, protected files, tester report, single-use scope and status validated`. Protocol check [38054946092](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054946092) passed.
+- Current approval is READY but unspent. Exact manifest SHA-256 `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`; authorization SHA-256 `d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189`. No Dhan request or cache exists yet.
+ 
+**Developer → Tester:** After the single approved request concludes, independently inspect spent-before-fetch ordering, exact request count, HTTP status/content-type, response bytes and hash, requested day/timestamp/OHLC schema, redacted artifact, and independent official NIFTY daily-price cross-check. Do not authorize any expansion, modeling or holdout access at this gate.
