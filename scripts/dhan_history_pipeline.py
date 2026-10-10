@@ -8,6 +8,7 @@ supplies an authorization decision and secret. Do not use this module for orders
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import hashlib
 import io
 import json
@@ -20,6 +21,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from zoneinfo import ZoneInfo
 from typing import Any, Callable
 
 BASE = "https://api.dhan.co/v2"
@@ -213,6 +215,9 @@ def validate_candle_payload(
     count = lengths.pop()
     if count == 0:
         raise ValueError("candle_array_empty")
+    for key, value in payload.items():
+        if isinstance(value, list) and len(value) != count:
+            raise ValueError(f"candle_array_length_mismatch_{key}")
 
     timestamps: list[int] = []
     for raw in payload["timestamp"]:
@@ -292,6 +297,10 @@ def validate_rolling_option_payload(
     lengths = {len(rows[key]) for key in ("timestamp",) + required}
     if len(lengths) != 1:
         raise ValueError("rolling_option_array_length_mismatch")
+    count = lengths.pop()
+    for key, value in rows.items():
+        if isinstance(value, list) and len(value) != count:
+            raise ValueError(f"rolling_option_array_length_mismatch_{key}")
     basic = validate_candle_payload(
         {key: rows[key] for key in ("timestamp", "open", "high", "low", "close", "volume")},
         required_fields=("open", "high", "low", "close", "volume"),
@@ -457,9 +466,9 @@ def atomic_cache_bundle(
         recomputed_validation = validate_rolling_option_payload(
             parsed_payload, option_type=option_type, required_fields=req_fields
         )
-    if (recomputed_validation["row_count"] != validation.get("row_count") or
-            recomputed_validation["timestamp_sha256"] != validation.get("timestamp_sha256")):
+    if recomputed_validation != validation:
         raise ValueError("cache_validation_report_mismatch")
+    _validate_payload_timestamps_in_request(parsed_payload, source_url, request_parameters)
     digest = hashlib.sha256(payload_bytes).hexdigest()
     root = pathlib.Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
@@ -520,6 +529,41 @@ def atomic_cache_bundle(
         shutil.rmtree(temp_dir, ignore_errors=True)
         raise
     return {"status": "CACHE_CREATED", "sha256": digest, "path": str(destination), "response_bytes": len(payload_bytes)}
+
+
+
+
+def _validate_payload_timestamps_in_request(
+    payload: dict[str, Any], source_url: str, request_parameters: dict[str, Any]
+) -> None:
+    """Reject responses whose timestamps fall outside the exact requested local-time window."""
+    ist = ZoneInfo("Asia/Kolkata")
+    if source_url in (DAILY_URL, INTRADAY_URL):
+        timestamps = payload["timestamp"]
+    else:
+        option_type = request_parameters.get("drvOptionType")
+        side = "ce" if option_type == "CALL" else "pe" if option_type == "PUT" else None
+        if side is None:
+            raise ValueError("cache_rolling_option_type_missing")
+        timestamps = payload["data"][side]["timestamp"]
+
+    try:
+        local_times = [dt.datetime.fromtimestamp(int(ts), tz=ist) for ts in timestamps]
+    except (ValueError, TypeError, OverflowError, OSError):
+        raise ValueError("cache_timestamp_uninterpretable") from None
+
+    if source_url in (DAILY_URL, ROLLING_OPTION_URL):
+        start = dt.date.fromisoformat(str(request_parameters["fromDate"]))
+        end = dt.date.fromisoformat(str(request_parameters["toDate"]))
+        if any(not start <= stamp.date() <= end for stamp in local_times):
+            raise ValueError("cache_timestamp_outside_requested_window")
+    else:
+        start = dt.datetime.fromisoformat(str(request_parameters["fromDate"]).replace(" ", "T"))
+        end = dt.datetime.fromisoformat(str(request_parameters["toDate"]).replace(" ", "T"))
+        start = start.replace(tzinfo=ist)
+        end = end.replace(tzinfo=ist)
+        if any(stamp < start or stamp > end for stamp in local_times):
+            raise ValueError("cache_timestamp_outside_requested_window")
 
 
 def main() -> int:
