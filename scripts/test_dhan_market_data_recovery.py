@@ -314,7 +314,16 @@ def test_redirect_target_parser_rejects_credentials_and_malformed_urls() -> None
 
 
 def test_http_error_location_is_ignored_for_non_redirect_status() -> None:
-    private_body = io.BytesIO(b"PRIVATE_ERROR_BODY")
+    class ReadTrackingErrorBody:
+        def __init__(self):
+            self.read_calls = 0
+        def read(self, *args, **kwargs):
+            self.read_calls += 1
+            return b"PRIVATE_ERROR_BODY"
+        def close(self):
+            pass
+
+    private_body = ReadTrackingErrorBody()
     class Opener:
         def open(self, req, timeout):
             raise urllib.error.HTTPError(
@@ -329,7 +338,7 @@ def test_http_error_location_is_ignored_for_non_redirect_status() -> None:
     )
     assert status == 401 and body == b""
     assert headers == {"content-type": "application/json"}
-    assert private_body.tell() == 0
+    assert private_body.read_calls == 0
     assert "redirect_host" not in headers and "redirect_target_status" not in headers
 
 
