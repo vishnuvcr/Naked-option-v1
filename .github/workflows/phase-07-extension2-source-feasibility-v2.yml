@@ -1,0 +1,41 @@
+name: Phase 7 Extension 2 Gate A Source Feasibility v2
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/phase7_extension2_source_feasibility_v2.py"
+      - "scripts/test_phase7_extension2_source_feasibility_v2.py"
+      - ".github/workflows/phase-07-extension2-source-feasibility-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-extension2-gate-a-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-feasibility:
+    name: bounded-source-feasibility-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline source/schema regressions
+        run: |
+          python scripts/test_phase7_extension2_source_feasibility.py
+          python scripts/test_phase7_extension2_source_feasibility_v2.py
+      - name: Fetch only registered Gate A samples
+        run: python scripts/phase7_extension2_source_feasibility_v2.py
+      - name: Upload bounded feasibility report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-extension2-gate-a-source-feasibility-v2
+          path: data/reports/extension2_gate_a_source_feasibility_v2.json
+          if-no-files-found: error
+          retention-days: 30
