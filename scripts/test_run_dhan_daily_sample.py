@@ -28,6 +28,16 @@ VALID_PAYLOAD = {
 }
 
 
+class ReadTrackedBody(io.BytesIO):
+    def __init__(self, initial_bytes: bytes):
+        super().__init__(initial_bytes)
+        self.read_count = 0
+
+    def read(self, size: int = -1) -> bytes:
+        self.read_count += 1
+        return super().read(size)
+
+
 class FakeResponse:
     def __init__(self, body: bytes, *, status: int = 200, content_type: str = "application/json"):
         self.body = body
@@ -218,7 +228,7 @@ def test_bad_json_or_bad_schema_fails_without_cache() -> None:
 
 
 def test_http_error_does_not_persist_provider_error_body() -> None:
-    body = io.BytesIO(b"SECRET_PROVIDER_ERROR_BODY")
+    body = ReadTrackedBody(b"SECRET_PROVIDER_ERROR_BODY")
     error = urllib.error.HTTPError(
         mod.DAILY_URL, 403, "Forbidden",
         {"Content-Type": "application/json", "Authorization": "PRIVATE"},
@@ -236,7 +246,7 @@ def test_http_error_does_not_persist_provider_error_body() -> None:
         assert "SECRET_PROVIDER_ERROR_BODY" not in json.dumps(result)
         assert "PRIVATE" not in json.dumps(result)
         assert "TEST_TOKEN" not in json.dumps(result)
-        assert body.tell() == 0 and not cache.exists()
+        assert body.read_count == 0 and not cache.exists()
 
 
 TESTS = [value for name, value in globals().copy().items()
