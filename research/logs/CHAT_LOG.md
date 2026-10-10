@@ -736,3 +736,14 @@ Resume actions:
 - Automatic audit run `38047812286` passed identity/immutable-artifact preflight, but independent tester job was skipped. No follow-up source request authorized; no market data/history acquired.
 
 **Developer → Tester:** Independently inspect run #9 and artifact #11668017741; confirm exactly one request, zero body bytes, HTTPS-only host extraction, manifest-spend ordering and no redirect-follow. Return a separate pass/reject report; do not infer approval for history acquisition.
+
+
+## 2026-10-10 — User said “Ok proceed” after run #9
+
+- Independently inspected run #9 metadata, job logs and downloaded ZIP artifact. Confirmed 38/38 offline regressions, exact manifest validation, manifest spend commit before request, one request, zero response body bytes, HTTP 302, HTTPS redirect hostname only, and no redirect-follow or price history.
+- Wrote isolated tester report `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md` on `phase-07-tester`: PASS WITH SCOPED RESTRICTIONS — diagnostic artifact only; no next request authorized.
+- Reviewed official Dhan instrument-list documentation, which directly lists compact/detailed instrument-master CSV URLs. This was documentation-only web research; no request or download was made.
+- Proposed a bounded next step in `research/phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md`, requiring tester proposal review, offline-only implementation review, a fresh one-use manifest, and independent artifact audit before any request.
+- Research remains prediction-only; no new market dataset or predictive result exists from this step.
+
+**Developer → Tester:** Review the Extension 3 proposal independently and return PASS/REQUEST CHANGES. Do not authorize a live CSV request from the proposal alone.
