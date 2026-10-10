@@ -267,10 +267,73 @@ def test_head_missing_length_skips_hf_range_requests() -> None:
     assert client.calls[0][0] == "HF-2-HEAD"
 
 
+
+def test_cdsl_archive_date_link_detects_compact_filename() -> None:
+    parser = mod.LinkTableParser()
+    parser.feed('<a href="/downloads/Publications/Latest/Latest_30092024.xls">Daily FPI 30-09-2024</a>')
+    found = mod.date_links(parser)
+    assert len(found) == 1
+    assert "30092024" in found[0]["href"]
+
+
+def test_csv_edge_marks_seeded_rows_as_synthetic() -> None:
+    blob = (
+        b"date,fii_buy,fii_sell,dii_buy,dii_sell,source\n"
+        b"2024-09-30,10,9,5,4,historical-seed\n"
+    )
+    report = mod.parse_csv_edge(blob, "head")
+    assert report["provenance_status"] == "REJECTED_SYNTHETIC"
+    assert report["row_sample"][0]["source"] == "historical-seed"
+
+
+def test_hf_probe_uses_exact_ranges_and_stays_within_16_kib() -> None:
+    class FakeClient:
+        def __init__(self):
+            self.calls = []
+        def request(self, probe_id, url, **kwargs):
+            self.calls.append((probe_id, url, kwargs))
+            if probe_id == "HF-2-HEAD":
+                return {
+                    "probe_id": probe_id, "url": url, "status": "FETCHED",
+                    "http_status": 200, "content_length_header": "20000",
+                    "content_type": "text/csv", "bytes_read": 0,
+                    "sha256": mod.sha256_bytes(b""), "history": [], "body": b"",
+                }
+            if probe_id == "HF-2-HEAD-RANGE":
+                body = (
+                    b"date,fii_buy,fii_sell,dii_buy,dii_sell\n"
+                    b"2024-01-01,10,9,5,4\n"
+                )
+                body = body + b"x" * (mod.MAX_RANGE_BYTES - len(body))
+                return {
+                    "probe_id": probe_id, "url": url, "status": "FETCHED", "http_status": 206,
+                    "content_length_header": str(len(body)), "content_range": "bytes 0-8191/20000",
+                    "bytes_read": len(body), "sha256": mod.sha256_bytes(body), "history": [], "body": body,
+                }
+            if probe_id == "HF-2-TAIL-RANGE":
+                start = 20000 - mod.MAX_RANGE_BYTES
+                body = b"partial,truncated\n2024-09-30,13,12,7,6\n"
+                body = body + b"z" * (mod.MAX_RANGE_BYTES - len(body))
+                return {
+                    "probe_id": probe_id, "url": url, "status": "FETCHED", "http_status": 206,
+                    "content_length_header": str(len(body)), "content_range": f"bytes {start}-19999/20000",
+                    "bytes_read": len(body), "sha256": mod.sha256_bytes(body), "history": [], "body": body,
+                }
+            raise AssertionError(f"unexpected probe: {probe_id}")
+    client = FakeClient()
+    result = mod.hf_file_probe(client, {})
+    assert result["schema_status"] == "COVERAGE_LEAD_ONLY", result
+    assert result["sampled_csv_bytes"] == 16 * 1024
+    assert client.calls[1][2]["headers"]["Range"] == "bytes=0-8191"
+    assert client.calls[2][2]["headers"]["Range"] == "bytes=11808-19999"
+    assert len(client.calls) == 3
+
+
 def test_fixed_probe_list_is_finite_and_fits_budget() -> None:
     initial = len(mod.FIXED_URLS) + 1 + 3  # Chirag single record; HF HEAD + two Range requests.
     assert initial == mod.MAX_INITIAL_REQUESTS == 15
-    total_caps = sum(mod.PROBE_CAPS.values()) + 2 * mod.MAX_RANGE_BYTES + mod.PROBE_CAPS["CHIRAG-COMMIT"]
+    total_caps = sum(mod.PROBE_CAPS.values()) + 2 * mod.MAX_RANGE_BYTES
+    assert total_caps == 1584 * 1024
     assert total_caps < mod.MAX_TOTAL_BYTES
 
 
@@ -291,6 +354,9 @@ def main() -> None:
         test_github_directory_parser_uses_metadata_only_and_rejects_inline_content,
         test_chirag_url_must_be_pinned_commit_and_exact_date,
         test_head_missing_length_skips_hf_range_requests,
+        test_cdsl_archive_date_link_detects_compact_filename,
+        test_csv_edge_marks_seeded_rows_as_synthetic,
+        test_hf_probe_uses_exact_ranges_and_stays_within_16_kib,
         test_fixed_probe_list_is_finite_and_fits_budget,
     ]
     for test in tests:
