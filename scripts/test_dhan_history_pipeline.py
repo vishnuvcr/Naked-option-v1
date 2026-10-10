@@ -398,6 +398,25 @@ def test_cache_bundle_rejects_invalid_json_or_validation() -> None:
         ), "cache_response_json_root_invalid")
 
 
+def test_request_unknown_fields_are_rejected_before_network() -> None:
+    unknown = {**DAILY_REQ, "authToken": "must-not-be-sent"}
+    must_raise(lambda: mod.validate_request_window(mod.DAILY_URL, unknown),
+               "request_fields_unrecognized")
+
+
+def test_cache_recomputes_validation_report_before_write() -> None:
+    raw = json.dumps(CANDLES, sort_keys=True).encode()
+    valid = mod.validate_candle_payload(CANDLES)
+    tampered_validation = {**valid, "row_count": 99}
+    with tempfile.TemporaryDirectory() as temp:
+        must_raise(lambda: mod.atomic_cache_bundle(
+            raw, tampered_validation, cache_root=temp, source_url=mod.DAILY_URL,
+            request_metadata={}, request_parameters=DAILY_REQ,
+            fetched_at_utc="2026-10-10T00:00:00Z"
+        ), "cache_validation_report_mismatch")
+        assert list(pathlib.Path(temp).iterdir()) == []
+
+
 def test_invalid_request_windows_and_intervals_rejected() -> None:
     intraday = {"securityId": "13", "exchangeSegment": "IDX_I", "instrument": "INDEX",
                 "interval": "7", "fromDate": "2024-01-01 09:15:00",
@@ -416,7 +435,7 @@ def test_atomic_cache_bundle_hashes_and_preserves_content() -> None:
             request_metadata={"http_status": 200, "content_type": "application/json",
                               "response_bytes": len(raw), "request_count": 1,
                               "cumulative_response_bytes": len(raw), "network_enabled": True},
-            request_parameters={"fromDate": "2024-01-01", "toDate": "2024-01-03"},
+            request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z",
         )
         assert report["status"] == "CACHE_CREATED"
