@@ -936,3 +936,8 @@ The corrected FII/DII date regex changed the sampler blob from the previously re
 ## 2026-10-10 — Gate A approval guard hardened against stale report reuse
 
 The current workflow now binds the tester report to the exact current snapshot in two ways: the report digest must match the mirrored bytes, and the report must explicitly quote each protected Git blob ID with the required current Gate A-only decision line. The approval manifest validates both file SHA-256 values and Git blob IDs, exact path set, reviewed-commit ancestry and no-full-history/no-fitting scope. Current workflow blob is `fdc0a6bef97796b38424048304b704d86f80c450`. This replaces the earlier guard, which validated the file hashes and report digest but did not itself require the report text to name the current blobs. No samples or full history were fetched by this change.
+
+
+## 2026-10-10 — Gate A F&O archive sampling gap repaired
+
+A code audit showed the v2 workflow sampled cash-market equity archives but never executed the v1 bounded F&O archive sampler. This omitted the exact legacy 2024-07-05 / UDiFF 2024-07-08 options-data transition from the v2 artifact. Workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` now runs both samplers and uploads both source-feasibility JSON reports. The exact review request records this gap and correction. No live source was fetched; independent tester approval of the current workflow is required before the report is generated.
