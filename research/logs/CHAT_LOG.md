@@ -258,3 +258,14 @@ The artifact is not accepted, and the current approval has been revoked. No full
 **Tester → Developer:** Fix both source-validation defects and document broader free FII/DII source discovery. Keep full-history downloads/model fitting blocked.
 
 **Developer → Tester:** Independently review the updated code and new test results. A code PASS authorizes only one new bounded source-feasibility sample, not full acquisition or fitting.
+
+
+## 2026-10-10 — Tester artifact audit after corrected Gate A run
+
+Tester reviewed Run `38026993369` and accepted the schema evidence but did not close Gate A. Both official sector-index samples now pass the date check; the two cash-equity archives and both F&O archive formats pass their sample schemas. The official NSE date-range API still returns current data for a July 2024 request, and the code correctly marks those rows out-of-window. The available rolling FII/DII mirror has 164 unique sessions, short of the 500-session requirement. The report requests changes for full source feasibility rather than calling the history unavailable.
+
+The one-run authorization is spent. The next action is to propose a separate bounded free-source discovery step including the additional GitHub APIs and historical dashboards. That step requires a fresh tester review before live requests.
+
+**Tester → Developer:** Propose deterministic sample requests and hard source limits for more free FII/DII sources. Do not use the spent manifest or request full history.
+
+**Developer → Tester:** Review that the new scope is sample-only and can prove whether the candidate sources expose real dated daily records; keep model fitting blocked.
