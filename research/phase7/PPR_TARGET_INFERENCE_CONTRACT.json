@@ -120,7 +120,7 @@
     "family_membership": "Each base configuration row is assigned exactly one task_type and target_schema_id. The direction family contains only the fixed three-class DOWN/FLAT/UP Brier task; each regression family contains only its fixed target and absolute-error loss. Within a family, include every pre-frozen configuration × feature pipeline × horizon candidate. Do not combine binary and three-class labels, or regression and classification loss, in the same max-statistic family."
   },
   "search_bounds": {
-    "max_estimator_or_architecture_configs": 80,
+    "max_estimator_or_architecture_configs": 93,
     "max_feature_pipeline_classes": 4,
     "common_horizons": [
       1,
@@ -129,15 +129,15 @@
       5,
       10
     ],
-    "max_outer_model_cells": 1600,
+    "max_outer_model_cells": 1860,
     "max_neural_seeds_per_cell": 3,
-    "max_outer_fit_calls_including_seeds": 4800,
+    "max_outer_fit_calls_including_seeds": 5580,
     "max_tuned_candidate_configs": 20,
     "max_inner_hyperparameter_configs_per_candidate": 20,
     "max_inner_hyperparameter_trials_total": 400,
     "max_inner_chronological_splits": 5,
     "max_total_fit_calls_including_inner_folds": 8000,
-    "budget_rule": "The machine-readable PPR-3 manifest must calculate the expected fit calls including feature-pipeline × horizon expansion, up to 3 seeds per stochastic cell, inner chronological fold fits and final refits. Under this bound, outer cells <=80x4x5=1600 and outer fit calls <=4800; tuning work <=20x20x(5 folds + 1 refit)=2400. Total <=7200, below the global cap 8000. Fail validation before fitting if manifest estimate exceeds any cap.",
+    "budget_rule": "PPR-3 freezes at most 93 base configuration rows across all target/output schemas, four additive feature-pipeline classes and five common horizons. Conservative upper bound: 93x4x5=1860 outer cells; up to three predeclared seeds gives 5580 outer fits. Tuning is capped at 20 candidate rows x 20 inner configurations x (up to five chronological folds plus one refit)=2400 additional fit calls. Combined upper bound is 7980, within the global 8000-call cap. The manifest must calculate actual eligible cells, seeds, folds and refits before any fit; blocked/out-of-scope rows stay logged but execute zero fits. If a candidate is added after results are seen, it is exploratory and requires a protocol amendment.",
     "configuration_unit": "A base configuration row is a unique estimator/architecture + task_type/target_schema + required model setting combination, before expansion over feature pipeline and horizon. The total of these rows across all target types is at most 80. If an estimator is used for a different target/output schema, that is a separate row and consumes the same cap."
   },
   "required_manifest_fields": [
@@ -164,7 +164,10 @@
     "max_fit_calls",
     "evaluation_origin_index_id",
     "inferential_family_id",
-    "bootstrap_block_length_sessions"
+    "bootstrap_block_length_sessions",
+    "config_id",
+    "config_disposition",
+    "counts_toward_93_cap"
   ],
   "hard_boundary": {
     "empirical_execution_authorized": false,
