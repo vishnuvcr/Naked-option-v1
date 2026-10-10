@@ -548,6 +548,8 @@ def test_workflow_or_test_suite_does_not_invoke_live_sample() -> None:
     # The offline workflow invokes only this fixture suite and contains no live authorization.
     adapter = (ROOT / "scripts/dhan_market_data_recovery.py").read_text(encoding="utf-8")
     assert 'if __name__ == "__main__"' in adapter
+    writer_line = next(line for line in adapter.splitlines() if "out.write_text" in line)
+    assert ' + "\\n", encoding="utf-8")' in writer_line
     workflow = (ROOT / ".github/workflows/phase-07-dhan-market-data-tests.yml").read_text(encoding="utf-8")
     assert "test_dhan_market_data_recovery.py" in workflow
     assert "live_sample" not in workflow
