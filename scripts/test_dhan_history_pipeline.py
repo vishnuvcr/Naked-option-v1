@@ -130,6 +130,13 @@ def test_request_requires_explicit_live_authorization() -> None:
         ),
         "live_request_not_authorized",
     )
+    must_raise(
+        lambda: mod.request_json(
+            mod.DAILY_URL, DAILY_REQ, token="dummy", budget=budget,
+            opener_factory=lambda: calls.append("opened"), live_authorized="true",
+        ),
+        "live_request_not_authorized",
+    )
     assert calls == [] and budget.requests == 0
 
 
@@ -383,6 +390,13 @@ def test_expired_option_request_window_and_allowed_fields_validate() -> None:
     ), "rolling_option_required_data_unrecognized")
 
 
+def test_security_id_must_be_positive_scalar() -> None:
+    for value in ([13], {"id": 13}, True, 0, "0", ""):
+        must_raise(lambda value=value: mod.validate_request_window(
+            mod.DAILY_URL, {**DAILY_REQ, "securityId": value}
+        ), "daily_request_security_id_invalid")
+
+
 def test_daily_oi_flag_must_be_boolean() -> None:
     must_raise(lambda: mod.validate_request_window(mod.DAILY_URL, {**DAILY_REQ, "oi": 0}),
                "daily_request_oi_invalid")
@@ -400,6 +414,18 @@ def test_timezone_offsets_are_rejected_for_intraday_windows() -> None:
                 "toDate": "2024-01-02T15:30:00+05:30"}
     must_raise(lambda: mod.validate_request_window(mod.INTRADAY_URL, intraday),
                "datetime_timezone_not_allowed")
+
+
+def test_rolling_option_strike_cannot_be_boolean() -> None:
+    body = {
+        "exchangeSegment": "NSE_FNO", "interval": "1", "securityId": 13,
+        "instrument": "OPTIDX", "expiryFlag": "WEEK", "expiryCode": 1,
+        "strike": True, "drvOptionType": "CALL",
+        "requiredData": ["open", "high", "low", "close", "volume"],
+        "fromDate": "2024-01-01", "toDate": "2024-01-30",
+    }
+    must_raise(lambda: mod.validate_request_window(mod.ROLLING_OPTION_URL, body),
+               "rolling_option_strike_invalid")
 
 
 def test_rolling_option_validator_handles_custom_required_fields() -> None:
