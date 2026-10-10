@@ -2,6 +2,13 @@
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
+
+## Paper-method coverage checkpoint — 2026-10-10
+
+**The paper-by-paper method audit is not yet exhaustive.** The registry contains 112 method candidates and 36 literature source records; 15 PDFs are present in the current conversation. Family-level testing does not prove each paper's exact experimental setup has been reproduced. The [first-pass uploaded-paper inventory and required audit steps](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md) records that distinction and flags exact reproduction as unverified until matched to result artifacts and independent tester reports.
+
+Current prediction evidence remains negative for candidate promotion: the daily cross-market extension tested 12 methods over five horizons (60 cells) without a significant horizon-family result after multiplicity correction. The Dhan sample row remains quarantined; official source/mapping verification and the next gated acquisition are still pending. Option strategy research is not active in the current prediction-only scope.
+
 ## Latest research checkpoint — 2026-10-10: official-reference cross-check code passed
 
 The existing daily cross-market prediction extension remains a documented negative result; no model has been promoted. One carefully bounded Dhan daily NIFTY row was acquired and its retrieval/cache was independently reviewed. The raw row matches a secondary historical table, but remains quarantined from model data until an official NSE Indices OHLC row and the minimal Dhan instrument mapping are verified.
