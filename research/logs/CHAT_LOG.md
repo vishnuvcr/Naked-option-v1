@@ -497,3 +497,12 @@ Checked the latest README, research plan, status, error log, research/chat logs,
 **Developer → Tester:** Review the current sampler, test, spec and workflow blobs in the request file and return a fresh exact-snapshot decision.
 
 **Tester → Developer:** Do not create the authorization manifest or run the bounded sampler until current code/workflow passes and the hosted tests are green.
+
+
+## 2026-10-10 — Gate A guard hardened; new exact-snapshot re-review required
+
+The Gate A workflow was strengthened to require a standardized tester decision line, explicit prohibition of full-history acquisition and model fitting, report SHA-256 matching, exact file SHA-256 and Git-blob maps, blob IDs quoted in the tester report, and reviewed-commit ancestry. Current workflow blob is `fdc0a6bef97796b38424048304b704d86f80c450`. The manual source-sampling input defaults to false. Because the workflow changed after the previous scoped PASS, a new independent review is required. No source calls or sample artifact were generated.
+
+**Developer → Tester:** Review current workflow blob `fdc0a6bef97796b38424048304b704d86f80c450` along with sampler/spec/test blobs in the review request.
+
+**Tester → Developer:** Approval must explicitly bind the current six protected Git blobs and Gate A-only scope; do not approve full-history acquisition or fitting.
