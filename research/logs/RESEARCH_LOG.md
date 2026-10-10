@@ -606,3 +606,8 @@ The artifact therefore does not pass Gate A. Its source data are not used for mo
 The corrected sample artifact from Run `38026993369` is accepted as bounded schema evidence for the sampled sources. Official index CSVs (all ten frozen sector identities plus NIFTY 50), daily cash-equity archives and the legacy/UDiFF F&O samples pass. The fixed-range NSE FII/DII API returns 2026 rows for a July 2024 request, and these are now correctly rejected. The only sampled raw history dataset has 164 unique sessions, so G14/G15 historical coverage remains below the 500-session threshold. The artifact-level tester report therefore requests changes for the overall Gate A source-coverage gate.
 
 The single-run approval manifest was marked SPENT; no more sources may be fetched under that authorization. A new scoped free-source discovery proposal must precede any additional source requests. No model fitting was authorized.
+
+
+## 2026-10-10 — Source Discovery 3 specification passed
+
+The independent tester passed the frozen spec blob `52b030e09213cb30c4de6a1633da38e6b2558b1f` for implementation and offline testing only. It sets a finite source list, 15 initial request/3 HF redirect maximum, 2 MiB total, 16 KiB HF CSV-range cap, strict 206/Content-Range behavior, and no raw history file API calls. Full history/model fitting remains prohibited. During spec-link verification, attempts to open two CDSL XLS files through the web reader returned unsupported content type and supplied no parsed values; those attempts are recorded as non-accepted evidence. Next: implement sampler/test fixtures offline, then submit exact blobs for an independent code gate.
