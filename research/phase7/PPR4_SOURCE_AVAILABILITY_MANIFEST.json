@@ -104,7 +104,9 @@
     "holdout_values_or_labels_opened": 0,
     "inventory_validator_receipt": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075342074",
     "metadata_inventory_validator_passed": true,
-    "sealed_holdout_boundary_verified": false
+    "sealed_holdout_boundary_verified": false,
+    "latest_passing_offline_run_id": 38075566251,
+    "latest_passing_offline_commit": "c4860ea31ae4a6a472eb4ddc32cab03a0f48d71d"
   },
   "read_only_methods": {
     "repo_branches_scanned": 23,
@@ -238,10 +240,16 @@
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
-    "ppr4_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075342074",
+    "ppr4_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075566251",
     "ppr4_test_commit": "ee5890e0cbe96b3ba934e16f1d018dd0699f6d52",
     "ppr4_tester_decision": "REQUEST_CHANGES_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY",
     "ppr4_scope": "Read-only search of repository/commit/approval metadata and public source documentation only. Do not download data, accept a model panel, fit/tune/score, inspect holdout values/labels, or run option P&L.",
-    "next_required_action": "Continue read-only repository/content search for a genuine existing split/holdout boundary under non-obvious paths/config names. If none exists, draft a separately reviewed pre-outcome split/holdout governance proposal without implementation."
+    "next_required_action": "Continue read-only repository/content search for a genuine existing split/holdout boundary under non-obvious paths/config names. If none exists, draft a separately reviewed pre-outcome split/holdout governance proposal without implementation.",
+    "ppr4_tested_commit": "c4860ea31ae4a6a472eb4ddc32cab03a0f48d71d",
+    "ppr4_ci_result": "PASS_OFFLINE_METADATA_ONLY; exact trigger checkout verified",
+    "ppr4_failed_retry_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075537411",
+    "ppr4_failed_retry_reason": "Audit-status literal did not match validator's frozen contract; manifest corrected to READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED and retry passed.",
+    "ppr4_decision": "REQUEST_CHANGES_EXIT_BLOCKED_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY",
+    "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values."
   }
 }
