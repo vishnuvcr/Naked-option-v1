@@ -428,3 +428,5 @@ TESTS = [v for k, v in globals().copy().items() if k.startswith("test_") and cal
 for test in TESTS:
     test()
 print(f"PASS {len(TESTS)} official reference cross-check runner offline/mock tests")
+
+# Snapshot-gate rerun trigger: exact current implementation must be exercised by hosted offline CI.
