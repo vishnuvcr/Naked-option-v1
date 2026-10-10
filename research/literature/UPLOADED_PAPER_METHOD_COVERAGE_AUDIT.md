@@ -54,3 +54,22 @@ The current conversation contains 15 PDF files. A first-pass title/abstract/earl
 **Developer → Tester:** Independently review this inventory for title/method omissions and verify the next full-text extraction and registry crosswalk. Treat every row as unreplicated until an exact method-to-result artifact and accepted tester report are provided.
 
 **Tester → Developer:** Return corrections and missing-method findings on the isolated tester branch. Do not approve empirical execution solely from a title/abstract inventory or a broad family-name match.
+
+
+## Resume checkpoint — full-text extraction started (2026-10-10)
+
+The mounted PDFs were programmatically read beyond title-only inventory. The following exact methods are now explicitly confirmed from extracted paper text (this is source-derived inventory, **not** a claim that these methods have been replicated on project data):
+
+- **Bansal, Goyal & Choudhary (Procedia Computer Science, 2022; 19 pages):** K-Nearest Neighbors, Linear Regression, Support Vector Regression, Decision Tree Regression and LSTM; study uses stock-price datasets for 12 companies over about seven years. It is not a NIFTY-only replication.
+- **Mehtab (arXiv:1912.07700; 6 pages):** Logistic Regression, KNN, Decision Tree, Bagging, Boosting, Random Forest, ANN and SVM; a separate LSTM regression component; a Twitter mood/sentiment feature component with four mood classes. It includes NIFTY 50 but its classification target and regression target must not be conflated.
+- **Naik & Inamdar (IJCSE, 2024; 8 pages):** LSTM plus BERT-based financial-news sentiment; described predictors include FII/DII activity, India VIX and put-call ratio of the two nearest expiries.
+- **Sain & Singh (Cureus, published 2026-10-01; 36 pages):** next-day open/close price regression, 5/10/20-year windows, raw OHLCV versus indicator-augmented inputs (SMA, RSI, daily return, rolling volatility), 12 regressors (Linear Regression, Lasso, Ridge, Elastic Net, SGD Regressor, SVR, KNN, Decision Tree, Random Forest, Gradient Boosting, AdaBoost, XGBoost), persistence baseline, MAE/RMSE/R² and chronological splits with TimeSeriesSplit tuning.
+- **Kumar & Sharma (2016; 6 pages):** feed-forward MLP/ANN with multiple back-propagation, predicting next-day OHLC using OHLC, volume and turnover over 2006-04-03 through 2016-05-16; reports RMSE and a stated average accuracy of 99.2152%. The accuracy claim requires careful metric/scale reconstruction before comparison.
+- **Khan et al. (Journal of Risk and Financial Management, 2023; 23 pages):** NIFTY 50 price prediction with LSTM and backward-elimination feature selection; RSI appears among considered inputs. The paper discusses other models in its literature review, but those are not automatically part of its proposed experiment.
+- **Shaha (SSRN, 16 pages):** CCI-based NIFTY option trading system, with the paper describing a typical 20-day CCI lookback and +100/-100 overbought/oversold thresholds. This is a strategy paper and not a directional-model replication; CCI is a concrete registry gap to propose through a protocol amendment, not silently add to the frozen test universe.
+- **Sherasiya (IJFMR, 2025; 8 pages):** Random Forest, XGBoost and LSTM for option buy/sell signal classification using option Greeks, implied volatility and underlying-price features; reported strategy outcomes need independent replication and cannot be accepted from abstract claims.
+- **Atheetha et al. (IJBMI, 2019; 12 pages):** discusses simple-average method, timing risk, stop-loss, speculation, monthly trend analysis and seasonality across seven underlyings. This is not a pure NIFTY directional-prediction model.
+- **Chatterjee et al. (IJNRD, 2022; 15 pages):** general Indian-market options strategies and hedging/risk framing; not a standalone forecast model.
+- **Kumar & Sharma (ANN/NIFTY paper above) and Bansal et al. (multi-company ML paper) have overlapping estimator names with registry families, but differing targets, data and evaluation protocols; these are not exact replications.
+
+The remaining PDFs still require structured method/results-table extraction and cross-check. No paper is marked REPLICATED solely from this extraction. For every paper, the outstanding fields are: exact target and horizon, data period/source, features and transforms, estimator/configuration, chronological split, tuning, benchmark, metrics, reported numeric results, limitations, and a matching project result artifact plus tester report.
