@@ -62,3 +62,35 @@ This file establishes the source-derived method inventory from the 15 mounted PD
 **Developer → Tester:** Independently compare every paper row to its full-text methods/results sections and the registry. Flag any method, horizon, feature or target omitted or overstated. Do not authorize empirical execution from this inventory alone.
 
 **Tester → Developer:** Return a report against this exact crosswalk and the forthcoming frozen protocol. Approve only after exact methods, causal evaluation and multiplicity rules are specified.
+
+
+## Tester-requested source evidence and fidelity audit — 2026-10-10
+
+**Status: IN PROGRESS; PPR-1 remains REQUEST CHANGES.** The following are PDF page locators for targeted verification, not a claim that every statement has already been validated against each page. PDF viewer page numbering may differ from printed journal page numbers. For each paper, the developer must record which method was actually implemented versus only mentioned, and separately verify data window, split, target, horizon and metric before resubmission.
+
+| # | PDF | Target pages to verify in source PDF | Verification focus |
+|---:|---|---|---|
+| 1 | 1-s2.0-S1877050922020993-main.pdf | PDF pp. 2–3, 5–11, 14–17 | Methodology, dataset date ambiguity, estimator implementation, split/scaling and metrics |
+| 2 | 1912.07700v1.pdf | PDF pp. 2–5 | Classification/regression model implementation, SOFNN, Twitter mood labels, target/horizon and split |
+| 3 | 50375.pdf | PDF pp. 2–7 | Whether RF/XGBoost/LSTM are implemented; option-signal target and features |
+| 4 | 9472-Article Text-11108-2-10-20231228.pdf | PDF pp. 4–7, 9 | ANN/SVM methods, FII/FX features, data and split, metrics |
+| 5 | CureusJournals_1986620261002-185337-d4go5h.pdf | PDF pp. 3–11, 22, 33–36 | Model list, 5/10/20-year windows, features, chronological split, evaluation and limitations |
+| 6 | D0801051829.pdf | PDF p. 3 and methods/results pages to verify | Determine whether moving-average/seasonality content is an implemented forecast or descriptive strategy discussion |
+| 7 | IJCSE-V11I10P106.pdf | PDF pp. 2–6, 8 | BERT/news-LSTM implementation, source timestamps, FII/DII, VIX/PCR and evaluation |
+| 8 | IJNRD2205074.pdf | PDF p. 2 and remaining methods/conclusion pages to verify | Confirm this is descriptive options-strategy material rather than a fitted forecast model |
+| 9 | IJSDR2309053.pdf | PDF pp. 2–5 | LSTM implementation, 2011–2021 data, forecast horizon and undefined “83.88% accuracy” |
+| 10 | ISMLA+7481.pdf | PDF pp. 2–13 | Base and hybrid architecture implementation, train/test split, hyperparameters and metrics |
+| 11 | JIER-+Vol.+5+No.+3+(2025)+-+Dr.+Deepesh.Formated.pdf | PDF pp. 2–14 | SMA/EMA 50/200 definitions, crossover timing and distinction between in-sample association and OOS forecast |
+| 12 | Stock Market Prediction of NIFTY 50 Index Applying Machine Learning Techniques.pdf | PDF pp. 3–20, 22–25 | RNN/LSTM/CNN layer details, activations, feature selection, split/CV and accuracy definition |
+| 13 | Stock_Market_Index_Forecasting_of_Nifty.pdf | PDF pp. 2–6 | ANN/backprop variants, OHLC target, chronological ordering and reported 99.2152% accuracy |
+| 14 | jrfm-16-00423.pdf | PDF pp. 2–20, 22–23 | LSTM vs BE-LSTM, p-value selection, RSI, date window, 30-day horizon and split |
+| 15 | ssrn-3323746.pdf | PDF pp. 1–16 | CCI rule definitions, trade sample, costs/slippage assumptions; classify as strategy-only rather than a fitted prediction model |
+
+### Fidelity labels required for every method claim
+
+- **AUTHOR-IMPLEMENTED:** source methods/results show the authors actually fitted or evaluated this method.
+- **BACKGROUND-ONLY:** mentioned for context, not implemented/evaluated in the paper.
+- **AMBIGUOUS:** source text is incomplete or contradictory; no faithful reproduction until resolved.
+- **PROJECT-ADAPTATION:** a separate, explicitly documented leakage-safe adaptation; never count it as exact replication.
+
+The page ranges above are navigation aids for the full source audit, not final page-level evidence for every claim. The PPR-1 gate cannot pass until the developer adds specific page/section references at the individual claim/configuration level and resolves all ambiguous classifications.
