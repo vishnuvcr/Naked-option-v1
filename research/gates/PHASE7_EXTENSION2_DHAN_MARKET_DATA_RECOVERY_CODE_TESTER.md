@@ -45,3 +45,44 @@ This decision does **not** authorize:
 **Tester → Developer:** Mirror this report exactly to the developer branch. Submit a separate guarded live workflow and manifest validator for independent review. Keep all network requests disabled until that workflow passes and a new single-use manifest is created.
 
 **Developer → Tester:** Review the exact workflow snapshot independently, especially manifest digest/hash/blob/ancestry checks and manifest consumption before the first HTTP request. After the one approved sample, audit the artifact separately.
+
+
+## Final workflow/manifest review — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — guarded workflow code only.**  
+**Reviewed developer commit:** `2df2d2874074dbeb65b8687ab5fcaa005bb0714a`.  
+**Live requests: NOT AUTHORIZED until a fresh single-use manifest is created and validated.**
+
+Exact reviewed workflow and validator Git blobs:
+- `.github/workflows/phase-07-dhan-market-data-live.yml`: `aa37cec66d46f3c181a7bda213226991c045b189`
+- `.github/workflows/phase-07-dhan-market-data-tests.yml`: `b43ce4dadca4e5867173136531e71c63bb74e9a3`
+- `scripts/validate_dhan_sample_approval.py`: `3c99140a5488cd58ee3bed9c21cd659183adbdf2`
+- `scripts/dhan_market_data_recovery.py`: `2398cc3a3b050e15107ef7fa88c5415f93845fe9`
+- `scripts/test_dhan_market_data_recovery.py`: `acf5140f34da4cd406d95a1c9b567ec29cd83609`
+
+### Checks passed
+
+1. The manifest validator requires `APPROVED_ONE_RUN` + `READY`, exact scope, exact protected path set, tester-report SHA-256, file byte SHA-256, Git blob IDs, reviewed-commit ancestry, explicit no-full-history/no-model flags and the request/body budgets.
+2. The live workflow runs offline regressions before manifest validation. It calls `spend` and commits/pushes the spent manifest before the first source script call.
+3. A subsequent workflow run triggered by the spent-manifest push will fail the `READY`/decision check and cannot make a second sample request.
+4. The secret is injected only into the final source step; offline tests and manifest-validation steps do not receive it.
+5. Manual dispatch defaults to false and requires explicit confirmation; it cannot bypass the manifest check.
+6. The offline workflow has no live source step and does not bind the secret.
+7. The adapter does not call order/trading endpoints; no request was made during this review.
+8. The 4 MiB global budget is consistent with 64 KiB profile + 1 MiB index metadata + four 752 KiB candle caps.
+9. The Dhan candle source is not presented as FII/FPI/DII aggregate flow data.
+
+### Hosted evidence
+
+- [Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed all 27 offline regressions on the code snapshot before the review-request-only commit.
+- Previous failing fixture/assertion runs were corrected and are retained in the logs; current run is green.
+
+### Decision and exact limit
+
+This PASS authorizes **only the creation of a new exact-hash, one-run sample manifest** for the reviewed snapshot. It does not itself authorize a source request; the manifest must be independently bound to the exact current report digest, protected file hashes/blob IDs, and reviewed commit before the guarded workflow can call Dhan.
+
+**Not authorized:** full-history download, feature/label construction, model fitting, prediction metrics/p-values, option strategy evaluation or final-holdout access.
+
+**Tester → Developer:** Create a new one-run manifest only for this exact snapshot. Include all eight protected files listed in the developer handoff, exact byte hashes and Git blobs, exact mirrored tester-report SHA-256, reviewed commit ancestry, fixed scope, six-request/4 MiB budgets and explicit false flags for full-history/model fitting. Do not trigger the workflow until validation is expected to pass.
+
+**Developer → Tester:** Independently verify the manifest values and current branch hashes before allowing the one bounded run. After upload, audit the artifact's source statuses, date windows, row schemas, coverage and absence of secrets. Do not progress directly to bulk acquisition or modeling.
