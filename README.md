@@ -501,3 +501,10 @@ The adapter now includes only the numeric status, safe Content-Type and request/
 - [Updated code tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md)
 
 Dhan historical candles may help price/index/derivative coverage, but the combined daily FII/FPI/DII flow gap remains unresolved. Full history, features/labels, model fitting, metrics and final-holdout access remain unauthorized.
+
+
+### Dhan source blocker — HTTP 302 (2026-10-10)
+
+The second guarded sample [Run 38043667443](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043667443) confirmed that the Dhan token is valid and the Data API plan is active, but the official `/v2/instrument/IDX_I` endpoint returns HTTP 302. The workflow did not follow the redirect and did not request candle history. The artifact is recorded as REQUEST CHANGES in [sample audit 2](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT_2.md). Both one-run manifests are spent.
+
+A new proposal [Dhan redirect-target discovery spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md) seeks approval for one request that reports only redirect scheme/hostname, without following the redirect or storing its path/query. This requires a fresh tester gate. No price history was retrieved, no analyses were rerun, and the FII/FPI/DII flow gap remains open.
