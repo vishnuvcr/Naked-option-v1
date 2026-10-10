@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import sys
+import subprocess
 from collections import Counter
 from pathlib import Path
 
@@ -204,6 +205,30 @@ def validate() -> list[str]:
         errors.append("manifest lacks matrix blob reference")
     if not manifest.get("frozen_files", {}).get("expanded_candidate_cells", {}).get("blob"):
         errors.append("manifest lacks expanded-cell blob reference")
+
+    # Verify pinned blobs only after the final snapshot is explicitly enabled.
+    if manifest.get("snapshot_checks_enabled") is True:
+        pins = list(manifest.get("frozen_files", {}).values()) + list(manifest.get("source_artifacts", {}).values())
+        for entry in pins:
+            if not isinstance(entry, dict):
+                errors.append("manifest pin must be an object")
+                continue
+            rel = entry.get("path", "")
+            expected_blob = entry.get("blob", "")
+            if not rel or not expected_blob:
+                errors.append("manifest pin requires path and blob")
+                continue
+            path = ROOT / rel
+            if not path.is_file():
+                errors.append(f"manifest-pinned file missing: {rel}")
+                continue
+            try:
+                actual_blob = subprocess.run(["git", "hash-object", str(path)], cwd=ROOT, check=True, capture_output=True, text=True).stdout.strip()
+            except (OSError, subprocess.CalledProcessError) as exc:
+                errors.append(f"cannot hash manifest-pinned file {rel}: {exc}")
+                continue
+            if actual_blob != expected_blob:
+                errors.append(f"manifest blob mismatch for {rel}: expected {expected_blob}, got {actual_blob}")
 
     return errors
 
