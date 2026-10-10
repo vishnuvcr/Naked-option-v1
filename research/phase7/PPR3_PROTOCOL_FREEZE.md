@@ -12,8 +12,9 @@ PPR-1 received **PASS WITH SCOPED RESTRICTIONS** for the 15 uploaded-PDF source 
 PPR-3 turns the source inventory into a finite, row-level estimator/target/feature/horizon matrix, records settings and ambiguities, defines compatible inferential families, freezes a bounded tuning subset, and specifies how the sealed final holdout is protected. The candidate inventory is a proposal until the tester signs off on the exact current blobs.
 
 Authoritative companions:
-- [Configuration matrix](PPR3_CONFIGURATION_MATRIX.csv) — source linkage, source-native task/split/window, target schema, feature pipelines, horizon set, configuration status and blockers.
-- [Expanded candidate-cell ledger](PPR3_CANDIDATE_CELLS.csv) — one row per model/configuration × feature pipeline × horizon.
+- [Configuration matrix](PPR3_CONFIGURATION_MATRIX.csv) — common-task adaptation configs and explicit blocked entries.
+- [Paper-native task ledger](PPR3_PAPER_NATIVE_TASK_LEDGER.csv) — 81 separate source-method records with native task details, source locators, fidelity/disposition and adaptation links; documentation only, not active fit cells.
+- [Expanded candidate-cell ledger](PPR3_CANDIDATE_CELLS.csv) — one row per common-task model/configuration × feature pipeline × horizon.
 - [Model settings](PPR3_MODEL_SETTINGS.json) — default estimator/architecture settings, feature pipeline definitions, seed policy and the exact tuning grids.
 - [Machine-readable manifest](PPR3_CONFIGURATION_MANIFEST.json) — row counts, target families, fit-budget arithmetic, exact artifact hashes and fail-closed rules.
 - [Target/inference contract](PPR_TARGET_INFERENCE_CONTRACT.json) — label equations, baseline formulae, point-in-time constraints and multiplicity procedure.
@@ -39,27 +40,27 @@ Current developer draft (not yet independently approved):
 
 | Item | Count | Meaning |
 |---|---:|---|
-| Configuration-ledger rows | 80 | Includes active model configs and blocked/source-task records |
-| Rows counted against the maximum base-configuration cap | 72 | Unique model/target/settings rows; duplicate source references are merged into the same common-task config where the setting is genuinely identical |
-| Active candidate configuration rows | 71 | Candidate only; still needs PPR-4 data eligibility and later code/tester approval |
+| Configuration-ledger rows | 81 | Includes active common-task adaptations and blocked/source-task records |
+| Rows counted against the maximum base-configuration cap | 73 | Unique model/target/settings rows; duplicate source references are merged only for identical common-task adaptation fits |
+| Active candidate configuration rows | 72 | Candidate only; still needs PPR-4 data eligibility and later code/tester approval |
 | Blocked model configuration | 1 | SOFNN native method; source implementation settings are not sufficiently reproducible in the current source audit |
 | Other blocked/out-of-scope source backlog rows | 8 | Unclear native LSTM task, option-return/option-price targets, abstract/metadata-only targets and unreviewed public code |
-| Expanded model × pipeline × horizon cells | 1,183 | Cell ledger defines the multiplicity universe proposed for review |
-| Core directional cells | 375 | 21 active direction configurations, with rule/text-pipeline scope restrictions |
+| Expanded model × pipeline × horizon cells | 1,188 | Cell ledger defines the proposed common-task multiplicity universe |
+| Core directional cells | 380 | 22 active directional configurations, including the explicit CCI(20) spot-direction adaptation |
 | Close-price regression cells | 760 | 38 close-regression configurations × four eligible feature-pipeline classes × five horizons |
 | Next-open regression cells | 48 | 12 regressors × four feature-pipeline classes × one-session horizon |
 
-The configured maximum remains 93 base configuration rows, four pipeline classes and five common horizons. The 21 unused rows of theoretical headroom are **not permission to add models** after this proposal is reviewed. Any addition requires a reviewed amendment before results are inspected. The matrix's explicit rows—not the numeric cap—define the candidate universe.
+The configured maximum remains 93 base configuration rows, four pipeline classes and five common horizons. The 20 unused rows of theoretical headroom are **not permission to add models** after this proposal is reviewed. Any addition requires a reviewed amendment before results are inspected. The matrix's explicit rows—not the numeric cap—define the candidate universe.
 
 ### Configuration consolidation
 
-Where the same estimator/settings/target/pipeline/horizon were intended under multiple source references, the matrix merges source provenance into one common project candidate and preserves old IDs as aliases. It does not count identical common model fits multiple times merely to inflate paper coverage. This consolidation is valid only for the *common adaptation*. Paper-native split/feature/target replications remain separate tasks when those settings differ, and several are explicitly blocked rather than represented by the merged adaptation.
+Where the same estimator/settings/target/pipeline/horizon were intended under multiple source references, the matrix merges source provenance into one common project candidate and preserves old IDs as aliases. It does not count identical common model fits multiple times merely to inflate paper coverage. This consolidation is valid only for the *common adaptation*. The separate [paper-native task ledger](PPR3_PAPER_NATIVE_TASK_LEDGER.csv) retains all 81 individually named uploaded-PDF method/component records with source-native task details, source locator, fidelity/disposition and an adaptation link. These native-task records are not common inference cells and cannot be counted as exact replications unless separately frozen and gated.
 
 ## 4. Target families and compatible primary metrics
 
 ### 4.1 Direction — `COMMON_DIRECTION_3CLASS`
 
-At decision session (t), after the official close is published, define (r_{t,h}=C_{t+h}/C_t-1) for (h in {1,2,3,5,10}) NSE sessions. Label UP if (r>10^{-8}), DOWN if (r<-10^{-8}), and FLAT otherwise. Every candidate emits probabilities in the fixed order `DOWN, FLAT, UP`, summing to 1 within the registered numerical tolerance.
+At decision session (t), after the official close is published, define (r_{t,h}=C_{t+h}/C_t-1) for (h in {1,2,3,5,10}) NSE sessions. Label UP if (r>10^{-8}), DOWN if (r<-10^{-8}), and FLAT otherwise. **FLAT means only a numerical zero-return tie under the frozen 10^{-8} tolerance; it is not an economically neutral move, cost-aware no-trade state, or claim that an option has no edge.** This tolerance cannot be tuned after results are inspected. Every candidate emits probabilities in the fixed order `DOWN, FLAT, UP`, summing to 1 within the registered numerical tolerance.
 
 Primary loss is three-class Brier score:
 [
@@ -93,6 +94,7 @@ A source missing a defensible timestamp is not assumed valid. Current articles m
 - Every active model row in the common grid is labelled as a `PROJECT-ADAPTATION` where the source-native target, data or split changes. The fact that a source paper implemented an algorithm does not make the NIFTY adaptation an exact replication.
 - The 15-PDF matrix preserves source ambiguities: the ISMLA dataset contains option-like `callOpen/callHigh/callLow/callClose` fields with unresolved spot-index target; JIER uses inconsistent moving-average periods/date windows; accuracy claims in IJSDR and Naik/Inamdar lack sufficiently comparable definitions; Kumar & Sharma's 99.2152% abstract claim is located but undefined; JRFM's published full-sample feature selection is leakage-prone; the CCI table has a 68-versus-80 count mismatch.
 - `C011` SOFNN remains `BLOCKED_METHOD` until a reproducible configuration is justified from the source. It is not substituted with a generic neural net.
+- `C023` is a pre-registered CCI(20) state-conditioned probability-rule adaptation of the uploaded CCI options strategy. It predicts common spot direction from completed NIFTY OHLC bars and training-only conditional class rates. It is not the source's native options strategy and includes no CE/PE entries or option P&L.
 - The IJSDR native 30-day LSTM task remains blocked until target endpoint and accuracy formula are resolved.
 - L012 option return forecasts, L018 option-price forecasts and strategy-only papers are not NIFTY spot-direction models; they are separately labelled out-of-scope here. L031, L032, L033, L034 and L036 stay blocked as indicated in the cell matrix because only abstract/metadata/README-level evidence has been verified.
 - The registry crosswalk maps all L001–L036 but does not claim full-text validation of those records. A conceptual method-family overlap is never counted as exact replication.
@@ -119,15 +121,15 @@ Only 12 model/pipeline/horizon cells receive hyperparameter search, all in `CORE
 - `R038` Random Forest next-open regression at horizon 1.
 - `R041` XGBoost next-open regression at horizon 1.
 
-This mirrors the Cureus source's explicit TimeSeriesSplit tuning emphasis on Random Forest/XGBoost while keeping search bounded. Random Forest has one enumerated list of 18 settings; XGBoost has eight settings. Each uses up to five chronological inner splits and one refit on the full outer-training prefix. Hyperparameter selection uses mean validation MAE. The other cells use the fixed defaults in `PPR3_MODEL_SETTINGS.json`; no other search is permitted.
+This mirrors the Cureus source's explicit TimeSeriesSplit tuning emphasis on Random Forest/XGBoost while keeping search bounded. Random Forest has one enumerated list of 18 settings; XGBoost has eight settings. Each candidate setting uses five chronological inner-fold fits. Hyperparameter selection uses mean validation MAE. After selecting the best setting, the selected estimator's outer fit on the full purged training prefix is counted once per predeclared seed in the outer-fit budget; the implementation must not refit every hyperparameter setting on the full prefix. The other cells use the fixed defaults in `PPR3_MODEL_SETTINGS.json`; no other search is permitted.
 
 The settings file predeclares neural seeds 20261010, 20261011 and 20261012. The budget is deliberately conservative and counts three seeds for every active cell even though ordinary non-neural estimators use a single seed:
 
-- 1,183 active model/pipeline/horizon cells.
-- Up to 3,549 outer fit calls (three seeds per cell).
-- 936 additional inner-search/refit calls across the 12 tuning cells.
-- **Current matrix upper bound: 4,485 fit calls.**
-- Global cap remains 8,000; the contract's theoretical ceiling (93 configurations × 4 pipelines × 5 horizons × 3 seeds plus the maximum tuning allowance) is 7,980. The 72 current counted rows are frozen; unused cap capacity is not authorization for more candidates.
+- 1,188 active model/pipeline/horizon cells.
+- Up to 3,564 outer fit calls (three seeds per cell).
+- 780 additional inner-fold calls: 6 RF cells × 18 settings × 5 folds + 6 XGBoost cells × 8 settings × 5 folds.
+- **Current matrix upper bound: 4,344 fit calls.**
+- Global cap remains 8,000; the contract's theoretical ceiling (93 configurations × 4 pipelines × 5 horizons × 3 seeds plus 20 tuning cells × 20 settings × 5 folds) is 7,580. The 73 current counted rows are frozen; unused cap capacity is not authorization for more candidates.
 
 Every top-level fit call, inner fold, refit, calibration step and seed must be logged. PPR-5's offline validator must reconcile the estimator-specific fit-count calculation before any run can be authorized. If implementation requires additional calibration fits not included in the contract, amend the fit budget and obtain tester approval before execution.
 
