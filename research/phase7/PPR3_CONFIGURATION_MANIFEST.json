@@ -17,10 +17,10 @@
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "RESUBMISSION_CORRECTIONS_IN_PROGRESS_AFTER_VALIDATOR_FAILURE",
-    "ppr3_test_scope": "Temporary staging mode while correcting the last RF max_features summary-list type mismatch found by run 38072095263. No gate PASS is asserted; all empirical permissions remain false.",
-    "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is float 1.0, distinct from integer 1. Source-native methods remain in the separate documentation ledger.",
-    "current_work_mode": "Do not treat staging-mode CI as a validation pass. Restore snapshot_checks_enabled=true and staging_mode=false only after every pinned file hash has been refreshed."
+    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "ppr3_test_scope": "Exact-snapshot offline configuration, arithmetic, source-link and blob-pin validation only. This does not authorize PPR-4 source requests or any model execution.",
+    "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is JSON float 1.0, distinct from integer 1; the validator asserts that distinction.",
+    "current_work_mode": "PPR3 corrections are staged: separate 81-row paper-native task ledger, fixed-fit tuning arithmetic (780 inner folds), CCI20 spot-direction adaptation, FLAT zero-return-tie definition, RF max_features float 1.0 assertions. Exact pins enabled; all empirical permissions remain false."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -57,7 +57,7 @@
     },
     "model_settings": {
       "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
-      "blob": "331bc28050f4d6ef6a9343db8e47b25d86734aaa"
+      "blob": "23f99d44f899928ce29842c0be171724afaf9c91"
     },
     "target_inference_contract": {
       "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
@@ -221,6 +221,7 @@
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
   ],
-  "snapshot_checks_enabled": false,
-  "staging_mode": true
+  "snapshot_checks_enabled": true,
+  "staging_mode": false,
+  "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout."
 }
