@@ -607,3 +607,13 @@ The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phas
 - **Next gate:** prepare and independently review a fresh exact-hash manifest/approval and guarded workflow for the two bounded lookups (official same-day NIFTY OHLC, and Dhan public instrument-master CSV). Code-only PASS does not authorize a request. No bulk history or modeling until the new manifest/workflow gate passes.
 
 Latest research ledgers: [status](research/STATUS.md), [error log](research/ERROR_LOG.md), [conversation log](research/logs/CHAT_LOG.md).
+
+
+## Latest research checkpoint — 2026-10-10 (official cross-check review)
+
+- **Current gate: REQUEST CHANGES.** The current official NIFTY sample cross-check code snapshot is not yet verified by the previously cited hosted test receipt.
+- Independent review: [exact-snapshot tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md).
+- The older [offline workflow run 38056916677](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056916677) passed 32 mocked/offline tests for older file blobs. Current implementation/test blobs differ, so that result cannot be treated as a current gate pass.
+- No new official-source request was made; no live manifest was created; the original Dhan single-use authorization remains SPENT. The cached 2024-01-02 sample remains unaccepted for modeling pending official NSE OHLC cross-check and Dhan instrument mapping verification.
+- **Next step:** rerun the offline tests on the exact current developer snapshot, record hashes/run ID, and obtain a fresh independent tester decision before any live request.
+- Research ledgers: [status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) · [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md) · [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
