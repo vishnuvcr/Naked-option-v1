@@ -730,11 +730,55 @@ def validate_chirag_record(obj: Any, expected_date: str = CHIRAG_DATE) -> dict[s
     serialized_values = json.dumps(list(obj.values()), sort_keys=True).lower()
     if any(token in serialized_values for token in ("placeholder", "historical-seed", "synthetic", "generated", "fallback-without-source")):
         return {"status": "REJECTED_SYNTHETIC", "reason": "record or provenance indicates generated/placeholder data", "source": source}
-    required = {"date", "source"}
-    has_flow = any(k.lower().startswith("fii") or k.lower().startswith("dii") for k in obj)
-    if not has_flow:
-        return {"status": "SCHEMA_SAMPLE_PASS", "reason": "dated, provenance-labelled JSON; not sufficient alone for both registered flows", "source": source}
-    return {"status": "SCHEMA_SAMPLE_PASS", "reason": "dated, provenance-labelled single-day JSON; coverage not established", "source": source}
+    flow_fields: list[str] = []
+    bad_flow_fields: list[str] = []
+
+    def visit(value: Any, path: str = "") -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                visit(child, f"{path}.{key}" if path else str(key))
+            return
+        key = path.rsplit(".", 1)[-1].lower()
+        if not any(token in key for token in ("buy", "sell", "purchase", "sale", "net", "invest")):
+            return
+        flow_fields.append(path)
+        if isinstance(value, bool) or value is None:
+            bad_flow_fields.append(path)
+            return
+        if isinstance(value, (int, float)):
+            if not (float("-inf") < float(value) < float("inf")):
+                bad_flow_fields.append(path)
+            return
+        if isinstance(value, str):
+            raw = value.strip().replace(",", "").replace("₹", "")
+            raw = re.sub(r"\s*(?:cr|crore|crores)$", "", raw, flags=re.I).strip()
+            try:
+                parsed = float(raw)
+                if not (float("-inf") < parsed < float("inf")):
+                    bad_flow_fields.append(path)
+            except ValueError:
+                bad_flow_fields.append(path)
+            return
+        bad_flow_fields.append(path)
+
+    visit(obj)
+    if bad_flow_fields:
+        return {
+            "status": "REJECTED_SCHEMA",
+            "reason": "one or more flow-like fields are nonnumeric/nonfinite",
+            "source": source, "bad_flow_fields": bad_flow_fields[:20],
+        }
+    if not flow_fields:
+        return {
+            "status": "SCHEMA_SAMPLE_PASS",
+            "reason": "dated, provenance-labelled JSON but no recognized numeric flow fields; not a G14/G15 data pass",
+            "source": source, "recognized_flow_fields": [],
+        }
+    return {
+        "status": "SCHEMA_SAMPLE_PASS",
+        "reason": "dated, provenance-labelled single-day JSON; coverage not established",
+        "source": source, "recognized_flow_fields": flow_fields[:20],
+    }
 
 
 def inspect_chirag(client: LimitedHTTP) -> dict[str, Any]:
