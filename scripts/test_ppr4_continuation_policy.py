@@ -32,5 +32,22 @@ class TestPPR4ContinuationPolicy(unittest.TestCase):
         self.assertFalse(policy["execution_gate"]["live_data_requests_authorized_by_this_policy_file"])
         self.assertFalse(policy["execution_gate"]["existing_one_use_dhan_approval_reusable"])
 
+
+    def test_hard_budgets_and_durable_cache_are_defined(self) -> None:
+        from pathlib import Path
+        import json
+        root = Path(__file__).resolve().parents[1]
+        policy = json.loads((root / "research/phase7/PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY.json").read_text())
+        budget = policy["acquisition_budget_contract"]
+        self.assertEqual(budget["serial_requests_per_second_max"], 2)
+        self.assertEqual(budget["daily_dhan_request_budget_max"], 8250)
+        self.assertEqual(budget["daily_index"]["request_max"], 40)
+        self.assertEqual(budget["intraday_index"]["request_max"], 70)
+        self.assertEqual(budget["rolling_options"]["request_max"], 8100)
+        self.assertFalse(policy["execution_gate"]["live_data_requests_authorized_by_this_policy_file"])
+        cache = policy["cache_contract"]
+        self.assertTrue(cache["verify_before_fetch"])
+        self.assertIn("GitHub Actions artifacts are temporary diagnostics, not authoritative cache", cache["authoritative_cache_hierarchy"])
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
