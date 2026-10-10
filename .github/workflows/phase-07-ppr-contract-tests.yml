@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: phase-07-developer
+          ref: ${{ github.sha }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
