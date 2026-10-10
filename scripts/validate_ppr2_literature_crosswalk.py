@@ -19,7 +19,7 @@ EXTRA_FIELDS = [
     "limitations_and_blockers",
 ]
 ALLOWED_VERIFICATION = {"verified", "verified_pending", "pending", "unverified", "blocked"}
-FIDELITY_WORDS = ("exact", "overlap", "blocked", "metadata", "abstract", "source", "method", "background", "registry", "strategy", "context", "target")
+FIDELITY_WORDS = ("exact", "overlap", "blocked", "metadata", "abstract", "source", "method", "background", "registry", "strategy", "context", "target", "repository", "readme", "verified")
 
 
 def read_csv(path):
