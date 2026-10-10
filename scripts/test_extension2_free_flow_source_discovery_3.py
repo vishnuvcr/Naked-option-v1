@@ -114,19 +114,20 @@ def test_no_auto_redirect_for_cdsl() -> None:
 
 def test_allowed_hf_redirect_preserves_range_but_not_credentials() -> None:
     client = mod.LimitedHTTP()
+    body = b"abcd" + b"x" * (mod.MAX_RANGE_BYTES - 4)
     fake = FakeOpener([
         FakeResponse(302, b"", {"Location": "https://cdn-lfs.huggingface.co/blob/file?X-Amz-Signature=secretvalue&Expires=123"}),
-        FakeResponse(206, b"abcd", {"Content-Range": "bytes 0-3/10", "Content-Length": "4"}),
+        FakeResponse(206, body, {"Content-Range": f"bytes 0-{mod.MAX_RANGE_BYTES - 1}/20000", "Content-Length": str(mod.MAX_RANGE_BYTES)}),
     ])
     client.opener = fake
     result = client.request(
         "HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={
-            "Range": "bytes=0-3",
-        }, max_body_bytes=8, hf_redirects=True,
+            "Range": f"bytes=0-{mod.MAX_RANGE_BYTES - 1}",
+        }, max_body_bytes=mod.MAX_RANGE_BYTES, hf_redirects=True,
     )
     assert result["http_status"] == 206 and result["status"] == "FETCHED", result
     assert len(fake.requests) == 2
-    assert fake.requests[1].get_header("Range") == "bytes=0-3"
+    assert fake.requests[1].get_header("Range") == f"bytes=0-{mod.MAX_RANGE_BYTES - 1}"
     assert fake.requests[1].get_header("Authorization") is None
     assert fake.requests[1].get_header("Cookie") is None
     assert result["content_range"] == "bytes 0-3/10"
