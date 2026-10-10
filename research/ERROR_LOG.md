@@ -826,3 +826,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Hosted run [38049314836](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314836) passed **34/34 offline/mock tests** after exact body-field allowlists, inclusive window caps, positive integral timestamps, alignment checks for all response arrays, cache validation recomputation and in-window timestamp validation.
 - Hosted Research Protocol Check [38049314978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314978) passed.
 - The exact code snapshot still requires independent tester review. No Dhan call, data download, cache population, feature engineering or model fit took place.
+
+
+### Hosted run 38049437378 — raw-byte return contract changed before mock unpacking was updated
+- Category: regression harness / response provenance.
+- Symptom: ValueError: too many values to unpack (expected 2) in the HTTP success-path test.
+- Root cause: request_json was deliberately changed to return parsed payload, safe metadata and the original HTTP response bytes, while the existing test still unpacked only two values.
+- Correction: updated the fixture to verify all three return values and prove the returned byte string is exactly the original mock HTTP payload. Cache tests now require response_bytes and response_sha256 to match those same original bytes.
+- Final hosted run [38049465398](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049465398) passed 34/34 offline/mock tests; protocol run [38049465680](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049465680) passed. No live request was made.
