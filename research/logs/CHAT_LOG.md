@@ -717,3 +717,12 @@ Resume actions:
 - No workflow run was launched and no external request/data acquisition occurred.
 
 **Developer → Tester:** Independently audit the default-branch copy against the pinned developer workflow and verify the safety guards remain equivalent.
+
+
+## 2026-10-10 — User shared manual-dispatch run screenshot
+
+- Inspected GitHub Actions run #8 and API metadata: run ID `38047841820`, event `workflow_dispatch`, branch `main`, conclusion `skipped`. Run #7 (`38047826277`) was also skipped on `main`.
+- The job's existing branch guard permits execution only on `phase-07-developer`; therefore the skip is expected. No job steps ran, no manifest was spent, no secret was accessed, no external request was made, and no artifact exists.
+- Advised a fresh dispatch selecting `phase-07-developer` in the branch selector and `confirm_probe=true`. Do not rerun the skipped main-branch attempts.
+
+**Developer → Tester:** Verify that the skipped main-branch attempts produced no source request and that branch restriction remains unchanged. Audit only a new developer-branch run if one is created.
