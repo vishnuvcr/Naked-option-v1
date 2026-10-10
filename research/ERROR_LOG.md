@@ -616,3 +616,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Offline Run `38043259438` exposed that the new test expected an empty header map while the implementation intentionally retains safe Content-Type; test fixture/adapter behavior was reconciled. A further run failed because live sample did not pass the safe headers into the report helper; corrected by forwarding only sanitized headers.
 - Manifest validator now checks protected file blobs against the reviewed commit tree as well as current HEAD. This closes the ancestry-only weakness; current code-tester report is digest-pinned separately because it post-dates the code commit.
 - Current offline Run `38043456200` passed 29/29 checks. Tester approved one diagnostic retry only; the original manifest is spent and cannot be reused.
+
+
+## 2026-10-10 — Dhan instrument metadata returned HTTP 302
+
+- Diagnostic retry Run `38043667443` found profile HTTP 200, token valid and Data API plan active, then received HTTP 302 from `/v2/instrument/IDX_I`.
+- Current workflow rejected the redirect as designed. It made two requests, read 180 bytes, followed no redirect and made no historical candle request. Artifact ZIP SHA-256 `f388a9844db92836ec6551e2e442e207dc8d504bc9ae198df860117a2aabc68e`.
+- The artifact is not a data-availability pass. The second one-run manifest is SPENT. Do not reuse it or add a redirect without a separately reviewed allowlist.
+- New spec proposes a single redirect-host-only diagnostic request, with no follow and no raw Location path/query. Await tester spec review before implementation/live access.
