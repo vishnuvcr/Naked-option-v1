@@ -91,3 +91,72 @@ The other reviewed constraints remain unchanged: 15 initial probes; at most thre
 **Tester → Developer:** Use only spec blob `4e30415632545c04a2875d627afa0191afe3f383`. Implement the fixed request inventory and tests offline; submit the new exact script/test/workflow blobs for review. Do not request any data yet.
 
 **Developer → Tester:** Reject a code implementation that follows any non-HF redirect, exceeds global limits, calls a file-specific GitHub history endpoint, downloads the HF full file, or treats a source claim as coverage evidence.
+
+
+## Implementation code-gate review — 2026-10-10
+
+**Current decision: REQUEST CHANGES — do not create the one-run approval manifest.**  
+**Reviewed developer commit:** `918821ba9e74342bb282fe3a86138e8aa8e29ea7`.  
+**Live source requests: NOT AUTHORIZED.** The only evidence reviewed here is the hosted offline suite [Run 38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365), which passed 29 fixture checks and contains no live source step. These code findings were discovered by independent static review; no source probe was run.
+
+### Protected blobs reviewed
+
+| Protected path | Git blob ID |
+|---|---|
+| `research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md` | `4e30415632545c04a2875d627afa0191afe3f383` |
+| `scripts/extension2_free_flow_source_discovery_3.py` | `2df0dd511a1f6a15f1fd82ad4da0ab71891aa778` |
+| `scripts/test_extension2_free_flow_source_discovery_3.py` | `5cda644ed9a28b5855097ba021300dee7cbab0fa` |
+| `requirements-source-discovery-3.txt` | `921812b1d6da657ee1de2a4b35e7ff8b43cc8ce6` |
+| `.github/workflows/phase-07-free-flow-source-discovery-3-tests.yml` | `634f87014f334d3c4a903269a073c4e5e2786d46` |
+| `.github/workflows/phase-07-free-flow-source-discovery-3.yml` | `c0a68275c4a6c60d81726fb6ec0bf563bd86dada` |
+
+The submitted developer review request includes the byte SHA-256 values; the six Git blob IDs match the reviewed developer tree at the pinned commit. This review does **not** reuse the earlier spec-only PASS as a code-gate PASS.
+
+### Blocking finding 1 — stale specification identity in output artifact
+
+The current sampler sets `report["spec_git_blob"] = "52b030e09213cb30c4de6a1633da38e6b2558b1f"`, but the current approved spec blob is `4e30415632545c04a2875d627afa0191afe3f383`. A future artifact would misstate the exact spec version used, defeating the explicit provenance field.
+
+**Required:** update the reported spec blob to the current exact value and add an offline assertion for it. If the spec changes, the value must be updated only with an approved spec snapshot and a fresh code gate.
+
+### Blocking finding 2 — conflicting dates can be accepted in the single-day JSON probe
+
+`validate_chirag_record` collects all fields among `date`, `trade_date`, `tradeDate`, and `report_date`, but accepts the record if the expected path date appears anywhere in the list. A record with `date=2026-10-01` and `trade_date=2026-10-02` therefore passes despite an internal date conflict.
+
+**Required:** require every recognized, non-empty date field to be parseable and equal the fixed expected date. A malformed or conflicting date must yield `REJECTED_SCHEMA`. Add a fixture with one correct and one conflicting date.
+
+### Blocking finding 3 — sampled CSV numeric validation accepts NaN/Infinity
+
+`parse_csv_edge` currently uses `float(value)` as its numeric test. Python accepts `NaN`, `Inf`, and `Infinity` as float values, so non-finite FII/DII rows can be reported as having no numeric error even though the spec requires numeric validity.
+
+**Required:** add explicit finite-value checking after conversion (e.g. `math.isfinite`) and a regression that includes `nan`, `inf`, and a valid numeric value. Report non-finite cells separately or fail the sampled edge closed.
+
+### Blocking finding 4 — JSON field redaction omits signature-like field names
+
+`redact_sensitive_json` removes keys containing authorization/cookie/token/secret/password/credential/API-key terms, but it does not remove fields named `signature` or `sig`. Those can carry sensitive values even when nested.
+
+**Required:** add `signature`/appropriate `sig` handling to the sensitive-key inventory and test nested signature/signed-token fields. Preserve harmless business fields.
+
+### Blocking finding 5 — dated page links may persist sensitive query values
+
+`inspect_html_page` directly reports `date_links(parser)`, whose returned `href` is the raw URL from page HTML. `safe_url_for_report` is applied to HTTP request/redirect URLs and JSON-record URLs, but not to the dated links array. A link containing signed or credential query parameters could therefore leak those values in the JSON artifact.
+
+**Required:** sanitize every URL before adding it to `dated_links_sample`, and add a fixture proving that dated links retain date/path identity while signature/token/API-key query values are redacted.
+
+### Blocking finding 6 — manifest reviewer commit is not bound to the tree in the tester report
+
+The guarded workflow validates that `reviewed_developer_commit` exists and is an ancestor of the current `HEAD`, but it does not require that commit ID to appear as the reviewed commit in the tester report, nor does it verify each protected path's Git blob at that commit. It does check that the current `HEAD` protected blobs appear in the report, but the manifest could still nominate a different ancestor as the reviewed commit.
+
+**Required:** require the manifest's `reviewed_developer_commit` to match an exact reviewed-commit line in the tester report, and for every protected path validate `git rev-parse reviewed_commit:path` equals the expected protected Git blob. Add offline workflow/guard regression coverage.
+
+### Required resubmission
+
+1. Correct the six findings above on `phase-07-developer`.
+2. Add focused offline fixtures for all six cases.
+3. Run the offline-only workflow and submit the newest exact commit, all six Git blob IDs and byte SHA-256 values.
+4. Request a fresh independent code/workflow gate.
+
+**Current disposition:** REQUEST CHANGES. **No one-run manifest or live source requests are authorized.** Full-history acquisition, features/labels, fitting, metrics/p-values and final-holdout access remain prohibited.
+
+**Tester → Developer:** Correct the stale spec ID, conflicting-date acceptance, non-finite CSV handling, recursive signature redaction, dated-link URL redaction, and reviewed-commit/tree binding. Do not create a source-probe approval manifest.
+
+**Developer → Tester:** Resubmit the exact corrected snapshot with offline tests green. The tester must re-review the code/workflow gate before any new single-use manifest can be created.
