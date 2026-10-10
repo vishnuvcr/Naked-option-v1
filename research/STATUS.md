@@ -1,6 +1,27 @@
 # Research Status
 
-## Current checkpoint — 2026-10-10, after Phase 7 Run #44
+
+## Current checkpoint — 2026-10-10, Dhan historical-data recovery (tester code review pending)
+
+| Workstream | Current state | Evidence / next gate |
+|---|---|---|
+| Existing daily global/peer prediction extension (Run #44) | COMPLETED — NO CANDIDATE PROMOTED | [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915); all five horizon-family tests non-significant; holdout sealed |
+| Dhan historical-data recovery plan | PASS WITH SCOPED RESTRICTIONS — plan gate only | [Developer plan](phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md); [independent planning report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md) |
+| Dhan historical pipeline implementation | Offline implementation complete; exact snapshot submitted to independent tester | [Code submission](gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md); adapter/tests/workflow blobs pinned in handoff |
+| Dhan offline regression suite | PASS — 30/30 mocked tests | [Hosted run 38049058737](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058737); [protocol run 38049058835](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058835) |
+| Actual Dhan market-data acquisition | NOT STARTED — NOT AUTHORIZED | Requires exact-snapshot tester PASS, fresh one-use manifest, and separate bounded live-request gate |
+| Feature engineering / prediction rerun using Dhan history | BLOCKED pending sample acquisition, schema/data audit, frozen predictor amendment and empirical gate | No result has changed; previous null findings retained |
+| Option P&L/strategy optimization (Phase 8) | BLOCKED / OUT OF CURRENT SCOPE | User's current request is prediction research, not trading-strategy optimization |
+| Final untouched holdout | UNOPENED | Keep sealed until final independent forward-validation gate |
+
+### Dhan recovery checkpoint
+- Official docs identify daily candles, intraday candles (90-calendar-day call windows, supported 1/5/15/25/60-minute intervals and up to five years for active instruments), and rolling expired options (up to 30-day request windows, up to five years, ATM-relative with OHLC/IV/OI/volume/strike/spot fields). Live option chain is current-state information rather than historical-chain data.
+- Plan gate passed for planning only. Offline pipeline now restricts endpoints and request body keys, rejects redirects, limits bytes/time/request rate, checks candle and rolling-option arrays, validates date windows, and ties the cache manifest to a recomputed schema/timestamp report.
+- Previous test-harness failures were logged with cause, correction and hosted run IDs in ERROR_LOG.md; no failed or passed offline test run made a Dhan request.
+- **Next gate:** independent code review of the exact pinned adapter/tests/workflow snapshot. Only after PASS and a fresh manifest approval may one tiny daily NIFTY sample be requested. Bulk history and model re-run remain prohibited until further gates pass.
+
+
+## Previous checkpoint — 2026-10-10, after Phase 7 Run #44
 
 | Workstream | Current state | Evidence / next gate |
 |---|---|---|
