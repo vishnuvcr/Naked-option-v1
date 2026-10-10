@@ -174,3 +174,10 @@ Run [#1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs
 **Developer → Tester:** Independently review all six current protected blobs and return an exact-snapshot PASS/REQUEST CHANGES. Do not authorize anything beyond the bounded Gate A samples.
 
 **Tester → Developer:** The prior PASS does not bind the changed sampler/workflow. Keep the manifest absent until the current exact snapshot is passed.
+
+
+### Final Gate A guard hardening — 2026-10-10
+
+The workflow's current blob is now `fdc0a6bef97796b38424048304b704d86f80c450` (replacing `c535610e69c2e90934ab4e59d754b584e29ff6ec`). In addition to file-byte SHA-256 values, the Gate A guard now requires the independent tester report to include the exact current decision line, explicitly deny full-history acquisition and model fitting, and quote all six protected Git blob IDs from the approved snapshot. The approval manifest also binds the reviewed commit as an ancestor and verifies both file hashes and Git blob IDs. Manual sampling remains opt-in and still requires the same exact approval.
+
+Latest request: [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md). Current sampler/test blobs have not changed; the exact workflow snapshot needs independent re-review. No approval manifest or source sample exists.
