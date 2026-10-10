@@ -658,3 +658,14 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - **The prior Gate A manifest is spent. No further network/source probes, full history, feature/label construction or model fitting are authorized.**
 - Next action: prepare a new frozen, bounded source-discovery proposal that uses byte-range requests with strict caps, official CDSL FPI samples, one HF CSV sample, and an explicit synthetic-provenance rejection rule. Independent tester must approve the spec/code before any data probe.
 - Inventory: [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md).
+
+
+## 2026-10-10 — Free Flow Source Discovery 3 SPEC PASS
+
+- Independent tester passed the frozen proposal `research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md`, Git blob `52b030e09213cb30c4de6a1633da38e6b2558b1f`.
+- Report is mirrored at `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` on tester/developer branches.
+- Decision authorizes **implementation and offline regression tests only**. No live source requests, history acquisition or modeling are authorized.
+- The plan has 15 initial probes plus at most three one-hop HF redirects, 2 MiB aggregate body cap, 16 KiB max CSV-range data, strict HTTP 206/Content-Range validation, pinned commit and explicit provenance rules.
+- GitHub history metadata uses directory-only `/contents/data` calls to avoid file payloads; raw `data/history.json` endpoints are prohibited.
+- During proposal verification, two CDSL XLS links were opened with a web reader but the reader returned unsupported-content-type errors and provided no parsed values. Logged as non-accepted activity in ERROR_LOG and tester report.
+- Next: implementation on developer branch, hosted offline tests, exact-snapshot code review. The spent prior Gate A manifest must not be reused.
