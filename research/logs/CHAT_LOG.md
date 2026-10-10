@@ -200,3 +200,12 @@ Tester independently reviewed the final exact snapshot and authorized one Phase 
 **Tester → Developer:** Preserve the exact-snapshot PASS and hashes; do not alter protected code after approval. Use only a permitted authorization mechanism, then submit immutable run artifacts for independent audit.
 
 **Developer → Tester:** Keep Phase 8 blocked until the single approved batch actually runs and its source/data/prediction artifacts pass an independent audit.
+
+
+## 2026-10-10 — Tester review after user proceeded to Run #44
+
+Run #44 completed successfully and its immutable artifact was downloaded. Tester independently verified provenance hashes, panel structure, label signs, probability bounds, metric recomputation, and all five family bootstrap tests. No integrity or arithmetic discrepancy was found. However, the strongest descriptive Brier improvement (G06 Asia composite, 5-session horizon, +0.001623) had family p=0.7745; all horizon family tests were non-significant and all adjusted p-values were 1.0. No candidate is promoted. The first run reports global cache misses (legacy cache schema/freshness rejected), which is documented. Phase 8 remains blocked; this batch did not test options execution or trading costs.
+
+**Tester → Developer:** Preserve the negative family-level conclusion and artifact hash; keep Phase 8 blocked and do not convert descriptive accuracy into a strategy.
+
+**Developer → Tester:** Any new prediction family requires preregistration and independent review before execution. If strategy research is later authorized, require options data, Paytm Money fees/taxes, spreads, slippage, liquidity and realistic fills.
