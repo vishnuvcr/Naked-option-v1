@@ -55,6 +55,14 @@ Use one of the following statuses per **paper × method × feature pipeline × h
 - Statistical control: paired evaluation rows; block bootstrap for dependent time series; one declared familywise maximum-statistic test over the pre-registered paper-method × horizon grid, with multiplicity correction and effect sizes / confidence intervals. The existing final holdout remains sealed.
 - All method failures, unavailable inputs and zero-sample cells must be retained in the results grid with a reason code, not silently dropped.
 
+## Claim-level evidence and current tester findings
+
+The 15-paper claim-by-claim source locator is maintained in [`PAPER_SOURCE_EVIDENCE_MATRIX.md`](PAPER_SOURCE_EVIDENCE_MATRIX.md), while the proposed common target and inference definitions are in [`PPR_TARGET_INFERENCE_CONTRACT.json`](../phase7/PPR_TARGET_INFERENCE_CONTRACT.json). The source matrix distinguishes model methods, sample/data windows, targets/horizons, splits, metrics/results and limitations. These remain source-literature claims, not project results.
+
+Source issues that must not be silently reconciled: the ISMLA PDF describes option-like `callOpen/callHigh/callLow/callClose` fields without a clear spot-index target; JIER uses inconsistent moving-average parameters and date windows; the IJSDR “83.88% accuracy” and Naik/Inamdar reported accuracy/precision figures need fully specified denominators/targets to be comparable; Kumar & Sharma reports “99.2152% average accuracy” in the abstract but does not define it as a directional score in the cited results; JRFM's backward feature selection uses the full sample and is leakage-prone for causal forecasting; the CCI strategy paper contains a 68-trade versus 80-total inconsistency. These limitations are not corrected by broad model-family overlap.
+
+The current tester disposition is **REQUEST CHANGES** on the exact previous snapshots. See [`PHASE7_PPR1_REVIEW2_TESTER_REPORT.md`](../gates/PHASE7_PPR1_REVIEW2_TESTER_REPORT.md) on `phase-07-tester` for reviewer-role findings. The source evidence matrix, contract and validator now have later developer commits and must be reviewed again against new exact blob IDs; none of these documentation/code changes authorizes PPR-2, data pulls or model fitting.
+
 ## What this crosswalk does and does not establish
 
 This file establishes the source-derived method inventory from the 15 mounted PDFs. It does not yet establish full coverage of the repository's separate 36-record literature registry, nor empirical replication. The next steps are (a) crosswalk those records too, (b) freeze the exact method/configuration matrix, (c) get independent tester approval, (d) run data/source feasibility and implementation gates, (e) execute only authorized walk-forward batches, and (f) independently audit immutable artifacts before any conclusion is promoted.
