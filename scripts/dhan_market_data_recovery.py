@@ -86,8 +86,19 @@ def request_bytes(
     try:
         response = opener.open(req, timeout=TIMEOUT_SECONDS)
     except urllib.error.HTTPError as exc:
-        # Do not read or return provider error bodies; they can contain account data.
-        return int(exc.code), b"", {}
+        # Never read or retain the provider error body; only preserve safe content type.
+        safe_headers: dict[str, str] = {}
+        try:
+            content_type = exc.headers.get("Content-Type", "") if exc.headers else ""
+        except Exception:
+            content_type = ""
+        if (
+            isinstance(content_type, str)
+            and len(content_type) <= 120
+            and not any(ch in content_type for ch in ("\r", "\n"))
+        ):
+            safe_headers["content-type"] = content_type
+        return int(exc.code), b"", safe_headers
     except Exception as exc:
         # Exception text may include request details; deliberately redact it.
         raise RuntimeError(f"dhan_transport_error_{type(exc).__name__}") from None
@@ -271,7 +282,7 @@ def sample_plan(instruments: dict[str, dict[str, str]]) -> list[dict[str, str]]:
 def blocked_metadata_result(status: int, headers: dict[str, str], budget: Budget, profile: dict[str, Any]) -> dict[str, Any]:
     """Return only safe diagnostics for a failed instrument metadata response."""
     content_type = headers.get("content-type", "")
-    if len(content_type) > 120 or any(ch in content_type for ch in "\\r\\n"):
+    if len(content_type) > 120 or any(ch in content_type for ch in ("\r", "\n")):
         content_type = ""
     return {
         "status": "BLOCKED_INSTRUMENT_METADATA",
@@ -301,12 +312,12 @@ def live_sample() -> dict[str, Any]:
     if profile.get("token_valid") is not True or profile.get("data_plan_active") is not True:
         return {"status": "BLOCKED_AUTH_OR_ENTITLEMENT", "profile_probe": profile,
                 "request_count": budget.requests, "bytes_read": budget.bytes_read}
-    status, instrument_body, _ = request_bytes(
+    status, instrument_body, metadata_headers = request_bytes(
         INDEX_INSTRUMENT_URL, method="GET", token=token, body=None,
         cap=MAX_INDEX_METADATA_BYTES, budget=budget,
     )
     if status != 200:
-        return blocked_metadata_result(status, {}, budget, profile)
+        return blocked_metadata_result(status, metadata_headers, budget, profile)
     instruments = parse_index_instruments(instrument_body)
     del instrument_body
     plan = sample_plan(instruments)
