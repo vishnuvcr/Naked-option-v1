@@ -45,6 +45,12 @@ def validate(contract, matrix_text):
         errors.append("adjusted p-value formula mismatch")
     if "INCOMPLETE_NOT_PROMOTABLE" not in inf.get("missing_candidate_rule", ""):
         errors.append("missing candidate must block confirmation")
+    if "same sampled block indexes" not in inf.get("resampling", ""):
+        errors.append("paired candidate/horizon block samples are not specified")
+    if "one block length per family" not in inf.get("block_length_sessions", ""):
+        errors.append("block length must be consistent within each max-statistic family")
+    if "common" not in inf.get("family_membership", "").lower():
+        errors.append("family membership must specify a common target schema")
     if inf.get("minimum_valid_rows", 0) < 250:
         errors.append("minimum valid row count below 250")
     bounds = contract.get("search_bounds", {})
@@ -52,6 +58,11 @@ def validate(contract, matrix_text):
         errors.append("outer model-cell cap mismatch")
     if bounds.get("max_inner_hyperparameter_trials_total") != bounds.get("max_tuned_candidate_configs", 0) * bounds.get("max_inner_hyperparameter_configs_per_candidate", 0):
         errors.append("inner search cap mismatch")
+    total_floor = bounds.get("max_outer_fit_calls_including_seeds", 0) + bounds.get("max_inner_hyperparameter_trials_total", 0) * (bounds.get("max_inner_chronological_splits", 0) + 1)
+    if bounds.get("max_total_fit_calls_including_inner_folds", 0) < total_floor:
+        errors.append("global fit-call cap does not cover outer fits, inner folds and refits")
+    if "task_type/target_schema" not in bounds.get("configuration_unit", ""):
+        errors.append("base configuration count must include target/task schema")
     return errors
 
 
