@@ -611,3 +611,8 @@ The single-run approval manifest was marked SPENT; no more sources may be fetche
 ## 2026-10-10 — Source Discovery 3 specification passed
 
 The independent tester passed the frozen spec blob `52b030e09213cb30c4de6a1633da38e6b2558b1f` for implementation and offline testing only. It sets a finite source list, 15 initial request/3 HF redirect maximum, 2 MiB total, 16 KiB HF CSV-range cap, strict 206/Content-Range behavior, and no raw history file API calls. Full history/model fitting remains prohibited. During spec-link verification, attempts to open two CDSL XLS files through the web reader returned unsupported content type and supplied no parsed values; those attempts are recorded as non-accepted evidence. Next: implement sampler/test fixtures offline, then submit exact blobs for an independent code gate.
+
+
+## 2026-10-10 — Discovery 3 exact-snapshot code review returned REQUEST CHANGES
+
+Tester inspected sampler, tests and workflows at commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` and found six blockers: stale spec provenance in the output, conflicting recognized date fields accepted if one matches, non-finite CSV values accepted, signature-like keys not redacted, unsanitized dated links in HTML reports, and manifest reviewed commit not bound to exact protected tree in the report. The report is mirrored on developer branch. No network call occurred. Developer must fix all six with offline fixtures and resubmit a new exact snapshot.
