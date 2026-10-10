@@ -42,7 +42,28 @@ The initial option pull is deliberately based on rolling options with OHLC/IV/OI
 - On response-size cap, split the approved date interval deterministically into smaller non-overlapping chunks. On a repeated schema/HTTP/auth failure, mark that source shard failed and continue fallback acquisition. Do not loop indefinitely or silently alter requested fields.
 - Log every failed shard, HTTP status, retry decision, fallback source and terminal disposition in `research/ERROR_LOG.md` and machine-readable per-run reports.
 - Keep provider-native response payloads immutable; normalized data are separate versioned products with lineage to raw shard hashes.
-- Public repository commits must respect source terms and size limits. Store eligible compact canonical datasets in `data/cache`; retain large sharded payloads as immutable workflow artifacts/content-addressed files where Git repository size or data license makes direct Git commits inappropriate. The cache manifest must make reuse deterministic.
+- Public repository commits must respect source terms and size limits. The persisted-cache hierarchy is mandatory:
+1. **Small redistributable data:** commit immutable raw chunks and normalized compact tables under `data/cache/<source>/<revision>/<chunk>/`, accompanied by `manifest.json`.
+2. **Large redistributable data:** store immutable shards as versioned GitHub Release assets or approved Git LFS objects under repository control. Commit a catalogue containing the release/asset or LFS object identity, immutable URL/path, byte count, SHA-256, row count, schema/version, min/max timestamp, license basis and source/transform hashes.
+3. **Re-run behavior:** before fetching, lookup the committed cache catalogue, verify any local copy by hash/size/schema/date range, and reuse valid cache hits. Fetch only missing or invalid shards that the exact manifest permits. Write/checkpoint a shard before moving to the next one.
+4. **Temporary artifacts:** GitHub Actions artifacts are limited to short-lived diagnostics and run receipts; they are not the authoritative long-term data cache.
+5. **No-redistribution sources:** if terms prohibit saving the payload in the repo or durable cache, store the maximum permitted source/provenance/license/checksum metadata and use that source only under its terms. Mark `persistent_payload_cache=false`; do not falsely claim the bytes are cached.
+
+### 2.2 Numerical caps for source-request manifests
+
+These are parent-plan ceilings; the next exact request manifest must repeat/freeze the actual request lists, dates, hashes, bodies, per-source counters and aggregate counters before any live request.
+
+| Acquisition family | Deterministic chunk/grid | Maximum requests | Maximum response | Aggregate byte ceiling | Maximum rows per response |
+|---|---|---:|---:|---:|---:|
+| Dhan daily NIFTY candles | One non-overlapping calendar-year shard per request, `toDate` exclusive, from 1990-01-01 through 2026-10-10 | 40 | 1 MiB | 20 MiB | 400 |
+| Dhan 1-minute NIFTY intraday | 30-calendar-day non-overlapping shards over the latest five-year window; 1-minute raw grid is the canonical intraday input | 70 | 8 MiB | 256 MiB | 12,000 |
+| Dhan rolling expired NIFTY options | 30-calendar-day non-overlapping shards; interval 5 minutes; `expiryFlag` in WEEK/MONTH; `expiryCode` in 0/1/2; strikes ATM−5 through ATM+5; `drvOptionType` CALL/PUT; include OHLC/IV/volume/strike/OI/spot | 8,100 | 2 MiB | 2 GiB | 2,500 |
+| Initial other-free-source pilot | At most 10 named sources with direct, pinned request URLs/query/revisions; one bounded sample request per planned source unless its manifest records an archive-file fetch | 20 | 4 MiB | 32 MiB | 20 rows for tabular samples; file archive requests must declare a source-specific archive cap |
+
+The endpoint-specific date window remains subject to provider limits: the intraday request may never exceed 90 days, and the rolling-option request may never exceed 30 days. Proposed initial windows are at most 30 days for both. The 8,100 rolling-option call cap is a maximum, derived from no more than 62 date chunks × 2 expiry flags × 3 expiry codes × 11 relative strikes × 2 option types = 8,184 theoretical cells; the exact manifest must further reduce the included grid/cell count to 8,100 or fewer and list every request key explicitly. No implicit Cartesian expansion at runtime is allowed.
+
+Budgets are hard stops. No retry loop or alternate endpoint is permitted unless included in the manifest. On a size/row cap, quarantine the affected response, log it, and either use only a pre-registered smaller shard within the remaining approved request budget or skip that shard and invoke a free fallback. Never exceed per-request provider windows or aggregate budgets. Any broader window/contract grid needs a new manifest and independent tester PASS. Request pacing is serial at no more than 2 requests/second; maximum planned Dhan request count per execution day is 8,250, below the provider's published daily ceiling. The workflow checkpoints state and resumes cache-missing shards only, with bounded workflow time; it must not start over on every run.
+
 
 ## 3. Free-source fallback matrix
 
