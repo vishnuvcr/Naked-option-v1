@@ -373,8 +373,10 @@ def build_rule_expiry_map(
         month_cursor = dt.date(month_cursor.year, month_cursor.month - 1, 1)
     final_month = dt.date(end.year, end.month, 1)
     while month_cursor <= final_month:
+        # September 2025's monthly contract retained Thursday expiry (25-Sep);
+        # Tuesday monthly expiries start with the 28-Oct-2025 contract.
         last_day = _last_weekday(month_cursor.year, month_cursor.month,
-                                 3 if month_cursor < dt.date(2025, 9, 1) else 1)
+                                 3 if month_cursor <= dt.date(2025, 9, 1) else 1)
         monthly_candidates.append(last_day)
         if month_cursor.month == 12:
             month_cursor = dt.date(month_cursor.year + 1, 1, 1)
