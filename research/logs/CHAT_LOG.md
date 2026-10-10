@@ -976,3 +976,14 @@ After the independent REQUEST CHANGES decision, developer added a comment-only t
 
 **Developer → Tester:** Do not sign off on the historical run; review only after a verifiable current hosted receipt is available.
 **Tester → Developer:** Keep live acquisition blocked while the exact-snapshot run evidence is missing.
+
+
+## 2026-10-10 — User said “Proceed”: resumed exact-snapshot gate
+
+- Re-read the current project records and exact cross-check implementation/workflow/tester report before acting.
+- Rechecked the trigger commit `50f79a629b580063fbe561117da57cf7c9e2b044`: connected status is empty and the available commit-run lookup returns no run. The connector documents that lookup as PR-run-only, so it is insufficient to verify a push-triggered workflow.
+- Result: gate remains blocked with tester REQUEST CHANGES; CI outcome is **unknown**, not failed or passed. No public-source request, model/strategy run or holdout access occurred. The original Dhan sample permission remains SPENT.
+- Next action is to obtain a verifiable Actions run receipt, compare exact commit/blob hashes, then submit for independent tester re-review. No workaround that skips the gate is permitted.
+
+**Developer → Tester:** Hold the gate at REQUEST CHANGES pending a verifiable exact-snapshot hosted receipt.
+**Tester → Developer:** Re-review only the exact tested commit and preserve the no-live-request restriction until fresh approval.
