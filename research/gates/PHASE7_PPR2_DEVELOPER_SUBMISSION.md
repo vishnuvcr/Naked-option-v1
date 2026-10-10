@@ -13,7 +13,7 @@
 | New row-level PPR-2 crosswalk CSV | `ac8491628913c5019d7a4b986339489b1dff1f14` |
 | Crosswalk summary | `f7f94acfbac730464667645c403b5deafd9dceed` |
 | Offline crosswalk validator | `3dc96155e460f92a192d45502973c89bc9bd68c3` |
-| Exact-commit CI workflow | `dcd0e87bae482b8ed16f25d78ab573c5ba9ed923` |
+| Exact-commit CI workflow | `dffa5262b991db9843df35c34157e1273365d8f5` |
 
 ## What changed
 
@@ -27,7 +27,7 @@
 
 - [PPR-2 offline crosswalk workflow](../.github/workflows/phase-07-ppr2-literature.yml) checks out `${{ github.sha }}` and runs [`validate_ppr2_literature_crosswalk.py`](../../scripts/validate_ppr2_literature_crosswalk.py).
 - Checks include RFC-style CSV parsing, expected 11-/18-column schemas, exact L001–L036 coverage, unique IDs, all source fields preserved exactly between registry and crosswalk, non-empty PPR-2 annotations, explicit exact-match status, URL/DOI plausibility, and specific L003 semantic checks.
-- One initial CI attempt failed because the depth-label validator did not accept `REPOSITORY_README_VERIFIED`; this was a validator bug, not a source mapping failure. The allowed-label list was broadened and the exact-commit rerun is pending/linked in current status. The failed run is preserved in the error log.
+- One initial CI attempt failed because the depth-label validator did not accept `REPOSITORY_README_VERIFIED`; this was a validator bug, not a source mapping failure. The allowed-label list was broadened, and exact-commit rerun [38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564) passed on commit `974bed3013fa1a0a608f83a56220ed449514580a`. The failed run is preserved in the error log.
 - Automated checks validate mapping integrity only. They cannot decide whether a scientific interpretation is correct, and do not search the web or retrieve data.
 
 ## Known limitations and exclusions
