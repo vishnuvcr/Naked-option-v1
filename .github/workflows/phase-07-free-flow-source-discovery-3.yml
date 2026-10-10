@@ -104,6 +104,14 @@ jobs:
               raise SystemExit("FAIL CLOSED: protected byte-hash set mismatch")
           if not isinstance(expected_blobs, dict) or set(expected_blobs) != expected:
               raise SystemExit("FAIL CLOSED: protected Git-blob set mismatch")
+          reviewed_commit = manifest.get("reviewed_developer_commit")
+          if not isinstance(reviewed_commit, str) or len(reviewed_commit) != 40:
+              raise SystemExit("FAIL CLOSED: reviewed commit malformed")
+          reviewed_commit_line = f"**Reviewed developer commit:** `{reviewed_commit}`"
+          if reviewed_commit_line not in report_text:
+              raise SystemExit("FAIL CLOSED: tester report does not name the exact reviewed developer commit")
+          subprocess.run(["git", "cat-file", "-e", f"{reviewed_commit}^{{commit}}"], check=True)
+          subprocess.run(["git", "merge-base", "--is-ancestor", reviewed_commit, "HEAD"], check=True)
           for rel in sorted(expected):
               p = root / rel
               if not p.is_file():
@@ -113,14 +121,12 @@ jobs:
                   raise SystemExit(f"FAIL CLOSED: protected SHA-256 mismatch: {rel}")
               actual_blob = subprocess.check_output(["git", "rev-parse", f"HEAD:{rel}"], text=True).strip()
               if actual_blob != expected_blobs[rel]:
-                  raise SystemExit(f"FAIL CLOSED: protected Git-blob mismatch: {rel}")
+                  raise SystemExit(f"FAIL CLOSED: protected Git-blob mismatch at HEAD: {rel}")
+              reviewed_blob = subprocess.check_output(["git", "rev-parse", f"{reviewed_commit}:{rel}"], text=True).strip()
+              if reviewed_blob != expected_blobs[rel]:
+                  raise SystemExit(f"FAIL CLOSED: protected Git-blob at reviewed commit does not match approval: {rel}")
               if actual_blob not in report_text:
                   raise SystemExit(f"FAIL CLOSED: tester report does not pin blob: {rel}")
-          reviewed_commit = manifest.get("reviewed_developer_commit")
-          if not isinstance(reviewed_commit, str) or len(reviewed_commit) != 40:
-              raise SystemExit("FAIL CLOSED: reviewed commit malformed")
-          subprocess.run(["git", "cat-file", "-e", f"{reviewed_commit}^{{commit}}"], check=True)
-          subprocess.run(["git", "merge-base", "--is-ancestor", reviewed_commit, "HEAD"], check=True)
           print("PASS: exact tester report, protected byte hashes/Git blobs, scope and commit ancestry validated")
           print("authorized=true")
           PY
