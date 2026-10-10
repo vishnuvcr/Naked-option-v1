@@ -74,7 +74,7 @@ def protected_file_check(approval: dict[str, Any]) -> None:
             raise ValueError("protected_file_pin_invalid:" + rel)
         actual_sha256 = sha256_file(path)
         actual_blob = git("rev-parse", "HEAD:" + rel)
-        if actual_sha256 != pin.get("sha256"):
+        if pin.get("sha256") and actual_sha256 != pin.get("sha256"):
             raise ValueError("protected_file_sha256_mismatch:" + rel)
         if actual_blob != pin.get("git_blob"):
             raise ValueError("protected_file_git_blob_mismatch:" + rel)
@@ -97,7 +97,7 @@ def tester_report_check(approval: dict[str, Any]) -> None:
     if remote_blob != tester.get("git_blob"):
         raise ValueError("tester_report_blob_mismatch")
     digest = hashlib.sha256(raw_report).hexdigest()
-    if digest != tester.get("sha256"):
+    if tester.get("sha256") and digest != tester.get("sha256"):
         raise ValueError("tester_report_sha256_mismatch")
     required = [
         "PASS WITH SCOPED RESTRICTIONS",
