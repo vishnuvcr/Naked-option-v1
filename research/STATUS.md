@@ -1104,3 +1104,13 @@ The web-reader interface does not expose response byte counts, full headers or r
 
 **Developer → Tester:** Review the source-register update and any proposed bounded data request before network activity.
 **Tester → Developer:** Keep all data/model/holdout permissions false until a new exact-source PASS.
+
+
+
+## Live composite acquisition monitor checkpoint — 2026-10-11
+
+Run [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220) remains `in_progress` on `phase-07-developer`, commit `84dc153218429799c057135ff9e75eeeed7c6747`. The preflight, offline regressions, isolated tester-decision fetch, protected pin validation, required-secret presence check, cache/progress restore and one-use approval-spend steps all completed successfully. The bounded data-acquisition/export step remains in progress; cache persistence, completion/partial sealing and artifact upload have not started.
+
+At this check, GitHub reports zero run artifacts. Therefore the composite dataset is **not yet available**, actual observation coverage has not been assessed, and no prediction experiment or holdout operation is authorized. Do not spend another approval, restart or duplicate the active request grid. Once the run completes, inspect its coverage/error metadata and encrypted artifact, then submit that exact realized snapshot to the isolated tester before model use.
+
+Developer → Tester: Review actual request coverage, empty responses, missing timestamps/spot joins, source lineage, row/byte totals, checksums and artifact integrity once the run has completed; keep prediction experiments blocked until that artifact-level review.
