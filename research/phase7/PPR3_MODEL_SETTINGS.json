@@ -416,13 +416,14 @@
         "fast_window": 50,
         "slow_window": 200,
         "signal_states": [
-          "bullish_cross",
-          "bearish_cross",
-          "no_new_cross"
+          "FAST_ABOVE_SLOW",
+          "FAST_BELOW_SLOW",
+          "EQUAL_OR_WARMUP"
         ],
-        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training prefix only, keyed by current rule state"
+        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training-prefix labels keyed by the persistent current MA state; counts only outcomes whose label endpoints have matured. No validation labels are used to form mapping.",
+        "state_rule": "At decision session t, BULLISH/UP state when fast MA[t] > slow MA[t], BEARISH/DOWN state when fast MA[t] < slow MA[t], EQUAL_OR_WARMUP otherwise. A fresh crossover is derivable only from a change in the sign of fast-slow between t-1 and t; it is not the persistent state itself."
       },
-      "preprocess": "use only SMA values available by decision cutoff; after initial training map is fitted, use prequential rates only from labels mature before each later decision"
+      "preprocess": "Use only MAs available by cutoff. Fit initial class mapping on training prefix, then update prequential counts only with labels that mature strictly before each later decision."
     },
     "EMA_50_200_DIRECTION": {
       "family": "EMA 50/200 crossover rule",
@@ -430,13 +431,14 @@
         "fast_window": 50,
         "slow_window": 200,
         "signal_states": [
-          "bullish_cross",
-          "bearish_cross",
-          "no_new_cross"
+          "FAST_ABOVE_SLOW",
+          "FAST_BELOW_SLOW",
+          "EQUAL_OR_WARMUP"
         ],
-        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training prefix only, keyed by current rule state"
+        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training-prefix labels keyed by the persistent current MA state; counts only outcomes whose label endpoints have matured. No validation labels are used to form mapping.",
+        "state_rule": "At decision session t, BULLISH/UP state when fast MA[t] > slow MA[t], BEARISH/DOWN state when fast MA[t] < slow MA[t], EQUAL_OR_WARMUP otherwise. A fresh crossover is derivable only from a change in the sign of fast-slow between t-1 and t; it is not the persistent state itself."
       },
-      "preprocess": "selected 50/200 setting is explicitly a PROJECT-ADAPTATION because the source also mentions 50/100"
+      "preprocess": "Use only MAs available by cutoff. Fit initial class mapping on training prefix, then update prequential counts only with labels that mature strictly before each later decision. Selected 50/200 setting is explicitly a PROJECT-ADAPTATION because the source also mentions 50/100."
     },
     "XGBOOST_DIRECTION": {
       "family": "XGBoost classifier",
