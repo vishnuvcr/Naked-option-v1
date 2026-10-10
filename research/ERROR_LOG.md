@@ -705,3 +705,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - Verified the recreated workflow on `main` still includes `workflow_dispatch`, `confirm_probe` default false, and no push trigger. The job itself remains restricted to `phase-07-developer`.
 - No fresh run was started. Existing failed jobs were not rerun because that is not equivalent to a fresh, explicitly confirmed dispatch. No secret was accessed and no external Dhan request/data acquisition occurred.
 - Disposition: dispatch capability remains an execution blocker. Use GitHub UI's manual dispatch once it is visible; do not weaken trigger/authorization controls to simulate dispatch.
+ 
+
+## 2026-10-10 — Manual dispatch attempted against main; correctly skipped
+
+- User-visible run #8 [38047841820](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047841820) was manually dispatched on branch `main` and concluded `skipped`. Run #7 [38047826277](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047826277) was likewise dispatched on `main` and skipped.
+- Root cause is the intentional job condition: `if: github.ref == 'refs/heads/phase-07-developer'`. The run ref was `main`, so the guarded job never started. No manifest validation/spend, secret use, Dhan request, or artifact occurred.
+- Corrective action: dispatch a fresh run from the default-branch workflow page but select `phase-07-developer` in the **Run workflow branch selector**, then explicitly set `confirm_probe=true`. Do not rerun these skipped main-branch runs; rerun does not change the ref or input.
+- No workflow guard was weakened. The one-use manifest remains subject to hosted validation and spending before the one permitted redirect-target-only request.
