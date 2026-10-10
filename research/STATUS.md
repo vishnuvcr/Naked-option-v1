@@ -1,6 +1,6 @@
 # Paper-method replication checkpoint — 2026-10-10
 
-**Current gate: PPR-1 remains REQUEST CHANGES; corrected source matrix and inference contract are submitted for tester re-review. No paper-specific model fitting, scoring, new source pull or holdout access is authorized.**
+**Current gate: PPR-1 PASS WITH SCOPED RESTRICTIONS; PPR-2 36-source mapping drafted and its offline validation passed; exact PPR-2 tester review is pending. No source pull, model fit/scoring, holdout access or option P&L is authorized.**
 
 Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
 
@@ -29,12 +29,33 @@ The offline workflow passed again at [run 38068967518](https://github.com/vishnu
 **Developer → Tester:** Review the new exact blobs and test receipt and record an explicit gate decision.
 **Tester → Developer:** Do not progress to PPR-2, new source acquisition, modelling/scoring or holdout access without an exact-snapshot PASS and the expressly allowed next scope.
 
+## PPR-2 literature registry crosswalk — 2026-10-10
+
+PPR-1's tester-role re-review is recorded as **PASS WITH SCOPED RESTRICTIONS** in the tester-branch report [PHASE7_PPR1_REVIEW3_TESTER_REPORT.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW3_TESTER_REPORT.md), commit `f52ec8037270b4351c0ee902d43725ca847e50b7`. Its only next-step authorization is documentation-only PPR-2 reconciliation.
+
+PPR-2 developer artifacts:
+- [36-row CSV crosswalk](literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv), blob `ac8491628913c5019d7a4b986339489b1dff1f14`.
+- [Mapping overview](literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md), blob `63ae0486b016f541bb70628525bd45f33585ace8`.
+- [Validator](../scripts/validate_ppr2_literature_crosswalk.py), blob `3dc96155e460f92a192d45502973c89bc9bd68c3`.
+- [Exact-commit workflow](../.github/workflows/phase-07-ppr2-literature.yml), blob `dffa5262b991db9843df35c34157e1273365d8f5`.
+- [Developer handoff](gates/PHASE7_PPR2_DEVELOPER_SUBMISSION.md), blob `afd609cb0e0b5e1ccbd9e4c1a34de263fdc618fe`.
+
+Registry fix: source L003 had a prior semantic column shift (DOI in the wrong column) despite syntactically valid CSV. Fixed in the registry; standard validation passed at [run 38069197259](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069197259). An initial PPR-2 CI attempt failed because `REPOSITORY_README_VERIFIED` wasn't accepted by the new depth-label validator; the validator was corrected and exact-trigger snapshot [run 38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564) passed on `974bed3013fa1a0a608f83a56220ed449514580a`. This validator confirms all 36 IDs exactly once, base fields preserved, annotations complete and L003 values correctly aligned; it is not a scientific endorsement of the cited sources.
+
+PPR-2 mapping explicitly shows zero exact identities between the 36 registry sources and the 15 uploaded PDFs, while recording conceptual overlap separately. Several records remain only metadata/abstract/README depth; their methods and claims are not treated as fully verified.
+
+**Gate:** PPR-2 is pending exact-snapshot tester review. If it passes, only PPR-3 configuration-manifest/protocol freezing in documentation is authorized. No market-data acquisition, model fitting, tuning/scoring, holdout access or options P&L is authorized.
+
+**Developer → Tester:** Audit all 36 mapped records, source-vs-conceptual distinctions, review depth, L003 correction and the exact-commit hosted check.
+**Tester → Developer:** Issue an evidence-backed exact-hash PPR-2 PASS/REQUEST CHANGES; authorize only PPR-3 documentation if the mapping passes.
+
 ## Paper replication phases
 
 | Phase | Status | Next action |
 |---|---|---|
 | PPR-0 Governance/source-state review | COMPLETE FOR THIS SUBMISSION | Keep branch roles and existing phase gates unchanged |
-| PPR-1 Uploaded-PDF full-text crosswalk | Developer draft committed; tester review pending | Tester review exact crosswalk and protocol draft |
+| PPR-1 Uploaded-PDF full-text crosswalk | PASS WITH SCOPED RESTRICTIONS (tester-role report 3) | 15-PDF source evidence complete as inventory; keep ambiguity tags |
+| PPR-2 All 36 literature-record crosswalk | Developer submission complete; tester review pending | Validate row-wise mapping; then PPR-3 documentation-only if PASS |
 | PPR-2 All 36 literature-record crosswalk | NOT STARTED | Reconcile every registered source to a method, background-only record, or justified exclusion |
 | PPR-3 Exact configuration matrix and protocol freeze | NOT AUTHORIZED | Freeze each model/config/target/horizon, training budget and inference scope after PPR-2 |
 | PPR-4 Free-source feasibility | NOT AUTHORIZED for new sources | Run only after protocol and source-gate approval |
