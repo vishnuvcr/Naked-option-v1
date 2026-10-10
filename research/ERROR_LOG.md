@@ -530,3 +530,8 @@
 - Source code review found `scripts/seed_history.js` explicitly describes generating "realistic per-day" FII/DII records from monthly/yearly aggregates for roughly six months. Rows tagged `historical-seed` therefore cannot be treated as observed raw daily records. The mixed file must not be accepted wholesale.
 - Root cause: using a content-fetch function on a path classified as a large history-data file rather than restricting the query to repository metadata/source code. Corrective action: all next-stage source requests must be preceded by an independent bounded-source gate; no raw history paths may be fetched during metadata/code discovery. For data probes use tested byte-range/row caps and fail closed if the remote server ignores them.
 - Discovery findings and correction are documented in `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`. The previous single-run Gate A manifest is spent; the retrieval does not authorize any additional source request.
+
+
+## 2026-10-10 — Source Discovery 3 spec-review link check (non-evidence)
+
+During proposal validation, a web-reader attempt to open the two fixed CDSL historical XLS URLs returned unsupported-content-type/internal-error responses. No table values were parsed or stored and the attempts do not establish schema or history coverage. Treat as non-accepted activity; disclose it in the step report. Do not cite it as Gate A evidence. Subsequent source requests still require implementation/test code to pass an independent code gate and a new one-run manifest. No full history, features/labels or fitting authorized.
