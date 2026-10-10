@@ -798,3 +798,10 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Independent tester PASS is recorded in [the exact-snapshot report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md). It is limited to code/workflow only; live request authorized: NONE.
 - No redirect manifest exists. Earlier manifests remain SPENT. The current connector does not expose a workflow-dispatch action, so I have not fabricated a successful live run or followed the HTTP 302. No candle history, option history, FII/FPI/DII flow, model rerun or strategy evaluation occurred.
 - Next bounded step: generate a new exact-hash one-use manifest, then explicitly dispatch the manual-only workflow with confirmation through an authorized GitHub Actions dispatch capability. Until that happens, no source request is authorized.
+
+
+## 2026-10-10 — One-use redirect manifest prepared; manual dispatch pending
+
+- Created `research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json` after pinning SHA-256 and Git blob IDs for the ten required files, reviewed commit, and tester report. The permitted scope is one request to record redirect scheme/hostname only, capped at 1 KiB; no redirect follow, candles/history, full-history access, or model fitting.
+- The dedicated workflow has no push trigger. Manifest creation did not make a source request; manual `workflow_dispatch` with `confirm_probe=true` is required, and the manifest must validate and be spent before token injection.
+- **Current state: READY manifest prepared, but runtime validation and live diagnostic have not run.** The available GitHub connector exposes inspection and rerun actions but no workflow-dispatch action. No request has been attempted and no market data has been downloaded. Do not infer validation from the manifest READY field alone.
