@@ -1003,3 +1003,10 @@ Implemented the pinned-source discovery runner, request-budget accounting, stric
 Latest hosted offline suite [Run 38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968) passed 27/27 checks on commit `b3a6c3dcde845923a0dba55a0f350d5e67361a76`. During the last range-hardening changes several tests exposed stale 4-byte/Content-Range fixtures; they were corrected, and no live source requests occurred. Exact protected Git blobs and byte hashes are frozen in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`.
 
 No source samples, data artifacts, features, labels, model fit, metrics or p-values were produced. Await isolated tester code gate before constructing a one-run manifest; the previous Gate A manifest is spent and cannot be reused.
+
+
+## 2026-10-10 — Discovery 3 parser/provenance hardening and updated code gate
+
+Further tightened the CDSL probe so it reports candidate buy/sell/net values from same-column equity-row cells while explicitly refusing to promote those candidates as fitted features before header reconciliation. Added recursive removal of nested credentials and redaction of sensitive query parameter values for arbitrary source URLs in a reported JSON record. Added tests for both.
+
+Latest hosted run [38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed 29/29 offline regressions on commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Current exact hashes are pinned in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`. No live source requests were made; code gate pending.
