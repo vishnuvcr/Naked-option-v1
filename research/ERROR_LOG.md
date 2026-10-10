@@ -958,3 +958,15 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Correction: test_run_official_reference_crosscheck.py header tuple handling fixed in commit f84f30b0579cbcd35208c7bf0e42b858276ff11e / blob 2f38938478e3e5b19fc4c969f8dae110c955c1d7. Runner CLI is offline-only by default at commit 02e5a01eebfbe303a05d9886ccfee0c68a86c65f.
 - Safety: these failures were mocked/offline-only; no official source request occurred and no cache was created.
 - Next disposition: rerun both offline workflows after this correction; preserve any remaining failures before independent code review.
+
+## 2026-10-10 — Official reference cross-check offline runner regression corrections
+
+- Scope: offline/mock tests only. No requests were sent to NSE Indices or the Dhan instrument-master host, and no cache was changed.
+- Run 38056548945 (https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056548945): failed because a test treated urllib.request.Request.header_items() pairs as strings. Corrected by tuple-unpacking on the developer branch.
+- Run 38056592564 (https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056592564): failed because the runner mismatch test used undefined CSV_HEADER. Correction at commit ca4326b2734ec675aa05dbc3f96de45c06910942 defined the common CSV header fixture.
+- Run 38056632605 (https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056632605): failed because the mocked HTTPError fixture used io.BytesIO without importing io. Correction at commit 87d3f8612e7837327bd456d4be189f1621cbd33a.
+- Run 38056753820 (https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056753820): passed 9 instrument-master, 16 cross-check adapter, and 7 two-source runner offline/mock tests (32 total).
+- Run 38056916677 (https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056916677): passed the same test suites after workflow hardening. The workflow checks out phase-07-developer for manual runs, gates manual dispatch behind an explicit offline-test boolean, compiles each tested module, and fails closed if a new manifest's protected Git/SHA pins or canonical authorization digest mismatch.
+- Duplicate partial workflow removed from both branches; one authoritative workflow .github/workflows/phase-07-official-crosscheck-tests.yml remains, identical at blob b450da4b9ffed8d8e38c8f7383084e1ba987b303 in the current developer state and copied to main for manual dispatch. No live workflow or source manifest has been created.
+- Current official-source code blobs at tested state: adapter 0a8c7944885b0b50be3eeedfed0eec6b60260638, runner 6d617987f43d9ca41840b3e14ff36521396df4b1, adapter tests 148ed4f8fcbdd8fd188b928cb10cf7689fb1d0f2, runner tests 4109f5cd0784c975d3cc6e440a19797ea09b0bfc, Dhan instrument-master validator b292c10735ec43520a664ed9b8e892072eb169a2, its tests fa485bc5be727153c52e7e6ef96a4251b5c553c3.
+- Disposition: offline regression gate is green; exact-snapshot independent tester code/workflow review is now required. Neither the sample row nor any prediction result has been promoted based on these code tests.
