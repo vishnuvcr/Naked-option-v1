@@ -582,3 +582,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Developer corrected the regex and changed the workflow push trigger to require a tester-approved Gate A approval file.
 - Corrected sampler blob `fb83fe5e880a26134a765a0426f7aa85380272fb`; tests blob `d818613dc2f9188224562a953fd979a6c274d292`; workflow blob `d303d8bd05978ef4837e1935ed40f8c2cdec851c`.
 - **Status:** independent re-review pending. No source feasibility v2 download, full history, or model fitting is authorized yet.
+
+
+## 2026-10-10 — Extension 2 Gate A sampler v2 exact-snapshot review pending
+
+- Current v2 sampler blob is `fb83fe5e880a26134a765a0426f7aa85380272fb`; current test blob is `d818613dc2f9188224562a953fd979a6c274d292`; workflow blob is `c535610e69c2e90934ab4e59d754b584e29ff6ec`.
+- The prior v2 tester PASS applies to sampler blob `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`, not the current code. Exact review request: [source sampler v2 review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
+- Workflow now runs offline tests first, then validates an exact tester report/manifest and hashes before any source request; manual source sampling defaults to off.
+- [Run #1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed on an over-escaped ISO-date regex before live acquisition; source fetching and artifact upload were skipped.
+- **Current gate:** exact-snapshot tester review and current hosted offline test evidence pending. Approval JSON remains absent. No live source requests, full history, feature table, labels or model fits are authorized at this checkpoint.
