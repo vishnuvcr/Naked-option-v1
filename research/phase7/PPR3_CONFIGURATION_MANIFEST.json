@@ -20,7 +20,7 @@
     "ppr3_decision": "REQUEST_CHANGES_FROM_TESTER_REVIEW1",
     "ppr3_test_scope": "Staging documentation-only corrections to the native-task ledger and fit-call arithmetic; validator explicitly skips all structure/hash checks while staging_mode=true. No data/model operation is authorized.",
     "ppr3_model_settings_note": "CCI20 is added only as a project-defined spot-direction adaptation. It is not an exact replication of the source's long-option strategy.",
-    "current_work_mode": "Staging approved documentation corrections before exact hash re-pin. This false flag disables manifest file-hash comparison only; all execution permissions remain false."
+    "current_work_mode": "Staging PPR3 corrections; snapshot_checks_enabled is false while the native task ledger, tuning arithmetic, CCI adaptation and validator assertions are being finalized. All execution permissions remain false."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -48,16 +48,16 @@
     "configuration_matrix": {
       "path": "research/phase7/PPR3_CONFIGURATION_MATRIX.csv",
       "blob": "9b47b2de7ad04fee26c6d5075772b56b9486df74",
-      "rows": 80
+      "rows": 81
     },
     "expanded_candidate_cells": {
       "path": "research/phase7/PPR3_CANDIDATE_CELLS.csv",
       "blob": "b11b88d30ab0599ec18617738a9065589364ab49",
-      "rows": 1183
+      "rows": 1188
     },
     "model_settings": {
       "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
-      "blob": "fd44527467689d5dc0af394bcec20d477503d5bb"
+      "blob": "fd895b27de3dc9210f4bc45b9fd43b4377882d39"
     },
     "target_inference_contract": {
       "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
@@ -69,7 +69,7 @@
     },
     "ppr3_validator": {
       "path": "scripts/validate_ppr3_configuration.py",
-      "blob": "e03b6322ab07876dd2aa9766168e59fd3a2b9efb"
+      "blob": "472687b23f4f66a8f406b61a49a8e93158176585"
     },
     "ppr3_workflow": {
       "path": ".github/workflows/phase-07-ppr-contract-tests.yml",
@@ -77,7 +77,7 @@
     },
     "paper_native_task_ledger": {
       "path": "research/phase7/PPR3_PAPER_NATIVE_TASK_LEDGER.csv",
-      "blob": "b7a64b58d0793862adb37d8238843f4711a16279"
+      "blob": "7b0e45a977425fd52e5769032fa731317df4f9f5"
     }
   },
   "inventory": {
@@ -140,7 +140,8 @@
       ],
       "all_other_cells_use_fixed_predeclared_settings": true,
       "counted_fit_calls_formula": "6 RF cells x18 settings x5 chronological folds + 6 XGBoost cells x8 settings x5 folds",
-      "selected_fit_is_in_outer_budget": true
+      "selected_fit_is_in_outer_budget": true,
+      "fit_call_upper_bound": 2000
     },
     "total_model_fit_calls_upper_bound": 4344,
     "repository_global_hard_limit": 8000,
@@ -148,7 +149,8 @@
     "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout.",
     "theoretical_outer_fit_calls": 5580,
     "theoretical_inner_tuning_calls": 2000,
-    "theoretical_total_fit_calls_upper_bound": 7580
+    "theoretical_total_fit_calls_upper_bound": 7580,
+    "candidate_configuration_rows_counted": 73
   },
   "evaluation_protocol": {
     "name": "PPR3_FIXED_FIT_HOLD_FORWARD_V1",
