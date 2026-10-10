@@ -74,3 +74,37 @@ The global max test says to use a common date grid where all horizon labels are 
 **Tester → Developer:** Correct the five items above and resubmit the exact specification. Do not proceed to source-feasibility downloads until a new tester decision explicitly passes Gate A.
 
 **Developer → Tester:** Re-review the corrected exact spec, formulas, source-format boundary and missing-candidate bootstrap behavior. A spec pass may authorize only the small-sample source-feasibility step, not full-history acquisition or empirical prediction.
+
+
+## Final specification re-review — 2026-10-10
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — Gate A small-sample source feasibility ONLY.**  
+**Full-history acquisition: NOT AUTHORIZED. Model fitting/empirical prediction: NOT AUTHORIZED.**  
+**Exact reviewed developer spec blob:** `8b5f17dd05c2f2d379142ca8eb2779149ca0fdbc`.
+
+### Corrections verified
+
+1. The legacy F&O bhavcopy / UDiFF transition is explicitly mapped at the 2024-07-08 format boundary; unreconciled fields/periods must be marked `BLOCKED_DATA`.
+2. G14/G15 use the defined same-report flow imbalance `(buy-sell)/(buy+sell)` with zero-denominator handling; the undefined "NIFTY traded value" denominator is removed.
+3. F04 now explicitly defines log total OI, first difference, and acceleration. F05 freezes aggregation order as sum volume / sum OI by option side, then log, with counts and abstention rules.
+4. G03 has two explicit sector-excess-return features and ten canonical NSE index identities; secondary provider use is conditional on a pre-run overlap audit and row-level provenance.
+5. The global inference grid has a 500-common-date minimum, retains missing candidate forecasts as zero improvement before null recentering, and specifies one max-statistic bootstrap across all 35 method/horizon cells.
+6. The spec preserves the strict prior-session rule, revised/provisional FII/DII vintage caveat, finite seven-method scope, untouched holdout, and no-Phase-8/no-strategy restriction.
+
+### Gate A authorization scope
+
+Developer may now retrieve only small deterministic samples sufficient to test source access and schema feasibility:
+- one pre-transition legacy F&O archive date and one post-transition UDiFF date, plus dates around the transition boundary;
+- a small set of sector-index history dates for all ten frozen identities;
+- representative FII/FPI and DII report CSV rows, including at least one missing/zero-denominator edge case if present;
+- representative Advances/Declines rows.
+
+Allowed work is limited to documenting URLs, retrieval timestamps, sample hashes, schema/units, date coverage, timezone/session semantics, contract identifiers and the provisional/revision caveat. A minimal sample may be retained in the repo. Do not create full historical datasets, labels, forecast features, model fits, metrics, or p-values at Gate A.
+
+### Next gate
+
+After Gate A, developer must submit a source-feasibility report with the exact sample hashes, canonical field mappings, missingness and coverage summary, and any source fallback decision. Tester must independently review that report before full acquisition/code implementation is authorized. The source fallback tolerance for G03 must be fixed in that report before any model fitting.
+
+**Tester → Developer:** Perform Gate A only under this scope and submit a sample-source manifest. Do not expand downloads or run a predictor.
+
+**Developer → Tester:** Independently audit the sample hashes/schema/transition mapping and explicitly pass or reject Gate A output before full-history acquisition or model fitting.
