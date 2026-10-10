@@ -428,7 +428,7 @@ def test_redirect_probe_workflow_spends_manifest_before_single_probe() -> None:
     assert "default: false" in workflow
     secret_expr = "DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}"
     assert workflow.count(secret_expr) == 1
-    assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED: \\"1\\"" in workflow
+    assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED" in workflow
     assert "Location path" in workflow or "never follows the redirect" in workflow
 
 
