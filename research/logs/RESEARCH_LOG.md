@@ -976,3 +976,14 @@ Run [38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3802
 The FII/DII range-query endpoint returned two 2026-10-09 rows for the requested July 2024 window; new validation correctly marks the response rejected. The current free GitHub history source contains 164 unique dates from 2026-01-14 to 2026-09-30 with no missing required fields or duplicate dates, but this is shorter than the 500-session confirmatory minimum. Sampled page HTML does not yet establish a longer raw daily series. Tester artifact report `research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md` therefore requests changes for complete Gate A while accepting the corrected schema evidence.
 
 One-run manifest was marked SPENT. Next phase is a separately reviewed bounded free-source discovery step (e.g. date-specific static sources and source-specific range APIs). No full-history acquisition, feature table, labels or model fit is authorized.
+
+
+## 2026-10-10 — Expanded free-source leads and provenance incident
+
+New public leads discovered before any further approved sampling:
+- CDSL's public FPI archive links to date-specific XLS files and documents custodian-confirmed historical flows; FPI-only, not DII. The visible link list reaches 2024, while another archive form advertises older history but currently returned 403 from the web reader.
+- Hugging Face dataset `johnwick3690/stocks` lists `fii_dii_2024_to_today.csv` with a 503-line add diff; actual unique-date count/schema/provenance remain unverified.
+- SEBI trade-wise FPI equity archive is listed monthly back to 2003 but is transaction-level, FPI-only and not equivalent to the project's combined cash-market feature.
+- Source inventory updated at `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`.
+
+Governance incident: the full public `MrChartist/fii-dii-data/data/history.json` file (143,498 bytes) was inadvertently retrieved using GitHub file-fetch while inspecting repository metadata. It was not saved to this project's research data or used for analysis. The seed code explicitly generates realistic daily values from monthly/yearly aggregates, so `historical-seed` values are synthetic and non-accepted. Logged in ERROR_LOG; the next phase must use only an independent-approved strict bounded probe and must not fetch raw history paths during metadata/code-only steps. No model fits or metrics were created.
