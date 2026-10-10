@@ -1125,3 +1125,30 @@ User said: “Continue yourself. Automate the conversation between tester and de
 
 **Developer → Tester:** Review the exact PPR-2 artifacts and run 38069596564; return PASS/REQUEST CHANGES, allowing at most PPR-3 documentation-only if PASS.
 **Tester → Developer:** Do not pull additional sources, execute predictors or open holdout; retain source-depth caveats and review all 36 row mappings against the corrected registry.
+
+
+## 2026-10-10 — User requested resume; PPR-3 completed and PPR-4 opened within scoped permissions
+
+### User request
+User said “Resume” after asking that the developer/tester conversation run autonomously without waiting for further user prompts.
+
+### Reconciliation and corrections
+- Re-read current developer branch and prior tester branch reports. PPR-3 Review 1 remained REQUEST CHANGES. The last structural/hosted check before corrections was not accepted as a gate pass by itself.
+- Verified that the corrected fit budget is 780 inner chronological-fold fits plus a 3,564-call conservative outer-fit allowance, total 4,344 across 1,188 model × pipeline × horizon cells. This is below the 8,000-fit cap; selected full-prefix fits are included in the outer allowance rather than repeated for each hyperparameter setting.
+- Fixed a subtle RF grid issue: the summary list in the JSON file still rendered `max_features=1` as an integer while candidates used float 1.0. Run 38072095263 caught it. After fixing the raw JSON summary to `1.0` and adding Python type assertions, later exact-snapshot tests passed.
+- Manual native-ledger audit corrected four links: four-class Twitter mood (NT022) no longer maps to BERT-LSTM C010; SOFNN (NT023) maps to explicitly blocked C011; the two simple-average/seasonality options rows (NT045/NT046) no longer map to MA crossovers C020/C021.
+- The 81-row paper-native ledger was extended with nine structured fields per method/component: native task family, target/output, horizon, data window, split, feature recipe, metric/result, evidence status and ambiguity note. Missing source detail remains explicit; no native-task row authorizes fitting.
+- Updated protocol, validator, manifest blob pins, README, status and error log.
+
+### Exact test receipt and tester outcome
+- Final exact-snapshot Actions run [38074087881](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38074087881) succeeded on trigger commit `9513e737313a56156e409331f47ee1cb8ae8e0d5`. Job validated configuration rows, cell expansion, target families, tuning grids, fit budget and the pinned snapshot. It did not request sources, read market data, fit/tune/score models or access holdout values.
+- Tester Review 2 was committed to `phase-07-tester`: [PHASE7_PPR3_REVIEW2_TESTER_REPORT.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR3_REVIEW2_TESTER_REPORT.md), commit `7f9e240a9b1af9deb7c4edfc3434377932d7b9a5`.
+- Decision: **PPR-3 PASS WITH SCOPED RESTRICTIONS**. Only PPR-4 read-only source/cache/point-in-time feasibility work is permitted. No bulk data downloads into the model panel, model fitting/tuning/scoring, final-holdout access or option P&L. PPR-4 must submit an exact-source manifest and sealed-holdout metadata-only proof before bulk data acquisition is considered.
+- As previously documented, the tester role operates in the same connected assistant session on a separate GitHub branch; no separate human reviewer or independent LLM identity is claimed.
+
+### Immediate next step
+Begin PPR-4 by inventorying files and existing data caches in the repository, then search official/free source documentation and record source schema, coverage, timestamps/vintages, licensing and point-in-time limitations. Do not download a candidate modeling dataset or pretrained model yet. The previously spent one-use Dhan approval remains spent.
+
+**Developer → Tester:** Review the PPR-4 source/availability manifest and sealed-holdout metadata-only proof before any bulk dataset acquisition.
+**Tester → Developer:** Permit only read-only feasibility work now; keep data-panel acceptance, model fitting, scoring and holdout access blocked until PPR-4 passes a new exact-snapshot gate.
+
