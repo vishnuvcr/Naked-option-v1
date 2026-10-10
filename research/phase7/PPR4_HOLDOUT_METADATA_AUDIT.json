@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "audit_id": "PPR4_HOLDOUT_BOUNDARY_METADATA_AUDIT_2026-10-10",
+  "audit_date": "2026-10-10",
+  "branch_current": "phase-07-developer",
+  "status": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
+  "scope": "GitHub repository metadata/path-name/approval/document metadata inspection only. No workflow artifacts were downloaded; no market or holdout observations/labels were opened.",
+  "branches_scanned_count": 23,
+  "branches_scanned": [
+    {
+      "name": "main",
+      "head": "c6757daa94a88f0063c0b69a319e7ca941921148",
+      "matching_path_count": 0
+    },
+    {
+      "name": "developer",
+      "head": "272c79c6e33b60b21a63bc7606f6e7ee102f6a0b",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-00-developer",
+      "head": "ee16df3d22e21826fc376bd3026809f577ba7edd",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-00-tester",
+      "head": "e8416448dc05c7a83c2feed82c6fca4511a9cc4c",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-01-developer",
+      "head": "e87b7447213f5c6d9103886121eab4e4ad49c77a",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-01-tester",
+      "head": "ff3d8ff03333196afb525b727a4ef2c441826780",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-02-developer",
+      "head": "d7eafaa8f3941ef5ea413f68a220a2645d7e764d",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-02-tester",
+      "head": "9828386db3525c95cd06d97cb11209559f9cc1ff",
+      "matching_path_count": 1
+    },
+    {
+      "name": "phase-02c-developer",
+      "head": "b80215168f98f6fc22c65b82a989d0b7592c5d4c",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-02c-tester",
+      "head": "6ad61c0a7cb7cf023816b127cf344cb23e54ed0a",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-03-developer",
+      "head": "68aa1e06977a9076c9274367fb4f496411f90342",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-03-tester",
+      "head": "5926abeae5bfbee7bc7399e116bb55f651dab485",
+      "matching_path_count": 1
+    },
+    {
+      "name": "phase-04-developer",
+      "head": "19a34bd7f3455c0c16ad8c21fb17c7c786809d2b",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-04-tester",
+      "head": "6319dfd0d1994ee81e62c814ee2f24b5c08a643e",
+      "matching_path_count": 2
+    },
+    {
+      "name": "phase-05-developer",
+      "head": "9e5c8cee09e9566aa4c90551ccc4dbbc65940898",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-05-tester",
+      "head": "99ea4d8e052ab0b3e6a3b710485159d01a521533",
+      "matching_path_count": 2
+    },
+    {
+      "name": "phase-06-developer",
+      "head": "c585a93108c95a9ee97ed3d581b625a7a56e408d",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-06-tester",
+      "head": "6e294b1d01355f2bd6341cf84d66f5b165befd13",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-07-developer",
+      "head": "8c4b595aa5e1e014212dd2fb17d31667fad61097",
+      "matching_path_count": 2
+    },
+    {
+      "name": "phase-07-tester",
+      "head": "7f9e240a9b1af9deb7c4edfc3434377932d7b9a5",
+      "matching_path_count": 3
+    },
+    {
+      "name": "phase-08-developer",
+      "head": "3f1d59f7a50910894955740ccd95d037f2da4415",
+      "matching_path_count": 0
+    },
+    {
+      "name": "phase-08-tester",
+      "head": "ded7d059f8f8085890ac1e07b0fc8d02b6afee4e",
+      "matching_path_count": 0
+    },
+    {
+      "name": "tester",
+      "head": "19fbf57ab8c0f99b308964b14eb5b6e75231f8da",
+      "matching_path_count": 0
+    }
+  ],
+  "path_search_regex": "holdout|sealed|final-test|split-manifest|sample-id|origin-index|evaluation-origin|test-rows|row-id-hash|holdout-manifest|prediction-manifest",
+  "matching_path_results": [
+    {
+      "branch": "phase-07-developer",
+      "path": "research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md",
+      "blob": "f1218310778c95499e2d7958d47118a4065c0f94",
+      "classification": "prose/tester report, not a boundary manifest"
+    },
+    {
+      "branch": "phase-07-developer",
+      "path": "research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md",
+      "blob": "4c8df6eb1e771dff6d1eb3b06de3cb43c09ba0bc",
+      "classification": "prose/tester report, not a boundary manifest"
+    },
+    {
+      "branch": "phase-07-tester",
+      "path": "research/gates/PHASE7_RUN654_FINAL_TESTER_GATE.md",
+      "blob": "1da9068d1fd9c722137877beecdb7e5998b8384a",
+      "classification": "prose/tester gate report, not a row-id/split manifest"
+    },
+    {
+      "branch": "phase-02-tester",
+      "path": "research/gates/PHASE2_FINAL_TESTER.md",
+      "blob": "94881877e8023997db30b25cea32ebea0ca9b565",
+      "classification": "final tester report, not a holdout manifest"
+    },
+    {
+      "branch": "phase-03-tester",
+      "path": "research/gates/PHASE3_FINAL_TESTER.md",
+      "blob": "f646a9184508e882b2e4912254c02f1d37c5b7e2",
+      "classification": "final tester report, not a holdout manifest"
+    },
+    {
+      "branch": "phase-04-tester",
+      "path": "research/gates/PHASE4_FAMILY_C_FINAL_TESTER.md",
+      "blob": "c6448d36ff90fffdb8dd0a5353b11a721a1555ea",
+      "classification": "tester report, not a holdout manifest"
+    }
+  ],
+  "metadata_documents_reviewed": [
+    {
+      "path": "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md",
+      "blob": "71d2d8a9cfef5c138a75715c88bd2f17be3a2afc",
+      "observation": "says final untouched holdout is not opened/selected on; no row-boundary metadata in file"
+    },
+    {
+      "path": "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md",
+      "blob": "a5e65b56f9aa23c8292b718403c3db4448dad2e3",
+      "observation": "says existing final holdout remains unopened; no machine-readable boundary"
+    },
+    {
+      "path": "research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json",
+      "blob": "81fa27e2523fc460a7181c6b09206fe6a2a67198",
+      "observation": "one-batch approval/guardrails, no holdout row-id hash or date boundary"
+    },
+    {
+      "path": "research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md",
+      "blob": "1f3ac6a611f806a359012a91e50d51a58c9f7fd1",
+      "observation": "prior tester confirms holdout unopened, but no exact row-ID/hash boundary"
+    },
+    {
+      "path": "research/phase7/PPR3_CONFIGURATION_MANIFEST.json",
+      "blob": "72ed1935917bf722a2cf47a184e73ed24b71a690",
+      "observation": "requires holdout exclusion proof but does not reference a real row-ID/date/hash manifest"
+    },
+    {
+      "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
+      "blob": "049f5d3529ff5e82b3798fdb8e27bad10c413d80",
+      "observation": "requires a pre-existing exclusion manifest, but supplies no actual boundary"
+    }
+  ],
+  "workflow_artifact_metadata": [
+    {
+      "run_id": 38018506915,
+      "artifact_id": 11657636547,
+      "name": "phase7-available-global-results",
+      "size_bytes": 2416937,
+      "created_at": "2026-10-10T02:53:49Z",
+      "observation": "No artifact named holdout/split/boundary manifest was listed; artifact contents were not downloaded."
+    },
+    {
+      "run_id": 38055202149,
+      "artifact_id": 11671170279,
+      "name": "dhan-nifty-daily-one-use-sample",
+      "size_bytes": 2503,
+      "created_at": "2026-10-10T13:18:28Z",
+      "observation": "One-use source-sample artifact only; no holdout metadata. Artifact contents were not downloaded in this audit."
+    }
+  ],
+  "findings": {
+    "machine_readable_boundary_found": false,
+    "holdout_values_opened": false,
+    "holdout_labels_opened": false,
+    "workflow_artifact_contents_downloaded": false,
+    "existing_data_values_opened": false,
+    "prose_claims_of_unopened_holdout_found": true,
+    "inference": "Claims that a holdout remained unopened are not enough to determine its exact row/date boundary or prove exclusion from future feature/label generation."
+  },
+  "hard_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
+  "stop_rule": "Do not accept a modeling panel, construct training/validation origins, fit models or access holdout values/labels until a genuine boundary manifest is found in existing protected metadata or a new split plan is separately approved before any new outcomes are observed."
+}
