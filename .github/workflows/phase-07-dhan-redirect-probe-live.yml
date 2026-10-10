@@ -64,7 +64,7 @@ jobs:
           git add research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json
           git commit -m "Spend one-run Dhan redirect-target probe approval"
           git push origin HEAD:phase-07-developer
-      - name: One request: record redirect scheme/hostname only
+      - name: One request - record redirect scheme and hostname only
         env:
           DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
           DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED: "1"
