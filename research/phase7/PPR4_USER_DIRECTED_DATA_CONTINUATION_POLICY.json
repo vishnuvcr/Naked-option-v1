@@ -202,7 +202,7 @@
       ],
       "max_retries_per_request": 1,
       "max_retry_requests_total": 100,
-      "greeks_policy": "Historical rolling-option API fields include OHLC/IV/OI/volume/strike/spot/timestamp, not historical Greeks. Derive Black-Scholes Greeks only when timestamp-level actual expiry date and risk-free/dividend inputs are available from separately sourced historical calendar/rate tables; otherwise preserve source data, leave Greek fields null and set a reason-coded greek_status."
+      "greeks_policy": "Dhan historical rolling-option data do not contain historical Greeks. Prefer point-in-time sourced expiry calendar, risk-free rate and dividend-yield inputs for Black-Scholes-European-v1 Greeks. If one or more auxiliary inputs are missing, preserve raw/IV data and calculate only clearly labelled proxy Greeks using rule-derived NIFTY expiry dates and explicit zero-rate/zero-dividend assumptions; record expiry_mapping_source, risk_free_rate_source, dividend_yield_source, greek_assumption and greek_status=CALCULATED_BS_V1_PROXY_INPUTS. If expiry cannot be mapped, Greeks stay null with a reason code. Do not copy current option-chain Greeks backward or describe proxy values as provider-supplied."
     },
     "other_free_source_pilot": {
       "source_count_max": 10,
@@ -211,7 +211,7 @@
       "aggregate_bytes_max": 33554432,
       "sample_rows_max": 20
     },
-    "scope_rule": "Exact manifest must enumerate every actual request key and use a lower-or-equal budget; no implicit Cartesian expansion or auto-retries.",
+    "scope_rule": "Exact manifest enumerates every planned request key; no implicit Cartesian expansion. Retry only once per request for manifest-approved transient timeout/HTTP 429/5xx and only within the cumulative 100-retry and 8,701-wire-request caps.",
     "base_planned_requests": 8601,
     "max_wire_requests_including_retries": 8701
   }
