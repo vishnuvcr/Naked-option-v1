@@ -474,3 +474,18 @@ The user has added `DHAN_ACCESS_TOKEN` and requested that Dhan data be used to a
 - [Tester review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md)
 
 Official Dhan docs describe historical instrument candles (OHLCV, optionally OI), which may help fill NIFTY/index and derivative history. They do **not** document the required combined daily FII/FPI/DII cash-flow aggregate. The token therefore cannot be claimed to resolve that particular gap. No Dhan request has been made and the token value was not accessed or exposed. The prior FII/DII source-discovery manifest is spent; the next live request requires a new tester-approved exact-snapshot code gate and single-use manifest. No full-history acquisition or model fitting is authorized yet.
+
+
+### DhanHQ market-data recovery — guarded code gate passed (2026-10-10)
+
+The DhanHQ adapter, offline tests, and guarded single-sample workflow are now in the repository:
+
+- [Dhan recovery specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md)
+- [Guarded workflow code tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md)
+- [Adapter](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/dhan_market_data_recovery.py)
+- [Offline regression tests](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/test_dhan_market_data_recovery.py)
+- [Guarded single-sample workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-market-data-live.yml)
+
+[Hosted offline Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27 checks. Earlier test-fixture/assertion failures were corrected and logged. The independent tester has passed the workflow code only; a one-run manifest is required before the first Dhan API request. The token has not been read or exposed.
+
+The first Dhan sample is limited to token/data-plan status, official index instrument mapping, and two short historical-candle windows for NIFTY 50 and India VIX. This may improve index/price coverage but does not provide the combined daily FII/FPI/DII flow series. No full-history download, features/labels, model fitting or prediction rerun is authorized until the sample is audited and a separate data-integration/model gate passes.
