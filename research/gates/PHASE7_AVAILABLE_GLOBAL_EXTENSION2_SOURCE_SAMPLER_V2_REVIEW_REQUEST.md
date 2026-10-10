@@ -1,76 +1,61 @@
-# Developer → Tester Review Request — Extension 2 Gate A Sampler v2
+# Developer → Tester Review Request — Extension 2 Gate A Sampler v2 (Corrected)
 
-**Status: AWAITING INDEPENDENT CODE-GATE DECISION. No source sample has been fetched by the current v2 snapshot.**
+**Status: REQUESTED — no approval manifest exists; no live source sample has been fetched from this corrected snapshot.**  
+**Review scope: exact code/workflow review for one bounded Gate A sample run only.**
 
-## Exact current snapshot
+## Reviewed snapshot
 
-All blob IDs below were fetched from `phase-07-developer` immediately before this submission:
+Reviewed developer commit candidate: `3c3dfaa77aec242b74d7c8c45f7a25ba0a30f6ae`.
 
-| Protected file | Git blob |
+| Protected file | Git blob ID |
 |---|---|
 | `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md` | `a5e65b56f9aa23c8292b718403c3db4448dad2e3` |
-| `scripts/phase7_extension2_source_feasibility.py` | `f39f2a213b760c608e0deca2f1eaacc2225aca53` |
-| `scripts/test_phase7_extension2_source_feasibility.py` | `2d8833719701c87e43f310396b29380220d58578` |
-| `scripts/phase7_extension2_source_feasibility_v2.py` | `fb83fe5e880a26134a765a0426f7aa85380272fb` |
-| `scripts/test_phase7_extension2_source_feasibility_v2.py` | `d818613dc2f9188224562a953fd979a6c274d292` |
-| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `1d8991255ff284c6b9cb20c4071ab56555d18dc6` |
+| `scripts/phase7_extension2_source_feasibility.py` | `532c1212fad29dbd771d609b1e0ddb85d46d9e50` |
+| `scripts/test_phase7_extension2_source_feasibility.py` | `4b470468a4aef23ba59d5efef8755be33ce23fe0` |
+| `scripts/phase7_extension2_source_feasibility_v2.py` | `546ff0cf09eccfcd6ca79d3299e2cf80e5ed3799` |
+| `scripts/test_phase7_extension2_source_feasibility_v2.py` | `5f648d7ee0cbd4ada2d591617fbf53195e3c3720` |
+| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `20470b88d29b1d97e8060936e5ed7a40fe28a80d` |
 
-The latest tester report is `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md` on `phase-07-tester` (blob `26e58f647a692b6e7ecc486914e290120065bfd5`). It contains a scoped PASS for a prior sampler blob `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`, not the current sampler blob `fb83fe5e880a26134a765a0426f7aa85380272fb`. The prior PASS therefore does not approve this exact code/workflow snapshot.
+The current developer tree was re-fetched from both the branch and the pinned snapshot; all six protected blob IDs above matched. The actual workflow Git blob is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`; commit IDs are kept separate from Git blob IDs.
 
-## Changes since the previous scoped PASS
+## Changes since the prior REQUEST CHANGES
 
-1. The v2 sampler's FII/DII normalized-date validator was corrected after Run #1 failed because its ISO-date regex was over-escaped. The current regex is `\d{4}-\d{2}-\d{2}`; this fix changed the sampler blob.
-2. The v2 workflow is now split into three jobs:
-   - offline regression tests only;
-   - a fail-closed authorization job that checks an explicit tester approval JSON, exact mirrored tester-report SHA-256, reviewed-commit ancestry, exact protected path set and file SHA-256 values;
-   - bounded sample acquisition, conditional on successful exact-snapshot approval.
-3. Manual dispatch has a `run_source_sample` boolean that defaults to false. Manual dispatch without the explicit opt-in runs tests only. Setting it true still cannot pass the gate unless the exact-snapshot approval file validates. Push-triggered source sampling listens only for the approval-manifest path.
-4. The approval manifest is absent on both branches. No source request may run until the independent tester approves these exact blobs and the developer mirrors that exact report before constructing the hash-bound manifest.
+Tester finding: `scripts/phase7_extension2_source_feasibility_v2.py` had requested NSE FII/DII data from 2020 to 2025, contrary to the Gate A small-sample restriction.
 
-## Previous run status
+Correction in current snapshot:
+- Replaced the multi-year URL with the fixed ten-day window `fromDate=01-07-2024&toDate=10-07-2024`.
+- Added a URL validator that rejects any configured date range longer than ten days and rejects unregistered host/path/key combinations before making a request.
+- Added a 512,000-byte response cap specifically for the NSE FII/DII API probes.
+- Added a maximum of 50 returned rows; excess-row responses are marked `REJECTED_EXCESS_ROWS` and their payload is not copied into the report.
+- Updated shared `fetch_bytes` to accept a per-request byte cap and added an offline regression for the cap.
+- Added v2 regressions that reject the old 2020–2025 URL, validate the configured small window and caps, and test response payloads over/under the row limit.
+- Corrected the handoff's workflow blob/commit distinction. Current report request pins the exact actual workflow Git blob.
 
-- [Run #1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in `Run offline source/schema regressions`.
-- The `Fetch only registered Gate A samples` step was skipped.
-- No live source requests were made and no artifact was uploaded by that run.
-- The date-regex correction is not yet covered by a completed hosted v2 test run for the current exact snapshot.
+## Bounded sources that the workflow will call
 
-## Scope of requested review
+1. Legacy F&O bhavcopy for 2024-07-05 and UDiFF F&O archive for 2024-07-08, plus small page/API probes (`scripts/phase7_extension2_source_feasibility.py`).
+2. Official daily index CSVs for 2024-07-05 and 2024-07-08, equity cash bhavcopies on those dates, a bounded rolling FII/DII mirror, public FII/DII pages, and the bounded NSE FII/DII endpoints (`scripts/phase7_extension2_source_feasibility_v2.py`).
+3. Only two small JSON source-feasibility reports are uploaded. No normalized full-history tables, labels, feature tables, model outputs, metrics or p-values are produced.
 
-Please independently review the exact six protected blobs above, especially:
+## Guarded workflow behavior
 
-- date normalization / validation on all FII/DII rows and the negative regression cases;
-- source sample dates and request bounds;
-- parsing and schema checks for official sector-index CSV, legacy F&O archive, UDiFF archive, official daily equity archive and bounded FII/DII endpoints;
-- no request path to full-history acquisition, feature/label construction, model fitting, metrics/p-values or final holdout;
-- correct authorization/hash gate on both automatic and manual triggers;
-- whether the exact approved manifest would bind the current immutable snapshot.
+- The first job runs both offline test suites.
+- The authorization job requires the tester report mirrored on the developer branch, an exact report SHA-256, an explicit current decision line, explicit denials of full-history acquisition/model fitting, exact protected-file allowlist, SHA-256 bytes, Git blob IDs quoted in the tester report and reviewed-commit ancestry.
+- The source job is downstream of successful regressions and exact-snapshot authorization. Manual source sampling defaults to false; selecting true still cannot bypass the tester manifest.
+- A changed sampler/test/workflow/spec blob invalidates this review and requires a fresh tester decision.
+- The earlier failed run `38019728293` stopped at the offline regression step and never fetched data. The prior protocol checks validate only repository contract/literature registry and are not Gate A test evidence.
 
-A PASS may authorize only one bounded Gate A sample run and upload of `extension2_gate_a_source_feasibility_v2.json`. It must not authorize full-history downloads, feature construction, labels, model fitting, metric generation or final-holdout access.
+## Requested independent review
 
-**Developer → Tester:** Return PASS or REQUEST CHANGES against the exact current blobs; do not treat the earlier scoped PASS as approval of this changed snapshot.
+Review the exact current blobs listed above. Verify:
+- both archive samplers are bounded to the registered dates/pages;
+- date parameter validation, 512 KB request cap and 50-row limit prevent a multi-year NSE FII/DII request or large result being processed as Gate A evidence;
+- offline tests cover the prior full-history request and excess-row case;
+- source parsing, schema checks, report paths and workflow guards are coherent;
+- the source job cannot run unless the offline tests pass and the exact tester authorization validates.
 
-**Tester → Developer:** Keep the approval manifest absent unless the exact current snapshot is explicitly passed. After the bounded artifact is produced, perform a separate source-feasibility artifact audit before permitting full-history acquisition.
+A PASS may authorize only one small deterministic Gate A run. It must explicitly prohibit full-history acquisition and model fitting. After that run, the uploaded source artifact requires a separate independent artifact review before the next stage.
 
+**Developer → Tester:** Independently review the exact six protected Git blobs and return PASS or REQUEST CHANGES for this snapshot only.
 
-## Additional fail-closed hardening — current workflow blob
-
-The workflow was further tightened at blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6`:
-- Gate A authorization now requires the exact standardized report line `**Current decision: PASS WITH SCOPED RESTRICTIONS — exact current sampler/workflow snapshot, Gate A only.**`.
-- The report must explicitly state `Full-history acquisition: NOT AUTHORIZED` and `Model fitting: NOT AUTHORIZED`.
-- The manifest must bind both SHA-256 file bytes and Git blob IDs for all six protected paths, and the report text must mention every reviewed Git blob.
-- The reviewed commit must exist in the checked-out history and be an ancestor of the run commit.
-This prevents an earlier historical PASS in the same report from authorizing a changed source/workflow snapshot.
-
-
-## F&O archive samples added to the current workflow — 2026-10-10
-
-A second static audit found that the prior v2 workflow ran only the index/cash-equity/FII-DII v2 sampler and did not invoke the separate bounded legacy/UDiFF F&O archive sampler. This left the central options-format transition unverified in the v2 artifact. The current workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` now invokes both:
-- `scripts/phase7_extension2_source_feasibility.py` for legacy F&O 2024-07-05, UDiFF F&O 2024-07-08, and small page/API checks;
-- `scripts/phase7_extension2_source_feasibility_v2.py` for official index CSVs, equity cash bhavcopy dates, FII/DII endpoints/history, and schema checks.
-
-Both bounded JSON reports are uploaded in the same artifact. The exact workflow changed again and therefore needs the tester to review the current workflow blob, including both samplers, the approval guard and both artifact paths. No approval manifest has been created and no live source sample has run on this current workflow.
-
-
-## Immutable source snapshot commit to review
-
-**Reviewed developer snapshot commit to use for the Gate A manifest:** `1d8991255ff284c6b9cb20c4071ab56555d18dc6`. This is the commit that introduced the current workflow that invokes both bounded samplers; all six protected blobs listed at the top match the versions at that commit. Later commits after it update only review-request/status/error/research/chat/README documentation, not any of the six protected paths. The approval manifest's `reviewed_developer_commit` must use this snapshot commit, and the protected file SHA-256/Git blob maps must exactly match the table above.
+**Tester → Developer:** Do not create the approval manifest or fetch live data until the current exact snapshot is passed. Full-history acquisition and model fitting remain unauthorized.
