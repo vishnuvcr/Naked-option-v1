@@ -316,6 +316,10 @@ def parse_dhan_instrument_mapping(
         raise ValueError("dhan_mapping_symbol_name_mismatch")
     if custom_symbol and not ("NIFTY 50" in custom_symbol or custom_symbol == "NIFTY"):
         raise ValueError("dhan_mapping_display_name_mismatch")
+    # If the exchange instrument-type field is populated, do not ignore a
+    # contradictory equity/derivative value when asserting an index mapping.
+    if instrument_type and instrument_type not in {"IDX", "INDEX", "INDEX_VALUE"}:
+        raise ValueError("dhan_mapping_exchange_instrument_type_mismatch")
     return {
         "security_id": expected["security_id"],
         "exchange": exchange,
