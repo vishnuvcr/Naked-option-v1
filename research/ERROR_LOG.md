@@ -448,3 +448,11 @@
 - Official Advances/Declines page yielded no dated historical table in the bounded sample.
 - Tester disposition REQUEST CHANGES. Do not declare these datasets unavailable; search additional free sources and sample official daily index/equity CSVs. No full-history acquisition or model fitting occurred.
 - Full report: `research/results/PHASE7_EXTENSION2_GATE_A_RUN1.md`.
+
+
+## 2026-10-10 — Gate A sampler v2 Run #1 regression failure
+
+- [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed during offline regression because the FII/DII date validator used an over-escaped ISO-date regex. The first six v1 tests passed; v2 stopped before any live source request.
+- Corrected sampler blob: `fb83fe5e880a26134a765a0426f7aa85380272fb`.
+- The workflow's push trigger is now gated on `research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json`; a code push alone cannot trigger source requests. Manual dispatch remains available after independent approval.
+- No live data was downloaded, and no model/feature work occurred. Current exact sampler is back for tester review.
