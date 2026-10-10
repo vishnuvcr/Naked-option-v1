@@ -486,3 +486,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - The isolated tester's code/workflow approval is restricted to code only; **no live request is authorized by that report**.
 - The guarded workflow remains manual-only (`confirm_probe=true`, default false). The currently connected GitHub interface does not expose a workflow-dispatch action, so no live probe was launched and no data or prediction results changed.
 - Phase 7 prediction research remains active; no candidate is promoted, no strategy test is authorized, and Phase 8 remains blocked pending the permitted data/gate workflow and independent review.
+
+
+## Uploaded-paper method coverage (updated 2026-10-10)
+
+The 15 uploaded PDFs are under a paper-by-paper method audit. Full-text extraction has confirmed several exact model families and study designs (including LSTM/MLP, multi-model regression, BERT/news sentiment, backward-elimination LSTM, CCI rules and option Greeks/IV-based models), but this is **not evidence of independent replication**. Every paper remains unverified until its exact method/settings/target/split/benchmark/metrics are reconciled with a project result artifact and tester report.
+
+- [Uploaded Paper Method Coverage Audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md)
+- Current status: prediction-only; no candidate promoted; Phase 7 exact-snapshot gate pending; Phase 8 blocked.
