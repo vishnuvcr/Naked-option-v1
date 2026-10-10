@@ -506,6 +506,10 @@ def parse_csv_edge(
     lower = [h.lower() for h in normalized]
     date_candidates = [normalized[i] for i, h in enumerate(lower) if "date" in h or "trade" in h or h == "dt"]
     flow_candidates = [normalized[i] for i, h in enumerate(lower) if any(x in h for x in ("fii", "fpi", "dii", "buy", "sell", "purchase", "sale", "net", "invest"))]
+    provenance_candidates = [
+        normalized[i] for i, h in enumerate(lower)
+        if any(x in h for x in ("source", "provenance", "origin", "provider", "status", "vintage"))
+    ]
     row_objects: list[dict[str, str]] = []
     seen_dates: list[str] = []
     invalid_date_rows = 0
@@ -535,10 +539,25 @@ def parse_csv_edge(
                     float(value)
                 except ValueError:
                     nonnumeric_flow_cells += 1
+    provenance_values = [
+        str(row.get(key, "")).strip().lower()
+        for row in row_objects for key in provenance_candidates
+    ]
+    synthetic_tokens = ("historical-seed", "placeholder", "synthetic", "generated", "fallback-without-source")
+    synthetic_seen = any(any(token in value for token in synthetic_tokens) for value in provenance_values)
+    provenance_status = (
+        "REJECTED_SYNTHETIC" if synthetic_seen else
+        "PROVENANCE_FIELD_PRESENT_NOT_INDEPENDENTLY_VERIFIED" if provenance_candidates else
+        "PROVENANCE_UNVERIFIED"
+    )
+    sample_keys = list(dict.fromkeys(date_candidates + flow_candidates + provenance_candidates))[:20]
+    row_sample = [{key: row.get(key, "") for key in sample_keys} for row in row_objects[:MAX_CSV_SAMPLE_ROWS]]
     return {
         "edge": label, "status": "SAMPLED",
         "header": normalized[:60], "parsed_rows": len(row_objects),
         "date_field_candidates": date_candidates, "flow_field_candidates": flow_candidates,
+        "provenance_field_candidates": provenance_candidates, "provenance_status": provenance_status,
+        "row_sample": row_sample,
         "date_values": seen_dates[:MAX_CSV_SAMPLE_ROWS],
         "duplicate_date_count_within_edge": len(seen_dates) - len(set(seen_dates)),
         "invalid_date_rows": invalid_date_rows, "nonnumeric_flow_cells": nonnumeric_flow_cells,
@@ -590,6 +609,9 @@ def hf_file_probe(client: LimitedHTTP, meta: dict[str, Any]) -> dict[str, Any]:
         if isinstance(head_header, list)
         else {"edge": "tail", "status": "NOT_VERIFIED", "reason": "head header could not be parsed"}
     )
+    result["sampled_csv_bytes"] = len(first.get("body", b"")) + len(last.get("body", b""))
+    if result["sampled_csv_bytes"] > MAX_HF_CSV_BYTES:
+        return {**result, "schema_status": "NOT_VERIFIED", "reason": "sampled CSV bytes exceeded 16 KiB cap"}
     result["schema_status"] = "COVERAGE_LEAD_ONLY"
     result["reason"] = "bounded head/tail rows are evidence of schema only, not proof of 752 aligned sessions or full-file lineage"
     return result
