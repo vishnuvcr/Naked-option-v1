@@ -1045,3 +1045,8 @@ Created `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` and `rese
 The Dhan recovery spec and adapter/offline tests are recorded in the repository. Independent tester passed the exact guarded workflow design with scoped restrictions: one bounded sample manifest may be prepared, but live calls require exact validation and the manifest must be spent before source access. The secret is injected only into the final sample step; offline jobs never receive it.
 
 Hosted offline run `38043020539` passed 27 checks. Earlier failures in CSV fixture encoding and workflow-string assertions were corrected and logged. The code gate does not establish actual entitlement or data coverage because no authenticated call has been made. The next action is one hash-bound sample manifest and the resulting single-run artifact audit. Dhan candles remain distinct from FII/FPI/DII aggregate flows.
+
+
+## 2026-10-10 — Dhan source sample did not reach candles
+
+The first guarded sample [Run 38043148580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043148580) passed manifest checks and consumed the single-run manifest before source access. It made two requests and stopped at index instrument metadata. Artifact `11666064550` had no candle rows and omitted the numeric metadata HTTP status. The independent artifact audit returned REQUEST CHANGES. The adapter was updated to preserve the numeric status only, without provider error body or secrets; a targeted offline regression was added. The original manifest is spent; no new Dhan request is permitted until a fresh code gate and manifest pass.
