@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import io
 import json
 import zipfile
@@ -75,6 +76,37 @@ def test_nse_fii_api_payload_rejects_unrecognized_json_shape() -> None:
     assert "sample" not in result
 
 
+
+def test_nse_fii_api_payload_rejects_rows_outside_requested_window() -> None:
+    rows = [
+        {"date": "09-Oct-2026", "category": "DII"},
+        {"date": "09-Oct-2026", "category": "FII/FPI"},
+    ]
+    blob = json.dumps(rows).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    result = mod.inspect_nse_fii_api_payload(
+        "fixture", blob, meta,
+        expected_date_window=(dt.date(2024, 7, 1), dt.date(2024, 7, 10)),
+    )
+    assert result["schema_status"] == "REJECTED_ROWS_OUTSIDE_REQUESTED_WINDOW", result
+    assert result["out_of_window_row_count"] == 2
+    assert result["requested_from_date"] == "2024-07-01"
+    assert result["requested_to_date"] == "2024-07-10"
+    assert "sample" not in result
+
+
+def test_nse_fii_api_payload_rejects_missing_dates_for_requested_window() -> None:
+    blob = json.dumps([{"category": "DII", "buyValue": "10"}]).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    result = mod.inspect_nse_fii_api_payload(
+        "fixture", blob, meta,
+        expected_date_window=(dt.date(2024, 7, 1), dt.date(2024, 7, 10)),
+    )
+    assert result["schema_status"] == "UNVERIFIED_RESPONSE_DATE", result
+    assert result["invalid_date_row_count"] == 1
+    assert "sample" not in result
+
+
 def test_nse_fii_api_payload_accepts_small_sample() -> None:
     rows = [{"tradeDate": "08-Jul-2024", "fiiBuy": 10, "fiiSell": 9}]
     blob = json.dumps(rows).encode()
@@ -86,7 +118,7 @@ def test_nse_fii_api_payload_accepts_small_sample() -> None:
 
 def test_index_csv_requires_all_frozen_indices_and_date() -> None:
     headers = ["Index Name", "Index Date", "Closing Index Value"]
-    rows = [{"Index Name": name, "Index Date": "05-Jul-2024", "Closing Index Value": str(1000+i)}
+    rows = [{"Index Name": name, "Index Date": "05-07-2024", "Closing Index Value": str(1000+i)}
             for i, name in enumerate(mod.INDEX_NAMES)]
     blob = (",".join(headers) + "\n" + "\n".join(",".join(row[h] for h in headers) for row in rows)).encode()
     meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
@@ -191,13 +223,17 @@ def test_nonnumeric_fii_flow_fails_without_crashing() -> None:
     assert result["nonnumeric_or_nonfinite_flow_row_count"] == 1
 
 
-def test_date_normalizer_handles_timestamp_suffix() -> None:
+def test_date_normalizer_handles_official_index_date_and_timestamp_formats() -> None:
+    assert mod.normalize_date("05-07-2024") == "2024-07-05"
+    assert mod.normalize_date("08-07-2024") == "2024-07-08"
     assert mod.normalize_date("05-Jul-2024 00:00:00") == "2024-07-05"
     assert mod.normalize_date("2024-07-08T00:00:00") == "2024-07-08"
 
 
 def main() -> None:
     tests = [
+        test_nse_fii_api_payload_rejects_rows_outside_requested_window,
+        test_nse_fii_api_payload_rejects_missing_dates_for_requested_window,
         test_nse_fii_api_source_uses_byte_cap,
         test_nse_fii_api_source_does_not_fetch_unbounded_url,
         test_nse_fii_api_requests_are_bounded,
@@ -212,7 +248,7 @@ def main() -> None:
         test_later_fii_row_missing_field_fails,
         test_duplicate_fii_dates_fail,
         test_nonnumeric_fii_flow_fails_without_crashing,
-        test_date_normalizer_handles_timestamp_suffix,
+        test_date_normalizer_handles_official_index_date_and_timestamp_formats,
     ]
     for test in tests:
         test()
