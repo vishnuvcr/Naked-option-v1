@@ -1260,3 +1260,18 @@ Create a composite CSV of minute-level NIFTY spot and historical options data, i
 **Developer → Tester:** Review the exact current developer commit (root manifest, all six request-list files, collector, decryptor, validators/tests and guarded workflows). Independently check arithmetic, endpoints/windows, option selectors, Greek source/proxy treatment, the retry/byte limits, encryption/decryption round trip, branch pins and approval-before-network ordering. Do not perform the waived Dhan value cross-check. Return a scoped decision on the tester branch; no live request is authorized by offline tests alone.
 
 **Tester → Developer:** Verify every pinned blob independently; provide precise findings and PASS/REQUEST CHANGES for the exact snapshot. If passed, the developer may create the pinned single-use approval file and then initiate only the enumerated live requests.
+
+
+
+## 2026-10-11 — User said “Proceed”: resume composite acquisition monitoring
+
+- Re-read the current main README, Phase 7 status, error/chat logs, acquisition policy and independent tester report before continuing.
+- Confirmed tester decision: **PASS for the exact request grid and guarded acquisition workflow only**, with post-run artifact/coverage review mandatory.
+- Re-checked run [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220): `in_progress`, head branch `phase-07-developer`, commit `84dc153218429799c057135ff9e75eeeed7c6747`. Steps 1–10 passed, including approval consumption before network activity; step 11 (bounded NIFTY spot and rolling-option acquisition/export) remains in progress; persistence, final status sealing and encrypted artifact upload remain pending.
+- GitHub artifact listing returned zero artifacts at this checkpoint. This is **not** a dataset completion, coverage verdict, model result, or reason to launch a second run.
+- Live job-log archive retrieval returned `BlobNotFound`; logged as a monitoring retrieval limitation, not a market-data error.
+- No prediction fitting, scoring, holdout access, strategy test or P&L calculation was attempted. The single-use approval remains spent and no additional requests were triggered.
+- Main README and developer status/error/chat logs updated to show this actual checkpoint.
+
+Developer → Tester: After run completion, independently audit the realized encrypted artifact and coverage/error report before authorizing prediction experiments.
+Tester → Developer: Keep empirical prediction/holdout/strategy use blocked until that exact artifact snapshot has a separate written tester decision.
