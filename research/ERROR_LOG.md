@@ -736,3 +736,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - The independent tester passed the source-plan proposal with restrictions and permitted offline-only implementation/tests.
 - New offline-only adapter/test/workflow commits were pushed to `phase-07-developer`; hosted test run [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol run [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were still in progress at the last poll. No test outcome is assumed.
 - No live request was made. The new module has no network client and the workflow only runs offline tests. The old redirect manifest remains SPENT.
+
+
+## 2026-10-10 — Extension 3 offline gate outcome
+
+- Hosted offline test run [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) succeeded with 9 tests; protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) succeeded.
+- Independent tester passed the offline parser/cache foundation with restrictions. No defect was recorded in the tested scope.
+- Known unverified conditions: actual remote CSV size/content type/schema are not yet observed; 8 MiB remains a conservative provisional cap. No request/download/cache population has occurred.
+- Next is code review of a separate fetch adapter only. The SPENT Extension 2 manifest remains invalid for any new request.
