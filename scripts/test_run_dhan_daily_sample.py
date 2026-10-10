@@ -100,7 +100,7 @@ def fixture_files(folder: pathlib.Path, *, approval_status: str = "SPENT"):
         "request_manifest_sha256": hashlib.sha256(raw).hexdigest(),
         "request_manifest_git_blob": "a" * 40,
         "authorized_scope_id": mod.SCOPE_ID,
-        "spent_at_commit": "b" * 40,
+        "spent_from_commit": "b" * 40,
     }
     approval_path.write_text(json.dumps(approval), encoding="utf-8")
     return manifest_path, approval_path
