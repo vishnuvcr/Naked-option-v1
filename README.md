@@ -3,14 +3,26 @@
 The current user-directed scope is to test the **actual prediction methods from the research papers** on NIFTY, without treating broad algorithm-family overlap as proof of paper replication.
 
 - [Paper-by-paper prediction method crosswalk](research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md) — full-text inventory for the 15 mounted PDFs, including model variants, features, targets/horizons and non-prediction/strategy-only exclusions.
-- [Paper replication protocol amendment proposal](research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md) — finite phases, targets, metrics, leakage controls and gates.
-- [Developer submission for independent review](research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md) — review requested before new empirical model fitting.
+- [Claim-level evidence matrix for all 15 uploaded PDFs](research/literature/PAPER_SOURCE_EVIDENCE_MATRIX.md) — paper-by-paper method, data/window, target/horizon, split, metric and limitation locators.
+- [Machine-readable target/inference contract](research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json) — fixed target schemas, baselines, point-in-time rules, centered moving-block max-statistic test, confidence intervals and bounded fit counts.
+- [Offline contract validator](scripts/validate_ppr_contract.py) and [manual/automatic offline Actions workflow](.github/workflows/phase-07-ppr-contract-tests.yml).
+- [Latest tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW2_TESTER_REPORT.md) — exact prior snapshot reviewed; decision REQUEST CHANGES.
+- [Developer submission for independent review](research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md) and [issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6).
 
-**Current status: tester gate pending; no new paper-specific model fit has been launched.** Independent review is requested in [issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The crosswalk still needs to be reconciled to the repository's separate 36-record literature inventory.
+**Current status: PPR-1 remains REQUEST CHANGES; corrected files are being resubmitted for review. No new paper-specific model fit has been launched.** The offline contract check [passed on commit bf48db3](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068745869), verifying document structure and fail-closed flags only. It is not a scientific gate PASS. The 15-PDF source matrix is not yet reconciled with the repository's separate 36-record literature inventory; that is PPR-2 and remains unauthorized until PPR-1 passes.
 
 The most recent independently audited daily artifact (Run #44) contains 1,676 NIFTY rows from 2020-01-01 to 2026-10-09 with 11 global/peer series. Its 12-method × five-horizon extension had no significant horizon-family result after multiplicity correction. It cannot provide exact 5-, 10- or 20-year replication from that artifact alone. Full-history and auxiliary-feature acquisition, the spent one-row Dhan approval, and the untouched holdout remain governed by their existing gates.
 
 Option strategy/P&L research remains separate from this prediction-only request.
+
+## Latest PPR-1 correction checkpoint — 2026-10-10
+
+- Tester-role review 2: **REQUEST CHANGES**. Read the [report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW2_TESTER_REPORT.md) and preserve source ambiguities rather than inferring missing definitions.
+- Developer has added source-level PDF locators and explicit fidelity tags to the [evidence matrix](research/literature/PAPER_SOURCE_EVIDENCE_MATRIX.md), corrected the location (but not the definition) of the Kumar & Sharma abstract's 99.2152% “accuracy” claim, and linked source-level issues into the [crosswalk](research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md).
+- The proposed [target/inference contract](research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json) freezes three separate inferential families, class order, target endpoints, causal baselines, a null-centered moving-block bootstrap, simultaneous 95% familywise intervals, missing-cell failure rules and a capped fit budget.
+- Offline Actions check [38068745869](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068745869) passed the contract/schema validator on commit `bf48db331da46377aff772e828fac3ca6fd3d753`; it did not load market data, request sources or fit a model.
+- **Gate status remains REQUEST CHANGES pending exact latest-snapshot tester review.** No PPR-2 reconciliation, new data pull, fitting/scoring, final holdout read or options P&L is authorized.
+
 
 ---
 
