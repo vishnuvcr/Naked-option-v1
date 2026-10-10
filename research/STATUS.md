@@ -776,5 +776,5 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - New spec `research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md` and tester report `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md`.
 - Adapter now extracts only redirect scheme/hostname, rejects malformed hosts and marks non-HTTPS targets unverified; no raw Location path/query is persisted.
 - Dedicated one-request workflow: `.github/workflows/phase-07-dhan-redirect-probe-live.yml`; validator: `scripts/validate_dhan_redirect_probe_approval.py`.
-- Hosted [Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 37/37 offline regressions.
+- Hosted [Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 38/38 offline regressions.
 - Independent tester PASS authorizes one exact-hash redirect-target-only request after a new single-use manifest. It does not authorize following the redirect or requesting candles/history. Existing manifests are spent.
