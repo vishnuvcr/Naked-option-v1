@@ -109,3 +109,12 @@ No modeling data, labels, features or predictions were generated in this phase. 
 **Developer → Tester:** Independently audit the 32-row source register and cache inventory, especially source grain, licenses, coverage claims, PIT risks and the missing holdout manifest. Decide whether read-only inventory is complete while explicitly keeping PPR-4 exit/model use blocked.
 
 **Tester → Developer:** Do not accept any source or authorize acquisition/model execution; first locate a genuine holdout-exclusion metadata artifact without opening its values/labels, or formally maintain BLOCKED_GATE.
+
+
+### 3.5 Repository-wide holdout metadata search
+
+The holdout search was expanded beyond the active developer branch. All 23 branches present at the read-only search point were enumerated; their recursive tree paths were scanned for holdout/sealed/final-test/split-manifest/origin-index/row-ID-hash style names. The only matched paths were prior tester reports whose text says the holdout remained unopened; no dedicated machine-readable split/holdout boundary was found. Two prior workflow artifact *names and metadata only* were inspected: `phase7-available-global-results` (run 38018506915, 2,416,937 bytes) and `dhan-nifty-daily-one-use-sample` (run 38055202149, 2,503 bytes). Neither is named as a holdout/split-boundary manifest. Neither artifact contents were downloaded.
+
+The JSON search record is [`PPR4_HOLDOUT_METADATA_AUDIT.json`](PPR4_HOLDOUT_METADATA_AUDIT.json). The small data/cache file inventory is [`PPR4_REPO_CACHE_INVENTORY.csv`](PPR4_REPO_CACHE_INVENTORY.csv). The source readiness register has 32 entries; all entries remain `model_panel_accepted=false` and `bulk_acquisition_authorized=false`.
+
+This extended search still does not prove the sealed holdout location. Its outcome remains `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`.
