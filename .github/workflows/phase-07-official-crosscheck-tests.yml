@@ -1,0 +1,95 @@
+name: Phase 7 Official NIFTY Sample Cross-Check — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/dhan_instrument_master.py"
+      - "scripts/test_dhan_instrument_master.py"
+      - "scripts/official_reference_crosscheck.py"
+      - "scripts/test_official_reference_crosscheck.py"
+      - "scripts/run_official_reference_crosscheck.py"
+      - "scripts/test_run_official_reference_crosscheck.py"
+      - "scripts/validate_official_reference_crosscheck_approval.py"
+      - "scripts/test_validate_official_reference_crosscheck_approval.py"
+      - ".github/workflows/phase-07-official-crosscheck-tests.yml"
+      - ".github/workflows/phase-07-official-crosscheck-live.yml"
+      - "research/phase7/DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_PLAN.md"
+      - "research/gates/PHASE7_DHAN_DAILY_SAMPLE_ARTIFACT_TESTER.md"
+      - "research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_PLAN_TESTER.md"
+      - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json"
+      - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_APPROVAL.json"
+  workflow_dispatch:
+    inputs:
+      confirm_offline_tests:
+        description: "Run offline/mocked tests only against phase-07-developer. No public-source request is made."
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-official-crosscheck-offline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-only-no-secrets-no-network:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.confirm_offline_tests == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run existing and new mocked cross-check test suites
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/dhan_instrument_master.py \
+            scripts/official_reference_crosscheck.py \
+            scripts/run_official_reference_crosscheck.py \
+            scripts/test_dhan_instrument_master.py \
+            scripts/test_official_reference_crosscheck.py \
+            scripts/test_run_official_reference_crosscheck.py
+          python scripts/test_dhan_instrument_master.py
+          python scripts/test_official_reference_crosscheck.py
+          python scripts/test_run_official_reference_crosscheck.py
+          python scripts/official_reference_crosscheck.py
+          python scripts/run_official_reference_crosscheck.py
+      - name: Verify manifest-protected hashes when a proposal exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json ]]; then
+            python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          path = pathlib.Path("research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json")
+          manifest = json.loads(path.read_text(encoding="utf-8"))
+          auth = manifest["authorization"]
+          canonical = json.dumps(auth, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+          actual = {}
+          for rel in sorted(auth.get("protected_files", {})):
+              p = pathlib.Path(rel)
+              actual[rel] = {
+                  "git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + rel], text=True).strip(),
+                  "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+              }
+          print("OFFICIAL_CROSSCHECK_FINGERPRINTS=" + json.dumps({
+              "head_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "manifest_git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + str(path)], text=True).strip(),
+              "manifest_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+              "authorization_sha256": hashlib.sha256(canonical).hexdigest(),
+              "protected_files": actual,
+              "protected_files_match_manifest": all(actual[k] == v for k, v in auth.get("protected_files", {}).items()),
+              "authorization_digest_matches_manifest": hashlib.sha256(canonical).hexdigest() == manifest.get("authorization_sha256"),
+          }, sort_keys=True))
+          PY
+          else
+            echo "No new cross-check manifest exists yet; no live source calls are performed by this workflow."
+          fi
