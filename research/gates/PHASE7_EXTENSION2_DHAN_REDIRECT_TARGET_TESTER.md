@@ -74,7 +74,7 @@ Exact reviewed blobs:
 
 ### Hosted tests and checks
 
-[Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed **37/37 offline regressions**. It includes tests for URL parsing/redaction, HTTPS-only recorded status, one-request budget, workflow ordering and manifest scope.
+[Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed **38/38 offline regressions**. It includes tests for URL parsing/redaction, HTTPS-only recorded status, one-request budget, workflow ordering and manifest scope.
 
 The dedicated redirect workflow is valid and guarded. It runs offline tests, validates the exact manifest, spends/pushes the manifest before the source step, injects the secret only into the final diagnostic step, and uploads only the bounded redirect report. It does not follow the redirect or call any candle/history/order endpoint. The manifest validator checks current byte hashes and Git blobs, reviewed commit ancestry and reviewed-tree blob IDs for non-report files; report digests are separately pinned to avoid self-reference.
 
