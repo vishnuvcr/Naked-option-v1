@@ -95,7 +95,7 @@
     },
     "ppr4_acquisition_cache_proposal": {
       "path": "research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json",
-      "blob": "db43375442f138948f64581d7431bb5aaf8c9243",
+      "blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c",
       "rows": 34
     }
   },
@@ -254,12 +254,12 @@
     },
     "ppr4_acquisition_cache_proposal": {
       "path": "research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json",
-      "blob": "db43375442f138948f64581d7431bb5aaf8c9243"
+      "blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c"
     }
   },
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-    "ppr4_inventory_validation": "Pending exact snapshot validation after refresh of all 34-source register and proposal pins.",
+    "ppr4_inventory_validation": "RETRY_REQUIRED_AFTER_SOURCE_ACQUISITION_PROPOSAL_BLOB_PIN_CORRECTION",
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED_UNTIL_DESIGN_REVIEW_AND_BOUNDARY_IMPLEMENTATION_GATE",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
@@ -293,7 +293,7 @@
     "next_permitted_scope": "Source acquisition/cache proposal drafting and tester review only. Do not issue requests, download bytes or accept data/model panel, fit/tune/score or access holdout.",
     "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested.",
     "source_acquisition_cache_proposal": "DRAFT_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
-    "source_acquisition_cache_proposal_blob": "db43375442f138948f64581d7431bb5aaf8c9243",
+    "source_acquisition_cache_proposal_blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c",
     "source_acquisition_cache_proposal_rows": 34,
     "proposed_wave_limits": "Wave 1: at most 3 sources/5 MiB total, 2 MiB/source, <=20 rows/source; Wave 2: at most 5 sources/10 MiB total; Wave 3: at most 2 sources/5 MiB total. All zero network operations until a distinct exact-snapshot tester pass."
   }
