@@ -535,12 +535,39 @@ def test_cache_bundle_rejects_invalid_json_or_validation() -> None:
     with tempfile.TemporaryDirectory() as temp:
         must_raise(lambda: mod.atomic_cache_bundle(
             b"not-json", {}, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={}, request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
+            request_metadata=cache_meta(b"not-json"), request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_response_json_invalid")
         must_raise(lambda: mod.atomic_cache_bundle(
             b"{}", {}, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={}, request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
+            request_metadata=cache_meta(b"{}"), request_parameters={}, fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_response_json_root_invalid")
+
+
+def test_cache_requires_http_success_json_content_type_and_one_request() -> None:
+    raw = json.dumps(CANDLES, sort_keys=True).encode()
+    valid = mod.validate_candle_payload(CANDLES)
+    base = cache_meta(raw)
+    cases = [
+        ({key: value for key, value in base.items() if key != "http_status"},
+         "cache_http_status_not_success"),
+        ({**base, "http_status": 403}, "cache_http_status_not_success"),
+        ({**base, "content_type": "text/html"}, "cache_content_type_invalid"),
+        ({key: value for key, value in base.items() if key != "request_count"},
+         "cache_request_count_invalid"),
+        ({**base, "request_count": 2}, "cache_request_count_invalid"),
+        ({**base, "cumulative_response_bytes": len(raw) + 1},
+         "cache_cumulative_byte_count_mismatch"),
+        ({key: value for key, value in base.items() if key != "cumulative_response_bytes"},
+         "cache_cumulative_byte_count_mismatch"),
+    ]
+    for metadata, expected in cases:
+        with tempfile.TemporaryDirectory() as temp:
+            must_raise(lambda metadata=metadata, expected=expected: mod.atomic_cache_bundle(
+                raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
+                request_metadata=metadata, request_parameters=DAILY_REQ,
+                fetched_at_utc="2026-10-10T00:00:00Z"
+            ), expected)
+            assert list(pathlib.Path(temp).iterdir()) == []
 
 
 def test_request_unknown_fields_are_rejected_before_network() -> None:
@@ -556,7 +583,7 @@ def test_cache_recomputes_validation_report_before_write() -> None:
     with tempfile.TemporaryDirectory() as temp:
         must_raise(lambda: mod.atomic_cache_bundle(
             raw, tampered_validation, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={}, request_parameters=DAILY_REQ,
+            request_metadata=cache_meta(raw), request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_validation_report_mismatch")
         assert list(pathlib.Path(temp).iterdir()) == []

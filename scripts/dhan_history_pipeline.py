@@ -525,8 +525,23 @@ def atomic_cache_bundle(
         raise ValueError("cache_payload_empty")
     if not isinstance(request_metadata, dict):
         raise ValueError("cache_response_metadata_invalid")
+    if request_metadata.get("http_status") != 200 or type(request_metadata.get("http_status")) is not int:
+        raise ValueError("cache_http_status_not_success")
+    raw_content_type = request_metadata.get("content_type")
+    if not isinstance(raw_content_type, str):
+        raise ValueError("cache_content_type_invalid")
+    normalized_content_type = raw_content_type.strip().lower().split(";", 1)[0].strip()
+    if normalized_content_type != "application/json" and not normalized_content_type.endswith("+json"):
+        raise ValueError("cache_content_type_invalid")
+    request_count = request_metadata.get("request_count")
+    if type(request_count) is not int or request_count != 1:
+        raise ValueError("cache_request_count_invalid")
     if len(payload_bytes) > MAX_RESPONSE_BYTES:
         raise ValueError("cache_response_byte_cap_exceeded")
+    cumulative_bytes = request_metadata.get("cumulative_response_bytes")
+    if (type(cumulative_bytes) is not int or cumulative_bytes != len(payload_bytes)
+            or cumulative_bytes > MAX_TOTAL_BYTES):
+        raise ValueError("cache_cumulative_byte_count_mismatch")
     try:
         parsed_payload = json.loads(payload_bytes.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError):
