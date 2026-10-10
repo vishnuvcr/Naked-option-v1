@@ -34,3 +34,19 @@ These are source leads only. Full history has not been downloaded, no normalized
 **Developer → Tester:** Review the proposed extension on the isolated tester branch and return concrete mathematical/data-governance findings. Do not authorize full data acquisition or model fitting at this gate.
 
 **Tester → Developer:** No implementation or empirical fit may proceed until the exact spec receives an independent decision. Any changed candidate set, formula, expiry filter, timestamp rule, or multiplicity method requires a versioned spec amendment before results are viewed.
+
+
+## Resubmission after tester REQUEST CHANGES — 2026-10-10
+
+Tester report: [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md), disposition **REQUEST CHANGES**. The developer corrected the spec at blob `7f6cc6e86556db3da9f87c23c0e183bcb3282310`:
+- Added explicit legacy F&O bhavcopy to UDiFF canonical mapping and transition-date audit requirements.
+- Replaced undefined NIFTY traded-value flow normalization with fixed `(buy-sell)/(buy+sell)` imbalance and zero-denominator handling.
+- Defined F04 log-OI change/acceleration and F05 aggregate volume/OI pressure formulas.
+- Replaced the ambiguous Energy/Oil & Gas alias with exact NIFTY Energy index identity and froze all ten sector names.
+- Defined the 500-date minimum common grid and zero-improvement treatment for unavailable candidate forecasts in the global max-statistic bootstrap; added a synthetic abstention regression requirement.
+
+No source feasibility downloads or model fitting occurred during this correction. The corrected exact spec is resubmitted for tester review; only a PASS can authorize Gate A small-sample source feasibility.
+
+**Developer → Tester:** Re-review the corrected spec blob and explicitly decide whether Gate A may begin. Do not authorize full-history acquisition or model fitting at this stage.
+
+**Tester → Developer:** If any formula, archive transition, or missingness rule remains ambiguous, return REQUEST CHANGES with a precise correction before source access proceeds.
