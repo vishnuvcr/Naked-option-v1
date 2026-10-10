@@ -412,3 +412,13 @@
 - The independent tester issued PASS WITH SCOPED RESTRICTIONS authorizing one exact-snapshot Phase 7 prediction batch only; report mirrored on developer branch in commit 119827f09b282b3c4d51c1fb2d73329bfe81932d. Protected SHA-256 values are recorded in the tester report.
 - **Current blocker:** the attempted write of `research/gates/PHASE7_AVAILABLE_GLOBAL_APPROVAL.json` was blocked by the platform safety checks. The file remains absent and no prediction batch ran. Do not bypass the protected authorization gate via an alternate trigger.
 - These CI failures are fixture-only non-evidence, and Run #43 is regression evidence only. No empirical prediction metrics were generated; no model or strategy was promoted.
+
+
+## 2026-10-10 — Run #44: no candidate passes family-level inference
+
+- [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915) completed all jobs successfully. The empirical prediction suite ran; complete result grid validation and immutable artifact upload passed.
+- Independent artifact audit checked the ZIP and internal file hashes, 91,988 panel rows, duplicate keys, probability bounds, target signs, missing predictions/labels/returns, every reported candidate metric, and all five family bootstrap p-values. No metric mismatch or panel integrity defect was found.
+- **Scientific disposition:** no model promoted. Raw family p-values for horizons 1/2/3/5/10 were 0.9840, 0.8882, 0.6786, 0.7745 and 0.9800; all Bonferroni-adjusted values were 1.0.
+- **Cache note:** all 11 global source manifest records have `cache_hit: false`; existing cache entries were rejected under current validation and reacquired. The current data/schema were uploaded to the workflow cache at job completion. Verify cache reuse on any future authorized run.
+- Artifact ID `11657636547`; artifact SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
+- No options strategy, Paytm Money execution cost, slippage, brokerage, or trading P&L was tested. Phase 8 remains blocked; do not interpret green workflow status as predictive significance.
