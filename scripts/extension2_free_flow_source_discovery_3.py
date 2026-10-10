@@ -202,6 +202,7 @@ class LimitedHTTP:
                     "probe_id": probe_id, "url": current_url, "method": method,
                     "status": status, "content_type": content_type,
                     "content_length_header": length_header,
+                    "content_range": response_headers.get("Content-Range"),
                     "bytes_read": len(body), "sha256": sha256_bytes(body),
                     "timestamp_utc": started,
                 }
@@ -237,14 +238,18 @@ class LimitedHTTP:
                     current_url = next_url
                     exchange_kind = "redirect"
                     self.budget.start_redirect(probe_id, current_url)
-                    # Fresh allowlist-only headers: no cookies/auth flow across hosts.
-                    headers = {}
+                    # Preserve non-sensitive headers such as Range, but never credentials.
+                    headers = {
+                        k: v for k, v in (headers or {}).items()
+                        if k.lower() not in {"authorization", "cookie", "proxy-authorization"}
+                    }
                     continue
                 result = {
                     "probe_id": probe_id, "url": url, "final_url": current_url,
                     "status": "FETCHED" if 200 <= status < 300 else "HTTP_ERROR",
                     "http_status": status, "content_type": content_type,
                     "content_length_header": length_header,
+                    "content_range": response_headers.get("Content-Range"),
                     "bytes_read": sum(int(x["bytes_read"]) for x in history),
                     "sha256": sha256_bytes(body), "body": body, "history": history,
                 }
