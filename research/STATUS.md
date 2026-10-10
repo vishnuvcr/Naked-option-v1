@@ -2,6 +2,16 @@
 
 **Current gate: PPR-1, PPR-2 and PPR-3 PASS WITH SCOPED RESTRICTIONS. PPR-4 source/cache inventory validation is complete, but PPR-4 EXIT IS BLOCKED: no machine-readable final-holdout boundary has been found after a 23-branch metadata search. Only read-only metadata searches may continue. No source download, model-panel acceptance, model fitting/tuning/scoring, final-holdout access or option P&L is authorized.**
 
+## Dhan credential versus data-validation gate — 2026-10-11
+
+**The Dhan token is not the current blocker.** The guarded Dhan workflows reference `secrets.DHAN_ACCESS_TOKEN`, and the repository records successful one-use acquisition run [38055202149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202149): one daily NIFTY row, one POST, HTTP 200, 121 response bytes. The token's current value/expiry cannot be inspected through the repository connector, and it must not be exposed in logs.
+
+Authentication is different from data acceptance. The acquired 2024-01-02 row remains quarantined from model inputs until its primary-source OHLC cross-check and exact Dhan instrument mapping are verified. The associated sample authorization is spent and cannot be reused.
+
+The current PPR-4 Wave 1 manifest requested only three public documentation pages and explicitly specified `authentication: NONE`; it did not attempt Dhan historical-data access. Its tester PASS allowed only those documentation GETs. The broader PPR-4 source-data gate remains closed because the exact historical-source request, data/field coverage, point-in-time rules, licensing, schema/mapping and a verifiable future-holdout boundary are not yet approved. The next official NSE/Dhan mapping cross-check also needs a new exact-snapshot manifest/workflow approval from the independent tester. This is a governance/evidence restriction, not evidence that a token is absent.
+
+Dhan's current [authentication documentation](https://dhanhq.co/docs/v2/authentication/) says individual access tokens are valid for 24 hours; therefore a static GitHub secret can become stale. The [historical-data docs](https://dhanhq.co/docs/v2/historical-data/) describe daily candles back to an instrument's inception and intraday history up to five years, with intraday requests limited to 90 days per request. These capabilities make Dhan a useful candidate source, but they do not establish completeness for every required research feature family (NSE/BSE, option history, FII/DII, global markets, news, corporate actions, point-in-time vintages, etc.).
+
 Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
 
 The user's latest instruction is to test the prediction methods actually described in the research papers, rather than assuming a registry family name proves replication.
