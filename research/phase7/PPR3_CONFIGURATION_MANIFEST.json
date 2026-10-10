@@ -16,11 +16,15 @@
     "ppr2_tester_report": "research/gates/PHASE7_PPR2_TESTER_REPORT.md",
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
-    "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "allowed_scope": "PPR-4 read-only source availability/documentation search, existing-cache inventory, metadata/schema/coverage/PIT/vintage/license audit, and sealed-holdout exclusion proof from metadata only. No bulk data or pretrained-model download, no modeling, no holdout values/labels, no options P&L until a distinct PPR-4 tester PASS.",
+    "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
     "ppr3_test_scope": "Exact-trigger-commit offline validation of configuration, candidate cells, native-task fields/links, statistical contract, budget and all pinned source blobs. No external sources or models.",
     "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation only. RF all-features uses JSON float 1.0. Paper-native rows are descriptive and excluded from active fit cells.",
-    "current_work_mode": "Per-method paper-native ledger now includes nine explicit native-task fields. Corrected NT022/NT023/NT045/NT046 links have exact regression assertions. RF max_features float, fit budget, and FLAT tie semantics remain validated. All empirical permissions remain false."
+    "current_work_mode": "PPR-3 passed with restrictions. PPR-4 read-only source/cache/PIT discovery may start; all data-panel acceptance/download and empirical execution remain blocked.",
+    "ppr3_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR3_REVIEW2_TESTER_REPORT.md",
+    "ppr3_tester_report_blob": "7f9e240a9b1af9deb7c4edfc3434377932d7b9a5",
+    "ppr3_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38074087881",
+    "ppr3_tested_commit": "9513e737313a56156e409331f47ee1cb8ae8e0d5"
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -213,7 +217,12 @@
     "model_fitting_tuning_scoring_authorized": false,
     "final_holdout_access_authorized": false,
     "option_pnl_authorized": false,
-    "ppr4_allowed_only_after_exact_ppr3_tester_pass": true
+    "ppr4_allowed_only_after_exact_ppr3_tester_pass": true,
+    "public_metadata_search_authorized": true,
+    "existing_cache_inspection_authorized": true,
+    "source_availability_documentation_authorized": true,
+    "bulk_data_downloads_authorized": false,
+    "model_panel_data_acceptance_authorized": false
   },
   "unresolved_before_ppr4": [
     "PPR-4 must search free-source options, FII/DII, sentiment/news, VIX, FX, global market and index sources before classifying data as BLOCKED_DATA.",
