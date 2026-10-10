@@ -2,8 +2,10 @@
 
 **Decision: PASS WITH SCOPED RESTRICTIONS — the corrected manifest may be promoted to READY only after this report is copied and hash-pinned. While the approval file is PENDING_REVIEW, no request is authorized.**
 
+**Exact sample scope ID:** `dhan-nifty50-daily-2024-01-02-one-request`.
+
 **Reviewed developer code snapshot:** `c000619a1b90ada383c52058efde9d2e4a67ac88`  
-**Current developer head / pending approval:** `17c078d41a05de948f14d151c82a36a70594ef29`  
+**Developer head at the first READY review checkpoint:** `17c078d41a05de948f14d151c82a36a70594ef29`  
 **Reviewed manifest commit:** `685607d809ccfe5c1c5f82cce8a1073d8ab3edd8`  
 **Manifest Git blob:** `3ebead76bf75feb864bcd3fb66a34e2d5125d74a`  
 **Raw manifest SHA-256:** `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`  
@@ -33,7 +35,9 @@ The pending approval file pins the same manifest blob/hash and authorization dig
 
 ## Finding from the prior snapshot and correction
 
-The tester found that the earlier spend transition wrote `status=SPENT`, `decision=SPENT_BEFORE_SOURCE_REQUEST`, and `spent_from_commit`, but it omitted `authorized_scope_id`. The runner requires this exact key to match its scope before making the one POST. Without it, a READY authorization would have been spent and the sample would fail closed before contacting Dhan.
+The tester found that the earlier spend transition wrote `status=SPENT`, `decision=SPENT_BEFORE_SOURCE_REQUEST`, and `spent_from_commit`, but it omitted `authorized_scope_id`.
+
+A subsequent READY attempt exposed the report validator's required literal markers: the copied report first omitted the exact no-live/no-bulk markers, and the next version omitted the literal scope ID above. Both attempts failed at report validation before the spend/request steps. The approval has been returned to `PENDING_REVIEW`; no Dhan request occurred. The runner requires this exact key to match its scope before making the one POST. Without it, a READY authorization would have been spent and the sample would fail closed before contacting Dhan.
 
 The developer fixed this with a single `prepare_spent_approval()` transition that:
 - only accepts `status=READY` and `decision=APPROVED_ONE_RUN`;
