@@ -142,7 +142,7 @@ def test_credentials_are_rejected_before_network() -> None:
     result = client.request(
         "HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL,
         headers={"Range": "bytes=0-3", "Authorization": "Bearer must-not-send"},
-        max_body_bytes=8, hf_redirects=True,
+        max_body_bytes=mod.MAX_RANGE_BYTES, hf_redirects=True,
     )
     assert result["status"] == "REJECTED_SCOPE"
     assert not fake.requests
@@ -152,7 +152,7 @@ def test_hf_redirect_to_unregistered_host_is_rejected() -> None:
     client = mod.LimitedHTTP()
     fake = FakeOpener([FakeResponse(302, b"", {"Location": "https://evil.example/data.csv"})])
     client.opener = fake
-    result = client.request("HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={"Range": "bytes=0-3"}, max_body_bytes=8, hf_redirects=True)
+    result = client.request("HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={"Range": f"bytes=0-{mod.MAX_RANGE_BYTES - 1}"}, max_body_bytes=mod.MAX_RANGE_BYTES, hf_redirects=True)
     assert result["status"] == "REJECTED_REDIRECT_HOST"
     assert len(fake.requests) == 1
 
@@ -164,7 +164,7 @@ def test_hf_second_redirect_is_rejected() -> None:
         FakeResponse(302, b"", {"Location": "https://cas-bridge.xethub.hf.co/blob/file"}),
     ])
     client.opener = fake
-    result = client.request("HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={"Range": "bytes=0-3"}, max_body_bytes=8, hf_redirects=True)
+    result = client.request("HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={"Range": f"bytes=0-{mod.MAX_RANGE_BYTES - 1}"}, max_body_bytes=mod.MAX_RANGE_BYTES, hf_redirects=True)
     assert result["status"] == "REJECTED_REDIRECT"
     assert len(fake.requests) == 2
     assert client.budget.redirects == 1
