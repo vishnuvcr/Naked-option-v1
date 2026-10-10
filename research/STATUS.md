@@ -556,3 +556,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Global-source cache entries all report `cache_hit: false` in this run; the previous cached schema was not accepted and the series were reacquired. The post-cache action completed; a future separately authorized run should verify cache reuse.
 - [Full result summary](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md); [independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md).
 - **Phase 8 remains BLOCKED.** The final untouched holdout remains unopened; no strategy has been tested or promoted. Further prediction work requires a new preregistered family and independent tester gate.
+
+
+## 2026-10-10 — Extension 2 spec correction resubmitted
+
+- Initial tester report [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md) returned REQUEST CHANGES before data access.
+- Corrected spec blob: `7f6cc6e86556db3da9f87c23c0e183bcb3282310`. It now defines legacy-to-UDiFF mapping, FII/DII imbalance denominator, exact F04/F05 formulas, canonical sector index identities, and global-bootstrap treatment of missing forecasts.
+- Updated handoff: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md`.
+- **Current gate: corrected spec re-review pending.** No source feasibility data were downloaded and no model was fit. If the tester passes, only small deterministic Gate A samples are authorized.
