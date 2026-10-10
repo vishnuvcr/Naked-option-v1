@@ -845,3 +845,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Official Dhan documentation review found directly documented instrument-master CSV URLs: compact `https://images.dhan.co/api-data/api-scrip-master.csv` and detailed `https://images.dhan.co/api-data/api-scrip-master-detailed.csv` ([official instrument docs](https://dhanhq.co/docs/v2/instruments/)). This was public documentation research only; no request/download occurred.
 - Developer proposal [Extension 3 — Official Dhan Instrument-Source Validation Plan](phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md) committed at `21c70a054c4272d2280da5872858e0d52934103d`. It is PROPOSED only and authorizes no network request.
 - **Next gate:** independent tester review of the Extension 3 proposal. No live request, CSV download, price history, modeling, or holdout access is authorized. The prior redirect manifest remains SPENT and must not be reused.
+
+
+## 2026-10-10 — Extension 3 proposal passed; offline implementation submitted
+
+- Independent tester proposal review [PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_PLAN_TESTER.md](gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_PLAN_TESTER.md) on `phase-07-tester` commit `5f653466523bc92f8c9a7e59f79a9a2ff04f1040`: **PASS WITH SCOPED RESTRICTIONS — proposal/documentation gate only**.
+- Developer added `scripts/dhan_instrument_master.py`, `scripts/test_dhan_instrument_master.py`, and `.github/workflows/phase-07-dhan-instrument-master-tests.yml`. The adapter has no HTTP client; it only validates supplied bytes and atomically caches validated CSVs. The CLI explicitly reports `OFFLINE_VALIDATION_ONLY`.
+- Offline test workflow [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were queued and then observed in progress at checkpoint time; outcomes not yet accepted.
+- No CSV request, download, secret use, cache population, price history, model fitting or holdout access occurred.
+- **Next gate:** wait for hosted offline tests; fix any failures; then submit the exact implementation snapshot to independent tester code/workflow review. Only after that report may a new one-use manifest be considered. The Extension 2 manifest remains SPENT.
