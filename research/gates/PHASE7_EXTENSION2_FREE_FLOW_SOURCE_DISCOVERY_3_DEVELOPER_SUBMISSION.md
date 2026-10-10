@@ -11,7 +11,7 @@
 - Current recorded Gate A disposition: schema samples pass, but G14/G15 source-coverage gate remains open. No feature/label table, model fitting or metrics have been produced.
 
 ## Exact frozen spec snapshot
-- Spec Git blob: `30a8b77828b61c74d5de9c94d3033254a598b37a`
+- Spec Git blob: `52b030e09213cb30c4de6a1633da38e6b2558b1f`
 - The spec defines a maximum of 15 initial probes plus no more than three one-hop HF redirects (18 exchanges total), 2 MiB total data, two 8-KiB HF byte ranges (requires status 206 + exact Content-Range), no full-file fallback, two fixed single-day CDSL XLS reports, one pinned chirag date JSON, and metadata-only probes for SEBI/NSE/CalcSetu/other mirrors.
 - It explicitly rejects generated/seeded daily values. The MrChartist `seed_history.js` source code describes generating “realistic per-day” values from monthly/yearly aggregate totals, so its `historical-seed` rows are not treated as raw daily ground truth.
 
@@ -35,7 +35,7 @@ Independently audit:
 
 Return PASS or REQUEST CHANGES for this specification only. A spec PASS authorizes implementation plus offline regression tests—not network retrieval. A separate code gate and a separate one-run exact-snapshot manifest will be required before any source probe is made.
 
-**Developer → Tester:** Review spec blob `30a8b77828b61c74d5de9c94d3033254a598b37a`, with particular attention to the HF byte-range and CDSL XLS limits. Do not authorize network calls at the spec gate.
+**Developer → Tester:** Review spec blob `52b030e09213cb30c4de6a1633da38e6b2558b1f`, with particular attention to the HF byte-range and CDSL XLS limits. Do not authorize network calls at the spec gate.
 
 **Tester → Developer:** Only after a spec PASS may the developer implement the finite sampler and offline tests. Require a fresh exact-blob code-gate PASS and manifest before any data probe. No full-history acquisition or model fitting.
 
@@ -47,3 +47,10 @@ The original draft had two inconsistencies, now corrected in frozen spec blob `3
 - Range responses are now strict: only HTTP 206 with exact matching Content-Range is accepted. HTTP 200 is always rejected, even if it carries a Content-Range header.
 - The spec now enumerates exact initial URL shapes and the source-specific redirect policy. Maximum is 15 initial probes plus at most three single-hop redirects only for the HF HEAD/range requests (18 HTTP exchanges maximum). All other redirects are rejected without follow-up.
 - Redirects to any unregistered HF host are rejected rather than broadening the allowlist; no HF tokens/cookies are forwarded to redirect targets.
+
+
+## Additional metadata-safety correction before tester review
+
+- The spec now uses only GitHub Contents **directory** endpoints (`/contents/data`) to read tracked file sizes and SHAs. It expressly forbids file-specific `/contents/data/history.json` requests because the Contents API can return the entire small file body inline. This prevents repeating the earlier unintended raw-history retrieval.
+- Hugging Face tail sampling is conditional on a credible HEAD Content-Length greater than 8 KiB. Missing/invalid length or a file no larger than the head sample means skip the tail request and mark the source not verified.
+- New offline test requirements cover safe directory metadata parsing, no inline file contents, range length math, allowed/disallowed redirects, redirect hop caps, and credential stripping.
