@@ -740,3 +740,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Hosted offline run [38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed **27/27 regressions**. Earlier fixture/assertion failures were corrected and retained in Actions/error log.
 - Dhan secret has not been read or logged. No Dhan API request has yet been made. Next: create one exact manifest, let the guarded workflow validate and spend it before the single bounded sample, then independently audit the artifact.
 - Dhan historical candles may fill price/index data; they do not replace the unresolved combined FII/FPI/DII aggregate flow series. No full-history acquisition, features/labels, model fitting, metrics or holdout access is authorized.
+
+
+## 2026-10-10 — Dhan bounded sample artifact: REQUEST CHANGES
+
+- Guarded run [38043148580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043148580) passed offline tests, exact manifest validation, and marked the one-run manifest SPENT before source access.
+- Artifact `11666064550` (`dhan-market-data-bounded-sample`, ZIP SHA-256 `45f2b23a0835cb6b1af52ac12913bf86062f9c82a0d3edcef4c810a3f30f38d9`) reports `BLOCKED_INSTRUMENT_METADATA` after two requests. No candle request succeeded and no price history or analysis was produced.
+- Tester artifact audit: REQUEST CHANGES at `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT.md`.
+- Defect: the report omitted the numeric HTTP status from the failed `/v2/instrument/IDX_I` request. Corrected adapter now records safe numeric status and request/byte counts without provider body or token.
+- New regression added; hosted test run is pending. The previous manifest remains SPENT; a new exact-snapshot code review and new one-run manifest are required before any retry.
