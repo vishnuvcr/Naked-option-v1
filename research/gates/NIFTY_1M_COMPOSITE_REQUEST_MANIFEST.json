@@ -49,7 +49,7 @@
       "spot",
       "timestamp"
     ],
-    "historical_greeks": "Not supplied by historical rolling API. Black-Scholes European Greeks are derived from sourced expiry/rate/dividend inputs when available; otherwise separately labelled proxy Greeks use rule-derived NIFTY expiry and explicit zero-rate/zero-dividend assumptions. Proxy/source status and assumptions are carried per row. Current option-chain Greeks are never backfilled."
+    "historical_greeks": "Not supplied by historical rolling API. Black-Scholes European Greeks are derived from sourced expiry/rate/dividend inputs when available; otherwise separately labelled proxy Greeks use rule-derived NIFTY expiry and explicit zero-rate/zero-dividend assumptions. Proxy/source status and assumptions are carried per row. Current option-chain Greeks are never backfilled. Dhan's numeric IV units are not stated in the reviewed schema, so normalized-IV Greeks also carry an explicit versioned heuristic: values >3 are treated as percentage points and divided by 100; values <=3 are treated as fractional IV."
   },
   "budgets": {
     "date_chunk_calendar_days": 30,
@@ -126,7 +126,7 @@
     "decryption_script": "scripts/decrypt_nifty_1m_composite.py",
     "local_merge_command": "python scripts/decrypt_nifty_1m_composite.py --input-dir <artifact-folder> --output-dir <local-parts> --merge-output nifty_1m_composite_5y.csv.gz",
     "not_publishing_subscribed_market_rows_to_public_git_or_release": true,
-    "greeks": "Source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise visibly labelled proxy Greeks with expiry_mapping_source, risk_free_rate_source, dividend_yield_source, greek_assumption, greek_status. If expiry cannot be mapped, Greek values remain null. Source and proxy rows are countable separately."
+    "greeks": "Source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise visibly labelled proxy Greeks with expiry_mapping_source, risk_free_rate_source, dividend_yield_source, greek_assumption, greek_status. If expiry cannot be mapped, Greek values remain null. Source and proxy rows are countable separately. Every Greek row also discloses the IV normalization heuristic, because the provider's documented field schema does not specify the numeric IV unit."
   },
   "provenance_rules": [
     "Raw response bytes and hashes immutable within cache; exact request body and request ID persisted separately",
@@ -134,7 +134,7 @@
     "Never reconcile/correct Dhan values against NSE/third-party market-price values; the user waived that requirement",
     "Join spot OHLCV by exact epoch timestamp; retain rolling endpoint spot in separate column",
     "Only use real source/contract/calendar inputs for actual expiry; no expiry-date fabrication",
-    "Derive source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise only separately labelled proxy Greeks may use rule-derived expiry dates and explicit zero-rate/zero-dividend assumptions with source/assumption columns; leave Greek values null with a reason code if expiry cannot be mapped.",
+    "Derive source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise only separately labelled proxy Greeks may use rule-derived expiry dates and explicit zero-rate/zero-dividend assumptions with source/assumption columns; leave Greek values null with a reason code if expiry cannot be mapped. The IV unit assumption is recorded on every Greek row.",
     "Missing source affects only its rows/feature family; continue other request IDs and report missing coverage",
     "Output encrypted monthly CSV parts only as Actions artifacts for user download; do not publish paid/subscription market rows as plaintext in public repository assets."
   ],
