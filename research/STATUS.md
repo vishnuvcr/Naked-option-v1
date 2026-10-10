@@ -669,3 +669,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - GitHub history metadata uses directory-only `/contents/data` calls to avoid file payloads; raw `data/history.json` endpoints are prohibited.
 - During proposal verification, two CDSL XLS links were opened with a web reader but the reader returned unsupported-content-type errors and provided no parsed values. Logged as non-accepted activity in ERROR_LOG and tester report.
 - Next: implementation on developer branch, hosted offline tests, exact-snapshot code review. The spent prior Gate A manifest must not be reused.
+
+
+## 2026-10-10 — Extension 2 Free Flow Source Discovery 3 code gate pending
+
+- Specification gate: PASS WITH SCOPED RESTRICTIONS for implementation/offline tests only. Current spec Git blob `4e30415632545c04a2875d627afa0191afe3f383`.
+- Sampler implemented: `scripts/extension2_free_flow_source_discovery_3.py`; offline tests: `scripts/test_extension2_free_flow_source_discovery_3.py`.
+- Latest hosted test: [Run 38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968), 27/27 offline checks passed on developer snapshot `b3a6c3dcde845923a0dba55a0f350d5e67361a76`.
+- Exact code/workflow review request: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+- Separate workflows: offline tests only; guarded live probe requires an exact tester report, all six byte hashes/Git blobs, and reviewed commit ancestry. Before the one source probe it marks the manifest SPENT, preventing replay.
+- No live source requests occurred. Current one-run manifest absent. Full-history acquisition, features/labels, model fitting, predictive metrics/p-values and final holdout remain blocked pending a fresh code-gate review followed by separate one-run authorization.
