@@ -270,6 +270,20 @@ def test_redirect_probe_makes_one_request_and_reports_host_only() -> None:
     assert result["status"] == "REDIRECT_TARGET_RECORDED"
     assert result["http_status"] == 302 and result["request_count"] == 1
     assert result["redirect_host"] == "images.dhan.co"
+    probe_budget = mocked.call_args.kwargs["budget"]
+    assert probe_budget.request_limit == 1 and probe_budget.byte_limit == 1024
+    try:
+        probe_budget.reserve_request()
+    except ValueError as exc:
+        assert str(exc) == "request_budget_exceeded"
+    else:
+        raise AssertionError("redirect probe budget allowed a second request")
+    try:
+        probe_budget.account_bytes(1025)
+    except ValueError as exc:
+        assert str(exc) == "global_response_byte_budget_exceeded"
+    else:
+        raise AssertionError("redirect probe budget allowed over 1 KiB")
     encoded = json.dumps(result)
     for private in ("PRIVATE_ACCESS_TOKEN", "private/path", "secret=query"):
         assert private not in encoded
@@ -284,10 +298,39 @@ def test_redirect_target_parser_emits_only_scheme_and_host() -> None:
 
 
 def test_redirect_target_parser_rejects_credentials_and_malformed_urls() -> None:
-    for location in ("", "https://user:password@example.com/path", "https://bad host/path", "javascript:alert(1)"):
+    for location in (
+        "",
+        "https://user:password@example.com/path",
+        "https://bad host/path",
+        "javascript:alert(1)",
+        "http://example.com/path",
+        "https://example.com/private\rpath",
+        "https://example.com/private\npath",
+        "https://example.com/private\x00path",
+    ):
         got = mod.safe_redirect_target(location)
         assert got == {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
         assert "password" not in json.dumps(got)
+
+
+def test_http_error_location_is_ignored_for_non_redirect_status() -> None:
+    private_body = io.BytesIO(b"PRIVATE_ERROR_BODY")
+    class Opener:
+        def open(self, req, timeout):
+            raise urllib.error.HTTPError(
+                req.full_url, 401, "unauthorized",
+                {"Content-Type": "application/json",
+                 "Location": "https://images.dhan.co/private/path?token=secret"},
+                private_body,
+            )
+    status, body, headers = mod.request_bytes(
+        mod.INDEX_INSTRUMENT_URL, method="GET", token="secret-token", body=None,
+        cap=1024, budget=mod.Budget(), opener_factory=Opener,
+    )
+    assert status == 401 and body == b""
+    assert headers == {"content-type": "application/json"}
+    assert private_body.tell() == 0
+    assert "redirect_host" not in headers and "redirect_target_status" not in headers
 
 
 def test_http_error_returns_only_redirect_host_and_safe_content_type() -> None:
@@ -428,6 +471,7 @@ def test_redirect_probe_workflow_spends_manifest_before_single_probe() -> None:
     secret_expr = "DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}"
     assert workflow.count(secret_expr) == 1
     assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED" in workflow
+    assert "DHAN_LIVE_SAMPLE_AUTHORIZED" not in workflow
     assert "Location path" in workflow or "never follows the redirect" in workflow
 
 
@@ -435,8 +479,9 @@ def test_redirect_manifest_validator_enforces_single_request_scope() -> None:
     validator = (ROOT / "scripts/validate_dhan_redirect_probe_approval.py").read_text(encoding="utf-8")
     assert 'manifest.get("decision") != "APPROVED_ONE_RUN"' in validator
     assert 'manifest.get("status") != "READY"' in validator
-    assert "requests_max") != 1" in validator
-    assert "response_bytes_max") != 1024" in validator
+    assert 'manifest.get("requests_max") != 1' in validator
+    assert 'manifest.get("response_bytes_max") != 1024' in validator
+    assert "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md" in validator
     assert "reviewed_commit_tree_blob_mismatch" in validator
     assert 'manifest["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"' in validator
 
@@ -495,6 +540,7 @@ def main() -> None:
         test_redirect_probe_makes_one_request_and_reports_host_only,
         test_redirect_target_parser_emits_only_scheme_and_host,
         test_redirect_target_parser_rejects_credentials_and_malformed_urls,
+        test_http_error_location_is_ignored_for_non_redirect_status,
         test_http_error_returns_only_redirect_host_and_safe_content_type,
         test_blocked_metadata_report_keeps_status_and_redacts_body,
         test_live_sample_metadata_http_error_preserves_only_safe_content_type,
