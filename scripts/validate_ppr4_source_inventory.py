@@ -19,7 +19,7 @@ AUDIT = ROOT / "research/phase7/PPR4_SOURCE_FEASIBILITY_AUDIT.md"
 HOLDOUT = ROOT / "research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json"
 CACHE = ROOT / "research/phase7/PPR4_REPO_CACHE_INVENTORY.csv"
 
-EXPECTED_IDS = [f"P4-{n:03d}" for n in range(1, 33)]
+EXPECTED_IDS = [f"P4-{n:03d}" for n in range(1, 35)]
 REQUIRED_REGISTER_COLUMNS = {
     "source_id", "data_family", "source_name", "source_url", "source_class",
     "data_grain", "coverage_start_claim", "coverage_end_claim", "frequency",
@@ -83,8 +83,8 @@ def validate() -> list[str]:
         errors.append("read-only repository/artifact metadata inspection must be explicitly authorized")
 
     inventory = manifest.get("inventory_summary", {})
-    if inventory.get("read_only_sources_registered") != 32 or len(register) != 32:
-        errors.append(f"expected 32 PPR-4 source rows, manifest={inventory.get('read_only_sources_registered')}, CSV={len(register)}")
+    if inventory.get("read_only_sources_registered") != 34 or len(register) != 34:
+        errors.append(f"expected 34 PPR-4 source rows, manifest={inventory.get('read_only_sources_registered')}, CSV={len(register)}")
     if inventory.get("accepted_modeling_datasets") != 0:
         errors.append("accepted_modeling_datasets must remain zero")
     if inventory.get("free_source_search_exhausted") is not False:
@@ -126,6 +126,15 @@ def validate() -> list[str]:
         p4_026 = next((r for r in register if r.get("source_id") == "P4-026"), {})
         if p4_026.get("project_acceptance_status") != "BLOCKED_GATE_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY":
             errors.append("P4-026 must preserve the critical holdout metadata blocker")
+
+    p4_033 = next((r for r in register if r.get("source_id") == "P4-033"), {})
+    if p4_033.get("availability_status") != "OFFICIAL_ARCHIVE_URL_IDENTIFIED_ACCESS_UNVERIFIED" or p4_033.get("project_acceptance_status") != "NOT_ACCEPTED_FOR_MODELING":
+        errors.append("P4-033 BSE SENSEX archive must remain a documented but unverified source lead")
+    if p4_033.get("bulk_acquisition_authorized") != "false" or p4_033.get("model_panel_accepted") != "false":
+        errors.append("P4-033 must not authorize BSE archive access or modeling")
+    p4_034 = next((r for r in register if r.get("source_id") == "P4-034"), {})
+    if p4_034.get("availability_status") != "NO_QUALIFIED_OFFICIAL_ENDPOINT_VERIFIED_IN_THIS_PASS" or p4_034.get("project_acceptance_status") != "NOT_ACCEPTED_FOR_MODELING":
+        errors.append("P4-034 BSE FII/DII discovery must remain unverified, not treated as absent globally or accepted")
 
     if len(cache) != 5:
         errors.append(f"repository data/cache inventory must include 5 metadata-tree entries, got {len(cache)}")
