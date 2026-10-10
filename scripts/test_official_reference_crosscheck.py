@@ -349,7 +349,7 @@ def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Pa
         "authorization": authorization,
         "authorization_sha256": authorization_hash,
     }
-    manifest_bytes = (json.dumps(manifest, sort_keys=True, indent=2, ensure_ascii=False) + "\\n").encode("utf-8")
+    manifest_bytes = (json.dumps(manifest, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
     manifest_path = root / "manifest.json"
     approval_path = root / "approval.json"
     manifest_path.write_bytes(manifest_bytes)
@@ -362,7 +362,7 @@ def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Pa
         "approved_authorization_sha256": authorization_hash,
         "spent_from_commit": "a" * 40,
     }
-    approval_path.write_text(json.dumps(approval, sort_keys=True, indent=2) + "\\n", encoding="utf-8")
+    approval_path.write_text(json.dumps(approval, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     return manifest_path, approval_path
 
 
