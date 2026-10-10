@@ -1024,3 +1024,10 @@ Latest offline workflow [Run 38029615734](https://github.com/vishnuvcr/Naked-opt
 Run `38026993369` completed all guarded jobs and produced artifact `11661065266` (ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`). Both official index CSV samples now pass the date/schema checks, and both F&O plus both cash-equity samples pass. The official NSE dated FII/DII endpoint correctly fails as a historical sample because it returned 2026-10-09 records for a July 2024 date window. The alternative GitHub mirror has 164 unique dates (2026-01-14..2026-09-30); other sampled pages do not establish the required 500+ sessions. Therefore the parser fix is verified, but historical FII/DII coverage remains unresolved.
 
 The one-run Gate A manifest is spent and cannot authorize more requests. The next bounded free-source discovery step has its own exact code-review request and 32/32 hosted offline tests in Run `38029615734`, but independent tester code review is pending. No live requests, full history, features/labels, models, metrics or p-values are authorized at this point.
+
+
+## 2026-10-10 — Discovery 3 current exact-snapshot code gate
+
+The tester branch records a fresh PASS WITH SCOPED RESTRICTIONS for the current six-file Discovery 3 snapshot. The hosted offline suite Run `38029797600` passed 32 regressions, including the six previous defects (spec identity, conflicting dates, NaN/Infinity, recursive signature redaction, dated URL query redaction and reviewed-commit tree binding). This is a code/workflow gate only; it does not authorize a live probe.
+
+The exact tester report is at `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` on `phase-07-tester`. Mirroring it to the developer branch was blocked by platform safety checks. The live source approval manifest remains absent. No live requests, full-history acquisition, feature/label construction or model fitting occurred. Next step is to mirror the report through a permitted path and compute byte-level hashes for all six protected files before creating a single-use manifest.
