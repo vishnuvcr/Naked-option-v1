@@ -268,6 +268,21 @@ def sample_plan(instruments: dict[str, dict[str, str]]) -> list[dict[str, str]]:
     return plan
 
 
+def blocked_metadata_result(status: int, headers: dict[str, str], budget: Budget, profile: dict[str, Any]) -> dict[str, Any]:
+    """Return only safe diagnostics for a failed instrument metadata response."""
+    content_type = headers.get("content-type", "")
+    if len(content_type) > 120 or any(ch in content_type for ch in "\\r\\n"):
+        content_type = ""
+    return {
+        "status": "BLOCKED_INSTRUMENT_METADATA",
+        "instrument_metadata_http_status": int(status),
+        "instrument_metadata_content_type": content_type,
+        "profile_probe": profile,
+        "request_count": budget.requests,
+        "bytes_read": budget.bytes_read,
+    }
+
+
 def live_sample() -> dict[str, Any]:
     """Called only by a future guarded workflow after consuming a one-run manifest."""
     if os.environ.get("DHAN_LIVE_SAMPLE_AUTHORIZED") != "1":
@@ -291,7 +306,7 @@ def live_sample() -> dict[str, Any]:
         cap=MAX_INDEX_METADATA_BYTES, budget=budget,
     )
     if status != 200:
-        return {"status": "BLOCKED_INSTRUMENT_METADATA", "request_count": budget.requests}
+        return blocked_metadata_result(status, {}, budget, profile)
     instruments = parse_index_instruments(instrument_body)
     del instrument_body
     plan = sample_plan(instruments)
