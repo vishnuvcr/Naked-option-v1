@@ -417,7 +417,8 @@ def atomic_cache_bundle(
         if isinstance(value, dict):
             for key, child in value.items():
                 normalized = str(key).lower().replace("-", "_")
-                if normalized in forbidden or contains_forbidden_key(child):
+                if (normalized in forbidden or "token" in normalized or "authorization" in normalized
+                        or "cookie" in normalized or contains_forbidden_key(child)):
                     return True
         elif isinstance(value, (list, tuple)):
             return any(contains_forbidden_key(child) for child in value)
