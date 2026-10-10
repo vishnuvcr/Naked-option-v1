@@ -76,7 +76,7 @@
     "nse_index_archive": "https://www.nseindia.com/static/resources/historical-reports-capital-market-daily-monthly-archives",
     "cdsl_fpi": "https://www.cdslindia.com/Publications/ForeignPortInvestor.html",
     "sebi_fpi": "https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html",
-    "cb oe_vix": "https://www.cboe.com/tradable_products/vix/vix_historical_data",
+    "cboe_vix": "https://www.cboe.com/tradable_products/vix/vix_historical_data",
     "us_treasury": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
     "gdelt": "https://www.gdeltproject.org/"
   }
