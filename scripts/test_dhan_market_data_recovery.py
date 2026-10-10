@@ -297,6 +297,25 @@ def test_redirect_target_parser_emits_only_scheme_and_host() -> None:
         assert private not in encoded
 
 
+def test_redirect_probe_does_not_accept_non_https_target() -> None:
+    safe_headers = {
+        "redirect_target_status": "PARSED",
+        "redirect_scheme": "http",
+        "redirect_host": "images.dhan.co",
+    }
+    def fake_request(url, **kwargs):
+        kwargs["budget"].reserve_request()
+        return 302, b"", safe_headers
+    with patch.dict(mod.os.environ, {
+        "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED": "1",
+        "DHAN_ACCESS_TOKEN": "PRIVATE_ACCESS_TOKEN",
+    }, clear=True), patch.object(mod, "request_bytes", side_effect=fake_request):
+        result = mod.redirect_target_probe()
+    assert result["status"] == "REDIRECT_TARGET_UNVERIFIED"
+    assert result["redirect_scheme"] == "http"
+    assert "PRIVATE_ACCESS_TOKEN" not in json.dumps(result)
+
+
 def test_redirect_target_parser_rejects_credentials_and_malformed_urls() -> None:
     for location in (
         "",
@@ -548,6 +567,7 @@ def main() -> None:
         test_redirect_probe_requires_explicit_authorization,
         test_redirect_probe_makes_one_request_and_reports_host_only,
         test_redirect_target_parser_emits_only_scheme_and_host,
+        test_redirect_probe_does_not_accept_non_https_target,
         test_redirect_target_parser_rejects_credentials_and_malformed_urls,
         test_http_error_location_is_ignored_for_non_redirect_status,
         test_http_error_returns_only_redirect_host_and_safe_content_type,
