@@ -314,48 +314,74 @@ def validate_rolling_option_payload(
 
 
 def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
-    """Validate API endpoint-specific request shapes and documented date caps."""
+    """Validate an exact endpoint request shape and its documented date-window cap."""
     if not _valid_api_url(url):
         raise ValueError("unregistered_or_unsafe_url")
+    if not isinstance(body, dict):
+        raise ValueError("request_body_must_be_object")
+    allowed_by_url = {
+        DAILY_URL: {"securityId", "exchangeSegment", "instrument", "fromDate", "toDate", "oi"},
+        INTRADAY_URL: {"securityId", "exchangeSegment", "instrument", "interval", "fromDate", "toDate"},
+        ROLLING_OPTION_URL: {
+            "exchangeSegment", "interval", "securityId", "instrument", "expiryFlag",
+            "expiryCode", "strike", "drvOptionType", "requiredData", "fromDate", "toDate",
+        },
+    }
+    allowed_keys = allowed_by_url[url]
+    if not set(body).issubset(allowed_keys):
+        raise ValueError("request_fields_unrecognized")
     if url == DAILY_URL:
-        start, end = body.get("fromDate"), body.get("toDate")
+        start_date, end_date = body.get("fromDate"), body.get("toDate")
         if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
             raise ValueError("daily_request_instrument_fields_missing")
-        # Programmatic safeguard: daily bulk requests are partitioned into <=365-day windows.
-        _validate_date_range(start, end, max_days=365)
+        # Program safeguard: daily bulk requests are partitioned into <=365-day windows.
+        _validate_date_range(start_date, end_date, max_days=365)
         if body.get("oi", False) not in (True, False):
             raise ValueError("daily_request_oi_invalid")
-        return {"source": "daily_candles", "fromDate": start, "toDate": end}
+        return {"source": "daily_candles", "fromDate": start_date, "toDate": end_date}
+
     if url == INTRADAY_URL:
-        start, end = body.get("fromDate"), body.get("toDate")
+        start_date, end_date = body.get("fromDate"), body.get("toDate")
         if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
             raise ValueError("intraday_request_instrument_fields_missing")
         if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
             raise ValueError("intraday_interval_invalid")
-        _validate_datetime_range(start, end, max_days=90)
-        return {"source": "intraday_candles", "fromDate": start, "toDate": end, "interval": str(body["interval"])}
-    if url == ROLLING_OPTION_URL:
-        start, end = body.get("fromDate"), body.get("toDate")
-        if not all(body.get(k) is not None for k in (
-            "exchangeSegment", "interval", "securityId", "instrument",
-            "expiryFlag", "expiryCode", "strike", "drvOptionType", "requiredData"
-        )):
-            raise ValueError("rolling_option_request_fields_missing")
-        if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
-            raise ValueError("rolling_option_interval_invalid")
-        if body.get("expiryFlag") not in {"WEEK", "MONTH"}:
-            raise ValueError("rolling_option_expiry_flag_invalid")
-        if body.get("drvOptionType") not in {"CALL", "PUT"}:
-            raise ValueError("rolling_option_type_invalid")
-        _validate_date_range(start, end, max_days=30)
-        if not isinstance(body.get("requiredData"), list) or not body["requiredData"]:
-            raise ValueError("rolling_option_required_data_invalid")
-        allowed = {"open", "high", "low", "close", "iv", "volume", "oi", "strike", "spot"}
-        if not set(body["requiredData"]).issubset(allowed):
-            raise ValueError("rolling_option_required_data_unrecognized")
-        return {"source": "rolling_expired_options", "fromDate": start, "toDate": end, "interval": str(body["interval"])}
-    raise ValueError("unregistered_or_unsafe_url")
+        _validate_datetime_range(start_date, end_date, max_days=90)
+        return {"source": "intraday_candles", "fromDate": start_date, "toDate": end_date,
+                "interval": str(body["interval"])}
 
+    start_date, end_date = body.get("fromDate"), body.get("toDate")
+    if not all(body.get(k) is not None for k in (
+        "exchangeSegment", "interval", "securityId", "instrument", "expiryFlag",
+        "expiryCode", "strike", "drvOptionType", "requiredData",
+    )):
+        raise ValueError("rolling_option_request_fields_missing")
+    if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
+        raise ValueError("rolling_option_instrument_fields_missing")
+    if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
+        raise ValueError("rolling_option_interval_invalid")
+    if body.get("expiryFlag") not in {"WEEK", "MONTH"}:
+        raise ValueError("rolling_option_expiry_flag_invalid")
+    if body.get("drvOptionType") not in {"CALL", "PUT"}:
+        raise ValueError("rolling_option_type_invalid")
+    expiry_code = body.get("expiryCode")
+    if isinstance(expiry_code, bool) or not isinstance(expiry_code, int) or expiry_code < 0:
+        raise ValueError("rolling_option_expiry_code_invalid")
+    if not isinstance(body.get("strike"), (str, int)) or not str(body.get("strike")).strip():
+        raise ValueError("rolling_option_strike_invalid")
+    _validate_date_range(start_date, end_date, max_days=30)
+    required_data = body.get("requiredData")
+    if not isinstance(required_data, list) or not required_data or any(not isinstance(x, str) for x in required_data):
+        raise ValueError("rolling_option_required_data_invalid")
+    if len(required_data) != len(set(required_data)):
+        raise ValueError("rolling_option_required_data_duplicate")
+    allowed_data = {"open", "high", "low", "close", "iv", "volume", "oi", "strike", "spot"}
+    if not set(required_data).issubset(allowed_data):
+        raise ValueError("rolling_option_required_data_unrecognized")
+    if not {"open", "high", "low", "close", "volume"}.issubset(required_data):
+        raise ValueError("rolling_option_required_data_incomplete")
+    return {"source": "rolling_expired_options", "fromDate": start_date, "toDate": end_date,
+            "interval": str(body["interval"])}
 
 def _validate_date_range(start: Any, end: Any, *, max_days: int | None) -> None:
     try:
