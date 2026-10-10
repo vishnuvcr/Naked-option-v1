@@ -130,7 +130,7 @@ def test_allowed_hf_redirect_preserves_range_but_not_credentials() -> None:
     assert fake.requests[1].get_header("Range") == f"bytes=0-{mod.MAX_RANGE_BYTES - 1}"
     assert fake.requests[1].get_header("Authorization") is None
     assert fake.requests[1].get_header("Cookie") is None
-    assert result["content_range"] == "bytes 0-3/10"
+    assert result["content_range"] == f"bytes 0-{mod.MAX_RANGE_BYTES - 1}/20000"
     assert client.budget.redirects == 1
 
 
