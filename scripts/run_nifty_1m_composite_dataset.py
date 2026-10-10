@@ -536,17 +536,27 @@ def apply_greeks(row: dict[str, str], expiry_map: dict[tuple[str, str, int], dic
     row["risk_free_rate_source"] = rate_source
     row["dividend_yield_decimal"] = _value_string(dividend)
     row["dividend_yield_source"] = dividend_source
-    assumptions = []
+    assumptions = [
+        "Dhan IV unit convention is undocumented; heuristic v1 interprets values >3 as percentage points and values <=3 as fractional IV"
+    ]
+    proxy_assumption_used = False
     if rate_source == "ASSUMED_ZERO_RATE_PROXY":
         assumptions.append("r=0 proxy; no point-in-time historical India yield series was available")
+        proxy_assumption_used = True
     if dividend_source == "ASSUMED_ZERO_DIVIDEND_PROXY":
         assumptions.append("q=0 proxy; no point-in-time NIFTY dividend-yield input was available")
+        proxy_assumption_used = True
     if row["expiry_mapping_source"].startswith("RULE_DERIVED"):
         assumptions.append("expiry estimated from NIFTY expiry weekday rule and observed Dhan spot session dates; not verified against historical contract master")
+        proxy_assumption_used = True
     for field, value in greeks.items():
         row[field] = format(value, ".12g")
-    row["greek_assumption"] = "; ".join(assumptions) if assumptions else "point-in-time sourced inputs"
-    row["greek_status"] = "CALCULATED_BS_V1_PROXY_INPUTS" if assumptions else "CALCULATED_BS_V1_SOURCED_INPUTS"
+    row["greek_assumption"] = "; ".join(assumptions)
+    row["greek_status"] = (
+        "CALCULATED_BS_V1_PROXY_INPUTS"
+        if proxy_assumption_used
+        else "CALCULATED_BS_V1_SOURCED_INPUTS_IV_UNIT_HEURISTIC"
+    )
 
 
 def parse_option_response(payload: dict[str, Any], request: dict[str, Any],
