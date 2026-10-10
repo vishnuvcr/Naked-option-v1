@@ -298,14 +298,34 @@ def check() -> None:
     print("PASS: exact manifest, protected files, tester report, single-use scope and status validated")
 
 
+def prepare_spent_approval(
+    approval: dict[str, Any],
+    *,
+    spent_from_commit: str,
+) -> dict[str, Any]:
+    """Return the exact spent-gate record consumed by the one-request runner."""
+    if approval.get("status") != "READY" or approval.get("decision") != "APPROVED_ONE_RUN":
+        raise ValueError("approval_already_spent_or_not_ready")
+    scope_id = approval.get("scope_id")
+    if scope_id != SCOPE_ID:
+        raise ValueError("approval_scope_id_mismatch")
+    if not isinstance(spent_from_commit, str) or not HEX40.fullmatch(spent_from_commit):
+        raise ValueError("spent_from_commit_invalid")
+    spent = dict(approval)
+    # The sample runner checks this exact key before any request is made.
+    spent["authorized_scope_id"] = scope_id
+    spent["status"] = "SPENT"
+    spent["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"
+    spent["spent_from_commit"] = spent_from_commit
+    return spent
+
+
 def spend() -> None:
     check()
     approval = read_json(APPROVAL_PATH, "approval_gate_unreadable")
-    if approval.get("status") != "READY":
-        raise ValueError("approval_already_spent_or_not_ready")
-    approval["status"] = "SPENT"
-    approval["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"
-    approval["spent_from_commit"] = git("rev-parse", "HEAD")
+    approval = prepare_spent_approval(
+        approval, spent_from_commit=git("rev-parse", "HEAD")
+    )
     _write_json_atomic(APPROVAL_PATH, approval)
     print("PASS: one-use sample approval marked SPENT before source request")
 
