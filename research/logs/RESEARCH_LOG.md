@@ -1038,3 +1038,10 @@ The exact tester report is at `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE
 The user added `DHAN_ACCESS_TOKEN` and asked to resolve data gaps and rerun analyses. Reviewed official DhanHQ v2 docs: daily historical endpoint `POST /v2/charts/historical` provides OHLCV (and OI when applicable); daily history may extend to instrument inception, while intraday candles are limited to five years and 90 days per call. Data API entitlement may require a separate subscription. The documented historical-candle API is not an aggregate daily FII/FPI/DII endpoint, so this secret may improve price/derivative data but cannot be claimed to resolve the flow series.
 
 Created `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` and `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md`. This is specification-only. No authenticated request was made and the token value was not accessed or persisted. The prior FII/DII source-discovery manifest is spent. Await independent spec review, then implement offline and seek a separate exact-snapshot code gate and single-use sample manifest before any network request.
+
+
+## 2026-10-10 — DhanHQ adapter code-gate preparation
+
+The Dhan recovery spec and adapter/offline tests are recorded in the repository. Independent tester passed the exact guarded workflow design with scoped restrictions: one bounded sample manifest may be prepared, but live calls require exact validation and the manifest must be spent before source access. The secret is injected only into the final sample step; offline jobs never receive it.
+
+Hosted offline run `38043020539` passed 27 checks. Earlier failures in CSV fixture encoding and workflow-string assertions were corrected and logged. The code gate does not establish actual entitlement or data coverage because no authenticated call has been made. The next action is one hash-bound sample manifest and the resulting single-run artifact audit. Dhan candles remain distinct from FII/FPI/DII aggregate flows.
