@@ -1,50 +1,48 @@
 {
+  "schema_version": 1,
+  "decision": "APPROVED_ONE_RUN",
+  "status": "READY",
   "authorized_scope": "one bounded Dhan profile/IDX_I metadata and daily-candle schema sample only",
-  "decision": "SPENT_BEFORE_SOURCE_REQUEST",
-  "full_history_authorized": false,
-  "instruments": [
-    "NIFTY 50",
-    "INDIA VIX"
-  ],
-  "model_fitting_authorized": false,
-  "note": "One run only. Any full acquisition, options-history probe, FII/FPI/DII aggregate-flow acquisition, feature/label construction, model fitting, metrics or holdout access requires a separate proposal and approval.",
+  "reviewed_developer_commit": "128c6cd4b62a2d3b7e7bb5e67483085e3628cc26",
+  "tester_report_sha256": "af5688c07ee93903e935bdf12d56b4f02ffd918abaebfb448a43b1ca3e4cdc44",
   "protected_files": {
-    ".github/workflows/phase-07-dhan-market-data-live.yml": {
-      "git_blob": "aa37cec66d46f3c181a7bda213226991c045b189",
-      "sha256": "b9c272262a21b2c56fdbd55cc295cd16d9a2e7b9400f77a42a19657a44fa5711"
-    },
-    ".github/workflows/phase-07-dhan-market-data-tests.yml": {
-      "git_blob": "b43ce4dadca4e5867173136531e71c63bb74e9a3",
-      "sha256": "8f0f0c14268956aad22c3a28e82582effe02502ad997f2d0721d0ea89f94b69d"
-    },
-    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md": {
-      "git_blob": "2bb45b79f9860a65d7b51181a524ad01362122fd",
-      "sha256": "8a257941c8b9b4684f3aed9917381e060e18831ea20180b8e8594f2ab7723fae"
+    "research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md": {
+      "sha256": "cc70e5733017b156c15d465ec658c6d5d6c21d9c243cc26a7084ee9543a39889",
+      "git_blob": "f87e8ecaec0a26947438131fef466aae3e57d824"
     },
     "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md": {
-      "git_blob": "9db93dfb56e309dcccf549e51da09004e5f4b276",
-      "sha256": "db6c4be4cbfadbe93423d806d3b1ac17374387ae1aafc10a7437714575ebfbdb"
+      "sha256": "db6c4be4cbfadbe93423d806d3b1ac17374387ae1aafc10a7437714575ebfbdb",
+      "git_blob": "9db93dfb56e309dcccf549e51da09004e5f4b276"
     },
-    "research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md": {
-      "git_blob": "f87e8ecaec0a26947438131fef466aae3e57d824",
-      "sha256": "cc70e5733017b156c15d465ec658c6d5d6c21d9c243cc26a7084ee9543a39889"
+    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md": {
+      "sha256": "af5688c07ee93903e935bdf12d56b4f02ffd918abaebfb448a43b1ca3e4cdc44",
+      "git_blob": "f2310d6f8802141c452cb8b83b15c35c25e19bc1"
     },
     "scripts/dhan_market_data_recovery.py": {
-      "git_blob": "2398cc3a3b050e15107ef7fa88c5415f93845fe9",
-      "sha256": "189abacec4113a7f2c144d8f34c9e1c6f3fff2e0c96dd7089d3bcda90c8b6551"
+      "sha256": "71e2f3f2c8e340c4c3c7daf4ff0ca84539070d489aabf5070bfbfd06d2ec61fc",
+      "git_blob": "c88669880eb27b8d7089a1545f8f7d72e16431a6"
     },
     "scripts/test_dhan_market_data_recovery.py": {
-      "git_blob": "acf5140f34da4cd406d95a1c9b567ec29cd83609",
-      "sha256": "399f323b1fb62a88679c7ffd8e1ba970ad8c541186e2ff54254de4d107c90e0d"
+      "sha256": "8820b2603981f2ccaf17fea58301b6cdc5c2c736930c074f59bb12f81231b60f",
+      "git_blob": "135450d859ded4c46405c5773f949cbecbcaf5e9"
     },
     "scripts/validate_dhan_sample_approval.py": {
-      "git_blob": "3c99140a5488cd58ee3bed9c21cd659183adbdf2",
-      "sha256": "166d69975cc5171a0b6033c08b22fdacd02fd17ac5d9fb08d10d3a7681be8446"
+      "sha256": "6810c84393885c4369c32e064d1a4189d1bf6b108ca7d2a67f55f1fe39a611a9",
+      "git_blob": "30a0fb07f7d1c492c712844c121116a9af3ab5ca"
+    },
+    ".github/workflows/phase-07-dhan-market-data-tests.yml": {
+      "sha256": "8f0f0c14268956aad22c3a28e82582effe02502ad997f2d0721d0ea89f94b69d",
+      "git_blob": "b43ce4dadca4e5867173136531e71c63bb74e9a3"
+    },
+    ".github/workflows/phase-07-dhan-market-data-live.yml": {
+      "sha256": "b9c272262a21b2c56fdbd55cc295cd16d9a2e7b9400f77a42a19657a44fa5711",
+      "git_blob": "aa37cec66d46f3c181a7bda213226991c045b189"
     }
   },
+  "full_history_authorized": false,
+  "model_fitting_authorized": false,
   "requests_max": 6,
   "response_bytes_max": 4194304,
-  "reviewed_developer_commit": "2df2d2874074dbeb65b8687ab5fcaa005bb0714a",
   "sample_windows": [
     [
       "2024-07-01",
@@ -55,8 +53,9 @@
       "2024-07-25"
     ]
   ],
-  "schema_version": 1,
-  "spent_at_commit": "a4c1b4062f53ac213acc25c4e73366d01211c1a7",
-  "status": "SPENT",
-  "tester_report_sha256": "8a257941c8b9b4684f3aed9917381e060e18831ea20180b8e8594f2ab7723fae"
+  "instruments": [
+    "NIFTY 50",
+    "INDIA VIX"
+  ],
+  "note": "One bounded diagnostic retry only. If instrument metadata is non-200, record status/content-type and stop. No full history, features/labels, modeling, metrics, options strategy or final holdout."
 }
