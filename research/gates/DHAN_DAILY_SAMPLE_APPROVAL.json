@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "PENDING_REVIEW",
-  "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
+  "status": "READY",
+  "decision": "APPROVED_ONE_RUN",
   "scope_id": "dhan-nifty50-daily-2024-01-02-one-request",
   "request_manifest_path": "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json",
   "request_manifest_git_blob": "3ebead76bf75feb864bcd3fb66a34e2d5125d74a",
@@ -12,6 +12,6 @@
   "tester_report_sha256": "98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c",
   "reviewed_manifest_developer_commit": "685607d809ccfe5c1c5f82cce8a1073d8ab3edd8",
   "spent_at_commit": null,
-  "note": "PENDING_REVIEW after an attempted READY preflight was correctly rejected because the prior copied tester report lacked literal scope markers. Corrected independent report/hash now pinned; this gate must pass the offline READY validator before another one-use transition. No request has been made and approval was not spent.",
+  "note": "READY for exactly one daily NIFTY historical-candle POST after independent report review. Preflight only; request still must pass runtime hash/checks, confirm token secret, and spend approval before request. No bulk/intraday/rolling-option/model/holdout scope.",
   "spent_from_commit": null
 }
