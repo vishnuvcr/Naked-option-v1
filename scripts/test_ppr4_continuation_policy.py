@@ -27,6 +27,9 @@ class TestPPR4ContinuationPolicy(unittest.TestCase):
         self.assertEqual(len(options["strike_grid_by_expiry_code"]["1"]), 7)
         self.assertEqual(len(options["strike_grid_by_expiry_code"]["2"]), 7)
         self.assertIn("historical Greeks", options["greeks_policy"])
+        self.assertIn("proxy Greeks", options["greeks_policy"])
+        self.assertIn("zero-rate/zero-dividend", options["greeks_policy"])
+        self.assertIn("greek_status", options["greeks_policy"])
         self.assertEqual(policy["acquisition_budget_contract"]["base_planned_requests"], 8601)
 
     def test_dhan_cross_source_reconciliation_is_waived(self) -> None:
