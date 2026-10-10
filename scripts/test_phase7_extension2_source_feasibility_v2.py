@@ -21,6 +21,27 @@ def make_zip(name: str, headers: list[str], rows: list[dict[str, str]]) -> bytes
 
 
 
+
+def test_nse_fii_api_source_uses_byte_cap() -> None:
+    url = dict(mod.NSE_FII_URLS)["nse_fii_date_params"]
+    blob = json.dumps([{"tradeDate": "08-Jul-2024", "fii": 10}]).encode()
+    meta = {"url": url, "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    with patch.object(mod, "fetch_bytes", return_value=(blob, meta)) as mocked:
+        result = mod.inspect_nse_fii_api_source("nse_fii_date_params", url)
+    mocked.assert_called_once_with(url, timeout=30, max_bytes=mod.MAX_FII_API_BYTES)
+    assert result["max_response_bytes"] == mod.MAX_FII_API_BYTES
+    assert result["schema_status"] == "JSON_PARSED"
+
+
+def test_nse_fii_api_source_does_not_fetch_unbounded_url() -> None:
+    url = "https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-01-2020&toDate=31-12-2025"
+    with patch.object(mod, "fetch_bytes") as mocked:
+        result = mod.inspect_nse_fii_api_source("nse_fii_date_params", url)
+    mocked.assert_not_called()
+    assert result["schema_status"] == "FAIL"
+    assert result["status"] == "NOT_REQUESTED_SCOPE_FAIL"
+
+
 def test_nse_fii_api_requests_are_bounded() -> None:
     configured = dict(mod.NSE_FII_URLS)
     assert len(configured) == 2
@@ -177,6 +198,8 @@ def test_date_normalizer_handles_timestamp_suffix() -> None:
 
 def main() -> None:
     tests = [
+        test_nse_fii_api_source_uses_byte_cap,
+        test_nse_fii_api_source_does_not_fetch_unbounded_url,
         test_nse_fii_api_requests_are_bounded,
         test_nse_fii_api_payload_rejects_excess_rows,
         test_nse_fii_api_payload_rejects_unrecognized_json_shape,
