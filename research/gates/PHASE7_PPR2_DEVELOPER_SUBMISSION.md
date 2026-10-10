@@ -11,7 +11,7 @@
 |---|---|
 | Existing literature registry (L001–L036) | `2ee49ae119e61c8c523ed212c7f21bf15c5e8d7a` |
 | New row-level PPR-2 crosswalk CSV | `ac8491628913c5019d7a4b986339489b1dff1f14` |
-| Crosswalk summary | `f7f94acfbac730464667645c403b5deafd9dceed` |
+| Crosswalk summary | `63ae0486b016f541bb70628525bd45f33585ace8` |
 | Offline crosswalk validator | `3dc96155e460f92a192d45502973c89bc9bd68c3` |
 | Exact-commit CI workflow | `dffa5262b991db9843df35c34157e1273365d8f5` |
 
