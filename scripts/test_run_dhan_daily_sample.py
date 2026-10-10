@@ -180,6 +180,21 @@ def test_unspent_or_tampered_manifest_fails_before_opener() -> None:
         assert code == 1 and result["failure_code"] == "sample_manifest_hash_mismatch"
         assert calls == [] and not (folder / "cache").exists()
 
+        # Even a matching raw manifest hash is not enough if the approval does
+        # not endorse the manifest's frozen authorization digest.
+        approval_obj["request_manifest_sha256"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
+        approval_obj["approved_authorization_sha256"] = "0" * 64
+        approval.write_text(json.dumps(approval_obj), encoding="utf-8")
+        code = mod.run_sample(
+            env={"DHAN_DAILY_SAMPLE_AUTHORIZED": "1", "DHAN_ACCESS_TOKEN": "TEST_TOKEN"},
+            opener_factory=lambda: calls.append("opened"),
+            manifest_path=manifest, approval_path=approval, cache_root=folder / "cache",
+            report_path=report,
+        )
+        result = json.loads(report.read_text())
+        assert code == 1 and result["failure_code"] == "sample_authorization_digest_mismatch"
+        assert calls == [] and not (folder / "cache").exists()
+
 
 def test_one_valid_response_is_cached_once_without_secret_leak() -> None:
     raw = json.dumps(VALID_PAYLOAD, separators=(",", ":")).encode()
