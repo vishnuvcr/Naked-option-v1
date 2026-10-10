@@ -1,0 +1,147 @@
+name: Official NIFTY Cross-Check — Guarded Two-Source One-Use Request
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json"
+      - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_APPROVAL.json"
+      - ".github/workflows/phase-07-official-crosscheck-live.yml"
+  workflow_dispatch:
+    inputs:
+      confirm_official_crosscheck:
+        description: "Confirm the exact two-source, one-date official-reference cross-check; only select true after the independent manifest/workflow PASS."
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: official-nifty-sample-crosscheck-single-use-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guarded-two-source-crosscheck:
+    if: >-
+      github.ref == 'refs/heads/phase-07-developer' &&
+      (
+        (github.event_name == 'workflow_dispatch' && inputs.confirm_official_crosscheck == true) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, 'READY Official crosscheck approval'))
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Public data only: there are deliberately no secrets in this workflow.
+      - name: Run all offline and mocked checks before gate transition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/dhan_instrument_master.py \
+            scripts/official_reference_crosscheck.py \
+            scripts/run_official_reference_crosscheck.py \
+            scripts/validate_official_reference_crosscheck_approval.py \
+            scripts/test_dhan_instrument_master.py \
+            scripts/test_official_reference_crosscheck.py \
+            scripts/test_run_official_reference_crosscheck.py \
+            scripts/test_validate_official_reference_crosscheck_approval.py
+          python scripts/test_dhan_instrument_master.py
+          python scripts/test_official_reference_crosscheck.py
+          python scripts/test_run_official_reference_crosscheck.py
+          python scripts/test_validate_official_reference_crosscheck_approval.py
+
+      - name: Verify exact READY manifest, protected files and independent tester report
+        id: gate_check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_official_reference_crosscheck_approval.py check
+
+      # Approval is irreversibly spent and pushed before the first public request.
+      - name: Spend one-use approval before first public-source request
+        id: spend_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_official_reference_crosscheck_approval.py spend
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_APPROVAL.json
+          git commit -m "SPENT official crosscheck approval"
+          git push origin HEAD:phase-07-developer
+
+      - name: Request the one-date official OHLC and Dhan public mapping
+        id: fetch_crosscheck
+        if: steps.spend_gate.outcome == 'success'
+        continue-on-error: true
+        env:
+          OFFICIAL_CROSSCHECK_AUTHORIZED: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_official_reference_crosscheck.py
+
+      - name: Commit matched raw-source cache bundle
+        if: steps.fetch_crosscheck.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add data/cache/dhan_sample_official_crosscheck
+          if git diff --cached --quiet; then
+            echo "No new matched cross-check bundle."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Cache matched official NIFTY sample cross-check"
+            git push origin HEAD:phase-07-developer
+          fi
+
+      - name: Commit redacted result or failure report
+        if: always() && steps.spend_gate.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f data/reports/dhan_sample_official_crosscheck_status.json ]]; then
+            git add data/reports/dhan_sample_official_crosscheck_status.json
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git commit -m "Record redacted official cross-check outcome"
+              git push origin HEAD:phase-07-developer
+            fi
+          else
+            echo "No safe status file was generated; no raw provider response will be printed."
+          fi
+
+      - name: Upload cross-check report and matched cache artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-nifty-sample-crosscheck
+          path: |
+            data/reports/dhan_sample_official_crosscheck_status.json
+            data/cache/dhan_sample_official_crosscheck/**
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail if the bounded cross-check did not pass
+        if: steps.fetch_crosscheck.outcome != 'success'
+        shell: bash
+        run: |
+          echo "The one-use cross-check failed closed. Approval remains SPENT; no retry is permitted."
+          exit 1
+
+# Each host is called no more than once by the runner. No token, cookies,
+# client identity, retries, redirect follows, alternate endpoints, bulk history,
+# option history, feature fitting or holdout access are included.
