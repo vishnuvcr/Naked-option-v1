@@ -927,173 +927,209 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
     budget: dict[str, Any] = {
         "max_wire_requests": int(root["budgets"]["max_wire_requests_total"]),
         "max_retry_requests": int(root["budgets"]["max_retry_requests_total"]),
-        "downloaded_bytes": 0,
-        "request_attempts": 0,
-        "retry_requests": 0,
+        "downloaded_bytes": 0, "request_attempts": 0, "retry_requests": 0,
         "family_payload_bytes": {family: _read_cached_raw_total(family) for family in family_limits},
-        "family_byte_limits": family_limits,
-        "errors": [],
-        "request_results": [],
-        "request_count_planned": len(requests),
-        "request_count_processed": 0,
-        "rows_spot": 0,
-        "rows_options": 0,
-        "spot_join_matched": 0,
-        "spot_join_missing": 0,
-        "empty_valid_responses": 0,
-        "cache_hits": 0,
-        "fresh_responses": 0,
-        "failed_responses": 0,
+        "family_byte_limits": family_limits, "errors": [], "request_results": [],
+        "request_count_planned": len(requests), "request_count_processed": 0,
+        "rows_spot": 0, "rows_options": 0, "spot_join_matched": 0,
+        "spot_join_missing": 0, "empty_valid_responses": 0, "cache_hits": 0,
+        "fresh_responses": 0, "failed_responses": 0,
     }
-    expiry_map, rates, missing_greek_inputs = load_greek_inputs()
+    expiry_map_external, rates, missing_greek_inputs = load_greek_inputs()
     month_writers: dict[str, tuple[Any, Any]] = {}
     monthly_rows: Counter = Counter()
-    request_status_counts: Counter = Counter()
     auth_state = {"failed": False}
-    try:
-        for window_start, window_end, window_requests in _select_window_requests(requests):
-            spot_by_timestamp: dict[int, dict[str, Any]] = {}
-            temp_files: list[pathlib.Path] = []
-            spot_request = next((r for r in window_requests if r["source_family"] == "NIFTY_SPOT_1M"), None)
-            if spot_request is not None:
-                payload, cache_status, digest, status, size = request_payload(
-                    spot_request, token, key, pacer, wire_budget, budget, auth_state
-                )
-                result = {
-                    "request_id": spot_request["request_id"], "source_family": spot_request["source_family"],
-                    "window_start_inclusive": window_start, "window_end_exclusive": window_end,
-                    "status": cache_status if payload is not None else "FAILED",
-                    "http_status": status or None, "response_bytes": size,
-                    "response_sha256": digest, "request_scope_sha256": request_scope_hash(spot_request),
-                }
-                budget["request_results"].append(result)
-                request_status_counts[result["status"]] += 1
-                budget["request_count_processed"] += 1
-                if payload is not None:
-                    try:
-                        spot_rows, problems = parse_spot_response(payload, spot_request)
-                        for row in spot_rows:
-                            row["response_sha256"] = digest
-                            row["cache_status"] = cache_status
-                        spot_by_timestamp, duplicates = _validate_spot_for_map(spot_rows)
-                        if duplicates:
-                            budget["errors"].append(_error_record(spot_request, "duplicate_spot_timestamps_preserved_and_flagged", status))
-                        tmp = WORK_ROOT / (spot_request["request_id"] + ".csv")
-                        _write_temp_rows(tmp, spot_rows)
-                        temp_files.append(tmp)
-                        budget["rows_spot"] += len(spot_rows)
-                        result["row_count"] = len(spot_rows)
-                        if problems:
-                            budget["errors"].append(_error_record(spot_request, "provider_duplicate_timestamps", status))
-                        budget["cache_hits"] += int(cache_status == "CACHE_HIT")
-                        budget["fresh_responses"] += int(cache_status.startswith("FETCHED"))
-                    except Exception as exc:
-                        budget["errors"].append(_error_record(spot_request, "spot_parse_error_" + type(exc).__name__, status))
-                        result["status"] = "FAILED_SCHEMA"
-                        request_status_counts["FAILED_SCHEMA"] += 1
-                        budget["failed_responses"] += 1
-                else:
-                    budget["failed_responses"] += 1
+    windows = _select_window_requests(requests)
+    spot_context: dict[tuple[str, str], dict[str, Any]] = {}
+    session_dates: set[str] = set()
+    session_calendar_complete = True
 
-            for request in window_requests:
-                if request["source_family"] == "NIFTY_SPOT_1M":
-                    continue
-                payload, cache_status, digest, status, size = request_payload(
-                    request, token, key, pacer, wire_budget, budget, auth_state
-                )
-                result = {
-                    "request_id": request["request_id"], "source_family": request["source_family"],
-                    "window_start_inclusive": window_start, "window_end_exclusive": window_end,
-                    "status": cache_status if payload is not None else "FAILED",
-                    "http_status": status or None, "response_bytes": size,
-                    "response_sha256": digest, "request_scope_sha256": request_scope_hash(request),
-                }
-                budget["request_results"].append(result)
-                request_status_counts[result["status"]] += 1
-                budget["request_count_processed"] += 1
-                if payload is None:
-                    budget["failed_responses"] += 1
-                    continue
-                try:
-                    rows, problems = parse_option_response(payload, request, spot_by_timestamp, digest,
-                                                           cache_status, expiry_map, rates)
-                    tmp = WORK_ROOT / (request["request_id"] + ".csv")
-                    _write_temp_rows(tmp, rows)
-                    temp_files.append(tmp)
-                    budget["rows_options"] += len(rows)
-                    result["row_count"] = len(rows)
-                    budget["spot_join_matched"] += sum(row["spot_join_status"] == "EXACT_TIMESTAMP_MATCH" for row in rows)
-                    budget["spot_join_missing"] += sum(row["spot_join_status"] == "NO_EXACT_TIMESTAMP_SPOT_MATCH" for row in rows)
-                    budget["cache_hits"] += int(cache_status == "CACHE_HIT")
-                    budget["fresh_responses"] += int(cache_status.startswith("FETCHED"))
-                    if not rows:
-                        budget["empty_valid_responses"] += 1
-                    if problems:
-                        budget["errors"].append(_error_record(request, "provider_duplicate_timestamps_preserved_and_flagged", status))
-                except Exception as exc:
-                    budget["errors"].append(_error_record(request, "option_parse_error_" + type(exc).__name__, status))
-                    result["status"] = "FAILED_SCHEMA"
-                    request_status_counts["FAILED_SCHEMA"] += 1
-                    budget["failed_responses"] += 1
+    # Pass 1: acquire/cache all spot shards first. This provides an observed
+    # trading-session calendar for transparent rule-derived expiry dates.
+    for window_start, window_end, window_requests in windows:
+        spot_request = next((r for r in window_requests if r["source_family"] == "NIFTY_SPOT_1M"), None)
+        context: dict[str, Any] = {"request": spot_request, "path": None, "digest": "", "cache_status": "", "rows": 0}
+        if spot_request is None:
+            session_calendar_complete = False
+            budget["errors"].append({"window_start": window_start, "reason": "SPOT_REQUEST_MISSING"})
+            spot_context[(window_start, window_end)] = context
+            continue
 
-            if temp_files:
-                streams = [_iter_temp_csv(path) for path in temp_files]
-                merged = heapq.merge(*streams, key=_row_key)
-                for row in merged:
-                    month = row.get("timestamp_ist", "")[:7]
-                    if len(month) != 7:
-                        continue
-                    writer = _month_writer(month, month_writers, monthly_rows)
-                    writer.writerow(row)
-                    monthly_rows[month] += 1
-                for handle, _writer in month_writers.values():
-                    handle.flush()
-                for path in temp_files:
-                    try:
-                        path.unlink()
-                    except OSError:
-                        pass
+        payload, cache_status, digest, status_code, size = request_payload(
+            spot_request, token, key, pacer, wire_budget, budget, auth_state
+        )
+        result = {
+            "request_id": spot_request["request_id"], "source_family": spot_request["source_family"],
+            "window_start_inclusive": window_start, "window_end_exclusive": window_end,
+            "status": cache_status, "http_status": status_code or None,
+            "response_bytes": size, "response_sha256": digest,
+            "request_scope_sha256": request_scope_hash(spot_request),
+        }
+        budget["request_results"].append(result)
+        budget["request_count_processed"] += 1
+        if payload is None:
+            budget["failed_responses"] += 1
+            session_calendar_complete = False
+            spot_context[(window_start, window_end)] = context
+            continue
+        try:
+            rows, problems = parse_spot_response(payload, spot_request)
+            for row in rows:
+                row["response_sha256"] = digest
+                row["cache_status"] = cache_status
+            tmp = WORK_ROOT / (spot_request["request_id"] + ".csv")
+            _write_temp_rows(tmp, rows)
+            context.update({"path": tmp, "digest": digest, "cache_status": cache_status, "rows": len(rows)})
+            result["row_count"] = len(rows)
+            budget["rows_spot"] += len(rows)
+            budget["cache_hits"] += int(cache_status == "CACHE_HIT")
+            budget["fresh_responses"] += int(cache_status.startswith("FETCHED"))
+            session_dates.update(row["session_date"] for row in rows)
+            if not rows:
+                session_calendar_complete = False
+            if problems:
+                budget["errors"].append(_error_record(spot_request, "provider_duplicate_timestamps_preserved_and_flagged", status_code))
+        except Exception as exc:
+            result["status"] = "FAILED_SCHEMA"
+            result["reason"] = "spot_parse_error_" + type(exc).__name__
+            budget["failed_responses"] += 1
+            session_calendar_complete = False
+            budget["errors"].append(_error_record(spot_request, result["reason"], status_code))
+        spot_context[(window_start, window_end)] = context
+        atomic_write(REPORTS_ROOT / "progress.json", (json.dumps({
+            "updated_at_utc": utc_now(), "stage": "SPOT_SESSION_CALENDAR",
+            "window_start": window_start, "window_end_exclusive": window_end,
+            "request_count_processed": budget["request_count_processed"],
+            "request_count_planned": budget["request_count_planned"],
+            "rows_spot": budget["rows_spot"], "rows_options": 0,
+            "source_failures_do_not_stop_other_request_keys": True,
+        }, sort_keys=True, indent=2) + "\n").encode("utf-8"))
 
-            progress = {
-                "updated_at_utc": utc_now(), "window_start": window_start, "window_end_exclusive": window_end,
-                "request_count_processed": budget["request_count_processed"],
-                "request_count_planned": budget["request_count_planned"],
-                "rows_spot": budget["rows_spot"], "rows_options": budget["rows_options"],
-                "failed_responses": budget["failed_responses"], "cache_hits": budget["cache_hits"],
-                "retry_requests": wire_budget["retry_requests"],
-                "source_failures_do_not_stop_other_request_keys": True,
+    expiry_map = build_rule_expiry_map(session_dates, expiry_map_external, session_calendar_complete)
+    if not expiry_map_external:
+        missing_greek_inputs.append(
+            "expiry_map_rule_derived_from_observed_Dhan_spot_sessions_and_NIFTY_expiry_weekday_transition; not historical-contract-master verified"
+        )
+    if not rates:
+        missing_greek_inputs.append("risk_free_rate_absent; Greeks use explicitly tagged zero-rate proxy")
+    missing_greek_inputs.append("dividend_yield_absent_for_rule-derived_expiries; Greeks use explicitly tagged zero-dividend proxy")
+
+    # Pass 2: fetch option selectors with one window in memory. Each response is
+    # normalized to a timestamp-sorted scratch stream, then merged into monthly CSVs.
+    for window_start, window_end, window_requests in windows:
+        temp_files: list[pathlib.Path] = []
+        context = spot_context.get((window_start, window_end), {})
+        spot_path = context.get("path")
+        spot_by_timestamp: dict[int, dict[str, Any]] = {}
+        if isinstance(spot_path, pathlib.Path) and spot_path.exists():
+            temp_files.append(spot_path)
+            for row in _iter_temp_csv(spot_path):
+                spot_by_timestamp[int(row["timestamp_epoch"])] = row
+
+        for request in window_requests:
+            if request["source_family"] == "NIFTY_SPOT_1M":
+                continue
+            payload, cache_status, digest, status_code, size = request_payload(
+                request, token, key, pacer, wire_budget, budget, auth_state
+            )
+            result = {
+                "request_id": request["request_id"], "source_family": request["source_family"],
+                "window_start_inclusive": window_start, "window_end_exclusive": window_end,
+                "status": cache_status, "http_status": status_code or None,
+                "response_bytes": size, "response_sha256": digest,
+                "request_scope_sha256": request_scope_hash(request),
             }
-            atomic_write(REPORTS_ROOT / "progress.json", (json.dumps(progress, sort_keys=True, indent=2) + "\n").encode("utf-8"))
-    finally:
-        for handle, _writer in month_writers.values():
+            budget["request_results"].append(result)
+            budget["request_count_processed"] += 1
+            if payload is None:
+                budget["failed_responses"] += 1
+                continue
             try:
-                handle.close()
-            except Exception:
-                pass
+                rows, problems = parse_option_response(
+                    payload, request, spot_by_timestamp, digest, cache_status, expiry_map, rates
+                )
+                tmp = WORK_ROOT / (request["request_id"] + ".csv")
+                _write_temp_rows(tmp, rows)
+                temp_files.append(tmp)
+                result["row_count"] = len(rows)
+                budget["rows_options"] += len(rows)
+                budget["spot_join_matched"] += sum(row["spot_join_status"] == "EXACT_TIMESTAMP_MATCH" for row in rows)
+                budget["spot_join_missing"] += sum(row["spot_join_status"] == "NO_EXACT_TIMESTAMP_SPOT_MATCH" for row in rows)
+                budget["cache_hits"] += int(cache_status == "CACHE_HIT")
+                budget["fresh_responses"] += int(cache_status.startswith("FETCHED"))
+                if not rows:
+                    budget["empty_valid_responses"] += 1
+                if problems:
+                    budget["errors"].append(_error_record(request, "provider_duplicate_timestamps_preserved_and_flagged", status_code))
+            except Exception as exc:
+                result["status"] = "FAILED_SCHEMA"
+                result["reason"] = "option_parse_error_" + type(exc).__name__
+                budget["failed_responses"] += 1
+                budget["errors"].append(_error_record(request, result["reason"], status_code))
+
+        if temp_files:
+            streams = [_iter_temp_csv(path) for path in temp_files]
+            merged = heapq.merge(*streams, key=_row_key)
+            for row in merged:
+                month = row.get("timestamp_ist", "")[:7]
+                if len(month) != 7:
+                    continue
+                writer = _month_writer(month, month_writers, monthly_rows)
+                writer.writerow(row)
+                monthly_rows[month] += 1
+            for handle, _writer in month_writers.values():
+                handle.flush()
+            for path in temp_files:
+                try:
+                    path.unlink()
+                except OSError:
+                    pass
+
+        atomic_write(REPORTS_ROOT / "progress.json", (json.dumps({
+            "updated_at_utc": utc_now(), "stage": "OPTION_SELECTORS",
+            "window_start": window_start, "window_end_exclusive": window_end,
+            "request_count_processed": budget["request_count_processed"],
+            "request_count_planned": budget["request_count_planned"],
+            "rows_spot": budget["rows_spot"], "rows_options": budget["rows_options"],
+            "failed_responses": budget["failed_responses"], "cache_hits": budget["cache_hits"],
+            "retry_requests": wire_budget["retry_requests"],
+            "source_failures_do_not_stop_other_request_keys": True,
+        }, sort_keys=True, indent=2) + "\n").encode("utf-8"))
+
+    for handle, _writer in month_writers.values():
+        try:
+            handle.close()
+        except Exception:
+            pass
 
     total_processed = budget["request_count_processed"]
     total_requests = len(requests)
-    failures = [r for r in budget["request_results"] if r.get("status") in {"FAILED", "FAILED_SCHEMA", "CACHE_INVALID"}]
+    ok_statuses = {"CACHE_HIT", "FETCHED", "FETCHED_AFTER_ONE_RETRY"}
+    failures = [r for r in budget["request_results"] if r.get("status") not in ok_statuses]
+    budget["request_status_counts"] = dict(Counter(r.get("status", "") for r in budget["request_results"]))
     status = "COMPLETE_REQUEST_GRID" if total_processed == total_requests and not failures and not auth_state["failed"] else "PARTIAL_GRID"
     if auth_state["failed"]:
         status = "DHAN_AUTH_OR_ENTITLEMENT_FAILURE"
     budget_summary = {k: v for k, v in budget.items() if k not in ("errors", "request_results", "family_byte_limits")}
     budget_summary.update({
         "wire_requests": wire_budget["wire_requests"], "retry_requests": wire_budget["retry_requests"],
-        "request_status_counts": dict(request_status_counts), "family_payload_bytes": budget["family_payload_bytes"],
+        "family_payload_bytes": budget["family_payload_bytes"],
+        "observed_trading_session_count": len(session_dates),
+        "observed_trading_session_calendar_complete": session_calendar_complete,
+        "expiry_mapping_method": "Rule-derived weekly/monthly NIFTY expiry weekdays adjusted to previous observed Dhan spot session where observable; official rule transition represented; not verified against historical contract-master rows",
     })
     return {
-        "schema_version": 1,
-        "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10",
+        "schema_version": 1, "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10",
         "created_at_utc": utc_now(), "status": status, "source_provider": "DhanHQ Data API",
         "history_start_inclusive": root["dataset_scope"]["history_start_inclusive"],
         "history_end_exclusive": root["dataset_scope"]["history_end_exclusive"],
-        "interval": "1-minute", "user_acceptance": "Dhan output accepted as provided; no external market-value cross-check performed or required",
+        "interval": "1-minute",
+        "user_acceptance": "Dhan output accepted as provided; no external market-value cross-check performed or required",
         "schema_columns": COLUMNS, "rows_per_month": dict(sorted(monthly_rows.items())),
         "summary": budget_summary, "errors": budget["errors"], "request_results": budget["request_results"],
         "missing_greek_inputs": missing_greek_inputs,
-        "greek_method": "Black-Scholes-European-v1 when actual expiry calendar, risk-free rate and dividend yield are sourced point-in-time; otherwise Greek output cells are null with a reason code",
-        "greek_iv_unit_convention": "Heuristic v1: provider IV > 3 interpreted as percentage points and divided by 100; >0 through 3 interpreted as fractional; null otherwise. Dhan docs do not define IV numeric units. Outputs using this convention are tagged.",
+        "greek_method": "Black-Scholes-European-v1; source rate/dividend inputs where available, otherwise explicit zero-rate/zero-dividend proxy; expiry date from sourced calendar when available, otherwise rule-derived and visibly tagged",
+        "greek_iv_unit_convention": "Heuristic v1: provider IV > 3 interpreted as percentage points and divided by 100; >0 through 3 interpreted as fractional; null otherwise. Dhan docs do not define IV numeric units.",
         "spot_join_policy": "Exact timestamp key only; rolling option spot and joined NIFTY spot OHLCV remain separate and are not reconciled.",
         "holdout_values_opened": False, "model_fitting_authorized": False, "final_holdout_access_authorized": False,
     }
