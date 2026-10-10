@@ -1017,3 +1017,10 @@ Latest hosted run [38029034365](https://github.com/vishnuvcr/Naked-option-v1/act
 The developer addressed all six blocking findings in the tester's code review: use the current spec blob in output metadata; reject inconsistent or malformed recognized date fields; treat non-finite CSV flow values as a rejected sample; remove nested signature/sig fields including camelCase variants; sanitize dates links before artifact serialization; and bind manifest reviewed commit to the protected tree at every path. An intermediate offline test identified the camelCase `requestSignature` redaction edge case, which was fixed.
 
 Latest offline workflow [Run 38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32. Current exact code review request: `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`; protected files are pinned to commit `1706a17d268e2b139fc9dba4504f498acc4f5de0`. No live source requests have been made; the one-run manifest is absent pending fresh tester review.
+
+
+## 2026-10-10 — Corrected Gate A resample independently audited
+
+Run `38026993369` completed all guarded jobs and produced artifact `11661065266` (ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`). Both official index CSV samples now pass the date/schema checks, and both F&O plus both cash-equity samples pass. The official NSE dated FII/DII endpoint correctly fails as a historical sample because it returned 2026-10-09 records for a July 2024 date window. The alternative GitHub mirror has 164 unique dates (2026-01-14..2026-09-30); other sampled pages do not establish the required 500+ sessions. Therefore the parser fix is verified, but historical FII/DII coverage remains unresolved.
+
+The one-run Gate A manifest is spent and cannot authorize more requests. The next bounded free-source discovery step has its own exact code-review request and 32/32 hosted offline tests in Run `38029615734`, but independent tester code review is pending. No live requests, full history, features/labels, models, metrics or p-values are authorized at this point.
