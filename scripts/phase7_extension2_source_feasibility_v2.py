@@ -77,6 +77,7 @@ def normalize_date(value: Any) -> str:
     if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
         return raw[:10]
     for fmt, candidate in (
+        ("%d-%m-%Y", raw[:10]),
         ("%d-%b-%Y", raw[:11].title()),
         ("%d %b %Y", raw[:11].title()),
         ("%d-%B-%Y", raw[:20].title()),
@@ -326,7 +327,12 @@ def validate_nse_fii_api_url(key: str, url: str) -> tuple[bool, str]:
     return True, f"bounded {days}-day source window"
 
 
-def inspect_nse_fii_api_payload(key: str, data: bytes, meta: dict[str, Any]) -> dict[str, Any]:
+def inspect_nse_fii_api_payload(
+    key: str,
+    data: bytes,
+    meta: dict[str, Any],
+    expected_date_window: tuple[dt.date, dt.date] | None = None,
+) -> dict[str, Any]:
     """Parse a sample API payload without allowing a large historical response to pass."""
     try:
         obj = json.loads(data.decode("utf-8"))
@@ -361,6 +367,53 @@ def inspect_nse_fii_api_payload(key: str, data: bytes, meta: dict[str, Any]) -> 
             "row_count": row_count, "max_rows": MAX_FII_API_ROWS,
             "reason": "source response exceeds Gate A sample row limit",
         }
+    if expected_date_window is not None:
+        window_start, window_end = expected_date_window
+        invalid_dates = []
+        outside_dates = []
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                invalid_dates.append({"row": index, "reason": "row is not an object"})
+                continue
+            date_key = next(
+                (name for name in ("date", "tradeDate", "tradeDateString", "Date", "DATE", "TradDt")
+                 if name in row and row.get(name) not in (None, "")),
+                None,
+            )
+            if date_key is None:
+                invalid_dates.append({"row": index, "reason": "no recognized date field"})
+                continue
+            normalized = normalize_date(row.get(date_key))
+            try:
+                parsed_date = dt.date.fromisoformat(normalized)
+            except ValueError:
+                invalid_dates.append({"row": index, "field": date_key, "value": str(row.get(date_key))})
+                continue
+            if parsed_date < window_start or parsed_date > window_end:
+                outside_dates.append({
+                    "row": index, "field": date_key,
+                    "value": str(row.get(date_key)), "normalized_date": parsed_date.isoformat(),
+                })
+        window_fields = {
+            "requested_from_date": window_start.isoformat(),
+            "requested_to_date": window_end.isoformat(),
+        }
+        if invalid_dates:
+            return {
+                "key": key, **meta, "schema_status": "UNVERIFIED_RESPONSE_DATE",
+                "row_count": row_count, **window_fields,
+                "invalid_date_row_count": len(invalid_dates),
+                "invalid_date_examples": invalid_dates[:5],
+                "reason": "could not validate every response row against the requested date window",
+            }
+        if outside_dates:
+            return {
+                "key": key, **meta, "schema_status": "REJECTED_ROWS_OUTSIDE_REQUESTED_WINDOW",
+                "row_count": row_count, **window_fields,
+                "out_of_window_row_count": len(outside_dates),
+                "out_of_window_examples": outside_dates[:5],
+                "reason": "one or more response rows fall outside the requested date window",
+            }
     return {
         "key": key, **meta, "schema_status": "JSON_PARSED",
         "row_count": row_count,
@@ -383,8 +436,15 @@ def inspect_nse_fii_api_source(key: str, url: str) -> dict[str, Any]:
             "key": key, **meta, "schema_status": "NOT_VERIFIED", "request_scope": reason,
             "max_response_bytes": MAX_FII_API_BYTES, "max_response_rows": MAX_FII_API_ROWS,
         }
+    expected_window = None
+    if key == "nse_fii_date_params":
+        query = parse_qs(urlsplit(url).query)
+        expected_window = (
+            dt.datetime.strptime(query["fromDate"][0], "%d-%m-%Y").date(),
+            dt.datetime.strptime(query["toDate"][0], "%d-%m-%Y").date(),
+        )
     return {
-        **inspect_nse_fii_api_payload(key, data, meta),
+        **inspect_nse_fii_api_payload(key, data, meta, expected_date_window=expected_window),
         "request_scope": reason,
         "max_response_bytes": MAX_FII_API_BYTES,
         "max_response_rows": MAX_FII_API_ROWS,
