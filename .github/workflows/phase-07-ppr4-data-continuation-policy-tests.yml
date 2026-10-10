@@ -40,3 +40,6 @@ jobs:
         run: python scripts/validate_ppr4_continuation_policy.py
 
 # This workflow makes no network requests, has no secrets, and does not authorize live data acquisition.
+
+# This gate now also covers the durable cache hierarchy and numerical
+# daily/intraday/rolling-options acquisition-budget contract.
