@@ -199,6 +199,42 @@ def test_approval_rejects_pending_wrong_hash_wrong_blob_or_wrong_report() -> Non
     ), "tester_report_digest_mismatch")
 
 
+def test_gate_metadata_pins_paths_manifest_blob_and_review_commit() -> None:
+    approval = {
+        "request_manifest_path": str(mod.MANIFEST_PATH.relative_to(mod.ROOT)),
+        "tester_report_path": str(mod.TESTER_REPORT_PATH.relative_to(mod.ROOT)),
+        "request_manifest_git_blob": "c" * 40,
+        "reviewed_manifest_developer_commit": "e" * 40,
+    }
+    mod.validate_gate_metadata(
+        approval, manifest_git_blob="c" * 40, manifest_review_commit="e" * 40
+    )
+    approval["request_manifest_path"] = "other.json"
+    must_raise(lambda: mod.validate_gate_metadata(
+        approval, manifest_git_blob="c" * 40, manifest_review_commit="e" * 40
+    ), "approval_manifest_path_mismatch")
+    approval["request_manifest_path"] = str(mod.MANIFEST_PATH.relative_to(mod.ROOT))
+    approval["tester_report_path"] = "untrusted.md"
+    must_raise(lambda: mod.validate_gate_metadata(
+        approval, manifest_git_blob="c" * 40, manifest_review_commit="e" * 40
+    ), "approval_tester_report_path_mismatch")
+
+
+def test_gate_metadata_rejects_manifest_or_review_commit_mismatch() -> None:
+    approval = {
+        "request_manifest_path": str(mod.MANIFEST_PATH.relative_to(mod.ROOT)),
+        "tester_report_path": str(mod.TESTER_REPORT_PATH.relative_to(mod.ROOT)),
+        "request_manifest_git_blob": "c" * 40,
+        "reviewed_manifest_developer_commit": "e" * 40,
+    }
+    must_raise(lambda: mod.validate_gate_metadata(
+        approval, manifest_git_blob="0" * 40, manifest_review_commit="e" * 40
+    ), "approval_manifest_blob_mismatch")
+    must_raise(lambda: mod.validate_gate_metadata(
+        approval, manifest_git_blob="c" * 40, manifest_review_commit="f" * 40
+    ), "reviewed_manifest_commit_mismatch")
+
+
 def test_approval_requires_report_scope_markers() -> None:
     raw = json.dumps(valid_manifest(), sort_keys=True, indent=2).encode() + b"\n"
     approval = valid_approval(raw)
