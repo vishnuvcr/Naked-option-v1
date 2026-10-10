@@ -649,3 +649,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Tester report [PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md) = REQUEST CHANGES for complete Gate A because G14/G15 source coverage is insufficient, while accepting the schema checks as bounded evidence.
 - One-run source manifest has been marked spent. **No further network sampling, full-history acquisition or fitting is authorized until a new bounded free-source discovery proposal receives independent approval.**
 - Free sources reviewed are inventoried at [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md).
+
+
+## 2026-10-10 — New free-source discovery proposal needed; no source access currently authorized
+
+- Updated the source inventory with CDSL's dated FPI XLS links, the Hugging Face FII/DII CSV lead (503 lines claimed in a commit diff), SEBI FPI monthly transaction archives, and a provenance finding about the MrChartist seed script.
+- A governance incident was logged: the full public MrChartist `data/history.json` (143,498 bytes) was inadvertently returned during repository source review. It is not imported or accepted. Its `seed_history.js` describes generating daily rows from monthly/yearly aggregates, so seeded values must be excluded from empirical datasets.
+- **The prior Gate A manifest is spent. No further network/source probes, full history, feature/label construction or model fitting are authorized.**
+- Next action: prepare a new frozen, bounded source-discovery proposal that uses byte-range requests with strict caps, official CDSL FPI samples, one HF CSV sample, and an explicit synthetic-provenance rejection rule. Independent tester must approve the spec/code before any data probe.
+- Inventory: [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md).
