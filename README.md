@@ -554,3 +554,11 @@ The access token is bound only to the guarded workflow's final source step and i
 ### Manual Dhan redirect diagnostic
 
 The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phase-07-dhan-redirect-probe-live.yml) is registered on the default branch so GitHub can expose its manual dispatch control. It is restricted to the `phase-07-developer` ref and requires explicit `confirm_probe=true` (default false). This workflow copy does not authorize a run by itself; the single-use manifest must validate and be spent before the one permitted redirect-target-only request.
+
+
+## Phase 7 Dhan source checkpoint — 2026-10-10
+
+- Redirect diagnostic run [#9](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667) completed within its one-request scope. Artifact records HTTP 302, HTTPS host `s3.ap-south-1.amazonaws.com`, one request and zero body bytes; no redirect-follow or market history was acquired.
+- Independent tester report [PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md](research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS — diagnostic only**.
+- Developer proposed [Extension 3 — Official Dhan Instrument-Source Validation Plan](research/phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md), based on the official [Dhan instrument documentation](https://dhanhq.co/docs/v2/instruments/). The proposal does not authorize a request. Independent tester proposal review is next.
+- The previous one-use redirect manifest is SPENT. No price history, options data, prediction metrics, strategy tests or holdout data were produced by this diagnostic.
