@@ -1,27 +1,33 @@
 # Research Status
 
 
-## Current checkpoint — 2026-10-10, Dhan one-use daily sample READY preflight passed
+## Current checkpoint — 2026-10-10, one-use Dhan sample acquired; official primary-source cross-check is next
 
 | Workstream | Current state | Evidence / next gate |
 |---|---|---|
 | Existing daily global/peer prediction extension (Run #44) | COMPLETED — NO CANDIDATE PROMOTED | [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915); all five horizon-family tests non-significant; holdout sealed |
 | Dhan historical-data recovery plan | PASS WITH SCOPED RESTRICTIONS — plan gate only | [Developer plan](phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md); [independent planning report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md) |
-| Dhan historical pipeline implementation | Code gate PASS WITH SCOPED RESTRICTIONS; one-use spend transition fixed and re-reviewed | [Pipeline tester PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md); updated validator/test blobs pinned in the current sample manifest |
-| Dhan offline regression suite | PASS — 42 history, 7 sample-runner, 16 manifest-validator tests | [Hosted run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013); [protocol run 38054616188](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616188) |
-| Actual Dhan market-data acquisition | READY — approval not yet spent; no source request made | Full READY check passed in [run 38054945942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054945942); only the one date-scoped request is permitted after the explicitly gated commit |
-| Feature engineering / prediction rerun using Dhan history | BLOCKED pending sample acquisition, schema/data audit, frozen predictor amendment and empirical gate | No result has changed; previous null findings retained |
-| Option P&L/strategy optimization (Phase 8) | BLOCKED / OUT OF CURRENT SCOPE | User's current request is prediction research, not trading-strategy optimization |
+| Dhan historical pipeline implementation | PASS WITH SCOPED RESTRICTIONS — offline code only | [Independent code PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md); exact reviewed hashes remain recorded in the handoff |
+| One-use Dhan sample acquisition | COMPLETED — exactly one request, approval SPENT | [Guarded run 38055202149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202149); HTTP 200, JSON, 121 response bytes, one request, no retries/redirects; [offline suite 38055202163](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202163) passed |
+| Sample cache/artifact review | PASS WITH SCOPED RESTRICTIONS — artifact valid; data-model acceptance withheld | [Independent tester artifact report](gates/PHASE7_DHAN_DAILY_SAMPLE_ARTIFACT_TESTER.md), tester blob `be71edaffc364495f2165a12d0fd165462995043`; cache and safe status are committed |
+| Returned row | Corroborated by independent secondary table; official primary cross-check still pending | NIFTY 50, 2024-01-02: O 21751.35, H 21755.60, L 21555.65, C 21665.80, volume 263711568; timestamp corresponds to 2024-01-02 00:00 Asia/Kolkata |
+| Broader historical acquisition / feature engineering / prediction rerun | BLOCKED pending direct official NIFTY OHLC cross-check, instrument mapping validation, new exact-snapshot tester PASS and next acquisition gate | No model or predictor result changed; this one row is not accepted for training/validation |
+| Option P&L/strategy optimization (Phase 8) | BLOCKED / OUT OF CURRENT SCOPE | Current user request is prediction research, not option-strategy optimization |
 | Final untouched holdout | UNOPENED | Keep sealed until final independent forward-validation gate |
 
-### Dhan recovery checkpoint
-- Official docs identify daily candles, intraday candles (90-calendar-day call windows, supported 1/5/15/25/60-minute intervals and up to five years for active instruments), and rolling expired options (up to 30-day request windows, up to five years, ATM-relative with OHLC/IV/OI/volume/strike/spot fields). Live option chain is current-state information rather than historical-chain data.
-- Plan gate passed for planning only. Offline pipeline now restricts endpoints and request body keys, rejects redirects, limits bytes/time/request rate, checks candle and rolling-option arrays, validates date windows, and ties the cache manifest to a recomputed schema/timestamp report.
-- Latest correction cycle: tester identified a missing `authorized_scope_id` in the SPENT transition; developer fixed it and added regression coverage. Two READY attempts [38054498843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054498843) and [38054773227](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054773227) correctly failed before spending because tester-report literal markers were missing; neither sent a request. The corrected report pins blob `f99205683c02fcbc4514b15292350f6b0b4fcc6b` / SHA-256 `47ad9b6c5515d072907f9920c83fce405175f08684febe2568c6dcf2c98bcaf8`. READY preflight [run 38054945942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054945942) passed all exact manifest/protected/report pins and the full READY `check()`. Offline suites passed 42/7/16; protocol [38054946092](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054946092) passed. Approval is READY but unspent; still no Dhan data/cache.
-- Independent tester reviews first requested changes on date/budget/schema/strike handling, then cache provenance. Those corrections are preserved on the developer history. The final code review [PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md) confirms the exact source/test/workflow blobs at reviewed commit `986d78cf4e3297f203c4960493ef86e2a8663697`; hosted [run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed 42/42 offline/mock tests and protocol run 38050266689 passed.
-- **Next gate:** execute the already-approved READY workflow once. Runtime must repeat exact hash/report checks, push SPENT before one POST, and never retry. Independently verify returned data against an official NIFTY daily reference before acceptance. No source request/cache, predictor rerun, strategy test or holdout access has occurred; the old redirect manifest remains SPENT.
+### Dhan sample facts and cache provenance
 
+- Request scope: one POST to `https://api.dhan.co/v2/charts/historical`; `securityId=13`, `exchangeSegment=IDX_I`, `instrument=INDEX`, `fromDate=2024-01-02`, `toDate=2024-01-03` (exclusive), `oi=false`.
+- One request / HTTP 200 / `application/json` / 121 bytes / zero retries / zero redirects. Raw response SHA-256: `efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70`.
+- Cache bundle: `data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/`; raw response blob `215c3b38889b2a143613766ce33f88d954a1ea9a`; manifest blob `601f956e4e31e5a1288a3381fbf59217e37dee10`.
+- Safe report: `data/reports/dhan_daily_sample_status.json`, blob `d9729dc4ec07476f9095402ef72d9b331c99bd4e`. Approval `research/gates/DHAN_DAILY_SAMPLE_APPROVAL.json` is `SPENT`; do not reuse it.
+- EquityPandit's published table matches all five data fields exactly and reports -0.35% vs prior close; [row at lines 746](https://www.equitypandit.com/share-price/today/nifty-50-historical-data). This is a secondary-source corroboration, not the required official primary-source check.
+- Official historical report interface: https://www.niftyindices.com/reports. The official row and exact Dhan instrument-master mapping have not yet been retrieved, therefore the row is not admitted into the research dataset, feature matrix, prediction evaluation or holdout.
 
+### Next gate
+
+Prepare an offline-tested, tightly bounded official-reference cross-check for the single date 2024-01-02 against NSE Indices' public historical index OHLC endpoint, plus the minimal official Dhan instrument-master row needed to verify `13 / IDX_I / INDEX`. Submit the precise scope, endpoint/body allowlists, timeout/byte caps, no-secret handling, cached hashes, and automated offline tests to the independent tester before any such network call. The spent Dhan sample manifest cannot be reused. Do not fit models, retrieve bulk history or open the holdout until this cross-check and the later acquisition gates pass.
+ 
 ## Previous checkpoint — 2026-10-10, after Phase 7 Run #44
 
 | Workstream | Current state | Evidence / next gate |

@@ -881,3 +881,16 @@ Resume actions:
 - Current approval is READY but unspent. Exact manifest SHA-256 `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`; authorization SHA-256 `d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189`. No Dhan request or cache exists yet.
  
 **Developer → Tester:** After the single approved request concludes, independently inspect spent-before-fetch ordering, exact request count, HTTP status/content-type, response bytes and hash, requested day/timestamp/OHLC schema, redacted artifact, and independent official NIFTY daily-price cross-check. Do not authorize any expansion, modeling or holdout access at this gate.
+
+
+## 2026-10-10 — First live Dhan historical sample fetched and artifact reviewed
+
+- Final pre-acquisition checks passed; the READY approval was committed with the guarded trigger message. Run [38055202149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202149) completed successfully. Offline test run [38055202163](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202163) also succeeded.
+- The workflow checked secret presence, repeated exact manifest/report/protected-file checks, then spent the one-use approval and pushed the SPENT state before the sole request. Actual status: one POST, HTTP 200, JSON content type, 121 bytes, no retry or redirect; one candle passed the source pipeline schema/date/provenance checks and was cached.
+- Cached raw JSON is `data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/response.json`, blob `215c3b38889b2a143613766ce33f88d954a1ea9a`, SHA-256 `efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70`.
+- Candle values for 2024-01-02: open 21751.35, high 21755.60, low 21555.65, close 21665.80, volume 263711568. Timestamp `1704133800` maps to midnight Asia/Kolkata on 2024-01-02.
+- Independent tester report `research/gates/PHASE7_DHAN_DAILY_SAMPLE_ARTIFACT_TESTER.md` (blob `be71edaffc364495f2165a12d0fd165462995043`) passed source/cache protocol with restrictions; it withheld data-model acceptance because primary official NIFTY reference and exact official Dhan security mapping were not fetched. EquityPandit has an exact matching row, but is secondary corroboration only.
+- No prediction/model/strategy rerun occurred; no holdout was accessed. Approval is SPENT and may not be reused.
+- Next gate: offline implementation + mock regressions for an official NSE Indices single-date OHLC check and a minimal official Dhan mapping lookup, then an independent tester review of the exact workflow/manifest before that network call.
+
+**Developer → Tester:** Review the upcoming official-reference cross-check implementation and manifest. Confirm one-date scope, exact host/endpoint/body allowlists, response parsing, caps, hashes/cache provenance, no Dhan token disclosure to the NIFTY indices host, and that no model or bulk acquisition step is included.
