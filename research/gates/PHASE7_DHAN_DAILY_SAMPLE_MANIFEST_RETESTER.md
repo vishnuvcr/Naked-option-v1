@@ -5,7 +5,7 @@
 **Exact sample scope ID:** `dhan-nifty50-daily-2024-01-02-one-request`.
 
 **Reviewed developer code snapshot:** `c000619a1b90ada383c52058efde9d2e4a67ac88`  
-**Current developer head / pending approval:** `17c078d41a05de948f14d151c82a36a70594ef29`  
+**Developer head at the first READY review checkpoint:** `17c078d41a05de948f14d151c82a36a70594ef29`  
 **Reviewed manifest commit:** `685607d809ccfe5c1c5f82cce8a1073d8ab3edd8`  
 **Manifest Git blob:** `3ebead76bf75feb864bcd3fb66a34e2d5125d74a`  
 **Raw manifest SHA-256:** `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`  
