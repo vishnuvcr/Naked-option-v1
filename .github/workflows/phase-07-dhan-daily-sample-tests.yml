@@ -74,8 +74,23 @@ jobs:
               "authorization_digest_matches_manifest": hashlib.sha256(canonical).hexdigest() == manifest.get("authorization_sha256"),
           }, sort_keys=True))
           PY
-      - name: Validate pending manifest and approval pins (read only)
+      - name: Validate one-use gate for its current state (read only)
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/validate_dhan_daily_sample_approval.py review-check
+          approval_status="$(python -c 'import json; print(json.load(open("research/gates/DHAN_DAILY_SAMPLE_APPROVAL.json", encoding="utf-8"))["status"])')"
+          case "$approval_status" in
+            PENDING_REVIEW)
+              python scripts/validate_dhan_daily_sample_approval.py review-check
+              ;;
+            READY)
+              python scripts/validate_dhan_daily_sample_approval.py check
+              ;;
+            SPENT)
+              echo "One-use approval is SPENT; this offline-only workflow will not initiate or repeat acquisition."
+              ;;
+            *)
+              echo "Blocked: unknown one-use approval state."
+              exit 1
+              ;;
+          esac
