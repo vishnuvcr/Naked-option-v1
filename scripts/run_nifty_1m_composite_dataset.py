@@ -705,9 +705,11 @@ class RequestPacer:
 
 def fetch_live(request: dict[str, Any], token: str, pacer: RequestPacer,
                wire_budget: dict[str, int], max_wire_requests: int,
-               max_retry_requests: int) -> tuple[bytes, int, str, int]:
+               max_retry_requests: int, response_cap_override: int | None = None) -> tuple[bytes, int, str, int]:
     url = request["endpoint"]
     cap = int(request["max_response_bytes"])
+    if response_cap_override is not None:
+        cap = min(cap, max(0, int(response_cap_override)))
     body = json.dumps(request["body"], separators=(",", ":"), sort_keys=True).encode("utf-8")
     if len(body) > 16 * 1024:
         raise SourceRequestError("request_body_byte_cap_exceeded")
@@ -878,10 +880,22 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
     if auth_state.get("failed"):
         budget["errors"].append(_error_record(request, "Dhan source halted after authentication/entitlement failure", None))
         return None, "SKIPPED_AUTH_FAILURE", "", 0, 0
+    disabled = budget.setdefault("disabled_families", {})
+    if disabled.get(family):
+        budget["errors"].append(_error_record(request, "family_aggregate_byte_budget_exhausted", None))
+        return None, "SKIPPED_BYTE_BUDGET", "", 0, 0
+    used = int(budget["family_payload_bytes"].get(family, 0))
+    limit = int(budget["family_byte_limits"][family])
+    remaining = limit - used
+    if remaining <= 1:
+        disabled[family] = True
+        budget["errors"].append(_error_record(request, "family_aggregate_byte_budget_exhausted", None))
+        return None, "SKIPPED_BYTE_BUDGET", "", 0, 0
     try:
         raw, status, content_type, attempt = fetch_live(
             request, token, pacer, wire_budget,
-            int(budget["max_wire_requests"]), int(budget["max_retry_requests"])
+            int(budget["max_wire_requests"]), int(budget["max_retry_requests"]),
+            response_cap_override=remaining - 1
         )
         budget["downloaded_bytes"] += len(raw)
         budget["request_attempts"] = wire_budget["wire_requests"]
@@ -891,6 +905,7 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         family_bytes = int(budget["family_payload_bytes"].get(family, 0)) + len(raw)
         limit = int(budget["family_byte_limits"][family])
         if family_bytes > limit:
+            budget.setdefault("disabled_families", {})[family] = True
             budget["errors"].append(_error_record(request, "family_aggregate_byte_budget_exceeded", status))
             return None, "SKIPPED_BYTE_BUDGET", sha256_bytes(raw), status, len(raw)
         budget["family_payload_bytes"][family] = family_bytes
