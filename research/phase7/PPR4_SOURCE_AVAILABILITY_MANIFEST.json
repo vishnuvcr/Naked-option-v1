@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "phase": "PPR-4",
+  "manifest_id": "PPR4_SOURCE_AVAILABILITY_MANIFEST_2026-10-10",
+  "audit_status": "READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED",
+  "gate_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
+  "created_at_utc": "2026-10-10",
+  "branch": "phase-07-developer",
+  "branch_snapshot_before_manifest": "88ead3feca679b3cbea0c5f88a0536bc93ac8472",
+  "source_artifacts": {
+    "source_availability_register": {
+      "path": "research/phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv",
+      "blob": "143ffe396308719142b3c89d36444ec136c1ee0b",
+      "rows": 32
+    },
+    "source_feasibility_audit": {
+      "path": "research/phase7/PPR4_SOURCE_FEASIBILITY_AUDIT.md",
+      "blob": "7540ad60cf35079d6f740dbf48006d1be239eda7"
+    },
+    "holdout_metadata_audit": {
+      "path": "research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json",
+      "blob": "6b236e60337b8ae6d1c108cfe7fbdcbe39cb1eda"
+    },
+    "repo_cache_inventory": {
+      "path": "research/phase7/PPR4_REPO_CACHE_INVENTORY.csv",
+      "blob": "8746e68a39888da6e43b127a56c4295b591e919a",
+      "rows": 5
+    },
+    "existing_source_manifest": {
+      "path": "research/data/SOURCE_MANIFEST.csv",
+      "blob": "522a4dec2c28e1d43ba5be8e9acec9a49b960b6c",
+      "rows": 19
+    },
+    "existing_global_source_manifest": {
+      "path": "research/data/GLOBAL_SOURCE_MANIFEST.csv",
+      "blob": "e040354a18fed5496a532eeea4dfd3fdf3e0d9fa",
+      "rows": 16
+    },
+    "availability_alignment_policy": {
+      "path": "research/data/AVAILABILITY_ALIGNMENT.md",
+      "blob": "e762f80f892f5f780be2fe7b1c2aa320ee988df6"
+    },
+    "pit_policy": {
+      "path": "research/data/PIT_RULES.md",
+      "blob": "17654d3f55138d35cc0d0c5da3217266a3c75941"
+    },
+    "cache_policy": {
+      "path": "research/data/CACHE_POLICY.md",
+      "blob": "93abdee38845361d2f4212ea1d193a9fdceabbc1"
+    },
+    "data_schema": {
+      "path": "research/data/DATA_SCHEMA.md",
+      "blob": "89f02f0196d1af98a3f682a471877da191983aae"
+    },
+    "prior_fii_dii_discovery": {
+      "path": "research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md",
+      "blob": "f8f0e9a7eab494b9457a0e2d969252e40818308b"
+    },
+    "ppr3_tester_pass": {
+      "path": "research/gates/PHASE7_PPR3_REVIEW2_TESTER_REPORT.md",
+      "branch": "phase-07-tester",
+      "blob": "af006a136c90006b3b6d0bbf8f3cac7ed80aa413"
+    },
+    "ppr3_manifest": {
+      "path": "research/phase7/PPR3_CONFIGURATION_MANIFEST.json",
+      "blob": "72ed1935917bf722a2cf47a184e73ed24b71a690"
+    },
+    "spent_dhan_sample_approval": {
+      "path": "research/gates/DHAN_MARKET_DATA_SAMPLE_APPROVAL.json",
+      "blob": "e05dc35815a43f197231011b6cba8a19d57b12f6"
+    },
+    "dhan_sample_status": {
+      "path": "data/reports/dhan_daily_sample_status.json",
+      "blob": "d9729dc4ec07476f9095402ef72d9b331c99bd4e"
+    },
+    "dhan_sample_manifest": {
+      "path": "data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/manifest.json",
+      "blob": "601f956e4e31e5a1288a3381fbf59217e37dee10"
+    }
+  },
+  "inventory_summary": {
+    "read_only_sources_registered": 32,
+    "official_primary_and_reference_leads_included": true,
+    "free_public_metadata_discovery_complete_for_this_pass": true,
+    "free_source_search_exhausted": false,
+    "paid_data_source_pursued": false,
+    "existing_repo_data_path_files_inventory": 5,
+    "existing_raw_sample_rows": 1,
+    "accepted_modeling_datasets": 0,
+    "source_row_flags_in_register": {
+      "bulk_acquisition_authorized": false,
+      "model_panel_accepted": false
+    },
+    "prior_global_run_artifact_is_local_cache": false
+  },
+  "read_only_methods": {
+    "repo_branches_scanned": 23,
+    "tree_search_used_path_names_only_for_boundary_check": true,
+    "public_source_pages_searched_for_documentation": true,
+    "public_data_values_fetched": false,
+    "dataset_files_downloaded": false,
+    "huggingface_token_used": false,
+    "workflow_artifacts_downloaded": false,
+    "raw_dhan_response_opened": false,
+    "holdout_values_opened": false,
+    "holdout_labels_opened": false
+  },
+  "holdout_boundary": {
+    "status": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
+    "machine_readable_boundary_found": false,
+    "holdout_values_opened": false,
+    "holdout_labels_opened": false,
+    "exact_date_boundary": null,
+    "split_id": null,
+    "holdout_dataset_id": null,
+    "holdout_row_id_hash": null,
+    "holdout_manifest_path": null,
+    "evidence": "All 23 branch trees and relevant prior source/tester documents were searched as metadata. Existing documents say the final holdout remained unopened, but no machine-readable split/date/row-id/hash manifest was found. Workflow artifact names were reviewed only; contents were not downloaded.",
+    "cannot_infer_boundary_from_prose": true,
+    "exit_blocker": "No model panel may be accepted or split constructed until a genuine boundary artifact is located or a new split/holdout plan is approved before any future outcomes are inspected."
+  },
+  "point_in_time_readiness": {
+    "source_timestamp_validated_rows": 0,
+    "provider_revisions_vintage_audited_rows": 0,
+    "historical_contract_master_validated": false,
+    "exchange_calendar_cached": false,
+    "news_publication_and_ingestion_archives_validated": false,
+    "fii_dii_historical_dates_validated": false,
+    "options_archive_schema_validated": false,
+    "note": "These remain metadata/documentation leads only; no candidate source is authorized or accepted for modelling."
+  },
+  "hard_boundary": {
+    "public_source_metadata_search_authorized": true,
+    "read_only_repo_and_artifact_metadata_inspection_authorized": true,
+    "bulk_dataset_download_authorized": false,
+    "pretrained_model_download_authorized": false,
+    "model_panel_acceptance_authorized": false,
+    "model_fitting_tuning_scoring_authorized": false,
+    "final_holdout_access_authorized": false,
+    "option_pnl_authorized": false,
+    "one_use_dhan_approval_reusable": false
+  },
+  "next_permitted_step": "Continue only read-only GitHub branch/commit/approval metadata search for an existing genuine holdout split/boundary artifact. If absent, stop and present BLOCKED_GATE; do not invent a split or proceed to data/model use.",
+  "tester_gate_required_before": "Any new source-specific sample request, data file download, modeling-panel acceptance or model use."
+}
