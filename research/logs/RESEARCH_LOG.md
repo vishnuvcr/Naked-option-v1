@@ -931,3 +931,8 @@ The first v2 workflow [Run #1](https://github.com/vishnuvcr/Naked-option-v1/acti
 The corrected FII/DII date regex changed the sampler blob from the previously reviewed `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f` to `fb83fe5e880a26134a765a0426f7aa85380272fb`. The v2 workflow was also changed to make offline regressions run first and require an exact-snapshot approval report/manifest before source acquisition, including when manually dispatched. Its current blob is `c535610e69c2e90934ab4e59d754b584e29ff6ec`.
 
 [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed the prior regex regression before network fetch; the sampler and artifact-upload steps were skipped. This did not fetch live data. Exact code review request: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md`. No approval manifest or source-sample artifact exists for the current snapshot. Await tester decision before source requests.
+
+
+## 2026-10-10 — Gate A approval guard hardened against stale report reuse
+
+The current workflow now binds the tester report to the exact current snapshot in two ways: the report digest must match the mirrored bytes, and the report must explicitly quote each protected Git blob ID with the required current Gate A-only decision line. The approval manifest validates both file SHA-256 values and Git blob IDs, exact path set, reviewed-commit ancestry and no-full-history/no-fitting scope. Current workflow blob is `fdc0a6bef97796b38424048304b704d86f80c450`. This replaces the earlier guard, which validated the file hashes and report digest but did not itself require the report text to name the current blobs. No samples or full history were fetched by this change.
