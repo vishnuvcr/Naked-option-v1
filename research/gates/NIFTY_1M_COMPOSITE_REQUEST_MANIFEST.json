@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "manifest_id": "NIFTY_1M_COMPOSITE_DHAN_REQUEST_MANIFEST_2026-10-11",
+  "branch": "phase-07-developer",
+  "status": "DRAFT_FOR_EXACT_SNAPSHOT_TESTER_REVIEW",
+  "authorization": {
+    "live_requests_authorized": false,
+    "modeling_authorized": false,
+    "holdout_access_authorized": false,
+    "user_dhan_cross_source_value_check_waived": true,
+    "user_requests_no_global_stop_on_missing_source": true
+  },
+  "dataset_scope": {
+    "underlying": "NIFTY 50",
+    "granularity": "1-minute",
+    "history_start_inclusive": "2021-10-11",
+    "history_end_exclusive": "2026-10-11",
+    "latest_complete_session_expected_before_window_end": "2026-10-09",
+    "spot_endpoint": "https://api.dhan.co/v2/charts/intraday",
+    "options_endpoint": "https://api.dhan.co/v2/charts/rollingoption",
+    "option_history_kind": "Dhan rolling ATM-relative options, not every possible historical strike/contract",
+    "option_expiry_flags": [
+      "WEEK",
+      "MONTH"
+    ],
+    "option_expiry_codes": [
+      0,
+      1,
+      2
+    ],
+    "option_strikes_by_expiry_code": {
+      "0": "ATM-10 through ATM+10 inclusive",
+      "1": "ATM-3 through ATM+3 inclusive",
+      "2": "ATM-3 through ATM+3 inclusive"
+    },
+    "option_types": [
+      "CALL",
+      "PUT"
+    ],
+    "required_option_fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "iv",
+      "volume",
+      "strike",
+      "oi",
+      "spot",
+      "timestamp"
+    ],
+    "historical_greeks": "Not returned by rolling historical API; derived only with source-tagged expiry/rate inputs; null with reason code otherwise"
+  },
+  "budgets": {
+    "date_chunk_calendar_days": 30,
+    "max_provider_window_days_options": 30,
+    "max_provider_window_days_intraday": 90,
+    "planned_unique_requests": 8601,
+    "planned_option_requests": 8540,
+    "planned_spot_requests": 61,
+    "max_retry_requests_total": 100,
+    "max_retries_per_request": 1,
+    "max_wire_requests_total": 8701,
+    "serial_max_requests_per_second": 2,
+    "options_response_bytes_max": 2097152,
+    "options_aggregate_bytes_max": 4294967296,
+    "options_rows_per_response_max": 10000,
+    "spot_response_bytes_max": 8388608,
+    "spot_aggregate_bytes_max": 268435456,
+    "spot_rows_per_response_max": 12000,
+    "retry_policy": "One retry only for network timeout/429/5xx, max 100 retries total; no redirect, no auth/schema/other 4xx retry; when budget is exhausted record failure and continue remaining requests"
+  },
+  "chunks": 61,
+  "request_manifests": [
+    {
+      "year": 2021,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2021.json",
+      "request_count": 423,
+      "spot_request_count": 3,
+      "option_request_count": 420
+    },
+    {
+      "year": 2022,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2022.json",
+      "request_count": 1692,
+      "spot_request_count": 12,
+      "option_request_count": 1680
+    },
+    {
+      "year": 2023,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023.json",
+      "request_count": 1833,
+      "spot_request_count": 13,
+      "option_request_count": 1820
+    },
+    {
+      "year": 2024,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2024.json",
+      "request_count": 1692,
+      "spot_request_count": 12,
+      "option_request_count": 1680
+    },
+    {
+      "year": 2025,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2025.json",
+      "request_count": 1692,
+      "spot_request_count": 12,
+      "option_request_count": 1680
+    },
+    {
+      "year": 2026,
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2026.json",
+      "request_count": 1269,
+      "spot_request_count": 9,
+      "option_request_count": 1260
+    }
+  ],
+  "output": {
+    "bundle_artifact": "nifty-1m-composite-csv-parts",
+    "csv_parts_pattern": "data/exports/nifty_1m_composite/year=YYYY/nifty_1m_composite_YYYY.csv.gz",
+    "companion_manifest": "data/exports/nifty_1m_composite/dataset_manifest.json",
+    "coverage_report": "data/exports/nifty_1m_composite/coverage_and_errors.json",
+    "README": "data/exports/nifty_1m_composite/README.md",
+    "not_publishing_subscribed_market_rows_to_public_git_or_release": true
+  },
+  "provenance_rules": [
+    "Raw response bytes and hashes immutable within cache; exact request body and request ID persisted separately",
+    "Validate JSON, array lengths, timestamps, provider request window, row/byte budget and duplicate source keys",
+    "Never reconcile/correct Dhan values against NSE/third-party market-price values; the user waived that requirement",
+    "Join spot OHLCV by exact epoch timestamp; retain rolling endpoint spot in separate column",
+    "Only use real source/contract/calendar inputs for actual expiry; no expiry-date fabrication",
+    "Compute Black-Scholes Greeks only when historical expiry and risk-free inputs are available; otherwise null and reason-coded",
+    "Missing source affects only its rows/feature family; continue other request IDs and report missing coverage",
+    "Output CSV yearly parts only as Actions artifacts for user download; do not publish paid/subscription data in public repository assets"
+  ]
+}
