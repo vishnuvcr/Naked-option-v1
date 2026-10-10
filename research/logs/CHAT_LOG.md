@@ -586,3 +586,14 @@ CDSL XLS browser-link verification failed because the reader did not support the
 **Developer → Tester:** Implement and run offline tests only, then submit exact blobs.
 
 **Tester → Developer:** Review code hashes/workflows separately. Do not authorize network acquisition or model fitting at this gate.
+
+
+## 2026-10-10 — Discovery 3 implementation and code review handoff
+
+Implemented the new finite free-source discovery sampler and offline fixtures. Latest hosted test Run `38028738968` passed 27 checks. Strict HTTP range rules surfaced several outdated fixtures using the prior 4-byte range; those were corrected. These were offline test failures only; no live source requests occurred.
+
+The code review snapshot is commit `b3a6c3dcde845923a0dba55a0f350d5e67361a76`. Exact file-byte hashes and Git blobs are pinned in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`. The live workflow checks all hashes and the tester report, spends the one-run manifest before the first source request, and refuses replay. The one-run manifest itself is still absent.
+
+**Developer → Tester:** Review the exact current six-file snapshot and one-run workflow protection; return PASS/REQUEST CHANGES for code only.
+
+**Tester → Developer:** A code PASS does not start data collection. Require a new single-use manifest and a separate post-run artifact audit. Full history/model fitting remain prohibited.
