@@ -97,7 +97,7 @@ No modeling data, labels, features or predictions were generated in this phase. 
 
 **Limitations:** all source-history claims are documentation/README claims until a separate bounded source gate validates the files; no dates/rows were fetched for new sources, no license review is final, and publication/ingestion timestamps are mostly unverified. The holdout boundary has not been found as machine-readable metadata.
 
-**Conclusion:** a finite source inventory of 32 entries is recorded in [`PPR4_SOURCE_AVAILABILITY_REGISTER.csv`](PPR4_SOURCE_AVAILABILITY_REGISTER.csv). Several viable free-source leads exist, so paid sources are not justified or pursued at this stage. However, no new data has been accepted, the local cache cannot support the paper-native coverage requirements, and PPR-4 is **blocked** by the absent machine-readable sealed-holdout boundary. No prediction strategy, performance result or profit claim follows from this audit.
+**Conclusion:** a finite source inventory of 34 entries is recorded in [`PPR4_SOURCE_AVAILABILITY_REGISTER.csv`](PPR4_SOURCE_AVAILABILITY_REGISTER.csv). Several viable free-source leads exist, so paid sources are not justified or pursued at this stage. However, no new data has been accepted, the local cache cannot support the paper-native coverage requirements, and PPR-4 is **blocked** by the absent machine-readable sealed-holdout boundary. No prediction strategy, performance result or profit claim follows from this audit.
 
 ## 6. Exact next steps
 
@@ -115,6 +115,16 @@ No modeling data, labels, features or predictions were generated in this phase. 
 
 The holdout search was expanded beyond the active developer branch. All 23 branches present at the read-only search point were enumerated; their recursive tree paths were scanned for holdout/sealed/final-test/split-manifest/origin-index/row-ID-hash style names. The only matched paths were prior tester reports whose text says the holdout remained unopened; no dedicated machine-readable split/holdout boundary was found. Two prior workflow artifact *names and metadata only* were inspected: `phase7-available-global-results` (run 38018506915, 2,416,937 bytes) and `dhan-nifty-daily-one-use-sample` (run 38055202149, 2,503 bytes). Neither is named as a holdout/split-boundary manifest. Neither artifact contents were downloaded.
 
-The JSON search record is [`PPR4_HOLDOUT_METADATA_AUDIT.json`](PPR4_HOLDOUT_METADATA_AUDIT.json). The small data/cache file inventory is [`PPR4_REPO_CACHE_INVENTORY.csv`](PPR4_REPO_CACHE_INVENTORY.csv). The source readiness register has 32 entries; all entries remain `model_panel_accepted=false` and `bulk_acquisition_authorized=false`.
+The JSON search record is [`PPR4_HOLDOUT_METADATA_AUDIT.json`](PPR4_HOLDOUT_METADATA_AUDIT.json). The small data/cache file inventory is [`PPR4_REPO_CACHE_INVENTORY.csv`](PPR4_REPO_CACHE_INVENTORY.csv). The source readiness register has 34 entries; all entries remain `model_panel_accepted=false` and `bulk_acquisition_authorized=false`.
 
 This extended search still does not prove the sealed holdout location. Its outcome remains `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`.
+
+
+### 3.6 BSE index and institutional-flow source discovery
+
+A further read-only search checked for an official BSE historical index archive and BSE-specific FII/DII daily aggregate:
+- BSE's own corporate material cites the [SENSEX Index Archive Data page](https://www.bseindia.com/Indices/IndexArchiveData.html) as a source of historical index closing values. The direct page returned HTTP 403 to the web reader in this pass. That result is a reader/access limitation, not proof that a normal browser user cannot access the archive; the actual query form, date coverage, fields and use terms remain unverified.
+- BSE's [Information Products Pricing Sheet](https://www.bseindia.com/downloads1/Information_Products_Pricing_Sheet.pdf) documents paid/subscription products for some historical data feeds. No paid plan has been requested or purchased. The public archive candidate must be evaluated before considering any paid route.
+- Metadata searches did not identify a sufficiently concrete official BSE-specific daily FII/DII aggregate endpoint. P4-034 records that gap; it does **not** claim that no BSE series exists. Cash-market BSE-only institutional flows, combined NSE/BSE/MSEI aggregates and CDSL/SEBI FPI-only records are not interchangeable.
+
+Both new entries remain unverified, with `bulk_acquisition_authorized=false` and `model_panel_accepted=false`. No BSE data rows were fetched.
