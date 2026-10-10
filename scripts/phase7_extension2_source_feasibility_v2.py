@@ -209,9 +209,44 @@ def inspect_fii_history() -> dict[str, Any]:
         return {"key": "fii_dii_github_history", **meta, "schema_status": "NOT_VERIFIED"}
     try:
         rows = json.loads(data.decode("utf-8"))
-        dates = [normalize_date(row.get("date")) for row in rows if isinstance(row, dict)]
+        if not isinstance(rows, list):
+            return {"key": "fii_dii_github_history", **meta, "schema_status": "FAIL", "reason": "top-level JSON is not a list"}
         required = ["date", "fii_buy", "fii_sell", "dii_buy", "dii_sell"]
-        missing = [k for k in required if not rows or k not in rows[0]]
+        dates = []
+        missing_field_rows = []
+        invalid_date_rows = []
+        nonnumeric_flow_rows = []
+        zero_flow_rows = 0
+        for i, row in enumerate(rows):
+            if not isinstance(row, dict):
+                missing_field_rows.append({"row": i, "reason": "record is not an object"})
+                continue
+            absent = [key for key in required if key not in row or row.get(key) in (None, "")]
+            if absent:
+                missing_field_rows.append({"row": i, "fields": absent})
+            normalized = normalize_date(row.get("date"))
+            try:
+                if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", normalized):
+                    raise ValueError("date did not normalize to ISO YYYY-MM-DD")
+                dt.date.fromisoformat(normalized)
+                dates.append(normalized)
+            except ValueError as exc:
+                invalid_date_rows.append({"row": i, "value": str(row.get("date")), "reason": str(exc)})
+            values = []
+            bad_values = []
+            for key in ["fii_buy", "fii_sell", "dii_buy", "dii_sell"]:
+                try:
+                    value = float(row.get(key))
+                    if not __import__("math").isfinite(value):
+                        raise ValueError("non-finite")
+                    values.append(value)
+                except (TypeError, ValueError):
+                    bad_values.append(key)
+            if bad_values:
+                nonnumeric_flow_rows.append({"row": i, "fields": bad_values})
+            elif values and all(value == 0 for value in values):
+                zero_flow_rows += 1
+        duplicate_dates = len(dates) - len(set(dates))
         return {
             "key": "fii_dii_github_history",
             **meta,
@@ -219,11 +254,17 @@ def inspect_fii_history() -> dict[str, Any]:
             "distinct_date_count": len(set(dates)),
             "min_date": min(dates) if dates else None,
             "max_date": max(dates) if dates else None,
-            "missing_required_fields": missing,
+            "missing_required_field_row_count": len(missing_field_rows),
+            "missing_required_field_examples": missing_field_rows[:5],
+            "invalid_date_row_count": len(invalid_date_rows),
+            "invalid_date_examples": invalid_date_rows[:5],
+            "duplicate_date_count": duplicate_dates,
+            "nonnumeric_or_nonfinite_flow_row_count": len(nonnumeric_flow_rows),
+            "nonnumeric_flow_examples": nonnumeric_flow_rows[:5],
+            "zero_flow_rows": zero_flow_rows,
             "source_labels": sorted({str(row.get("_source", "missing")) for row in rows if isinstance(row, dict)}),
-            "zero_flow_rows": sum(1 for row in rows if all(float(row.get(k, 0) or 0) == 0 for k in ["fii_buy", "fii_sell", "dii_buy", "dii_sell"])),
             "sample": rows[:3],
-            "schema_status": "PASS" if not missing and len(set(dates)) == len(rows) else "FAIL",
+            "schema_status": "PASS" if rows and not missing_field_rows and not invalid_date_rows and duplicate_dates == 0 and not nonnumeric_flow_rows else "FAIL",
         }
     except Exception as exc:
         return {"key": "fii_dii_github_history", **meta, "schema_status": "FAIL", "reason": f"{type(exc).__name__}: {str(exc)[:300]}"}
