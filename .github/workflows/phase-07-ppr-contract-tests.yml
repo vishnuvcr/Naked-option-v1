@@ -1,0 +1,33 @@
+name: PPR Paper Evidence and Contract Check
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/literature/PAPER_SOURCE_EVIDENCE_MATRIX.md"
+      - "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json"
+      - "scripts/validate_ppr_contract.py"
+      - ".github/workflows/phase-07-ppr-contract-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ppr-contract-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-contract-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate paper evidence matrix and inference contract
+        run: python scripts/validate_ppr_contract.py
