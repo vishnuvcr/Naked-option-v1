@@ -749,3 +749,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Tester artifact audit: REQUEST CHANGES at `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT.md`.
 - Defect: the report omitted the numeric HTTP status from the failed `/v2/instrument/IDX_I` request. Corrected adapter now records safe numeric status and request/byte counts without provider body or token.
 - New regression added; hosted test run is pending. The previous manifest remains SPENT; a new exact-snapshot code review and new one-run manifest are required before any retry.
+
+
+## 2026-10-10 — Dhan diagnostic correction passed; retry requires fresh manifest
+
+- First sample Run [38043148580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043148580) stopped after two requests at instrument metadata. Its artifact was rejected because it omitted HTTP status.
+- Adapter now records numeric metadata HTTP status and safe content-type; tests verify provider body/cookies/token are not exposed.
+- Offline Run [38043456200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043456200) passed 29/29 tests.
+- Tester reviewed-tree/manifest validation was tightened to compare protected blobs at both reviewed commit and current HEAD (the current code-tester report is separately digest-pinned).
+- Independent tester PASS for one bounded diagnostic retry only: [code tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md).
+- Previous manifest remains SPENT. Next step is recompute exact byte hashes and Git blobs and create a new one-run manifest. If metadata remains non-200, stop with its numeric status; no candle history/full history/model fitting is authorized.
