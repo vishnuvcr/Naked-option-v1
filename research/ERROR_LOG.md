@@ -662,3 +662,10 @@ The access token is bound only to the guarded workflow's final source step and i
 - Hosted offline run [38044701520](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044701520) passed on exact snapshot `9bfd1d61c05f8658d5b6165759a735e317740328`.
 - Independent tester report updated and mirrored. Code/workflow gate PASS; live access explicitly NOT authorized. Manifest is absent and no request was attempted.
 - Limitation: available GitHub connector exposes run inspection/rerun but not workflow_dispatch. Therefore the manual live run cannot be honestly reported as executed from this session. Do not bypass the gate by restoring push-trigger behavior.
+
+
+## 2026-10-10 — Manifest prepared; dispatch capability unavailable
+
+- Created the new one-use redirect-target manifest after computing exact SHA-256 and Git blob pins. It is marked READY but has not been validated by the workflow runtime.
+- Confirmed the live workflow has no push trigger. Creating the manifest cannot initiate live network access; manual dispatch and explicit confirmation are required.
+- The available GitHub connector does not expose a workflow-dispatch action. Therefore the validator and diagnostic have not run and no source request was made. This is an execution-capability limitation, not a successful source check. Do not bypass it by restoring a push trigger or making an unguarded Dhan request.
