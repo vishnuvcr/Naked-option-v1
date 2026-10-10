@@ -25,10 +25,10 @@ concurrency:
 jobs:
   guarded-acquisition:
     if: >-
-      ${{ github.ref }} == 'refs/heads/phase-07-developer' &&
+      github.ref == 'refs/heads/phase-07-developer' &&
       (
-        ( ${{ github.event_name }} == 'workflow_dispatch' && ${{ inputs.confirm_live_acquisition }} == true) ||
-        ( __EVENT__ == 'push' && contains(${{ github.event.head_commit.message }}, 'READY NIFTY 1m composite acquisition approval'))
+        (github.event_name == 'workflow_dispatch' && inputs.confirm_live_acquisition == true) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, 'READY NIFTY 1m composite acquisition approval'))
       )
     runs-on: ubuntu-latest
     timeout-minutes: 350
