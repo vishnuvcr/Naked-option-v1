@@ -241,6 +241,37 @@ def test_live_sample_metadata_http_error_preserves_only_safe_content_type() -> N
         assert private_value not in encoded
 
 
+def test_redirect_probe_requires_explicit_authorization() -> None:
+    with patch.dict(mod.os.environ, {"DHAN_ACCESS_TOKEN": "secret"}, clear=True):
+        try:
+            mod.redirect_target_probe()
+        except RuntimeError as exc:
+            assert str(exc) == "redirect_diagnostic_not_authorized"
+        else:
+            raise AssertionError("redirect diagnostic ran without authorization")
+
+
+def test_redirect_probe_makes_one_request_and_reports_host_only() -> None:
+    safe_headers = {
+        "content-type": "text/html",
+        "redirect_target_status": "PARSED",
+        "redirect_scheme": "https",
+        "redirect_host": "images.dhan.co",
+    }
+    with patch.dict(mod.os.environ, {
+        "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED": "1",
+        "DHAN_ACCESS_TOKEN": "PRIVATE_ACCESS_TOKEN",
+    }, clear=True), patch.object(mod, "request_bytes", return_value=(302, b"", safe_headers)) as mocked:
+        result = mod.redirect_target_probe()
+    mocked.assert_called_once()
+    assert result["status"] == "REDIRECT_TARGET_RECORDED"
+    assert result["http_status"] == 302 and result["request_count"] == 1
+    assert result["redirect_host"] == "images.dhan.co"
+    encoded = json.dumps(result)
+    for private in ("PRIVATE_ACCESS_TOKEN", "private/path", "secret=query"):
+        assert private not in encoded
+
+
 def test_redirect_target_parser_emits_only_scheme_and_host() -> None:
     got = mod.safe_redirect_target("https://Images.Dhan.CO/api-data/master.csv?signature=SECRET#frag")
     assert got == {"redirect_target_status": "PARSED", "redirect_scheme": "https", "redirect_host": "images.dhan.co"}
@@ -435,6 +466,8 @@ def main() -> None:
         test_instrument_mapping_requires_unique_exact_ids,
         test_instrument_mapping_accepts_official_csv_headers,
         test_http_error_returns_status_without_provider_body,
+        test_redirect_probe_requires_explicit_authorization,
+        test_redirect_probe_makes_one_request_and_reports_host_only,
         test_redirect_target_parser_emits_only_scheme_and_host,
         test_redirect_target_parser_rejects_credentials_and_malformed_urls,
         test_http_error_returns_only_redirect_host_and_safe_content_type,
