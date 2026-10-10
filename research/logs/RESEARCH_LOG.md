@@ -1050,3 +1050,8 @@ Hosted offline run `38043020539` passed 27 checks. Earlier failures in CSV fixtu
 ## 2026-10-10 — Dhan source sample did not reach candles
 
 The first guarded sample [Run 38043148580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043148580) passed manifest checks and consumed the single-run manifest before source access. It made two requests and stopped at index instrument metadata. Artifact `11666064550` had no candle rows and omitted the numeric metadata HTTP status. The independent artifact audit returned REQUEST CHANGES. The adapter was updated to preserve the numeric status only, without provider error body or secrets; a targeted offline regression was added. The original manifest is spent; no new Dhan request is permitted until a fresh code gate and manifest pass.
+
+
+## 2026-10-10 — Dhan metadata diagnostic correction
+
+Independent artifact audit rejected the first Dhan sample because the metadata endpoint's numeric HTTP status was omitted. The adapter now reports status/content-type/counters only and never reads the provider error body. Tests simulate a 403 and verify token/profile identifiers and response body remain absent. The manifest validator was also tightened to check protected blobs against the reviewed commit tree, not only current HEAD. Offline Run `38043456200` passed 29 checks. Tester approved a new bounded diagnostic retry only after exact hash-bound manifest creation. No candle data or model analysis has yet been obtained.
