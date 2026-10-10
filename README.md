@@ -398,3 +398,12 @@ The independent tester passed the corrected exact eight-file sampler/workflow sn
 **Important:** the previous source artifact (`11660395594`) remains rejected, and the source approval is still revoked. A new manifest must bind the current tester report hash and all eight protected files before another sample can run.
 
 The free-source search has been broadened and documented in [Extension 2 FII/DII source discovery](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). Leads include the official NSE/SEBI pages, several GitHub histories and public dashboards. Claims of 800 records or 14 years remain unverified; no new full-history file was fetched. Full-history acquisition and model fitting remain unauthorized.
+
+
+### Corrected Gate A artifact audit — schema pass, flow coverage still open (2026-10-10)
+
+The corrected bounded run [38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369) completed and uploaded artifact `11661065266` (ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`). The independent tester verified the index date parser, expected sector identities, cash-equity schemas and legacy/UDiFF F&O sample schemas.
+
+However, historical FII/DII coverage remains insufficient: the available rolling source sample has 164 unique dates (2026-01-14 to 2026-09-30), and NSE's dated API request returned current 2026 rows that were correctly rejected as outside the requested July 2024 window. Sampled public pages did not establish a 500+ session daily series. Therefore the tester's [Run 2 artifact report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md) requests changes for closing Gate A, while accepting the source-schema checks as valid bounded evidence.
+
+The one-run sample manifest is marked SPENT. New free sources—GitHub daily JSON, range-query dashboards and historical-file claims—are inventoried in [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). A separate bounded source-discovery proposal and tester gate are next. Full history, feature/label generation and model fitting remain unauthorized.
