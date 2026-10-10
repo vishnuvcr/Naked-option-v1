@@ -570,3 +570,8 @@ Tester reviewed developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8` and 
 ## 2026-10-10 — Tester audit of Run #44
 
 Downloaded and independently inspected artifact ID `11657636547` from [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915). Verified NIFTY, global-manifest and prediction-panel SHA-256 values against JSON provenance. The 91,988-row panel has unique row keys, valid probabilities, no missing candidate predictions/labels/returns and no future-return direction mismatch. Independently recomputed all candidate metrics and the 500-replicate/20-session moving-block max-statistic family tests; all matched the result JSON. All five family p-values are non-significant, and all Bonferroni-adjusted p-values are 1.0. Tester disposition is PASS WITH SCOPED RESTRICTIONS for integrity only; no candidate is promoted and Phase 8 remains blocked.
+
+
+## 2026-10-10 — Extension 2 proposal review: REQUEST CHANGES
+
+Independent tester reviewed the proposed seven-method NSE flow/breadth/options-feature family and returned REQUEST CHANGES before any data acquisition. Required amendments are exact legacy F&O-to-UDiFF coverage, deterministic flow normalization, explicit F04/F05 formulas, canonical sector-index identity, and a synthetic missing-candidate bootstrap fixture. No data were downloaded and no model was fit. The proposal remains closed at specification Gate B until corrected and re-reviewed.
