@@ -380,3 +380,12 @@ The bounded sampler fixes the previous multi-year FII/DII API request. Its dated
 **Governance incident disclosed:** legacy Run 38025793938 fetched only bounded F&O dates and small page/API samples without the exact tester manifest. Its artifact `11659904438` is non-accepted evidence. The old live-fetch workflow was replaced with offline-only tests; the guarded v2 workflow remains the only live-sampling route. No full history, features/labels or model fitting occurred.
 
 **Next:** the approved, hash-bound manifest must pass in the guarded workflow, then one bounded run may upload two JSON source-feasibility reports. Those reports need another independent tester audit. **Full-history acquisition and model fitting remain unauthorized.**
+
+
+### Gate A artifact audit — REQUEST CHANGES (2026-10-10)
+
+The first approved bounded sample run completed, but the tester rejected its artifact. The F&O archive and cash-equity samples passed their schemas; two official sector-index CSVs failed the date check because the date parser did not support `DD-MM-YYYY`. The NSE date-parameter FII/DII API returned current 2026-10-09 records outside the requested 2024 window, yet the previous parser incorrectly accepted the response as JSON.
+
+The previous authorization manifest has been revoked. [Run 38026433233](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026433233) confirmed fail-closed behavior: offline tests passed, authorization failed, and source sampling was skipped. Developer corrected both issues; [offline tests Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed 24 checks. **These fixes still require independent code-gate approval before another bounded sample.**
+
+The alternative FII/DII sources so far provide only recent rows (164 GitHub mirror rows and 16 ChartDrift page rows); 500+ historical sessions remain unestablished. Continue free-source research before declaring that data unavailable. No full-history download, feature table, labels or model fit has occurred.
