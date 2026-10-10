@@ -585,3 +585,10 @@ Tester returned REQUEST CHANGES before enabling the source-feasibility workflow 
 ## 2026-10-10 — Sampler v2 independent review requested changes
 
 Tester reviewed the exact Gate A sampler snapshot and rejected it before any live source request because one NSE FII/DII URL requested 2020–2025 history, exceeding the allowed small-sample scope. Required fixes are a ten-day range, per-request byte cap, a maximum response row count, and regressions that reject multi-year request URLs/excess rows. The review request also misidentified the workflow commit SHA as its Git blob; actual workflow blob is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`. The report is on both tester and developer branches. No data was fetched.
+
+
+## 2026-10-10 — Extension 2 sampler code gate PASS; one bounded Gate A batch only
+
+Independent tester passed the exact six-file snapshot at developer commit `6050908b98c53d75c10175140e84e87f48934896`. Hosted offline source/parser suite Run `38026024826` passed all 22 unique checks (7 v1 + 15 v2). The legacy workflow safety correction Run `38026080844` also passed its offline suite. The new v2 sampler limits the dated FII/DII request to ten days, caps API responses at 512,000 bytes and 50 rows, refuses unbounded URLs before fetch, and rejects unknown JSON shapes.
+
+A prior unguarded legacy workflow incident was detected: Run `38025793938` fetched two single-day F&O archives and a small set of pages/API probes without exact tester authorization. Artifact `11659904438` is **NON-ACCEPTED EVIDENCE**; it contains no features, labels, models or full history. The legacy workflow was disabled for live fetches and is now offline-only. The current separate v2 live-source workflow remains fail-closed. This PASS authorizes exactly one bounded Gate A source-sampling run, conditional on the hash-bound approval manifest. The two uploaded JSON reports must be independently audited after the run before any further progression.
