@@ -624,3 +624,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Current workflow rejected the redirect as designed. It made two requests, read 180 bytes, followed no redirect and made no historical candle request. Artifact ZIP SHA-256 `f388a9844db92836ec6551e2e442e207dc8d504bc9ae198df860117a2aabc68e`.
 - The artifact is not a data-availability pass. The second one-run manifest is SPENT. Do not reuse it or add a redirect without a separately reviewed allowlist.
 - New spec proposes a single redirect-host-only diagnostic request, with no follow and no raw Location path/query. Await tester spec review before implementation/live access.
+
+
+## 2026-10-10 — Redirect-target diagnostic workflow/test corrections
+
+- Initial workflow file runs `38044003616`, `38044013097`, `38044064644` failed before jobs because a step name contained an unquoted colon. The step name was simplified and workflow now parses.
+- Offline test runs `38044013621`, `38044065510`, `38044116308`, `38044126583`, `38044148858` failed on malformed Python assertion strings. Those assertions were corrected. Run `38044225274` then passed 37/37 tests.
+- Redirect-target parser now rejects malformed DNS labels and only marks HTTPS targets as recorded; an HTTP target is returned as unverified. No redirect has been followed.
+- Current tester PASS is limited to one redirect-target-only request after a fresh manifest. No full history/candle/model request is authorized.
