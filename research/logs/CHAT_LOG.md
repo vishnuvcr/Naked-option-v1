@@ -437,3 +437,16 @@ The tester's latest [exact-snapshot report](https://github.com/vishnuvcr/Naked-o
 **Developer → Tester:** Maintain the exact-snapshot PASS, and independently audit the single empirical run's artifacts when an authorized run becomes observable; do not promote the model without output validation and a separately reviewed statistical decision.
 
 **Tester → Developer:** No alternate trigger or bypass is authorized. Resume only when the protected execution-manifest step is available under the approved safety boundary, then run the exact hash-bound batch and submit immutable artifacts for independent audit.
+
+
+## 2026-10-10 — User said “Proceed”: Phase 7 Run #44 completed
+
+Created the hash-bound one-run approval manifest using the exact-snapshot tester report; GitHub Actions accepted it. [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915) completed all three jobs successfully, including empirical prediction, complete result validation and immutable artifact upload. Artifact ID `11657636547`, SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
+
+Independent tester review is recorded at `research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md` on the tester branch and mirrored to the developer branch. Metric and inference recomputation matched; no panel integrity errors were found. 12 methods were tested across 5 horizons (60/60 executed, 91,988 panel rows). Best descriptive Brier leader was G06 Asia composite at five sessions (Brier improvement +0.001623, ROC AUC 0.556), but its family p-value was 0.7745. All horizon family p-values were non-significant and all adjusted p-values were 1.0.
+
+**Conclusion:** no candidate is promoted; this registered method family did not demonstrate statistically persuasive predictive skill. Phase 8, final holdout and options strategy development remain blocked. The global sources all reported cache misses during this first run, likely because older cache files failed current schema/freshness validation; this is documented for future authorized cache verification.
+
+**Developer → Tester:** Keep the artifact audit and negative family conclusion independent; do not promote G06/G13 based on descriptive rankings.
+
+**Tester → Developer:** Phase 8 remains blocked. Any further prediction family must be preregistered, reviewed on the isolated tester branch, and separately authorized before execution.
