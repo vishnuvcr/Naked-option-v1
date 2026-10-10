@@ -858,3 +858,16 @@ Resume actions:
 - Handoff updated at `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md` blob `2035255912651ade1dc17ac292a81de796d6bf91`.
 
 **Developer → Tester:** Review the forthcoming exact-hash request manifest and guarded workflow separately. No API call, bulk history, feature fitting or model rerun is permitted before that review passes.
+
+
+## 2026-10-10 — Corrected spend state and tester-report marker gate
+
+- After the initial daily-sample manifest gate received a tester PASS, developer copied the independent report, calculated its raw SHA-256 with hosted Python `hashlib`, and changed the approval to READY in commit `49b5005f6112b969c90f1edcf333ac16a1a47e2d`.
+- Runtime validation correctly blocked that run with `tester_report_scope_marker_missing`; the report text was missing exact scope markers required by the validator. The workflow did not spend approval and did not start the request step. The approval was explicitly returned to PENDING_REVIEW.
+- Review of the blocked run exposed that the validator's spend transition also omitted `authorized_scope_id` required by the runner. Developer fixed this on the protected source/test files, re-pinned the manifest and reran the offline gate.
+- Corrected spend validator `5c09cf50262e9e3a59c643641410f58aa743f995`; test `d40679fcd87aba21dfcf8d720df86c5ce4582e7d`; manifest blob `3ebead76bf75feb864bcd3fb66a34e2d5125d74a`, raw SHA-256 `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`, authorization SHA-256 `d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189`.
+- Tester branch amended its report to include explicit `No live request is authorized` and `No bulk` markers; developer copied it byte-for-byte at blob `26c46d13f204b22bd737643112a7e489df09d3d2`, raw SHA-256 `98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c`.
+- [Run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) passed 42 history-pipeline tests, 7 sample-runner tests and 16 manifest-validator tests, the exact hashes and the PENDING_REVIEW preflight. [Protocol check 38054616188](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616188) passed.
+- Current approval remains PENDING_REVIEW after these corrections; next is a single controlled READY attempt on the updated exact pins. No Dhan request, data cache, feature engineering, prediction rerun or holdout access occurred.
+
+**Developer → Tester:** Independently audit the corrected spend-transition code and literal report markers against the exact blobs above. The live one-use gate may only be attempted after the hosted PENDING preflight passes; any new failure must be logged and fixed before a further attempt.

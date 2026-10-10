@@ -875,3 +875,24 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Disposition: code PASS allows only preparation of a fresh single-use manifest and guarded workflow. It does not authorize a Dhan API call.
 - Next gate: independent tester review of the exact manifest and live-workflow snapshot, including exact hashes, one-request/byte scope, secret isolation, spend-before-fetch, no redirects/retries and artifact redaction. The prior redirect manifest remains SPENT.
 - No Dhan request, market data download/cache, feature fit, model run, option strategy test or holdout access occurred.
+
+
+## 2026-10-10 — One-use sample spend-transition schema mismatch
+
+- Category: runtime authorization state transition.
+- Symptom: the sample runner required `authorized_scope_id` to match the NIFTY sample scope once the approval was SPENT, but the approval validator's spend transition did not populate this key.
+- Impact: the request would have consumed the one-use approval then stopped before any Dhan request. This was caught by independent developer/tester review before the next use of the gate; the affected branch's approval was PENDING_REVIEW and no source request occurred.
+- Correction: `scripts/validate_dhan_daily_sample_approval.py` now uses `prepare_spent_approval` which validates READY state/scope/commit ID and writes `authorized_scope_id`, SPENT status, decision and source commit together. A new test ensures the runner-required field is present and duplicate spending is rejected.
+- Current protected blobs: validator `5c09cf50262e9e3a59c643641410f58aa743f995`; test `d40679fcd87aba21dfcf8d720df86c5ce4582e7d`. Manifest hash `41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f`; authorization digest `d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189`.
+- Verification: [Run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) passed 42 history, 7 runner and 16 validator tests and the pending manifest preflight; [protocol check 38054616188](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616188) passed.
+- No request was attempted under the faulty spend transition; the previous redirect authorization was not reused.
+
+## 2026-10-10 — First READY run blocked by missing tester-report scope marker
+
+- Category: report/validator contract mismatch.
+- Run: [38054498843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054498843), commit `49b5005f6112b969c90f1edcf333ac16a1a47e2d`.
+- Symptom: the live workflow's exact gate-check step returned `tester_report_scope_marker_missing` because the copied independent tester report did not include the exact literal markers `No live request is authorized` and `No bulk` required by the report validator.
+- Safety outcome: token-secret-presence check passed, but the exact gate-check failed. The spend step was skipped, the sample step was skipped, no token was sent to Dhan, and no request/cache was created.
+- Correction: independent tester report on `phase-07-tester` was revised to include these explicit restrictions, copied byte-for-byte to the canonical developer path, and rehashed by hosted Python `hashlib`.
+- Corrected report Git blob `26c46d13f204b22bd737643112a7e489df09d3d2`; raw-file SHA-256 `98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c`. Approval returned to `PENDING_REVIEW`, then the next pending-state gate check [Run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) passed.
+- Disposition: READY can be tried again only using these exact current report/manifest pins; no bulk scope or other endpoint is authorized.

@@ -1,15 +1,15 @@
 # Research Status
 
 
-## Current checkpoint — 2026-10-10, Dhan historical-data recovery (tester code review pending)
+## Current checkpoint — 2026-10-10, Dhan one-use manifest/runtime preflight correction (approval pending)
 
 | Workstream | Current state | Evidence / next gate |
 |---|---|---|
 | Existing daily global/peer prediction extension (Run #44) | COMPLETED — NO CANDIDATE PROMOTED | [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915); all five horizon-family tests non-significant; holdout sealed |
 | Dhan historical-data recovery plan | PASS WITH SCOPED RESTRICTIONS — plan gate only | [Developer plan](phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md); [independent planning report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md) |
-| Dhan historical pipeline implementation | Code gate PASS WITH SCOPED RESTRICTIONS; new one-use manifest/workflow review pending | [Current handoff](gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md); reviewed blobs and current run pinned |
-| Dhan offline regression suite | PASS — 42/42 mocked tests | [Hosted run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592); [protocol run 38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) |
-| Actual Dhan market-data acquisition | NOT STARTED — NOT AUTHORIZED | Code PASS recorded; fresh one-use manifest/guarded workflow must pass independent tester gate before one tiny daily sample |
+| Dhan historical pipeline implementation | Code gate PASS WITH SCOPED RESTRICTIONS; one-use spend transition fixed and re-reviewed | [Pipeline tester PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md); updated validator/test blobs pinned in the current sample manifest |
+| Dhan offline regression suite | PASS — 42 history, 7 sample-runner, 16 manifest-validator tests | [Hosted run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013); [protocol run 38054616188](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616188) |
+| Actual Dhan market-data acquisition | NOT STARTED — NOT SPENT; approval PENDING_REVIEW | One READY attempt failed runtime report-marker validation before SPENT/request steps; corrected report now hash-pinned and pending gate passes offline preflight [run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) |
 | Feature engineering / prediction rerun using Dhan history | BLOCKED pending sample acquisition, schema/data audit, frozen predictor amendment and empirical gate | No result has changed; previous null findings retained |
 | Option P&L/strategy optimization (Phase 8) | BLOCKED / OUT OF CURRENT SCOPE | User's current request is prediction research, not trading-strategy optimization |
 | Final untouched holdout | UNOPENED | Keep sealed until final independent forward-validation gate |
@@ -17,8 +17,9 @@
 ### Dhan recovery checkpoint
 - Official docs identify daily candles, intraday candles (90-calendar-day call windows, supported 1/5/15/25/60-minute intervals and up to five years for active instruments), and rolling expired options (up to 30-day request windows, up to five years, ATM-relative with OHLC/IV/OI/volume/strike/spot fields). Live option chain is current-state information rather than historical-chain data.
 - Plan gate passed for planning only. Offline pipeline now restricts endpoints and request body keys, rejects redirects, limits bytes/time/request rate, checks candle and rolling-option arrays, validates date windows, and ties the cache manifest to a recomputed schema/timestamp report.
+- Latest correction: independent review found the SPENT transition omitted `authorized_scope_id` required by the runner. The validator now writes that field and regression tests cover the one-use state transition; updated test run [38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) passed 42/7/16 suites and exact pending preflight. A first READY workflow run [38054498843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054498843) then correctly stopped at `tester_report_scope_marker_missing`, before SPENT/request steps. No Dhan request occurred; approval was reset to PENDING_REVIEW. The corrected report/hash is pinned at blob `26c46d13f204b22bd737643112a7e489df09d3d2` / SHA-256 `98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c`; pending preflight is now green, and one controlled retry is the next gate.
 - Independent tester reviews first requested changes on date/budget/schema/strike handling, then cache provenance. Those corrections are preserved on the developer history. The final code review [PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md) confirms the exact source/test/workflow blobs at reviewed commit `986d78cf4e3297f203c4960493ef86e2a8663697`; hosted [run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed 42/42 offline/mock tests and protocol run 38050266689 passed.
-- **Next gate:** developer prepares a fresh exact-hash single-use manifest plus guarded workflow for one tiny daily NIFTY history request. The isolated tester must independently pass that manifest/workflow snapshot before any API call. No Dhan request, market-data cache, feature fit, predictor rerun or holdout access has occurred; the prior redirect manifest stays SPENT.
+- **Next gate:** with current manifest blobs and corrected tester report hash already pinned, promote approval to READY only after the exact pending preflight remains green; one controlled attempt is allowed. Workflow must again validate all hashes and spend before one request. No Dhan request/cache, feature fit, predictor rerun or holdout access has occurred; the prior redirect manifest stays SPENT.
 
 
 ## Previous checkpoint — 2026-10-10, after Phase 7 Run #44
