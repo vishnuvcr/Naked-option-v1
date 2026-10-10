@@ -958,3 +958,13 @@ Resume actions:
 - Next allowed step is only preparation of a fresh exact-hash two-source manifest and guarded workflow. That requires an independent tester PASS before either the official NIFTY historical endpoint or Dhan public instrument-master CSV is requested. The prior Dhan sample approval remains SPENT. No official-source call, model/strategy run or holdout access occurred.
 
 **Developer → Tester:** Independently review the forthcoming exact-hash two-source manifest and guarded live workflow. Check source endpoints/body, one request per host, byte/time caps, zero credentials, no redirects/retries, spend-before-first-fetch and fail-closed cache behavior. Do not treat the current code PASS as request authorization.
+
+
+## 2026-10-10 — User resumed official-source cross-check gate
+
+User said “Ok proceed” and then “Proceed” to continue Phase 7. Developer re-read README, status, error log, chat log, historical-data plan, official-reference cross-check plan, and sample-artifact tester report before acting.
+
+Independent exact-snapshot review found REQUEST CHANGES: the current official-reference adapter/runner/test blobs do not match the older blobs cited in hosted offline test run 38056916677. The prior 32-test pass therefore cannot certify the exact current snapshot. A tester report was recorded at `research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md` (commit `ac41880d767cbe2839136d3317aa0a16af7ca8cb`). No network request was made; no manifest or data acceptance was created. Next action: execute the existing offline workflow on the exact current snapshot, capture test receipt and hashes, and request independent tester review again.
+
+**Developer → Tester:** Verify the fresh hosted test run against exact current file hashes and return a new decision before any public-source request.
+**Tester → Developer:** Keep both live-source requests blocked until exact-snapshot review explicitly passes.
