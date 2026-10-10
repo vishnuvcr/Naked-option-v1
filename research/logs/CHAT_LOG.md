@@ -812,3 +812,14 @@ Resume actions:
 - New offline cases test unknown request fields, wrong OI types, nonpositive/fractional timestamps, misaligned extra arrays, and cache rejection when timestamps lie outside the requested period.
 - Latest run [38049314836](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314836) passed 34/34 offline/mock tests. Protocol check [38049314978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314978) passed.
 - Revised code submission pins pipeline blob d483901227770b560b695ce051a131aced02dacf, test blob 8cbe345a1abde1a9c5470e5953fa5ab3a7fc3b47 and workflow blob dc0de4688bfac5ee932c32ccd25fdd586effd3c2 at exact snapshot commit 61c33eb8c0bf56fe2a01967c78b86295e618d8e8. No network request was made; tester code review is pending.
+
+
+### Dhan pipeline snapshot v3 — raw-byte integrity and strict authorization finalized
+
+- Independent adversarial review found that cache metadata needed to hash the exact HTTP response bytes rather than any reserialized JSON representation. The request helper now returns (parsed object, safe metadata, original bytes), and the cache rejects any response-byte count or SHA-256 mismatch against those bytes.
+- Additional guards now require the literal boolean True to authorize a live helper call, reject non-ASCII/CRLF token strings, and validate positive scalar numeric security IDs and nonempty exchange/instrument strings. These are defensive code controls only; the current workflow still cannot call Dhan.
+- Hosted offline suite [38049609609](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609609) passed 36/36 tests. Protocol check [38049609776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609776) passed.
+- Latest handoff research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md pins source blob 6533b11456efbaa99f470d5ca20887862c2ca6b3, test blob e156c0915320a9ed075e8ba6d55857a56bca9f61, workflow blob dc0de4688bfac5ee932c32ccd25fdd586effd3c2 and exact snapshot commit 79e7ae5b2a02841d83e4848b22be67980aab6096.
+- Current status: **independent tester code review pending**. No Dhan historical request has occurred; no market data has been fetched/cached; no predictor has been rerun; holdout remains sealed.
+
+**Developer → Tester:** Review only the exact pinned code/test/workflow snapshot in the latest handoff. Return PASS or REQUEST CHANGES and do not authorize data acquisition.
