@@ -8,10 +8,10 @@
   "request_manifest_sha256": "41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f",
   "approved_authorization_sha256": "d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189",
   "tester_report_path": "research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md",
-  "tester_report_git_blob": "",
-  "tester_report_sha256": "",
+  "tester_report_git_blob": "26c46d13f204b22bd737643112a7e489df09d3d2",
+  "tester_report_sha256": "98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c",
   "reviewed_manifest_developer_commit": "685607d809ccfe5c1c5f82cce8a1073d8ab3edd8",
   "spent_at_commit": null,
-  "note": "Returned to PENDING_REVIEW after runtime checker rejected the tester report's missing literal scope markers. No request was made and authorization was not spent. Corrected tester report/hash and a new READY transition are required.",
+  "note": "PENDING_REVIEW after an attempted READY preflight was correctly rejected because the prior copied tester report lacked literal scope markers. Corrected independent report/hash now pinned; this gate must pass the offline READY validator before another one-use transition. No request has been made and approval was not spent.",
   "spent_from_commit": null
 }
