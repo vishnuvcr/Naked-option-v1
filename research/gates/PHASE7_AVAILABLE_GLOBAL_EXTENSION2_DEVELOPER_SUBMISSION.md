@@ -77,3 +77,17 @@ The tester passed the spec for small-sample source feasibility only. The develop
 **Developer → Tester:** Review network scope, fallback provenance, file size limit, archive/schema/date checks and offline tests. Pass or request changes; do not authorize full-history acquisition or model fitting.
 
 **Tester → Developer:** Only after this sampler code gate passes may the small-sample Gate A workflow be enabled.
+
+
+## Gate A sampler resubmission after REQUEST CHANGES — 2026-10-10
+
+Tester report `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_TESTER.md` found that the initial sampler validated only the first row's trade date. The developer corrected it to validate every row and record the distinct trade-date count.
+
+- Corrected sampler blob: `f39f2a213b760c608e0deca2f1eaacc2225aca53`.
+- Corrected offline tests blob: `2d8833719701c87e43f310396b29380220d58578`.
+- Added negative fixtures where the first row is valid but a later row has a different trade date, for both legacy and UDiFF formats.
+- No workflow or live source download has run. Please re-review these exact blobs.
+
+**Developer → Tester:** Verify all-row date validation and both mixed-date tests; if passed, the Gate A workflow may be added and run for small samples only.
+
+**Tester → Developer:** Do not enable the workflow until a fresh explicit code-gate PASS is recorded.
