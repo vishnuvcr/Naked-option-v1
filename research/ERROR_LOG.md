@@ -1095,3 +1095,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 ### 6. Live-data safety and cumulative request budget
 - **Prevention added:** AES-256-GCM encrypted raw cache/CSV parts, no plaintext subscribed market rows committed to this public repository, per-request and cumulative retry caps in an append-only ledger, 100 retries maximum, 8,701 maximum wire requests, 2 requests/second pacing, and a single-use tester-pinned acquisition approval.
 - **Current status:** no live market-data request was made during these failures or corrections. The one-minute request manifest and pipeline tests are offline-only. The independent tester gate and explicit acquisition approval remain required before a Dhan call.
+
+
+
+## 2026-10-11 — Active composite-run monitoring retrieval limitation
+
+- **Run:** [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220), commit `84dc153218429799c057135ff9e75eeeed7c6747`.
+- **Observation:** the Actions API reports the run and `guarded-acquisition` job as `in_progress`; the historical-data acquisition step is still running and the artifact endpoint currently returns zero artifacts.
+- **Monitoring issue:** attempting to retrieve the live job-log archive returned a `BlobNotFound`/404 response while the run is active. This is recorded as a log-retrieval limitation only; it does **not** establish a data request failure or success. No source request was added, retried, or restarted by this monitor check.
+- **Impact:** request-level coverage and current shard-level progress cannot yet be independently confirmed from the returned log archive. No dataset is accepted, and no prediction result is generated.
+- **Disposition:** wait for this already-authorized run to complete; then retrieve its job/artifact metadata, inspect the encrypted bundle's manifest and coverage/error report, and submit the realized artifact to the independent tester. Do not reuse the spent approval or infer completeness from request counts alone.
+- **Prevention:** treat active-run log retrieval errors separately from collector errors; check job/run state and artifacts before deciding whether a rerun is necessary.
