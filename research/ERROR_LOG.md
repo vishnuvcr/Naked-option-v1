@@ -180,3 +180,12 @@ Tester rejected the implementation snapshot `918821ba9e74342bb282fe3a86138e8aa8e
 The independent tester reviewed snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7` and found six blockers despite 29 passing offline checks: outdated spec provenance in output, conflicting dates accepted in one JSON record, non-finite CSV values treated as numeric, incomplete redaction of signature-like fields, unsanitized dated links, and insufficient workflow binding between the reviewed commit and protected file tree. Full details are in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`.
 
 No live source request or approval manifest is authorized. Correct these issues, add offline fixtures, and request a new code gate.
+
+## 2026-10-11 — Composite acquisition tester review (PASS WITH SCOPED RESTRICTIONS)
+
+- **Issue observed:** the 2023 year request JSON exceeded the connected repository reader's exposed content size, preventing a transparent line-by-line independent review even though the Git blob existed.
+- **Root cause:** one yearly request manifest contained 1,833 request objects and was larger than the content-reader's practical limit.
+- **Correction:** recreated the exact 2023 request grid as two deterministic files (987 and 846 requests) and converted the former path to a small index. The root manifest references both new parts. The offline manifest validator and pipeline workflow passed after each split/root/index change.
+- **Independent test result:** the tester reconstructed all 61 30-day windows and checked all 8,601 unique request keys, 61 spot calls, 8,540 option calls, 140 option selectors per window, required endpoint/interval/caps, and every flag/code/relative-strike/call-put cell. No missing or duplicate cells were found.
+- **Decision:** [tester report](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md), PASS WITH SCOPED RESTRICTIONS for the exact manifest and acquisition workflow only. The Dhan external value cross-check remains waived. No source request occurred as part of the tester review or offline CI.
+- **Prevention:** every active request submanifest is reader-sized, explicitly pinned by Git blob SHA, and loaded via the root manifest; the one-use live approval rechecks the pins before making the first request.
