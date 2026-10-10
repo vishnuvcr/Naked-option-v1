@@ -247,3 +247,14 @@ A previous legacy workflow did run the v1 source sampler without tester authoriz
 **Tester → Developer:** Mirror the exact current PASS report and create one hash-bound Gate A approval manifest. Let the guarded workflow re-run offline tests before any live fetch; then submit both source reports for a separate tester artifact audit.
 
 **Developer → Tester:** Preserve the prior unauthorized artifact as non-evidence and audit the new bounded run's URLs, hashes, all-row schemas and provenance. No full history or model fit is authorized by this gate.
+
+
+## 2026-10-10 — Gate A artifact failed independent source validation
+
+The one bounded source workflow completed successfully in all jobs but did not pass the separate artifact audit. The tester found (1) official index CSV dates were `DD-MM-YYYY`, so two index samples were marked FAIL by the code, and (2) the NSE API ignored the July 2024 date range and returned 2026-10-09 records; those records were incorrectly marked JSON_PARSED. FII/DII historical coverage is still only represented by a recent 164-row mirror and a 16-row recent page sample, so 500+ sessions have not been demonstrated.
+
+The artifact is not accepted, and the current approval has been revoked. No full history, feature table, labels or model fit occurred. The next exact snapshot must add numeric date parsing and response-window rejection tests, then receive independent review and a new bounded sample gate.
+
+**Tester → Developer:** Fix both source-validation defects and document broader free FII/DII source discovery. Keep full-history downloads/model fitting blocked.
+
+**Developer → Tester:** Independently review the updated code and new test results. A code PASS authorizes only one new bounded source-feasibility sample, not full acquisition or fitting.
