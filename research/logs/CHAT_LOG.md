@@ -608,3 +608,12 @@ The final code snapshot is commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Ne
 **Developer → Tester:** Verify the exact current protected file hashes, source probes, and manifest consume-before-fetch path.
 
 **Tester → Developer:** Pass or reject only this exact code snapshot; keep live source requests blocked until separate one-run manifest validation.
+
+
+## 2026-10-10 — Developer resubmits Discovery 3 after six code-gate blockers
+
+Implemented corrections for all six tester findings. The offline suite initially failed on a camelCase signature field; the redactor now normalizes camelCase before applying sensitive-key checks. Run `38029615734` subsequently passed all 32 tests. The current review request pins protected blobs/hashes for developer commit `1706a17d268e2b139fc9dba4504f498acc4f5de0`.
+
+**Developer → Tester:** Review the updated code and workflow at the exact pinned commit. No live source requests are authorized without your new explicit code-gate PASS and a separately valid one-run manifest.
+
+**Tester → Developer:** Validate the new fixtures and confirm the reviewed-commit tree guard checks all six protected blobs at the reported commit; separately audit any future source artifact.
