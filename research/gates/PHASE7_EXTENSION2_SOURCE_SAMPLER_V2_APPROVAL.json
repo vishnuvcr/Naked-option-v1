@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
-  "decision": "REVOKED — GATE A ARTIFACT REQUEST CHANGES",
+  "decision": "REVOKED — ARTIFACT GATE REQUEST CHANGES",
   "empirical_execution_authorized": false,
-  "authorized_scope": "No source-sampling authorization. The previous artifact gate returned REQUEST CHANGES. Do not fetch data, build features/labels, fit models, produce metrics/p-values, or open the final holdout.",
+  "authorized_scope": "No source-sampling authorization. Previous Gate A artifact failed independent audit. Do not fetch data, build features/labels, fit models, produce metrics/p-values, or open the final holdout.",
   "prior_reviewed_developer_commit": "6050908b98c53d75c10175140e84e87f48934896",
   "prior_artifact_run_id": 38026272245,
   "prior_artifact_id": 11660395594,
-  "revocation_reason": "Independent post-run audit found official index DD-MM-YYYY date parsing failure and out-of-window NSE FII/DII API response. A new exact-snapshot code review and separately approved bounded sample are required."
+  "next_code_snapshot_candidate": "784474de59a050ba6229ee5cb9a708c0f74ca2dc",
+  "revocation_reason": "Official NSE index date parsing and historical FII/DII response-window validation required correction and a fresh independent code gate. Current source code has regression fixes, but no renewed source authorization exists yet."
 }
