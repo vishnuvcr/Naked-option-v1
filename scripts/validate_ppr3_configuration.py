@@ -160,6 +160,18 @@ def validate() -> list[str]:
         errors.append("paper-native native_task_id values are blank or duplicated")
     if native_papers != {f"P{i:02d}" for i in range(1, 16)}:
         errors.append("paper-native ledger must cover all P01-P15")
+    native_by_id = {r.get("native_task_id", ""): r for r in native}
+    # Source-to-adaptation semantics checks for previously corrected mappings.
+    twitter = native_by_id.get("NT022", {})
+    if "PIPELINE:TIMESTAMPED_SENTIMENT_FUSION" not in twitter.get("common_adaptation_links", "") or "C010" in twitter.get("common_adaptation_links", ""):
+        errors.append("NT022 Twitter-mood component must link only to the sentiment pipeline, not BERT-LSTM C010")
+    sofnn = native_by_id.get("NT023", {})
+    blocked_sofnn = next((r for r in matrix if r.get("config_id") == "C011"), {})
+    if sofnn.get("common_adaptation_links") != "C011" or blocked_sofnn.get("confirmatory_inference_member") != "false":
+        errors.append("NT023 SOFNN must point to blocked C011, not an active substitute")
+    for native_id in ("NT045", "NT046"):
+        if native_by_id.get(native_id, {}).get("common_adaptation_links") != "NONE":
+            errors.append(f"{native_id} strategy/descriptive average source must not be mapped to MA crossover configs")
     all_config_ids = set(ids)
     for native_row in native:
         if not native_row.get("source_method_or_component") or not native_row.get("method_source_locator"):
