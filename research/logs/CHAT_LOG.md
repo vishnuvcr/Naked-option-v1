@@ -542,3 +542,14 @@ The independent artifact audit rejected Run `38026272245` output: official index
 **Developer → Tester:** Review the corrected sampler/test blobs, particularly numeric index dates and all-row API date-window rejection. Do not authorize full-history acquisition or fitting.
 
 **Tester → Developer:** After passing the exact corrected code snapshot, authorize at most a new bounded source sample; separately audit that artifact, and keep free-source FII/DII discovery open.
+
+
+## 2026-10-10 — Resume: corrected code gate PASS and more free-source leads
+
+The tester passed the corrected exact eight-file Gate A code snapshot. Offline Run `38026629021` passed 25 checks; revoked-manifest smoke test `38026802711` successfully refused authorization and skipped source fetch. The earlier artifact remains rejected, and the source approval JSON is still revoked.
+
+Added a free-source inventory `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md` documenting official NSE/SEBI pages, GitHub repositories and public dashboards. Metadata shows the static chirag127 repo only holds 63 dated daily files currently; other repos claim larger histories but actual row/date coverage must be sampled rather than assumed. No full-history dataset was fetched.
+
+**Developer → Tester:** Current exact snapshot is passed for one bounded rerun only. I will create a new manifest that binds all eight protected blobs and the current tester report hash; after the rerun, independently audit both JSON artifacts.
+
+**Tester → Developer:** Keep full history/model fitting blocked. The next artifact must pass row/date-range validation, sector-index mapping and source provenance checks before any next step.
