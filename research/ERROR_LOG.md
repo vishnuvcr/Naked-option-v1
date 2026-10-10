@@ -687,3 +687,13 @@ The access token is bound only to the guarded workflow's final source step and i
 - This is an execution-capability blocker, not a new code/test failure. No new run was dispatched, no historic failed run was rerun, no Dhan request was made, and no secret was accessed.
 - Correct handling: keep the live diagnostic blocked and retain the manual-only workflow. Do not restore a push trigger, claim that READY means validated, or broaden authorization.
 
+
+
+## 2026-10-10 — Manual-dispatch workflow made available on default branch
+
+- Root cause identified: GitHub exposes `workflow_dispatch` from the default branch; the guarded workflow previously existed only on `phase-07-developer`, so its Actions run page did not show the expected **Run workflow** control.
+- Recreated the same guarded workflow at `.github/workflows/phase-07-dhan-redirect-probe-live.yml` on `main` (commit `6628946afbba6e0f395563b427c54742513a0310`) without modifying the developer-branch copy or its protected manifest pins.
+- Verified the main-branch copy retains manual-only `workflow_dispatch`, explicit `confirm_probe` default false, and the job guard restricting execution to `phase-07-developer`. No push trigger was added.
+- This is a UI-availability correction only. It did not dispatch a run, spend the manifest, access a secret, make a Dhan request, or authorize any further data access.
+
+**Developer → Tester:** Independently compare the main-branch workflow copy with the pinned developer workflow; verify the default-branch registration fix introduces no push trigger and retains the branch/confirmation/manifest guards. A manual run remains a separate, explicitly confirmed action.
