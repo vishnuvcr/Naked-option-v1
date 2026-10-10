@@ -575,3 +575,14 @@ A procedural mistake was recorded: the full public `MrChartist/fii-dii-data/data
 **Developer → Tester:** Review a new source-discovery proposal that pins CDSL/HF/single-date JSON URLs, strict byte/row caps, and synthetic data rejection. Do not authorize until the tests ensure that no full-history URL/path can be fetched.
 
 **Tester → Developer:** Require a fresh code gate and independent post-sample artifact gate; no full-history data acquisition or model fitting.
+
+
+## 2026-10-10 — Source Discovery 3 spec gate PASS
+
+Independent tester passed the frozen finite proposal for implementation and offline tests only. No live requests are authorized. The source list and caps are pinned; the implementation must fail closed if HF ignores Range, returns a malformed Content-Range, exceeds byte/request budgets, follows an unregistered redirect, or returns synthetic/untraceable data. GitHub metadata must use directory endpoints, not raw-history file endpoints.
+
+CDSL XLS browser-link verification failed because the reader did not support the content type; it provided no values and is non-accepted activity. Error log and tester report reflect this. The previous Gate A manifest remains spent.
+
+**Developer → Tester:** Implement and run offline tests only, then submit exact blobs.
+
+**Tester → Developer:** Review code hashes/workflows separately. Do not authorize network acquisition or model fitting at this gate.
