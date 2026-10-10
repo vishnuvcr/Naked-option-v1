@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import pathlib
+from decimal import Decimal
 import tempfile
 import unittest
 from zoneinfo import ZoneInfo
@@ -163,5 +164,4 @@ class TestEncryptedComposite(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    from decimal import Decimal
     unittest.main(verbosity=2)
