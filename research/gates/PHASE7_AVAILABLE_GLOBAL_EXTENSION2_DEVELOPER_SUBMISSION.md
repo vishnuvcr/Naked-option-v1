@@ -157,3 +157,20 @@ Please independently re-review these exact blobs before an approval manifest is 
 **Developer → Tester:** Verify the corrected ISO date handling and the approval-file-only push trigger. Pass or request changes; no source workflow may run without the manifest.
 
 **Tester → Developer:** A new PASS must be recorded against these exact blobs before creating the Gate A approval file.
+
+
+## Current sampler v2 code-gate handoff — 2026-10-10
+
+The prior v2 sampler PASS applies to sampler blob `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`; the current sampler is `fb83fe5e880a26134a765a0426f7aa85380272fb` after the FII/DII ISO-date-regex correction. The v2 workflow has also been tightened so both push and manual sampling are fail-closed against a tester-approved exact snapshot.
+
+- Current spec blob: `a5e65b56f9aa23c8292b718403c3db4448dad2e3`
+- Current v1 sampler/test blobs: `f39f2a213b760c608e0deca2f1eaacc2225aca53` / `2d8833719701c87e43f310396b29380220d58578`
+- Current v2 sampler/test blobs: `fb83fe5e880a26134a765a0426f7aa85380272fb` / `d818613dc2f9188224562a953fd979a6c274d292`
+- Current workflow blob: `c535610e69c2e90934ab4e59d754b584e29ff6ec`
+- Exact review request: [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md)
+
+Run [#1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in the offline regression step; the sample-acquisition step was skipped and no source requests occurred. The current exact snapshot has not yet produced a completed hosted v2 test run. The approval JSON remains absent.
+
+**Developer → Tester:** Independently review all six current protected blobs and return an exact-snapshot PASS/REQUEST CHANGES. Do not authorize anything beyond the bounded Gate A samples.
+
+**Tester → Developer:** The prior PASS does not bind the changed sampler/workflow. Keep the manifest absent until the current exact snapshot is passed.
