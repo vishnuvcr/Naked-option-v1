@@ -425,3 +425,12 @@ The independent tester passed the new bounded free-source proposal for **impleme
 See the [specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md) and [independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md). The previous Gate A manifest is spent. The next gate is offline implementation/tests followed by an exact-snapshot code review; a separate manifest will be required before any live source probe.
 
 During specification link verification, the web reader could not parse the two CDSL XLS links and returned no data values. This is recorded as non-accepted activity, not as source-coverage evidence. Full-history acquisition and model fitting remain unauthorized.
+
+
+### Extension 2 free daily-flow source discovery 3 — code gate pending (2026-10-10)
+
+The finite source-discovery implementation is now in place, and its latest hosted offline suite [Run 38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968) passed **27/27 checks**. The exact current code/workflow snapshot is submitted for isolated tester review in [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+
+The sampler uses fixed CDSL, Hugging Face, one-date public JSON, page and directory-metadata probes only. It enforces shared request/byte caps, strict HTTP 206/Content-Range checks, URL/host/range allowlists, no credential forwarding, synthetic/provenance rejection, and safe metadata-only GitHub directory parsing. The live workflow consumes the single-use manifest before source access; the offline workflow invokes only fixtures.
+
+**No live source probes have been made by this implementation.** The previous Gate A manifest is spent; this work requires a separate code-gate PASS and then a new one-run manifest. Even after the sample, the artifact must pass its own independent audit. Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain unauthorized.
