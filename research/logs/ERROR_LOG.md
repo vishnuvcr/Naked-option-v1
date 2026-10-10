@@ -196,3 +196,10 @@ New errors must be appended, never overwritten.
 - **Retest:** [run 38068967518](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068967518) completed successfully on developer commit `06f9d106ff4685ddc2c5d2b3ac5fd0dc6770b5e6`. Log says: “PASS: source matrix, target/inference contract, search bounds and fail-closed flags.”
 - Scope remains document/protocol validation only. Failure and recovery are preserved as separate run evidence; the failures were not re-labelled as passes. New model/data execution remains unauthorized.
 
+
+
+## 2026-10-10 — PPR-2 registry and validator corrections
+
+- L003 had a semantic CSV defect: its DOI URL was shifted into `related_hypotheses`. Fixed the row so `url_or_doi`, `related_methods`, `related_hypotheses`, and `replication_requirement` are correctly aligned. Registry validation then passed at [run 38069197259](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069197259). The former syntactic-only validator had not detected this semantic shift.
+- The first PPR-2 crosswalk run [38069565482](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069565482) failed because `REPOSITORY_README_VERIFIED` was not recognized by the review-depth allowlist. This was a validator taxonomy omission. The allowed tokens were expanded and exact-commit retry [38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564) passed on commit `974bed3013fa1a0a608f83a56220ed449514580a`.
+- Retry verifies mapping integrity only: all 36 IDs once, base source fields preserved and PPR-2 annotations populated. No network, data pull or model fit occurred. Preserve the failed run; PPR-2 still requires tester review.
