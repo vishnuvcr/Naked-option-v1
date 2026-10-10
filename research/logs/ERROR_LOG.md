@@ -246,3 +246,12 @@ New errors must be appended, never overwritten.
 - Findings are recorded in `research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md`. NSE archive page exposes index/TRI, India VIX and derivatives archive links. India VIX methodology describes best bid/ask NIFTY option prices and a 30-calendar-day expected-volatility horizon. Treasury documentation title was retrieved, but schema and release details were not sufficiently exposed.
 - **Interface limitation:** raw response byte counts, full HTTP headers and raw-body hashes are not exposed by the web reader. Thus the 2 MiB transport cap cannot be independently attested; no byte-cap-certified acquisition is claimed. No linked endpoint or data file was requested.
 - No market data, features, labels, models or holdout outcomes were accessed. Data/model/holdout permissions remain false.
+
+
+## 2026-10-11 — PPR-4 validator caught stale artifact pins
+
+- First PPR-4 workflow after the Wave 1 register update failed because the manifest still referenced the previous source-register blob and incorrectly stored a commit identifier where the documentation-result blob SHA was required.
+- Corrected the source-register pin to `17bec0c63f93fbecbebfaabab7f62d273ab41fc4`, documentation-results blob to `613518a56523ef14fdb74e4fad9dfd9c6e6f8966`, and tester-report pins to their fetched content blob SHAs.
+- Exact-snapshot retry [run 38077081310](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38077081310) passed on commit `bfbd43a46d9daefeb90e28531f94db2d84ec00ec`. This validates metadata and pin consistency only.
+- A small report-count inconsistency remains in the audit prose (one sentence still says 32 while the canonical register has 34); it does not alter source acceptance or gate state and should be corrected before the next frozen snapshot.
+- No source data requests, dataset/model downloads, modeling-panel acceptance, feature/label generation, model fitting or holdout access occurred.
