@@ -1,0 +1,151 @@
+name: Extension 2 Free Flow Source Discovery 3 — Guarded One-Run Probe
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_APPROVAL.json"
+  workflow_dispatch:
+    inputs:
+      run_source_probe:
+        description: "Run the one bounded source probe after exact tester approval"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: free-flow-source-discovery-3-live-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    name: offline-source-discovery-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-source-discovery-3.txt
+      - name: Install pinned parser dependency only
+        run: python -m pip install -r requirements-source-discovery-3.txt
+      - name: Run bounded source-discovery offline tests
+        run: python scripts/test_extension2_free_flow_source_discovery_3.py
+
+  independent-tester-approval:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_source_probe)
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      authorized: ${{ steps.guard.outputs.authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate exact source-discovery approval and hashes
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import subprocess
+
+          root = pathlib.Path(".")
+          manifest_path = root / "research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_APPROVAL.json"
+          report_path = root / "research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md"
+          if not manifest_path.is_file():
+              raise SystemExit("FAIL CLOSED: source-discovery approval manifest absent")
+          if not report_path.is_file():
+              raise SystemExit("FAIL CLOSED: mirrored tester report absent")
+          try:
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          except Exception as exc:
+              raise SystemExit(f"FAIL CLOSED: invalid approval JSON: {type(exc).__name__}")
+          report_bytes = report_path.read_bytes()
+          report_text = report_bytes.decode("utf-8")
+          if manifest.get("decision") != "PASS WITH SCOPED RESTRICTIONS":
+              raise SystemExit("FAIL CLOSED: tester decision is not PASS WITH SCOPED RESTRICTIONS")
+          required_scope = "One bounded free-source discovery run only; no full-history downloads, feature tables, labels, model fitting, metrics/p-values, or final-holdout access."
+          if manifest.get("authorized_scope") != required_scope:
+              raise SystemExit("FAIL CLOSED: authorization scope mismatch")
+          required_line = "**Current decision: PASS WITH SCOPED RESTRICTIONS — one bounded source discovery run only.**"
+          if required_line not in report_text:
+              raise SystemExit("FAIL CLOSED: current exact-snapshot tester decision missing")
+          for phrase in (
+              "Source requests authorized: ONE BOUNDED DISCOVERY RUN ONLY.",
+              "Full-history acquisition: NOT AUTHORIZED.",
+              "Model fitting: NOT AUTHORIZED.",
+          ):
+              if phrase not in report_text:
+                  raise SystemExit("FAIL CLOSED: tester report is missing explicit run-scope restriction")
+          report_sha = hashlib.sha256(report_bytes).hexdigest()
+          if manifest.get("tester_report_sha256") != report_sha:
+              raise SystemExit("FAIL CLOSED: tester report SHA-256 mismatch")
+          expected = {
+              "research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md",
+              "scripts/extension2_free_flow_source_discovery_3.py",
+              "scripts/test_extension2_free_flow_source_discovery_3.py",
+              "requirements-source-discovery-3.txt",
+              ".github/workflows/phase-07-free-flow-source-discovery-3-tests.yml",
+              ".github/workflows/phase-07-free-flow-source-discovery-3.yml",
+          }
+          expected_sha256 = manifest.get("protected_file_sha256")
+          expected_blobs = manifest.get("protected_git_blob_sha")
+          if not isinstance(expected_sha256, dict) or set(expected_sha256) != expected:
+              raise SystemExit("FAIL CLOSED: protected byte-hash set mismatch")
+          if not isinstance(expected_blobs, dict) or set(expected_blobs) != expected:
+              raise SystemExit("FAIL CLOSED: protected Git-blob set mismatch")
+          for rel in sorted(expected):
+              p = root / rel
+              if not p.is_file():
+                  raise SystemExit(f"FAIL CLOSED: protected file missing: {rel}")
+              actual_hash = hashlib.sha256(p.read_bytes()).hexdigest()
+              if actual_hash != expected_sha256[rel]:
+                  raise SystemExit(f"FAIL CLOSED: protected SHA-256 mismatch: {rel}")
+              actual_blob = subprocess.check_output(["git", "rev-parse", f"HEAD:{rel}"], text=True).strip()
+              if actual_blob != expected_blobs[rel]:
+                  raise SystemExit(f"FAIL CLOSED: protected Git-blob mismatch: {rel}")
+              if actual_blob not in report_text:
+                  raise SystemExit(f"FAIL CLOSED: tester report does not pin blob: {rel}")
+          reviewed_commit = manifest.get("reviewed_developer_commit")
+          if not isinstance(reviewed_commit, str) or len(reviewed_commit) != 40:
+              raise SystemExit("FAIL CLOSED: reviewed commit malformed")
+          subprocess.run(["git", "cat-file", "-e", f"{reviewed_commit}^{{commit}}"], check=True)
+          subprocess.run(["git", "merge-base", "--is-ancestor", reviewed_commit, "HEAD"], check=True)
+          print("PASS: exact tester report, protected byte hashes/Git blobs, scope and commit ancestry validated")
+          print("authorized=true")
+          PY
+          echo "authorized=true" >> "$GITHUB_OUTPUT"
+
+  bounded-source-probe:
+    needs: [offline-regression, independent-tester-approval]
+    if: needs.independent-tester-approval.result == 'success' && needs.independent-tester-approval.outputs.authorized == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-source-discovery-3.txt
+      - name: Install pinned parser dependency only
+        run: python -m pip install -r requirements-source-discovery-3.txt
+      - name: Run one frozen source probe
+        run: python scripts/extension2_free_flow_source_discovery_3.py
+      - name: Upload bounded source-discovery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension2-free-flow-source-discovery-3
+          path: data/reports/extension2_free_flow_source_discovery_3.json
+          if-no-files-found: error
+          retention-days: 30
