@@ -238,3 +238,11 @@ New errors must be appended, never overwritten.
 - This pass is a structural/provenance check only; no new source requests, dataset or model downloads, raw market data reads, feature/label generation, model fitting/tuning/scoring, holdout access or option P&L occurred.
 - Final governance stays **PPR-4 REQUEST CHANGES / EXIT BLOCKED**. The remaining required evidence is a genuine existing split/boundary artifact or a separately reviewed pre-outcome split/holdout design before any modeling outcome is inspected.
 
+
+
+## 2026-10-11 — PPR-4 Wave 1 documentation check
+
+- Tester review 3 approved source/cache proposal drafting only; tester review 4 approved three exact official documentation-page GETs only.
+- Findings are recorded in `research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md`. NSE archive page exposes index/TRI, India VIX and derivatives archive links. India VIX methodology describes best bid/ask NIFTY option prices and a 30-calendar-day expected-volatility horizon. Treasury documentation title was retrieved, but schema and release details were not sufficiently exposed.
+- **Interface limitation:** raw response byte counts, full HTTP headers and raw-body hashes are not exposed by the web reader. Thus the 2 MiB transport cap cannot be independently attested; no byte-cap-certified acquisition is claimed. No linked endpoint or data file was requested.
+- No market data, features, labels, models or holdout outcomes were accessed. Data/model/holdout permissions remain false.
