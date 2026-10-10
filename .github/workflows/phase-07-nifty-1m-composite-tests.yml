@@ -1,0 +1,58 @@
+name: NIFTY 1-Minute Composite Pipeline — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json"
+      - "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_*.json"
+      - "scripts/run_nifty_1m_composite_dataset.py"
+      - "scripts/decrypt_nifty_1m_composite.py"
+      - "scripts/validate_nifty_1m_composite_manifest.py"
+      - "scripts/test_nifty_1m_composite_manifest.py"
+      - "scripts/test_nifty_1m_composite_dataset.py"
+      - "requirements-composite.txt"
+      - ".github/workflows/phase-07-nifty-1m-composite-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nifty-1m-composite-tests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-pipeline-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-composite.txt
+      - name: Install encryption dependency
+        run: python -m pip install -r requirements-composite.txt
+      - name: Compile collector, decryptor and validators
+        run: >-
+          python -m py_compile
+          scripts/run_nifty_1m_composite_dataset.py
+          scripts/decrypt_nifty_1m_composite.py
+          scripts/validate_nifty_1m_composite_manifest.py
+          scripts/test_nifty_1m_composite_dataset.py
+          scripts/test_nifty_1m_composite_manifest.py
+      - name: Run offline manifest and data-pipeline tests
+        working-directory: scripts
+        run: |
+          set -euo pipefail
+          python -m unittest -v test_nifty_1m_composite_manifest
+          python -m unittest -v test_nifty_1m_composite_dataset
+      - name: Verify exact request grid
+        run: python scripts/validate_nifty_1m_composite_manifest.py
+
+# No secrets, internet API calls, data payloads, model fitting or holdout access are permitted in this workflow.
