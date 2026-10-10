@@ -28,7 +28,7 @@ INTRADAY_URL = f"{BASE}/charts/intraday"
 ROLLING_OPTION_URL = f"{BASE}/charts/rollingoption"
 ALLOWED_URLS = frozenset({DAILY_URL, INTRADAY_URL, ROLLING_OPTION_URL})
 MAX_REQUESTS = 1  # default sample-gate budget; bulk runs need a new reviewed budget
-MAX_TOTAL_BYTES = 2 * 1024 * 1024
+MAX_TOTAL_BYTES = 8 * 1024 * 1024
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_REQUEST_BODY_BYTES = 16 * 1024
 TIMEOUT_SECONDS = 20
@@ -95,6 +95,7 @@ def request_json(
     budget: RequestBudget,
     opener_factory: Callable[[], Any] = _no_redirect_opener,
     now: float | None = None,
+    live_authorized: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Call exactly one allowlisted POST and return data plus redacted metadata.
 
@@ -102,6 +103,8 @@ def request_json(
     HTTP-error bodies. Live calls must be authorized by a separate workflow and
     single-use manifest; the CLI deliberately does not expose a live mode.
     """
+    if not live_authorized:
+        raise RuntimeError("live_request_not_authorized")
     if not _valid_api_url(url):
         raise ValueError("unregistered_or_unsafe_url")
     if not isinstance(body_obj, dict):
@@ -408,9 +411,18 @@ def atomic_cache_bundle(
         },
         "request_parameters": request_parameters,
     }
-    # Explicitly reject common credential-like fields in any persisted metadata.
-    forbidden = {"access-token", "access_token", "token", "client_id", "clientid", "authorization", "cookie"}
-    if any(str(k).lower().replace("-", "_") in {x.replace("-", "_") for x in forbidden} for k in manifest):
+    # Explicitly reject common credential-like keys recursively in persisted metadata.
+    forbidden = {"access_token", "token", "client_id", "clientid", "authorization", "cookie", "password", "secret"}
+    def contains_forbidden_key(value: Any) -> bool:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                normalized = str(key).lower().replace("-", "_")
+                if normalized in forbidden or contains_forbidden_key(child):
+                    return True
+        elif isinstance(value, (list, tuple)):
+            return any(contains_forbidden_key(child) for child in value)
+        return False
+    if contains_forbidden_key(manifest):
         raise ValueError("cache_manifest_contains_forbidden_key")
     encoded_manifest = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode("utf-8")
     if destination.exists():
