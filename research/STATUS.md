@@ -1078,3 +1078,17 @@ Continue only read-only GitHub file/content/commit/approval metadata searches fo
 **Developer → Tester:** Search for a genuine existing split boundary using metadata/content search only; if none is found, review a distinct new split-governance proposal before any implementation.
 **Tester → Developer:** Maintain REQUEST CHANGES / BLOCKED_GATE until the boundary is proved or a new pre-outcome split design is approved. Keep data and model execution disabled.
 
+
+
+## PPR-4 Wave 1 documentation-only checkpoint — 2026-10-11
+
+The source/cache proposal received a scoped tester PASS for proposal drafting only: [review 3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW3_SOURCE_ACQUISITION_PROPOSAL.md). A separate exact snapshot received a scoped PASS for three official documentation-page GETs only: [review 4](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md).
+
+Results: [Wave 1 documentation report](phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md). NSE's archive page visibly lists historical index, TRI, India VIX and derivatives archive links. NSE's India VIX page describes a measure based on best bid/ask NIFTY option prices for expected volatility over the next 30 calendar days. Treasury feed page title was returned, but query/schema/release details were not sufficiently exposed.
+
+The web-reader interface does not expose response byte counts, full headers or raw-body hashes. Therefore the 2 MiB transport cap cannot be independently attested. No data links were followed, no market values/files were requested, no dataset accepted, and no model/holdout work occurred.
+
+**Current status:** PPR-4 source-data acquisition gate remains **CLOSED**. Next: update the source register with these documentation findings and draft a separate exact-source data-sample request only if endpoint, license, PIT rules and transport-enforced byte/hash logging can be established. No data download, model fitting/scoring, holdout access or option P&L is authorized.
+
+**Developer → Tester:** Review the source-register update and any proposed bounded data request before network activity.
+**Tester → Developer:** Keep all data/model/holdout permissions false until a new exact-source PASS.
