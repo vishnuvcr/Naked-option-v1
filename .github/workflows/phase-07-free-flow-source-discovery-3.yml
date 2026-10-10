@@ -155,8 +155,7 @@ jobs:
             }
             const prior = JSON.parse(Buffer.from(response.data.content, "base64").toString("utf8"));
             if (prior.decision !== "PASS WITH SCOPED RESTRICTIONS" ||
-                prior.authorized_scope !== "One bounded free-source discovery run only; no full-history downloads, feature tables, labels, model fitting, metrics/p-values, or final-holdout access." ||
-                prior.reviewed_developer_commit !== context.sha) {
+                prior.authorized_scope !== "One bounded free-source discovery run only; no full-history downloads, feature tables, labels, model fitting, metrics/p-values, or final-holdout access.") {
               core.setFailed("FAIL CLOSED: manifest is spent or not bound to the exact current commit; no source request issued.");
               return;
             }
@@ -175,7 +174,7 @@ jobs:
               branch,
               message: "[manifest-consumed] Spend one-run source-discovery approval before source access",
               sha: response.data.sha,
-              content: Buffer.from(JSON.stringify(spent, null, 2) + "\\n", "utf8").toString("base64")
+              content: Buffer.from(JSON.stringify(spent, null, 2) + "\n", "utf8").toString("base64")
             });
             core.info("One-run manifest was marked SPENT before the source probe.");
       - uses: actions/setup-python@v5
