@@ -122,7 +122,7 @@
       "params": {
         "n_estimators": 100,
         "max_samples": 0.8,
-        "max_features": 1.0,
+        "max_features": 1,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -526,7 +526,7 @@
       "params": {
         "n_estimators": 100,
         "max_samples": 0.8,
-        "max_features": 1.0,
+        "max_features": 1,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -557,7 +557,7 @@
         "n_estimators": 500,
         "max_depth": null,
         "min_samples_leaf": 10,
-        "max_features": 1.0,
+        "max_features": 1,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -1129,6 +1129,24 @@
         "merge": "concatenate final LSTM state and TCN pooled state"
       },
       "preprocess": "causal sequence windows; inverse-transform target and train-only scaling"
+    },
+    "CCI_20_DIRECTION": {
+      "family": "CCI(20) state-conditioned probabilistic directional rule",
+      "params": {
+        "lookback_sessions": 20,
+        "typical_price_formula": "(high + low + close) / 3",
+        "mean_deviation_formula": "mean(abs(typical_price_i - SMA20(typical_price))) over the trailing 20 completed bars",
+        "cci_formula": "(typical_price_t - SMA20(typical_price)_t) / (0.015 * mean_deviation_20_t)",
+        "state_thresholds": {
+          "bullish": "CCI > +100",
+          "bearish": "CCI < -100",
+          "neutral": "-100 <= CCI <= +100"
+        },
+        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates in training history keyed by the current CCI state; update only with labels whose endpoints mature before each later decision",
+        "model_output": "three probabilities ordered DOWN, FLAT, UP",
+        "source_relation": "PROJECT-ADAPTATION only; source paper is a long-call/put strategy study and did not report this spot-direction classifier"
+      },
+      "preprocess": "Compute CCI only from completed OHLC bars available at the decision cutoff. Do not use option premiums, execute option trades, or calculate option P&L in this configuration."
     }
   },
   "aliases": {
@@ -1225,7 +1243,7 @@
       "scheme": "five chronological expanding-origin splits within outer training only",
       "purge_rule": "drop any inner-training label whose endpoint is at or after that inner validation decision cutoff",
       "selection_metric": "mean MAE over inner validation folds",
-      "final_refit": "after selecting parameters, refit once on the complete outer training prefix"
+      "final_refit": "For each candidate setting, fit only the five inner chronological folds and average their validation MAE. Select the best setting, then fit the selected model on the complete purged outer training prefix as the outer prediction fit; this selected fit is already counted in the outer-fit budget. Do not refit every candidate setting on the full outer prefix."
     },
     "grids": {
       "RANDOM_FOREST_REGRESSION": {
@@ -1244,7 +1262,7 @@
         ],
         "max_features": [
           "sqrt",
-          1.0
+          1
         ],
         "candidate_count": 18,
         "grid_rule": "Use this explicit list of 18 hyperparameter configurations; do not materialize the full Cartesian product of the descriptive value lists.",
@@ -1259,7 +1277,7 @@
             "n_estimators": 300,
             "max_depth": null,
             "min_samples_leaf": 5,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 300,
@@ -1271,7 +1289,7 @@
             "n_estimators": 300,
             "max_depth": null,
             "min_samples_leaf": 10,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 300,
@@ -1283,7 +1301,7 @@
             "n_estimators": 300,
             "max_depth": 8,
             "min_samples_leaf": 5,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 300,
@@ -1295,7 +1313,7 @@
             "n_estimators": 300,
             "max_depth": 8,
             "min_samples_leaf": 10,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 500,
@@ -1307,7 +1325,7 @@
             "n_estimators": 500,
             "max_depth": null,
             "min_samples_leaf": 5,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 500,
@@ -1319,7 +1337,7 @@
             "n_estimators": 500,
             "max_depth": null,
             "min_samples_leaf": 10,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 500,
@@ -1331,7 +1349,7 @@
             "n_estimators": 500,
             "max_depth": 8,
             "min_samples_leaf": 5,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 500,
@@ -1343,7 +1361,7 @@
             "n_estimators": 500,
             "max_depth": 8,
             "min_samples_leaf": 10,
-            "max_features": 1.0
+            "max_features": 1
           },
           {
             "n_estimators": 300,
@@ -1443,10 +1461,11 @@
     "max_candidate_cells": 20,
     "max_settings_per_cell": 20,
     "max_inner_splits": 5,
-    "fit_call_upper_bound": 2400,
+    "fit_call_upper_bound": 2000,
     "actual_candidate_cells": 12,
-    "calculated_tuning_fit_calls": 936,
-    "no_other_search": true
+    "calculated_tuning_fit_calls": 780,
+    "no_other_search": true,
+    "counted_fit_calls_definition": "Inner search only: 6 Random Forest cells × 18 settings × 5 chronological folds + 6 XGBoost cells × 8 settings × 5 chronological folds = 780. The final selected-settings fits are the corresponding outer fits and are already included in the outer-fit budget."
   },
   "blocked_settings": {
     "BLOCKED_NATIVE_30_SESSION": {
