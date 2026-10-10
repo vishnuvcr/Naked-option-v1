@@ -65,7 +65,7 @@ def validate() -> list[str]:
     budget = policy.get("acquisition_budget_contract", {})
     if budget.get("serial_requests_per_second_max") != 2:
         errors.append("serial_rate_limit_must_be_two_requests_per_second")
-    if budget.get("daily_dhan_request_budget_max") != 8250:
+    if budget.get("daily_dhan_request_budget_max") != 8701:
         errors.append("daily_dhan_request_budget_mismatch")
     daily = budget.get("daily_index", {})
     if (daily.get("request_max") != 40 or daily.get("response_bytes_max") != 1048576
@@ -78,15 +78,25 @@ def validate() -> list[str]:
             or intraday.get("aggregate_bytes_max") != 268435456):
         errors.append("intraday_budget_mismatch")
     options = budget.get("rolling_options", {})
-    if (options.get("request_max") != 8100 or options.get("provider_window_days_max") != 30
+    if (options.get("request_max") != 8540 or options.get("provider_window_days_max") != 30
             or options.get("chunk_calendar_days") != 30
             or options.get("expiry_flags") != ["WEEK", "MONTH"]
-            or options.get("expiry_codes") != [0, 1, 2]
-            or len(options.get("relative_strikes", [])) != 11
+            or options.get("expiry_code_values") != [0, 1, 2]
+            or options.get("strike_grid_by_expiry_code", {}).get("0") is None
+            or len(options.get("strike_grid_by_expiry_code", {}).get("0", [])) != 21
+            or len(options.get("strike_grid_by_expiry_code", {}).get("1", [])) != 7
+            or len(options.get("strike_grid_by_expiry_code", {}).get("2", [])) != 7
             or options.get("option_types") != ["CALL", "PUT"]
+            or options.get("interval_minutes") != 1
             or options.get("response_bytes_max") != 2097152
-            or options.get("aggregate_bytes_max") != 2147483648):
+            or options.get("aggregate_bytes_max") != 4294967296
+            or options.get("rows_per_response_max") != 10000
+            or options.get("max_retry_requests_total") != 100):
         errors.append("rolling_options_budget_or_grid_mismatch")
+    if budget.get("base_planned_requests") != 8601 or budget.get("max_wire_requests_including_retries") != 8701:
+        errors.append("composite_request_total_mismatch")
+    if options.get("greeks_policy", "").find("otherwise") < 0:
+        errors.append("historical_greeks_missing_input_policy_missing")
     cache = policy.get("cache_contract", {})
     if cache.get("verify_before_fetch") is not True:
         errors.append("persisted_cache_must_be_verified_before_fetch")
@@ -124,9 +134,11 @@ def validate() -> list[str]:
         "Paytm Money",
         "GitHub Release assets",
         "not the authoritative long-term data cache",
-        "8,100",
-        "2 GiB",
-        "8,250",
+        "8,540",
+        "4 GiB",
+        "8,701",
+        "one-minute",
+        "Black–Scholes",
     ]
     for required in required_plan_parts:
         if required.lower() not in plan.lower():
