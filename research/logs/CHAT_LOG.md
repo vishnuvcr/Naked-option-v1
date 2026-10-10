@@ -287,3 +287,21 @@ The code gate was rejected after independent static review found six data-integr
 **Tester → Developer:** Fix all findings, add offline tests, and submit a fresh exact-snapshot review. Do not create a live-source approval manifest.
 
 **Developer → Tester:** Re-review the corrected code/workflow hashes; source access remains disabled until a fresh code PASS and separate one-run authorization.
+
+## 2026-10-11 — Independent tester pass for NIFTY one-minute composite acquisition
+
+### Reviewed decision
+The tester branch reviewed the exact developer commit `98ef6ca039b19f0284981c57fc17b39124284869` and issued **PASS WITH SCOPED RESTRICTIONS — EXACT MANIFEST AND ACQUISITION WORKFLOW ONLY** in [the tester report](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md). Reviewer rebuilt the request grid from all active root-referenced manifests, not merely relying on the developer validator.
+
+### Results
+- 61 non-overlapping 30-day windows; 8,601 unique requests; 61 spot and 8,540 option requests; every declared option selector occurs once per window; no request-grid findings.
+- Request list for 2023 was split into reviewable A/B files (987 and 846 entries) after the connector failed to expose the oversized single file. Root manifest links both; a small index remains at the old path.
+- CI is green for both split parts, the root manifest, old index and current code/parser/encryption/Greek/attempt-ledger tests. These were offline runs and made no Dhan requests.
+- Historical Greeks are either computed from source-based effective inputs or visibly marked as proxies (rule-based expiry, zero-rate/zero-dividend as needed, and IV-unit heuristic). No live option-chain Greeks are backfilled into history.
+- Subscribed data will be cached and packaged only as AES-256-GCM ciphertext in the public repository's workflow artifact; local use requires the same `HF_TOKEN` value used to encrypt.
+
+### Current gate state
+The tester has approved the exact manifest and guarded workflow only. A one-use approval is the next developer action; it must bind the reviewed Git blob SHA of every protected code, request, policy and workflow file as well as the tester report. The guarded workflow marks approval spent before the first network request, then exports encrypted monthly CSV parts plus a redacted coverage/errors report. If any request or feature family is missing, the report must say PARTIAL and a separate open-source fallback manifest is prepared; unrelated research should continue.
+
+**Developer → Tester:** proceed with the pinned one-use acquisition and return the actual coverage/artifact disposition for independent review.  
+**Tester → Developer:** approval is scoped to enumerated acquisition only; do not start modeling until the realized dataset coverage has been reviewed.
