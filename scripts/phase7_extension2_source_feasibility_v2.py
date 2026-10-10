@@ -368,6 +368,29 @@ def inspect_nse_fii_api_payload(key: str, data: bytes, meta: dict[str, Any]) -> 
     }
 
 
+
+def inspect_nse_fii_api_source(key: str, url: str) -> dict[str, Any]:
+    allowed, reason = validate_nse_fii_api_url(key, url)
+    if not allowed:
+        return {
+            "key": key, "url": url, "status": "NOT_REQUESTED_SCOPE_FAIL",
+            "schema_status": "FAIL", "reason": reason,
+            "max_response_bytes": MAX_FII_API_BYTES, "max_response_rows": MAX_FII_API_ROWS,
+        }
+    data, meta = fetch_bytes(url, timeout=30, max_bytes=MAX_FII_API_BYTES)
+    if data is None:
+        return {
+            "key": key, **meta, "schema_status": "NOT_VERIFIED", "request_scope": reason,
+            "max_response_bytes": MAX_FII_API_BYTES, "max_response_rows": MAX_FII_API_ROWS,
+        }
+    return {
+        **inspect_nse_fii_api_payload(key, data, meta),
+        "request_scope": reason,
+        "max_response_bytes": MAX_FII_API_BYTES,
+        "max_response_rows": MAX_FII_API_ROWS,
+    }
+
+
 def main() -> None:
     report = {
         "schema_version": 2,
@@ -381,23 +404,7 @@ def main() -> None:
         "nse_fii_api": [],
     }
     for key, url in NSE_FII_URLS:
-        allowed, reason = validate_nse_fii_api_url(key, url)
-        if not allowed:
-            report["nse_fii_api"].append({
-                "key": key, "url": url, "status": "NOT_REQUESTED_SCOPE_FAIL",
-                "schema_status": "FAIL", "reason": reason,
-            })
-            continue
-        data, meta = fetch_bytes(url, timeout=30, max_bytes=MAX_FII_API_BYTES)
-        if data is None:
-            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NOT_VERIFIED", "request_scope": reason})
-            continue
-        report["nse_fii_api"].append({
-            **inspect_nse_fii_api_payload(key, data, meta),
-            "request_scope": reason,
-            "max_response_bytes": MAX_FII_API_BYTES,
-            "max_response_rows": MAX_FII_API_ROWS,
-        })
+        report["nse_fii_api"].append(inspect_nse_fii_api_source(key, url))
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps({
