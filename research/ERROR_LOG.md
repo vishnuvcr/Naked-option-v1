@@ -802,3 +802,27 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Hosted run 38049058737 on developer commit c4b6bc5a06f296bb8765e6facd85c2d8e396eb53 passed 30/30 offline/mock tests.
 - Hosted Research Protocol Check 38049058835 passed.
 - Remaining gate is independent tester code review. No live request or history download is authorized.
+
+
+### Hosted run 38049028415 — idempotent cache-hit test still used dates only
+- Category: regression harness / cache provenance.
+- Symptom: the second cache call failed with daily_request_instrument_fields_missing.
+- Root cause: the first cache creation test was updated with the full daily request manifest, but its repeated cache-hit call retained a dates-only dictionary.
+- Correction: both calls now use the same full DAILY_REQ parameters.
+
+### Hosted run 38049205635 — rolling-option date fixture exceeded the new inclusive cap
+- Category: regression harness / date-window semantics.
+- Symptom: the rolling-option positive fixture raised date_range_exceeds_documented_cap.
+- Root cause: the new conservative check counts both the start and end dates; Jan 1 through Jan 31 is 31 calendar dates, not a <=30-date sample.
+- Correction: changed the valid 30-calendar-date fixture to Jan 1 through Jan 30. The code intentionally uses inclusive-day counting to avoid exceeding documented request caps.
+
+### Hosted runs 38049290287 and 38049305699 — cache timestamp-window fixture mismatch
+- Category: regression harness / source-provenance check.
+- Symptom: cache fixtures raised cache_timestamp_outside_requested_window.
+- Root cause: the new cache gate correctly checked epoch timestamps converted to Asia/Kolkata time against the request window, but the fixture used Jan 2024 request dates for timestamps representing Nov 2023.
+- Correction: moved the deterministic test request window to 2023-11-15 through 2023-11-16, matching both fixture timestamps. A separate negative test now checks that out-of-window responses are rejected before cache creation.
+
+### Final verified status after additional validation hardening
+- Hosted run [38049314836](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314836) passed **34/34 offline/mock tests** after exact body-field allowlists, inclusive window caps, positive integral timestamps, alignment checks for all response arrays, cache validation recomputation and in-window timestamp validation.
+- Hosted Research Protocol Check [38049314978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314978) passed.
+- The exact code snapshot still requires independent tester review. No Dhan call, data download, cache population, feature engineering or model fit took place.
