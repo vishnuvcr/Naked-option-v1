@@ -493,9 +493,6 @@ def atomic_cache_bundle(
         raise ValueError("cache_response_hash_mismatch")
     if request_metadata.get("response_bytes") != len(payload_bytes):
         raise ValueError("cache_response_byte_count_mismatch")
-    root = pathlib.Path(cache_root)
-    root.mkdir(parents=True, exist_ok=True)
-    destination = root / digest
     manifest = {
         "schema_version": 1,
         "source_url": source_url,
@@ -533,11 +530,34 @@ def atomic_cache_bundle(
         raise ValueError("cache_request_parameters_unapproved")
     validate_request_window(source_url, request_parameters)
     _validate_payload_timestamps_in_request(parsed_payload, source_url, request_parameters)
+    scope_bytes = json.dumps(
+        {"source_url": source_url, "request_parameters": request_parameters},
+        sort_keys=True, separators=(",", ":"),
+    ).encode("utf-8")
+    scope_digest = hashlib.sha256(scope_bytes).hexdigest()
+    manifest["request_scope_sha256"] = scope_digest
+    root = pathlib.Path(cache_root)
+    root.mkdir(parents=True, exist_ok=True)
+    destination = root / f"{scope_digest}-{digest}"
     encoded_manifest = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode("utf-8")
     if destination.exists():
         existing = destination / "manifest.json"
         content = destination / "response.json"
-        if existing.is_file() and content.is_file() and hashlib.sha256(content.read_bytes()).hexdigest() == digest:
+        try:
+            previous_manifest = json.loads(existing.read_text(encoding="utf-8")) if existing.is_file() else {}
+            previous_bytes = content.read_bytes() if content.is_file() else b""
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            raise ValueError("cache_hash_directory_conflict") from None
+        same_provenance = (
+            previous_manifest.get("request_scope_sha256") == scope_digest
+            and previous_manifest.get("source_url") == source_url
+            and previous_manifest.get("request_parameters") == request_parameters
+            and previous_manifest.get("validation") == validation
+            and previous_manifest.get("response_sha256") == digest
+            and previous_manifest.get("response_bytes") == len(payload_bytes)
+            and hashlib.sha256(previous_bytes).hexdigest() == digest
+        )
+        if same_provenance:
             return {"status": "CACHE_ALREADY_PRESENT", "sha256": digest, "path": str(destination)}
         raise ValueError("cache_hash_directory_conflict")
     temp_dir = pathlib.Path(tempfile.mkdtemp(prefix=".dhan-cache-", dir=str(root)))
