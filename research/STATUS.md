@@ -926,3 +926,10 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 
 **Developer → Tester:** Keep the decision at REQUEST CHANGES until an exact-snapshot hosted test receipt is independently verifiable.
 **Tester → Developer:** Re-review only the exact tested snapshot and its receipt; continue to block all live-source requests until a fresh explicit PASS.
+
+
+## Uploaded-paper extraction update — 2026-10-10
+
+Resumed full-text inspection of the 15 uploaded PDFs. Exact method names and design details are now extracted for several papers, including multi-model regression, LSTM/MLP, BERT-news sentiment, backward-elimination LSTM, CCI option rules, and option Greeks/IV-based ML signals. This remains a literature extraction step, **not an empirical replication**. The complete paper-by-paper inventory and remaining extraction fields are tracked in [Uploaded Paper Method Coverage Audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md).
+
+**Gate state unchanged:** no new method is authorized for empirical testing by this extraction alone. In particular, CCI requires a protocol amendment and isolated tester review before being added to the finite registry. Phase 7 still requires the current exact-snapshot authorization gate; Phase 8 remains blocked. No model or strategy is promoted.
