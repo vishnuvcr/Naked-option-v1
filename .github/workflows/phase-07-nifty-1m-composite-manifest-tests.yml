@@ -1,0 +1,43 @@
+name: NIFTY 1-Minute Composite Manifest — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json"
+      - "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_*.json"
+      - "scripts/validate_nifty_1m_composite_manifest.py"
+      - "scripts/test_nifty_1m_composite_manifest.py"
+      - "research/phase7/PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY.json"
+      - "research/phase7/PPR4_DHAN_OPEN_SOURCE_ACQUISITION_PLAN.md"
+      - ".github/workflows/phase-07-nifty-1m-composite-manifest-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nifty-1m-composite-manifest-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-manifest-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile manifest validator and test
+        run: python -m py_compile scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_manifest.py
+      - name: Run manifest regression tests
+        working-directory: scripts
+        run: python -m unittest -v test_nifty_1m_composite_manifest
+      - name: Validate exact request grid and data boundaries
+        run: python scripts/validate_nifty_1m_composite_manifest.py
+
+# No credentials, API requests, market-data payloads, fitting or holdout access in this workflow.
