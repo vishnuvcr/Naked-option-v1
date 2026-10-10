@@ -81,6 +81,12 @@
       "path": "research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
       "branch": "phase-07-tester",
       "blob": "1cf137d83c6b285cff093163b886484d1d9c55cb"
+    },
+    "prospective_holdout_proposal": {
+      "path": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
+      "blob": "adac4f96b44dfde4e6622cd8e574da134e860490",
+      "status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
+      "description": "Prospective future holdout proposal; no existing boundary claimed, no split created, no data/model operation authorized."
     }
   },
   "inventory_summary": {
@@ -135,7 +141,9 @@
     "exit_blocker": "No model panel may be accepted or split constructed until a genuine boundary artifact is located or a new split/holdout plan is approved before any future outcomes are inspected.",
     "branches_scanned_count": 23,
     "tester_decision": "REQUEST_CHANGES_EXIT_BLOCKED",
-    "tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb"
+    "tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
+    "prospective_replacement_proposal": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
+    "prospective_replacement_status": "PROPOSAL_ONLY_NOT_IMPLEMENTED"
   },
   "point_in_time_readiness": {
     "source_timestamp_validated_rows": 0,
@@ -250,6 +258,11 @@
     "ppr4_failed_retry_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075537411",
     "ppr4_failed_retry_reason": "Audit-status literal did not match validator's frozen contract; manifest corrected to READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED and retry passed.",
     "ppr4_decision": "REQUEST_CHANGES_EXIT_BLOCKED_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY",
-    "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values."
+    "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values.",
+    "prospective_holdout_proposal": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
+    "prospective_holdout_proposal_status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
+    "prospective_holdout_proposal_blob": "adac4f96b44dfde4e6622cd8e574da134e860490",
+    "ppr4_exit_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
+    "proposed_next_gate": "Tester may review the prospective holdout design only. A design PASS does not authorize source downloads, data-panel acceptance, fitting/tuning/scoring, forecast capture or label release."
   }
 }
