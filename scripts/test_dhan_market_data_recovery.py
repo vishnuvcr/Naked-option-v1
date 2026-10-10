@@ -368,6 +368,8 @@ def test_manifest_validator_protects_exact_scope_and_spends_first() -> None:
     assert 'manifest["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"' in validator
     assert "tester_report_sha256" in validator
     assert "git_blob" in validator and "sha256" in validator
+    assert 'git("rev-parse", reviewed + ":" + rel)' in validator
+    assert "reviewed_commit_tree_blob_mismatch" in validator
     assert "full_history_authorized" in validator and "model_fitting_authorized" in validator
 
 
