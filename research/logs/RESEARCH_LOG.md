@@ -1010,3 +1010,10 @@ No source samples, data artifacts, features, labels, model fit, metrics or p-val
 Further tightened the CDSL probe so it reports candidate buy/sell/net values from same-column equity-row cells while explicitly refusing to promote those candidates as fitted features before header reconciliation. Added recursive removal of nested credentials and redaction of sensitive query parameter values for arbitrary source URLs in a reported JSON record. Added tests for both.
 
 Latest hosted run [38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed 29/29 offline regressions on commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Current exact hashes are pinned in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`. No live source requests were made; code gate pending.
+
+
+## 2026-10-10 — Discovery 3 re-submission after tester REQUEST CHANGES
+
+The developer addressed all six blocking findings in the tester's code review: use the current spec blob in output metadata; reject inconsistent or malformed recognized date fields; treat non-finite CSV flow values as a rejected sample; remove nested signature/sig fields including camelCase variants; sanitize dates links before artifact serialization; and bind manifest reviewed commit to the protected tree at every path. An intermediate offline test identified the camelCase `requestSignature` redaction edge case, which was fixed.
+
+Latest offline workflow [Run 38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32. Current exact code review request: `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`; protected files are pinned to commit `1706a17d268e2b139fc9dba4504f498acc4f5de0`. No live source requests have been made; the one-run manifest is absent pending fresh tester review.
