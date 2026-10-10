@@ -515,3 +515,10 @@ While reviewing the current v2 source sampler, found that it did not execute the
 **Developer → Tester:** Review the latest exact workflow blob; verify both F&O and cash-market source samples are bounded and uploaded.
 
 **Tester → Developer:** Keep source requests blocked until the current workflow/code snapshot passes.
+
+
+A successful repository-level protocol workflow (`38020253978`) is visible, but it does not run the Gate A source-schema regression suites. Current bounded acquisition remains blocked pending the exact tester report/manifest and green Gate A workflow; no source request was made.
+
+**Developer → Tester:** Review current workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` and the exact source sampler/test/spec blobs listed in the review request.
+
+**Tester → Developer:** Approval must explicitly authorize only the bounded sample job. Keep full history and model fitting blocked.
