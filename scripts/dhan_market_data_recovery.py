@@ -7,7 +7,9 @@ manifest validation. Never log or persist DHAN_ACCESS_TOKEN or profile identity.
 """
 from __future__ import annotations
 
+import csv
 import datetime as dt
+import io
 import json
 import math
 import os
@@ -85,7 +87,7 @@ def request_bytes(
         response = opener.open(req, timeout=TIMEOUT_SECONDS)
     except urllib.error.HTTPError as exc:
         # Do not read or return provider error bodies; they can contain account data.
-        raise RuntimeError(f"dhan_http_status_{exc.code}") from None
+        return int(exc.code), b"", {}
     except Exception as exc:
         # Exception text may include request details; deliberately redact it.
         raise RuntimeError(f"dhan_transport_error_{type(exc).__name__}") from None
@@ -135,30 +137,41 @@ def parse_profile_probe(status: int, body: bytes) -> dict[str, Any]:
 
 
 def parse_index_instruments(body: bytes) -> dict[str, dict[str, str]]:
-    """Accept JSON list or common data-list envelope; demand unique exact mappings."""
+    """Accept official CSV or JSON segment metadata; require unique exact mappings."""
+    rows: list[dict[str, Any]]
     try:
-        obj = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        raise ValueError("instrument_metadata_not_json") from None
-    if isinstance(obj, list):
-        rows = obj
-    elif isinstance(obj, dict):
-        rows = obj.get("data", obj.get("dataList", obj.get("instruments")))
-        if not isinstance(rows, list):
+        text = body.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise ValueError("instrument_metadata_not_text") from None
+    try:
+        obj = json.loads(text)
+    except json.JSONDecodeError:
+        try:
+            rows = list(csv.DictReader(io.StringIO(text)))
+        except csv.Error:
+            raise ValueError("instrument_metadata_unrecognized_shape") from None
+        if not rows or not rows[0]:
             raise ValueError("instrument_metadata_unrecognized_shape")
     else:
-        raise ValueError("instrument_metadata_unrecognized_shape")
+        if isinstance(obj, list):
+            rows = obj
+        elif isinstance(obj, dict):
+            rows = obj.get("data", obj.get("dataList", obj.get("instruments")))
+            if not isinstance(rows, list):
+                raise ValueError("instrument_metadata_unrecognized_shape")
+        else:
+            raise ValueError("instrument_metadata_unrecognized_shape")
     found: dict[str, list[dict[str, str]]] = {s: [] for s in ALLOWED_INSTRUMENTS}
     for row in rows:
         if not isinstance(row, dict):
             continue
         symbol = str(row.get("SEM_TRADING_SYMBOL", row.get("symbol", row.get("tradingSymbol", "")))).strip().upper()
         name = str(row.get("SEM_CUSTOM_SYMBOL", row.get("displayName", row.get("name", "")))).strip().upper()
-        secid = str(row.get("SEM_SMST_SECURITY_ID", row.get("securityId", row.get("security_id", "")))).strip()
+        secid = str(row.get("SEM_SMST_SECURITY_ID", row.get("SEM_SECURITY_ID", row.get("securityId", row.get("security_id", ""))))).strip()
         segment = str(row.get("SEM_SEGMENT", row.get("segment", row.get("exchangeSegment", "")))).strip().upper()
         inst = str(row.get("SEM_INSTRUMENT_NAME", row.get("instrument", row.get("instrumentType", "")))).strip().upper()
         label = "NIFTY 50" if symbol in ("NIFTY", "NIFTY 50", "NIFTY50") or name in ("NIFTY 50", "NIFTY50") else (
-            "INDIA VIX" if symbol in ("INDIA VIX", "INDIAVIX", "INDIAVIX") or name == "INDIA VIX" else None
+            "INDIA VIX" if symbol in ("INDIA VIX", "INDIAVIX") or name == "INDIA VIX" else None
         )
         if label and secid and segment in ("IDX_I", "I") and (inst in ("INDEX", "IDX", "INDEXES", "")):
             found[label].append({"security_id": secid, "exchange_segment": "IDX_I", "instrument": "INDEX"})
@@ -170,7 +183,6 @@ def parse_index_instruments(body: bytes) -> dict[str, dict[str, str]]:
         secid, segment, instrument = next(iter(unique))
         result[label] = {"security_id": secid, "exchange_segment": segment, "instrument": instrument}
     return result
-
 
 def validate_window(from_date: str, to_date: str) -> None:
     start = dt.date.fromisoformat(from_date)
