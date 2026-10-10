@@ -826,3 +826,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - **Disposition:** remain in Phase 7 prediction research only. No new data, predictions, statistical results or strategy conclusions are accepted. Do not follow the HTTP 302 or request candles/history under this manifest. A supported authorized manual dispatch and independent audit of the resulting artifact are required before any next data step.
 
 **Developer → Tester:** Independently verify that this checkpoint preserves the role boundary and does not treat the manifest pin check as runtime authorization. If a manually dispatched run later exists, inspect its exact run/commit, manifest-spend step, HTTP status, request/byte counters and artifact redaction before issuing a separate artifact decision.
+
+
+## 2026-10-10 — Dhan redirect-target probe run #9
+
+- Run: [#9 / 38047946667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667), manually dispatched on `phase-07-developer`, commit `c9fb50e09563bb4c35870f73d17ac73fcfd3abc1`; workflow conclusion: success.
+- Offline regression suite: 38/38 passed. Exact one-request manifest validation passed; the one-use manifest was committed as SPENT before the source request.
+- Diagnostic report artifact: [dhan-redirect-target-probe](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667/artifacts/11668017741), 340-byte ZIP, SHA-256 `c7a04f1b33f31840780cdf2a3ca74ff512f1ce7ee9d7ff97378d0c900f04cc12`.
+- Artifact fields: `http_status=302`, `redirect_scheme=https`, `redirect_host=s3.ap-south-1.amazonaws.com`, `request_count=1`, `bytes_read=0`, `status=REDIRECT_TARGET_RECORDED`. No redirect was followed and no price-history payload was acquired.
+- Automatic artifact preflight passed in audit run [#473 / 38047812286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047812286); the pinned independent tester job was skipped because this report type is not yet an approved empirical data artifact. Thus independent tester sign-off remains pending.
+- **Gate decision:** diagnostic succeeded within its narrow scope, but it only identifies the HTTPS redirect host. Do not follow the redirect or request market data under this authorization. A separately reviewed next-step plan/gate is required before any source request.
