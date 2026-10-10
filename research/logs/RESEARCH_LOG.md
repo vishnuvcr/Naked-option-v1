@@ -987,3 +987,10 @@ New public leads discovered before any further approved sampling:
 - Source inventory updated at `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`.
 
 Governance incident: the full public `MrChartist/fii-dii-data/data/history.json` file (143,498 bytes) was inadvertently retrieved using GitHub file-fetch while inspecting repository metadata. It was not saved to this project's research data or used for analysis. The seed code explicitly generates realistic daily values from monthly/yearly aggregates, so `historical-seed` values are synthetic and non-accepted. Logged in ERROR_LOG; the next phase must use only an independent-approved strict bounded probe and must not fetch raw history paths during metadata/code-only steps. No model fits or metrics were created.
+
+
+## 2026-10-10 — Source Discovery 3 specification gate PASS
+
+Tester passed exact spec blob `52b030e09213cb30c4de6a1633da38e6b2558b1f` for implementation/offline testing only. Budget controls: 15 initial requests, at most 3 one-hop HF redirects, 2 MiB aggregate body cap, 8 KiB head/tail sample windows, strict HTTP 206 and exact Content-Range, no full-file fallback, no file-specific GitHub history Contents calls, and no synthetic seed data. No live data request is authorized by this spec gate.
+
+A web-reader attempt to validate the two CDSL XLS links failed with unsupported content type and returned no parsed values; recorded as non-accepted activity. The next research step is implementation of the finite sampler and offline fixtures, followed by an independent code gate. Full acquisition/modeling remain closed.
