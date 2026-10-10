@@ -91,11 +91,14 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def fetch_bytes(url: str, timeout: int = 30) -> tuple[bytes | None, dict[str, Any]]:
+def fetch_bytes(url: str, timeout: int = 30, max_bytes: int = MAX_BYTES) -> tuple[bytes | None, dict[str, Any]]:
+    """Fetch one source response with an explicit per-request byte cap."""
+    if max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
     request = urllib.request.Request(url, headers=HEADERS)
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            data = response.read(MAX_BYTES + 1)
+            data = response.read(max_bytes + 1)
             meta = {
                 "url": url,
                 "http_status": int(response.status),
@@ -103,8 +106,8 @@ def fetch_bytes(url: str, timeout: int = 30) -> tuple[bytes | None, dict[str, An
                 "content_length_header": response.headers.get("Content-Length"),
                 "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
             }
-        if len(data) > MAX_BYTES:
-            return None, {**meta, "status": "REJECTED_TOO_LARGE", "bytes_read": len(data)}
+        if len(data) > max_bytes:
+            return None, {**meta, "status": "REJECTED_TOO_LARGE", "bytes_read": len(data), "max_bytes": max_bytes}
         return data, {**meta, "status": "FETCHED", "bytes": len(data), "sha256": sha256_bytes(data)}
     except Exception as exc:  # source feasibility must record all source failures
         return None, {
