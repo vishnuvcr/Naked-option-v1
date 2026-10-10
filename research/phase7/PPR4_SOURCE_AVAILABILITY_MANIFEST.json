@@ -104,12 +104,12 @@
     },
     "wave1_documentation_results": {
       "path": "research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md",
-      "blob": "7ad4dc6b4af39c711616b3dc310788da530a7e42"
+      "blob": "613518a56523ef14fdb74e4fad9dfd9c6e6f8966"
     },
     "wave1_tester_review4": {
       "path": "research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md",
       "branch": "phase-07-tester",
-      "blob": "0416ec29679cf8619629187658a17b19df8bd84d"
+      "blob": "4b39dd6e6a6fa85679dd3447c0a8c8acc7616f64"
     }
   },
   "inventory_summary": {
@@ -313,12 +313,12 @@
     "proposed_wave_limits": "Wave 1: at most 3 sources/5 MiB total, 2 MiB/source, <=20 rows/source; Wave 2: at most 5 sources/10 MiB total; Wave 3: at most 2 sources/5 MiB total. All zero network operations until a distinct exact-snapshot tester pass.",
     "source_acquisition_cache_proposal_status": "PASS_WITH_SCOPED_RESTRICTIONS_PROPOSAL_DESIGN_ONLY",
     "source_acquisition_cache_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW3_SOURCE_ACQUISITION_PROPOSAL.md",
-    "source_acquisition_cache_tester_blob": "e2149fd03d43129986c1bec3e7a938f4e88d4072",
+    "source_acquisition_cache_tester_blob": "1d833d8b6934fabf5d08781e948e93d7d588a93c",
     "wave1_request_manifest": "research/phase7/PPR4_WAVE1_METADATA_REQUEST_DRAFT.json",
     "wave1_request_manifest_blob": "cf49868c077b006315b0576519933312333a6efb",
     "wave1_request_status": "PASS_WITH_SCOPED_RESTRICTIONS_THREE_DOCUMENTATION_GETS_ONLY",
     "wave1_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md",
-    "wave1_tester_blob": "0416ec29679cf8619629187658a17b19df8bd84d",
+    "wave1_tester_blob": "4b39dd6e6a6fa85679dd3447c0a8c8acc7616f64",
     "wave1_results": "research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md",
     "wave1_results_blob": "7ad4dc6b4af39c711616b3dc310788da530a7e42",
     "wave1_result": "DOCUMENTATION_METADATA_ONLY; RESPONSE_BYTES_HEADERS_AND_RAW_HASH_NOT_EXPOSED_BY_READER",
