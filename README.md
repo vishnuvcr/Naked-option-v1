@@ -2,6 +2,25 @@
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
+## Latest research checkpoint — 2026-10-10: Dhan historical data recovery
+
+The existing daily cross-market prediction extension remains a documented negative result; no model has been promoted. To resolve outstanding data gaps, the developer has proposed a Dhan-focused recovery plan and the independent tester passed that plan-review gate.
+
+- **Planning gate:** PASS WITH SCOPED RESTRICTIONS (proposal only) — [plan](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md), [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md).
+- **Offline connector:** hosted [run 38049058737](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058737) passed **30 mocked regressions**; [Research Protocol Check 38049058835](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058835) passed.
+- **Code review:** pending independent tester review of [the exact developer handoff](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md).
+- **Data acquired:** none through this new connector yet. No actual Dhan market-data request, cache population, feature-engineering run or model re-run has occurred.
+- **Next gate:** independent review of endpoint/body allowlists, request/byte/time budgets, redirect rejection, schema and timestamp checks, cache provenance and test/workflow isolation. If passed, a fresh one-use manifest must separately authorize only a tiny daily NIFTY history sample. Bulk acquisition and model fitting remain blocked until later gates.
+- The current untouched final holdout remains sealed. Current scope remains prediction research; Phase 8 strategy optimization is not active.
+
+Dhan documentation used in planning: [historical candles](https://dhanhq.co/docs/v2/historical-data/), [expired rolling options](https://dhanhq.co/docs/v2/expired-options-data/), [current option chain](https://dhanhq.co/docs/v2/option-chain/), [instrument metadata](https://dhanhq.co/docs/v2/instruments/). Rolling-option history is ATM-relative and should not be described as a complete historical option chain or historical bid/ask feed.
+
+## Research governance and failure log
+
+- [Current Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md)
+- [Research error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md)
+- [Decision/chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md)
+
 ## Research status
 
 - Phase 2 passed the independent tester gate with explicit source restrictions.
