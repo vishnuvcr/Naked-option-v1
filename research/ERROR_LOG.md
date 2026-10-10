@@ -130,3 +130,10 @@
 - Correction: validate all non-empty rows, report distinct date count, and add one mixed-date fixture per format.
 - No live data acquisition, full-history download or model fit occurred.
 - Tester report: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_TESTER.md`.
+
+
+## 2026-10-10 — Gate A sampler v2 REQUEST CHANGES
+
+- Independent review found `NSE_FII_URLS` included `fromDate=01-01-2020&toDate=31-12-2025`, a multi-year history request disallowed in Gate A. Correct the date bounds and impose an API-specific response byte cap and row cap with regressions.
+- Review request mislabeled workflow commit `1d899125...` as its Git blob. Actual workflow blob at the reviewed commit is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`.
+- No live data requests were made in the tester review. No approval manifest was created.
