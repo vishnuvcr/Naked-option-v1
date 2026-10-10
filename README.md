@@ -1,3 +1,19 @@
+# Paper prediction replication — status update (2026-10-10)
+
+The current user-directed scope is to test the **actual prediction methods from the research papers** on NIFTY, without treating broad algorithm-family overlap as proof of paper replication.
+
+- [Paper-by-paper prediction method crosswalk](research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md) — full-text inventory for the 15 mounted PDFs, including model variants, features, targets/horizons and non-prediction/strategy-only exclusions.
+- [Paper replication protocol amendment proposal](research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md) — finite phases, targets, metrics, leakage controls and gates.
+- [Developer submission for independent review](research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md) — review requested before new empirical model fitting.
+
+**Current status: tester gate pending; no new paper-specific model fit has been launched.** The crosswalk still needs to be reconciled to the repository's separate 36-record literature inventory.
+
+The most recent independently audited daily artifact (Run #44) contains 1,676 NIFTY rows from 2020-01-01 to 2026-10-09 with 11 global/peer series. Its 12-method × five-horizon extension had no significant horizon-family result after multiplicity correction. It cannot provide exact 5-, 10- or 20-year replication from that artifact alone. Full-history and auxiliary-feature acquisition, the spent one-row Dhan approval, and the untouched holdout remain governed by their existing gates.
+
+Option strategy/P&L research remains separate from this prediction-only request.
+
+---
+
 # NIFTY Naked-Option Direction Research
 
 
