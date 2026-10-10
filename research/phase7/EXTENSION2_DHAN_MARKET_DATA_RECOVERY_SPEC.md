@@ -48,7 +48,7 @@ The implementation must define a shared request/byte budget, URL allowlist, stri
 - At most two instruments (NIFTY 50 and India VIX, if resolved unambiguously), and at most two non-overlapping fixed windows of ten calendar days each. Total at most four daily-candle POST requests.
 - Exact endpoint: `https://api.dhan.co/v2/charts/historical`.
 - Request uses the resolved `securityId`, `exchangeSegment`, `instrument`, `fromDate`, `toDate`; `toDate` is exclusive.
-- Per response: maximum 1 MiB; reject non-JSON, error JSON, arrays of unequal length, missing required fields, non-finite OHLC, invalid OHLC inequalities, duplicate timestamps, dates outside the requested interval, or unsorted timestamps.
+- Per daily-candle response: maximum 768 KiB; reject non-JSON, error JSON, arrays of unequal length, missing required fields, non-finite OHLC, invalid OHLC inequalities, duplicate timestamps, dates outside the requested interval, or unsorted timestamps.
 - Persist only these bounded sample rows, request/response hashes, schema checks and coverage summary after a separately approved sample. Never persist auth headers or token-bearing URLs.
 - Do not call order, position, fund, account, or trade endpoints. No orders may be placed.
 
