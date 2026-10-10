@@ -919,3 +919,8 @@ Tester REQUEST CHANGES identified ambiguous FII/DII normalization, option data f
 ## 2026-10-10 — Gate A Run #1 source feasibility
 
 Hosted [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019391488) passed six offline fixtures and uploaded a bounded source report. Official NSE F&O legacy and UDiFF samples both passed date/schema checks with 33,930 and 34,390 rows respectively, including 1,634 NIFTY option rows each. The NSE FII/DII API returned only the current day's two category rows; a public GitHub mirror has 164 unique dates from 2026-01-14 through 2026-09-30, insufficient for confirmatory inference. The attempted sector API returned generic HTML, and the Advances/Declines page did not expose historical rows. Official `ind_close_all_DDMMYYYY.csv` daily index archive is a better source lead but still needs sampling. Independent tester returned REQUEST CHANGES; next iteration is limited to official daily index/equity samples and broader free historical flow source discovery. No full-history data or model was created.
+
+
+## 2026-10-10 — Gate A sampler v2 regression failure and correction
+
+The first v2 workflow [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in offline tests before live requests. The failure was an over-escaped ISO date regex in FII/DII history validation. Developer corrected the regex and added an approval-file-only push trigger so the source workflow cannot auto-run on arbitrary code changes. Current exact blobs are sampler `fb83fe5e880a26134a765a0426f7aa85380272fb`, tests `d818613dc2f9188224562a953fd979a6c274d292`, workflow `d303d8bd05978ef4837e1935ed40f8c2cdec851c`. No source requests were made in the failed run. Awaiting tester re-review before creating approval.
