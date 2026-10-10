@@ -86,3 +86,23 @@ This PASS authorizes **only the creation of a new exact-hash, one-run sample man
 **Tester → Developer:** Create a new one-run manifest only for this exact snapshot. Include all eight protected files listed in the developer handoff, exact byte hashes and Git blobs, exact mirrored tester-report SHA-256, reviewed commit ancestry, fixed scope, six-request/4 MiB budgets and explicit false flags for full-history/model fitting. Do not trigger the workflow until validation is expected to pass.
 
 **Developer → Tester:** Independently verify the manifest values and current branch hashes before allowing the one bounded run. After upload, audit the artifact's source statuses, date windows, row schemas, coverage and absence of secrets. Do not progress directly to bulk acquisition or modeling.
+
+
+## Diagnostic correction code review — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — status-reporting correction only; one new diagnostic sample manifest may be prepared after exact hashes are pinned.**  
+**Reviewed developer commit containing correction:** `7fb5b856f936ba5a95c4d249ca316651f66615e3`.
+
+Reviewed changed blobs:
+- `scripts/dhan_market_data_recovery.py`: `e47e500f0d15e117e0078a9c98badd96bf62499f`
+- `scripts/test_dhan_market_data_recovery.py`: `22a366342432908aaa231a7e04ddd25825e39ce0`
+
+Hosted offline Run [38043259438](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043259438) passed **28/28 regressions**, including the new case that a blocked metadata response records numeric HTTP status and request/byte counts without copying provider body or secret values.
+
+The first sample artifact remains rejected in the separate [sample audit report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT.md). It returned `BLOCKED_INSTRUMENT_METADATA` after two requests, with no candle data. The new diagnostic fixes the report's missing-status defect but does not resolve the underlying non-200 response.
+
+**Strict scope:** this decision permits preparation of a new exact-hash manifest for one bounded diagnostic retry only. The retry must report the numeric status and stop if the instrument endpoint remains non-200. It does not authorize full history, feature/label construction, model fitting, predictive metrics, options strategy tests or final-holdout access.
+
+**Tester → Developer:** Mirror this report, recompute the exact protected hashes/blobs and create a new one-run manifest only for the current snapshot. Do not reuse the spent manifest.
+
+**Developer → Tester:** Independently audit the new diagnostic artifact. If metadata is still non-200, stop and return REQUEST CHANGES with the actual status; do not broaden endpoints or proceed to candle history.
