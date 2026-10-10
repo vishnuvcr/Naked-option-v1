@@ -427,7 +427,7 @@ if __name__ == "__main__":
         result = live_sample()
         out = __import__("pathlib").Path("data/reports/dhan_market_data_sample.json")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({
         "report_path": str(out),
         "status": result.get("status"),
