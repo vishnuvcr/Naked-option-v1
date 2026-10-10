@@ -728,3 +728,15 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - New finite spec: `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md`; tester handoff: `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md`.
 - No Dhan request was made and the token value was not read, printed or persisted. The previous FII/DII one-run manifest is spent and cannot be reused.
 - **Current gate: waiting for independent specification decision.** No live request, full-history acquisition, features/labels, model fitting, metrics or holdout access authorized.
+
+
+## 2026-10-10 — Dhan adapter and guarded workflow code gate PASS
+
+- DhanHQ recovery spec received an independent spec-only PASS; the exact 4 MiB aggregate response budget was reconciled to 64 KiB profile + 1 MiB index metadata + four 752 KiB candle responses.
+- Adapter and offline suite added: `scripts/dhan_market_data_recovery.py`, `scripts/test_dhan_market_data_recovery.py`.
+- Offline-only workflow: `.github/workflows/phase-07-dhan-market-data-tests.yml`.
+- Guarded single-sample workflow and exact manifest validator: `.github/workflows/phase-07-dhan-market-data-live.yml`, `scripts/validate_dhan_sample_approval.py`.
+- Independent tester decision: PASS WITH SCOPED RESTRICTIONS for the guarded workflow code only; it authorizes creation of one exact-hash sample manifest, not full history or modeling. Report: `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md`.
+- Hosted offline run [38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed **27/27 regressions**. Earlier fixture/assertion failures were corrected and retained in Actions/error log.
+- Dhan secret has not been read or logged. No Dhan API request has yet been made. Next: create one exact manifest, let the guarded workflow validate and spend it before the single bounded sample, then independently audit the artifact.
+- Dhan historical candles may fill price/index data; they do not replace the unresolved combined FII/FPI/DII aggregate flow series. No full-history acquisition, features/labels, model fitting, metrics or holdout access is authorized.
