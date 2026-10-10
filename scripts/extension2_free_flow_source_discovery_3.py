@@ -482,12 +482,26 @@ def parse_cdsl_xls(data: bytes, expected_date: str, source_url: str) -> dict[str
         text = " ".join(row).lower()
         if "equity" in text and ("stock exchange" in text or "stockexchange" in text or "cash market" in text):
             equity_rows.append(row[:20])
-    # Keep only a bounded text preview. A failed row match is not treated as a source failure.
+    flow_labels: dict[str, list[dict[str, Any]]] = {"buy": [], "sell": [], "net": []}
+    for row_i, row in enumerate(grid):
+        for col_i, value in enumerate(row):
+            low = value.lower()
+            if any(token in low for token in ("purchase", "purchases", "buy", "bought")):
+                flow_labels["buy"].append({"row": row_i, "column": col_i, "label": value[:100]})
+            if any(token in low for token in ("sale", "sales", "sell", "sold")):
+                flow_labels["sell"].append({"row": row_i, "column": col_i, "label": value[:100]})
+            if "net" in low and any(token in low for token in ("investment", "invest", "value")):
+                flow_labels["net"].append({"row": row_i, "column": col_i, "label": value[:100]})
+    # Keep only bounded row/cell previews. Do not infer a numeric mapping if
+    # the report's grouped headers cannot be reconciled unambiguously.
     report.update({
         "status": "SCHEMA_SAMPLE_PASS" if date_ok and equity_rows else "NOT_VERIFIED",
         "date_check": "PASS" if date_ok else "FAIL_OR_NOT_FOUND",
         "equity_stock_exchange_rows_found": len(equity_rows),
         "equity_row_samples": equity_rows[:3],
+        "flow_field_label_candidates": {k: v[:10] for k, v in flow_labels.items()},
+        "flow_field_label_coverage": {k: bool(v) for k, v in flow_labels.items()},
+        "numeric_flow_mapping_status": "NOT_VERIFIED_REQUIRES_HEADER_RECONCILIATION" if not all(flow_labels.values()) else "CANDIDATE_LABELS_FOUND_MAPPING_NOT_YET_ACCEPTED",
         "grid_preview": grid[:15],
         "reason": None if date_ok and equity_rows else "could not validate expected report date and equity stock-exchange row together",
     })
@@ -525,13 +539,23 @@ def inspect_hf_metadata(client: LimitedHTTP) -> dict[str, Any]:
     target = next((x for x in siblings if isinstance(x, dict) and x.get("rfilename") == HF_PATH), None)
     if not target:
         return {**summary, "schema_status": "NOT_VERIFIED", "reason": "pinned CSV path absent from revision metadata"}
+    card = obj.get("cardData", {}) if isinstance(obj.get("cardData"), dict) else {}
+    card_summary = {}
+    for key in ("license", "pretty_name", "language", "language_creators", "task_categories"):
+        if key in card:
+            value = card[key]
+            card_summary[key] = value[:20] if isinstance(value, list) else str(value)[:300]
+    description = str(obj.get("description") or card.get("description") or "")
     return {
         **summary, "schema_status": "COVERAGE_LEAD_ONLY",
         "dataset_id": "johnwick3690/stocks", "revision": HF_COMMIT,
         "file_path": HF_PATH, "file_metadata": {k: target[k] for k in target if k in {"rfilename", "size", "lfs", "blobId", "lastCommit"}},
-        "card_data_keys": sorted(obj.get("cardData", {}).keys()) if isinstance(obj.get("cardData"), dict) else [],
-        "license_or_description_present": bool(obj.get("cardData") or obj.get("description")),
-        "reason": "metadata identifies a pinned file; schema, unique dates, lineage and coverage require bounded range samples",
+        "card_data_keys": sorted(card.keys()),
+        "card_data_summary": card_summary,
+        "dataset_description_preview": description[:500],
+        "license_or_description_present": bool(card or description),
+        "provenance_status": "UNVERIFIED_METADATA_ONLY",
+        "reason": "metadata identifies a pinned file; schema, unique dates, row provenance and coverage require bounded range samples",
     }
 
 
