@@ -549,3 +549,8 @@ The access token is bound only to the guarded workflow's final source step and i
 - The isolated tester's code/workflow approval is restricted to code only; **no live request is authorized by that report**.
 - The guarded workflow remains manual-only (`confirm_probe=true`, default false). The currently connected GitHub interface does not expose a workflow-dispatch action, so no live probe was launched and no data or prediction results changed.
 - Phase 7 prediction research remains active; no candidate is promoted, no strategy test is authorized, and Phase 8 remains blocked pending the permitted data/gate workflow and independent review.
+
+
+### Manual Dhan redirect diagnostic
+
+The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phase-07-dhan-redirect-probe-live.yml) is registered on the default branch so GitHub can expose its manual dispatch control. It is restricted to the `phase-07-developer` ref and requires explicit `confirm_probe=true` (default false). This workflow copy does not authorize a run by itself; the single-use manifest must validate and be spent before the one permitted redirect-target-only request.
