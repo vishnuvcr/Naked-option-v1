@@ -16,19 +16,20 @@ SETTINGS_PATH = ROOT / "research/phase7/PPR3_MODEL_SETTINGS.json"
 CONTRACT_PATH = ROOT / "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json"
 MANIFEST_PATH = ROOT / "research/phase7/PPR3_CONFIGURATION_MANIFEST.json"
 PROTOCOL_PATH = ROOT / "research/phase7/PPR3_PROTOCOL_FREEZE.md"
+NATIVE_LEDGER_PATH = ROOT / "research/phase7/PPR3_PAPER_NATIVE_TASK_LEDGER.csv"
 
 EXPECTED_FAMILY_COUNTS = {
-    "COMMON_DIRECTION_3CLASS": 375,
+    "COMMON_DIRECTION_3CLASS": 380,
     "COMMON_CLOSE_REGRESSION": 760,
     "NEXT_OPEN_REGRESSION": 48,
 }
 EXPECTED_PIPELINE_COUNTS = {
-    "CORE_OHLCV_TECH": 302,
+    "CORE_OHLCV_TECH": 307,
     "EXTERNAL_MARKET": 292,
     "FLOWS_OPTIONS": 292,
     "TIMESTAMPED_SENTIMENT_FUSION": 297,
 }
-EXPECTED_HORIZON_COUNTS = {1: 275, 2: 227, 3: 227, 5: 227, 10: 227}
+EXPECTED_HORIZON_COUNTS = {1: 276, 2: 228, 3: 228, 5: 228, 10: 228}
 EXPECTED_TUNING_CELLS = {
     ("R010", "CORE_OHLCV_TECH", 1), ("R010", "CORE_OHLCV_TECH", 2),
     ("R010", "CORE_OHLCV_TECH", 3), ("R010", "CORE_OHLCV_TECH", 5),
@@ -47,7 +48,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 def validate() -> list[str]:
     errors: list[str] = []
-    for path in (MATRIX_PATH, CELLS_PATH, SETTINGS_PATH, CONTRACT_PATH, MANIFEST_PATH, PROTOCOL_PATH):
+    for path in (MATRIX_PATH, CELLS_PATH, SETTINGS_PATH, CONTRACT_PATH, MANIFEST_PATH, PROTOCOL_PATH, NATIVE_LEDGER_PATH):
         if not path.is_file():
             errors.append(f"required PPR-3 file missing: {path.relative_to(ROOT)}")
     if errors:
@@ -62,18 +63,18 @@ def validate() -> list[str]:
     except (OSError, json.JSONDecodeError, csv.Error) as exc:
         return [f"cannot parse a required PPR-3 artifact: {exc}"]
 
-    if len(matrix) != 80:
-        errors.append(f"configuration matrix has {len(matrix)} rows; expected 80")
+    if len(matrix) != 81:
+        errors.append(f"configuration matrix has {len(matrix)} rows; expected 81")
     ids = [r.get("config_id", "") for r in matrix]
     if any(not x for x in ids) or len(ids) != len(set(ids)):
         errors.append("configuration config_id values are blank or duplicated")
     active = {r["config_id"]: r for r in matrix if r.get("confirmatory_inference_member") == "true"}
     cap_rows = [r for r in matrix if r.get("counts_toward_93_cap") == "true"]
     blocked = [r for r in matrix if r.get("confirmatory_inference_member") != "true"]
-    if len(active) != 71:
-        errors.append(f"active config rows={len(active)}; expected 71")
-    if len(cap_rows) != 72:
-        errors.append(f"rows counted toward base-config cap={len(cap_rows)}; expected 72")
+    if len(active) != 72:
+        errors.append(f"active config rows={len(active)}; expected 72")
+    if len(cap_rows) != 73:
+        errors.append(f"rows counted toward base-config cap={len(cap_rows)}; expected 73")
     if len(cap_rows) > contract.get("search_bounds", {}).get("max_estimator_or_architecture_configs", 0):
         errors.append("base configuration rows exceed the contract cap")
     if len(blocked) != 9:
@@ -115,8 +116,8 @@ def validate() -> list[str]:
         (r.get("config_id", ""), r.get("feature_pipeline_id", ""), int(r.get("horizon_sessions", "0") or 0))
         for r in cells
     ]
-    if len(cells) != 1183:
-        errors.append(f"expanded candidate-cell ledger has {len(cells)} rows; expected 1183")
+    if len(cells) != 1188:
+        errors.append(f"expanded candidate-cell ledger has {len(cells)} rows; expected 1188")
     if len(cell_keys) != len(set(cell_keys)):
         errors.append("duplicate config × pipeline × horizon cells found")
     actual_keys = set(cell_keys)
@@ -171,7 +172,7 @@ def validate() -> list[str]:
         errors.append("XGBoost tuning grid must list exactly 8 candidate settings")
     if settings.get("tuning", {}).get("actual_candidate_cells") != 12:
         errors.append("model settings tuning count must be 12")
-    expected_tuning_fits = (6 * 18 * 6) + (6 * 8 * 6)
+    expected_tuning_fits = (6 * 18 * 5) + (6 * 8 * 5)
     if settings.get("tuning", {}).get("calculated_tuning_fit_calls") != expected_tuning_fits:
         errors.append(f"tuning fit-call arithmetic incorrect; expected {expected_tuning_fits}")
     outer_fits = len(cells) * 3
