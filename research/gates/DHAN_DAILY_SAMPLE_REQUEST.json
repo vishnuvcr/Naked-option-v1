@@ -29,54 +29,54 @@
     "model_fitting_authorized": false,
     "strategy_testing_authorized": false,
     "holdout_access_authorized": false,
-    "reviewed_developer_commit": "c3c0563f66910046d9448fbcfff9132ba75eb761",
+    "reviewed_developer_commit": "da06354521657a1c2166e6e845be17d1289eb9ed",
     "protected_files": {
       "scripts/dhan_history_pipeline.py": {
         "git_blob": "84e30b0d45ffb2a9b6985601b934c66db435b201",
-        "sha256": "55b948a96c494e63d8e565a0703893c6bedca0a2fe9ecdc9d3bc8f9a9e964803"
+        "sha256": "537cba55d968d17ef08ad7b5bc73278945eb52c7b5349156e7669618c908156d"
       },
       "scripts/test_dhan_history_pipeline.py": {
         "git_blob": "e58ffd6d4b4daf8e049c0be0c2edca44dc16a161",
-        "sha256": "479639847569d52dd5d79802f7b359c74a8895db09a6b542e226b1c30dc58f54"
+        "sha256": "e64b7d129bc5da87accb79852b7f3b11a1bb8aec6c5dc05e6a93a8c47eda4ff8"
       },
       "scripts/run_dhan_daily_sample.py": {
-        "git_blob": "1ae8f53f32eef5e6560dd9409e6fbbfd194326ab",
-        "sha256": "8b3957b2a0331719eaf95b0ff0d230afa19c108e1687f506f51852f9ebadd2b3"
+        "git_blob": "3a49360fb68e2e7c4e10ca8be31908be6a8ae8b2",
+        "sha256": "686c94accd200020f55c674e0759789e23338022e43e9c535fd73454ecb99fb3"
       },
       "scripts/test_run_dhan_daily_sample.py": {
-        "git_blob": "48687b5d247e413c1f59a120b61a5badf0865f3d",
-        "sha256": "d27d489282dec0467f39490493460df171d4c2261c1166ce2c187dc1da81c2fc"
+        "git_blob": "105ecef36f939cd7438264d9d271f5be1e229d4e",
+        "sha256": "bdcb81f65d230f9d0e01658c95df354d78d106110d062ed143203f6eb5e087e3"
       },
       "scripts/validate_dhan_daily_sample_approval.py": {
-        "git_blob": "d960e877daae02372bc96ac99b69c501fcb3c238",
-        "sha256": "5ef6ffd4ec9936505c837099b848663147805fbafb5a47c5f292e551aac127a4"
+        "git_blob": "00d6a2b8ac33bc451b8e22c93be1466ecbd0dde3",
+        "sha256": "3812337643058a03d0d11580ac70374fcf741f4bad8c1fbed21cf28e3f908f6b"
       },
       "scripts/test_validate_dhan_daily_sample_approval.py": {
         "git_blob": "f0d017df674cbb2caa218ae7ffea34e40a896520",
-        "sha256": "f8540ef5d6d992b6693b225d46fef52dd22e326df71884d3033add20bc56551f"
+        "sha256": "0004b7e466c136dbd0e8f262909fe3f29c29c582bc1fa488b192ce8b3c6561f5"
       },
       ".github/workflows/phase-07-dhan-daily-sample-tests.yml": {
         "git_blob": "6aa1f933ce81932eef8d80c37e7ea01ba168d253",
-        "sha256": "f1dd87fe1cd2986242ccd3921628ee09c8d144b0ecdc62e0aedef6c92d40cdff"
+        "sha256": "2c621b6abcabf95db24fee8ddca9a06f3f571900a8a39aa4022dee9684d15181"
       },
       ".github/workflows/phase-07-dhan-daily-sample-live.yml": {
         "git_blob": "8ae00b592218e0eff07ea2467ff7b3a9d5a749f6",
-        "sha256": "b520faed5a1338460399ad461a1b937df7f4d1a95caf9e87a37f43d0d089b007"
+        "sha256": "69ffcc6eb95a9b08abe5bc0ab5f8c9fbf4494304b3c21113d97d8a9688c2b829"
       },
       "research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md": {
         "git_blob": "9145f88ec99169a900d9ff2c7b77c0592781f5ae",
-        "sha256": "801993a4bdf4709adcd6e811df889cdbea731c96b057ccec70fb39cb73e1036d"
+        "sha256": "0529a051352c85a78bfb94f0c34820715e61150fa7d9a75da3217bdd34de594f"
       },
       "research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md": {
         "git_blob": "f1218310778c95499e2d7958d47118a4065c0f94",
-        "sha256": "6c35235d9cd08b2af87adfc697f199959e6ce94d9ba28fe2b27985ce8d17aec3"
+        "sha256": "8c07bab1e61e2ca81d561c211f50cfaa3fb82da5b3e9ec3c84add43c1be0c23d"
       },
       "research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md": {
         "git_blob": "2035255912651ade1dc17ac292a81de796d6bf91",
-        "sha256": "01a32b3a8559bda98b178e40356f29c226f7d611b2a925c4a8f741ea7902e647"
+        "sha256": "8d1f2b718b1b54e6c2bca68d923ee5f61dbf99b2786d1920bcda35cff597374c"
       }
     }
   },
-  "authorization_sha256": "48718e4a025864448a8ad3febc5cc2ac548d6d0616f46dcbc330bba394727e28",
+  "authorization_sha256": "ce6034e64aa5230061a7fd9649307dcd833e674b58379c90a29ca4885ee68bfd",
   "note": "Immutable request scope. Only one daily NIFTY index candle request for 2024-01-02 (toDate exclusive) is in scope. The separate approval file must be READY and tester-pinned before the workflow can spend it. No retry, redirect, bulk history, intraday/rolling options, feature/model fitting, strategy tests or holdout access."
 }
