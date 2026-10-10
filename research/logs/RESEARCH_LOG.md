@@ -1065,3 +1065,15 @@ The second approved Dhan sample confirms token validity and active Data API plan
 ## 2026-10-10 — Redirect target discovery code gate
 
 The independent tester passed the redirect-target parser, offline suite and dedicated guarded workflow for one request only. Offline Run `38044225274` passed 38 regressions. The parser extracts only normalized scheme and hostname, rejects malformed/credential-bearing URLs, and does not follow redirects. The workflow validates and spends a one-use manifest before its sole authenticated request and injects the token only into that step. The earlier metadata endpoint response was HTTP 302; no candles or analysis were retrieved. A fresh manifest must pin the current exact file hashes before the diagnostic call. Following a redirect remains unauthorized.
+
+
+## 2026-10-10 — Resume audit: redirect-probe authorization remains blocked
+
+- Re-read the developer branch status, research log, chat log, error log, guarded workflow, manifest validator, redirect-probe specification and the isolated tester's exact-snapshot report before proceeding.
+- Independent tester report `PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md` remains **PASS WITH SCOPED RESTRICTIONS — code/workflow only; live request authorized: NONE**. It is bound to developer commit `9bfd1d61c05f8658d5b6165759a735e317740328`.
+- Cross-checked the current `phase-07-developer` Git blob IDs for all ten protected files in `DHAN_REDIRECT_TARGET_APPROVAL.json`; all ten matched the manifest. This is a repository-content cross-check only, not execution of the workflow's SHA-256/ancestry validator.
+- Manifest still reads `READY`; the hosted validator has not run, and the one-request diagnostic has not run. No source request or market data acquisition occurred.
+- Current GitHub connection exposes workflow run inspection and rerun operations but no `workflow_dispatch` operation. The live workflow is intentionally manual-only and requires `confirm_probe=true`; no trigger was weakened and no old push-event run was misrepresented as a fresh diagnostic.
+- **Disposition:** remain in Phase 7 prediction research only. No new data, predictions, statistical results or strategy conclusions are accepted. Do not follow the HTTP 302 or request candles/history under this manifest. A supported authorized manual dispatch and independent audit of the resulting artifact are required before any next data step.
+
+**Developer → Tester:** Independently verify that this checkpoint preserves the role boundary and does not treat the manifest pin check as runtime authorization. If a manually dispatched run later exists, inspect its exact run/commit, manifest-spend step, HTTP status, request/byte counters and artifact redaction before issuing a separate artifact decision.
