@@ -154,3 +154,12 @@
 - Bug 2: NSE FII/DII date endpoint requested 2024-07-01 through 2024-07-10 but returned two rows dated 2026-10-09; response SHA-256 was identical to the unfiltered endpoint. Date-window matching was not checked after retrieval.
 - Historical FII/DII coverage remains unproven: current-only official API and a limited recent GitHub mirror/page are insufficient to establish 500+ sessions. Continue free-source discovery before declaring unavailable.
 - Current source approval is revoked. No full history/features/labels/model fits occurred. The developer must correct date parsing and response-window validation and seek a fresh exact-snapshot gate.
+
+
+## 2026-10-10 — Gate A Run 2 audit decision: flow-source coverage insufficient
+
+- Independent tester accepted corrected parser/schema results for official sector index CSVs, cash-equity archive samples and legacy/UDiFF F&O samples.
+- Historical-flow sources remain insufficient: 164 valid dated rows from a free mirror (2026-01-14 through 2026-09-30), the official dated API ignored the July 2024 range but is now safely rejected, and HTML snippets from secondary pages do not establish full daily range coverage.
+- The complete Gate A decision is REQUEST CHANGES. The one-run manifest is marked SPENT after Run `38026993369`; no more requests may be made on it.
+- Separate bounded free-source discovery is required before full history, features/labels or model fitting.
+- Details: `research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md`.
