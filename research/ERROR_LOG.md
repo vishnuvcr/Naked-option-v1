@@ -1049,3 +1049,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Impact:** policy gate remains failed; no source request or data access occurred.
 - **Correction:** validator now checks the stable concepts “90 days per request” and “30 days per request” rather than exact hyphenated phrasing. The Paytm Money section was added in the previous correction.
 - **Disposition:** rerun exact-snapshot offline validation. Keep this run as failed history; it is not a data failure.
+
+## 2026-10-11 — PPR-4 continuation plan tester review 1 (REQUEST CHANGES)
+
+- **Category:** Plan completeness / durable cache and acquisition budgets.
+- **Tester report:** [PHASE7_PPR4_USER_DIRECTED_CONTINUATION_TESTER_REVIEW1.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_USER_DIRECTED_CONTINUATION_TESTER_REVIEW1.md), tester commit `aec33ec06af99d99af32a84fa5858c284a12a3d2`.
+- **Decision:** REQUEST CHANGES for two plan issues only. (1) The earlier cache statement allowed Actions artifacts to hold larger datasets without distinguishing their short retention from a durable project cache. (2) The parent plan did not state explicit per-family/aggregate request and byte caps or the rolling-options expiry/strike/side grid.
+- **No cross-check restored:** reviewer explicitly preserved the user's waiver; no Dhan-vs-NSE/third-party price-value comparison is required.
+- **Correction:** developer amended the plan to distinguish Git cache, release assets/Git LFS, metadata-only retention where licenses prohibit storage, and temporary Actions artifacts; added request/row/byte caps, deterministic daily/intraday/options shards, max serial pacing and a finite ATM±5 × CALL/PUT × WEEK/MONTH × expiryCode 0/1/2 grid.
+- **Arithmetic check:** 61 date chunks × 2 expiry flags × 3 expiry codes × 11 relative strikes × 2 option types = 8,052 rolling-option request cells, under the 8,100 cap. This count has been corrected and is covered by the policy JSON/test; exact manifest still must enumerate its actual request list.
+- **Disposition:** rerun offline policy validation and submit the corrected exact snapshot. No live request or data/model operation was authorized by the plan review.
