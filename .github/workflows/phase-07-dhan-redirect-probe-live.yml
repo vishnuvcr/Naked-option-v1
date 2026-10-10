@@ -1,11 +1,6 @@
 name: Dhan Redirect Target Guarded Probe
 
 on:
-  push:
-    branches: [phase-07-developer]
-    paths:
-      - "research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json"
-      - ".github/workflows/phase-07-dhan-redirect-probe-live.yml"
   workflow_dispatch:
     inputs:
       confirm_probe:
