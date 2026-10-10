@@ -996,3 +996,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Independent review confirmed compact SEM_SEGMENT / API IDX_I namespace separation, exact NIFTY symbol matching, original cached Dhan response/hash/schema/date validation before either source opener, comparison against the row parsed from that cache, and full existing bundle manifest/source-metadata validation before reuse.
 - Offline workflow blob b450da4b9ffed8d8e38c8f7383084e1ba987b303 is now identical on the default and developer branches. It only runs mocked tests and pin checks; no public-source request step or secrets are present.
 - Disposition: developer may prepare a new two-source manifest, approval and guarded workflow, which require their own independent PASS before either public-source request. The earlier Dhan sample approval remains SPENT and is not reused. No official-source request, model run or holdout access occurred.
+
+
+## 2026-10-10 — Official cross-check stale-snapshot evidence gap
+- Category: governance / verification evidence
+- Component: Phase 7 official-source cross-check code gate
+- Symptom: the previous hosted offline run 38056916677 is recorded as passing 32 tests, but its adapter, runner and test blobs differ from the current branch snapshot reviewed for the next gate.
+- Impact: the exact current implementation is not proven by the old test receipt; independent tester issued REQUEST CHANGES. No live request or scientific inference occurred.
+- Root cause: implementation/test files changed after the cited hosted test run; the gate handoff did not pin and verify the exact post-test snapshot.
+- Correction: require a fresh offline workflow run tied to the exact current developer commit, then record the commit and protected file blob hashes and resubmit for tester review.
+- Prevention: future gate reports must list tested commit SHA and protected file blob hashes, and compare them against current branch immediately before any live authorization.
