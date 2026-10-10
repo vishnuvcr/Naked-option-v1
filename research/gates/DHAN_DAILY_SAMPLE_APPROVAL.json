@@ -4,13 +4,14 @@
   "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
   "scope_id": "dhan-nifty50-daily-2024-01-02-one-request",
   "request_manifest_path": "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json",
-  "request_manifest_git_blob": "c8317a7af380b6e0a7bfe5b61f2f630c8b92a610",
-  "request_manifest_sha256": "eee75500dbc6bfd9059cc3bdd4230e9c0000fe425b2ffc77e560e1179f989605",
-  "approved_authorization_sha256": "48718e4a025864448a8ad3febc5cc2ac548d6d0616f46dcbc330bba394727e28",
+  "request_manifest_git_blob": "5ed441ece10216e7ee74285fc24da63b81f378d4",
+  "request_manifest_sha256": "95a8483b52e7b6a3721c057b821ade9d10323b66cd00a8ab6c4362d4489e26d0",
+  "approved_authorization_sha256": "ce6034e64aa5230061a7fd9649307dcd833e674b58379c90a29ca4885ee68bfd",
   "tester_report_path": "research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md",
   "tester_report_git_blob": "",
   "tester_report_sha256": "",
   "reviewed_manifest_developer_commit": "",
   "spent_at_commit": null,
-  "note": "Not authorization to access Dhan. This gate stays PENDING until the isolated tester approves the exact manifest/workflow snapshot."
+  "note": "Not authorization to access Dhan. This gate stays PENDING until the isolated tester approves the exact manifest/workflow snapshot.",
+  "spent_from_commit": null
 }
