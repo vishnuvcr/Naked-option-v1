@@ -446,13 +446,23 @@ def inspect_hf_metadata(client: LimitedHTTP) -> dict[str, Any]:
     }
 
 
-def parse_csv_edge(data: bytes, label: str) -> dict[str, Any]:
+def parse_csv_edge(
+    data: bytes,
+    label: str,
+    header_override: list[str] | None = None,
+) -> dict[str, Any]:
     text = data.decode("utf-8-sig", errors="replace")
     lines = text.splitlines()
     if not lines:
         return {"edge": label, "status": "REJECTED_SCHEMA", "reason": "no CSV lines"}
     try:
-        header = next(csv.reader([lines[0]]))
+        if header_override is None:
+            header = next(csv.reader([lines[0]]))
+            data_lines = lines[1:]
+        else:
+            # The head/tail ranges may cut through a CSV line; ignore the first tail line.
+            header = header_override
+            data_lines = lines[1:]
     except Exception as exc:
         return {"edge": label, "status": "REJECTED_SCHEMA", "reason": type(exc).__name__}
     normalized = [h.strip() for h in header]
@@ -463,7 +473,7 @@ def parse_csv_edge(data: bytes, label: str) -> dict[str, Any]:
     seen_dates: list[str] = []
     invalid_date_rows = 0
     nonnumeric_flow_cells = 0
-    for raw in lines[1:]:
+    for raw in data_lines:
         if len(row_objects) >= MAX_CSV_SAMPLE_ROWS:
             break
         if not raw.strip():
@@ -550,7 +560,12 @@ def hf_file_probe(client: LimitedHTTP, meta: dict[str, Any]) -> dict[str, Any]:
     result["head_range_check"] = first_reason
     result["tail_range_check"] = last_reason
     result["head_csv_sample"] = parse_csv_edge(first["body"], "head")
-    result["tail_csv_sample"] = parse_csv_edge(last["body"], "tail")
+    head_header = result["head_csv_sample"].get("header")
+    result["tail_csv_sample"] = (
+        parse_csv_edge(last["body"], "tail", header_override=head_header)
+        if isinstance(head_header, list)
+        else {"edge": "tail", "status": "NOT_VERIFIED", "reason": "head header could not be parsed"}
+    )
     result["schema_status"] = "COVERAGE_LEAD_ONLY"
     result["reason"] = "bounded head/tail rows are evidence of schema only, not proof of 752 aligned sessions or full-file lineage"
     return result
