@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "status": "READY",
-  "decision": "APPROVED_ONE_RUN",
+  "status": "PENDING_REVIEW",
+  "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
   "scope_id": "dhan-nifty50-daily-2024-01-02-one-request",
   "request_manifest_path": "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json",
   "request_manifest_git_blob": "3ebead76bf75feb864bcd3fb66a34e2d5125d74a",
   "request_manifest_sha256": "41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f",
   "approved_authorization_sha256": "d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189",
   "tester_report_path": "research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md",
-  "tester_report_git_blob": "26c46d13f204b22bd737643112a7e489df09d3d2",
-  "tester_report_sha256": "98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c",
+  "tester_report_git_blob": "",
+  "tester_report_sha256": "",
   "reviewed_manifest_developer_commit": "685607d809ccfe5c1c5f82cce8a1073d8ab3edd8",
   "spent_at_commit": null,
-  "note": "READY for exactly one daily NIFTY historical-candle POST after independent report review. Preflight only; request still must pass runtime hash/checks, confirm token secret, and spend approval before request. No bulk/intraday/rolling-option/model/holdout scope.",
+  "note": "PENDING_REVIEW. Runtime validator rejected the prior copied report because it omitted the exact scope ID string; spend and request steps were skipped. The report will be corrected, re-hashed and preflighted before any further READY transition.",
   "spent_from_commit": null
 }
