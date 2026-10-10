@@ -68,12 +68,50 @@ def test_wrong_trade_date_fails() -> None:
     assert result["requested_date_check"] is False
 
 
+def test_mixed_date_legacy_archive_fails() -> None:
+    headers = ["INSTRUMENT", "SYMBOL", "EXPIRY_DT", "STRIKE_PR", "OPTION_TYP", "OPEN", "CLOSE", "CONTRACTS", "OPEN_INT", "TIMESTAMP"]
+    base = {
+        "INSTRUMENT": "OPTIDX", "SYMBOL": "NIFTY", "EXPIRY_DT": "25-JUL-2024",
+        "STRIKE_PR": "24000", "OPTION_TYP": "CE", "OPEN": "100", "CLOSE": "105",
+        "CONTRACTS": "1000", "OPEN_INT": "10000",
+    }
+    rows = [
+        {**base, "TIMESTAMP": "05-JUL-2024"},
+        {**base, "TIMESTAMP": "04-JUL-2024"},
+    ]
+    spec = {"key": "mixed_legacy", "date": "2024-07-05", "format": "legacy"}
+    result = mod.archive_schema(zipped_csv("mixed.csv", headers, rows), spec, "fixture")
+    assert result["schema_status"] == "FAIL"
+    assert result["requested_date_check"] is False
+    assert result["distinct_trade_date_count"] == 2
+
+
+def test_mixed_date_udiff_archive_fails() -> None:
+    headers = ["TradDt", "Sgmt", "TckrSymb", "XpryDt", "StrkPric", "OptnTp", "OpnPric", "ClsPric", "TtlTradgVol", "OpnIntrst"]
+    base = {
+        "Sgmt": "FO", "TckrSymb": "NIFTY", "XpryDt": "2024-07-11",
+        "StrkPric": "24000", "OptnTp": "PE", "OpnPric": "100", "ClsPric": "105",
+        "TtlTradgVol": "1000", "OpnIntrst": "10000",
+    }
+    rows = [
+        {**base, "TradDt": "2024-07-08"},
+        {**base, "TradDt": "2024-07-09"},
+    ]
+    spec = {"key": "mixed_udiff", "date": "2024-07-08", "format": "udiff"}
+    result = mod.archive_schema(zipped_csv("mixed.csv", headers, rows), spec, "fixture")
+    assert result["schema_status"] == "FAIL"
+    assert result["requested_date_check"] is False
+    assert result["distinct_trade_date_count"] == 2
+
+
 def main() -> None:
     tests = [
         test_legacy_schema_sample,
         test_udiff_schema_sample,
         test_missing_required_column_fails,
         test_wrong_trade_date_fails,
+        test_mixed_date_legacy_archive_fails,
+        test_mixed_date_udiff_archive_fails,
     ]
     for test in tests:
         test()
