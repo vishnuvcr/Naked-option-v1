@@ -1,6 +1,6 @@
 # Developer Handoff — Dhan Historical Pipeline Offline Code Gate (Final Corrected Snapshot)
 
-**State: RESUBMITTED FOR INDEPENDENT REVIEW. Live acquisition is NOT authorized.**  
+**State: CODE GATE PASSED WITH SCOPED RESTRICTIONS. Live acquisition is NOT authorized.**  
 **Exact snapshot commit:** 986d78cf4e3297f203c4960493ef86e2a8663697  
 **Hosted offline regression:** [Run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592), success; **42 offline/mock tests passed**.  
 **Hosted protocol check:** [Run 38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689), success.
@@ -15,7 +15,7 @@
 | `research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md` | `9145f88ec99169a900d9ff2c7b77c0592781f5ae` |
 | Prior independent planning gate (tester branch) | `d49298d7070cba557b1ccd31df39cdaad334a571` |
 | First independent code REQUEST CHANGES report (tester branch) | `e9c9d3f59f7e267ed317b250df529c03c5f9598d` |
-| Latest independent re-review REQUEST CHANGES report (tester branch) | `aa394b225304bba4a01b70a3f63a6b01df1eaf80` |
+| Final independent code PASS report (tester branch) | `f1218310778c95499e2d7958d47118a4065c0f94` (blob); report commit `9b396b7ff6acd549d9f44fa0599934b209ee61fa` |
 
 ## Corrections included
 
