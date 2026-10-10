@@ -280,7 +280,7 @@ def spend() -> None:
         raise ValueError("approval_already_spent_or_not_ready")
     approval["status"] = "SPENT"
     approval["decision"] = "SPENT_BEFORE_SOURCE_REQUEST"
-    approval["spent_at_commit"] = git("rev-parse", "HEAD")
+    approval["spent_from_commit"] = git("rev-parse", "HEAD")
     _write_json_atomic(APPROVAL_PATH, approval)
     print("PASS: one-use sample approval marked SPENT before source request")
 
