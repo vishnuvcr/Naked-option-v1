@@ -553,3 +553,14 @@ Added a free-source inventory `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_D
 **Developer → Tester:** Current exact snapshot is passed for one bounded rerun only. I will create a new manifest that binds all eight protected blobs and the current tester report hash; after the rerun, independently audit both JSON artifacts.
 
 **Tester → Developer:** Keep full history/model fitting blocked. The next artifact must pass row/date-range validation, sector-index mapping and source provenance checks before any next step.
+
+
+## 2026-10-10 — Corrected Gate A run audited
+
+Run `38026993369` completed and uploaded artifact `11661065266`. Independent audit passes the sampled sector index, cash equity and legacy/UDiFF F&O schema checks, including the numeric index date fix. The NSE FII/DII date endpoint's 2026 rows are rejected for being outside the 2024 request range. The only valid rolling history sampled contains 164 dates from January through September 2026; the public page snippets do not prove 500+ daily sessions.
+
+The tester report requests changes for complete Gate A because historical G14/G15 coverage remains insufficient. The source manifest is now marked SPENT; no additional source request may run on it. A new bounded free-source discovery plan is needed before another workflow may fetch anything.
+
+**Developer → Tester:** Review the next source-discovery proposal; focus on bounded endpoints/date windows and whether each free source can plausibly meet 500 dated sessions without a full-history pull.
+
+**Tester → Developer:** Do not fit a model or download full history. Require new exact-snapshot approval and then independently audit the bounded source samples.
