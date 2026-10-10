@@ -82,6 +82,37 @@ def iso_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
+def is_registered_probe_url(probe_id: str, url: str, method: str) -> bool:
+    """Reject URLs and HTTP methods outside the frozen discovery inventory."""
+    if probe_id in FIXED_URLS:
+        return url == FIXED_URLS[probe_id] and method == "GET"
+    if probe_id == "HF-2-HEAD":
+        return url == HF_RESOLVE_URL and method == "HEAD"
+    if probe_id in {"HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
+        return url == HF_RESOLVE_URL and method == "GET"
+    if probe_id == "CHIRAG-1" and method == "GET":
+        parsed = urllib.parse.urlsplit(url)
+        pattern = rf"/chirag127/fii-dii-activity-api/[0-9a-f]{{40}}/data/{re.escape(CHIRAG_DATE)}\.json"
+        return parsed.scheme == "https" and parsed.hostname == "raw.githubusercontent.com" and bool(re.fullmatch(pattern, parsed.path))
+    return False
+
+
+def validate_content_range_response(
+    response: dict[str, Any], start: int, end: int, total_length: int,
+) -> tuple[bool, str]:
+    if response.get("status") != "FETCHED" or response.get("http_status") != 206:
+        return False, "range requires HTTP 206; HTTP 200 is always rejected"
+    match = re.fullmatch(r"bytes\s+(\d+)-(\d+)/(\d+)", str(response.get("content_range") or ""), flags=re.I)
+    if not match:
+        return False, "missing or malformed Content-Range"
+    got_start, got_end, total = map(int, match.groups())
+    if (got_start, got_end, total) != (start, end, total_length):
+        return False, "Content-Range does not exactly match requested inclusive range and HEAD length"
+    if len(response.get("body", b"")) != end - start + 1:
+        return False, "body byte count does not match the inclusive range length"
+    return True, "PASS"
+
+
 class BudgetExceeded(RuntimeError):
     pass
 
@@ -160,6 +191,12 @@ class LimitedHTTP:
         max_body_bytes: int,
         hf_redirects: bool = False,
     ) -> dict[str, Any]:
+        if not is_registered_probe_url(probe_id, url, method):
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": "URL or HTTP method is not registered in the frozen probe inventory",
+                "history": [], "bytes_read": 0,
+            }
         self.budget.start_initial(probe_id, url)
         current_url = url
         redirect_count = 0
@@ -537,20 +574,7 @@ def hf_file_probe(client: LimitedHTTP, meta: dict[str, Any]) -> dict[str, Any]:
         max_body_bytes=MAX_RANGE_BYTES, hf_redirects=True,
     )
     def validate_range(resp: dict[str, Any], start: int, end: int) -> tuple[bool, str]:
-        if resp.get("status") != "FETCHED" or resp.get("http_status") != 206:
-            return False, "range requires HTTP 206; HTTP 200 is always rejected"
-        header = next((v for k, v in resp.get("history", [{}])[-1].items() if k == "_unused"), None)
-        # The actual headers are copied out of the final response below as parsed fields.
-        cr = resp.get("content_range")
-        match = re.fullmatch(r"bytes\s+(\d+)-(\d+)/(\d+)", str(cr or ""), flags=re.I)
-        if not match:
-            return False, "missing or malformed Content-Range"
-        got_start, got_end, total = map(int, match.groups())
-        if (got_start, got_end, total) != (start, end, length):
-            return False, "Content-Range does not exactly match requested inclusive range and HEAD length"
-        if len(resp.get("body", b"")) != end - start + 1:
-            return False, "body byte count does not match the inclusive range length"
-        return True, "PASS"
+        return validate_content_range_response(resp, start, end, length)
     first_ok, first_reason = validate_range(first, 0, head_end)
     last_ok, last_reason = validate_range(last, tail_start, length - 1)
     result["head_range"] = {k: v for k, v in first.items() if k != "body"}
