@@ -512,3 +512,12 @@
 - Hosted offline suite Run `38026629021` passed 25 tests. Fail-closed check Run `38026802711` rejected the revoked manifest and skipped source acquisition, confirming the guard behavior.
 - Do not conflate the new code PASS with Gate A completion: artifact `11660395594` remains non-accepted because of index date parsing and out-of-window FII/DII response defects.
 - Approval must be rebuilt and hash-bound to the latest tester report and all eight protected files before another source request. The source job is still unauthorized at current state.
+
+
+## 2026-10-10 — Corrected Gate A artifact: parser fixed; historical flow coverage still fails feasibility
+
+- Run `38026993369` artifact `11661065266` ZIP hash `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`. Independent audit confirmed index/equity/F&O schema checks pass.
+- FII/DII history JSON is valid but only 164 unique dates from 2026-01-14 to 2026-09-30; the dated NSE API ignored the July 2024 range and its current rows were correctly rejected.
+- Complete Gate A remains open. This is a data-coverage limitation, not a predictor result. Additional free-source discovery is required before any full history or model fitting.
+- One-run manifest was marked SPENT after this artifact. Do not rerun or reuse it. A new exact-snapshot source discovery proposal/code gate is required.
+- Audit report: `research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md`; free-source inventory: `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`.
