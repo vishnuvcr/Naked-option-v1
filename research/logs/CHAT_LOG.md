@@ -1040,3 +1040,24 @@ Tester → Developer: Send corrections and missing-method findings from the isol
 - Opened [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6) for an independent review of the exact crosswalk/spec/submission blob SHAs on the isolated `phase-07-tester` branch.
 - The issue explicitly limits the permission request to the next gate and prohibits full-history source pulls, fitting/scoring new methods, or final-holdout access until the independent tester report is recorded.
 - Current block is a repository gate, not a data conclusion: the paper-derived methods remain not tested by this submission.
+
+
+## 2026-10-10 — User requested continuation after PPR-1 REQUEST CHANGES
+
+### User request
+“Ok proceed”
+
+### Work performed
+- Re-read the exact tester report and developer protocol/crosswalk snapshots before changes.
+- Amended `research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md` with separate directional/regression inference families, exact primary statistics and bootstrap formula, target/endpoint contract, source-specific point-in-time conventions, replication-vs-adaptation rules, bounded confirmatory search, and metric edge-case handling.
+- Amended `research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md` with PDF page-range navigation aids and required source-fidelity labels for all 15 uploaded PDFs.
+- Updated `research/STATUS.md`, `README.md`, and `research/logs/ERROR_LOG.md`.
+
+### Gate state and limits
+- The tester's prior decision remains REQUEST CHANGES; these amendments have not yet been independently approved.
+- PDF page ranges are navigation aids only. Individual claim-level page/section citations and a full source-verification matrix are still required.
+- No new source request, model fitting/tuning/scoring, final holdout access or option P&L was performed.
+- Next step: submit exact amended blobs to the tester branch for review; do not begin PPR-2 or empirical execution without a new tester PASS.
+
+**Developer → Tester:** Review the amended exact snapshots and enumerate any unresolved P1/P2 findings.  
+**Tester → Developer:** Preserve fail-closed authorization; approve only a corrected exact snapshot and only the next permitted gate.
