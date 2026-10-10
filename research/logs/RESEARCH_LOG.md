@@ -1060,3 +1060,8 @@ Independent artifact audit rejected the first Dhan sample because the metadata e
 ## 2026-10-10 — Dhan redirect blocks index metadata
 
 The second approved Dhan sample confirms token validity and active Data API plan, but the official `/v2/instrument/IDX_I` endpoint responds HTTP 302. The strict transport did not follow the redirect, and no historical candle request was made. Artifact `11667455094` is recorded in the independent audit as REQUEST CHANGES. The one-run manifest is spent. A separate finite proposal now asks to expose only redirect scheme/hostname in one request, without following it or recording raw Location path/query. No analysis rerun or FII/FPI/DII data recovery occurred.
+
+
+## 2026-10-10 — Redirect target discovery code gate
+
+The independent tester passed the redirect-target parser, offline suite and dedicated guarded workflow for one request only. Offline Run `38044225274` passed 37 regressions. The parser extracts only normalized scheme and hostname, rejects malformed/credential-bearing URLs, and does not follow redirects. The workflow validates and spends a one-use manifest before its sole authenticated request and injects the token only into that step. The earlier metadata endpoint response was HTTP 302; no candles or analysis were retrieved. A fresh manifest must pin the current exact file hashes before the diagnostic call. Following a redirect remains unauthorized.
