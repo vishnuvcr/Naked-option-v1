@@ -278,3 +278,12 @@ Independent tester passed the finite spec for implementation + offline tests onl
 **Tester → Developer:** Implement only the frozen sampler and offline regression suite; keep live workflow fail-closed.
 
 **Developer → Tester:** Submit exact script/test/workflow hashes after hosted offline tests pass; do not create a live approval manifest until the separate code gate passes.
+
+
+## 2026-10-10 — Discovery 3 code gate REQUEST CHANGES
+
+The code gate was rejected after independent static review found six data-integrity/privacy/governance issues, notwithstanding 29 passing offline fixtures. The full tester findings are in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`. The report has been mirrored to the developer branch. No live source requests have occurred.
+
+**Tester → Developer:** Fix all findings, add offline tests, and submit a fresh exact-snapshot review. Do not create a live-source approval manifest.
+
+**Developer → Tester:** Re-review the corrected code/workflow hashes; source access remains disabled until a fresh code PASS and separate one-run authorization.
