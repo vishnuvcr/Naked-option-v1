@@ -679,3 +679,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - The explicit confirmation step was skipped because this was a push event; source request and manifest-spend steps were skipped. No Dhan request was made and no artifact was produced.
 - Disposition: non-evidence, expected fail-closed behavior for an old push-triggered run. Do not rerun this historical commit because it lacks the manifest and the current workflow is intentionally manual-dispatch-only.
 - Corrective path: inspect the current developer head and exact manifest against the validator's hash/blob/tree pins, then use a supported manual workflow dispatch. The connected GitHub tool can inspect logs and rerun jobs but does not expose a new workflow-dispatch operation.
+
+
+## 2026-10-10 — Resume audit: manual workflow dispatch unavailable in this session
+
+- The current GitHub tool catalog was checked for a workflow-dispatch operation. None is exposed; available Actions support covers inspection/logs/artifacts and rerunning existing jobs.
+- This is an execution-capability blocker, not a new code/test failure. No new run was dispatched, no historic failed run was rerun, no Dhan request was made, and no secret was accessed.
+- Correct handling: keep the live diagnostic blocked and retain the manual-only workflow. Do not restore a push trigger, claim that READY means validated, or broaden authorization.
+
