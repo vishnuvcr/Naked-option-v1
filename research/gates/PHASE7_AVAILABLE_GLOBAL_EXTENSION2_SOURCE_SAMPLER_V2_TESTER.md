@@ -204,3 +204,51 @@ This sample run stays **NON-ACCEPTED for Gate A completion** because the index d
 **Tester → Developer:** Correct both issues, add exact regression fixtures, update the error log/status and submit the new source/code snapshot for a separate tester gate. Expand the free FII/DII source discovery plan; do not download full history or fit models.
 
 **Developer → Tester:** Re-review the date normalization and out-of-window response tests. After code approval, authorize only one corrected bounded sample run; the resulting artifact requires a separate post-run audit.
+
+
+## Corrected source-validation code gate — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — exact current sampler/workflow snapshot, Gate A only.**  
+**Reviewed developer commit:** 784474de59a050ba6229ee5cb9a708c0f74ca2dc.  
+**Full-history acquisition: NOT AUTHORIZED.**  
+**Model fitting: NOT AUTHORIZED.**  
+**Important separation:** this is a fresh code-gate PASS for a corrected, bounded retry; it does **not** change the prior post-run artifact decision on Run #38026272245, which remains REQUEST CHANGES/non-accepted. Only one new bounded source-feasibility batch may run; its artifact requires another independent review.
+
+### Exact protected snapshot
+
+| Protected file | Reviewed Git blob ID |
+|---|---|
+| research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md | a5e65b56f9aa23c8292b718403c3db4448dad2e3 |
+| scripts/phase7_extension2_source_feasibility.py | 532c1212fad29dbd771d609b1e0ddb85d46d9e50 |
+| scripts/test_phase7_extension2_source_feasibility.py | 4b470468a4aef23ba59d5efef8755be33ce23fe0 |
+| scripts/phase7_extension2_source_feasibility_v2.py | 1f5013a43c5394ea92bdd300a67e299c1bdb079f |
+| scripts/test_phase7_extension2_source_feasibility_v2.py | 9b90eb50eae7974ce583fc5201fedcd53b35ae19 |
+| .github/workflows/phase-07-extension2-source-feasibility-v2.yml | a699eaf8af92978da2ae6961cb3c5dabb44a47a4 |
+| .github/workflows/phase-07-extension2-source-feasibility.yml (offline-only legacy workflow) | f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3 |
+| .github/workflows/phase-07-extension2-source-feasibility-tests.yml (offline-only test workflow) | 593da783fa81788a1041d17d82945e24d76caf4d |
+
+All eight protected blobs were re-fetched from the developer branch. The v2 authorization allowlist now contains all eight paths, including both workflows documented as offline-only, and verifies their byte hashes and Git blob IDs against this report. The reviewed commit is an ancestor of current developer HEAD.
+
+### Source-validation corrections verified
+
+1. The date normalizer now handles the official index CSV's numeric DD-MM-YYYY format.
+2. The date-parameter FII/DII response validator checks every returned row against the exact requested interval. Any row outside the interval is rejected as REJECTED_ROWS_OUTSIDE_REQUESTED_WINDOW; rows without a parseable date are UNVERIFIED_RESPONSE_DATE.
+3. The source-level function passes the parsed requested window to the payload validator. A new integration regression simulates the actual NSE API request path returning 2026-10-09 rows for the July 2024 request and verifies that the response is rejected.
+4. Request restrictions remain in place: ten-day query window, 512 KB response cap, maximum 50 rows, and no fetch for unregistered/wide date ranges.
+5. Both prior data-validation defects have direct regression coverage; the rejected payload is not included as an accepted sample in the report.
+
+### Hosted tests and guarded-flow checks
+
+- Offline source tests Run 38026629021 succeeded with **25 checks** (7 v1 + 18 v2), including the new end-to-end out-of-window response test.
+- Fail-closed check Run 38026802711 passed offline tests, rejected the explicitly revoked manifest, and skipped the live source job. This intentionally failed workflow run demonstrates the current gate does not acquire sources while approval is revoked.
+- The prior unapproved legacy workflow incident remains logged. Its workflow is offline-only and protected by this same snapshot; no new data were fetched by this code-review step.
+
+### Decision and limit
+
+Code gate is **PASS WITH SCOPED RESTRICTIONS** for **one bounded Gate A re-sample only**, conditional on the current approval manifest being replaced by a fresh exact-snapshot manifest. The corrected sample may only upload the two source-feasibility JSON reports. It must not create full historical datasets, features/labels, predictions, metrics or p-values, and must not open the final holdout. No model fitting is authorized.
+
+Free-source FII/DII history is still unresolved. The next artifact audit must check the corrected NSE index samples and reject the NSE date-parameter response if it continues to ignore the requested window. Additional public source leads have been discovered but are not yet accepted; they must be tested under a separately reviewed bounded source-discovery scope if the corrected artifact does not establish 500+ usable sessions.
+
+**Tester → Developer:** Mirror this report exactly; create a new manifest binding this exact commit, the eight blob IDs and file hashes, and the report hash. The guarded workflow must re-run offline tests and the exact authorization check before sampling. After the artifact uploads, independently audit it again. Keep full history and model fitting unauthorized.
+
+**Developer → Tester:** Do not infer that code PASS equals source-coverage PASS. Recheck URLs, dates, hashes, official/source-vintage provenance, sector identities, and response-window behavior on the new immutable artifact. If historical FII/DII coverage remains insufficient, continue researching free sources under a new gate rather than using a paid source or fitting the model.
