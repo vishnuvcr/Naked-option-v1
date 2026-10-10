@@ -8,10 +8,10 @@
   "request_manifest_sha256": "41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f",
   "approved_authorization_sha256": "d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189",
   "tester_report_path": "research/gates/PHASE7_DHAN_DAILY_SAMPLE_MANIFEST_TESTER.md",
-  "tester_report_git_blob": "",
-  "tester_report_sha256": "",
+  "tester_report_git_blob": "f99205683c02fcbc4514b15292350f6b0b4fcc6b",
+  "tester_report_sha256": "47ad9b6c5515d072907f9920c83fce405175f08684febe2568c6dcf2c98bcaf8",
   "reviewed_manifest_developer_commit": "685607d809ccfe5c1c5f82cce8a1073d8ab3edd8",
   "spent_at_commit": null,
-  "note": "PENDING_REVIEW. Runtime validator rejected the prior copied report because it omitted the exact scope ID string; spend and request steps were skipped. The report will be corrected, re-hashed and preflighted before any further READY transition.",
+  "note": "PENDING_REVIEW. Tester report now has all required literal markers including exact scope ID; raw hash/blob pinned from hosted hashlib. Run the pending-state preflight before any READY transition. No request has been made and approval was not spent.",
   "spent_from_commit": null
 }
