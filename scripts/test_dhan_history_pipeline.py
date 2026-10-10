@@ -448,7 +448,7 @@ def test_atomic_cache_bundle_hashes_and_preserves_content() -> None:
             request_metadata={"http_status": 200, "content_type": "application/json",
                               "response_bytes": len(raw), "request_count": 1,
                               "cumulative_response_bytes": len(raw)},
-            request_parameters={"fromDate": "2024-01-01", "toDate": "2024-01-03"},
+            request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z",
         )
         assert again["status"] == "CACHE_ALREADY_PRESENT"
