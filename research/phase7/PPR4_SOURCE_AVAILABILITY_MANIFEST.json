@@ -250,7 +250,7 @@
   },
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-    "ppr4_inventory_validation": "Awaiting exact-snapshot validation of the 34-row register and refreshed manifest pins.",
+    "ppr4_inventory_validation": "RETRY_REQUIRED_AFTER_34_SOURCE_EXPANSION_AND_PIN_REFRESH",
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED_UNTIL_DESIGN_REVIEW_AND_BOUNDARY_IMPLEMENTATION_GATE",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
@@ -281,7 +281,7 @@
     "prospective_holdout_design_ci": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38076047468",
     "prospective_holdout_cumulative_fit_bound": 7908,
     "ppr4_overall_status": "SOURCE ACQUISITION GATE STILL BLOCKED; ONLY SOURCE-ACQUISITION/CACHE MANIFEST DRAFTING IS AUTHORIZED.",
-    "next_permitted_scope": "Draft a source-specific acquisition/cache manifest only. Do not issue source requests, download bytes, accept the model panel, fit/tune/score, capture holdout forecasts or release labels.",
-    "ppr4_bse_extension": "P4-033 BSE SENSEX archive URL and P4-034 BSE FII/DII discovery gap added as unverified; neither accepted or downloaded."
+    "next_permitted_scope": "Metadata-only inventory/source documentation and drafting an exact source acquisition/cache proposal for independent review. No source requests, downloads, model-panel acceptance, fitting/tuning/scoring, prospective holdout forecast capture or label release.",
+    "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested."
   }
 }
