@@ -97,6 +97,14 @@
       "path": "research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json",
       "blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c",
       "rows": 34
+    },
+    "wave1_request_manifest": {
+      "path": "research/phase7/PPR4_WAVE1_METADATA_REQUEST_DRAFT.json",
+      "blob": "cf49868c077b006315b0576519933312333a6efb"
+    },
+    "wave1_documentation_results": {
+      "path": "research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md",
+      "blob": "7ad4dc6b4af39c711616b3dc310788da530a7e42"
     }
   },
   "inventory_summary": {
@@ -175,7 +183,9 @@
     "model_fitting_tuning_scoring_authorized": false,
     "final_holdout_access_authorized": false,
     "option_pnl_authorized": false,
-    "one_use_dhan_approval_reusable": false
+    "one_use_dhan_approval_reusable": false,
+    "bulk_data_downloads_authorized": false,
+    "model_panel_data_acceptance_authorized": false
   },
   "next_permitted_step": "Continue only read-only GitHub branch/commit/approval metadata search for an existing genuine holdout split/boundary artifact. If absent, stop and present BLOCKED_GATE; do not invent a split or proceed to data/model use.",
   "tester_gate_required_before": "Any new source-specific sample request, data file download, modeling-panel acceptance or model use.",
@@ -267,13 +277,13 @@
     "ppr4_test_commit": "ee5890e0cbe96b3ba934e16f1d018dd0699f6d52",
     "ppr4_tester_decision": "REQUEST_CHANGES_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY",
     "ppr4_scope": "Read-only search of repository/commit/approval metadata and public source documentation only. Do not download data, accept a model panel, fit/tune/score, inspect holdout values/labels, or run option P&L.",
-    "next_required_action": "Continue read-only repository/content search for a genuine existing split/holdout boundary under non-obvious paths/config names. If none exists, draft a separately reviewed pre-outcome split/holdout governance proposal without implementation.",
+    "next_required_action": "Update source register with page-link findings, then draft a separately gated bounded data-sample request only if an exact endpoint, license basis, and transport-enforced size/hash logging are available. Otherwise continue metadata-only source research.",
     "ppr4_tested_commit": "c4860ea31ae4a6a472eb4ddc32cab03a0f48d71d",
     "ppr4_ci_result": "PASS_OFFLINE_METADATA_ONLY; exact trigger checkout verified",
     "ppr4_failed_retry_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075537411",
     "ppr4_failed_retry_reason": "Audit-status literal did not match validator's frozen contract; manifest corrected to READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED and retry passed.",
     "ppr4_decision": "REQUEST_CHANGES_EXIT_BLOCKED_NO_MACHINE_READABLE_HOLDOUT_BOUNDARY",
-    "next_scope": "Read-only metadata/code/path search for actual existing holdout boundary; no downloads, model use or holdout values.",
+    "next_scope": "Documentation metadata has been checked. Data endpoints and source values remain blocked; no dataset/model/holdout permissions.",
     "prospective_holdout_proposal": "research/phase7/PPR4_PROSPECTIVE_HOLDOUT_PROPOSAL.md",
     "prospective_holdout_proposal_status": "DESIGN_ONLY_PENDING_TESTER_REVIEW",
     "prospective_holdout_proposal_blob": "23f19a3e8068f6687545df15917fce23498ba462",
@@ -289,12 +299,29 @@
     "prospective_holdout_tester_commit": "c96e426736d58ac5d7cd1f08948bffd86d199c7d",
     "prospective_holdout_design_ci": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38076047468",
     "prospective_holdout_cumulative_fit_bound": 7908,
-    "ppr4_overall_status": "SOURCE ACQUISITION GATE STILL BLOCKED; ONLY SOURCE-ACQUISITION/CACHE MANIFEST DRAFTING IS AUTHORIZED.",
+    "ppr4_overall_status": "SOURCE-DATA ACQUISITION GATE STILL BLOCKED; DOCUMENTATION-ONLY CHECKS COMPLETED WITH RAW TRANSPORT METADATA LIMITATION.",
     "next_permitted_scope": "Source acquisition/cache proposal drafting and tester review only. Do not issue requests, download bytes or accept data/model panel, fit/tune/score or access holdout.",
     "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested.",
     "source_acquisition_cache_proposal": "DRAFT_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
     "source_acquisition_cache_proposal_blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c",
     "source_acquisition_cache_proposal_rows": 34,
-    "proposed_wave_limits": "Wave 1: at most 3 sources/5 MiB total, 2 MiB/source, <=20 rows/source; Wave 2: at most 5 sources/10 MiB total; Wave 3: at most 2 sources/5 MiB total. All zero network operations until a distinct exact-snapshot tester pass."
+    "proposed_wave_limits": "Wave 1: at most 3 sources/5 MiB total, 2 MiB/source, <=20 rows/source; Wave 2: at most 5 sources/10 MiB total; Wave 3: at most 2 sources/5 MiB total. All zero network operations until a distinct exact-snapshot tester pass.",
+    "source_acquisition_cache_proposal_status": "PASS_WITH_SCOPED_RESTRICTIONS_PROPOSAL_DESIGN_ONLY",
+    "source_acquisition_cache_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW3_SOURCE_ACQUISITION_PROPOSAL.md",
+    "source_acquisition_cache_tester_blob": "e2149fd03d43129986c1bec3e7a938f4e88d4072",
+    "wave1_request_manifest": "research/phase7/PPR4_WAVE1_METADATA_REQUEST_DRAFT.json",
+    "wave1_request_manifest_blob": "cf49868c077b006315b0576519933312333a6efb",
+    "wave1_request_status": "PASS_WITH_SCOPED_RESTRICTIONS_THREE_DOCUMENTATION_GETS_ONLY",
+    "wave1_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md",
+    "wave1_tester_blob": "0416ec29679cf8619629187658a17b19df8bd84d",
+    "wave1_results": "research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md",
+    "wave1_results_blob": "7ad4dc6b4af39c711616b3dc310788da530a7e42",
+    "wave1_result": "DOCUMENTATION_METADATA_ONLY; RESPONSE_BYTES_HEADERS_AND_RAW_HASH_NOT_EXPOSED_BY_READER",
+    "wave1_requested_count": 3,
+    "wave1_data_requests": 0,
+    "wave1_data_bytes_downloaded": 0,
+    "model_panel_accepted": false,
+    "model_execution_authorized": false,
+    "holdout_access_authorized": false
   }
 }
