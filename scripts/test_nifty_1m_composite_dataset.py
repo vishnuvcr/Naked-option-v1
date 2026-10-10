@@ -116,7 +116,7 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertEqual(row["rolling_spot"], "24704.5")
         self.assertEqual(row["nifty_close"], "24705")
         self.assertEqual(row["spot_join_status"], "EXACT_TIMESTAMP_MATCH")
-        self.assertEqual(row["greek_status"], "CALCULATED_BS_V1_IV_NORMALIZATION_HEURISTIC")
+        self.assertEqual(row["greek_status"], "CALCULATED_BS_V1_SOURCED_INPUTS")
         self.assertGreater(float(row["gamma"]), 0)
         self.assertGreater(float(row["delta"]), 0)
         self.assertEqual(row["option_type"], "CALL")
@@ -129,7 +129,7 @@ class TestEncryptedComposite(unittest.TestCase):
             "iv": [18.5], "volume": [100], "strike": [24700], "oi": [3210], "spot": [24705]
         }, "pe": None}}
         rows, _ = collector.parse_option_response(payload, request, {}, "b" * 64, "FETCHED", {}, [])
-        self.assertEqual(rows[0]["greek_status"], "EXPIRY_CALENDAR_NOT_AVAILABLE")
+        self.assertEqual(rows[0]["greek_status"], "EXPIRY_MAPPING_UNAVAILABLE")
         self.assertEqual(rows[0]["delta"], "")
         self.assertEqual(rows[0]["gamma"], "")
 
