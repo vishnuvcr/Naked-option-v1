@@ -181,3 +181,10 @@ Run [#1 / 38019728293](https://github.com/vishnuvcr/Naked-option-v1/actions/runs
 The workflow's current blob is now `fdc0a6bef97796b38424048304b704d86f80c450` (replacing `c535610e69c2e90934ab4e59d754b584e29ff6ec`). In addition to file-byte SHA-256 values, the Gate A guard now requires the independent tester report to include the exact current decision line, explicitly deny full-history acquisition and model fitting, and quote all six protected Git blob IDs from the approved snapshot. The approval manifest also binds the reviewed commit as an ancestor and verifies both file hashes and Git blob IDs. Manual sampling remains opt-in and still requires the same exact approval.
 
 Latest request: [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md). Current sampler/test blobs have not changed; the exact workflow snapshot needs independent re-review. No approval manifest or source sample exists.
+
+
+### F&O schema-transition sample added after workflow audit — 2026-10-10
+
+A review of the v2 sampler constants showed that it sampled equity cash bhavcopies, not the F&O contract archives. Because the v2 workflow did not call the existing bounded F&O sampler, the artifact would not have validated the key legacy/UDiFF options transition. The workflow is corrected at blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` to run both bounded samplers and upload both JSON reports. The exact-snapshot review request is updated at [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
+
+This changes the workflow blob after the last report and requires independent re-review. The Gate A manifest remains absent; no live source request has been made by the corrected workflow.
