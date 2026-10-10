@@ -1,0 +1,1189 @@
+{
+  "schema_version": 1,
+  "protocol_id": "PPR3-v1",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "note": "These settings are the common-project adaptation defaults, not a claim that the source papers used these exact hyperparameters. Any paper-native parameter not verified in PAPER_SOURCE_EVIDENCE_MATRIX.md remains ambiguous; project settings are separately labelled as adaptations.",
+  "global_training_rules": {
+    "random_seed": 20261010,
+    "neural_seeds": [
+      20261010,
+      20261011,
+      20261012
+    ],
+    "deterministic_algorithms": true,
+    "parallel_jobs": 1,
+    "training_scaler": "fit on training rows only and reused unchanged on validation rows",
+    "regression_target_scaler": "for neural regression only, fit target transform on training rows only and inverse-transform predictions before scoring",
+    "categorical_missingness": "do not forward-fill future values; use only prior-as-of observations, with missing indicators when the feature pipeline preregisters them",
+    "no_random_time_split": true,
+    "sequence_window_sessions": 20,
+    "minimum_outer_training_rows": 252,
+    "early_stopping": "for neural models only, use the last 10% of the outer training prefix as chronological inner validation; patience 10; this subset never includes outer validation rows",
+    "neural_max_epochs": 100,
+    "neural_batch_size": 32,
+    "neural_optimizer": "Adam",
+    "neural_learning_rate": 0.001
+  },
+  "feature_pipeline_definitions": {
+    "CORE_OHLCV_TECH": {
+      "definition": "NIFTY daily OHLCV lag features and causal technical features; always computed as-of the decision cutoff.",
+      "fixed_fields": [
+        "open_lag_1",
+        "high_lag_1",
+        "low_lag_1",
+        "close_lag_1",
+        "volume_lag_1",
+        "close_return_lags_1_2_3_5_10",
+        "high_low_range_lag_1",
+        "sma_10",
+        "sma_20",
+        "rsi_14",
+        "rolling_return_sd_20"
+      ],
+      "availability": "daily close-derived fields only after the official close is published; pre-close rows use the prior completed session",
+      "transform": "scalers fitted on training only; warm-up/missing rows removed without future fill"
+    },
+    "EXTERNAL_MARKET": {
+      "definition": "CORE_OHLCV_TECH plus externally traded market/macro features whose values were available by the NIFTY decision timestamp.",
+      "candidate_fields": [
+        "SENSEX returns",
+        "Bank Nifty returns",
+        "S&P 500 returns",
+        "Nasdaq returns",
+        "Nikkei/Hang Seng returns",
+        "USD/INR",
+        "gold",
+        "crude oil",
+        "Cboe VIX",
+        "US rates where published"
+      ],
+      "availability": "as-of joins use provider observation and availability timestamps; daily closes default to the next Indian session unless exact publication timing is verified",
+      "source_rule": "PPR-4 must freeze actual series symbols, source hashes, field availability, units and history coverage; absent/unverified data mark affected variants BLOCKED_DATA"
+    },
+    "FLOWS_OPTIONS": {
+      "definition": "CORE_OHLCV_TECH plus timestamp-valid FII/FPI/DII activity, India VIX and option-context features where a genuine point-in-time snapshot exists.",
+      "candidate_fields": [
+        "FII/FPI/DII flow or gross buy/sell features",
+        "India VIX",
+        "contract OI and OI change",
+        "put-call OI/volume measures",
+        "IV/skew/Greeks when point-in-time snapshots are verified"
+      ],
+      "availability": "use report publication/availability timestamps and exact contract snapshots; no retrospective EOD option chain can be joined to a pre-snapshot decision",
+      "source_rule": "PPR-4 must verify official or free-source availability, coverage and canonical schema; the one-use Dhan sample approval remains spent"
+    },
+    "TIMESTAMPED_SENTIMENT_FUSION": {
+      "definition": "CORE_OHLCV_TECH plus time-valid historical text sentiment, with source-specific context fields only if those fields independently pass the point-in-time gate.",
+      "candidate_fields": [
+        "timestamp-valid historical news sentiment",
+        "timestamp-valid historical tweet mood/sentiment",
+        "sentiment volume/count and three-session lag features where the source method calls for them",
+        "FII/DII/VIX/PCR context only when the specific source configuration includes them and availability is verified"
+      ],
+      "news_rule": "original publication timestamp and ingestion timestamp must both precede decision cutoff; date-only same-day items are excluded unless a predeclared lag makes availability unambiguous",
+      "model_rule": "any pretrained text model must be chosen before data inspection, revision/hash-pinned and cached; no BERT/FinBERT inference or download is authorized by this settings file",
+      "source_rule": "PPR-4 must record free-source search, licenses/terms, timestamp coverage and archive hashes; no substitute current headlines"
+    }
+  },
+  "templates": {
+    "LOGISTIC_CLASSIFIER": {
+      "family": "sklearn LogisticRegression",
+      "params": {
+        "C": 1,
+        "penalty": "l2",
+        "solver": "lbfgs",
+        "max_iter": 2000,
+        "class_weight": null
+      },
+      "preprocess": "standardize inputs using training prefix; output calibrated predict_proba in DOWN,FLAT,UP order"
+    },
+    "KNN_CLASSIFIER": {
+      "family": "sklearn KNeighborsClassifier",
+      "params": {
+        "n_neighbors": 25,
+        "weights": "distance",
+        "metric": "minkowski",
+        "p": 2
+      },
+      "preprocess": "standardize inputs using training prefix; class probabilities from neighbor vote"
+    },
+    "TREE_CLASSIFIER": {
+      "family": "sklearn DecisionTreeClassifier",
+      "params": {
+        "criterion": "gini",
+        "max_depth": 5,
+        "min_samples_leaf": 20,
+        "random_state": 20261010
+      },
+      "preprocess": "no mandatory scaling; class order must be explicitly aligned"
+    },
+    "BAGGING_CLASSIFIER": {
+      "family": "sklearn BaggingClassifier",
+      "params": {
+        "n_estimators": 100,
+        "max_samples": 0.8,
+        "max_features": 1,
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "base_estimator": {
+        "family": "DecisionTreeClassifier",
+        "params": {
+          "max_depth": 4,
+          "min_samples_leaf": 20,
+          "random_state": 20261010
+        }
+      },
+      "preprocess": "use library class-probability output; pinned sklearn version required"
+    },
+    "BOOSTING_CLASSIFIER": {
+      "family": "sklearn GradientBoostingClassifier",
+      "params": {
+        "n_estimators": 100,
+        "learning_rate": 0.03,
+        "max_depth": 2,
+        "random_state": 20261010
+      },
+      "preprocess": "fixed project adaptation for generic 'Boosting'; not an exact reproduction of an unspecified booster"
+    },
+    "RANDOM_FOREST_CLASSIFIER": {
+      "family": "sklearn RandomForestClassifier",
+      "params": {
+        "n_estimators": 500,
+        "max_depth": null,
+        "min_samples_leaf": 10,
+        "max_features": "sqrt",
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "preprocess": "class probabilities aligned to DOWN,FLAT,UP"
+    },
+    "MLP_CLASSIFIER": {
+      "family": "sklearn MLPClassifier",
+      "params": {
+        "hidden_layer_sizes": [
+          64,
+          32
+        ],
+        "activation": "relu",
+        "alpha": 0.001,
+        "solver": "adam",
+        "max_iter": 1000,
+        "early_stopping": false,
+        "random_state": 20261010
+      },
+      "preprocess": "standardize inputs on training rows only; do not inspect outer validation during convergence"
+    },
+    "SVM_CLASSIFIER": {
+      "family": "sklearn SVC",
+      "params": {
+        "kernel": "rbf",
+        "C": 1,
+        "gamma": "scale",
+        "probability": true,
+        "random_state": 20261010
+      },
+      "preprocess": "standardize on training rows; probabilities use SVC's internal calibration from training data only; no outer validation labels"
+    },
+    "LSTM_DIRECTION": {
+      "family": "Keras LSTM classifier",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "loss": "categorical_crossentropy",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "scale only using training prefix; three predeclared seeds"
+    },
+    "BERT_LSTM_DIRECTION": {
+      "family": "Frozen financial-text encoder plus Keras LSTM classifier",
+      "params": {
+        "text_encoder_model_id": "ProsusAI/finbert",
+        "text_encoder_revision": "MUST_BE_PINNED_TO_COMMIT_BEFORE_ANY_DOWNLOAD",
+        "fine_tune_text_encoder": false,
+        "per_session_sentiment_aggregate": "mean(p_positive)-mean(p_negative)",
+        "lags_sessions": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "sequence_window": 20,
+        "lstm_units": 64,
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "project adaptation only; original/ingestion times precede cutoff; model archive hash and tokenizer version cached before any permitted model run"
+    },
+    "SOFNN_SOURCE_NATIVE": {
+      "status": "BLOCKED_METHOD",
+      "params": null,
+      "reason": "Exact implementation/settings of the five-layer ellipsoidal-basis SOFNN have not been fully specified in a reproducible project config; no guessed replacement permitted."
+    },
+    "RNN_DIRECTION": {
+      "family": "Keras SimpleRNN classifier",
+      "params": {
+        "sequence_window": 20,
+        "rnn_layers": [
+          64,
+          64
+        ],
+        "activation": "tanh",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only scaling; project adaptation from a price-forecast architecture"
+    },
+    "GRU_DIRECTION": {
+      "family": "Keras GRU classifier",
+      "params": {
+        "sequence_window": 20,
+        "gru_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only scaling; project adaptation"
+    },
+    "CNN_DIRECTION": {
+      "family": "Keras 1-D CNN classifier",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": [
+          32,
+          64
+        ],
+        "kernel_sizes": [
+          3,
+          3
+        ],
+        "hidden_activation": "relu",
+        "pooling": "global_average",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only scaling; project adaptation"
+    },
+    "TCN_DIRECTION": {
+      "family": "Keras temporal convolutional classifier",
+      "params": {
+        "sequence_window": 20,
+        "filters": 32,
+        "kernel_size": 3,
+        "dilations": [
+          1,
+          2
+        ],
+        "residual_blocks": 2,
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "causal convolution padding only; training-only scaling"
+    },
+    "LSTM_GRU_DIRECTION": {
+      "family": "Parallel LSTM and GRU encoders",
+      "params": {
+        "sequence_window": 20,
+        "lstm_units": 32,
+        "gru_units": 32,
+        "merge": "concatenate final states",
+        "dense_units": 32,
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "fixed project adaptation; no source-specific architecture claim"
+    },
+    "CNN_RNN_DIRECTION": {
+      "family": "1-D CNN followed by SimpleRNN classifier",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": 32,
+        "kernel_size": 3,
+        "rnn_units": 64,
+        "hidden_activation": "relu",
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "causal sequence windows; train-only scaling"
+    },
+    "CNN_TCN_DIRECTION": {
+      "family": "1-D CNN plus TCN classifier",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": 32,
+        "kernel_size": 3,
+        "tcn_filters": 32,
+        "tcn_kernel_size": 3,
+        "tcn_dilations": [
+          1,
+          2
+        ],
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "causal sequence windows; train-only scaling"
+    },
+    "LSTM_TCN_DIRECTION": {
+      "family": "LSTM sequence encoder plus TCN classifier",
+      "params": {
+        "sequence_window": 20,
+        "lstm_units": 32,
+        "tcn_filters": 32,
+        "tcn_kernel_size": 3,
+        "tcn_dilations": [
+          1,
+          2
+        ],
+        "merge": "concatenate final LSTM state and TCN pooled state",
+        "dropout": 0.2,
+        "output_units": 3,
+        "output_activation": "softmax",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "causal sequence windows; train-only scaling"
+    },
+    "SMA_50_200_DIRECTION": {
+      "family": "SMA 50/200 crossover rule",
+      "params": {
+        "fast_window": 50,
+        "slow_window": 200,
+        "signal_states": [
+          "bullish_cross",
+          "bearish_cross",
+          "no_new_cross"
+        ],
+        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training prefix only, keyed by current rule state"
+      },
+      "preprocess": "use only SMA values available by decision cutoff; after initial training map is fitted, use prequential rates only from labels mature before each later decision"
+    },
+    "EMA_50_200_DIRECTION": {
+      "family": "EMA 50/200 crossover rule",
+      "params": {
+        "fast_window": 50,
+        "slow_window": 200,
+        "signal_states": [
+          "bullish_cross",
+          "bearish_cross",
+          "no_new_cross"
+        ],
+        "probability_mapping": "Laplace-smoothed conditional DOWN/FLAT/UP class rates from training prefix only, keyed by current rule state"
+      },
+      "preprocess": "selected 50/200 setting is explicitly a PROJECT-ADAPTATION because the source also mentions 50/100"
+    },
+    "XGBOOST_DIRECTION": {
+      "family": "XGBoost classifier",
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1,
+        "objective": "multi:softprob",
+        "num_class": 3,
+        "eval_metric": "mlogloss",
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "preprocess": "fixed base settings except the predeclared tuned cells for P05 regression models; XGBoost option-signal source is an adaptation to spot direction"
+    },
+    "KNN_REGRESSION": {
+      "family": "sklearn KNeighborsRegressor",
+      "params": {
+        "n_neighbors": 25,
+        "weights": "distance",
+        "metric": "minkowski",
+        "p": 2
+      },
+      "preprocess": "standardize X on training prefix only; evaluate MAE in raw NIFTY index points"
+    },
+    "LINEAR_REGRESSION": {
+      "family": "sklearn LinearRegression",
+      "params": {
+        "fit_intercept": true
+      },
+      "preprocess": "input transformations fit on training only; no scaling of target needed"
+    },
+    "SVR_REGRESSION": {
+      "family": "sklearn SVR",
+      "params": {
+        "kernel": "rbf",
+        "C": 10,
+        "epsilon": 0.1,
+        "gamma": "scale"
+      },
+      "preprocess": "standardize X on training prefix; do not use test outcomes for epsilon/kernel selection"
+    },
+    "TREE_REGRESSION": {
+      "family": "sklearn DecisionTreeRegressor",
+      "params": {
+        "max_depth": 5,
+        "min_samples_leaf": 10,
+        "random_state": 20261010
+      },
+      "preprocess": "no mandatory scaling"
+    },
+    "LSTM_REGRESSION": {
+      "family": "Keras LSTM regressor",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only input and target scaling, invert target scaling before scoring; three predeclared seeds"
+    },
+    "MULTIVARIATE_REGRESSION": {
+      "family": "sklearn LinearRegression",
+      "params": {
+        "fit_intercept": true
+      },
+      "preprocess": "multivariate lag/feature inputs; one shared parameterization with a distinct source-feature configuration row"
+    },
+    "BAGGING_REGRESSION": {
+      "family": "sklearn BaggingRegressor",
+      "params": {
+        "n_estimators": 100,
+        "max_samples": 0.8,
+        "max_features": 1,
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "base_estimator": {
+        "family": "DecisionTreeRegressor",
+        "params": {
+          "max_depth": 4,
+          "min_samples_leaf": 10,
+          "random_state": 20261010
+        }
+      },
+      "preprocess": "fit resampling/model on training prefix only"
+    },
+    "BOOSTING_REGRESSION": {
+      "family": "sklearn GradientBoostingRegressor",
+      "params": {
+        "n_estimators": 100,
+        "learning_rate": 0.03,
+        "max_depth": 2,
+        "loss": "squared_error",
+        "random_state": 20261010
+      },
+      "preprocess": "fixed project adaptation of paper's generic 'Boosting' method"
+    },
+    "RANDOM_FOREST_REGRESSION": {
+      "family": "sklearn RandomForestRegressor",
+      "params": {
+        "n_estimators": 500,
+        "max_depth": null,
+        "min_samples_leaf": 10,
+        "max_features": 1,
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "preprocess": "only PPR3 tuned-cell IDs may use the frozen grid; other cells use these fixed defaults"
+    },
+    "MLP_REGRESSION": {
+      "family": "sklearn MLPRegressor",
+      "params": {
+        "hidden_layer_sizes": [
+          64,
+          32
+        ],
+        "activation": "relu",
+        "alpha": 0.001,
+        "solver": "adam",
+        "max_iter": 1000,
+        "early_stopping": false,
+        "random_state": 20261010
+      },
+      "preprocess": "standardize inputs using training rows only"
+    },
+    "SLP_REGRESSION": {
+      "family": "Single affine layer neural regressor",
+      "params": {
+        "hidden_layers": [],
+        "output_activation": "linear",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "max_epochs": 1000,
+        "l2": 0.001,
+        "random_state": 20261010
+      },
+      "preprocess": "project adaptation to the paper's SLP; train only on the training prefix"
+    },
+    "RBF_NETWORK_REGRESSION": {
+      "family": "Radial basis network regression",
+      "params": {
+        "centers": 50,
+        "center_algorithm": "KMeans fitted only to training features",
+        "basis": "Gaussian",
+        "width_rule": "inverse median training-center distance with a frozen numeric guard",
+        "output_layer": "ridge regression alpha=1.0",
+        "random_state": 20261010
+      },
+      "preprocess": "not interchangeable with RBF-SVR; this is an explicitly declared project RBF-network adaptation"
+    },
+    "LASSO_REGRESSION": {
+      "family": "sklearn Lasso",
+      "params": {
+        "alpha": 0.001,
+        "max_iter": 5000,
+        "fit_intercept": true
+      },
+      "preprocess": "standardize X on training prefix only"
+    },
+    "RIDGE_REGRESSION": {
+      "family": "sklearn Ridge",
+      "params": {
+        "alpha": 1,
+        "fit_intercept": true
+      },
+      "preprocess": "standardize X on training prefix only"
+    },
+    "ELASTIC_NET_REGRESSION": {
+      "family": "sklearn ElasticNet",
+      "params": {
+        "alpha": 0.001,
+        "l1_ratio": 0.5,
+        "max_iter": 5000,
+        "fit_intercept": true,
+        "random_state": 20261010
+      },
+      "preprocess": "standardize X on training prefix only"
+    },
+    "SGD_REGRESSION": {
+      "family": "sklearn SGDRegressor",
+      "params": {
+        "loss": "squared_error",
+        "penalty": "l2",
+        "alpha": 0.0001,
+        "max_iter": 2000,
+        "tol": 0.0001,
+        "random_state": 20261010
+      },
+      "preprocess": "standardize X on training prefix only"
+    },
+    "GRADIENT_BOOSTING_REGRESSION": {
+      "family": "sklearn GradientBoostingRegressor",
+      "params": {
+        "n_estimators": 100,
+        "learning_rate": 0.03,
+        "max_depth": 2,
+        "loss": "squared_error",
+        "random_state": 20261010
+      },
+      "preprocess": "fixed base settings outside the predeclared tuned cells"
+    },
+    "ADABOOST_REGRESSION": {
+      "family": "sklearn AdaBoostRegressor",
+      "params": {
+        "n_estimators": 100,
+        "learning_rate": 0.03,
+        "loss": "linear",
+        "random_state": 20261010
+      },
+      "base_estimator": {
+        "family": "DecisionTreeRegressor",
+        "params": {
+          "max_depth": 4,
+          "min_samples_leaf": 10,
+          "random_state": 20261010
+        }
+      },
+      "preprocess": "fixed settings"
+    },
+    "XGBOOST_REGRESSION": {
+      "family": "XGBoost regressor",
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1,
+        "objective": "reg:squarederror",
+        "eval_metric": "mae",
+        "random_state": 20261010,
+        "n_jobs": 1
+      },
+      "preprocess": "only R029 core-pipeline cells use the frozen TimeSeriesSplit grid"
+    },
+    "LSTM_REGRESSION_ISMLA_ADAPT": {
+      "status": "MERGED_INTO",
+      "merged_into": "LSTM_REGRESSION",
+      "reason": "Same project architecture and target as R005; no extra base config or multiple-testing entry"
+    },
+    "LINEAR_REGRESSION_ISMLA_ADAPT": {
+      "status": "MERGED_INTO",
+      "merged_into": "LINEAR_REGRESSION",
+      "reason": "Same common-target linear model; paper identity is preserved in merged source references"
+    },
+    "CNN_REGRESSION": {
+      "status": "MERGED_INTO",
+      "merged_into": "CNN_REG_RELU",
+      "reason": "Same common CNN regression configuration as R045/R059; paper refs retained"
+    },
+    "GRU_REGRESSION": {
+      "family": "Keras GRU regressor",
+      "params": {
+        "sequence_window": 20,
+        "gru_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only scaling; project adaptation"
+    },
+    "CNN_REG_SIGMOID": {
+      "family": "Keras CNN price regressor with sigmoid hidden activation",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": [
+          32,
+          64
+        ],
+        "kernel_sizes": [
+          3,
+          3
+        ],
+        "hidden_activation": "sigmoid",
+        "pooling": "global_average",
+        "dropout": 0.2,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation variant only; source configuration is adapted and output remains linear"
+    },
+    "CNN_REG_RELU": {
+      "family": "Keras CNN price regressor with ReLU hidden activation",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": [
+          32,
+          64
+        ],
+        "kernel_sizes": [
+          3,
+          3
+        ],
+        "hidden_activation": "relu",
+        "pooling": "global_average",
+        "dropout": 0.2,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation comparison; includes the merged P10 generic CNN architecture adaptation"
+    },
+    "CNN_REG_SOFTMAX_HIDDEN": {
+      "family": "Keras CNN price regressor with softmax hidden activation",
+      "params": {
+        "sequence_window": 20,
+        "conv_filters": [
+          32,
+          64
+        ],
+        "kernel_sizes": [
+          3,
+          3
+        ],
+        "hidden_activation": "softmax",
+        "pooling": "global_average",
+        "dropout": 0.2,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "softmax is confined to hidden representations; a linear regression output is retained as a project adaptation"
+    },
+    "RNN_REGRESSION": {
+      "family": "Keras SimpleRNN regressor",
+      "params": {
+        "sequence_window": 20,
+        "rnn_layers": [
+          64,
+          64
+        ],
+        "activation": "tanh",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "training-only scaling"
+    },
+    "RNN_REG_SIGMOID": {
+      "family": "Keras SimpleRNN price regressor with sigmoid activation",
+      "params": {
+        "sequence_window": 20,
+        "rnn_layers": [
+          64,
+          64
+        ],
+        "activation": "sigmoid",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation variant; output linear"
+    },
+    "RNN_REG_RELU": {
+      "family": "Keras SimpleRNN price regressor with ReLU activation",
+      "params": {
+        "sequence_window": 20,
+        "rnn_layers": [
+          64,
+          64
+        ],
+        "activation": "relu",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation variant; output linear"
+    },
+    "RNN_REG_SOFTMAX_HIDDEN": {
+      "family": "Keras SimpleRNN price regressor with softmax hidden activation",
+      "params": {
+        "sequence_window": 20,
+        "rnn_layers": [
+          64,
+          64
+        ],
+        "activation": "softmax",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "softmax used in the hidden representation only; linear scalar price output"
+    },
+    "LSTM_REG_SIGMOID": {
+      "family": "Keras LSTM price regressor with sigmoid activation",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "activation": "sigmoid",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation variant; output linear"
+    },
+    "LSTM_REG_RELU": {
+      "family": "Keras LSTM price regressor with ReLU activation",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "activation": "relu",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "activation variant; output linear"
+    },
+    "LSTM_REG_SOFTMAX_HIDDEN": {
+      "family": "Keras LSTM price regressor with softmax hidden activation",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "activation": "softmax",
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "softmax used in hidden representation only; linear scalar output"
+    },
+    "MLP_FEEDFORWARD_KUMAR_SHARMA": {
+      "family": "One-hidden-layer feed-forward MLP regressor",
+      "params": {
+        "hidden_layer_sizes": [
+          32
+        ],
+        "activation": "relu",
+        "solver": "adam",
+        "alpha": 0.0001,
+        "max_iter": 1000,
+        "random_state": 20261010
+      },
+      "preprocess": "project adaptation; target forecast shift and paper's 99.2152% accuracy remain unverified"
+    },
+    "LSTM_REGRESSION_JRFM": {
+      "family": "Keras LSTM regressor for JRFM architecture adaptation",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10
+      },
+      "preprocess": "separate source-specific config; paper-native full-sample feature selection is not reused"
+    },
+    "BE_LSTM_REGRESSION_SAFE": {
+      "family": "Leakage-safe backward-elimination LSTM",
+      "params": {
+        "sequence_window": 20,
+        "lstm_layers": [
+          64,
+          64
+        ],
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "feature_selection_method": "backward elimination using training-fold-only regression p-values",
+        "feature_selection_alpha": 0.05
+      },
+      "preprocess": "feature selection is re-estimated independently inside each training fold/prefix; never use full-history selection"
+    }
+  },
+  "aliases": {
+    "LINEAR_REGRESSION_NEXT_OPEN": "LINEAR_REGRESSION",
+    "LASSO_REGRESSION_NEXT_OPEN": "LASSO_REGRESSION",
+    "RIDGE_REGRESSION_NEXT_OPEN": "RIDGE_REGRESSION",
+    "ELASTIC_NET_REGRESSION_NEXT_OPEN": "ELASTIC_NET_REGRESSION",
+    "SGD_REGRESSION_NEXT_OPEN": "SGD_REGRESSION",
+    "SVR_REGRESSION_NEXT_OPEN": "SVR_REGRESSION",
+    "KNN_REGRESSION_NEXT_OPEN": "KNN_REGRESSION",
+    "TREE_REGRESSION_NEXT_OPEN": "TREE_REGRESSION",
+    "RANDOM_FOREST_REGRESSION_NEXT_OPEN": "RANDOM_FOREST_REGRESSION",
+    "GRADIENT_BOOSTING_REGRESSION_NEXT_OPEN": "GRADIENT_BOOSTING_REGRESSION",
+    "ADABOOST_REGRESSION_NEXT_OPEN": "ADABOOST_REGRESSION",
+    "XGBOOST_REGRESSION_NEXT_OPEN": "XGBOOST_REGRESSION"
+  },
+  "tuning": {
+    "status": "PREDECLARED_BOUNDED_GRID_SEARCH",
+    "candidate_cells": [
+      {
+        "config_id": "R010",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 1,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R010",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 2,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R010",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 3,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R010",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 5,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R010",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 10,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R029",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 1,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R029",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 2,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R029",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 3,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R029",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 5,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R029",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 10,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R038",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 1,
+        "metric": "MAE"
+      },
+      {
+        "config_id": "R041",
+        "feature_pipeline": "CORE_OHLCV_TECH",
+        "horizon_sessions": 1,
+        "metric": "MAE"
+      }
+    ],
+    "inner_cv": {
+      "scheme": "five chronological expanding-origin splits within outer training only",
+      "purge_rule": "drop any inner-training label whose endpoint is at or after that inner validation decision cutoff",
+      "selection_metric": "mean MAE over inner validation folds",
+      "final_refit": "after selecting parameters, refit once on the complete outer training prefix"
+    },
+    "grids": {
+      "RANDOM_FOREST_REGRESSION": {
+        "n_estimators": [
+          300,
+          500
+        ],
+        "max_depth": [
+          null,
+          8
+        ],
+        "min_samples_leaf": [
+          5,
+          10,
+          20
+        ],
+        "max_features": [
+          "sqrt",
+          1
+        ],
+        "candidate_count": 18,
+        "grid_rule": "use the fixed 18-cell list embedded in the PPR3 manifest; not the full Cartesian product of all listed values"
+      },
+      "XGBOOST_REGRESSION": {
+        "n_estimators": [
+          200,
+          400
+        ],
+        "max_depth": [
+          2,
+          4
+        ],
+        "learning_rate": [
+          0.03,
+          0.07
+        ],
+        "subsample": [
+          0.8
+        ],
+        "colsample_bytree": [
+          0.8
+        ],
+        "candidate_count": 8
+      }
+    },
+    "max_candidate_cells": 20,
+    "max_settings_per_cell": 20,
+    "max_inner_splits": 5,
+    "fit_call_upper_bound": 2400,
+    "actual_candidate_cells": 12,
+    "calculated_tuning_fit_calls": 936,
+    "no_other_search": true
+  },
+  "blocked_settings": {
+    "BLOCKED_NATIVE_30_SESSION": {
+      "status": "BLOCKED_METHOD",
+      "reason": "Native target/horizon/metric is not reproducibly specified"
+    },
+    "OUT_OF_SCOPE_OPTION_RETURN": {
+      "status": "OUT_OF_SCOPE_DIFFERENT_TARGET"
+    },
+    "OUT_OF_SCOPE_OPTION_PRICE": {
+      "status": "OUT_OF_SCOPE_DIFFERENT_TARGET"
+    },
+    "BLOCKED_ABSTRACT_ONLY": {
+      "status": "BLOCKED_METHOD"
+    },
+    "BLOCKED_METADATA_ONLY": {
+      "status": "BLOCKED_METHOD"
+    },
+    "BLOCKED_ABSTRACT_METADATA": {
+      "status": "BLOCKED_METHOD"
+    },
+    "BLOCKED_CODE_REVIEW": {
+      "status": "BLOCKED_METHOD"
+    }
+  }
+}
