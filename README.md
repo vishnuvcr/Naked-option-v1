@@ -489,3 +489,15 @@ The DhanHQ adapter, offline tests, and guarded single-sample workflow are now in
 [Hosted offline Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27 checks. Earlier test-fixture/assertion failures were corrected and logged. The independent tester has passed the workflow code only; a one-run manifest is required before the first Dhan API request. The token has not been read or exposed.
 
 The first Dhan sample is limited to token/data-plan status, official index instrument mapping, and two short historical-candle windows for NIFTY 50 and India VIX. This may improve index/price coverage but does not provide the combined daily FII/FPI/DII flow series. No full-history download, features/labels, model fitting or prediction rerun is authorized until the sample is audited and a separate data-integration/model gate passes.
+
+
+### Dhan sample status — diagnostic retry gate (2026-10-10)
+
+The first authenticated Dhan sample [Run 38043148580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043148580) passed exact manifest validation and consumed its one-run approval before source access, but stopped after two requests at the official `IDX_I` instrument metadata endpoint. No candle history was fetched and no prediction analysis was rerun. The artifact was rejected because it omitted the numeric HTTP status.
+
+The adapter now includes only the numeric status, safe Content-Type and request/byte counts on metadata failure. [Offline Run 38043456200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043456200) passed 29 checks. The tester approved one diagnostic retry only; the original manifest is spent. A new exact-hash manifest must be validated and consumed before any retry.
+
+- [Independent artifact audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT.md)
+- [Updated code tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md)
+
+Dhan historical candles may help price/index/derivative coverage, but the combined daily FII/FPI/DII flow gap remains unresolved. Full history, features/labels, model fitting, metrics and final-holdout access remain unauthorized.
