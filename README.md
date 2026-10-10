@@ -4,6 +4,17 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 
 ## Research status
 
+## Latest acquisition gate — 2026-10-11
+
+The independent tester has **PASS WITH SCOPED RESTRICTIONS** on the exact five-year NIFTY one-minute composite request grid and guarded acquisition workflow. The decision approves the enumerated Dhan acquisition only; it does not authorize fitting, scoring, holdout access or trading strategy evaluation. The user waived any Dhan-versus-NSE/third-party price-value cross-check, and that waiver remains in force.
+
+- [Tester report and complete blob pins](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md)
+- [Developer root manifest](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json)
+- Request set: 8,601 unique calls over 61 non-overlapping windows (61 spot + 8,540 rolling options); maximum 8,701 wire requests including the capped retries.
+- Offline checks passed on the manifest split and request grid: [38082127392](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082127392), [38082132059](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082132059), [38082152423](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082152423), [38082160780](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082160780). No live request has been made by those checks.
+- Developer may now create the single-use approval bound to the pins in the report and run the guarded acquisition workflow. Missing selector rows must remain visible in coverage/error reporting; partial data is not to be renamed complete. Free-source fallback for recoverable gaps must be recorded under the next exact source manifest.
+
+
 - Phase 2 passed the independent tester gate with explicit source restrictions.
 - Phase 3 passed the independent tester gate with scoped data restrictions.
 - Phase 4 Family B passed with VWAP blocked for missing PIT-safe volume; Family C passed with C10/C11 blocked for missing PIT-safe feature layers.
