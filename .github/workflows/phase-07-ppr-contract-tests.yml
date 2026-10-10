@@ -6,7 +6,13 @@ on:
     paths:
       - "research/literature/PAPER_SOURCE_EVIDENCE_MATRIX.md"
       - "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json"
+      - "research/phase7/PPR3_CONFIGURATION_MATRIX.csv"
+      - "research/phase7/PPR3_CANDIDATE_CELLS.csv"
+      - "research/phase7/PPR3_MODEL_SETTINGS.json"
+      - "research/phase7/PPR3_CONFIGURATION_MANIFEST.json"
+      - "research/phase7/PPR3_PROTOCOL_FREEZE.md"
       - "scripts/validate_ppr_contract.py"
+      - "scripts/validate_ppr3_configuration.py"
       - ".github/workflows/phase-07-ppr-contract-tests.yml"
   workflow_dispatch:
 
@@ -31,3 +37,5 @@ jobs:
           python-version: "3.12"
       - name: Validate paper evidence matrix and inference contract
         run: python scripts/validate_ppr_contract.py
+      - name: Validate PPR-3 matrix, cell ledger, settings and fit budget
+        run: python scripts/validate_ppr3_configuration.py
