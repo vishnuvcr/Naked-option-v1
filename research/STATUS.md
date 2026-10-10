@@ -1,5 +1,12 @@
 # Research Status
 
+## Uploaded-paper method coverage — 2026-10-10
+
+- The method registry defines 112 registered candidates across Families A–J; the literature registry contains 36 source records. These are registry counts, **not proof that every method from every paper has been reproduced**.
+- A first-pass inventory has been created for the 15 PDFs mounted in the current conversation: [Uploaded Paper Method Coverage Audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md). The inventory is explicitly preliminary; exact paper settings/results and full-text method crosswalk remain incomplete.
+- **Coverage finding: NOT EXHAUSTIVE.** Some models overlap with existing method families, but every paper-specific feature recipe, estimator, horizon, split, baseline and metric must be checked against an accepted result artifact before marked replicated. CCI is one candidate gap because it is not an explicit standalone row in the current B01–B13 registry.
+- Prediction research remains in Phase 7. Run #44's 12-method cross-market extension tested 60 method–horizon cells but found no significant family result after multiplicity control. The one-row Dhan sample is quarantined from modeling pending official source/mapping checks. No candidate is promoted; Phase 8 option strategy research remains blocked/out of current prediction-only scope.
+
 
 ## Current checkpoint — 2026-10-10, one-use Dhan sample acquired; official primary-source cross-check is next
 
