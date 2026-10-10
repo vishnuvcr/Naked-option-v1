@@ -669,3 +669,13 @@ The access token is bound only to the guarded workflow's final source step and i
 - Created the new one-use redirect-target manifest after computing exact SHA-256 and Git blob pins. It is marked READY but has not been validated by the workflow runtime.
 - Confirmed the live workflow has no push trigger. Creating the manifest cannot initiate live network access; manual dispatch and explicit confirmation are required.
 - The available GitHub connector does not expose a workflow-dispatch action. Therefore the validator and diagnostic have not run and no source request was made. This is an execution-capability limitation, not a successful source check. Do not bypass it by restoring a push trigger or making an unguarded Dhan request.
+
+
+## 2026-10-10 — Guarded Dhan redirect workflow run 38044387209 (confirmed from hosted logs)
+
+- Run: [38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209), commit `4b790f449418b150f6a119db242db7d68e781684`, workflow event `push`.
+- Offline regression suite passed 38/38.
+- Failure: manifest validation raised `FileNotFoundError` for `research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json`; that manifest had not yet been committed in this run's checkout.
+- The explicit confirmation step was skipped because this was a push event; source request and manifest-spend steps were skipped. No Dhan request was made and no artifact was produced.
+- Disposition: non-evidence, expected fail-closed behavior for an old push-triggered run. Do not rerun this historical commit because it lacks the manifest and the current workflow is intentionally manual-dispatch-only.
+- Corrective path: inspect the current developer head and exact manifest against the validator's hash/blob/tree pins, then use a supported manual workflow dispatch. The connected GitHub tool can inspect logs and rerun jobs but does not expose a new workflow-dispatch operation.
