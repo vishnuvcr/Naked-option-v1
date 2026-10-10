@@ -64,6 +64,23 @@ After the freeze, a candidate may not be silently removed because future source 
 
 The boundary selector is intentionally conservative: use the first official NSE session whose local IST trading date is strictly later than the Asia/Kolkata local date containing the freeze approval commit. Thus the commit-date session is excluded even if its close has not occurred; the exact first session is computed from the frozen official calendar after approval and before any holdout outcome is available.
 
+
+### 2.6 Cumulative fit-call budget and phase order
+
+The prospective final evaluation is **not** another hyperparameter search. Its eligible model/feature/horizon membership and parameter settings are frozen only after the development-period run and its independent artifact audit are complete. The run plan is:
+1. Finish the approved PPR-3 development-period screening and independent metric/inference audit under its existing 4,344-fit upper bound (3,564 conservative outer fits plus 780 inner-fold tuning fits).
+2. Decide and freeze the final candidate manifest using only development-period evidence and the predeclared gate. Record blocked candidates and all reasons. The candidate set is not expanded in the final holdout.
+3. Fit the frozen final candidate model set once on the purged development prefix, using the already chosen settings; three predeclared seeds remain a conservative upper bound for each cell. No second tuning search, feature search or calibration search occurs in the final fit.
+4. Under the current 1,188-cell universe, the conservative final-fit bound is another 3,564 estimator fit calls. Across development screening (4,344) plus final model fitting (3,564), the cumulative model fit budget is **7,908**, below the repository-wide 8,000 cap. This assumes no additional uncounted calibration/feature-selection estimators. Any implementation that requires extra fitted estimators must stop before execution and submit a budget amendment for tester approval.
+5. The final model/configuration/source/code freeze commit and UTC timestamp are pinned before the first prospective forecast origin. The origin window starts on the first official NSE session whose IST trading date is strictly later than the IST local date containing that freeze commit. The freeze must happen after the development-period result audit, not before development outcomes have been used for method selection.
+
+The budget is an upper bound; using fewer than all 1,188 cells reduces it. The actual eligible cells, fit count, and each estimator/preprocessing fit must be listed in the new final-run manifest before any fit. Do not reuse development-period predictions as final-holdout predictions.
+
+### 2.7 Common-origin rule for the future score
+
+Before the scoring job may read realized values, the tester freezes the 252 planned NSE forecast-origin keys and verifies prediction-ledger presence, source/target-row existence and endpoint maturity from metadata/status flags only. No actual return/label value may be opened to decide the row index. For one confirmatory family, a row may be declared globally unavailable only when its target endpoint value is objectively missing/corrupt for the entire family and the reason is logged before scoring; that row is excluded for all candidates in that family. Candidate-specific missing forecasts may not be used to shrink the row grid. If any frozen candidate has a missing/invalid probability/point forecast on a planned common origin, the applicable family is `INCOMPLETE_NOT_PROMOTABLE` under the current PPR inference contract, with no confirmatory (p)-value or promotion. Candidate coverage/abstentions may be reported descriptively but not substituted into the confirmatory family statistic.
+
+
 ## 3. How this differs from the prior design
 
 | Issue | Legacy Phase 7 | Proposed final holdout |
