@@ -64,6 +64,11 @@ def validate(manifest: dict) -> None:
             raise ValueError("protected_file_sha256_mismatch:" + rel)
         if git("rev-parse", "HEAD:" + rel) != entry.get("git_blob"):
             raise ValueError("protected_file_git_blob_mismatch:" + rel)
+        # The current code-tester report is digest-pinned separately because it
+        # necessarily post-dates the reviewed code commit that it names.
+        if rel != "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md":
+            if git("rev-parse", reviewed + ":" + rel) != entry.get("git_blob"):
+                raise ValueError("reviewed_commit_tree_blob_mismatch:" + rel)
     report_text = REPORT.read_text(encoding="utf-8")
     if "PASS WITH SCOPED RESTRICTIONS" not in report_text or "Live Dhan requests: NOT AUTHORIZED" not in report_text:
         raise ValueError("tester_report_scope_marker_missing")
