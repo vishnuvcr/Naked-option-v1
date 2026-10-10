@@ -1,0 +1,155 @@
+name: Dhan Daily NIFTY Sample — Guarded One-Use Acquisition
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json"
+      - "research/gates/DHAN_DAILY_SAMPLE_APPROVAL.json"
+      - ".github/workflows/phase-07-dhan-daily-sample-live.yml"
+  workflow_dispatch:
+    inputs:
+      confirm_live_sample:
+        description: "Confirm the exact one-day NIFTY daily-history request. Only choose true after the manifest tester gate has passed."
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dhan-nifty-daily-sample-single-use-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guarded-one-use-sample:
+    if: >-
+      github.ref == 'refs/heads/phase-07-developer' &&
+      (
+        (github.event_name == 'workflow_dispatch' && inputs.confirm_live_sample == true) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, 'READY Dhan daily sample approval'))
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # These checks run before any Dhan secret is available and make no requests.
+      - name: Run offline tests before accessing the one-use gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_dhan_history_pipeline.py
+          python scripts/test_run_dhan_daily_sample.py
+          python scripts/test_validate_dhan_daily_sample_approval.py
+
+      - name: Require explicit manual confirmation when dispatched manually
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          CONFIRM_LIVE_SAMPLE: ${{ inputs.confirm_live_sample }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$CONFIRM_LIVE_SAMPLE" != "true" ]]; then
+            echo "Blocked: explicit live sample confirmation was not selected."
+            exit 1
+          fi
+
+      - name: Validate exact approved manifest and tester report
+        id: gate_check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_dhan_daily_sample_approval.py check
+
+      # The approval gate is changed to SPENT and pushed before the next step
+      # gets a Dhan secret. A failed attempt cannot reuse this authorization.
+      - name: Spend one-use approval before the single market-data request
+        id: spend_manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_dhan_daily_sample_approval.py spend
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/DHAN_DAILY_SAMPLE_APPROVAL.json
+          git commit -m "SPENT Dhan daily sample approval"
+          git push origin HEAD:phase-07-developer
+
+      # The token is available only to this one bounded source request step.
+      - name: Execute one validated daily NIFTY history request
+        id: fetch_sample
+        if: steps.spend_manifest.outcome == 'success'
+        continue-on-error: true
+        env:
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_DAILY_SAMPLE_AUTHORIZED: "1"
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_dhan_daily_sample.py
+
+      - name: Commit validated public sample cache
+        if: steps.fetch_sample.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add data/cache/dhan_daily_sample
+          if git diff --cached --quiet; then
+            echo "No new cache bundle to commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Cache validated one-day Dhan NIFTY daily sample"
+            git push origin HEAD:phase-07-developer
+          fi
+
+      - name: Commit safe source status even if the sample was rejected
+        if: always() && steps.spend_manifest.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f data/reports/dhan_daily_sample_status.json ]]; then
+            git add data/reports/dhan_daily_sample_status.json
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+vishnuvcr@users.noreply.github.com"
+              git commit -m "Record redacted Dhan daily sample status"
+              git push origin HEAD:phase-07-developer
+            fi
+          else
+            echo "No status file was produced; no provider body or token will be emitted."
+          fi
+
+      - name: Upload redacted sample status and validated cache artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dhan-nifty-daily-one-use-sample
+          path: |
+            data/reports/dhan_daily_sample_status.json
+            data/cache/dhan_daily_sample/**
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail run if source validation did not pass
+        if: steps.fetch_sample.outcome != 'success'
+        shell: bash
+        run: |
+          echo "The single-use attempt did not produce an accepted sample. The authorization remains spent; no retry is allowed."
+          exit 1
+
+# Automatic path is intentionally gated by a tester-approved READY approval
+# commit message. workflow_dispatch is available too, with its confirmation
+# control defaulting to false. No profile probe, option-chain call, retry,
+# redirect follow, order endpoint, bulk history or model fitting is included.
