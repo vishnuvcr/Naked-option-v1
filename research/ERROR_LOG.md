@@ -163,3 +163,8 @@
 - The complete Gate A decision is REQUEST CHANGES. The one-run manifest is marked SPENT after Run `38026993369`; no more requests may be made on it.
 - Separate bounded free-source discovery is required before full history, features/labels or model fitting.
 - Details: `research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md`.
+
+
+## 2026-10-10 — Source Discovery 3 spec review web-reader limitation (non-evidence)
+
+During specification validation, the web reader was directed to the two fixed CDSL historical XLS URLs to verify the visible archive links. It returned an unsupported-content-type/internal-error response and did not provide any parsed XLS values. The resulting attempts are **not accepted data samples**, do not establish field schema or date coverage, and must not be used to pass the future artifact gate. The attempts and limitations are disclosed in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`. No repository dataset or model was changed. All further source retrieval still requires the new code gate and one-run approval.
