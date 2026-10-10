@@ -92,6 +92,11 @@
       "path": "research/gates/PHASE7_PPR4_TESTER_REVIEW2_PROSPECTIVE_HOLDOUT.md",
       "branch": "phase-07-tester",
       "blob": "17fc864c7e2e74ac6ecff7c59b8b13fd29b68767"
+    },
+    "ppr4_acquisition_cache_proposal": {
+      "path": "research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json",
+      "blob": "db43375442f138948f64581d7431bb5aaf8c9243",
+      "rows": 34
     }
   },
   "inventory_summary": {
@@ -179,12 +184,12 @@
   "frozen_files": {
     "source_availability_register": {
       "path": "research/phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv",
-      "blob": "143ffe396308719142b3c89d36444ec136c1ee0b",
-      "rows": 32
+      "blob": "07e668569d1ab32574bbef05dad1974ec2a2be7f",
+      "rows": 34
     },
     "source_feasibility_audit": {
       "path": "research/phase7/PPR4_SOURCE_FEASIBILITY_AUDIT.md",
-      "blob": "7540ad60cf35079d6f740dbf48006d1be239eda7"
+      "blob": "00c0142ba3b0982aa6c51d17a36f7c99db836488"
     },
     "holdout_metadata_audit": {
       "path": "research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json",
@@ -246,11 +251,15 @@
     "ppr3_manifest": {
       "path": "research/phase7/PPR3_CONFIGURATION_MANIFEST.json",
       "blob": "72ed1935917bf722a2cf47a184e73ed24b71a690"
+    },
+    "ppr4_acquisition_cache_proposal": {
+      "path": "research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json",
+      "blob": "db43375442f138948f64581d7431bb5aaf8c9243"
     }
   },
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-    "ppr4_inventory_validation": "RETRY_REQUIRED_AFTER_34_SOURCE_EXPANSION_AND_PIN_REFRESH",
+    "ppr4_inventory_validation": "Pending exact snapshot validation after refresh of all 34-source register and proposal pins.",
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED_UNTIL_DESIGN_REVIEW_AND_BOUNDARY_IMPLEMENTATION_GATE",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
@@ -281,7 +290,11 @@
     "prospective_holdout_design_ci": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38076047468",
     "prospective_holdout_cumulative_fit_bound": 7908,
     "ppr4_overall_status": "SOURCE ACQUISITION GATE STILL BLOCKED; ONLY SOURCE-ACQUISITION/CACHE MANIFEST DRAFTING IS AUTHORIZED.",
-    "next_permitted_scope": "Metadata-only inventory/source documentation and drafting an exact source acquisition/cache proposal for independent review. No source requests, downloads, model-panel acceptance, fitting/tuning/scoring, prospective holdout forecast capture or label release.",
-    "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested."
+    "next_permitted_scope": "Source acquisition/cache proposal drafting and tester review only. Do not issue requests, download bytes or accept data/model panel, fit/tune/score or access holdout.",
+    "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested.",
+    "source_acquisition_cache_proposal": "DRAFT_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "source_acquisition_cache_proposal_blob": "db43375442f138948f64581d7431bb5aaf8c9243",
+    "source_acquisition_cache_proposal_rows": 34,
+    "proposed_wave_limits": "Wave 1: at most 3 sources/5 MiB total, 2 MiB/source, <=20 rows/source; Wave 2: at most 5 sources/10 MiB total; Wave 3: at most 2 sources/5 MiB total. All zero network operations until a distinct exact-snapshot tester pass."
   }
 }
