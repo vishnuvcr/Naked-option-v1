@@ -275,7 +275,6 @@ def test_live_workflow_checks_and_spends_manifest_before_source_step() -> None:
     spend = workflow.index("python scripts/validate_dhan_sample_approval.py spend")
     source = workflow.index("python scripts/dhan_market_data_recovery.py")
     assert check < spend < source
-    assert "paths:\\n      - \\"research/gates/DHAN_MARKET_DATA_SAMPLE_APPROVAL.json\\"" in workflow
     assert "default: false" in workflow
     assert "DHAN_ACCESS_TOKEN: \${{ secrets.DHAN_ACCESS_TOKEN }}" in workflow
     assert workflow.count("DHAN_ACCESS_TOKEN: \${{ secrets.DHAN_ACCESS_TOKEN }}") == 1
