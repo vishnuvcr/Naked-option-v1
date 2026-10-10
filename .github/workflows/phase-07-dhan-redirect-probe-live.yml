@@ -1,4 +1,4 @@
-name: Phase 7 Dhan Redirect Target — Guarded One-Request Probe
+name: Dhan Redirect Target Guarded Probe
 
 on:
   push:
@@ -7,12 +7,6 @@ on:
       - "research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json"
       - ".github/workflows/phase-07-dhan-redirect-probe-live.yml"
   workflow_dispatch:
-    inputs:
-      confirm_probe:
-        description: "Request the one redirect-target-only probe (manifest still required)"
-        type: boolean
-        required: true
-        default: false
 
 permissions:
   contents: write
@@ -32,16 +26,6 @@ jobs:
         with:
           ref: phase-07-developer
           fetch-depth: 0
-      - name: Require explicit confirmation for manual runs
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          CONFIRM_PROBE: ${{ inputs.confirm_probe }}
-        run: |
-          set -euo pipefail
-          if [[ "$CONFIRM_PROBE" != "true" ]]; then
-            echo "Blocked: manual probe confirmation was not selected."
-            exit 1
-          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
