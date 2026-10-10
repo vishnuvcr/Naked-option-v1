@@ -30,6 +30,8 @@ MAX_TOTAL_BYTES = 4 * 1024 * 1024
 MAX_PROFILE_BYTES = 64 * 1024
 MAX_INDEX_METADATA_BYTES = 1024 * 1024
 MAX_CANDLE_BYTES = 752 * 1024
+MAX_REDIRECT_DIAGNOSTIC_REQUESTS = 1
+MAX_REDIRECT_DIAGNOSTIC_BYTES = 1024
 TIMEOUT_SECONDS = 20
 WINDOWS = (("2024-07-01", "2024-07-11"), ("2024-07-15", "2024-07-25"))
 ALLOWED_INSTRUMENTS = ("NIFTY 50", "INDIA VIX")
@@ -39,14 +41,16 @@ ALLOWED_INSTRUMENTS = ("NIFTY 50", "INDIA VIX")
 class Budget:
     requests: int = 0
     bytes_read: int = 0
+    request_limit: int = MAX_REQUESTS
+    byte_limit: int = MAX_TOTAL_BYTES
 
     def reserve_request(self) -> None:
-        if self.requests >= MAX_REQUESTS:
+        if self.requests >= self.request_limit:
             raise ValueError("request_budget_exceeded")
         self.requests += 1
 
     def account_bytes(self, count: int) -> None:
-        if count < 0 or self.bytes_read + count > MAX_TOTAL_BYTES:
+        if count < 0 or self.bytes_read + count > self.byte_limit:
             raise ValueError("global_response_byte_budget_exceeded")
         self.bytes_read += count
 
@@ -63,7 +67,7 @@ def safe_redirect_target(location: str) -> dict[str, str]:
     try:
         if not isinstance(location, str) or not location or len(location) > 2048:
             return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
-        if any(ch in location for ch in ("\\r", "\\n", "\\x00")):
+        if any(ch in location for ch in ("\r", "\n", "\x00")):
             return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
         parsed = urllib.parse.urlsplit(location)
         if parsed.username is not None or parsed.password is not None or not parsed.hostname:
@@ -80,7 +84,7 @@ def safe_redirect_target(location: str) -> dict[str, str]:
         ):
             return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
         scheme = parsed.scheme.lower()
-        if scheme not in ("http", "https"):
+        if scheme != "https":
             return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
         return {"redirect_target_status": "PARSED", "redirect_scheme": scheme, "redirect_host": host}
     except (ValueError, UnicodeError):
@@ -128,10 +132,10 @@ def request_bytes(
             isinstance(content_type, str)
             and bool(content_type)
             and len(content_type) <= 120
-            and not any(ch in content_type for ch in ("\\r", "\\n"))
+            and not any(ch in content_type for ch in ("\r", "\n"))
         ):
             safe_headers["content-type"] = content_type
-        if location:
+        if 300 <= int(exc.code) < 400 and location:
             safe_headers.update(safe_redirect_target(location))
         return int(exc.code), b"", safe_headers
     except Exception as exc:
@@ -341,10 +345,13 @@ def redirect_target_probe() -> dict[str, Any]:
     token = os.environ.get("DHAN_ACCESS_TOKEN", "")
     if not token:
         return {"status": "BLOCKED_SECRET_MISSING", "request_count": 0, "bytes_read": 0}
-    budget = Budget()
+    budget = Budget(
+        request_limit=MAX_REDIRECT_DIAGNOSTIC_REQUESTS,
+        byte_limit=MAX_REDIRECT_DIAGNOSTIC_BYTES,
+    )
     status, body, headers = request_bytes(
         INDEX_INSTRUMENT_URL, method="GET", token=token, body=None,
-        cap=1024, budget=budget,
+        cap=MAX_REDIRECT_DIAGNOSTIC_BYTES, budget=budget,
     )
     # Body is never parsed or returned. Only redirect metadata and bounded counters survive.
     result: dict[str, Any] = {
