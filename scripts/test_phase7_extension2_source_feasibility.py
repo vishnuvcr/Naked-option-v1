@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import zipfile
+from unittest.mock import MagicMock, patch
 
 import phase7_extension2_source_feasibility as mod
 
@@ -16,6 +17,22 @@ def zipped_csv(name: str, headers: list[str], rows: list[dict[str, str]]) -> byt
     with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(name, buf.getvalue())
     return out.getvalue()
+
+
+
+def test_fetch_bytes_honors_per_request_byte_cap() -> None:
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.status = 200
+    response.headers = {"Content-Type": "application/json", "Content-Length": "100"}
+    response.read.return_value = b"x" * 6
+    with patch.object(mod.urllib.request, "urlopen", return_value=response) as mocked:
+        data, meta = mod.fetch_bytes("https://example.invalid/sample", timeout=1, max_bytes=5)
+    assert data is None
+    assert meta["status"] == "REJECTED_TOO_LARGE", meta
+    assert meta["max_bytes"] == 5
+    mocked.assert_called_once()
+    response.read.assert_called_once_with(6)
 
 
 def test_legacy_schema_sample() -> None:
@@ -106,6 +123,7 @@ def test_mixed_date_udiff_archive_fails() -> None:
 
 def main() -> None:
     tests = [
+        test_fetch_bytes_honors_per_request_byte_cap,
         test_legacy_schema_sample,
         test_udiff_schema_sample,
         test_missing_required_column_fails,
