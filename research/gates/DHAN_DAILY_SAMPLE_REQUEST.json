@@ -29,11 +29,11 @@
     "model_fitting_authorized": false,
     "strategy_testing_authorized": false,
     "holdout_access_authorized": false,
-    "reviewed_developer_commit": "cd8b2789b73dffa069d6f9a82eed626adcefb037",
+    "reviewed_developer_commit": "54daf87ff4dd9ed79d7820b26145836f7a550828",
     "protected_files": {
       ".github/workflows/phase-07-dhan-daily-sample-live.yml": {
-        "git_blob": "8ae00b592218e0eff07ea2467ff7b3a9d5a749f6",
-        "sha256": "b520faed5a1338460399ad461a1b937df7f4d1a95caf9e87a37f43d0d089b007"
+        "git_blob": "b695deadd0d12723115a67ffdf54afdd9f44d447",
+        "sha256": "c6899551202fc56e4f3ad6a3210a40a1e77606496b387bf15a7ffbfef0df04e5"
       },
       ".github/workflows/phase-07-dhan-daily-sample-tests.yml": {
         "git_blob": "287c53299abab1f51d87f0aa1bcb40616c0a7cac",
@@ -68,8 +68,8 @@
         "sha256": "8082c92b1c8c90b0a0ac128db4207852c5d089ede33ead1350a7b0c5cfdfb4a8"
       },
       "scripts/test_validate_dhan_daily_sample_approval.py": {
-        "git_blob": "c2d217f536b70aa604625e30a183c3d4b3b4134b",
-        "sha256": "d096ae2109f1c15713e7efc38d94a7c64debe30c9444ef4d05c9146dc2384bca"
+        "git_blob": "7fa2aeb9e38b66ce20aa6e136626978c4d5afabc",
+        "sha256": "5d4f2a78ba7b8648a9edf6a97103ac60b90b2f992f1a4c10260c824212ae5638"
       },
       "scripts/validate_dhan_daily_sample_approval.py": {
         "git_blob": "16de96df329e6574b872ee660e1d6838fc317eff",
@@ -77,6 +77,6 @@
       }
     }
   },
-  "authorization_sha256": "08c362f2ec4b1cdfe2fbdc318dc7aefbae738382dea927b5a941bdf3b33f2d75",
+  "authorization_sha256": "RECOMPUTE_IN_GITHUB_ACTIONS",
   "note": "Immutable request scope. Only one daily NIFTY index candle request for 2024-01-02 (toDate exclusive) is in scope. The separate approval file must be READY and tester-pinned before the workflow can spend it. No retry, redirect, bulk history, intraday/rolling options, feature/model fitting, strategy tests or holdout access."
 }
