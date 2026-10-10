@@ -788,3 +788,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Dedicated workflow manual dispatch requires `confirm_probe=true`; its default is false. Exact-snapshot review must include that workflow, the manifest validator, source and tests.
 - Hosted offline suite [Run 38044495634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044495634) passed. A guarded attempt [Run 38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209) passed all 38 offline regressions but stopped at the validator because the new single-use manifest is intentionally absent; secret injection and source request were skipped.
 - **Current gate: waiting for independent tester review of the exact corrected snapshot. No READY manifest exists.** Only after tester PASS and a matching hash-pinned manifest may the one redirect-host-only diagnostic run; no redirect follow, instrument-master download, candle/history calls, model fit, or holdout access is authorized.
+
+
+## 2026-10-10 — Retry after redirect-workflow failures
+
+- Resolved prior parser/test issues and added regression checks ensuring manifest pushes cannot trigger live source access.
+- Removed the automatic `push` trigger from `.github/workflows/phase-07-dhan-redirect-probe-live.yml`; the diagnostic now requires manual workflow dispatch with `confirm_probe=true` (default false). This closes the last identified automatic-trigger bypass.
+- Latest offline suite [Run 38044701520](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044701520) passed on developer commit `9bfd1d61c05f8658d5b6165759a735e317740328`.
+- Independent tester PASS is recorded in [the exact-snapshot report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md). It is limited to code/workflow only; live request authorized: NONE.
+- No redirect manifest exists. Earlier manifests remain SPENT. The current connector does not expose a workflow-dispatch action, so I have not fabricated a successful live run or followed the HTTP 302. No candle history, option history, FII/FPI/DII flow, model rerun or strategy evaluation occurred.
+- Next bounded step: generate a new exact-hash one-use manifest, then explicitly dispatch the manual-only workflow with confirmation through an authorized GitHub Actions dispatch capability. Until that happens, no source request is authorized.
