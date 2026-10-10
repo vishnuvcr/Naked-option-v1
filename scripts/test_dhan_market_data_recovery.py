@@ -258,10 +258,13 @@ def test_redirect_probe_makes_one_request_and_reports_host_only() -> None:
         "redirect_scheme": "https",
         "redirect_host": "images.dhan.co",
     }
+    def fake_request(url, **kwargs):
+        kwargs["budget"].reserve_request()
+        return 302, b"", safe_headers
     with patch.dict(mod.os.environ, {
         "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED": "1",
         "DHAN_ACCESS_TOKEN": "PRIVATE_ACCESS_TOKEN",
-    }, clear=True), patch.object(mod, "request_bytes", return_value=(302, b"", safe_headers)) as mocked:
+    }, clear=True), patch.object(mod, "request_bytes", side_effect=fake_request) as mocked:
         result = mod.redirect_target_probe()
     mocked.assert_called_once()
     assert result["status"] == "REDIRECT_TARGET_RECORDED"
