@@ -457,3 +457,10 @@ The corrected bounded resample [Run 38026993369](https://github.com/vishnuvcr/Na
 The available public GitHub FII/DII mirror contains only 164 unique dates from 2026-01-14 through 2026-09-30. Current endpoint/page samples do not establish the 500+ aligned historical sessions needed for the registered confirmatory research. **Historical FII/DII availability remains unresolved; do not treat the source gate as complete.**
 
 The previous one-run manifest is spent. The next step is a separate bounded free-source discovery gate described in [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). Its offline tests passed 32/32 in [Run 38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734), but independent tester code review is pending. No live discovery requests, full-history download or model fitting may occur until that gate and its new single-run manifest pass.
+
+
+### Extension 2 Free Flow Source Discovery 3 — code gate only (2026-10-10)
+
+The current bounded source-discovery code has passed a fresh independent code/workflow review, limited to the implementation and its offline safeguards. [Offline workflow Run 38029797600](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029797600) passed all 32 fixture regressions. The tester report is available on the [tester branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md).
+
+**This does not authorize a live source probe.** The platform blocked mirroring the exact tester report to the developer branch, so no single-use manifest has been created. No live source requests or model fitting occurred. Next steps are to complete an allowed exact report mirror, compute byte-level SHA-256 values for the six protected files, and only then create a separate single-use manifest. Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain prohibited.
