@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "waiver_id": "DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER_2026-10-11",
+  "branch": "phase-07-developer",
+  "decision": "ACCEPT_DHAN_OUTPUT_AS_PROVIDED_BY_USER_DIRECTIVE",
+  "authority": "Explicit user instruction dated 2026-10-11",
+  "status": "APPROVED_BY_USER_NO_CROSS_SOURCE_CHECK_REQUIRED",
+  "accepted_source_sample": {
+    "provider": "DhanHQ Data API",
+    "endpoint": "https://api.dhan.co/v2/charts/historical",
+    "request_scope_id": "dhan-nifty50-daily-2024-01-02-one-request",
+    "date": "2024-01-02",
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ],
+    "row_count": 1,
+    "workflow_run_id": "38055202149",
+    "response_bytes": 121,
+    "response_sha256": "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70",
+    "cache_manifest_path": "data/cache/dhan_daily_sample/478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70/manifest.json"
+  },
+  "user_directives": {
+    "accept_provider_values_without_external_market_value_cross_check": true,
+    "require_nse_or_third_party_price_reconciliation": false,
+    "accept_future_dhan_history_under_same_policy": true,
+    "missing_data_must_not_stop_entire_research": true,
+    "try_approved_free_fallbacks_for_missing_feature_families": true
+  },
+  "use_scope": {
+    "accepted_for_development_research": true,
+    "accepted_for_data_pipeline_and_feature_research": true,
+    "one_row_alone_sufficient_for_model_fit": false,
+    "complete_model_panel_exists": false,
+    "final_holdout_access_authorized": false,
+    "option_pnl_authorized": false
+  },
+  "still_required": [
+    "Preserve raw responses immutably and never rewrite source values",
+    "Record request parameters, timestamps, row/field counts, SHA-256 and cache revision",
+    "Run parser/schema/time-zone/duplicate-key checks without comparing Dhan values to another vendor",
+    "Do not zero-fill or fabricate missing values",
+    "Use source-family fallback and continue other research families on source outage",
+    "Use a new separately reviewed acquisition manifest for new historical requests; do not reuse the SPENT one-row approval"
+  ],
+  "prior_tester_report_note": "Earlier tester artifact records a public-table corroboration and requested an official cross-check. This user decision waives that cross-check as a condition of acceptance; the historical report remains archived for audit but no additional Dhan-vs-NSE/vendor reconciliation is to be performed.",
+  "secret_handling": "Never place DHAN_ACCESS_TOKEN or any token value in a repository file, artifact or log.",
+  "note": "This waiver accepts Dhan as the chosen provider for the sample and future Dhan output. It does not assert zero error, complete history or availability of non-Dhan feature families."
+}
