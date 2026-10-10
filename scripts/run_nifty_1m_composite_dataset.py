@@ -41,7 +41,7 @@ EXPORT_ROOT = ROOT / "data/exports/nifty_1m_composite"
 PLAIN_ROOT = EXPORT_ROOT / "plain"
 ENCRYPTED_ROOT = EXPORT_ROOT / "encrypted"
 REPORTS_ROOT = ROOT / "data/reports/nifty_1m_composite"
-ATTEMPT_LEDGER_PATH = REPORTS_ROOT / "request_attempt_ledger.json"
+ATTEMPT_LEDGER_PATH = REPORTS_ROOT / "request_attempt_ledger.jsonl"
 IST = ZoneInfo("Asia/Kolkata")
 UTC = dt.timezone.utc
 MAGIC = b"N1C1"
@@ -704,37 +704,88 @@ class RequestPacer:
         self.last = time.monotonic()
 
 
+def _attempt_snapshot(ledger: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "total_wire_attempts": int(ledger.get("total_wire_attempts", 0)),
+        "total_retry_attempts": int(ledger.get("total_retry_attempts", 0)),
+        "request_attempts_by_id": dict(ledger.get("request_attempts_by_id", {})),
+        "permanent_failure_requests": dict(ledger.get("permanent_failure_requests", {})),
+        "permanent_failure_families": dict(ledger.get("permanent_failure_families", {})),
+    }
+
+
 def load_attempt_ledger() -> dict[str, Any]:
-    base = {
+    ledger: dict[str, Any] = {
         "schema_version": 1, "total_wire_attempts": 0, "total_retry_attempts": 0,
         "request_attempts_by_id": {}, "permanent_failure_requests": {},
         "permanent_failure_families": {}, "updated_at_utc": utc_now(),
     }
     if not ATTEMPT_LEDGER_PATH.exists():
-        return base
+        ledger["_last_saved"] = _attempt_snapshot(ledger)
+        return ledger
     try:
-        loaded = load_json(ATTEMPT_LEDGER_PATH)
-        if loaded.get("schema_version") != 1:
-            raise ValueError("attempt_ledger_schema_mismatch")
-        for key in ("total_wire_attempts", "total_retry_attempts"):
-            if type(loaded.get(key)) is not int or loaded[key] < 0:
-                raise ValueError("attempt_ledger_counter_invalid")
-        for key in ("request_attempts_by_id", "permanent_failure_requests", "permanent_failure_families"):
-            if not isinstance(loaded.get(key), dict):
-                raise ValueError("attempt_ledger_map_invalid")
-        base.update(loaded)
-        return base
+        for line_number, line in enumerate(ATTEMPT_LEDGER_PATH.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            event = json.loads(line)
+            if not isinstance(event, dict) or event.get("schema_version") != 1:
+                raise ValueError("attempt_ledger_event_schema_mismatch")
+            ledger["total_wire_attempts"] += int(event.get("wire_delta", 0))
+            ledger["total_retry_attempts"] += int(event.get("retry_delta", 0))
+            for request_id, count in event.get("request_updates", {}).items():
+                ledger["request_attempts_by_id"][request_id] = int(count)
+            ledger["permanent_failure_requests"].update(event.get("permanent_request_updates", {}))
+            ledger["permanent_failure_families"].update(event.get("permanent_family_updates", {}))
+        ledger["_last_saved"] = _attempt_snapshot(ledger)
+        return ledger
     except Exception:
-        # Never reset an untrusted/corrupt request budget to zero.
-        base["total_wire_attempts"] = 10**12
-        base["total_retry_attempts"] = 10**12
-        base["permanent_failure_families"]["__ALL__"] = "attempt_ledger_corrupt"
-        return base
+        ledger["total_wire_attempts"] = 10**12
+        ledger["total_retry_attempts"] = 10**12
+        ledger["permanent_failure_families"]["__ALL__"] = "attempt_ledger_corrupt"
+        ledger["_last_saved"] = _attempt_snapshot(ledger)
+        return ledger
 
 
 def save_attempt_ledger(ledger: dict[str, Any]) -> None:
-    ledger["updated_at_utc"] = utc_now()
-    atomic_write(ATTEMPT_LEDGER_PATH, (json.dumps(ledger, sort_keys=True, indent=2) + "\n").encode("utf-8"))
+    """Append only changed counters/failures so budget checkpoint cost is O(events)."""
+    previous = ledger.get("_last_saved", {
+        "total_wire_attempts": 0, "total_retry_attempts": 0,
+        "request_attempts_by_id": {}, "permanent_failure_requests": {},
+        "permanent_failure_families": {},
+    })
+    current = _attempt_snapshot(ledger)
+    request_updates = {
+        key: value for key, value in current["request_attempts_by_id"].items()
+        if previous["request_attempts_by_id"].get(key) != value
+    }
+    permanent_request_updates = {
+        key: value for key, value in current["permanent_failure_requests"].items()
+        if previous["permanent_failure_requests"].get(key) != value
+    }
+    permanent_family_updates = {
+        key: value for key, value in current["permanent_failure_families"].items()
+        if previous["permanent_failure_families"].get(key) != value
+    }
+    event = {
+        "schema_version": 1,
+        "wire_delta": current["total_wire_attempts"] - previous["total_wire_attempts"],
+        "retry_delta": current["total_retry_attempts"] - previous["total_retry_attempts"],
+        "request_updates": request_updates,
+        "permanent_request_updates": permanent_request_updates,
+        "permanent_family_updates": permanent_family_updates,
+        "recorded_at_utc": utc_now(),
+    }
+    if (event["wire_delta"] or event["retry_delta"] or request_updates
+            or permanent_request_updates or permanent_family_updates):
+        ATTEMPT_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with ATTEMPT_LEDGER_PATH.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(event, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+    ledger["_last_saved"] = current
+    ledger["updated_at_utc"] = event["recorded_at_utc"]
+
+
 
 
 def fetch_live(request: dict[str, Any], token: str, pacer: RequestPacer,
@@ -1216,7 +1267,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
     status = "COMPLETE_REQUEST_GRID" if total_processed == total_requests and not failures and not auth_state["failed"] else "PARTIAL_GRID"
     if auth_state["failed"]:
         status = "DHAN_AUTH_OR_ENTITLEMENT_FAILURE"
-    budget_summary = {k: v for k, v in budget.items() if k not in ("errors", "request_results", "family_byte_limits")}
+    budget_summary = {k: v for k, v in budget.items() if k not in ("errors", "request_results", "family_byte_limits", "attempt_ledger")}
     budget_summary.update({
         "wire_requests_this_run": wire_budget["wire_requests"],
         "retry_requests_this_run": wire_budget["retry_requests"],
