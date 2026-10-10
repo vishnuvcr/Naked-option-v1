@@ -896,3 +896,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Correction: independent tester report on `phase-07-tester` was revised to include these explicit restrictions, copied byte-for-byte to the canonical developer path, and rehashed by hosted Python `hashlib`.
 - Corrected report Git blob `26c46d13f204b22bd737643112a7e489df09d3d2`; raw-file SHA-256 `98ed57b4eacc66aee10c71470325a10166267e81a2e72d13c1089f8ea236bf9c`. Approval returned to `PENDING_REVIEW`, then the next pending-state gate check [Run 38054616013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054616013) passed.
 - Disposition: READY can be tried again only using these exact current report/manifest pins; no bulk scope or other endpoint is authorized.
+
+
+## 2026-10-10 — READY-state validation passed after report-marker fixes
+
+- Two READY preflights failed closed before the SPENT/request steps: run [38054498843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054498843) lacked the exact no-live/no-bulk markers; run [38054773227](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054773227) had those markers but lacked the literal scope ID `dhan-nifty50-daily-2024-01-02-one-request`. Both failures occurred in the tester-report validation step; neither request ran and the one-use authorization was not consumed.
+- Tester fixed the canonical report on its isolated branch, and developer copied it byte-for-byte. Report Git blob `f99205683c02fcbc4514b15292350f6b0b4fcc6b`; raw SHA-256 `47ad9b6c5515d072907f9920c83fce405175f08684febe2568c6dcf2c98bcaf8`. It satisfies all four literal markers.
+- READY preflight [run 38054945942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054945942) passed 42 history-pipeline, 7 sample-runner and 16 approval-validator offline tests, verified all protected Git/SHA pins and report pins, and printed `PASS: exact manifest, protected files, tester report, single-use scope and status validated`. Protocol run [38054946092](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38054946092) passed.
+- Approval state is `READY`, not `SPENT`. No source request, market-data cache, feature fit, predictor rerun or holdout access has occurred. A single trigger remains; the workflow must revalidate then SPEND before the one POST and may not retry.
