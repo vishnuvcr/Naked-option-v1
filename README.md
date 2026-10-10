@@ -366,3 +366,6 @@ Before any live sample request, a second audit found the v2 sampler workflow did
 
 - [Updated exact-snapshot review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md)
 - This correction did not fetch any live data. The current exact-snapshot tester gate must pass before the bounded Gate A source workflow can execute.
+
+
+Repository [Research Protocol Check #38020253978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38020253978) succeeded, but it validates repository contract/literature registry only. It is not evidence that the Gate A v1/v2 source-schema test suites passed. The exact-snapshot review and the gated workflow run are still required before any live samples are fetched.
