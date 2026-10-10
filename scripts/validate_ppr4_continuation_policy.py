@@ -85,8 +85,8 @@ def validate() -> list[str]:
         "Free-source fallback matrix",
         "Composite-data rules",
         "Research continuation / no-source-stop rule",
-        "only 90 days per request",
-        "only 30 days per request",
+        "90-day maximum per request",
+        "30-day maximum per request",
         "no Dhan-versus-NSE/third-party market-value cross-check",
         "Paytm Money",
     ]
