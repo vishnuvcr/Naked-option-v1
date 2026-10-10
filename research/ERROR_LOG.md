@@ -937,3 +937,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: offline test job failed before later adapter/runner tests. No source requests were made.
 - Correction: scripts/test_official_reference_crosscheck.py updated at commit 2c5d6b3866839bf8937940a4d0cd1f008108afc5 / blob 5c4416c5d0f1de4a0941437c21a73a6f7651381a to assert the actual earlier safe rejection.
 - Disposition: rerun the same offline-only suite; the independent review has not yet authorized a request.
+
+
+## 2026-10-10 — Official-reference adapter offline test iteration 3
+
+- Category: Python test-harness API misuse.
+- Workflow: [Run 38056116315](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056116315), commit 1d9a35b41b4e4bd9bfa9a8589dae62e5be91c338.
+- Symptom: the mock test treated urllib.request.Request.header_items() entries as strings; they are key/value tuples, resulting in AttributeError: 'tuple' object has no attribute 'lower'.
+- Impact: offline-only adapter test job stopped before completion. No public-source requests were made.
+- Correction: scripts/test_official_reference_crosscheck.py updated at commit c2e07b62f93e72e2987fdc72e4f31d5f26e0a922 / blob 0436144c26edd4de19364529a96a6b12cdc38f31 to unpack the header tuples.
+- Disposition: rerun all mocked suites and preserve any further test-harness defects. No live official-source authorization exists.
