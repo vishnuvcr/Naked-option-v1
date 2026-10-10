@@ -1034,3 +1034,9 @@ Tester → Developer: Send corrections and missing-method findings from the isol
 **Developer → Tester:** Independently review the exact crosswalk/spec for method omissions, mathematical/sign errors, horizons, feature-vintage and point-in-time leakage. Return a gate decision bound to exact hashes.
 
 **Tester → Developer:** Do not authorize source acquisition/model fitting until the current crosswalk, complete 36-record literature mapping and frozen experiment matrix have passed their respective gates.
+
+
+### PPR-1 tester routing
+- Opened [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6) for an independent review of the exact crosswalk/spec/submission blob SHAs on the isolated `phase-07-tester` branch.
+- The issue explicitly limits the permission request to the next gate and prohibits full-history source pulls, fitting/scoring new methods, or final-holdout access until the independent tester report is recorded.
+- Current block is a repository gate, not a data conclusion: the paper-derived methods remain not tested by this submission.
