@@ -59,10 +59,13 @@ FII_PAGES = [
     ("fundata_fii_dii", "https://www.fundata.in/FIIDII.html"),
     ("traderscockpit_fii_dii", "https://www.traderscockpit.com/?pageView=fii-dii-activity"),
 ]
+# Gate A must use only a small deterministic source window, never multi-year history.
 NSE_FII_URLS = [
     ("nse_fii_current", "https://www.nseindia.com/api/fiidiiTradeReact"),
-    ("nse_fii_date_params", "https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-01-2020&toDate=31-12-2025"),
+    ("nse_fii_date_params", "https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-07-2024&toDate=10-07-2024"),
 ]
+MAX_FII_API_ROWS = 50
+MAX_FII_API_WINDOW_DAYS = 10
 
 
 def normalize_date(value: Any) -> str:
@@ -312,11 +315,27 @@ def main() -> None:
             continue
         try:
             obj = json.loads(data.decode("utf-8"))
-            report["nse_fii_api"].append({
-                "key": key, **meta, "schema_status": "JSON_PARSED",
-                "row_count": len(obj) if isinstance(obj, list) else None,
-                "sample": obj[:4] if isinstance(obj, list) else obj,
-            })
+            if isinstance(obj, list):
+                rows = obj
+            elif isinstance(obj, dict):
+                rows = obj.get("data", obj.get("rows", []))
+                if not isinstance(rows, list):
+                    rows = []
+            else:
+                rows = []
+            row_count = len(rows) if isinstance(rows, list) else None
+            if row_count is not None and row_count > MAX_FII_API_ROWS:
+                report["nse_fii_api"].append({
+                    "key": key, **meta, "schema_status": "REJECTED_EXCESS_ROWS",
+                    "row_count": row_count, "max_rows": MAX_FII_API_ROWS,
+                    "reason": "source response exceeds Gate A sample row limit",
+                })
+            else:
+                report["nse_fii_api"].append({
+                    "key": key, **meta, "schema_status": "JSON_PARSED",
+                    "row_count": row_count,
+                    "sample": rows[:4] if isinstance(rows, list) else obj,
+                })
         except json.JSONDecodeError:
             report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NON_JSON_RESPONSE", "body_prefix": data[:300].decode("utf-8", errors="replace")})
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
