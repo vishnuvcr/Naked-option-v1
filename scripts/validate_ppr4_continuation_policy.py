@@ -89,7 +89,7 @@ def validate() -> list[str]:
             or options.get("option_types") != ["CALL", "PUT"]
             or options.get("interval_minutes") != 1
             or options.get("response_bytes_max") != 2097152
-            or options.get("aggregate_bytes_max") != 4294967296
+            or options.get("aggregate_bytes_max") != 8589934592
             or options.get("rows_per_response_max") != 10000
             or options.get("max_retry_requests_total") != 100):
         errors.append("rolling_options_budget_or_grid_mismatch")
@@ -135,7 +135,7 @@ def validate() -> list[str]:
         "GitHub Release assets",
         "not the authoritative long-term data cache",
         "8,540",
-        "4 GiB",
+        "8 GiB",
         "8,701",
         "one-minute",
         "Black–Scholes",
