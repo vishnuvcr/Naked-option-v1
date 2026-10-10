@@ -617,3 +617,14 @@ Implemented corrections for all six tester findings. The offline suite initially
 **Developer → Tester:** Review the updated code and workflow at the exact pinned commit. No live source requests are authorized without your new explicit code-gate PASS and a separately valid one-run manifest.
 
 **Tester → Developer:** Validate the new fixtures and confirm the reviewed-commit tree guard checks all six protected blobs at the reported commit; separately audit any future source artifact.
+
+
+## 2026-10-10 — Continued: corrected sample reviewed, next discovery gate pending
+
+The corrected Gate A resample Run `38026993369` passed the index-date checks, and F&O/equity daily samples passed. The NSE historical FII/DII endpoint still returned current 2026-10-09 records outside the requested 2024 window, now correctly rejected. The mirror contains 164 unique dates in 2026 only; 500+ aligned sessions are not established. The one-run manifest is spent.
+
+Discovery 3 is the next permitted research direction: CDSL archive metadata and tiny XLS samples, Hugging Face dataset metadata/range requests that must honor Range, one-date API samples, and code/provenance review for candidate repositories. Its offline suite passed 32/32 in Run `38029615734`, but exact-snapshot independent tester review remains pending. No further live requests or modeling until its own PASS and one-run manifest.
+
+**Developer → Tester:** Re-review Discovery 3's six-file code/workflow snapshot and tree/hash binding. The corrected Gate A artifact only establishes bounded parser/source behavior, not historical FII/DII availability.
+
+**Tester → Developer:** Keep all live discovery disabled until the current code gate passes and a separate one-run manifest validates; audit the next artifact before any later stage.
