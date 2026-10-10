@@ -708,3 +708,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - The Gate A manifest is SPENT. No additional requests are authorized by it.
 - Next source phase: Discovery 3 free-source feasibility only. Current code review request: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). Latest offline test run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32 checks, but isolated tester review is still pending.
 - **No live Discovery 3 requests, full-history downloads, feature/label generation, model fitting, metrics/p-values or final-holdout access are authorized.**
+
+
+## 2026-10-10 — Free Flow Source Discovery 3 code gate
+
+- Current protected snapshot: spec blob `4e30415632545c04a2875d627afa0191afe3f383`, sampler `34b9dcb47288d103c236a8fd34603daf66135bc4`, tests `9c2e89ff810d2820d6dacdec36fbaf0a18cf4eec`, pinned requirements `921812b1d6da657ee1de2a4b35e7ff8b43cc8ce6`, offline workflow `634f87014f334d3c4a903269a073c4e5e2786d46`, live workflow `e29f66b67bd47f488b00a708988fca708b391732`.
+- Hosted offline run [38029797600](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029797600) passed all 32 fixture regressions.
+- Independent tester's fresh code-gate report: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md). Decision: PASS WITH SCOPED RESTRICTIONS for code/workflow only; it does not authorize live requests.
+- Attempt to mirror the tester report to the developer branch was blocked by platform safety checks. The source manifest has NOT been created. Do not bypass the exact-report mirror requirement.
+- Before any live request: run tests on the exact reviewed snapshot, calculate byte-level SHA-256 for all six protected files, mirror the report through an allowed path, then create and validate a separate single-use manifest.
+- **Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain NOT AUTHORIZED.**
