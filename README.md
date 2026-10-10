@@ -6,7 +6,7 @@ The current user-directed scope is to test the **actual prediction methods from 
 - [Paper replication protocol amendment proposal](research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md) — finite phases, targets, metrics, leakage controls and gates.
 - [Developer submission for independent review](research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md) — review requested before new empirical model fitting.
 
-**Current status: tester gate pending; no new paper-specific model fit has been launched.** The crosswalk still needs to be reconciled to the repository's separate 36-record literature inventory.
+**Current status: tester gate pending; no new paper-specific model fit has been launched.** Independent review is requested in [issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The crosswalk still needs to be reconciled to the repository's separate 36-record literature inventory.
 
 The most recent independently audited daily artifact (Run #44) contains 1,676 NIFTY rows from 2020-01-01 to 2026-10-09 with 11 global/peer series. Its 12-method × five-horizon extension had no significant horizon-family result after multiplicity correction. It cannot provide exact 5-, 10- or 20-year replication from that artifact alone. Full-history and auxiliary-feature acquisition, the spent one-row Dhan approval, and the untouched holdout remain governed by their existing gates.
 
