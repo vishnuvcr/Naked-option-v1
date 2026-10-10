@@ -187,3 +187,12 @@ New errors must be appended, never overwritten.
 - **Test evidence:** offline workflow [38068745869](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068745869) succeeded on reviewed developer commit `bf48db331da46377aff772e828fac3ca6fd3d753`. It ran the structural validator only and emitted “no source requests, market-data access or model fitting.” This is not tester approval of the newer exact snapshot.
 - **Branch status:** tester report `PHASE7_PPR1_REVIEW2_TESTER_REPORT.md` was committed on `phase-07-tester` at `6abdd399c1af1a825e49b1305079918715b981de`, decision REQUEST CHANGES. No PPR-2, new source pulls, fitting/scoring, holdout access or options P&L authorized.
 
+
+
+## 2026-10-10 — PPR contract validator wording regression and retry
+
+- At commit `d4d2bc3c6527ca1678698d750e508dfbe3dd73f7`, PPR contract run [38068895685](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068895685) failed because the new checker required the literal term “common” in a JSON description that already explicitly specified one `target_schema_id` and prohibited mixing three-class/binary or regression/classification loss. The same failure reproduced on the next matrix-triggered snapshot at [run 38068938072](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068938072) before the fix landed.
+- **Fix:** validator now checks semantic contract elements (target-schema identifier, three-class contract, explicit prohibition on mixed tasks), consistent within-family block length, required manifest fields, and the aggregate fit-count calculation instead of requiring a literal phrase.
+- **Retest:** [run 38068967518](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068967518) completed successfully on developer commit `06f9d106ff4685ddc2c5d2b3ac5fd0dc6770b5e6`. Log says: “PASS: source matrix, target/inference contract, search bounds and fail-closed flags.”
+- Scope remains document/protocol validation only. Failure and recovery are preserved as separate run evidence; the failures were not re-labelled as passes. New model/data execution remains unauthorized.
+
