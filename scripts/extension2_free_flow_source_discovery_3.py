@@ -5,6 +5,7 @@ import datetime as dt
 import hashlib
 import io
 import json
+import math
 import re
 import urllib.error
 import urllib.parse
@@ -97,12 +98,13 @@ def safe_url_for_report(url: str) -> str:
 
 def redact_sensitive_json(value: Any) -> Any:
     """Recursively remove credential-like keys and sanitize URLs in source JSON."""
-    sensitive_tokens = ("authorization", "cookie", "token", "secret", "password", "credential", "api_key", "apikey", "access_key", "private_key")
+    sensitive_exact = {"authorization", "cookie", "token", "secret", "password", "credential", "api_key", "apikey", "access_key", "private_key", "signature", "sig", "signed_token"}
+    sensitive_suffixes = ("_token", "_secret", "_password", "_credential", "_api_key", "_apikey", "_access_key", "_private_key", "_signature", "_sig")
     if isinstance(value, dict):
         result = {}
         for key, child in value.items():
             lowered = str(key).lower().replace("-", "_")
-            if any(token in lowered for token in sensitive_tokens):
+            if lowered in sensitive_exact or any(lowered.endswith(suffix) for suffix in sensitive_suffixes):
                 continue
             result[str(key)] = redact_sensitive_json(child)
         return result
@@ -491,7 +493,9 @@ def date_links(parser: LinkTableParser) -> list[dict[str, str]]:
     pattern = re.compile(r"(?:\d{2}[/-]\d{2}[/-]\d{4}|20\d{2}-\d{2}-\d{2}|(?:Latest_)?\d{8})", re.I)
     for link in parser.links:
         if pattern.search(link["href"]) or pattern.search(link["text"]):
-            out.append(link)
+            sanitized = dict(link)
+            sanitized["href"] = safe_url_for_report(link["href"])
+            out.append(sanitized)
     return out[:MAX_VISIBLE_ROWS]
 
 
@@ -700,7 +704,9 @@ def parse_csv_edge(
             value = item.get(key, "").strip().replace(",", "")
             if value and any(token in key.lower() for token in ("buy", "sell", "purchase", "sale", "net", "invest")):
                 try:
-                    float(value)
+                    parsed_value = float(value)
+                    if not math.isfinite(parsed_value):
+                        nonnumeric_flow_cells += 1
                 except ValueError:
                     nonnumeric_flow_cells += 1
     provenance_values = [
@@ -784,12 +790,23 @@ def hf_file_probe(client: LimitedHTTP, meta: dict[str, Any]) -> dict[str, Any]:
 def validate_chirag_record(obj: Any, expected_date: str = CHIRAG_DATE) -> dict[str, Any]:
     if not isinstance(obj, dict):
         return {"status": "REJECTED_SCHEMA", "reason": "payload is not an object"}
-    date_keys = [k for k in ("date", "trade_date", "tradeDate", "report_date") if k in obj]
+    date_keys = [
+        k for k in ("date", "trade_date", "tradeDate", "report_date")
+        if k in obj and obj.get(k) not in (None, "")
+    ]
     if not date_keys:
-        return {"status": "REJECTED_SCHEMA", "reason": "no recognized date field"}
+        return {"status": "REJECTED_SCHEMA", "reason": "no non-empty recognized date field"}
     row_dates = [parse_date(obj.get(k)) for k in date_keys]
-    if expected_date not in row_dates:
-        return {"status": "REJECTED_SCHEMA", "reason": "record date does not match frozen path date", "observed_dates": row_dates}
+    if any(not value for value in row_dates):
+        return {
+            "status": "REJECTED_SCHEMA", "reason": "one or more recognized date fields are malformed",
+            "date_fields": {k: obj.get(k) for k in date_keys}, "observed_dates": row_dates,
+        }
+    if any(value != expected_date for value in row_dates):
+        return {
+            "status": "REJECTED_SCHEMA", "reason": "recognized date fields conflict or do not match frozen path date",
+            "date_fields": {k: obj.get(k) for k in date_keys}, "observed_dates": row_dates,
+        }
     source = str(obj.get("source", "")).strip().lower()
     if source not in {"nse", "groww", "moneycontrol"}:
         return {"status": "REJECTED_PROVENANCE", "reason": "source label missing/unrecognized", "source": source}
@@ -919,7 +936,7 @@ def report_main() -> dict[str, Any]:
         "phase": "EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3",
         "generated_at_utc": iso_utc(),
         "scope": "Bounded free-source metadata/schema probe only; no full history, feature table, labels, model fits, prediction metrics or final-holdout access.",
-        "spec_git_blob": "52b030e09213cb30c4de6a1633da38e6b2558b1f",
+        "spec_git_blob": "4e30415632545c04a2875d627afa0191afe3f383",
         "sources": {},
     }
     # Static CDSL archive index and two fixed single-day XLS reports.
