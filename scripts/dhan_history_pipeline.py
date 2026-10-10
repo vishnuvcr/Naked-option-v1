@@ -105,7 +105,7 @@ def request_json(
     HTTP-error bodies. Live calls must be authorized by a separate workflow and
     single-use manifest; the CLI deliberately does not expose a live mode.
     """
-    if not live_authorized:
+    if live_authorized is not True:
         raise RuntimeError("live_request_not_authorized")
     if not _valid_api_url(url):
         raise ValueError("unregistered_or_unsafe_url")
@@ -326,6 +326,19 @@ def validate_rolling_option_payload(
     }
 
 
+def _validate_instrument_fields(body: dict[str, Any], prefix: str) -> None:
+    security_id = body.get("securityId")
+    if isinstance(security_id, bool) or not (
+        (isinstance(security_id, int) and security_id > 0)
+        or (isinstance(security_id, str) and security_id.strip().isdigit() and int(security_id.strip()) > 0)
+    ):
+        raise ValueError(f"{prefix}_security_id_invalid")
+    for key in ("exchangeSegment", "instrument"):
+        value = body.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{prefix}_{key}_invalid")
+
+
 def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
     """Validate an exact endpoint request shape and its documented date-window cap."""
     if not _valid_api_url(url):
@@ -347,6 +360,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         start_date, end_date = body.get("fromDate"), body.get("toDate")
         if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
             raise ValueError("daily_request_instrument_fields_missing")
+        _validate_instrument_fields(body, "daily_request")
         # Program safeguard: daily bulk requests are partitioned into <=365-day windows.
         _validate_date_range(start_date, end_date, max_days=365)
         if not isinstance(body.get("oi", False), bool):
@@ -357,6 +371,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         start_date, end_date = body.get("fromDate"), body.get("toDate")
         if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
             raise ValueError("intraday_request_instrument_fields_missing")
+        _validate_instrument_fields(body, "intraday_request")
         if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
             raise ValueError("intraday_interval_invalid")
         _validate_datetime_range(start_date, end_date, max_days=90)
@@ -371,6 +386,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("rolling_option_request_fields_missing")
     if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
         raise ValueError("rolling_option_instrument_fields_missing")
+    _validate_instrument_fields(body, "rolling_option_request")
     if str(body.get("interval")) not in {"1", "5", "15", "25", "60"}:
         raise ValueError("rolling_option_interval_invalid")
     if body.get("expiryFlag") not in {"WEEK", "MONTH"}:
@@ -380,7 +396,11 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
     expiry_code = body.get("expiryCode")
     if isinstance(expiry_code, bool) or not isinstance(expiry_code, int) or expiry_code < 0:
         raise ValueError("rolling_option_expiry_code_invalid")
-    if not isinstance(body.get("strike"), (str, int)) or not str(body.get("strike")).strip():
+    strike_value = body.get("strike")
+    if isinstance(strike_value, bool) or not (
+        (isinstance(strike_value, int) and strike_value > 0)
+        or (isinstance(strike_value, str) and strike_value.strip())
+    ):
         raise ValueError("rolling_option_strike_invalid")
     _validate_date_range(start_date, end_date, max_days=30)
     required_data = body.get("requiredData")
