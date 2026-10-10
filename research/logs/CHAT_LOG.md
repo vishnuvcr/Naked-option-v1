@@ -269,3 +269,12 @@ The one-run authorization is spent. The next action is to propose a separate bou
 **Tester → Developer:** Propose deterministic sample requests and hard source limits for more free FII/DII sources. Do not use the spent manifest or request full history.
 
 **Developer → Tester:** Review that the new scope is sample-only and can prove whether the candidate sources expose real dated daily records; keep model fitting blocked.
+
+
+## 2026-10-10 — Source Discovery 3 spec gate PASS
+
+Independent tester passed the finite spec for implementation + offline tests only. No live-source requests are authorized yet. The proposal now protects against ignored Range responses, unregistered redirects, over-budget probes, and accidentally retrieving small history files through GitHub's file-specific Contents API. CDSL web-reader attempts returned unsupported XLS content type and are logged as non-accepted activity.
+
+**Tester → Developer:** Implement only the frozen sampler and offline regression suite; keep live workflow fail-closed.
+
+**Developer → Tester:** Submit exact script/test/workflow hashes after hosted offline tests pass; do not create a live approval manifest until the separate code gate passes.
