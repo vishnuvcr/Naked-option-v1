@@ -521,3 +521,12 @@
 - Complete Gate A remains open. This is a data-coverage limitation, not a predictor result. Additional free-source discovery is required before any full history or model fitting.
 - One-run manifest was marked SPENT after this artifact. Do not rerun or reuse it. A new exact-snapshot source discovery proposal/code gate is required.
 - Audit report: `research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md`; free-source inventory: `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`.
+
+
+## 2026-10-10 — Governance incident: full raw history file retrieved during source review (non-accepted)
+
+- During public repository provenance inspection for `MrChartist/fii-dii-data`, a GitHub file-read call inadvertently returned the entire `data/history.json` file (143,498 bytes), despite the current source-discovery scope being metadata/code-only.
+- The file was **not** committed to this research repo's data directory, not used to build features or labels, and not used for model fitting or metrics. Its contents are non-accepted evidence.
+- Source code review found `scripts/seed_history.js` explicitly describes generating "realistic per-day" FII/DII records from monthly/yearly aggregates for roughly six months. Rows tagged `historical-seed` therefore cannot be treated as observed raw daily records. The mixed file must not be accepted wholesale.
+- Root cause: using a content-fetch function on a path classified as a large history-data file rather than restricting the query to repository metadata/source code. Corrective action: all next-stage source requests must be preceded by an independent bounded-source gate; no raw history paths may be fetched during metadata/code discovery. For data probes use tested byte-range/row caps and fail closed if the remote server ignores them.
+- Discovery findings and correction are documented in `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`. The previous single-run Gate A manifest is spent; the retrieval does not authorize any additional source request.
