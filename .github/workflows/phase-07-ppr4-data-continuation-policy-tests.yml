@@ -1,0 +1,42 @@
+name: PPR-4 User-Directed Data Continuation Policy — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "research/phase7/PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY.json"
+      - "research/phase7/PPR4_DHAN_OPEN_SOURCE_ACQUISITION_PLAN.md"
+      - "research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json"
+      - "scripts/validate_ppr4_continuation_policy.py"
+      - "scripts/test_ppr4_continuation_policy.py"
+      - ".github/workflows/phase-07-ppr4-data-continuation-policy-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ppr4-data-continuation-policy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-policy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile validator and tests
+        run: python -m py_compile scripts/validate_ppr4_continuation_policy.py scripts/test_ppr4_continuation_policy.py
+      - name: Run policy regression tests
+        working-directory: scripts
+        run: python -m unittest -v test_ppr4_continuation_policy
+      - name: Validate waiver and plan
+        run: python scripts/validate_ppr4_continuation_policy.py
+
+# This workflow makes no network requests, has no secrets, and does not authorize live data acquisition.
