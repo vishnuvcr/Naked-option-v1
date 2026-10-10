@@ -173,3 +173,10 @@ During specification validation, the web reader was directed to the two fixed CD
 ## 2026-10-10 — Discovery 3 code gate REQUEST CHANGES (six blockers)
 
 Tester rejected the implementation snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7` despite 29 passing offline fixtures. Findings: (1) output report still carries stale spec Git blob `52b030...` instead of `4e30415632545c04a2875d627afa0191afe3f383`; (2) one matching JSON date lets conflicting other date fields pass; (3) numeric flow parsing accepts NaN/Infinity; (4) nested signature/sig values are not redacted; (5) dated page hrefs go into reports unsanitized; (6) live-workflow manifest reviewer commit is not proven to be the exact reviewed tree with all approved blobs at that commit. Must fix all six, add tests, pass offline suite, then request fresh exact-snapshot code gate. No source request/manifest allowed.
+
+
+## 2026-10-10 — Discovery 3 code gate returned REQUEST CHANGES
+
+The independent tester reviewed snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7` and found six blockers despite 29 passing offline checks: outdated spec provenance in output, conflicting dates accepted in one JSON record, non-finite CSV values treated as numeric, incomplete redaction of signature-like fields, unsanitized dated links, and insufficient workflow binding between the reviewed commit and protected file tree. Full details are in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`.
+
+No live source request or approval manifest is authorized. Correct these issues, add offline fixtures, and request a new code gate.
