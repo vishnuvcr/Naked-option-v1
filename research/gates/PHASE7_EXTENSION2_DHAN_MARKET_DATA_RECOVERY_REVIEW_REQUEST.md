@@ -16,7 +16,7 @@ Review `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` at the exa
 - one GET `https://api.dhan.co/v2/profile`; discard the body immediately and persist only redacted HTTP/status booleans (no client ID/name/UCC, active-segment list, validity timestamp, raw JSON or token);
 - one GET `https://api.dhan.co/v2/instrument/IDX_I` with a 1 MiB cap to resolve NIFTY 50 and India VIX IDs from official metadata; no guessed IDs and no all-instrument CSV download;
 - at most four POSTs to `https://api.dhan.co/v2/charts/historical`, at most two instruments and two fixed ten-calendar-day windows;
-- six authenticated requests maximum, 4 MiB total response-body budget, 64 KiB profile cap, 1 MiB instrument metadata cap, 1 MiB per candle response, 20-second timeout, no retry or redirect;
+- six authenticated requests maximum, 4 MiB total response-body budget, 64 KiB profile cap, 1 MiB instrument metadata cap, 768 KiB per candle response, 20-second timeout, no retry or redirect;
 - no order, trading, position, fund, or account transaction endpoint; no token logging; no bulk history, feature/label generation, model fitting, metrics, or holdout access.
 
 The official DhanHQ v2 docs describe daily instrument candles (OHLCV, with OI where applicable), with a non-inclusive `toDate`; intraday data has a five-year limit and at most 90 days per call. Data API entitlement may require a separate subscription. Dhan's documented historical-candle endpoints do **not** document combined daily FII/FPI/DII cash-flow totals; this proposal must not claim to close that specific flow gap.
