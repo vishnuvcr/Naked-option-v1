@@ -564,3 +564,14 @@ The tester report requests changes for complete Gate A because historical G14/G1
 **Developer → Tester:** Review the next source-discovery proposal; focus on bounded endpoints/date windows and whether each free source can plausibly meet 500 dated sessions without a full-history pull.
 
 **Tester → Developer:** Do not fit a model or download full history. Require new exact-snapshot approval and then independently audit the bounded source samples.
+
+
+## 2026-10-10 — Continued free-source search, provenance incident recorded
+
+New leads are CDSL's dated FPI XLS archive, SEBI trade-wise FPI monthly archives, and the Hugging Face file `fii_dii_2024_to_today.csv` (public commit diff suggests 503 lines; actual unique dates still unverified). The existing MrChartist file's seed script says it creates realistic per-day records from monthly/yearly aggregates, so the seeded rows are not raw observed flow and cannot be used as empirical input.
+
+A procedural mistake was recorded: the full public `MrChartist/fii-dii-data/data/history.json` (143,498 bytes) was inadvertently fetched while inspecting source metadata. It was not imported to project data and no model or features were run on it. The source inventory and ERROR_LOG now disclose this. The prior Gate A manifest is spent. Next: create a new bounded source-discovery proposal and obtain an independent tester decision before any further source sample; use strict byte ranges and reject servers that ignore Range.
+
+**Developer → Tester:** Review a new source-discovery proposal that pins CDSL/HF/single-date JSON URLs, strict byte/row caps, and synthetic data rejection. Do not authorize until the tests ensure that no full-history URL/path can be fetched.
+
+**Tester → Developer:** Require a fresh code gate and independent post-sample artifact gate; no full-history data acquisition or model fitting.
