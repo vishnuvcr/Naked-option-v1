@@ -707,3 +707,13 @@ Resume actions:
 - No strategy evaluation or holdout access was started. Phase 7 remains open; Phase 8 remains blocked.
 
 **Developer → Tester:** Verify the audit record and keep the exact-snapshot/manifest-spend/artifact-review requirements intact. Do not infer data availability from this checkpoint.
+
+
+## 2026-10-10 — User requested workflow recreation
+
+- Rechecked the existing guarded workflow and preserved its safety design.
+- Recreated the workflow file on `main`, the default branch, because the `workflow_dispatch` UI control requires the workflow to be present on the default branch. Commit: `6628946afbba6e0f395563b427c54742513a0310`.
+- Left the protected `phase-07-developer` workflow unchanged so its one-use manifest pins remain intact. Main copy was verified to remain manual-only, require `confirm_probe=true`, default false, and run only when the selected ref is `phase-07-developer`.
+- No workflow run was launched and no external request/data acquisition occurred.
+
+**Developer → Tester:** Independently audit the default-branch copy against the pinned developer workflow and verify the safety guards remain equivalent.
