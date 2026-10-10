@@ -686,3 +686,12 @@ The second bounded sample found the Dhan token valid and Data API plan active, b
 **Tester → Developer:** Review the redirect-target-only proposal; no network access at this gate.
 
 **Developer → Tester:** After spec PASS, implement offline parser/tests and request a fresh code review. Do not follow the redirect until its host is verified and separately approved.
+
+
+## 2026-10-10 — Dhan redirect-target gate
+
+Tester passed the redirect-target-only specification and exact parser/workflow snapshot. The code extracts scheme/hostname only, never raw Location path/query; HTTP schemes remain unverified. Offline Run `38044225274` passed 37 checks. The dedicated workflow spends the manifest before the one request. Next step: compute hashes and create a fresh one-request manifest; then independently audit the redirect target artifact. No redirect follow, candle history, full history or modeling is authorized.
+
+**Tester → Developer:** Verify all current hashes in the one-request manifest.
+
+**Developer → Tester:** Audit the one diagnostic artifact. Only propose a redirect follow after checking the target host against official docs and obtaining another gate.
