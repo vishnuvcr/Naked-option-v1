@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "manifest_id": "PPR4_WAVE1_METADATA_REQUEST_DRAFT_2026-10-11",
+  "branch": "phase-07-developer",
+  "status": "DRAFT_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
+  "purpose": "Read-only documentation GETs to verify public official source metadata and request mechanics. This is not a data-series sample, does not create a modeling panel, and does not authorize any network request until a separate tester PASS.",
+  "gate_state": {
+    "ppr4_source_acquisition_gate": "CLOSED",
+    "prospective_holdout_design": "PASS_WITH_SCOPED_RESTRICTIONS_DESIGN_ONLY",
+    "machine_readable_future_holdout_manifest_exists": false,
+    "requests_executed": false,
+    "bytes_downloaded": 0,
+    "model_panel_accepted": false,
+    "model_fitting_tuning_scoring_authorized": false,
+    "holdout_forecast_or_label_access_authorized": false,
+    "option_pnl_authorized": false
+  },
+  "limits": {
+    "max_sources": 3,
+    "max_total_bytes": 5242880,
+    "max_bytes_per_source": 2097152,
+    "max_rows_per_source": 20,
+    "requests_per_source": 1,
+    "concurrency": 1,
+    "retries": 0,
+    "redirects": "DENY unless exact redirect destination is separately reviewed",
+    "authentication": "NONE",
+    "cache_policy": "Do not write source payloads to modeling cache. If approved, store only source-document snapshots under research/cache-metadata with URL, UTC fetch time, response headers, SHA-256, license notes and request ID."
+  },
+  "requests": [
+    {
+      "request_id": "W1-DOC-001",
+      "source_id": "P4-001",
+      "source_name": "NSE historical index archive documentation",
+      "exact_url": "https://www.nseindia.com/static/resources/historical-reports-capital-market-daily-monthly-archives",
+      "method": "GET",
+      "query": {},
+      "purpose": "Read only the public archive/documentation page; identify available historical index report links, documented date filters, fields and use terms.",
+      "expected_content_type": "text/html",
+      "max_response_bytes": 2097152,
+      "max_rows": 0,
+      "max_redirects": 0,
+      "license_basis": "Official public documentation page only; no index data file or redistribution.",
+      "allowed_operations_if_approved": ["fetch this exact page once", "record response status/content-type/date and hash", "extract only report-link labels and visible documentation/terms"],
+      "prohibited_operations": ["follow report/data links", "request historical values", "use browser cookies or authentication", "download files", "accept data into model cache"]
+    },
+    {
+      "request_id": "W1-DOC-002",
+      "source_id": "P4-008",
+      "source_name": "NSE India VIX methodology/history documentation",
+      "exact_url": "https://www.nseindia.com/static/products-services/indices-indiavix-index",
+      "method": "GET",
+      "query": {},
+      "purpose": "Read only the public methodology/history documentation page; identify official history links and methodology/vintage caveats.",
+      "expected_content_type": "text/html",
+      "max_response_bytes": 2097152,
+      "max_rows": 0,
+      "max_redirects": 0,
+      "license_basis": "Official public documentation page only; no VIX series values or source data file.",
+      "allowed_operations_if_approved": ["fetch this exact page once", "record response status/content-type/date and hash", "extract visible methodology, history-link labels and terms"],
+      "prohibited_operations": ["follow data links", "request historical VIX values", "use browser cookies or authentication", "download files", "accept data into model cache"]
+    },
+    {
+      "request_id": "W1-DOC-003",
+      "source_id": "P4-016",
+      "source_name": "US Treasury daily yield-curve feed documentation",
+      "exact_url": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
+      "method": "GET",
+      "query": {},
+      "purpose": "Read only the feed documentation; identify documented parameters, response schema, update/release timing and public-use terms.",
+      "expected_content_type": "text/html",
+      "max_response_bytes": 2097152,
+      "max_rows": 0,
+      "max_redirects": 0,
+      "license_basis": "Official public documentation page only; no yield payload or historical series request.",
+      "allowed_operations_if_approved": ["fetch this exact page once", "record response status/content-type/date and hash", "extract visible parameter/schema/timing documentation"],
+      "prohibited_operations": ["call XML/CSV data endpoint", "request historical yields", "use authentication", "download data files", "accept data into model cache"]
+    }
+  ],
+  "fail_closed_rules": [
+    "This file is a request draft; all network access remains denied until tester approval of this exact blob SHA.",
+    "If a URL redirects, is blocked, or lacks expected documentation, stop. Do not retry or follow an alternate URL.",
+    "Do not interpret documentation success as data coverage, source license clearance for redistribution, or permission to use source values in a model.",
+    "No data payload, market observation, option data, feature, label, prediction, holdout value or outcome may be requested or opened.",
+    "After any approved documentation fetch, record status/headers/hash and revise the source register; a separate gate is required for even a bounded data sample."
+  ],
+  "decision_request": "REVIEW_ONLY_NO_NETWORK_REQUESTS",
+  "requested": false,
+  "bytes_downloaded": 0,
+  "model_panel_accepted": false,
+  "fitting_authorized": false
+}
