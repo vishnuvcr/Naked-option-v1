@@ -160,6 +160,21 @@ def validate() -> list[str]:
         errors.append("paper-native native_task_id values are blank or duplicated")
     if native_papers != {f"P{i:02d}" for i in range(1, 16)}:
         errors.append("paper-native ledger must cover all P01-P15")
+    native_required_fields = (
+        "native_task_family_id", "source_native_target_output_type", "source_native_horizon",
+        "source_native_data_window", "source_native_split", "source_native_feature_recipe",
+        "source_native_metric_result", "native_detail_evidence_status", "native_config_gap_notes",
+    )
+    for field in native_required_fields:
+        if field not in native[0] if native else True:
+            errors.append(f"paper-native ledger missing required field {field}")
+            continue
+        blank = [r.get("native_task_id", "") for r in native if not r.get(field, "").strip()]
+        if blank:
+            errors.append(f"paper-native ledger has blank {field}; first rows={blank[:5]}")
+    native_families = {r.get("native_task_family_id", "") for r in native}
+    if len(native_families) < 15:
+        errors.append("paper-native task ledger does not distinguish enough source task families")
     native_by_id = {r.get("native_task_id", ""): r for r in native}
     # Source-to-adaptation semantics checks for previously corrected mappings.
     twitter = native_by_id.get("NT022", {})
