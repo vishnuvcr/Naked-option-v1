@@ -1,6 +1,6 @@
 # Developer Submission — Official NIFTY Sample Cross-Check Code Gate
 
-**State: RESUBMITTED FOR INDEPENDENT TESTER REVIEW — offline code only. No public-source requests are authorized.**
+**State: PASS WITH SCOPED RESTRICTIONS — independent code/workflow gate passed. No public-source requests are authorized by this report.**
 
 ## Exact tested snapshot
 
@@ -46,8 +46,12 @@ Run 38058028914 logs report:
 - The original Dhan sample remains quarantined from feature engineering, model training/validation and prediction claims until the official primary-source cross-check and mapping lookup succeed.
 - The 8 MiB public Dhan CSV cap and the reverse-engineered NiftyIndices request shape remain unverified against live responses; this gate only establishes offline safety and deterministic test behavior.
 
+## Final tester decision
+
+Independent tester report [PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md) is **PASS WITH SCOPED RESTRICTIONS — offline code/workflow only**, tester blob 4c8df6eb1e771dff6d1eb3b06de3cb43c09ba0bc. It confirms the exact code/test/workflow blobs and the hosted 9/17/9 test suite plus protocol run.
+
 ## Next gate
 
-Only after the independent tester issues a PASS for this exact implementation may the developer prepare a new single-use two-source manifest and a guarded workflow. That manifest/workflow must be independently reviewed as a separate gate before either public source is contacted. On a failure or discrepancy, no raw provider error body may be saved; no partial cache bundle or model/data acceptance is allowed.
+Developer may prepare a fresh exact-hash manifest, approval record and guarded workflow for at most one same-day official NSE Indices NIFTY 50 OHLC request for 2024-01-02 and one unauthenticated public Dhan compact instrument-master CSV request. That separate manifest/workflow must receive an independent tester PASS before either request. The already-SPENT Dhan sample approval remains SPENT and cannot be reused. Do not fit models or accept the row until both official checks pass.
 
-**Developer → Tester:** Independently inspect the exact blobs above and Run 38058028914. Confirm the old compact-segment issue is resolved; `NIFTY100` is rejected; the original Dhan cached response is hash/schema/date-verified before either opener is built; the runner compares against the actual cached row; and an existing bundle's full relevant manifest/source metadata is validated before reuse. Return PASS or REQUEST CHANGES. Do not authorize public-source requests directly.
+**Developer → Tester:** Re-review the new exact-hash two-source manifest, approval record and guarded workflow as a separate gate. Verify host/path/method/body allowlists, one-request budgets per source, time/byte caps, zero credentials, redirect/retry rejection, protected-file pins, cache atomicity and spend-before-first-fetch. No public-source request is authorized by the current code PASS.

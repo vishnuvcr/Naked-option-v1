@@ -985,3 +985,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Current protected code blobs: adapter `ef5b507d9c1706b2afd16338db8bec2bd517352d`; runner `ff593638d3f76671215cfe55a5cc1f96859096ea`; adapter tests `2817c41ba25882930ccb0a0fc2d7f77968da67ea`; runner tests `8c02fdef90593f6223a6d1b8bf3248163bf64880`; offline workflow `b450da4b9ffed8d8e38c8f7383084e1ba987b303`.
 - Verification: [Run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914) passed 9 instrument-master + 17 adapter + 9 runner tests; [protocol check 38058029128](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058029128) passed. Default CLIs remain offline-only, and the workflow has no source request or secrets.
 - Disposition: corrected exact snapshot submitted for independent tester re-review; no public-source manifest/approval/live workflow has been created, no data acceptance/model run changed, and holdout stays sealed.
+
+
+## 2026-10-10 — Official reference cross-check implementation final tester PASS
+
+- Category: independent code/workflow gate disposition.
+- Exact tested source/test/workflow blobs are pinned in research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_SUBMISSION.md; the current branch head includes later research-ledger changes, but the tested source, tests and workflow blobs remain unchanged.
+- Independent tester report [PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md), tester blob 4c8df6eb1e771dff6d1eb3b06de3cb43c09ba0bc: **PASS WITH SCOPED RESTRICTIONS — offline code/workflow only**.
+- Hosted [Run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914) passed 9 instrument-master, 17 adapter and 9 runner tests. Protocol [Run 38058181267](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058181267) passed.
+- Independent review confirmed compact SEM_SEGMENT / API IDX_I namespace separation, exact NIFTY symbol matching, original cached Dhan response/hash/schema/date validation before either source opener, comparison against the row parsed from that cache, and full existing bundle manifest/source-metadata validation before reuse.
+- Offline workflow blob b450da4b9ffed8d8e38c8f7383084e1ba987b303 is now identical on the default and developer branches. It only runs mocked tests and pin checks; no public-source request step or secrets are present.
+- Disposition: developer may prepare a new two-source manifest, approval and guarded workflow, which require their own independent PASS before either public-source request. The earlier Dhan sample approval remains SPENT and is not reused. No official-source request, model run or holdout access occurred.

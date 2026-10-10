@@ -28,8 +28,8 @@
 
 ### Next gate
 
-The official-reference adapter/runner and offline tests have now passed a strengthened hosted suite: [Run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914), with 9 instrument-master, 17 adapter, and 9 runner tests; [protocol check 38058029128](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058029128) passed. The new exact snapshot is documented in [code submission](gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_SUBMISSION.md), pinned to adapter/runner/test/workflow blobs. It fixes exact-symbol acceptance, verifies the original cached Dhan response/hash/date before any public request, and checks existing cache manifests/source metadata before reuse. The isolated tester re-review is the next gate. No official-source request manifest or live workflow exists; no request has been made, the prior Dhan sample approval stays SPENT, and the one row remains quarantined from model data. Do not fit models, fetch broader history or open the holdout.
- 
+The official-reference code/workflow gate has passed with scoped restrictions: [final tester PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md). Current tested suite [Run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914) passed 9 instrument-master, 17 adapter and 9 runner tests; protocol [Run 38058181267](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058181267) passed. The offline workflow is identical on main and phase-07-developer (blob b450da4b9ffed8d8e38c8f7383084e1ba987b303). Next gate: prepare a fresh exact-hash two-source manifest/approval and guarded workflow; the tester must PASS that separate gate before any public request. No official-source request has been made, the earlier Dhan sample approval remains SPENT, and the sample row remains quarantined from model data. Do not fit models, fetch broader history or open the holdout.
+
 ## Previous checkpoint — 2026-10-10, after Phase 7 Run #44
 
 | Workstream | Current state | Evidence / next gate |

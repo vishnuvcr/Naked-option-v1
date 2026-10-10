@@ -946,3 +946,15 @@ Resume actions:
 - Frozen code snapshot documented in `research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_SUBMISSION.md`. Next: independent tester review of exact blobs; only after PASS may a separate fresh two-source manifest/workflow be prepared. The prior Dhan sample approval remains SPENT.
  
 **Developer → Tester:** Re-review the exact code handoff and Run 38058028914. Verify cached-source provenance happens before network and the existing bundle manifest is fully checked before reuse. Do not authorize public-source access under this code review.
+
+
+## 2026-10-10 — Official reference cross-check code gate passed
+
+- Updated the default-branch offline workflow copy to exactly match the developer branch copy; both use blob b450da4b9ffed8d8e38c8f7383084e1ba987b303. It remains offline-only, no secrets, no source request.
+- Final tester report [PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_FINAL_TESTER.md) on phase-07-tester, blob 4c8df6eb1e771dff6d1eb3b06de3cb43c09ba0bc, returns **PASS WITH SCOPED RESTRICTIONS — offline code/workflow only**.
+- Current reviewed blobs: adapter ef5b507d9c1706b2afd16338db8bec2bd517352d; runner ff593638d3f76671215cfe55a5cc1f96859096ea; adapter tests 2817c41ba25882930ccb0a0fc2d7f77968da67ea; runner tests 8c02fdef90593f6223a6d1b8bf3248163bf64880; workflow b450da4b9ffed8d8e38c8f7383084e1ba987b303.
+- Hosted [Run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914) passed 9 instrument-master, 17 adapter and 9 runner tests; protocol [Run 38058181267](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058181267) passed.
+- The former findings are resolved and tested: exact trading symbol, cached Dhan source integrity before source openers, and existing bundle manifest/source-metadata validation.
+- Next allowed step is only preparation of a fresh exact-hash two-source manifest and guarded workflow. That requires an independent tester PASS before either the official NIFTY historical endpoint or Dhan public instrument-master CSV is requested. The prior Dhan sample approval remains SPENT. No official-source call, model/strategy run or holdout access occurred.
+
+**Developer → Tester:** Independently review the forthcoming exact-hash two-source manifest and guarded live workflow. Check source endpoints/body, one request per host, byte/time caps, zero credentials, no redirects/retries, spend-before-first-fetch and fail-closed cache behavior. Do not treat the current code PASS as request authorization.
