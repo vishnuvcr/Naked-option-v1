@@ -440,6 +440,22 @@ def atomic_cache_bundle(
             not isinstance(validation.get("row_count"), int) or
             validation.get("row_count", 0) <= 0):
         raise ValueError("cache_validation_report_invalid")
+    if source_url in (DAILY_URL, INTRADAY_URL):
+        recomputed_validation = validate_candle_payload(parsed_payload)
+    else:
+        option_type = request_parameters.get("drvOptionType") if isinstance(request_parameters, dict) else None
+        if option_type not in ("CALL", "PUT"):
+            raise ValueError("cache_rolling_option_type_missing")
+        raw_fields = request_parameters.get("requiredData")
+        req_fields = tuple(raw_fields) if isinstance(raw_fields, list) else (
+            "open", "high", "low", "close", "iv", "volume", "oi", "strike", "spot"
+        )
+        recomputed_validation = validate_rolling_option_payload(
+            parsed_payload, option_type=option_type, required_fields=req_fields
+        )
+    if (recomputed_validation["row_count"] != validation.get("row_count") or
+            recomputed_validation["timestamp_sha256"] != validation.get("timestamp_sha256")):
+        raise ValueError("cache_validation_report_mismatch")
     digest = hashlib.sha256(payload_bytes).hexdigest()
     root = pathlib.Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
@@ -479,6 +495,7 @@ def atomic_cache_bundle(
     }
     if not isinstance(request_parameters, dict) or not set(request_parameters).issubset(allowed_parameter_keys):
         raise ValueError("cache_request_parameters_unapproved")
+    validate_request_window(source_url, request_parameters)
     encoded_manifest = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode("utf-8")
     if destination.exists():
         existing = destination / "manifest.json"
