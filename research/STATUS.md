@@ -689,3 +689,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Added recursive source-JSON credential redaction and signed-query redaction for non-HF URLs, plus regression tests.
 - Current exact handoff: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). It pins the six protected Git blobs and file-byte SHA-256 values.
 - **Current gate:** isolated tester code/workflow review pending. No live source requests, new manifest or sample artifact exist. Previous Gate A manifest is spent. Full history, features/labels and modeling remain blocked.
+
+
+## 2026-10-10 — Discovery 3 corrections submitted for fresh code gate
+
+- Corrected all six tester findings from the prior REQUEST CHANGES report.
+- Latest protected-code snapshot: `1706a17d268e2b139fc9dba4504f498acc4f5de0`.
+- Latest offline run: [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734), **32/32 tests passed**. No source network fetch occurs in this workflow.
+- Exact current handoff and six protected Git/blob-byte hashes: [code review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+- Corrections include spec provenance pin, strict consistency across all date fields, explicit non-finite CSV rejection, camelCase-aware nested signature redaction, sanitized dated links, and per-path protected-blob checks at the exact reviewed commit.
+- **Current gate:** new independent code review pending. No source-probe manifest exists. No live requests, history downloads, feature/label tables, model fit or result statistics have been produced.
