@@ -1059,3 +1059,39 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Correction:** developer amended the plan to distinguish Git cache, release assets/Git LFS, metadata-only retention where licenses prohibit storage, and temporary Actions artifacts; added request/row/byte caps, deterministic daily/intraday/options shards, max serial pacing and a finite ATM±5 × CALL/PUT × WEEK/MONTH × expiryCode 0/1/2 grid.
 - **Arithmetic check:** 61 date chunks × 2 expiry flags × 3 expiry codes × 11 relative strikes × 2 option types = 8,052 rolling-option request cells, under the 8,100 cap. This count has been corrected and is covered by the policy JSON/test; exact manifest still must enumerate its actual request list.
 - **Disposition:** rerun offline policy validation and submit the corrected exact snapshot. No live request or data/model operation was authorized by the plan review.
+
+## 2026-10-11 — NIFTY one-minute composite pipeline/tester-gate corrections
+
+### 1. Relative-strike validator parsed ATM labels incorrectly
+- **Observed:** the first exact-manifest CI run reported 4,636 false `strike_outside_allowed_grid` failures for labels such as `ATM-10`.
+- **Root cause:** the validator replaced the label prefix before parsing signed offsets, producing values that did not correspond to the intended relative strike.
+- **Fix:** parse `ATM`, `ATM+N`, and `ATM-N` separately and compare the integer offset against the expiryCode-specific permitted grid.
+- **Verification:** [manifest workflow run 38079523634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38079523634) passed its exact-grid check.
+
+### 2. Greek test expectations became stale after provenance labelling
+- **Observed:** tests expected the older status label for missing expiry and an earlier formula label for a sourced-input row.
+- **Root cause:** implementation was updated to report sourced vs proxy inputs using distinct `greek_status` values, but test assertions were not updated in the same change.
+- **Fix:** align tests with `EXPIRY_MAPPING_UNAVAILABLE` and `CALCULATED_BS_V1_SOURCED_INPUTS`; add tests that the Greek columns stay null if an expiry mapping cannot be made.
+- **Verification:** [composite pipeline run 38080330361](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38080330361) passed; subsequent runs also passed these tests.
+
+### 3. NIFTY expiry-rule transition test exposed calendar assumptions
+- **Observed:** the first September-2025 expiry fixture selected 30-Sep-2025 instead of the legacy September monthly expiry; another assertion moved a Tuesday expiry to the previous session because the fixture omitted that Tuesday from the observed-session set.
+- **Root cause:** monthly expiry weekday transition was applied one month too early in the rule fallback, and the test did not include all sessions needed to test holiday adjustment.
+- **Fix:** preserve September 2025's Thursday monthly expiry (25-Sep) and begin rule-derived Tuesday monthly expiries with the 28-Oct-2025 contract; include 2-Sep-2025 as an observed session in the weekly-transition fixture. The rule-derived calendar remains explicitly labelled as a fallback, not a substitute for a historical contract master.
+- **Verification:** [composite pipeline run 38081041667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081041667) passed after the fixture was completed.
+
+### 4. PPR-4 validator treated old Greek wording as mandatory
+- **Observed:** [policy run 38081154329](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081154329) failed `historical_greeks_missing_input_policy_missing`.
+- **Root cause:** validator required the word “otherwise” from the former null-only policy, even after the policy was deliberately amended to allow clearly tagged zero-rate/zero-dividend proxy Greeks.
+- **Fix:** validator now requires the explicit proxy, zero-rate/zero-dividend and `greek_status` rules; regression tests assert the new policy wording.
+- **Verification:** [policy run 38081202899](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38081202899) passed.
+
+### 5. Live acquisition workflow gate expression had unexpanded placeholder syntax
+- **Observed:** static review found `__EVENT__` and nested `${{ ... }}` fragments left in the job-level `if` expression.
+- **Root cause:** workflow source templating was applied inconsistently.
+- **Fix:** replaced it with a single native GitHub Actions expression requiring `phase-07-developer` and either explicit manual confirmation or a push whose approval commit message has the required phrase. Corrected the completion-step GitHub Actions bot email as well.
+- **Prevention:** a new offline test checks manual confirmation, tester-check-before-spend ordering, and encrypted-only artifact paths; the offline test workflow now runs whenever the live workflow changes.
+
+### 6. Live-data safety and cumulative request budget
+- **Prevention added:** AES-256-GCM encrypted raw cache/CSV parts, no plaintext subscribed market rows committed to this public repository, per-request and cumulative retry caps in an append-only ledger, 100 retries maximum, 8,701 maximum wire requests, 2 requests/second pacing, and a single-use tester-pinned acquisition approval.
+- **Current status:** no live market-data request was made during these failures or corrections. The one-minute request manifest and pipeline tests are offline-only. The independent tester gate and explicit acquisition approval remain required before a Dhan call.
