@@ -960,3 +960,10 @@ Governance incident: the previous unguarded v1 workflow ran Run `38025793938` wi
 After the independent tester returned REQUEST CHANGES on the first authorized sample artifact, the developer corrected two data-validation defects: (1) accept the official index CSV's numeric `DD-MM-YYYY` date field, and (2) validate every date in the NSE FII/DII API response against the fixed requested window, rejecting any out-of-window or missing/unparseable row dates. The corresponding regression tests were added.
 
 Current offline suite [Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed 24 checks (7 v1 + 17 v2). The exact-snapshot source approval remains revoked, and the new blobs have not yet received an independent tester code gate. No source requests, model fits, metrics or p-values were produced after revocation. Free FII/DII historical-source discovery remains open.
+
+
+## 2026-10-10 — Corrected Gate A code gate passes; source artifact not yet re-run
+
+The tester passed the corrected eight-file snapshot at commit `784474de59a050ba6229ee5cb9a708c0f74ca2dc`, following the changes to support official index numeric dates and reject NSE FII/DII records outside the requested window. Offline suite Run `38026629021` passed 25 checks (7 v1 + 18 v2). Fail-closed check Run `38026802711` passed offline tests, refused the revoked source authorization and skipped fetching. The previous artifact `11660395594` remains REQUEST CHANGES and is not accepted.
+
+A new metadata/README source discovery inventory is at `research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md`. Public leads include chirag127's per-date static JSON, MrChartist's larger history file/API claim, marketcalls/r7sh7 mirrors, and Stockezee/RG Tools/ChartDrift/Ansaar dashboards. Their date coverage and provenance are not accepted; no new full-history file was fetched. Renew the exact hash-bound approval for one corrected small sample only, and audit its artifact before any further stage.
