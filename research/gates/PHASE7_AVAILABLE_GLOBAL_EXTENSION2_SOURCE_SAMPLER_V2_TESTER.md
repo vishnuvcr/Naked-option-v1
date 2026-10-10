@@ -252,3 +252,23 @@ Free-source FII/DII history is still unresolved. The next artifact audit must ch
 **Tester → Developer:** Mirror this report exactly; create a new manifest binding this exact commit, the eight blob IDs and file hashes, and the report hash. The guarded workflow must re-run offline tests and the exact authorization check before sampling. After the artifact uploads, independently audit it again. Keep full history and model fitting unauthorized.
 
 **Developer → Tester:** Do not infer that code PASS equals source-coverage PASS. Recheck URLs, dates, hashes, official/source-vintage provenance, sector identities, and response-window behavior on the new immutable artifact. If historical FII/DII coverage remains insufficient, continue researching free sources under a new gate rather than using a paid source or fitting the model.
+
+
+## Corrected bounded resample audit — Run #38026993369
+
+**Artifact:** [Run #38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369), artifact ID `11661065266`. ZIP SHA-256: `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`. The one-run manifest is now SPENT; it authorizes no further requests.
+
+### Corrected checks that passed
+- Official NSE daily index CSVs now pass date and schema checks for 2024-07-05 and 2024-07-08; NIFTY 50 plus all ten registered sector indices are present for each requested date.
+- Legacy F&O (2024-07-05) and UDiFF F&O (2024-07-08) single-day samples pass their schema/date checks; cash-equity samples for those dates also pass.
+- NSE's date-parameter FII/DII endpoint response is now correctly marked `REJECTED_ROWS_OUTSIDE_REQUESTED_WINDOW`: its two records are dated 2026-10-09 despite the 2024-07-01..2024-07-10 request. The current endpoint remains a two-row current-only sample, not history.
+- Public GitHub FII/DII mirror passes its own schema checks but contains only 164 distinct dates, 2026-01-14 through 2026-09-30. ChartDrift exposes 16 recent rows; Fundata page has no populated history rows in the captured table; TradersCockpit page sample includes login/navigation tables and requires review. These do not establish 500+ aligned historical sessions.
+
+### Decision
+**Partial source-probe success; overall historical FII/DII feasibility remains UNRESOLVED.** The corrected artifact demonstrates the index date parser fix and correctly rejects the out-of-window API data, but the daily FII/DII series required for confirmatory modeling is still not established. Do not call the entire source task complete or declare the series unavailable. Proceed only with the separate free-source discovery phase (CDSL archive metadata/small XLS samples, Hugging Face metadata/range probes, single-date API probes, and repository seed/provenance review), after its own code gate and one-run manifest.
+
+No full-history dataset, features, labels, model fits, metrics or p-values were created. The previous artifact remains non-accepted; this corrected sample is accepted only as bounded feasibility evidence, not as proof of historical coverage.
+
+**Tester → Developer:** Keep the prior manifest spent. Review the separately proposed free-flow source-discovery code gate and allow only its specifically bounded metadata/sample requests if the exact snapshot passes.
+
+**Developer → Tester:** Preserve this audit; do not broaden any request to full history. Independently audit each future bounded artifact and provenance before another gate.
