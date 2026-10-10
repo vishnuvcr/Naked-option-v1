@@ -84,6 +84,8 @@ def _validate_local_spent_gate(manifest_path: pathlib.Path, approval_path: pathl
     approval = _load_json(approval_path, "sample_approval_unreadable")
     manifest_sha = _sha256(manifest_raw)
 
+    if manifest.get("status") != "PROPOSED" or manifest.get("decision") != "AWAITING_INDEPENDENT_MANIFEST_REVIEW":
+        raise ValueError("sample_manifest_state_invalid")
     authorization = manifest.get("authorization")
     if not isinstance(authorization, dict):
         raise ValueError("sample_authorization_missing")
@@ -111,11 +113,13 @@ def _validate_local_spent_gate(manifest_path: pathlib.Path, approval_path: pathl
         raise ValueError("sample_manifest_hash_mismatch")
     if approval.get("request_manifest_git_blob") is None:
         raise ValueError("sample_manifest_blob_missing")
+    if approval.get("approved_authorization_sha256") != manifest.get("authorization_sha256"):
+        raise ValueError("sample_authorization_digest_mismatch")
     if approval.get("authorized_scope_id") != SCOPE_ID:
         raise ValueError("sample_approval_scope_mismatch")
-    spent_at = approval.get("spent_at_commit")
-    if not isinstance(spent_at, str) or not re.fullmatch(r"[0-9a-f]{40}", spent_at):
-        raise ValueError("sample_spend_commit_missing")
+    spent_from = approval.get("spent_from_commit")
+    if not isinstance(spent_from, str) or not re.fullmatch(r"[0-9a-f]{40}", spent_from):
+        raise ValueError("sample_spend_from_commit_missing")
     return manifest, approval, manifest_sha
 
 
@@ -157,7 +161,7 @@ def run_sample(
             raise ValueError("missing_dhan_access_token")
         manifest, approval, manifest_sha = _validate_local_spent_gate(manifest_path, approval_path)
         report["request_manifest_sha256"] = manifest_sha
-        report["approval_spent_at_commit"] = approval["spent_at_commit"]
+        report["approval_spent_from_commit"] = approval["spent_from_commit"]
 
         payload, metadata, raw_bytes = pipeline.request_json(
             DAILY_URL,
