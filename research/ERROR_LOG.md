@@ -486,3 +486,12 @@
 - Research Protocol Check `38020253978` succeeded on the current documentation head, but its jobs cover repository contract and literature registry validation only.
 - It does not run `test_phase7_extension2_source_feasibility.py` or `test_phase7_extension2_source_feasibility_v2.py`, nor does it prove source-sampling correctness.
 - Do not cite this success as Gate A regression evidence. The current v2 workflow must run its offline tests and exact approval validation before source sampling.
+
+
+## 2026-10-10 — Gate A legacy workflow executed without required tester approval (contained)
+
+- Run `38025793938` was triggered by a code push because the legacy workflow still had a source-fetch step under a path-based automatic trigger. It retrieved only the legacy F&O archive for 2024-07-05, UDiFF F&O archive for 2024-07-08, plus bounded pages/API probes.
+- Artifact ID `11659904438` (`phase7-extension2-gate-a-source-feasibility`) is **NON-ACCEPTED EVIDENCE** because the exact-snapshot tester manifest was absent. It must not be counted as an approved Gate A result. No full history, feature table, labels, model fitting or predictive metrics were generated.
+- Root cause: the older workflow `.github/workflows/phase-07-extension2-source-feasibility.yml` automatically fetched samples after source/test file changes and had no approval gate.
+- Correction: legacy workflow changed to offline-only, blob `f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3`. Safety correction Run `38026080844` passed and its workflow has no source-fetch step.
+- Current v2 snapshot passed independent exact-snapshot code review and 22 offline checks. Only one bounded run is authorized after its exact hash-bound manifest validates. Full-history acquisition/model fitting remain prohibited.
