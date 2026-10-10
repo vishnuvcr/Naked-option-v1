@@ -187,6 +187,28 @@ def test_manifest_digest_and_decision_must_match() -> None:
     must_raise(lambda: mod.validate_manifest_structure(m), "request_manifest_status_invalid")
 
 
+def test_spend_transition_populates_runner_required_scope_and_is_one_use() -> None:
+    ready = valid_approval(b"dummy manifest")
+    ready["status"] = "READY"
+    ready["decision"] = "APPROVED_ONE_RUN"
+    spent = mod.prepare_spent_approval(ready, spent_from_commit="e" * 40)
+    assert spent["status"] == "SPENT"
+    assert spent["decision"] == "SPENT_BEFORE_SOURCE_REQUEST"
+    assert spent["scope_id"] == mod.SCOPE_ID
+    assert spent["authorized_scope_id"] == mod.SCOPE_ID
+    assert spent["spent_from_commit"] == "e" * 40
+    assert ready["status"] == "READY"  # input document is not mutated
+    must_raise(lambda: mod.prepare_spent_approval(
+        spent, spent_from_commit="f" * 40
+    ), "approval_already_spent_or_not_ready")
+    must_raise(lambda: mod.prepare_spent_approval(
+        {**ready, "scope_id": "another-scope"}, spent_from_commit="f" * 40
+    ), "approval_scope_id_mismatch")
+    must_raise(lambda: mod.prepare_spent_approval(
+        ready, spent_from_commit="not-a-commit"
+    ), "spent_from_commit_invalid")
+
+
 def test_valid_ready_or_spent_approval_report_passes() -> None:
     m = valid_manifest()
     raw = json.dumps(m, sort_keys=True, indent=2).encode() + b"\n"
