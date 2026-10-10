@@ -137,3 +137,11 @@
 - Independent review found `NSE_FII_URLS` included `fromDate=01-01-2020&toDate=31-12-2025`, a multi-year history request disallowed in Gate A. Correct the date bounds and impose an API-specific response byte cap and row cap with regressions.
 - Review request mislabeled workflow commit `1d899125...` as its Git blob. Actual workflow blob at the reviewed commit is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`.
 - No live data requests were made in the tester review. No approval manifest was created.
+
+
+## 2026-10-10 — Legacy Gate A live-fetch workflow incident and containment
+
+- Run `38025793938` executed the legacy one-day sampler without the required exact-snapshot tester approval because the old workflow had an automatic source-fetch trigger. It fetched only two single-day F&O archives and a small set of pages/API probes; no full history, feature/label dataset or model fitting occurred.
+- Because tester authorization was missing, its artifact ID `11659904438` is **NON-ACCEPTED EVIDENCE** and cannot pass Gate A.
+- The legacy workflow was replaced with offline-only tests (blob `f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3`). Safety-correction Run `38026080844` passed the v1 regression suite and contains no source-fetch step.
+- Current protected sampler/workflow snapshot then received an exact-snapshot PASS with 22 hosted offline tests passing. Approval is limited to one bounded Gate A run only. Full-history acquisition and model fitting remain prohibited.
