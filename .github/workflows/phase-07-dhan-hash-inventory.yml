@@ -1,0 +1,38 @@
+name: Phase 7 Dhan Protected File Hash Inventory
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - ".github/workflows/phase-07-dhan-hash-inventory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hash-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+      - name: Print SHA-256 and Git blob IDs for protected files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md \
+            research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md \
+            research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md \
+            scripts/dhan_market_data_recovery.py \
+            scripts/test_dhan_market_data_recovery.py \
+            scripts/validate_dhan_sample_approval.py \
+            .github/workflows/phase-07-dhan-market-data-tests.yml \
+            .github/workflows/phase-07-dhan-market-data-live.yml; do
+            sha256sum "$f"
+            printf 'GIT_BLOB '
+            git rev-parse "HEAD:$f"
+            printf 'PATH %s\n' "$f"
+          done
