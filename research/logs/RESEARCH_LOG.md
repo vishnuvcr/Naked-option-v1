@@ -891,3 +891,14 @@ The NIFTY acquisition patch now uses the provider's exchange timezone (Asia/Kolk
 Hosted [Run #43](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619) passed 8 acquisition/cache tests, 11 predictor tests and 11 result-validator tests. The independent tester report on phase-07-tester approves **one batch only** at developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8` with the exact protected SHA-256 inventory in the report. The same report was mirrored onto phase-07-developer in commit `119827f09b282b3c4d51c1fb2d73329bfe81932d`.
 
 The approval-manifest write was blocked by the platform safety checks. No approval JSON is present, the fail-closed authorization is not satisfied, and the empirical job has not run. No forecasts/metrics were generated in this extension. Runs #41 and #42 were failed regression fixtures, corrected and preserved as non-evidence.
+
+
+## 2026-10-10 — Phase 7 Run #44 results and independent audit
+
+The hash-bound approval manifest was accepted by GitHub Actions. Run #44 (`38018506915`, commit `9e9dc2de3f1ecfa591db5d6c29e6543707928cb7`) passed the regression, exact-snapshot authorization, and empirical prediction/validation/upload jobs. NIFTY acquisition and all global/peer acquisition steps succeeded. Artifact `phase7-available-global-results` (ID `11657636547`, SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`) contains result JSON, 91,988-row panel, source manifest, 11 global/peer CSVs and NIFTY daily history.
+
+The independent tester reviewed the artifact on `phase-07-tester` and found 0 duplicate panel keys, 0 probability bounds violations, 0 target-sign mismatches, 0 missing candidate outputs/labels/returns, and exact reconciliation of candidate metrics and five moving-block family p-values. All 60 registered method/horizon cells executed.
+
+The best Brier-score descriptive leaders were G13 global-equity composite for 1–2 sessions, G06 Asia composite for 3–5 sessions, and G02 Bank Nifty at 10 sessions. Largest Brier improvement was +0.001623 for G06 at five sessions (ROC AUC 0.556), but the family p-value was 0.7745. Family p-values for horizons 1/2/3/5/10 were 0.9840/0.8882/0.6786/0.7745/0.9800; all Bonferroni adjusted p-values equal 1.0. Thus no candidate is promoted and Phase 8 remains blocked.
+
+All 11 global source manifest records report `cache_hit: false`, likely due the legacy cache not satisfying the current source schema/freshness contract; the job completed and should have saved the newly validated data in the current cache key. This cache-migration fact is disclosed, not hidden. Full summary: `research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md`.
