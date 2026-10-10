@@ -968,3 +968,11 @@ Independent exact-snapshot review found REQUEST CHANGES: the current official-re
 
 **Developer → Tester:** Verify the fresh hosted test run against exact current file hashes and return a new decision before any public-source request.
 **Tester → Developer:** Keep both live-source requests blocked until exact-snapshot review explicitly passes.
+
+
+## 2026-10-10 — Exact-snapshot hosted CI receipt pending
+
+After the independent REQUEST CHANGES decision, developer added a comment-only trigger to `scripts/test_run_official_reference_crosscheck.py`, producing commit `50f79a629b580063fbe561117da57cf7c9e2b044`, intended to trigger the workflow filtered on the test file. The available connected GitHub Actions lookup returned no run receipt and no commit status. This is recorded as a visibility gap, not as a test failure or success. No network requests or modeling occurred. The independent tester branch report remains REQUEST CHANGES until a hosted run receipt is linked to the exact current snapshot.
+
+**Developer → Tester:** Do not sign off on the historical run; review only after a verifiable current hosted receipt is available.
+**Tester → Developer:** Keep live acquisition blocked while the exact-snapshot run evidence is missing.
