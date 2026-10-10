@@ -77,6 +77,6 @@
       }
     }
   },
-  "authorization_sha256": "RECOMPUTE_IN_GITHUB_ACTIONS",
+  "authorization_sha256": "d6b1884207354b103a4ed32c239bbf870b45f894fb03ad50d05b1dad1266e189",
   "note": "Immutable request scope. Only one daily NIFTY index candle request for 2024-01-02 (toDate exclusive) is in scope. The separate approval file must be READY and tester-pinned before the workflow can spend it. No retry, redirect, bulk history, intraday/rolling options, feature/model fitting, strategy tests or holdout access."
 }
