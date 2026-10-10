@@ -531,6 +531,8 @@ def test_live_workflow_checks_and_spends_manifest_before_source_step() -> None:
     assert "if: github.ref == 'refs/heads/phase-07-developer'" in workflow
     probe_workflow = (ROOT / ".github/workflows/phase-07-dhan-redirect-probe-live.yml").read_text(encoding="utf-8")
     assert "confirm_probe:" in probe_workflow and "default: false" in probe_workflow
+    assert "workflow_dispatch:" in probe_workflow
+    assert "\n  push:" not in probe_workflow
     assert 'DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED: "1"' in probe_workflow
     assert "DHAN_LIVE_SAMPLE_AUTHORIZED" not in probe_workflow
     assert probe_workflow.count("DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}") == 1
