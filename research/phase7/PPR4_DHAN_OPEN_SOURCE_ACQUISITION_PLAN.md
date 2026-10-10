@@ -116,3 +116,8 @@ Every step produces:
 - updated status, research log and error log.
 
 The Dhan access token is injected only as a secret into the live request step. No value, prefix, suffix or token-derived reversible string is written to artifacts.
+
+
+## 8. Later option-economic cost model
+
+When the research reaches Phase 8, any long CE/PE trading simulation must use the actual Paytm Money brokerage schedule applicable to the account and date, exchange transaction charges, SEBI charges, GST, STT and stamp duty where applicable, bid/ask spread, slippage, latency and realistic fill assumptions. Use effective-dated exchange lot sizes and contract specs, include premium decay and unfilled orders, and report gross versus net P&L separately. Prediction-only research in the current gate does not claim strategy profitability.
