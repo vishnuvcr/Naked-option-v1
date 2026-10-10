@@ -29,15 +29,15 @@
     "model_fitting_authorized": false,
     "strategy_testing_authorized": false,
     "holdout_access_authorized": false,
-    "reviewed_developer_commit": "fae86a946eebc01c78d05b985aae1fdb412b02be",
+    "reviewed_developer_commit": "15e3dd44d02c3e46352c0089b083d1a35b43f077",
     "protected_files": {
       ".github/workflows/phase-07-dhan-daily-sample-live.yml": {
         "git_blob": "b695deadd0d12723115a67ffdf54afdd9f44d447",
         "sha256": "c6899551202fc56e4f3ad6a3210a40a1e77606496b387bf15a7ffbfef0df04e5"
       },
       ".github/workflows/phase-07-dhan-daily-sample-tests.yml": {
-        "git_blob": "ee40df68bc3145c96fc72e8b4823c26c45183bdf",
-        "sha256": "3093a4eeaeaf71f752d82f1c9759eb4d02ef5644283c2fb7a6013245f54b7f31"
+        "git_blob": "6d2153fdf26f659c7a8a406230936580c6e76070",
+        "sha256": "c3dd34a7701659020b6ba819e6cc5a5fd4acd19373dc0cfffda30bf01db2587f"
       },
       "research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md": {
         "git_blob": "f1218310778c95499e2d7958d47118a4065c0f94",
@@ -77,6 +77,6 @@
       }
     }
   },
-  "authorization_sha256": "d3e4208decb018fdc284749618d13cc53d44a97e1b4d04792883c22f675f28ed",
+  "authorization_sha256": "RECOMPUTE_IN_GITHUB_ACTIONS",
   "note": "Immutable request scope. Only one daily NIFTY index candle request for 2024-01-02 (toDate exclusive) is in scope. The separate approval file must be READY and tester-pinned before the workflow can spend it. No retry, redirect, bulk history, intraday/rolling options, feature/model fitting, strategy tests or holdout access."
 }
