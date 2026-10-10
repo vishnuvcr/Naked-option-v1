@@ -209,3 +209,12 @@ Run #44 completed successfully and its immutable artifact was downloaded. Tester
 **Tester → Developer:** Preserve the negative family-level conclusion and artifact hash; keep Phase 8 blocked and do not convert descriptive accuracy into a strategy.
 
 **Developer → Tester:** Any new prediction family requires preregistration and independent review before execution. If strategy research is later authorized, require options data, Paytm Money fees/taxes, spreads, slippage, liquidity and realistic fills.
+
+
+## 2026-10-10 — Independent tester review of Extension 2 proposal
+
+Tester returned REQUEST CHANGES before data acquisition. The proposal had five blocking ambiguities: option archive format transition (legacy F&O bhavcopy to UDiFF), undefined flow normalization denominator, ambiguous F04/F05 formulas, non-canonical sector index names, and missing deterministic common-grid bootstrap behavior for abstentions. No downloads or fitting occurred. Developer must correct the spec and resubmit.
+
+**Tester → Developer:** Correct formulas and source-format boundaries; no source feasibility or empirical work until the new exact spec passes.
+
+**Developer → Tester:** Re-review the corrected spec and synthetic family-bootstrap fixture; only a PASS can authorize small-sample source feasibility.
