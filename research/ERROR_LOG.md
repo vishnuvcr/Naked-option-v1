@@ -842,3 +842,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Root cause: required-key presence and field-value validity were conflated; empty/zero values were classified as missing even when the key was present.
 - Correction: missing-key checks now test actual key presence, while a distinct validator enforces positive scalar numeric IDs and nonempty string exchange/instrument names. Literal bool live authorization and ASCII-token constraints are also tested.
 - Latest run [38049609609](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609609) passed **36/36 offline/mock tests**; protocol check [38049609776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609776) passed. No Dhan request was made.
+
+
+## 2026-10-10 — Dhan historical pipeline independent code review requested changes
+
+- Category: source-window semantics / request guard / response schema.
+- Reviewed snapshot: developer head `c6ca5ae84c050d0c72d9ba72b63c3803305160c2`; hosted offline run `38049711849` passed 36 tests but was not approved for live data.
+- Independent tester findings: (1) Dhan documents daily and rolling-option toDate as non-inclusive, but code counted the end day and permitted rows exactly on toDate; (2) caller could raise RequestBudget request_limit above MAX_REQUESTS=1 or byte_limit above 8 MiB; (3) optional daily open_interest values were not numerically validated; (4) rolling-option validator rejected Dhan's documented response shape with empty arrays for unrequested optional fields; (5) arbitrary strike strings were accepted.
+- Impact: tester decision REQUEST CHANGES. The snapshot did not contact Dhan; no token was used, no cache/data was created, no model was fit, and no research metric changed.
+- Correction: commit `85ebfef015f2188c983d3977ad6fb3b4e11dc29e` updates date-only caps and cache timestamp bounds to the documented exclusive-end semantics, hardens request budget limits, validates populated optional numeric arrays, allows empty unrequested rolling fields while enforcing requested array alignment, and restricts this initial rolling-option sample adapter to ATM.
+- Verification: hosted offline run [38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413) passed `41/41` tests; protocol check [38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603) passed. No live request occurred.
+- Disposition: corrected code has been submitted for a new independent tester review. It is not authorized for live acquisition until that gate passes and a separate fresh one-use manifest is approved.

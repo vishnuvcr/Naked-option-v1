@@ -823,3 +823,15 @@ Resume actions:
 - Current status: **independent tester code review pending**. No Dhan historical request has occurred; no market data has been fetched/cached; no predictor has been rerun; holdout remains sealed.
 
 **Developer → Tester:** Review only the exact pinned code/test/workflow snapshot in the latest handoff. Return PASS or REQUEST CHANGES and do not authorize data acquisition.
+
+
+## 2026-10-10 — Resume Dhan historical-data recovery; tester code gate correction cycle
+
+- On the user's Resume command, developer checked the current developer/tester branches, latest commit ancestry, current status/error/chat ledgers, handoff file, workflow run and official Dhan endpoint documentation.
+- The current branch had advanced beyond a previously pinned handoff. Independent tester review of developer head `c6ca5ae84c050d0c72d9ba72b63c3803305160c2` returned REQUEST CHANGES on five concrete data-window/request-budget/schema issues. Details are in tester-branch report `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_TESTER.md`.
+- Developer corrected date-only endpoints' exclusive toDate semantics, enforced hard single-request/8 MiB sample limits, validated present optional numeric arrays, allowed empty unrequested rolling-option arrays, and restricted this first rolling-option scope to ATM.
+- Hosted run [38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413) passed 41/41 offline/mock tests. Protocol check [38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603) passed.
+- Refreshed handoff now pins exact snapshot commit `85ebfef015f2188c983d3977ad6fb3b4e11dc29e` and current source/test/workflow blobs.
+- No Dhan API request, credential use, data cache population, feature engineering, model rerun or holdout access occurred. Existing prediction results remain unchanged. Next is an independent tester re-review only.
+
+**Developer → Tester:** Re-review exact snapshot in the refreshed handoff against the five earlier findings and hosted run; return PASS or REQUEST CHANGES. No live request is authorized by the code review.

@@ -7,8 +7,8 @@
 |---|---|---|
 | Existing daily global/peer prediction extension (Run #44) | COMPLETED — NO CANDIDATE PROMOTED | [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915); all five horizon-family tests non-significant; holdout sealed |
 | Dhan historical-data recovery plan | PASS WITH SCOPED RESTRICTIONS — plan gate only | [Developer plan](phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md); [independent planning report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md) |
-| Dhan historical pipeline implementation | Offline implementation complete; exact snapshot submitted to independent tester | [Code submission](gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md); adapter/tests/workflow blobs pinned in handoff |
-| Dhan offline regression suite | PASS — 30/30 mocked tests | [Hosted run 38049609609](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609609); [protocol run 38049609776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609776) |
+| Dhan historical pipeline implementation | Corrected code snapshot submitted; independent tester re-review pending | [Current handoff](gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md); reviewed blobs and current run pinned |
+| Dhan offline regression suite | PASS — 41/41 mocked tests | [Hosted run 38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413); [protocol run 38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603) |
 | Actual Dhan market-data acquisition | NOT STARTED — NOT AUTHORIZED | Requires exact-snapshot tester PASS, fresh one-use manifest, and separate bounded live-request gate |
 | Feature engineering / prediction rerun using Dhan history | BLOCKED pending sample acquisition, schema/data audit, frozen predictor amendment and empirical gate | No result has changed; previous null findings retained |
 | Option P&L/strategy optimization (Phase 8) | BLOCKED / OUT OF CURRENT SCOPE | User's current request is prediction research, not trading-strategy optimization |
@@ -17,8 +17,8 @@
 ### Dhan recovery checkpoint
 - Official docs identify daily candles, intraday candles (90-calendar-day call windows, supported 1/5/15/25/60-minute intervals and up to five years for active instruments), and rolling expired options (up to 30-day request windows, up to five years, ATM-relative with OHLC/IV/OI/volume/strike/spot fields). Live option chain is current-state information rather than historical-chain data.
 - Plan gate passed for planning only. Offline pipeline now restricts endpoints and request body keys, rejects redirects, limits bytes/time/request rate, checks candle and rolling-option arrays, validates date windows, and ties the cache manifest to a recomputed schema/timestamp report.
-- Previous test-harness failures were logged with cause, correction and hosted run IDs in ERROR_LOG.md; no failed or passed offline test run made a Dhan request.
-- **Next gate:** independent code review of the exact pinned adapter/tests/workflow snapshot. Only after PASS and a fresh manifest approval may one tiny daily NIFTY sample be requested. Bulk history and model re-run remain prohibited until further gates pass.
+- Independent tester reviewed the prior code snapshot and issued REQUEST CHANGES for five defects: exclusive-end date arithmetic, caller-widenable request budgets, unchecked optional numeric arrays, valid empty rolling-option arrays being rejected, and an overly broad strike-value parser. Developer corrected these on commit `85ebfef015f2188c983d3977ad6fb3b4e11dc29e` and the hosted suite now passes 41/41 offline/mock tests. Tester re-review is pending.
+- **Next gate:** independent tester re-review of the corrected exact snapshot. Only after a fresh PASS, and a separate fresh manifest/workflow gate, may one tiny daily NIFTY sample be requested. No Dhan request, market-data cache, feature fit, predictor rerun or holdout access has occurred.
 
 
 ## Previous checkpoint — 2026-10-10, after Phase 7 Run #44
