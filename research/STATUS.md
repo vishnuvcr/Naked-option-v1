@@ -759,3 +759,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Tester reviewed-tree/manifest validation was tightened to compare protected blobs at both reviewed commit and current HEAD (the current code-tester report is separately digest-pinned).
 - Independent tester PASS for one bounded diagnostic retry only: [code tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md).
 - Previous manifest remains SPENT. Next step is recompute exact byte hashes and Git blobs and create a new one-run manifest. If metadata remains non-200, stop with its numeric status; no candle history/full history/model fitting is authorized.
+
+
+## 2026-10-10 — Dhan diagnostic retry 2: HTTP 302, redirect-host proposal pending
+
+- Run [38043667443](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043667443) passed the manifest/hash gate and spent the one-run manifest before source access.
+- Profile request returned HTTP 200, token valid and Data API plan active. `GET /v2/instrument/IDX_I` returned HTTP 302; no redirect was followed, no candle request occurred.
+- Artifact ID `11667455094`, ZIP SHA-256 `f388a9844db92836ec6551e2e442e207dc8d504bc9ae198df860117a2aabc68e`. Independent audit: `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT_2.md`, REQUEST CHANGES.
+- New finite proposal: `research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md`, review request `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_REVIEW_REQUEST.md`. It proposes one request that reports only scheme/hostname, without following the redirect or storing Location path/query.
+- No price candles, options data or FII/FPI/DII flows were obtained. No prediction analyses were rerun. Both prior Dhan manifests are spent.
