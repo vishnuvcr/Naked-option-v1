@@ -1010,3 +1010,27 @@ Tester → Developer: Send corrections and missing-method findings from the isol
 - Updated `research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md`, `research/STATUS.md` and `README.md` on `phase-07-developer`.
 - No new empirical run was authorized or launched; no new model or strategy was promoted. The exact-snapshot Phase 7 gate and independent tester review remain mandatory.
 - Tester handoff: independently check the method extraction and paper-to-registry crosswalk on the isolated tester branch; flag omitted methods, incorrect target/horizon mappings, and unsupported replication claims.
+
+
+## 2026-10-10 — Paper-specific NIFTY prediction methods
+
+### User request
+“Ok proceed with already planned phases and do test all the methods for prediction of Nifty in all research papers in our research!”
+
+### Developer decision summary
+- Re-checked the current main and `phase-07-developer` research status, method registry, uploaded-paper audit, extension proposals, error log and prior Run #44 independent report before starting the new work.
+- Extracted text from all 15 mounted PDFs and prepared a paper-by-paper method crosswalk. Prediction estimators are separated from option-strategy-only papers; a published method name or result is not treated as a project replication.
+- Added a finite PPR-0–PPR-10 replication plan covering full literature-record mapping, pre-registration, free-source feasibility, exact implementation, independent tester gates, empirical run, artifact audit and manuscript.
+- The current Run #44 result remains historical comparator evidence only: 12 methods × 5 horizons; no horizon-family test was significant after multiplicity correction.
+- The paper-specific crosswalk and protocol amendment are developer submissions only. The exact test/configuration matrix and independent tester decision are not yet complete; therefore no new paper-specific empirical fit was launched.
+- Preserve the rule that each method × pipeline × horizon must be marked tested/audited, negative, data-blocked, method-blocked or rejected at a gate. No status is promoted by inference from a matching family name.
+- Hidden private reasoning is not copied into repository logs; repository records contain user requests, decisions, reproducible steps, errors and evidence status only.
+
+### Files committed on `phase-07-developer`
+- `research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md`
+- `research/phase7/PAPER_REPLICATION_EXTENSION_SPEC.md`
+- `research/gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md`
+
+**Developer → Tester:** Independently review the exact crosswalk/spec for method omissions, mathematical/sign errors, horizons, feature-vintage and point-in-time leakage. Return a gate decision bound to exact hashes.
+
+**Tester → Developer:** Do not authorize source acquisition/model fitting until the current crosswalk, complete 36-record literature mapping and frozen experiment matrix have passed their respective gates.
