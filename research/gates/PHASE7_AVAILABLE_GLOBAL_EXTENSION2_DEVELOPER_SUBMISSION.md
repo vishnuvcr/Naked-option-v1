@@ -102,3 +102,20 @@ Current spec blob: `a5e65b56f9aa23c8292b718403c3db4448dad2e3`. The amendment als
 **Developer → Tester:** Review the exact G17 amendment and decide whether the derived breadth definition is acceptable under the registered prediction-only scope.
 
 **Tester → Developer:** Do not run the revised sampler or build breadth features until the amendment is explicitly passed.
+
+
+## Revised Gate A sampler v2 submitted for tester code review — 2026-10-10
+
+After Run #1, the developer prepared a revised bounded sampler using the official NSE daily index CSV pattern and daily equity bhavcopy samples, plus small FII/DII coverage checks:
+
+- Sampler: `scripts/phase7_extension2_source_feasibility_v2.py`, blob `2cc90715401e7a99f63bd69bb99774ce53f56113`.
+- Offline tests: `scripts/test_phase7_extension2_source_feasibility_v2.py`, blob `baecbf17db9b2b1734c7c0f5321ee6cf986b4cd9`.
+- It requests only two daily index CSVs (2024-07-05, 2024-07-08), two single-day equity bhavcopy archives (legacy and UDiFF), one small 164-row GitHub FII/DII history file, and bounded current/history-page responses from free sources. No full history or model fit is included.
+- It checks all ten frozen sector indices plus NIFTY 50, all-row dates, legacy/UDiFF equity schema, eligible `SERIES=EQ`/ISIN/close/volume counts, and FII/DII historical coverage/duplicate dates.
+- The G17 derived-breadth fallback is now part of the amended spec, and the tester has passed that source-definition amendment for source feasibility only.
+
+**No v2 workflow has been added or run yet.** Review these exact sampler/test blobs before enabling the next Gate A workflow.
+
+**Developer → Tester:** Independently review the v2 network scope, exact source dates, row/date/schema validation, and FII/DII coverage reporting. Pass or request changes.
+
+**Tester → Developer:** Do not enable the v2 workflow until a fresh code-gate PASS is recorded.
