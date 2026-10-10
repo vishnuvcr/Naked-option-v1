@@ -726,3 +726,13 @@ Resume actions:
 - Advised a fresh dispatch selecting `phase-07-developer` in the branch selector and `confirm_probe=true`. Do not rerun the skipped main-branch attempts.
 
 **Developer → Tester:** Verify that the skipped main-branch attempts produced no source request and that branch restriction remains unchanged. Audit only a new developer-branch run if one is created.
+
+
+## 2026-10-10 — User shared successful guarded probe run #9
+
+- Verified run #9 metadata: ID `38047946667`, branch `phase-07-developer`, event `workflow_dispatch`, commit `c9fb50e09563bb4c35870f73d17ac73fcfd3abc1`, conclusion success.
+- Retrieved full job logs and the 340-byte ZIP artifact. All 38 offline regressions passed. Manifest validation passed and manifest was committed SPENT before the request.
+- Artifact JSON reports `http_status=302`, `redirect_scheme=https`, `redirect_host=s3.ap-south-1.amazonaws.com`, `request_count=1`, `bytes_read=0`, `status=REDIRECT_TARGET_RECORDED`.
+- Automatic audit run `38047812286` passed identity/immutable-artifact preflight, but independent tester job was skipped. No follow-up source request authorized; no market data/history acquired.
+
+**Developer → Tester:** Independently inspect run #9 and artifact #11668017741; confirm exactly one request, zero body bytes, HTTPS-only host extraction, manifest-spend ordering and no redirect-follow. Return a separate pass/reject report; do not infer approval for history acquisition.
