@@ -492,15 +492,20 @@ def test_candle_schema_rejects_nan() -> None:
 
 def test_redirect_probe_workflow_spends_manifest_before_single_probe() -> None:
     workflow = (ROOT / ".github/workflows/phase-07-dhan-redirect-probe-live.yml").read_text(encoding="utf-8")
+    confirm = workflow.index("CONFIRM_PROBE")
+    tests = workflow.index("python scripts/test_dhan_market_data_recovery.py")
     check = workflow.index("python scripts/validate_dhan_redirect_probe_approval.py check")
     spend = workflow.index("python scripts/validate_dhan_redirect_probe_approval.py spend")
     source = workflow.index("python scripts/dhan_market_data_recovery.py")
-    assert check < spend < source
+    assert "confirm_probe:" in workflow and "default: false" in workflow
+    assert "if: github.event_name == 'workflow_dispatch'" in workflow
+    assert confirm < tests < check < spend < source
     secret_expr = "DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}"
     assert workflow.count(secret_expr) == 1
     assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED" in workflow
     assert "DHAN_LIVE_SAMPLE_AUTHORIZED" not in workflow
     assert "Location path" in workflow or "never follows the redirect" in workflow
+    assert "data/reports/dhan_redirect_target_probe.json" in workflow
 
 
 def test_redirect_manifest_validator_enforces_single_request_scope() -> None:
