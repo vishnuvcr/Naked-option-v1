@@ -361,6 +361,41 @@ def test_csv_edge_marks_seeded_rows_as_synthetic() -> None:
     assert report["row_sample"][0]["source"] == "historical-seed"
 
 
+def test_report_metadata_pins_current_spec_blob() -> None:
+    source = Path(mod.__file__).read_text(encoding="utf-8")
+    assert mod.CURRENT_SPEC_GIT_BLOB == "4e30415632545c04a2875d627afa0191afe3f383"
+    assert '"spec_git_blob": CURRENT_SPEC_GIT_BLOB' in source
+    assert '"spec_git_blob": "52b030e09213cb30c4de6a1633da38e6b2558b1f"' not in source
+
+
+def test_csv_edge_rejects_nan_and_infinity_flow_cells() -> None:
+    data = (
+        b"date,fii_buy,dii_sell\n"
+        b"2024-09-30,nan,inf\n"
+        b"2024-10-01,123.5,45\n"
+    )
+    report = mod.parse_csv_edge(data, "head")
+    assert report["status"] == "REJECTED_NONFINITE_FLOW", report
+    assert report["nonfinite_flow_cells"] == 2
+    assert report["nonnumeric_flow_cells"] == 0
+    assert report["parsed_rows"] == 2
+
+
+def test_dated_html_links_redact_sensitive_query_values() -> None:
+    parser = mod.LinkTableParser()
+    parser.feed(
+        '<a href="https://example.test/archive/2024-10-01.csv?date=2024-10-01&sig=privatevalue&token=tok123&mode=csv">Archive 01-Oct-2024</a>'
+    )
+    links = mod.date_links(parser)
+    assert len(links) == 1
+    href = links[0]["href"]
+    assert "privatevalue" not in href and "tok123" not in href
+    assert "sig=%5BREDACTED%5D" in href
+    assert "token=%5BREDACTED%5D" in href
+    assert "mode=csv" in href
+    assert "2024-10-01" in href
+
+
 def test_hf_probe_uses_exact_ranges_and_stays_within_16_kib() -> None:
     class FakeClient:
         def __init__(self):
@@ -482,6 +517,10 @@ def test_live_workflow_consumes_manifest_before_any_source_request() -> None:
     assert "[manifest-consumed]" in live
     assert "!contains(github.event.head_commit.message, '[manifest-consumed]')" in live
     assert "contents: write" in live
+    assert "reviewed_commit_line =" in live
+    assert "if reviewed_commit_line not in report_text:" in live
+    assert 'f"{reviewed_commit}:{rel}"' in live
+    assert "protected Git-blob at reviewed commit does not match approval" in live
     assert ".github/workflows/phase-07-free-flow-source-discovery-3.yml" in offline
     assert "python scripts/test_extension2_free_flow_source_discovery_3.py" in offline
     assert "python scripts/extension2_free_flow_source_discovery_3.py" not in offline
@@ -519,6 +558,9 @@ def main() -> None:
         test_head_missing_length_skips_hf_range_requests,
         test_cdsl_archive_date_link_detects_compact_filename,
         test_csv_edge_marks_seeded_rows_as_synthetic,
+        test_report_metadata_pins_current_spec_blob,
+        test_csv_edge_rejects_nan_and_infinity_flow_cells,
+        test_dated_html_links_redact_sensitive_query_values,
         test_hf_probe_uses_exact_ranges_and_stays_within_16_kib,
         test_source_json_redaction_is_recursive_and_preserves_nonsecret_data,
         test_safe_url_redacts_sensitive_query_on_non_hf_hosts,
