@@ -721,3 +721,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - Report artifact [dhan-redirect-target-probe](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38047946667/artifacts/11668017741) records HTTP 302, HTTPS redirect host `s3.ap-south-1.amazonaws.com`, one request and zero response-body bytes read. No redirect-follow or history request occurred.
 - The automated approved-artifact audit preflight passed, but its independent tester job was skipped for this diagnostic artifact class. This is not tester approval and does not authorize a follow-up request.
 - No error in the probe itself is recorded. Remaining blocker is independent tester review and a new scoped authorization for any subsequent acquisition.
+
+
+## 2026-10-10 — Run #9 review and next-source gate
+
+- Tester report for run #9: PASS WITH SCOPED RESTRICTIONS. Diagnostic result is accepted only for the redirect metadata; it is not an endpoint/data-availability pass.
+- No error was found in the narrow request-budget/artifact review. The existing one-use manifest is SPENT and cannot authorize any further request.
+- Public official Dhan documentation identifies compact and detailed instrument-master CSV URLs. This is documentation evidence only, not evidence of a successful download or complete/usable market dataset.
+- Developer added `research/phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md` as a no-network proposal. Remaining blocker is independent tester review; no CSV or history request may be made before a fresh exact-snapshot gate and manifest.
