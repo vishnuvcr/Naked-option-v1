@@ -20,6 +20,40 @@ def make_zip(name: str, headers: list[str], rows: list[dict[str, str]]) -> bytes
     return out.getvalue()
 
 
+
+def test_nse_fii_api_requests_are_bounded() -> None:
+    configured = dict(mod.NSE_FII_URLS)
+    assert len(configured) == 2
+    for key, url in mod.NSE_FII_URLS:
+        allowed, reason = mod.validate_nse_fii_api_url(key, url)
+        assert allowed, (key, url, reason)
+    oversized = "https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-01-2020&toDate=31-12-2025"
+    allowed, reason = mod.validate_nse_fii_api_url("nse_fii_date_params", oversized)
+    assert not allowed, reason
+    assert mod.MAX_FII_API_WINDOW_DAYS == 10
+    assert mod.MAX_FII_API_BYTES <= 512_000
+    assert mod.MAX_FII_API_ROWS <= 50
+
+
+def test_nse_fii_api_payload_rejects_excess_rows() -> None:
+    rows = [{"date": f"2024-07-{(i % 9) + 1:02d}", "fii": i} for i in range(mod.MAX_FII_API_ROWS + 1)]
+    blob = json.dumps(rows).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    result = mod.inspect_nse_fii_api_payload("fixture", blob, meta)
+    assert result["schema_status"] == "REJECTED_EXCESS_ROWS"
+    assert result["row_count"] == mod.MAX_FII_API_ROWS + 1
+    assert "sample" not in result
+
+
+def test_nse_fii_api_payload_accepts_small_sample() -> None:
+    rows = [{"tradeDate": "08-Jul-2024", "fiiBuy": 10, "fiiSell": 9}]
+    blob = json.dumps(rows).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    result = mod.inspect_nse_fii_api_payload("fixture", blob, meta)
+    assert result["schema_status"] == "JSON_PARSED"
+    assert result["row_count"] == 1
+
+
 def test_index_csv_requires_all_frozen_indices_and_date() -> None:
     headers = ["Index Name", "Index Date", "Closing Index Value"]
     rows = [{"Index Name": name, "Index Date": "05-Jul-2024", "Closing Index Value": str(1000+i)}
@@ -134,6 +168,9 @@ def test_date_normalizer_handles_timestamp_suffix() -> None:
 
 def main() -> None:
     tests = [
+        test_nse_fii_api_requests_are_bounded,
+        test_nse_fii_api_payload_rejects_excess_rows,
+        test_nse_fii_api_payload_accepts_small_sample,
         test_index_csv_requires_all_frozen_indices_and_date,
         test_index_csv_missing_sector_fails,
         test_legacy_equity_archive_checks_all_dates_and_counts_eligible_rows,
