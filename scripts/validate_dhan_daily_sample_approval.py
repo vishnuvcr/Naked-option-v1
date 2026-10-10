@@ -196,6 +196,25 @@ def validate_approval_structure(
         raise ValueError("approved_authorization_digest_missing")
 
 
+def validate_gate_metadata(
+    approval: dict[str, Any],
+    *,
+    manifest_git_blob: str,
+    manifest_review_commit: str | None,
+) -> None:
+    if approval.get("request_manifest_path") != str(MANIFEST_PATH.relative_to(ROOT)):
+        raise ValueError("approval_manifest_path_mismatch")
+    if approval.get("tester_report_path") != str(TESTER_REPORT_PATH.relative_to(ROOT)):
+        raise ValueError("approval_tester_report_path_mismatch")
+    if manifest_review_commit is not None:
+        if not isinstance(manifest_review_commit, str) or not HEX40.fullmatch(manifest_review_commit):
+            raise ValueError("reviewed_manifest_commit_invalid")
+        if approval.get("reviewed_manifest_developer_commit") != manifest_review_commit:
+            raise ValueError("reviewed_manifest_commit_mismatch")
+    if approval.get("request_manifest_git_blob") != manifest_git_blob:
+        raise ValueError("approval_manifest_blob_mismatch")
+
+
 def review_check() -> None:
     manifest = read_json(MANIFEST_PATH, "request_manifest_unreadable")
     validate_manifest_structure(manifest)
@@ -225,7 +244,19 @@ def check() -> None:
     _validate_protected_files(manifest)
     approval = read_json(APPROVAL_PATH, "approval_gate_unreadable")
     manifest_bytes = MANIFEST_PATH.read_bytes()
-    manifest_blob = git("rev-parse", "HEAD:" + str(MANIFEST_PATH.relative_to(ROOT)))
+    manifest_rel = str(MANIFEST_PATH.relative_to(ROOT))
+    manifest_blob = git("rev-parse", "HEAD:" + manifest_rel)
+    reviewed_manifest_commit = approval.get("reviewed_manifest_developer_commit")
+    validate_gate_metadata(
+        approval,
+        manifest_git_blob=manifest_blob,
+        manifest_review_commit=reviewed_manifest_commit,
+    )
+    if (not isinstance(reviewed_manifest_commit, str) or not HEX40.fullmatch(reviewed_manifest_commit)):
+        raise ValueError("reviewed_manifest_commit_invalid")
+    git("merge-base", "--is-ancestor", reviewed_manifest_commit, "HEAD")
+    if git("rev-parse", reviewed_manifest_commit + ":" + manifest_rel) != manifest_blob:
+        raise ValueError("reviewed_manifest_blob_mismatch")
     report_bytes = TESTER_REPORT_PATH.read_bytes() if TESTER_REPORT_PATH.is_file() else None
     report_blob = git("rev-parse", "HEAD:" + str(TESTER_REPORT_PATH.relative_to(ROOT))) if report_bytes is not None else None
     validate_approval_structure(
