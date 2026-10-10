@@ -284,3 +284,8 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - The design is limited to 15 initial probe requests plus up to three one-hop HF redirects, 2 MiB overall, with exact HF Range/Content-Range validation and no raw history file API calls.
 - A browser-link verification attempt to the two CDSL XLS links returned unsupported content type; no table values were read or stored. Keep this as non-accepted discovery activity.
 - Next gate: developer implements safe source sampler and fixtures; then the tester independently reviews exact script/test/workflow blobs before any network access. Prior Gate A manifest stays spent.
+
+
+## 2026-10-10 — Discovery 3 independent code gate: REQUEST CHANGES
+
+Tester reviewed exact commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` after 29/29 offline checks passed, and returned REQUEST CHANGES. Blocking findings are recorded in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` (now mirrored byte-identically to developer branch): stale spec blob embedded in report output; JSON record may pass when recognized dates conflict; CSV `float()` checks accept NaN/Inf; nested `signature/sig` fields are not redacted; dated HTML links persist raw query values; and workflow does not bind the reviewer commit to every protected Git blob at that commit. No live source request or approval manifest is authorized. Correct code/tests and request a fresh review.
