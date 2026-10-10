@@ -109,12 +109,12 @@ def request_json(
         raise ValueError("unregistered_or_unsafe_url")
     if not isinstance(body_obj, dict):
         raise ValueError("request_body_must_be_object")
+    if not isinstance(token, str) or not token.strip() or any(c in token for c in ("\r", "\n")):
+        raise ValueError("missing_or_invalid_dhan_access_token")
     validate_request_window(url, body_obj)
     body = json.dumps(body_obj, separators=(",", ":"), sort_keys=True).encode("utf-8")
     if len(body) > MAX_REQUEST_BODY_BYTES:
         raise ValueError("request_body_byte_cap_exceeded")
-    if not isinstance(token, str) or not token.strip() or any(c in token for c in "\r\n"):
-        raise ValueError("missing_or_invalid_dhan_access_token")
 
     budget.reserve_request(now=now)
     request = urllib.request.Request(
