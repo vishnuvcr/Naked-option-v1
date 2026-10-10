@@ -637,3 +637,14 @@ The current Discovery 3 sampler and workflows were independently reviewed agains
 **Tester → Developer:** Code gate is passed for the exact snapshot only. Verify byte hashes, mirror the report through a permitted route, and create a separate single-use manifest only after the report is mirrored.
 
 **Developer → Tester:** Keep all live calls, full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access blocked until the mirror and manifest checks pass. Independently audit the next source artifact.
+
+
+## 2026-10-10 — User asked to use DHAN_ACCESS_TOKEN
+
+User said they added `DHAN_ACCESS_TOKEN` and asked to resolve data-unavailability issues and rerun analyses. Official Dhan docs were reviewed. The Dhan historical endpoint provides instrument OHLCV/OI, not documented combined daily FII/FPI/DII aggregate flow data. Therefore Dhan may close price/derivative history gaps but cannot automatically close the FII/DII gap.
+
+A new spec and tester review request were committed on `phase-07-developer`. No Dhan endpoint was called; no secret value was accessed or exposed. Previous flow-discovery manifest remains spent.
+
+**Developer → Tester:** Review the exact Dhan spec for scope, endpoint semantics, secret redaction and limits. No live requests at spec gate.
+
+**Tester → Developer:** Return PASS or REQUEST CHANGES; if PASS, allow offline adapter/tests only. Require a separate exact-snapshot code PASS and one-run manifest before authenticated sample calls.
