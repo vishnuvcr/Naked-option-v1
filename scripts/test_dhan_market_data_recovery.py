@@ -241,6 +241,43 @@ def test_live_sample_metadata_http_error_preserves_only_safe_content_type() -> N
         assert private_value not in encoded
 
 
+def test_redirect_target_parser_emits_only_scheme_and_host() -> None:
+    got = mod.safe_redirect_target("https://Images.Dhan.CO/api-data/master.csv?signature=SECRET#frag")
+    assert got == {"redirect_target_status": "PARSED", "redirect_scheme": "https", "redirect_host": "images.dhan.co"}
+    encoded = json.dumps(got)
+    for private in ("api-data", "master.csv", "signature", "SECRET", "frag"):
+        assert private not in encoded
+
+
+def test_redirect_target_parser_rejects_credentials_and_malformed_urls() -> None:
+    for location in ("", "https://user:password@example.com/path", "https://bad host/path", "javascript:alert(1)"):
+        got = mod.safe_redirect_target(location)
+        assert got == {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        assert "password" not in json.dumps(got)
+
+
+def test_http_error_returns_only_redirect_host_and_safe_content_type() -> None:
+    class Opener:
+        def open(self, req, timeout):
+            raise urllib.error.HTTPError(
+                req.full_url, 302, "redirect",
+                {"Content-Type": "text/html", "Location": "https://images.dhan.co/private/path?token=secret"},
+                io.BytesIO(b"private error body"),
+            )
+    b = mod.Budget()
+    status, body, headers = mod.request_bytes(
+        mod.INDEX_INSTRUMENT_URL, method="GET", token="secret-token", body=None,
+        cap=1024, budget=b, opener_factory=Opener,
+    )
+    assert status == 302 and body == b""
+    assert headers["content-type"] == "text/html"
+    assert headers["redirect_host"] == "images.dhan.co"
+    assert headers["redirect_scheme"] == "https"
+    encoded = json.dumps(headers)
+    for private in ("private", "path", "token", "secret"):
+        assert private not in encoded
+
+
 def test_http_error_returns_status_without_provider_body() -> None:
     class Opener:
         def open(self, req, timeout):
@@ -398,6 +435,9 @@ def main() -> None:
         test_instrument_mapping_requires_unique_exact_ids,
         test_instrument_mapping_accepts_official_csv_headers,
         test_http_error_returns_status_without_provider_body,
+        test_redirect_target_parser_emits_only_scheme_and_host,
+        test_redirect_target_parser_rejects_credentials_and_malformed_urls,
+        test_http_error_returns_only_redirect_host_and_safe_content_type,
         test_blocked_metadata_report_keeps_status_and_redacts_body,
         test_live_sample_metadata_http_error_preserves_only_safe_content_type,
         test_instrument_mapping_rejects_ambiguous_security_id,
