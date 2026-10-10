@@ -768,3 +768,38 @@ Resume actions:
 - Next: developer prepares a separate fetch adapter and mocked tests; tester must independently review exact code/workflow snapshot. No live request is authorized at this point.
 
 **Developer → Tester:** Review any future fetch implementation and verify no credentials, exact documented URL allowlist, redirects disabled, byte/time caps and fail-closed error handling before a new one-use manifest is prepared.
+
+
+## 2026-10-10 — User authorized Dhan data recovery to address data-unavailability limitations
+
+### User direction and research decision
+- User directed the research to use the available Dhan API to repair limitations caused by missing market-data categories.
+- Developer re-read current Phase 7 status, error/chat logs, research plan and protocol, source registry, prior Dhan samplers/tests, old single-use manifest, and developer/tester gate reports before acting.
+- Existing Run #44 and Run #994 results remain unchanged. Prior daily global/peer cross-market extension showed no statistically significant candidate; current conclusion remains that no prediction method is promoted. The final untouched holdout remains sealed. User scope is prediction only; no option P&L or strategy optimization was run.
+
+### Official Dhan sources checked
+- Historical-data docs: https://dhanhq.co/docs/v2/historical-data/ . They document the daily and intraday candle endpoints; intraday bars use 1/5/15/25/60-minute intervals, support up to five years for active instruments and must be requested in windows no larger than 90 calendar days.
+- Expired-options docs: https://dhanhq.co/docs/v2/expired-options-data/ . They document rolling option history up to five years, no more than 30 calendar days per request, with OHLC, IV, volume, OI, strike and spot. It is rolling ATM-relative history, not a complete historical option chain.
+- Option-chain docs: https://dhanhq.co/docs/v2/option-chain/ . The live option-chain response includes current values and best bid/ask; it is not a historical chain store.
+- Instrument-list docs: https://dhanhq.co/docs/v2/instruments/ . Public CSVs cover instrument metadata/security-ID mapping, not price-history evidence.
+- These documentation facts support source feasibility planning but do not prove an actual token entitlement, request success, data coverage or schema on the runner.
+
+### Plan amendment and gates
+- Developer added research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md, blob 9145f88ec99169a900d9ff2c7b77c0592781f5ae.
+- Independent tester report research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_PLAN_TESTER.md on phase-07-tester: PASS WITH SCOPED RESTRICTIONS for planning only; no live access authorized.
+- Plan sequence: offline request/parser/cache implementation; exact snapshot code gate; fresh one-use manifest; tiny daily NIFTY candle sample; independent sample review; separate intraday sample and rolling-option sample gates; only then bounded bulk partitioning, frozen feature-method amendment, prediction rerun and independent empirical audit.
+
+### Offline Dhan history implementation
+- New code: scripts/dhan_history_pipeline.py (blob 6e1bca4c2c565d3fe54e6b2e848bd9528c74439a).
+- New mocked tests: scripts/test_dhan_history_pipeline.py (blob df7495af90450097db42a82b7572b9ed65f17d9f).
+- New workflow: .github/workflows/phase-07-dhan-history-pipeline-tests.yml (blob dc0de4688bfac5ee932c32ccd25fdd586effd3c2).
+- The helper is explicitly gated by live_authorized=False, and the current workflow has no Dhan secrets/network step. It allowlists only daily, intraday and rolling-option historical endpoints; validates exact request field sets/windows; rejects redirects; caps response bytes/time/request count and pacing; validates arrays, timestamps, OHLC and source-specific options data; and hashes/atomically caches only content whose computed validation agrees with the validation report.
+- Latest hosted offline workflow [38049058737](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058737) passed 30 mocked regression tests. Research Protocol Check [38049058835](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049058835) passed.
+- Earlier test failures and their root causes/corrections are durably listed in research/ERROR_LOG.md; they were harness/schema integration errors, not market-data evidence and none invoked Dhan.
+
+### Current gate and prohibitions
+- Developer submission research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md pins the exact adapter/tests/workflow blobs and the passing hosted snapshot.
+- Independent tester review is now required on that exact snapshot. Until an independent PASS and a separate fresh manifest review, there is no live Dhan request, no cache population, no feature construction, no model rerun and no holdout access.
+- No token/client ID/profile fields are to be logged; no credentials go to images.dhan.co or redirect destinations; the prior redirect probe manifest remains SPENT and cannot be reused.
+
+**Developer → Tester:** Independently review the exact blobs in the code submission and the 30-test hosted run, checking request schemas, point-in-time implications, array validation, arithmetic, rate/byte/date limits, cache lineage, secret redaction and workflow permissions. Return PASS or REQUEST CHANGES; do not authorize live acquisition.
