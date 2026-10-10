@@ -13,6 +13,7 @@ import io
 import json
 import math
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -70,6 +71,13 @@ def safe_redirect_target(location: str) -> dict[str, str]:
         _ = parsed.port
         host = parsed.hostname.encode("idna").decode("ascii").lower().rstrip(".")
         if not host or len(host) > 253:
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        labels = host.split(".")
+        if any(
+            not label or len(label) > 63
+            or re.fullmatch(r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", label) is None
+            for label in labels
+        ):
             return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
         scheme = parsed.scheme.lower()
         if scheme not in ("http", "https"):
