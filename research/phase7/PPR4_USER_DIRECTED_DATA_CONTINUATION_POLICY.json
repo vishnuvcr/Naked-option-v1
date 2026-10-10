@@ -187,7 +187,7 @@
       "request_max": 8540,
       "expected_unique_request_count": 8540,
       "response_bytes_max": 2097152,
-      "aggregate_bytes_max": 4294967296,
+      "aggregate_bytes_max": 8589934592,
       "rows_per_response_max": 10000,
       "required_fields": [
         "open",
