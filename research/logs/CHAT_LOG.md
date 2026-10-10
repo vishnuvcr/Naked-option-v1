@@ -747,3 +747,14 @@ Resume actions:
 - Research remains prediction-only; no new market dataset or predictive result exists from this step.
 
 **Developer → Tester:** Review the Extension 3 proposal independently and return PASS/REQUEST CHANGES. Do not authorize a live CSV request from the proposal alone.
+
+
+## 2026-10-10 — Continued after user approval
+
+- Tester independently reviewed Extension 2 run #9 and accepted only the redirect-target diagnostic; report archived on `phase-07-tester`.
+- Official Dhan documentation was checked; direct instrument-master CSV URLs are documented. This was documentation research only.
+- Extension 3 source-plan proposal passed the independent tester proposal gate. Offline-only implementation was added: CSV schema/identifier validation, size and encoding checks, content hash, atomic cache helper, and offline regression tests. No HTTP client or live fetch is present in the new adapter.
+- Hosted offline test run `38048191811` and protocol check `38048191923` were still in progress at last poll. Results remain pending and must not be assumed.
+- No CSV/data request was made; no market dataset, prediction metrics or strategy results changed.
+
+**Developer → Tester:** Once the hosted offline tests complete, independently review the exact adapter/test/workflow snapshot, especially CSV header assumptions, duplicate-ID semantics, byte caps, atomic-cache behavior and proof that no network path exists. Do not authorize live acquisition until a separate code gate passes.
