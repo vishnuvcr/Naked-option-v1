@@ -305,3 +305,14 @@ The tester has approved the exact manifest and guarded workflow only. A one-use 
 
 **Developer → Tester:** proceed with the pinned one-use acquisition and return the actual coverage/artifact disposition for independent review.  
 **Tester → Developer:** approval is scoped to enumerated acquisition only; do not start modeling until the realized dataset coverage has been reviewed.
+
+## 2026-10-11 — Guarded NIFTY composite data acquisition started
+
+- Tester report [PASS WITH SCOPED RESTRICTIONS](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md) was committed on `phase-07-tester`, blob `367dcc0db9da602e452a2c005eb4f6f4036ef65e`.
+- Developer added the one-use pinned approval at `research/gates/NIFTY_1M_COMPOSITE_APPROVAL.json`, commit `84dc153218429799c057135ff9e75eeeed7c6747`. The workflow marked the approval `SPENT_BEFORE_SOURCE_REQUEST` and pushed the spend event before request execution.
+- Live run: [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220). Observed preflight checks passed: offline test suite, exact-snapshot tester review and protected blob validation, secret presence checks, cache restore, and single-use approval spend.
+- Collection now runs the enumerated 8,601-request grid. At this point no final CSV part, artifact or actual coverage/error summary has been confirmed. Do not make claims about complete coverage until those outputs exist and are checked.
+- User's Dhan acceptance waiver remains active; no cross-source price-value check is required. Missing/empty selectors will be recorded in coverage, with free-source fallback handled in a separate reviewed manifest if recoverable. No model fitting, prediction scoring, holdout access or P&L calculation is authorized by this acquisition approval.
+
+**Developer → Tester:** after the job completes, review the actual encrypted bundle, coverage/error report, counts, checksums and partial/complete status before any model use.  
+**Tester → Developer:** record a fresh post-acquisition gate report from the realized outputs; accept completeness only if observed results support it.
