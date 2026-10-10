@@ -8,6 +8,7 @@ import io
 import json
 import pathlib
 import sys
+import tempfile
 import urllib.error
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -18,6 +19,12 @@ mod = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = mod
 assert spec.loader is not None
 spec.loader.exec_module(mod)
+
+runner_spec = importlib.util.spec_from_file_location("run_official_reference_crosscheck", SCRIPTS / "run_official_reference_crosscheck.py")
+runner = importlib.util.module_from_spec(runner_spec)
+sys.modules[runner_spec.name] = runner
+assert runner_spec.loader is not None
+runner_spec.loader.exec_module(runner)
 
 CSV_HEADER = (
     "SEM_SMST_SECURITY_ID,SEM_EXM_EXCH_ID,SEM_SEGMENT,SEM_INSTRUMENT_NAME,"
@@ -271,6 +278,198 @@ def test_request_once_rejects_http_errors_and_timeouts_safely() -> None:
         method="GET",body=None,headers={},allowed_content_types=mod.CONTENT_TYPE_CSV,byte_cap=100,timeout_seconds=20,
         opener_factory=lambda: FakeOpener(TimeoutError("secret timeout"))
     ),"dhan_instrument_master_timeout")
+
+
+def test_runner_refuses_to_run_without_outer_authorization() -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        root = pathlib.Path(folder)
+        cache_root = root / "cache"
+        report_path = root / "safe-report.json"
+        factory_calls = []
+        def forbidden_factory():
+            factory_calls.append(True)
+            raise AssertionError("network opener must not be constructed")
+        code = runner.run_crosscheck(
+            env={},
+            opener_factory=forbidden_factory,
+            manifest_path=root / "missing-manifest.json",
+            approval_path=root / "missing-approval.json",
+            cache_root=cache_root,
+            report_path=report_path,
+        )
+        assert code == 1
+        assert factory_calls == []
+        assert not cache_root.exists()
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert report["failure_code"] == "crosscheck_live_request_not_authorized"
+        assert report["request_count"] == 0
+        assert report["cache_created"] is False
+        assert report["data_accepted_for_prediction"] is False
+
+
+def _write_test_spent_gate(root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
+    source_specs = [
+        {
+            "source": "nifty_indices",
+            "url": mod.NIFTY_INDICES_URL,
+            "method": "POST",
+            "request_count_max": 1,
+            "response_bytes_max": mod.NIFTY_MAX_RESPONSE_BYTES,
+            "timeout_seconds": mod.NIFTY_TIMEOUT_SECONDS,
+            "redirect_follow_allowed": False,
+            "retry_allowed": False,
+            "credential_allowed": False,
+        },
+        {
+            "source": "dhan_instrument_master",
+            "url": mod.DHAN_COMPACT_MASTER_URL,
+            "method": "GET",
+            "request_count_max": 1,
+            "response_bytes_max": mod.MAX_CSV_BYTES,
+            "timeout_seconds": mod.DHAN_MASTER_TIMEOUT_SECONDS,
+            "redirect_follow_allowed": False,
+            "retry_allowed": False,
+            "credential_allowed": False,
+        },
+    ]
+    authorization = {
+        "scope_id": runner.SCOPE_ID,
+        "source_specs": source_specs,
+        "expected_date": mod.EXPECTED_DATE,
+        "expected_dhan_row": mod.EXPECTED_DHAN_ROW,
+        "expected_mapping": mod.EXPECTED_MAPPING,
+    }
+    canonical = json.dumps(
+        authorization, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+    authorization_hash = hashlib.sha256(canonical).hexdigest()
+    manifest = {
+        "status": "PROPOSED",
+        "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
+        "authorization": authorization,
+        "authorization_sha256": authorization_hash,
+    }
+    manifest_bytes = (json.dumps(manifest, sort_keys=True, indent=2, ensure_ascii=False) + "\\n").encode("utf-8")
+    manifest_path = root / "manifest.json"
+    approval_path = root / "approval.json"
+    manifest_path.write_bytes(manifest_bytes)
+    approval = {
+        "status": "SPENT",
+        "decision": "SPENT_BEFORE_SOURCE_REQUEST",
+        "scope_id": runner.SCOPE_ID,
+        "authorized_scope_id": runner.SCOPE_ID,
+        "request_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "approved_authorization_sha256": authorization_hash,
+        "spent_from_commit": "a" * 40,
+    }
+    approval_path.write_text(json.dumps(approval, sort_keys=True, indent=2) + "\\n", encoding="utf-8")
+    return manifest_path, approval_path
+
+
+class SequenceOpenerFactory:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.openers = []
+
+    def __call__(self):
+        assert self.responses, "unexpected extra source request"
+        result = self.responses.pop(0)
+        if isinstance(result, tuple):
+            response, url, method, body = result
+            opener = FakeOpener(response, expected_url=url, expected_method=method, expected_body=body)
+        else:
+            opener = FakeOpener(result)
+        self.openers.append(opener)
+        return opener
+
+
+def _good_nifty_response() -> FakeResponse:
+    return FakeResponse(nifty_bytes(), content_type="application/json; charset=utf-8")
+
+
+def _good_csv_response() -> FakeResponse:
+    return FakeResponse(GOOD_CSV, content_type="text/csv; charset=utf-8")
+
+
+def test_runner_success_fetches_exactly_two_sources_and_caches_atomically() -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        root = pathlib.Path(folder)
+        manifest_path, approval_path = _write_test_spent_gate(root)
+        factory = SequenceOpenerFactory([
+            (_good_nifty_response(), mod.NIFTY_INDICES_URL, "POST", mod.make_nifty_request_body()),
+            (_good_csv_response(), mod.DHAN_COMPACT_MASTER_URL, "GET", None),
+        ])
+        cache_root = root / "cache"
+        report_path = root / "report.json"
+        result = runner.run_crosscheck(
+            env={"OFFICIAL_CROSSCHECK_AUTHORIZED": "1"},
+            opener_factory=factory,
+            manifest_path=manifest_path,
+            approval_path=approval_path,
+            cache_root=cache_root,
+            report_path=report_path,
+            fetched_at_utc="2026-10-10T00:00:00Z",
+        )
+        assert result == 0
+        assert len(factory.openers) == 2 and factory.responses == []
+        observed = [opener.calls[0][0] for opener in factory.openers]
+        assert observed[0].full_url == mod.NIFTY_INDICES_URL and observed[0].get_method() == "POST"
+        assert observed[0].data == mod.make_nifty_request_body()
+        assert observed[1].full_url == mod.DHAN_COMPACT_MASTER_URL and observed[1].get_method() == "GET"
+        for request in observed:
+            headers = {key.lower() for key, _ in request.header_items()}
+            assert not headers.intersection({"authorization", "access-token", "cookie", "dhanclientid"})
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert report["status"] == "OFFICIAL_CROSSCHECK_MATCHED"
+        assert report["request_count"] == 2
+        assert report["retry_count"] == 0 and report["redirect_followed"] is False
+        assert report["cache_created"] is True
+        assert report["volume_crosschecked"] is False
+        assert report["data_accepted_for_prediction"] is False
+        bundles = [p for p in cache_root.iterdir() if p.is_dir()]
+        assert len(bundles) == 1
+        bundle = bundles[0]
+        assert (bundle / "nifty_indices_response.json").read_bytes() == nifty_bytes()
+        assert (bundle / "dhan_instrument_master.csv").read_bytes() == GOOD_CSV
+        bundle_manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+        assert bundle_manifest["data_accepted_for_prediction"] is False
+        assert bundle_manifest["model_fitting_authorized"] is False
+        assert bundle_manifest["holdout_access_authorized"] is False
+
+
+def test_runner_never_creates_partial_cache_if_second_source_or_comparison_fails() -> None:
+    bad_row = {**GOOD_NIFTY_ROW, "CLOSE": "21665.81"}
+    scenarios = [
+        ([ _good_nifty_response(), FakeResponse(GOOD_CSV, content_type="text/csv") ], "official_nifty_ohlc_mismatch"),
+        ([ _good_nifty_response(), urllib.error.HTTPError(mod.DHAN_COMPACT_MASTER_URL, 403, "Forbidden", {"Content-Type": "text/plain"}, TrackedErrorBody(b"DO_NOT_SAVE")) ], "dhan_instrument_master_http_status_403"),
+        ([ FakeResponse(nifty_bytes(bad_row), content_type="application/json"), FakeResponse(GOOD_CSV, content_type="text/csv") ], "official_nifty_ohlc_mismatch"),
+    ]
+    # First scenario is a mismatch expressed via a response with a valid schema.
+    scenarios[0][0][0] = FakeResponse(nifty_bytes(bad_row), content_type="application/json")
+    for responses, failure in scenarios:
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder)
+            manifest_path, approval_path = _write_test_spent_gate(root)
+            factory = SequenceOpenerFactory(responses)
+            cache_root = root / "cache"
+            report_path = root / "report.json"
+            code = runner.run_crosscheck(
+                env={"OFFICIAL_CROSSCHECK_AUTHORIZED": "1"},
+                opener_factory=factory,
+                manifest_path=manifest_path,
+                approval_path=approval_path,
+                cache_root=cache_root,
+                report_path=report_path,
+                fetched_at_utc="2026-10-10T00:00:00Z",
+            )
+            assert code == 1
+            assert not cache_root.exists()
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            assert report["status"] == "OFFICIAL_CROSSCHECK_FAILED_CLOSED"
+            assert report["failure_code"] == failure
+            assert report["cache_created"] is False
+            assert report["data_accepted_for_prediction"] is False
+            assert report["raw_provider_error_saved"] is False
 
 
 TESTS = [v for k, v in globals().copy().items() if k.startswith("test_") and callable(v)]
