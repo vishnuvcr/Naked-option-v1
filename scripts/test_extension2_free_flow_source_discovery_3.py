@@ -114,7 +114,7 @@ def test_no_auto_redirect_for_cdsl() -> None:
 def test_allowed_hf_redirect_preserves_range_but_not_credentials() -> None:
     client = mod.LimitedHTTP()
     fake = FakeOpener([
-        FakeResponse(302, b"", {"Location": "https://cdn-lfs.huggingface.co/blob/file"}),
+        FakeResponse(302, b"", {"Location": "https://cdn-lfs.huggingface.co/blob/file?X-Amz-Signature=secretvalue&Expires=123"}),
         FakeResponse(206, b"abcd", {"Content-Range": "bytes 0-3/10", "Content-Length": "4"}),
     ])
     client.opener = fake
@@ -166,6 +166,26 @@ def test_hf_second_redirect_is_rejected() -> None:
     assert result["status"] == "REJECTED_REDIRECT"
     assert len(fake.requests) == 2
     assert client.budget.redirects == 1
+
+
+def test_signed_hf_redirect_query_is_redacted_in_report() -> None:
+    safe = mod.safe_url_for_report(
+        "https://cdn-lfs.huggingface.co/blob/file?X-Amz-Signature=secretvalue&Expires=123"
+    )
+    assert "secretvalue" not in safe
+    assert "123" not in safe
+    assert "%5BREDACTED%5D" in safe
+
+
+def test_exhausted_budget_returns_status_without_network_or_crash() -> None:
+    budget = mod.Budget()
+    budget.exhausted = True
+    client = mod.LimitedHTTP(budget)
+    fake = FakeOpener([FakeResponse(200, b"should-not-be-requested")])
+    client.opener = fake
+    result = client.request("CDSL-1", mod.FIXED_URLS["CDSL-1"], max_body_bytes=1024)
+    assert result["status"] == "BUDGET_EXCEEDED"
+    assert not fake.requests
 
 
 def test_request_body_reads_cap_plus_one_and_rejects_overflow() -> None:
@@ -385,6 +405,8 @@ def main() -> None:
         test_credentials_are_rejected_before_network,
         test_hf_redirect_to_unregistered_host_is_rejected,
         test_hf_second_redirect_is_rejected,
+        test_signed_hf_redirect_query_is_redacted_in_report,
+        test_exhausted_budget_returns_status_without_network_or_crash,
         test_request_body_reads_cap_plus_one_and_rejects_overflow,
         test_budget_stops_at_total_bytes_and_counts_every_exchange,
         test_cdsl_xls_parser_uses_expected_date_and_equity_row,
