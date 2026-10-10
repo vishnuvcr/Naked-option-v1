@@ -4,9 +4,7 @@ on:
   push:
     branches: [phase-07-developer]
     paths:
-      - "scripts/phase7_extension2_source_feasibility_v2.py"
-      - "scripts/test_phase7_extension2_source_feasibility_v2.py"
-      - ".github/workflows/phase-07-extension2-source-feasibility-v2.yml"
+      - "research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json"
   workflow_dispatch:
 
 permissions:
