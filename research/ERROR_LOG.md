@@ -438,3 +438,13 @@
 - Corrected the five tester findings: legacy-to-UDiFF archive boundary, flow normalization, exact OI/volume formulas, canonical sector index names, and missing-forecast global bootstrap behavior.
 - Updated spec blob: `7f6cc6e86556db3da9f87c23c0e183bcb3282310`.
 - Resubmitted for independent tester review. No source feasibility downloads or model fitting occurred. This remains a pre-implementation gate; no empirical authorization is implied.
+
+
+## 2026-10-10 — Gate A Run #1: unresolved source coverage
+
+- F&O samples succeeded from official NSE archives: legacy 2024-07-05 and UDiFF 2024-07-08, both single-date schema-valid files.
+- The attempted sector-history API returned generic HTML; historical index CSV archive not yet sampled.
+- NSE FII/DII API provided only current date records; current free GitHub mirror has 164 dated rows (2026-01-14 through 2026-09-30), below the registered 500-common-date minimum.
+- Official Advances/Declines page yielded no dated historical table in the bounded sample.
+- Tester disposition REQUEST CHANGES. Do not declare these datasets unavailable; search additional free sources and sample official daily index/equity CSVs. No full-history acquisition or model fitting occurred.
+- Full report: `research/results/PHASE7_EXTENSION2_GATE_A_RUN1.md`.
