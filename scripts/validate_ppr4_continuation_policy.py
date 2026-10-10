@@ -62,6 +62,39 @@ def validate() -> list[str]:
     if policy.get("research_boundaries", {}).get("label_maturity_tail_sessions") != 10:
         errors.append("prospective_holdout_maturity_tail_changed_without_amendment")
 
+    budget = policy.get("acquisition_budget_contract", {})
+    if budget.get("serial_requests_per_second_max") != 2:
+        errors.append("serial_rate_limit_must_be_two_requests_per_second")
+    if budget.get("daily_dhan_request_budget_max") != 8250:
+        errors.append("daily_dhan_request_budget_mismatch")
+    daily = budget.get("daily_index", {})
+    if (daily.get("request_max") != 40 or daily.get("response_bytes_max") != 1048576
+            or daily.get("aggregate_bytes_max") != 20971520 or daily.get("rows_per_response_max") != 400):
+        errors.append("daily_index_budget_mismatch")
+    intraday = budget.get("intraday_index", {})
+    if (intraday.get("request_max") != 70 or intraday.get("provider_window_days_max") != 90
+            or intraday.get("chunk_calendar_days") != 30
+            or intraday.get("response_bytes_max") != 8388608
+            or intraday.get("aggregate_bytes_max") != 268435456):
+        errors.append("intraday_budget_mismatch")
+    options = budget.get("rolling_options", {})
+    if (options.get("request_max") != 8100 or options.get("provider_window_days_max") != 30
+            or options.get("chunk_calendar_days") != 30
+            or options.get("expiry_flags") != ["WEEK", "MONTH"]
+            or options.get("expiry_codes") != [0, 1, 2]
+            or len(options.get("relative_strikes", [])) != 11
+            or options.get("option_types") != ["CALL", "PUT"]
+            or options.get("response_bytes_max") != 2097152
+            or options.get("aggregate_bytes_max") != 2147483648):
+        errors.append("rolling_options_budget_or_grid_mismatch")
+    cache = policy.get("cache_contract", {})
+    if cache.get("verify_before_fetch") is not True:
+        errors.append("persisted_cache_must_be_verified_before_fetch")
+    if cache.get("fetch_only_missing_or_invalid_manifest_approved_shards") is not True:
+        errors.append("workflow_must_fetch_only_missing_or_invalid_approved_shards")
+    if "GitHub Actions artifacts are temporary diagnostics, not authoritative cache" not in cache.get("authoritative_cache_hierarchy", []):
+        errors.append("actions_artifacts_must_not_be_authoritative_cache")
+
     w_directives = waiver.get("user_directives", {})
     if waiver.get("decision") != "ACCEPT_DHAN_OUTPUT_AS_PROVIDED_BY_USER_DIRECTIVE":
         errors.append("dhan_waiver_decision_mismatch")
@@ -89,6 +122,11 @@ def validate() -> list[str]:
         "30 days per request",
         "no Dhan-versus-NSE/third-party market-value cross-check",
         "Paytm Money",
+        "GitHub Release assets",
+        "not the authoritative long-term data cache",
+        "8,100",
+        "2 GiB",
+        "8,250",
     ]
     for required in required_plan_parts:
         if required.lower() not in plan.lower():
