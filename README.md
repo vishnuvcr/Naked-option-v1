@@ -468,3 +468,12 @@ The access token is bound only to the guarded workflow's final source step and i
 - Prepared the [exact-hash one-use manifest](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json). It allows one redirect-target metadata request only (scheme/hostname; 1 KiB cap); no redirect follow, candles/history, model fitting or holdout access.
 - Live workflow is manual-only and requires `confirm_probe=true`. Manifest creation alone triggers no network request.
 - **Not yet executed:** this session's GitHub connector has no workflow-dispatch action, so runtime validation and the diagnostic remain pending. The manifest READY field is not evidence that validation or data acquisition succeeded. No new market data or prediction results have been generated.
+
+
+## Guarded Dhan redirect probe — latest verified checkpoint (10 October 2026)
+
+- Diagnosed failed hosted run [38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209): all 38 offline tests passed; the old push-event checkout lacked the approval manifest, so validation failed closed and no Dhan request was made.
+- Current manifest's ten protected Git blob IDs were cross-checked against the developer branch and all matched. This does not replace the hosted SHA-256/ancestry validator.
+- The READY manifest permits one redirect scheme/hostname-only request (1 KiB maximum), with no redirect follow or candle/history/model access.
+- The workflow remains manual-only. No dispatch action is available in this session's GitHub connection; no live request or new market data is claimed. Prediction results remain unchanged.
+- Details: [Research status](research/STATUS.md) · [Error log](research/ERROR_LOG.md) · [One-use manifest](research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json) · [Guarded workflow](.github/workflows/phase-07-dhan-redirect-probe-live.yml).
