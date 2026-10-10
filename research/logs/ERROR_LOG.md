@@ -229,3 +229,12 @@ New errors must be appended, never overwritten.
 - **Gate decision:** tester Review 1 is `REQUEST CHANGES / PPR-4 EXIT BLOCKED`, archived at [`PHASE7_PPR4_TESTER_REVIEW1.md`](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md), blob `1cf137d83c6b285cff093163b886484d1d9c55cb`, tester commit `749d8f02b2764edf5428df5f9b1e3d301de3d862`.
 - **Hard boundary remains:** all 32 source rows have `bulk_acquisition_authorized=false` and `model_panel_accepted=false`; the one-use Dhan sample approval remains spent. No public source dataset/model has been downloaded, and no model has been trained or scored during PPR-4.
 
+
+
+## 2026-10-10 — Final PPR-4 manifest snapshot revalidated
+
+- After the PPR-4 tester report and the corrected audit-status literal were recorded in the source-availability manifest, the exact manifest snapshot was tested by [run 38075650540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075650540), triggered on commit `e1c6cc9839353d9c936edc91935d358a4d8b5dd0`; conclusion **success**.
+- Offline output: the source register, cache inventory, metadata-only holdout audit, source/license statuses and exact blob pins reconcile. It reiterates that PPR-4 exit remains blocked because no machine-readable final-holdout boundary was found.
+- This pass is a structural/provenance check only; no new source requests, dataset or model downloads, raw market data reads, feature/label generation, model fitting/tuning/scoring, holdout access or option P&L occurred.
+- Final governance stays **PPR-4 REQUEST CHANGES / EXIT BLOCKED**. The remaining required evidence is a genuine existing split/boundary artifact or a separately reviewed pre-outcome split/holdout design before any modeling outcome is inspected.
+
