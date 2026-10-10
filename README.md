@@ -460,3 +460,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - Fixed a safety issue by removing the automatic push trigger; a manifest push can no longer silently trigger a live Dhan request. Manual dispatch requires `confirm_probe=true` (default false).
 - No new manifest has been created and no live request is authorized. Previous manifests remain spent. The last observed instrument endpoint status is HTTP 302; no redirect was followed and no price/option history was acquired.
 - This session's GitHub connector does not provide workflow dispatch. The live diagnostic therefore remains pending rather than being falsely reported as run. Prediction results remain unchanged; no strategy test or final-holdout access is authorized.
+
+
+## One-use redirect manifest checkpoint — 10 October 2026
+
+- Independent code/workflow gate PASS and [offline tests](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044701520) are complete.
+- Prepared the [exact-hash one-use manifest](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/DHAN_REDIRECT_TARGET_APPROVAL.json). It allows one redirect-target metadata request only (scheme/hostname; 1 KiB cap); no redirect follow, candles/history, model fitting or holdout access.
+- Live workflow is manual-only and requires `confirm_probe=true`. Manifest creation alone triggers no network request.
+- **Not yet executed:** this session's GitHub connector has no workflow-dispatch action, so runtime validation and the diagnostic remain pending. The manifest READY field is not evidence that validation or data acquisition succeeded. No new market data or prediction results have been generated.
