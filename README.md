@@ -451,3 +451,12 @@ The redirect-target-only proposal and code gate are recorded in [the tester repo
 **Current gate:** another independent exact-snapshot review is pending after the latest workflow and artifact-writer changes. No new single-use manifest exists and no further live request is authorized yet. Even after the one permitted diagnostic, following the redirect or requesting instrument master/candle/history data requires a separate review; no full-history download, feature/label creation, model fitting, prediction rerun or final-holdout access is authorized at this stage.
 
 The access token is bound only to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
+
+
+## Retry checkpoint — 10 October 2026
+
+- [Latest offline tests](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044701520) passed on the updated parser/workflow/test snapshot.
+- The independent tester approved the code/workflow with restrictions: [exact-snapshot tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md).
+- Fixed a safety issue by removing the automatic push trigger; a manifest push can no longer silently trigger a live Dhan request. Manual dispatch requires `confirm_probe=true` (default false).
+- No new manifest has been created and no live request is authorized. Previous manifests remain spent. The last observed instrument endpoint status is HTTP 302; no redirect was followed and no price/option history was acquired.
+- This session's GitHub connector does not provide workflow dispatch. The live diagnostic therefore remains pending rather than being falsely reported as run. Prediction results remain unchanged; no strategy test or final-holdout access is authorized.
