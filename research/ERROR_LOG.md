@@ -122,3 +122,11 @@
 - Corrections required: define legacy-to-UDiFF F&O schema transition; replace undefined "NIFTY traded value" denominator for FII/DII flows with a fixed available denominator; define F04 delta/acceleration and F05 aggregate volume/OI formula exactly; provide canonical NSE sector index names/symbols; and specify how candidate abstentions enter the common-grid max-statistic bootstrap with a synthetic fixture.
 - No data acquisition or model fitting occurred. This is a pre-implementation specification rejection, not an empirical model result.
 - Report: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md`.
+
+
+## 2026-10-10 — Gate A sampler REQUEST CHANGES
+
+- Independent review found both legacy and UDiFF sample validators checked the expected trade date only on the first row. A mixed-date archive could be accepted.
+- Correction: validate all non-empty rows, report distinct date count, and add one mixed-date fixture per format.
+- No live data acquisition, full-history download or model fit occurred.
+- Tester report: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_TESTER.md`.
