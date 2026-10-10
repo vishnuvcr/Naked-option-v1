@@ -17,10 +17,10 @@
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
-    "ppr3_test_scope": "Run exact-snapshot offline configuration and blob-pin validation only. This does not authorize PPR-4 source requests or any model execution.",
+    "ppr3_decision": "RESUBMISSION_CORRECTIONS_IN_PROGRESS_AFTER_VALIDATOR_FAILURE",
+    "ppr3_test_scope": "Temporary staging mode while correcting the last RF max_features summary-list type mismatch found by run 38072095263. No gate PASS is asserted; all empirical permissions remain false.",
     "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is float 1.0, distinct from integer 1. Source-native methods remain in the separate documentation ledger.",
-    "current_work_mode": "Configuration matrix, source-native task ledger, CCI adaptation, label semantics, float parameter semantics and fit-call accounting corrected. Exact pins are enabled; the next hosted run must pass before tester re-review. All empirical permissions remain false."
+    "current_work_mode": "Do not treat staging-mode CI as a validation pass. Restore snapshot_checks_enabled=true and staging_mode=false only after every pinned file hash has been refreshed."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -221,6 +221,6 @@
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
   ],
-  "snapshot_checks_enabled": true,
-  "staging_mode": false
+  "snapshot_checks_enabled": false,
+  "staging_mode": true
 }
