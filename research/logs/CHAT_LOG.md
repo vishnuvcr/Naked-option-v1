@@ -846,3 +846,15 @@ Resume actions:
 - No Dhan API call, Dhan token use, cache population, feature engineering, model rerun or holdout access occurred. Next gate is an independent tester report against this exact snapshot only.
 
 **Developer → Tester:** Re-review the latest handoff, specifically the new cache metadata checks and no-write regressions. Return a code-only PASS or REQUEST CHANGES. Do not authorize a live request directly.
+
+
+## 2026-10-10 — Final Dhan historical-pipeline code review PASS
+
+- Independent tester verified the exact source, tests and offline workflow blobs at code commit `986d78cf4e3297f203c4960493ef86e2a8663697`; these same blobs still exist on the current developer branch.
+- Final tester report `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS — offline code only**. The final review confirms all six previously recorded findings were corrected.
+- Hosted run [38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed `42/42` offline/mock tests and protocol run [38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed.
+- No actual Dhan request, credential use, data cache population, feature engineering, predictor rerun, strategy test or holdout access has occurred.
+- Allowed next step: prepare a new one-use manifest and separate guarded workflow for one tiny daily NIFTY index-history request. The manifest/workflow must get another independent tester PASS before any live request. The spent redirect manifest will not be reused.
+- Handoff updated at `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md` blob `2035255912651ade1dc17ac292a81de796d6bf91`.
+
+**Developer → Tester:** Review the forthcoming exact-hash request manifest and guarded workflow separately. No API call, bulk history, feature fitting or model rerun is permitted before that review passes.

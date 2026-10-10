@@ -864,3 +864,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Regression cases added for missing/non-200 status, non-JSON content type, missing/incorrect request count, missing/mismatched cumulative bytes and cache-root emptiness after every rejected case.
 - Verification: hosted offline run [38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed `42/42` tests; protocol check [38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed.
 - Disposition: exact code snapshot refreshed in `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_SUBMISSION.md` and submitted for the final independent tester code review. No live request, data cache, feature fit or model rerun is authorized.
+
+
+## 2026-10-10 — Dhan historical pipeline final code gate passed
+
+- Category: independent code review disposition.
+- Reviewed code snapshot: `986d78cf4e3297f203c4960493ef86e2a8663697`; source blob `84e30b0d45ffb2a9b6985601b934c66db435b201`; test blob `e58ffd6d4b4daf8e049c0be0c2edca44dc16a161`; offline workflow blob `dc0de4688bfac5ee932c32ccd25fdd586effd3c2`.
+- Independent tester final report `research/gates/PHASE7_DHAN_HISTORICAL_DATA_RECOVERY_CODE_FINAL_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS — offline code only**. It rechecked resolution of the six earlier findings and exact blob pins.
+- Hosted run [38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed `42/42` offline/mock tests; protocol run [38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed.
+- Disposition: code PASS allows only preparation of a fresh single-use manifest and guarded workflow. It does not authorize a Dhan API call.
+- Next gate: independent tester review of the exact manifest and live-workflow snapshot, including exact hashes, one-request/byte scope, secret isolation, spend-before-fetch, no redirects/retries and artifact redaction. The prior redirect manifest remains SPENT.
+- No Dhan request, market data download/cache, feature fit, model run, option strategy test or holdout access occurred.
