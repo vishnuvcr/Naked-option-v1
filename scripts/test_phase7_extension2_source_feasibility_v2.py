@@ -23,6 +23,23 @@ def make_zip(name: str, headers: list[str], rows: list[dict[str, str]]) -> bytes
 
 
 
+
+def test_nse_fii_api_source_rejects_out_of_window_live_response() -> None:
+    url = dict(mod.NSE_FII_URLS)["nse_fii_date_params"]
+    rows = [
+        {"date": "09-Oct-2026", "category": "DII"},
+        {"date": "09-Oct-2026", "category": "FII/FPI"},
+    ]
+    blob = json.dumps(rows).encode()
+    meta = {"url": url, "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    with patch.object(mod, "fetch_bytes", return_value=(blob, meta)) as mocked:
+        result = mod.inspect_nse_fii_api_source("nse_fii_date_params", url)
+    mocked.assert_called_once_with(url, timeout=30, max_bytes=mod.MAX_FII_API_BYTES)
+    assert result["schema_status"] == "REJECTED_ROWS_OUTSIDE_REQUESTED_WINDOW", result
+    assert result["out_of_window_row_count"] == 2
+    assert "sample" not in result
+
+
 def test_nse_fii_api_source_uses_byte_cap() -> None:
     url = dict(mod.NSE_FII_URLS)["nse_fii_date_params"]
     blob = json.dumps([{"tradeDate": "08-Jul-2024", "fii": 10}]).encode()
@@ -232,6 +249,7 @@ def test_date_normalizer_handles_official_index_date_and_timestamp_formats() -> 
 
 def main() -> None:
     tests = [
+        test_nse_fii_api_source_rejects_out_of_window_live_response,
         test_nse_fii_api_payload_rejects_rows_outside_requested_window,
         test_nse_fii_api_payload_rejects_missing_dates_for_requested_window,
         test_nse_fii_api_source_uses_byte_cap,
