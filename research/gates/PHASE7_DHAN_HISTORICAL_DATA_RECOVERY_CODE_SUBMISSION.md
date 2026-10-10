@@ -1,47 +1,48 @@
-# Developer Handoff — Dhan Historical Pipeline Offline Code Gate (Corrected Snapshot)
+# Developer Handoff — Dhan Historical Pipeline Offline Code Gate (Final Corrected Snapshot)
 
 **State: RESUBMITTED FOR INDEPENDENT REVIEW. Live acquisition is NOT authorized.**  
-**Exact snapshot commit:** 85ebfef015f2188c983d3977ad6fb3b4e11dc29e  
-**Hosted offline regression:** [Run 38050016413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016413), success; **41 offline/mock tests passed**.  
-**Hosted protocol check:** [Run 38050016603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050016603), success.
+**Exact snapshot commit:** 986d78cf4e3297f203c4960493ef86e2a8663697  
+**Hosted offline regression:** [Run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592), success; **42 offline/mock tests passed**.  
+**Hosted protocol check:** [Run 38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689), success.
 
 ## Exact files and Git blob SHA
 
 | File | Git blob SHA |
 |---|---|
-| `scripts/dhan_history_pipeline.py` | `af560a7e1208d67fc7eb6275639ada701907c752` |
-| `scripts/test_dhan_history_pipeline.py` | `cf31bfa5538d449ee57abece6a68e959e22c7892` |
+| `scripts/dhan_history_pipeline.py` | `84e30b0d45ffb2a9b6985601b934c66db435b201` |
+| `scripts/test_dhan_history_pipeline.py` | `e58ffd6d4b4daf8e049c0be0c2edca44dc16a161` |
 | `.github/workflows/phase-07-dhan-history-pipeline-tests.yml` | `dc0de4688bfac5ee932c32ccd25fdd586effd3c2` |
 | `research/phase7/DHAN_HISTORICAL_DATA_RECOVERY_PLAN.md` | `9145f88ec99169a900d9ff2c7b77c0592781f5ae` |
 | Prior independent planning gate (tester branch) | `d49298d7070cba557b1ccd31df39cdaad334a571` |
-| Independent code REQUEST CHANGES report (tester branch, amended) | `e9c9d3f59f7e267ed317b250df529c03c5f9598d` |
+| First independent code REQUEST CHANGES report (tester branch) | `e9c9d3f59f7e267ed317b250df529c03c5f9598d` |
+| Latest independent re-review REQUEST CHANGES report (tester branch) | `aa394b225304bba4a01b70a3f63a6b01df1eaf80` |
 
-## Fixes made after independent review
+## Corrections included
 
-1. **Exclusive end dates.** Dhan explicitly documents `toDate` as non-inclusive on the daily-candle and rolling-expired-option endpoints. Their date-only caps now calculate the actual exclusive range duration, and cache validation enforces `fromDate <= returned local date < toDate`. Intraday behavior remains separately validated with local-naive Asia/Kolkata timestamps because its documentation does not explicitly state the end-boundary rule.
-2. **Hard request/byte ceiling.** With this snapshot's `MAX_REQUESTS=1` and `MAX_TOTAL_BYTES=8 MiB`, the Budget object and request path reject caller-provided ceilings above those constants and validate budget state before opening a network connection. Future bulk acquisition requires a separately reviewed code/workflow scope.
-3. **Optional numeric arrays.** Present known numeric arrays, including daily `open_interest`, are checked for type, finite values and non-negativity, not merely length.
-4. **Rolling-option optional arrays.** Empty arrays for unrequested optional fields such as IV/OI/strike/spot are allowed, matching Dhan's published response example; those fields are required to align when explicitly requested, and populated optional arrays must align and pass numeric checks.
-5. **Strike scope.** This initial pipeline accepts only `strike="ATM"` for rolling-option acquisition. Offset grids are not enabled until their documented expiry/instrument-specific bounds receive a separate implementation review.
+1. **Exclusive end dates:** daily and rolling-option requests use the documented non-inclusive toDate semantics for date caps and response-window checks. Intraday end-boundary semantics remain separately constrained because the documentation does not explicitly label its toDate inclusive/non-inclusive.
+2. **Hard request/byte limits:** the current sample adapter enforces MAX_REQUESTS=1 and MAX_TOTAL_BYTES=8 MiB even if callers attempt to widen RequestBudget; existing state is revalidated before a request.
+3. **Optional numeric arrays:** every present recognized numeric array, including daily open_interest, is checked for array shape, numeric type, finite values and non-negativity.
+4. **Rolling-option optional arrays:** empty arrays are accepted only for unrequested optional fields. Requested arrays must align with timestamp; populated optional arrays must also align and pass numeric validation.
+5. **Strike scope:** the current rolling-option source-feasibility scope only allows strike="ATM". Offset grids require a separately reviewed implementation change.
+6. **Cache provenance boundary:** before writing, atomic_cache_bundle now requires HTTP status exactly 200, a JSON content type, exactly one request for this sample scope, cumulative response bytes equal to the exact raw payload length and within the 8 MiB total budget, and response hash/byte count equal to the raw bytes. Errors, missing metadata or mismatches leave the cache unchanged.
 
 ## Test evidence
 
-The 41 offline/mock tests include the prior URL allowlist, literal authorization guard, token validation/redaction, redirect rejection, HTTP/body handling, byte caps, request budgets, JSON checks, OHLC math and array alignment, plus new cases for exact exclusive-end 30-/365-day ranges, rejecting a timestamp on the excluded `toDate`, preventing caller-widened request/byte budgets, malformed/non-finite/negative optional OI, the documented empty optional rolling arrays, required optional-field alignment, and non-ATM strike rejection.
+The 42 offline/mock tests include URL/body allowlists, explicit live authorization, token validation/redaction, redirect rejection, HTTP error-body non-reading, content type and length, response caps, hard request/byte budgets, OHLC arithmetic, timestamp validity and alignment, optional OI values, rolling-option documented empty optional-array behavior, exclusive-end range caps and exact toDate rejection, ATM-only strike scope, raw-byte/hash validation, full report recomputation, cache request-scope provenance, metadata status/content-type/request-count/cumulative-byte failures and atomic no-write-on-error behavior.
 
-All failing earlier iterations are retained in `research/ERROR_LOG.md`. No earlier failed or passed offline run contacted Dhan, used a Dhan secret, populated a market-data cache, fitted a model, inspected the holdout or changed scientific results.
+Hosted [Run 38050266592](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266592) passed 42/42. Protocol check [Run 38050266689](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38050266689) passed. All failed test iterations are preserved in ERROR_LOG.md; no run has contacted Dhan or changed scientific results.
 
-## Remaining source/documentation limitation
+## Remaining unverified data facts and scope
 
-Dhan's expired-options documentation states up to 30 days per request and shows `toDate` non-inclusive, but its request example uses 2021-08-01 to 2021-09-01, a 31-calendar-day difference. The implementation uses the conservative stated 30-day duration. The exact allowed edge will be recorded as unverified until a separately authorized bounded source feasibility test; no wider window is permitted by this code snapshot.
+- No Dhan API request has been made by this pipeline. Token entitlement, real response schemas, coverage, data continuity, quotas and source quality remain unverified.
+- The expired-options page states a 30-day maximum and a non-inclusive toDate but its example uses 2021-08-01 through 2021-09-01 (31 calendar days difference). This implementation uses the conservative stated 30-day duration; actual API edge behavior must remain unverified until a separately approved bounded request.
+- Intraday timestamp window behavior is checked against the supplied local-naive Asia/Kolkata request timestamps; the end-boundary meaning must be established against observed official responses before claiming complete coverage.
+- No data cache was populated; no feature matrix/model rerun occurred; prior results remain unchanged; the final untouched holdout stays sealed.
 
-## Explicit non-claims and authorization boundary
+## Authorization boundary
 
-- No actual Dhan API request has been made by this pipeline.
-- Token entitlement, real response schema, data coverage, historical continuity, quotas and price/option data quality remain unverified.
-- No data cache exists from this pipeline, no feature matrix/model rerun occurred, previous prediction results remain unchanged, and the untouched final holdout remains sealed.
-- The workflow remains offline-only with contents-read permission, no Dhan secret environment and no live-request step.
-- This code gate does **not** authorize data acquisition. After an independent tester PASS, a separate exact-snapshot single-use manifest and guarded manual workflow must be reviewed for one tiny daily NIFTY index-history request only.
+This submission is **code-review only**. The workflow at this path is offline-only, contents-read-only, has no Dhan secret environment and contains no network request step. Even a tester PASS only permits preparation of a separate fresh one-use manifest and guarded workflow for one tiny daily NIFTY history request. The manifest must itself be independently checked against exact hashes before any API call. Bulk history, rolling options, feature fitting, prediction reruns and holdout access require later separate gates.
 
-**Developer → Tester:** Independently re-review this exact snapshot and latest hosted run. Confirm findings 1–5 are resolved; review date/array boundary arithmetic, request-budget cap bypasses, cache/source-window consistency, tests and workflow permissions. Return PASS or REQUEST CHANGES. Do not authorize a live request within this report.
+**Developer → Tester:** Independently review this exact snapshot and latest hosted run. Confirm that findings 1–6 are resolved, especially source-specific date arithmetic and cache metadata enforcement. Return PASS or REQUEST CHANGES. Do not authorize live data acquisition in the code review.
 
-**Tester → Developer:** If the code passes, authorize only preparation of a fresh one-use manifest. Independently verify its exact commit and protected blobs before any API call; no bulk download, feature fitting or model rerun is authorized.
+**Tester → Developer:** If the exact code and regression suite pass, issue code-only PASS with restrictions. Separately review a fresh one-use manifest before any request; no bulk download or model run is authorized by this report.
