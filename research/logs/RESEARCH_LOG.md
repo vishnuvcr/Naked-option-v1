@@ -580,3 +580,8 @@ Independent tester reviewed the proposed seven-method NSE flow/breadth/options-f
 ## 2026-10-10 — Gate A sampler code review
 
 Tester returned REQUEST CHANGES before enabling the source-feasibility workflow because the sample archive parser checked the expected date only on the first row. The developer must validate every row's trade date and add mixed-date negative fixtures for both legacy and UDiFF. No live source sample was downloaded; the workflow has not been added or run.
+
+
+## 2026-10-10 — Sampler v2 independent review requested changes
+
+Tester reviewed the exact Gate A sampler snapshot and rejected it before any live source request because one NSE FII/DII URL requested 2020–2025 history, exceeding the allowed small-sample scope. Required fixes are a ten-day range, per-request byte cap, a maximum response row count, and regressions that reject multi-year request URLs/excess rows. The review request also misidentified the workflow commit SHA as its Git blob; actual workflow blob is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`. The report is on both tester and developer branches. No data was fetched.
