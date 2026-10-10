@@ -560,3 +560,11 @@ During proposal validation, a web-reader attempt to open the two fixed CDSL hist
 Tester code review found six issues in commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Developer corrected the report spec hash, JSON multi-date validation, non-finite CSV status, nested signature redaction, dated-link redaction, and workflow exact reviewed-commit/tree binding. The first new fixture run failed because the redactor did not normalize camelCase `requestSignature`; the code was corrected to split camelCase keys before matching sensitive suffixes.
 
 Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32 offline tests. None of the related test runs made source requests. The current exact snapshot has been resubmitted; no source-sampling manifest has been created.
+
+
+## 2026-10-10 — Corrected Gate A resample result
+
+- Run `38026993369`, artifact `11661065266`, ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`.
+- Index date-format bug is corrected: both official NSE daily index CSV samples pass with NIFTY 50 and all ten required sector indices. F&O and equity sample schemas pass.
+- NSE date-filtered FII/DII endpoint returns 2026-10-09 rows for a July 2024 request; the corrected code rejects these rows. Current endpoint is current-only. GitHub mirror provides 164 dates from Jan–Sep 2026 only; sampled pages do not establish the required 500+ aligned historical sessions.
+- Outcome: corrected source validation works, but historical FII/DII availability remains unresolved. The one-run manifest is spent. No new live requests are allowed until the separate Discovery 3 code gate passes and a new single-use manifest is created.
