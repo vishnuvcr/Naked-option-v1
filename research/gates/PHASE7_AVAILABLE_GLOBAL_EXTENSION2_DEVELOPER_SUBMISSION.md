@@ -141,3 +141,19 @@ The tester found that the initial v2 source audit checked FII/DII required field
 - Offline tests: `d818613dc2f9188224562a953fd979a6c274d292`.
 - Date normalization now handles ISO dates and a day-month-year date with an optional timestamp suffix; a dedicated fixture was added.
 - These supersede the earlier v2 blob IDs above. No workflow has been run.
+
+
+## v2 sampler regression failure and gated resubmission — 2026-10-10
+
+The first v2 workflow attempt [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in offline regression before any live source request. The valid FII/DII fixture exposed an over-escaped ISO-date regex in the validator. The workflow trigger was changed to require `research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json`, so future source sampling cannot start on a code push alone; the manual button remains available after review.
+
+- Corrected sampler blob: `fb83fe5e880a26134a765a0426f7aa85380272fb`.
+- Offline test blob: `d818613dc2f9188224562a953fd979a6c274d292`.
+- Workflow blob with approval-file push gate: `d303d8bd05978ef4837e1935ed40f8c2cdec851c`.
+- The ISO date validation now uses a proper four-digit-year regex. No live source data were downloaded in failed Run #1.
+
+Please independently re-review these exact blobs before an approval manifest is created.
+
+**Developer → Tester:** Verify the corrected ISO date handling and the approval-file-only push trigger. Pass or request changes; no source workflow may run without the manifest.
+
+**Tester → Developer:** A new PASS must be recorded against these exact blobs before creating the Gate A approval file.
