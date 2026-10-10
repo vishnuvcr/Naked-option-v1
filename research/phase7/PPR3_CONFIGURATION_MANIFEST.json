@@ -19,7 +19,7 @@
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
     "ppr3_decision": "PENDING_EXACT_SNAPSHOT_TESTER_REVIEW",
     "ppr3_test_scope": "Offline configuration and hash-pin validation only. Does not authorize source access or model execution.",
-    "ppr3_model_settings_note": "MA rules use persistent fast-above/below-slow states; crossover events are not conflated with persistent trend state."
+    "ppr3_model_settings_note": "Reviewed estimator-setting semantics: max_features=1.0 is explicitly fractional/all-features rather than integer 1; RF/XGBoost tuning-cell IDs and their scopes agree with the manifest."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -56,7 +56,7 @@
     },
     "model_settings": {
       "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
-      "blob": "152ed7d7e1dbed19ea30cc8697436fec5e01e074"
+      "blob": "d8373d6e9e997582695db7997636eece762c95c2"
     },
     "target_inference_contract": {
       "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
