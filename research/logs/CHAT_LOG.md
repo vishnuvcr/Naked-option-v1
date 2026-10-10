@@ -648,3 +648,14 @@ A new spec and tester review request were committed on `phase-07-developer`. No 
 **Developer → Tester:** Review the exact Dhan spec for scope, endpoint semantics, secret redaction and limits. No live requests at spec gate.
 
 **Tester → Developer:** Return PASS or REQUEST CHANGES; if PASS, allow offline adapter/tests only. Require a separate exact-snapshot code PASS and one-run manifest before authenticated sample calls.
+
+
+## 2026-10-10 — Resume: Dhan adapter and guarded workflow
+
+The user asked to use `DHAN_ACCESS_TOKEN` to resolve data gaps and rerun analyses. Dhan official docs confirm historical instrument candles, not combined daily FII/FPI/DII aggregate flows. The secret has not been read or exposed.
+
+The exact Dhan spec received a spec-only tester PASS. The adapter and offline suite now support CSV/JSON index metadata, unique instrument resolution, bounded ten-day historical requests, IST date checks, OHLCV validation, token/profile redaction and a shared 4 MiB/6-request budget. The live workflow validates hashes/ancestry, consumes the single-use manifest before source access, and scopes the token to the last step. Offline Run `38043020539` passed 27/27 checks. The tester passed workflow code only; no live requests have happened.
+
+**Tester → Developer:** One exact sample manifest may now be prepared for the reviewed snapshot. Do not authorize full-history acquisition or modeling; independently audit the sample artifact.
+
+**Developer → Tester:** After the guarded one-run sample, review source response statuses, instrument mapping, coverage/date windows, hashes and secret redaction before any next step.
