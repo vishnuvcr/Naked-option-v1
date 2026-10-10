@@ -653,3 +653,12 @@ The redirect-target-only proposal and code gate are recorded in [the tester repo
 **Current gate:** another independent exact-snapshot review is pending after the latest workflow and artifact-writer changes. No new single-use manifest exists and no further live request is authorized yet. Even after the one permitted diagnostic, following the redirect or requesting instrument master/candle/history data requires a separate review; no full-history download, feature/label creation, model fitting, prediction rerun or final-holdout access is authorized at this stage.
 
 The access token is bound only to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
+
+
+## 2026-10-10 — Retry corrections and final manual-trigger safety gate
+
+- Added workflow regression assertions for manual confirmation, authorization env, token injection only in final source step, manifest validation/spend ordering, and absence of a push trigger.
+- Removed the live workflow's push trigger after identifying that a manifest push could start the live job without the manual confirmation checkbox. Live workflow now runs only by manual dispatch, default confirmation false.
+- Hosted offline run [38044701520](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044701520) passed on exact snapshot `9bfd1d61c05f8658d5b6165759a735e317740328`.
+- Independent tester report updated and mirrored. Code/workflow gate PASS; live access explicitly NOT authorized. Manifest is absent and no request was attempted.
+- Limitation: available GitHub connector exposes run inspection/rerun but not workflow_dispatch. Therefore the manual live run cannot be honestly reported as executed from this session. Do not bypass the gate by restoring push-trigger behavior.
