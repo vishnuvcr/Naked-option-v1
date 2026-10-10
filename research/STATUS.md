@@ -854,3 +854,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Offline test workflow [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were queued and then observed in progress at checkpoint time; outcomes not yet accepted.
 - No CSV request, download, secret use, cache population, price history, model fitting or holdout access occurred.
 - **Next gate:** wait for hosted offline tests; fix any failures; then submit the exact implementation snapshot to independent tester code/workflow review. Only after that report may a new one-use manifest be considered. The Extension 2 manifest remains SPENT.
+
+
+## 2026-10-10 — Extension 3 offline code gate passed
+
+- Hosted offline workflow [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) succeeded: **9 instrument-master offline tests passed**; CLI reported `network_enabled=false`.
+- Research Protocol Check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) passed repository contract and literature-registry checks.
+- Independent tester report [PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md](gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md), tester commit `a7a77f790bd407f1ac72056e5fab7cd7c784e2b6`: **PASS WITH SCOPED RESTRICTIONS — offline validator/cache foundation only**.
+- New adapter performs offline CSV validation and atomic cache writes only. No live CSV was fetched and no cache was populated. The 8 MiB cap is provisional; actual source size remains unknown.
+- **Next gate:** developer may prepare a separate exact-URL fetch adapter with redirects disabled, no credentials, strict timeout/content-type/byte checks and fail-closed behavior, plus mocked offline tests. It must be submitted for independent code/workflow review. No live request or new manifest yet.
