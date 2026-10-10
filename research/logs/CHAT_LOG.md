@@ -488,3 +488,12 @@ The v2 workflow attempt failed on a valid FII/DII date fixture because the ISO-d
 **Developer → Tester:** Re-review the corrected regex, tests and approval-file trigger before any source request.
 
 **Tester → Developer:** Do not create the approval manifest or run source feasibility until a new explicit code-gate PASS is recorded.
+
+
+## 2026-10-10 — Resume Gate A after sampler-v2 regression failure
+
+Checked the latest README, research plan, status, error log, research/chat logs, Extension 2 specification and tester reports before continuing. The existing tester PASS is scoped to an earlier v2 sampler blob; it does not approve the later regex fix or the current workflow. The current workflow now gates both automatic and manual source sampling behind a validated exact-snapshot report and protected hashes. Run #1 failed in offline tests before any source request. The exact-snapshot review request is `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md`. The approval manifest remains absent; no source data were downloaded and no empirical model work occurred.
+
+**Developer → Tester:** Review the current sampler, test, spec and workflow blobs in the request file and return a fresh exact-snapshot decision.
+
+**Tester → Developer:** Do not create the authorization manifest or run the bounded sampler until current code/workflow passes and the hosted tests are green.
