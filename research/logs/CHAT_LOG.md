@@ -933,3 +933,16 @@ Resume actions:
 - Next: rerun the old and new mocked workflows, then freeze the exact source/test/workflow snapshot for the independent tester. The official-reference request gate remains unapproved and no manifest has been created.
 
 **Developer → Tester:** Review only after both live-disabled workflows pass. Check the offline CLI no-network default, two exact host budgets, compact CSV mapping rules and no cache on mismatches before code approval.
+
+
+## 2026-10-10 — Resume official-source cross-check: final offline code hardening
+
+- Resumed from tester REQUEST CHANGES report `PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_RETESTER.md`. Developer checked both branch heads, current status/error/chat ledgers, prior plan PASS, current test workflow and last hosted run before changes.
+- Fixed exact Dhan compact-master symbol mapping to require `SEM_TRADING_SYMBOL=NIFTY`, while keeping compact `SEM_SEGMENT` separate from API enum `IDX_I`.
+- Added `_load_verified_dhan_sample` before any official source opener: exact existing cached response path/hash, manifest request metadata, HTTP 200/JSON/single request/121 bytes, exact request body, timestamp maps to 2024-01-02 in Asia/Kolkata, array and OHLCV validation, and actual cached row used in comparison. Missing/changed response or invalid manifest fails before either request.
+- Hardened existing bundle reuse to validate `manifest.json` against the current cross-check manifest SHA, raw hashes/lengths, official row, Dhan map, MATCH result, previous Dhan sample provenance, safety flags and exact request metadata. New tests corrupt JSON and alter the saved official source URL while retaining matching raw files.
+- Failure record: missing `math` and `Decimal` imports found by offline run [38057742506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38057742506), corrected before further progress.
+- Current hosted [run 38058028914](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058028914) succeeded with 9 instrument-master, 17 adapter and 9 runner tests; protocol check [38058029128](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38058029128) passed. All CLIs explicitly report `network_enabled=false`; no official-source request, cross-check cache, feature/model run or holdout access occurred.
+- Frozen code snapshot documented in `research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CODE_SUBMISSION.md`. Next: independent tester review of exact blobs; only after PASS may a separate fresh two-source manifest/workflow be prepared. The prior Dhan sample approval remains SPENT.
+ 
+**Developer → Tester:** Re-review the exact code handoff and Run 38058028914. Verify cached-source provenance happens before network and the existing bundle manifest is fully checked before reuse. Do not authorize public-source access under this code review.
