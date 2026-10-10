@@ -10,6 +10,7 @@ import pathlib
 from decimal import Decimal
 import tempfile
 import unittest
+from unittest import mock
 from zoneinfo import ZoneInfo
 
 import run_nifty_1m_composite_dataset as collector
@@ -72,6 +73,52 @@ class TestEncryptedComposite(unittest.TestCase):
         other = collector.derive_key("hf_token_other_test_0123456789")
         with self.assertRaises(ValueError):
             collector.decrypt_bytes(cipher, other)
+
+    def test_invalid_cached_schema_is_refetched_for_the_same_approved_request(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old_cache, old_reports, old_ledger = collector.CACHE_ROOT, collector.REPORTS_ROOT, collector.ATTEMPT_LEDGER_PATH
+            collector.CACHE_ROOT = pathlib.Path(tmp) / "cache"
+            collector.REPORTS_ROOT = pathlib.Path(tmp) / "reports"
+            collector.ATTEMPT_LEDGER_PATH = collector.REPORTS_ROOT / "request_attempt_ledger.jsonl"
+            request = spot_request()
+            ts = epoch_ist("2026-10-01", "09:15:00")
+            valid_payload = {
+                "timestamp": [ts], "open": [24700.0], "high": [24701.0],
+                "low": [24699.0], "close": [24700.5], "volume": [1000]
+            }
+            response_bytes = json.dumps(valid_payload).encode("utf-8")
+            budget = {
+                "max_wire_requests": 8701, "max_retry_requests": 100,
+                "family_payload_bytes": {"NIFTY_SPOT_1M": 0},
+                "family_byte_limits": {"NIFTY_SPOT_1M": 268435456},
+                "errors": [], "downloaded_bytes": 0, "request_attempts": 0, "retry_requests": 0,
+            }
+            ledger = {
+                "schema_version": 1, "total_wire_attempts": 0, "total_retry_attempts": 0,
+                "request_attempts_by_id": {}, "permanent_failure_requests": {},
+                "permanent_failure_families": {}, "_last_saved": {
+                    "total_wire_attempts": 0, "total_retry_attempts": 0,
+                    "request_attempts_by_id": {}, "permanent_failure_requests": {},
+                    "permanent_failure_families": {},
+                }
+            }
+            pacer = collector.RequestPacer()
+            try:
+                with mock.patch.object(collector, "get_cached_payload", return_value=(b"{invalid-json", {"response_sha256": "0" * 64, "http_status": 200})), \
+                     mock.patch.object(collector, "fetch_live", return_value=(response_bytes, 200, "application/json", 0)):
+                    payload, status, digest, http_status, byte_count = collector.request_payload(
+                        request, "test-dhan-token", collector.derive_key("hf_token_for_test_only_0123456789"),
+                        pacer, {"wire_requests": 0, "retry_requests": 0}, budget, {"failed": False}, ledger
+                    )
+                self.assertEqual(status, "FETCHED")
+                self.assertEqual(payload["timestamp"], [ts])
+                self.assertEqual(digest, hashlib.sha256(response_bytes).hexdigest())
+                self.assertEqual(http_status, 200)
+                self.assertEqual(byte_count, len(response_bytes))
+                self.assertTrue(any("cached_payload_invalid_refetch" in item["reason"] for item in budget["errors"]))
+                self.assertTrue((collector.CACHE_ROOT / (request["request_id"] + ".json.enc")).exists())
+            finally:
+                collector.CACHE_ROOT, collector.REPORTS_ROOT, collector.ATTEMPT_LEDGER_PATH = old_cache, old_reports, old_ledger
 
     def test_spot_parser_preserves_values_and_timezone(self):
         request = spot_request()
