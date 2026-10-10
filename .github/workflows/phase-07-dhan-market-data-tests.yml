@@ -1,0 +1,33 @@
+name: Phase 7 Dhan Market Data Recovery — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/dhan_market_data_recovery.py"
+      - "scripts/test_dhan_market_data_recovery.py"
+      - ".github/workflows/phase-07-dhan-market-data-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-dhan-offline-tests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-tests-only:
+    name: dhan-offline-tests-only-no-network
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run Dhan parser and security regressions only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_dhan_market_data_recovery.py
