@@ -43,3 +43,35 @@ jobs:
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
             python scripts/validate_dhan_daily_sample_approval.py review-check
           fi
+      - name: Print verified manifest fingerprints using Python hashlib and Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, pathlib, subprocess
+          root = pathlib.Path(".")
+          manifest_path = root / "research/gates/DHAN_DAILY_SAMPLE_REQUEST.json"
+          raw = manifest_path.read_bytes()
+          manifest = json.loads(raw)
+          authorization = manifest["authorization"]
+          canonical = json.dumps(authorization, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+          files = {}
+          for path in sorted(authorization["protected_files"]):
+              p = root / path
+              files[path] = {
+                  "git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + path], text=True).strip(),
+                  "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+              }
+          print("VERIFIED_MANIFEST_FINGERPRINTS=" + json.dumps({
+              "head_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "manifest_git_blob": subprocess.check_output(["git", "rev-parse", "HEAD:" + str(manifest_path)], text=True).strip(),
+              "manifest_sha256": hashlib.sha256(raw).hexdigest(),
+              "authorization_sha256": hashlib.sha256(canonical).hexdigest(),
+              "protected_files": files,
+              "protected_files_match_manifest": all(
+                  files[k]["git_blob"] == v["git_blob"] and files[k]["sha256"] == v["sha256"]
+                  for k, v in authorization["protected_files"].items()
+              ),
+              "authorization_digest_matches_manifest": hashlib.sha256(canonical).hexdigest() == manifest.get("authorization_sha256"),
+          }, sort_keys=True))
+          PY
