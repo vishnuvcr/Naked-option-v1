@@ -287,6 +287,12 @@ def test_candle_missing_unequal_and_empty_arrays_rejected() -> None:
         must_raise(lambda bad=bad, expected=expected: mod.validate_candle_payload(bad), expected)
 
 
+def test_candle_noninteger_or_nonpositive_timestamps_rejected() -> None:
+    for stamps in ([1700000000.5, 1700000060], [1700000000, 0]):
+        must_raise(lambda stamps=stamps: mod.validate_candle_payload({**CANDLES, "timestamp": stamps}),
+                   "candle_timestamp_invalid")
+
+
 def test_candle_duplicate_or_out_of_order_timestamps_rejected() -> None:
     for stamps in ([1700000000, 1700000000], [1700000060, 1700000000]):
         must_raise(lambda stamps=stamps: mod.validate_candle_payload({**CANDLES, "timestamp": stamps}),
@@ -347,7 +353,7 @@ def test_expired_option_request_window_and_allowed_fields_validate() -> None:
         "instrument": "OPTIDX", "expiryFlag": "WEEK", "expiryCode": 1,
         "strike": "ATM", "drvOptionType": "CALL",
         "requiredData": ["open", "high", "low", "close", "iv", "volume", "oi", "strike", "spot"],
-        "fromDate": "2024-01-01", "toDate": "2024-01-31",
+        "fromDate": "2024-01-01", "toDate": "2024-01-30",
     }
     assert mod.validate_request_window(mod.ROLLING_OPTION_URL, body)["source"] == "rolling_expired_options"
     for end, expected in [("2024-02-01", "date_range_exceeds_documented_cap"),
@@ -358,6 +364,11 @@ def test_expired_option_request_window_and_allowed_fields_validate() -> None:
     must_raise(lambda: mod.validate_request_window(
         mod.ROLLING_OPTION_URL, {**body, "requiredData": ["token"]}
     ), "rolling_option_required_data_unrecognized")
+
+
+def test_daily_oi_flag_must_be_boolean() -> None:
+    must_raise(lambda: mod.validate_request_window(mod.DAILY_URL, {**DAILY_REQ, "oi": 0}),
+               "daily_request_oi_invalid")
 
 
 def test_daily_window_has_conservative_365_day_cap() -> None:
