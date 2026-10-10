@@ -283,12 +283,34 @@ def test_bad_json_and_non_object_root_rejected() -> None:
 
 
 def test_request_budget_and_pacing_fail_closed() -> None:
-    budget = mod.RequestBudget(request_limit=3)
-    budget.reserve_request(now=100)
-    must_raise(lambda: budget.reserve_request(now=102), "request_pacing_limit")
-    budget = mod.RequestBudget(request_limit=1)
+    budget = mod.RequestBudget()
     budget.reserve_request(now=100)
     must_raise(lambda: budget.reserve_request(now=104), "request_budget_exceeded")
+
+    old_max_requests = mod.MAX_REQUESTS
+    try:
+        mod.MAX_REQUESTS = 3
+        pacing_budget = mod.RequestBudget(request_limit=3)
+        pacing_budget.reserve_request(now=100)
+        must_raise(lambda: pacing_budget.reserve_request(now=102), "request_pacing_limit")
+        pacing_budget.reserve_request(now=103)
+    finally:
+        mod.MAX_REQUESTS = old_max_requests
+
+
+def test_sample_request_budgets_cannot_be_widened() -> None:
+    must_raise(lambda: mod.RequestBudget(request_limit=mod.MAX_REQUESTS + 1),
+               "request_budget_limit_invalid")
+    must_raise(lambda: mod.RequestBudget(byte_limit=mod.MAX_TOTAL_BYTES + 1),
+               "request_byte_budget_limit_invalid")
+    budget = mod.RequestBudget()
+    budget.request_limit = mod.MAX_REQUESTS + 1
+    calls = []
+    must_raise(lambda: mod.request_json(
+        mod.DAILY_URL, DAILY_REQ, token="not-a-real-token", budget=budget,
+        opener_factory=lambda: calls.append("opened"), live_authorized=True,
+    ), "request_budget_limit_invalid")
+    assert calls == []
 
 
 def test_candle_arrays_and_ohlc_validate() -> None:
@@ -330,6 +352,19 @@ def test_candle_nonfinite_negative_and_bad_ohlc_rejected() -> None:
                "candle_value_negative_volume")
     must_raise(lambda: mod.validate_candle_payload({**CANDLES, "high": [98, 103]}),
                "candle_ohlc_inconsistent_row_0")
+
+def test_optional_open_interest_values_are_fully_validated() -> None:
+    for values, expected in [
+        ([10, -1], "candle_value_negative_open_interest"),
+        ([10, float("nan")], "candle_value_nonfinite_open_interest"),
+        ([10, "bad"], "candle_value_invalid_open_interest"),
+    ]:
+        must_raise(lambda values=values, expected=expected: mod.validate_candle_payload(
+            {**CANDLES, "open_interest": values}
+        ), expected)
+    must_raise(lambda: mod.validate_candle_payload(
+        {**CANDLES, "open_interest": "not-an-array"}
+    ), "candle_array_invalid_open_interest")
 
 
 def test_rolling_option_arrays_and_fields_validate() -> None:
@@ -380,6 +415,8 @@ def test_expired_option_request_window_and_allowed_fields_validate() -> None:
         "fromDate": "2024-01-01", "toDate": "2024-01-30",
     }
     assert mod.validate_request_window(mod.ROLLING_OPTION_URL, body)["source"] == "rolling_expired_options"
+    exactly_30_days = {**body, "toDate": "2024-01-31"}
+    assert mod.validate_request_window(mod.ROLLING_OPTION_URL, exactly_30_days)["source"] == "rolling_expired_options"
     for end, expected in [("2024-02-01", "date_range_exceeds_documented_cap"),
                           ("2023-12-30", "date_range_not_increasing")]:
         must_raise(lambda end=end: mod.validate_request_window(
@@ -402,8 +439,10 @@ def test_daily_oi_flag_must_be_boolean() -> None:
                "daily_request_oi_invalid")
 
 
-def test_daily_window_has_conservative_365_day_cap() -> None:
-    too_long = {**DAILY_REQ, "toDate": "2025-01-02"}
+def test_daily_window_has_conservative_365_day_exclusive_cap() -> None:
+    exactly_365 = {**DAILY_REQ, "fromDate": "2023-01-01", "toDate": "2024-01-01"}
+    assert mod.validate_request_window(mod.DAILY_URL, exactly_365)["source"] == "daily_candles"
+    too_long = {**exactly_365, "toDate": "2024-01-02"}
     must_raise(lambda: mod.validate_request_window(mod.DAILY_URL, too_long),
                "date_range_exceeds_documented_cap")
 
@@ -439,6 +478,32 @@ def test_rolling_option_validator_handles_custom_required_fields() -> None:
     )
     assert result["row_count"] == 2
 
+def test_rolling_option_empty_unrequested_optional_arrays_are_allowed() -> None:
+    published_shape = json.loads(json.dumps(ROLLING))
+    for field in ("iv", "oi", "strike", "spot"):
+        published_shape["data"]["ce"][field] = []
+    result = mod.validate_rolling_option_payload(
+        published_shape, option_type="CALL",
+        required_fields=("open", "high", "low", "close", "volume"),
+    )
+    assert result["row_count"] == 2
+    must_raise(lambda: mod.validate_rolling_option_payload(
+        published_shape, option_type="CALL",
+        required_fields=("open", "high", "low", "close", "volume", "iv"),
+    ), "rolling_option_array_length_mismatch")
+
+
+def test_rolling_option_offset_strike_is_blocked_in_initial_sample_scope() -> None:
+    body = {
+        "exchangeSegment": "NSE_FNO", "interval": "1", "securityId": 13,
+        "instrument": "OPTIDX", "expiryFlag": "WEEK", "expiryCode": 1,
+        "strike": "ATM+999", "drvOptionType": "CALL",
+        "requiredData": ["open", "high", "low", "close", "volume"],
+        "fromDate": "2024-01-01", "toDate": "2024-01-31",
+    }
+    must_raise(lambda: mod.validate_request_window(mod.ROLLING_OPTION_URL, body),
+               "rolling_option_strike_invalid")
+
 
 def test_cache_rejects_response_timestamps_outside_requested_window() -> None:
     raw = json.dumps(CANDLES, sort_keys=True).encode()
@@ -448,6 +513,19 @@ def test_cache_rejects_response_timestamps_outside_requested_window() -> None:
         must_raise(lambda: mod.atomic_cache_bundle(
             raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
             request_metadata=cache_meta(raw), request_parameters=outside,
+            fetched_at_utc="2026-10-10T00:00:00Z"
+        ), "cache_timestamp_outside_requested_window")
+        assert list(pathlib.Path(temp).iterdir()) == []
+
+def test_daily_exclusive_to_date_rejected_in_cache() -> None:
+    last_stamp = 1700086400  # 2023-11-16 03:43 IST; equals excluded toDate.
+    payload = {**CANDLES, "timestamp": [1700000000, last_stamp]}
+    raw = json.dumps(payload, sort_keys=True).encode()
+    valid = mod.validate_candle_payload(payload)
+    with tempfile.TemporaryDirectory() as temp:
+        must_raise(lambda: mod.atomic_cache_bundle(
+            raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
+            request_metadata=cache_meta(raw), request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_timestamp_outside_requested_window")
         assert list(pathlib.Path(temp).iterdir()) == []

@@ -46,22 +46,46 @@ class RequestBudget:
     byte_limit: int = MAX_TOTAL_BYTES
     last_request_monotonic: float | None = None
 
+    def __post_init__(self) -> None:
+        self._validate_limits()
+
+    def _validate_limits(self) -> None:
+        """Enforce the current gate's hard budgets; callers cannot widen them."""
+        if type(self.request_limit) is not int or not 1 <= self.request_limit <= MAX_REQUESTS:
+            raise ValueError("request_budget_limit_invalid")
+        if type(self.byte_limit) is not int or not 1 <= self.byte_limit <= MAX_TOTAL_BYTES:
+            raise ValueError("request_byte_budget_limit_invalid")
+        if type(self.requests) is not int or not 0 <= self.requests <= self.request_limit:
+            raise ValueError("request_budget_state_invalid")
+        if type(self.bytes_read) is not int or not 0 <= self.bytes_read <= self.byte_limit:
+            raise ValueError("request_byte_budget_state_invalid")
+        if self.last_request_monotonic is not None:
+            if (isinstance(self.last_request_monotonic, bool)
+                    or not isinstance(self.last_request_monotonic, (int, float))
+                    or not math.isfinite(float(self.last_request_monotonic))):
+                raise ValueError("request_pacing_state_invalid")
+
     def reserve_request(self, *, now: float | None = None) -> None:
+        self._validate_limits()
         if self.requests >= self.request_limit:
             raise ValueError("request_budget_exceeded")
         tick = time.monotonic() if now is None else now
+        if isinstance(tick, bool) or not isinstance(tick, (int, float)) or not math.isfinite(float(tick)):
+            raise ValueError("request_pacing_timestamp_invalid")
         if self.last_request_monotonic is not None:
-            elapsed = tick - self.last_request_monotonic
+            elapsed = float(tick) - float(self.last_request_monotonic)
             if elapsed < MIN_REQUEST_INTERVAL_SECONDS:
                 raise ValueError("request_pacing_limit")
         self.requests += 1
-        self.last_request_monotonic = tick
+        self.last_request_monotonic = float(tick)
 
     def account_bytes(self, count: int) -> None:
-        if count < 0 or self.bytes_read + count > self.byte_limit:
+        self._validate_limits()
+        if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+            raise ValueError("response_byte_count_invalid")
+        if self.bytes_read + count > self.byte_limit:
             raise ValueError("global_response_byte_budget_exceeded")
         self.bytes_read += count
-
 
 def _no_redirect_opener():
     """Create an opener that rejects redirect responses without following them."""
@@ -107,6 +131,9 @@ def request_json(
     """
     if live_authorized is not True:
         raise RuntimeError("live_request_not_authorized")
+    if not isinstance(budget, RequestBudget):
+        raise ValueError("request_budget_invalid")
+    budget._validate_limits()
     if not _valid_api_url(url):
         raise ValueError("unregistered_or_unsafe_url")
     if not isinstance(body_obj, dict):
@@ -202,13 +229,20 @@ def validate_candle_payload(
     *,
     required_fields: tuple[str, ...] = ("open", "high", "low", "close", "volume"),
 ) -> dict[str, Any]:
-    """Check historical/intraday parallel arrays, timestamps and OHLC constraints."""
+    """Validate timestamp/OHLC arrays and every recognized numeric array returned."""
     if not isinstance(payload, dict):
         raise ValueError("candle_payload_not_object")
     mandatory = ("timestamp",) + tuple(required_fields)
     for key in mandatory:
         if key not in payload or not isinstance(payload[key], list):
             raise ValueError(f"candle_array_missing_{key}")
+    recognized_numeric = (
+        "open", "high", "low", "close", "volume",
+        "open_interest", "oi", "iv", "strike", "spot",
+    )
+    for key in recognized_numeric:
+        if key in payload and not isinstance(payload[key], list):
+            raise ValueError(f"candle_array_invalid_{key}")
     lengths = {len(payload[key]) for key in mandatory}
     if len(lengths) != 1:
         raise ValueError("candle_array_length_mismatch")
@@ -235,8 +269,15 @@ def validate_candle_payload(
     if any(a >= b for a, b in zip(timestamps, timestamps[1:])):
         raise ValueError("candle_timestamps_not_strictly_increasing")
 
+    numeric_fields = tuple(dict.fromkeys(
+        tuple(required_fields) + tuple(field for field in recognized_numeric if field in payload)
+    ))
     numeric: dict[str, list[float]] = {}
-    for field in required_fields:
+    nonnegative_fields = {
+        "open", "high", "low", "close", "volume",
+        "open_interest", "oi", "iv", "strike", "spot",
+    }
+    for field in numeric_fields:
         converted: list[float] = []
         for value in payload[field]:
             if isinstance(value, bool):
@@ -247,7 +288,7 @@ def validate_candle_payload(
                 raise ValueError(f"candle_value_invalid_{field}") from None
             if not math.isfinite(num):
                 raise ValueError(f"candle_value_nonfinite_{field}")
-            if field in ("open", "high", "low", "close", "volume", "open_interest", "oi", "strike", "spot", "iv") and num < 0:
+            if field in nonnegative_fields and num < 0:
                 raise ValueError(f"candle_value_negative_{field}")
             converted.append(num)
         numeric[field] = converted
@@ -266,9 +307,8 @@ def validate_candle_payload(
         "timestamp_sha256": hashlib.sha256(
             json.dumps(timestamps, separators=(",", ":")).encode("ascii")
         ).hexdigest(),
-        "fields": list(required_fields),
+        "fields": list(numeric_fields),
     }
-
 
 def validate_rolling_option_payload(
     payload: dict[str, Any],
@@ -278,7 +318,7 @@ def validate_rolling_option_payload(
         "open", "high", "low", "close", "iv", "volume", "oi", "strike", "spot"
     ),
 ) -> dict[str, Any]:
-    """Validate Dhan's rolling-option envelope and all requested parallel arrays."""
+    """Validate requested rolling-option arrays and populated optional arrays."""
     if option_type not in ("CALL", "PUT"):
         raise ValueError("rolling_option_type_invalid")
     data = payload.get("data")
@@ -289,27 +329,50 @@ def validate_rolling_option_payload(
     if not isinstance(rows, dict):
         raise ValueError("rolling_option_side_missing")
     required = tuple(required_fields)
-    # Reuse OHLC/timestamp checks for core fields; validate the entire aligned
-    # field collection separately so no IV/OI/strike/spot mismatch is possible.
-    for key in ("timestamp",) + required:
+    if len(required) != len(set(required)):
+        raise ValueError("rolling_option_required_data_duplicate")
+    required_arrays = ("timestamp",) + required
+    for key in required_arrays:
         if key not in rows or not isinstance(rows[key], list):
             raise ValueError(f"rolling_option_array_missing_{key}")
-    lengths = {len(rows[key]) for key in ("timestamp",) + required}
+    lengths = {len(rows[key]) for key in required_arrays}
     if len(lengths) != 1:
         raise ValueError("rolling_option_array_length_mismatch")
     count = lengths.pop()
+    if count == 0:
+        raise ValueError("rolling_option_array_empty")
+
+    # The published Dhan example contains empty arrays for unrequested iv/oi/strike/spot.
+    # Empty arrays are allowed only when that field was not requested.
     for key, value in rows.items():
-        if isinstance(value, list) and len(value) != count:
+        if not isinstance(value, list):
+            if key in {"timestamp", "open", "high", "low", "close", "volume", "iv", "oi", "strike", "spot"}:
+                raise ValueError(f"rolling_option_array_invalid_{key}")
+            continue
+        if key in required_arrays:
+            if len(value) != count:
+                raise ValueError("rolling_option_array_length_mismatch")
+        elif value and len(value) != count:
             raise ValueError(f"rolling_option_array_length_mismatch_{key}")
+
+    base_payload = {
+        key: rows[key]
+        for key in ("timestamp", "open", "high", "low", "close", "volume")
+    }
     basic = validate_candle_payload(
-        {key: rows[key] for key in ("timestamp", "open", "high", "low", "close", "volume")},
+        base_payload,
         required_fields=("open", "high", "low", "close", "volume"),
     )
-    # Numeric and sign checks for non-OHLC fields.
+
     for field in ("iv", "oi", "strike", "spot"):
-        if field not in required:
+        if field not in rows:
             continue
-        for value in rows[field]:
+        field_values = rows[field]
+        if not field_values and field not in required:
+            continue
+        if len(field_values) != count:
+            raise ValueError("rolling_option_array_length_mismatch")
+        for value in field_values:
             if isinstance(value, bool):
                 raise ValueError(f"rolling_option_value_invalid_{field}")
             try:
@@ -318,13 +381,13 @@ def validate_rolling_option_payload(
                 raise ValueError(f"rolling_option_value_invalid_{field}") from None
             if not math.isfinite(numeric) or numeric < 0:
                 raise ValueError(f"rolling_option_value_invalid_{field}")
+
     return {
         **basic,
         "option_type": option_type,
         "side": side,
         "fields": ["timestamp", *required],
     }
-
 
 def _validate_instrument_fields(body: dict[str, Any], prefix: str) -> None:
     security_id = body.get("securityId")
@@ -395,10 +458,10 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
     if isinstance(expiry_code, bool) or not isinstance(expiry_code, int) or expiry_code < 0:
         raise ValueError("rolling_option_expiry_code_invalid")
     strike_value = body.get("strike")
-    if isinstance(strike_value, bool) or not (
-        (isinstance(strike_value, int) and strike_value > 0)
-        or (isinstance(strike_value, str) and strike_value.strip())
-    ):
+    # Initial source-feasibility scope is ATM only. Offset grids require a later
+    # separately reviewed change because Dhan documents different bounds for
+    # near-expiry index options versus other contracts.
+    if not isinstance(strike_value, str) or strike_value != "ATM":
         raise ValueError("rolling_option_strike_invalid")
     _validate_date_range(start_date, end_date, max_days=30)
     required_data = body.get("requiredData")
@@ -415,14 +478,16 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
             "interval": str(body["interval"])}
 
 def _validate_date_range(start: Any, end: Any, *, max_days: int | None) -> None:
+    """Validate exclusive-end date windows used by Dhan daily and rolling-option APIs."""
     try:
-        from_date = __import__("datetime").date.fromisoformat(str(start))
-        to_date = __import__("datetime").date.fromisoformat(str(end))
+        from_date = dt.date.fromisoformat(str(start))
+        to_date = dt.date.fromisoformat(str(end))
     except (ValueError, TypeError):
         raise ValueError("date_range_invalid") from None
     if to_date <= from_date:
         raise ValueError("date_range_not_increasing")
-    if max_days is not None and (to_date - from_date).days + 1 > max_days:
+    # Dhan documents toDate as non-inclusive for both these endpoints.
+    if max_days is not None and (to_date - from_date).days > max_days:
         raise ValueError("date_range_exceeds_documented_cap")
 
 
@@ -599,7 +664,7 @@ def _validate_payload_timestamps_in_request(
     if source_url in (DAILY_URL, ROLLING_OPTION_URL):
         start = dt.date.fromisoformat(str(request_parameters["fromDate"]))
         end = dt.date.fromisoformat(str(request_parameters["toDate"]))
-        if any(not start <= stamp.date() <= end for stamp in local_times):
+        if any(not start <= stamp.date() < end for stamp in local_times):
             raise ValueError("cache_timestamp_outside_requested_window")
     else:
         start = dt.datetime.fromisoformat(str(request_parameters["fromDate"]).replace(" ", "T"))
