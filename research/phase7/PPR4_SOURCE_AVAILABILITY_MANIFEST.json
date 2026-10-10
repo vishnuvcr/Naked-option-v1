@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": "PPR-4",
   "manifest_id": "PPR4_SOURCE_AVAILABILITY_MANIFEST_2026-10-10",
-  "audit_status": "READ_ONLY_INVENTORY_VALIDATED_HOLDOUT_BOUNDARY_EXIT_BLOCKED",
+  "audit_status": "READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED",
   "gate_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
   "created_at_utc": "2026-10-10",
   "branch": "phase-07-developer",
@@ -234,7 +234,7 @@
   },
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-    "ppr4_inventory_validation": "PASS_OFFLINE_METADATA_ONLY",
+    "ppr4_inventory_validation": "OFFLINE_METADATA_ONLY_VALIDATION_PASSED_BEFORE_TESTER_REPORT_PIN_UPDATE; RETRY_REQUIRED_AFTER_CONTRACT_STATUS_CORRECTION",
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
