@@ -914,3 +914,8 @@ The proposal freezes all seven candidates, the 1/2/3/5/10-session horizon grid, 
 ## 2026-10-10 — Extension 2 spec corrections submitted
 
 Tester REQUEST CHANGES identified ambiguous FII/DII normalization, option data format transition, F04/F05 arithmetic, sector index identity, and common-grid missingness handling. The developer corrected the exact spec (blob `7f6cc6e86556db3da9f87c23c0e183bcb3282310`) and updated the handoff. The corrected proposal is awaiting a new tester decision. No data were acquired and no model was fitted; only a future spec PASS may authorize deterministic small-sample source feasibility.
+
+
+## 2026-10-10 — Gate A Run #1 source feasibility
+
+Hosted [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019391488) passed six offline fixtures and uploaded a bounded source report. Official NSE F&O legacy and UDiFF samples both passed date/schema checks with 33,930 and 34,390 rows respectively, including 1,634 NIFTY option rows each. The NSE FII/DII API returned only the current day's two category rows; a public GitHub mirror has 164 unique dates from 2026-01-14 through 2026-09-30, insufficient for confirmatory inference. The attempted sector API returned generic HTML, and the Advances/Declines page did not expose historical rows. Official `ind_close_all_DDMMYYYY.csv` daily index archive is a better source lead but still needs sampling. Independent tester returned REQUEST CHANGES; next iteration is limited to official daily index/equity samples and broader free historical flow source discovery. No full-history data or model was created.
