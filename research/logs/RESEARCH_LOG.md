@@ -1031,3 +1031,10 @@ The one-run Gate A manifest is spent and cannot authorize more requests. The nex
 The tester branch records a fresh PASS WITH SCOPED RESTRICTIONS for the current six-file Discovery 3 snapshot. The hosted offline suite Run `38029797600` passed 32 regressions, including the six previous defects (spec identity, conflicting dates, NaN/Infinity, recursive signature redaction, dated URL query redaction and reviewed-commit tree binding). This is a code/workflow gate only; it does not authorize a live probe.
 
 The exact tester report is at `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` on `phase-07-tester`. Mirroring it to the developer branch was blocked by platform safety checks. The live source approval manifest remains absent. No live requests, full-history acquisition, feature/label construction or model fitting occurred. Next step is to mirror the report through a permitted path and compute byte-level hashes for all six protected files before creating a single-use manifest.
+
+
+## 2026-10-10 — DhanHQ recovery proposal
+
+The user added `DHAN_ACCESS_TOKEN` and asked to resolve data gaps and rerun analyses. Reviewed official DhanHQ v2 docs: daily historical endpoint `POST /v2/charts/historical` provides OHLCV (and OI when applicable); daily history may extend to instrument inception, while intraday candles are limited to five years and 90 days per call. Data API entitlement may require a separate subscription. The documented historical-candle API is not an aggregate daily FII/FPI/DII endpoint, so this secret may improve price/derivative data but cannot be claimed to resolve the flow series.
+
+Created `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` and `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md`. This is specification-only. No authenticated request was made and the token value was not accessed or persisted. The prior FII/DII source-discovery manifest is spent. Await independent spec review, then implement offline and seek a separate exact-snapshot code gate and single-use sample manifest before any network request.
