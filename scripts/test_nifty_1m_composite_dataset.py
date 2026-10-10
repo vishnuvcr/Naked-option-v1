@@ -135,7 +135,7 @@ class TestEncryptedComposite(unittest.TestCase):
 
     def test_rule_expiry_map_uses_september_2025_monthly_transition_correctly(self):
         sessions = {
-            "2025-09-01", "2025-09-22", "2025-09-23", "2025-09-24",
+            "2025-09-01", "2025-09-02", "2025-09-22", "2025-09-23", "2025-09-24",
             "2025-09-25", "2025-09-26", "2025-09-29", "2025-09-30",
             "2025-10-01", "2025-10-27", "2025-10-28", "2025-10-29",
         }
