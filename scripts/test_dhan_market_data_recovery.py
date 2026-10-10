@@ -529,6 +529,13 @@ def test_live_workflow_checks_and_spends_manifest_before_source_step() -> None:
     assert ("DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}") in workflow
     assert workflow.count("DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}") == 1
     assert "if: github.ref == 'refs/heads/phase-07-developer'" in workflow
+    probe_workflow = (ROOT / ".github/workflows/phase-07-dhan-redirect-probe-live.yml").read_text(encoding="utf-8")
+    assert "confirm_probe:" in probe_workflow and "default: false" in probe_workflow
+    assert 'DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED: "1"' in probe_workflow
+    assert "DHAN_LIVE_SAMPLE_AUTHORIZED" not in probe_workflow
+    assert probe_workflow.count("DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}") == 1
+    assert probe_workflow.index("Run offline tests before secret is available") < probe_workflow.index("Validate exact one-request manifest")
+    assert probe_workflow.index("Spend manifest before the single diagnostic request") < probe_workflow.index("One request - record redirect scheme and hostname only")
 
 
 def test_manifest_validator_protects_exact_scope_and_spends_first() -> None:
