@@ -167,7 +167,7 @@ def test_mapping_rejects_missing_ambiguous_or_wrong_candidates() -> None:
     missing = (CSV_HEADER + "99,NSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX\n").encode()
     must_raise(lambda: mod.parse_dhan_instrument_mapping(missing), "dhan_mapping_row_count_not_one")
     duplicate = (GOOD_CSV.decode() + "13,NSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX\n").encode()
-    must_raise(lambda: mod.parse_dhan_instrument_mapping(duplicate), "dhan_mapping_row_count_not_one")
+    must_raise(lambda: mod.parse_dhan_instrument_mapping(duplicate), "csv_duplicate_segment_security_id")
     for row, expected in [
         ("13,BSE,E,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX", "dhan_mapping_exchange_mismatch"),
         ("13,NSE,E,EQUITY,NIFTY,NIFTY 50,NIFTY 50,EQ", "dhan_mapping_instrument_mismatch"),
