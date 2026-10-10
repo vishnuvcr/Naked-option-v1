@@ -718,3 +718,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Attempt to mirror the tester report to the developer branch was blocked by platform safety checks. The source manifest has NOT been created. Do not bypass the exact-report mirror requirement.
 - Before any live request: run tests on the exact reviewed snapshot, calculate byte-level SHA-256 for all six protected files, mirror the report through an allowed path, then create and validate a separate single-use manifest.
 - **Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain NOT AUTHORIZED.**
+
+
+## 2026-10-10 — DhanHQ data-recovery proposal submitted for independent spec review
+
+- User reported adding GitHub Actions secret `DHAN_ACCESS_TOKEN` and requested resolution of data gaps and rerunning analyses.
+- Official DhanHQ documentation reviewed: [daily/intraday historical data](https://dhanhq.co/docs/v2/historical-data/) and [authentication](https://dhanhq.co/docs/v2/authentication/). Daily historical candles can potentially improve NIFTY/index OHLCV and derivative coverage; token/data API entitlement may be time-limited or require an active Data API plan.
+- Critical limitation: Dhan historical candles are instrument OHLCV/OI, not documented aggregate FII/FPI/DII cash-market flow data. The FII/DII bottleneck is not considered resolved by adding this token.
+- New finite spec: `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md`; tester handoff: `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md`.
+- No Dhan request was made and the token value was not read, printed or persisted. The previous FII/DII one-run manifest is spent and cannot be reused.
+- **Current gate: waiting for independent specification decision.** No live request, full-history acquisition, features/labels, model fitting, metrics or holdout access authorized.
