@@ -416,3 +416,12 @@ The free-source inventory now includes [CDSL's dated FPI reports](https://www.cd
 **Provenance correction:** the MrChartist repo's `scripts/seed_history.js` explicitly generates "realistic per-day" values from monthly/yearly totals. Those seeded values are synthetic and must not be used as observed daily data. A full public `data/history.json` file (143,498 bytes) was inadvertently retrieved during repository review; it was not committed to the project data or used for analysis, and the incident is disclosed in [ERROR_LOG.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md).
 
 The previous Gate A manifest is spent. No further data probes are authorized until a new narrowly bounded source-discovery spec, offline regressions, and isolated tester review pass. The detailed [free-source inventory](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md) lists the scope and limitations.
+
+
+### Extension 2 Source Discovery 3 — specification passed (2026-10-10)
+
+The independent tester passed the new bounded free-source proposal for **implementation and offline tests only**. No additional source requests are authorized yet. The spec pins the CDSL historical FPI samples, a single Hugging Face CSV head/tail probe at an immutable commit, a single-date static JSON sample and metadata-only page/repository checks. It has a 2 MiB global byte cap, 15 initial requests plus at most three one-hop HF redirects, strict HTTP 206/Content-Range handling, no full-file fallback, and excludes synthetic/seeded data.
+
+See the [specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md) and [independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md). The previous Gate A manifest is spent. The next gate is offline implementation/tests followed by an exact-snapshot code review; a separate manifest will be required before any live source probe.
+
+During specification link verification, the web reader could not parse the two CDSL XLS links and returned no data values. This is recorded as non-accepted activity, not as source-coverage evidence. Full-history acquisition and model fitting remain unauthorized.
