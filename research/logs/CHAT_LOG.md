@@ -236,3 +236,14 @@ Fresh exact-snapshot independent review returned REQUEST CHANGES: the Gate A v2 
 **Tester → Developer:** Fix the request bounds and sample caps; keep the approval manifest absent.
 
 **Developer → Tester:** Re-review the corrected exact source/workflow snapshot; source calls remain disabled until the new PASS.
+
+
+## 2026-10-10 — Tester exact-snapshot decision after bounded-request corrections
+
+The independent tester passed the corrected sampler/workflow snapshot for **one bounded Gate A source-sampling batch only**. Hosted tests passed: 7 v1 and 15 v2 checks in Run `38026024826`; the legacy workflow's offline-only safety run `38026080844` also passed. The tester report explicitly denies full-history acquisition and model fitting.
+
+A previous legacy workflow did run the v1 source sampler without tester authorization (Run `38025793938`). The artifact is classified NON-ACCEPTED EVIDENCE, and the workflow has been modified to run tests only. The guarded v2 workflow is the only source-fetch path now.
+
+**Tester → Developer:** Mirror the exact current PASS report and create one hash-bound Gate A approval manifest. Let the guarded workflow re-run offline tests before any live fetch; then submit both source reports for a separate tester artifact audit.
+
+**Developer → Tester:** Preserve the prior unauthorized artifact as non-evidence and audit the new bounded run's URLs, hashes, all-row schemas and provenance. No full history or model fit is authorized by this gate.
