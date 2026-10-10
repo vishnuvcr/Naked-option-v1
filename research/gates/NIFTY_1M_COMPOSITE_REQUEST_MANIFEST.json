@@ -49,7 +49,7 @@
       "spot",
       "timestamp"
     ],
-    "historical_greeks": "Not returned by rolling historical API; derived only with source-tagged expiry/rate inputs; null with reason code otherwise"
+    "historical_greeks": "Not supplied by historical rolling API. Black-Scholes European Greeks are derived from sourced expiry/rate/dividend inputs when available; otherwise separately labelled proxy Greeks use rule-derived NIFTY expiry and explicit zero-rate/zero-dividend assumptions. Proxy/source status and assumptions are carried per row. Current option-chain Greeks are never backfilled."
   },
   "budgets": {
     "date_chunk_calendar_days": 30,
@@ -125,7 +125,8 @@
     "readme": "data/exports/nifty_1m_composite/README.md",
     "decryption_script": "scripts/decrypt_nifty_1m_composite.py",
     "local_merge_command": "python scripts/decrypt_nifty_1m_composite.py --input-dir <artifact-folder> --output-dir <local-parts> --merge-output nifty_1m_composite_5y.csv.gz",
-    "not_publishing_subscribed_market_rows_to_public_git_or_release": true
+    "not_publishing_subscribed_market_rows_to_public_git_or_release": true,
+    "greeks": "Source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise visibly labelled proxy Greeks with expiry_mapping_source, risk_free_rate_source, dividend_yield_source, greek_assumption, greek_status. If expiry cannot be mapped, Greek values remain null. Source and proxy rows are countable separately."
   },
   "provenance_rules": [
     "Raw response bytes and hashes immutable within cache; exact request body and request ID persisted separately",
@@ -151,5 +152,6 @@
     "public_git_or_release_plaintext_prohibited": true,
     "encryption": "AES-256-GCM with random per-object nonce; key derived from runtime-only HF_TOKEN secret using scrypt",
     "user_offline_decryption": "requires same HF_TOKEN value used to encrypt the artifact; token itself is never included in files or logs"
-  }
+  },
+  "scope_note": "Dataset covers the provider-supported ATM-relative rolling-grid selection, not every historical option contract or strike. Historical Dhan price values are accepted without an external value cross-check as directed by the user."
 }
