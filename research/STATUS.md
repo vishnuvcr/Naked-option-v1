@@ -607,3 +607,6 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Corrected workflow blob: `1d8991255ff284c6b9cb20c4071ab56555d18dc6`. It runs both the bounded F&O sample/page sampler and the index/equity/FII-DII sampler, uploading both JSON reports.
 - Updated exact-snapshot review request: [sampler v2 review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
 - **Gate remains closed** pending tester review of the current workflow blob and the current sampler/test/spec blobs. No approval manifest and no current source-sample artifact exist.
+
+
+- Repository-level [Research Protocol Check](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38020253978) succeeded on the latest documentation commit. It validates repository contract/literature registry only; it is **not** a run of the Gate A v1/v2 source-schema regression suites. The Gate A sampler workflow remains untriggered because the exact tester approval manifest is absent.
