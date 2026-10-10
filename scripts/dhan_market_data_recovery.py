@@ -364,7 +364,7 @@ def redirect_target_probe() -> dict[str, Any]:
         if headers.get(key):
             result[key] = headers[key]
     if 300 <= status < 400:
-        result["status"] = "REDIRECT_TARGET_RECORDED" if result.get("redirect_target_status") == "PARSED" else "REDIRECT_TARGET_UNVERIFIED"
+        result["status"] = "REDIRECT_TARGET_RECORDED" if result.get("redirect_target_status") == "PARSED" and result.get("redirect_scheme") == "https" else "REDIRECT_TARGET_UNVERIFIED"
     elif status == 200:
         result["status"] = "METADATA_ENDPOINT_NO_REDIRECT"
     else:
