@@ -430,3 +430,24 @@ No candidate raw data was downloaded or copied. These leads are listed for the n
 - The production `scripts/run_phase7_ensemble.py` currently attaches the shared regime diagnostics to P08/P09/P10, while its P10 `chronological_blocks` uses the candidate-specific abstention mask. The independent auditor reconciles the shared regime diagnostics and P10 block metrics separately but does not explicitly enforce the frozen spec's stated count equality for P10.
 - This is a **possible protocol/diagnostic-definition inconsistency**, not yet a finding that Run #994's eventual artifact fails. Do not silently amend the spec or disable the check. The tester must determine, from the literal frozen text and fresh artifact, whether (a) the implementation must retain matching P10 diagnostic blocks while preserving P10 abstention semantics, or (b) a formal pre-registered specification amendment is required. Any amendment needs its own tester approval and cannot be applied post hoc to justify results already examined.
 - Run #994 is already executing immutable source commit `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`; no code/spec change has been made to that run. The tester report must document this point and keep scientific promotion/Phase 8 blocked if unresolved.
+
+
+## Current research checkpoint — 10 October 2026
+
+**Current phase: Phase 7, prediction research only.** No option strategy is promoted or being tested, and the registered final holdout remains unopened. Previously reported statistical conclusions are unchanged: none of the five horizon-level tests passed multiplicity correction, so no prediction method has been promoted as reliable.
+
+### Dhan data-coverage blocker and gate status
+
+The bounded Dhan sample [Run 38043667443](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043667443) confirmed that the profile endpoint returned HTTP 200 and the Data API plan was active, but `GET /v2/instrument/IDX_I` returned HTTP 302. No redirect was followed, no candle history was fetched, and no Dhan price series was added. The combined FII/FPI/DII aggregate-flow gap remains open; the Dhan endpoint result is a feasibility failure, not a source-availability pass.
+
+The redirect-target-only proposal and code gate are recorded in [the tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md). The exact developer snapshot was further hardened to require HTTPS, reject actual CR/LF/NUL and malformed host values, ignore Location outside 3xx status, enforce one request and a 1 KiB response budget, and require explicit manual confirmation (`confirm_probe=true`, default false). The JSON artifact writer is regression-tested for a proper newline.
+
+- [Latest offline regression run 38044495634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044495634) passed.
+- [Guarded workflow run 38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209) passed its 38 offline tests, then blocked at manifest validation because the new redirect-probe manifest was absent. The source step was skipped.
+- [Dedicated redirect-probe workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-redirect-probe-live.yml)
+- [Redirect-target specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md)
+- [Redirect workflow REQUEST CHANGES report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md)
+
+**Current gate:** another independent exact-snapshot review is pending after the latest workflow and artifact-writer changes. No new single-use manifest exists and no further live request is authorized yet. Even after the one permitted diagnostic, following the redirect or requesting instrument master/candle/history data requires a separate review; no full-history download, feature/label creation, model fitting, prediction rerun or final-holdout access is authorized at this stage.
+
+The access token is bound only to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
