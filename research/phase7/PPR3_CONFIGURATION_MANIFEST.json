@@ -17,10 +17,10 @@
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
     "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
-    "ppr3_decision": "RESUBMITTED_AFTER_REQUEST_CHANGES_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
-    "ppr3_test_scope": "Exact-snapshot offline configuration, arithmetic, source-link and blob-pin validation only. This does not authorize PPR-4 source requests or any model execution.",
+    "ppr3_decision": "RESUBMISSION_CORRECTIONS_IN_PROGRESS_AFTER_NATIVE_LINK_AUDIT",
+    "ppr3_test_scope": "Staging after the latest CI pass: correcting source-native ledger links discovered during review. CI in staging mode is documentation staging only and not an exact validation PASS.",
     "ppr3_model_settings_note": "CCI20 is a project-defined spot-direction adaptation, not an exact replication of the source strategy. RF all-features setting is JSON float 1.0, distinct from integer 1; the validator asserts that distinction.",
-    "current_work_mode": "PPR3 corrections are staged: separate 81-row paper-native task ledger, fixed-fit tuning arithmetic (780 inner folds), CCI20 spot-direction adaptation, FLAT zero-return-tie definition, RF max_features float 1.0 assertions. Exact pins enabled; all empirical permissions remain false."
+    "current_work_mode": "Current native ledger links: the Twitter-mood pipeline was incorrectly mapped to BERT-LSTM; SOFNN was incorrectly linked to active BERT-LSTM rather than blocked C011; two descriptive/options strategy records were incorrectly linked to MA crossover adaptations. Correct and re-pin all updated files before requesting tester re-review. All empirical operations remain disabled."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -221,7 +221,7 @@
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
   ],
-  "snapshot_checks_enabled": true,
-  "staging_mode": false,
+  "snapshot_checks_enabled": false,
+  "staging_mode": true,
   "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout."
 }
