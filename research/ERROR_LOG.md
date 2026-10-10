@@ -834,3 +834,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Root cause: request_json was deliberately changed to return parsed payload, safe metadata and the original HTTP response bytes, while the existing test still unpacked only two values.
 - Correction: updated the fixture to verify all three return values and prove the returned byte string is exactly the original mock HTTP payload. Cache tests now require response_bytes and response_sha256 to match those same original bytes.
 - Final hosted run [38049465398](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049465398) passed 34/34 offline/mock tests; protocol run [38049465680](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049465680) passed. No live request was made.
+
+
+### Hosted run 38049584018 — malformed security-ID test was short-circuited by an absence check
+- Category: regression harness / input validation ordering.
+- Symptom: the test expected daily_request_security_id_invalid for malformed IDs such as a list, but the truthiness check returned daily_request_instrument_fields_missing first.
+- Root cause: required-key presence and field-value validity were conflated; empty/zero values were classified as missing even when the key was present.
+- Correction: missing-key checks now test actual key presence, while a distinct validator enforces positive scalar numeric IDs and nonempty string exchange/instrument names. Literal bool live authorization and ASCII-token constraints are also tested.
+- Latest run [38049609609](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609609) passed **36/36 offline/mock tests**; protocol check [38049609776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049609776) passed. No Dhan request was made.
