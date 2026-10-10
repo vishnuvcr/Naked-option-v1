@@ -1012,6 +1012,121 @@
         "feature_selection_alpha": 0.05
       },
       "preprocess": "feature selection is re-estimated independently inside each training fold/prefix; never use full-history selection"
+    },
+    "TCN_REGRESSION": {
+      "family": "Keras temporal convolutional price regressor",
+      "params": {
+        "sequence_window": 20,
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "filters": 32,
+        "kernel_size": 3,
+        "dilations": [
+          1,
+          2
+        ],
+        "residual_blocks": 2
+      },
+      "preprocess": "causal convolutions only; input/target scaling fitted on training prefix only; project architecture adaptation"
+    },
+    "LSTM_GRU_REGRESSION": {
+      "family": "Parallel LSTM and GRU regression encoders",
+      "params": {
+        "sequence_window": 20,
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "lstm_units": 32,
+        "gru_units": 32,
+        "merge": "concatenate final states"
+      },
+      "preprocess": "fixed project adaptation; inverse-transform targets before scoring; training-only scaling"
+    },
+    "CNN_RNN_REGRESSION": {
+      "family": "1-D CNN followed by SimpleRNN price regressor",
+      "params": {
+        "sequence_window": 20,
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "conv_filters": 32,
+        "kernel_size": 3,
+        "rnn_units": 64,
+        "hidden_activation": "relu"
+      },
+      "preprocess": "causal sequence windows; inverse-transform target and train-only scaling"
+    },
+    "CNN_TCN_REGRESSION": {
+      "family": "1-D CNN plus TCN price regressor",
+      "params": {
+        "sequence_window": 20,
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "conv_filters": 32,
+        "kernel_size": 3,
+        "tcn_filters": 32,
+        "tcn_kernel_size": 3,
+        "tcn_dilations": [
+          1,
+          2
+        ]
+      },
+      "preprocess": "causal sequence windows; inverse-transform target and train-only scaling"
+    },
+    "LSTM_TCN_REGRESSION": {
+      "family": "LSTM encoder plus TCN price regressor",
+      "params": {
+        "sequence_window": 20,
+        "dropout": 0.2,
+        "dense_units": 32,
+        "output_units": 1,
+        "output_activation": "linear",
+        "loss": "mean_absolute_error",
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "max_epochs": 100,
+        "early_stopping_patience": 10,
+        "lstm_units": 32,
+        "tcn_filters": 32,
+        "tcn_kernel_size": 3,
+        "tcn_dilations": [
+          1,
+          2
+        ],
+        "merge": "concatenate final LSTM state and TCN pooled state"
+      },
+      "preprocess": "causal sequence windows; inverse-transform target and train-only scaling"
     }
   },
   "aliases": {
