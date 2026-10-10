@@ -37,7 +37,7 @@ def valid_manifest() -> dict:
         "authorized_scope": "one tiny daily NIFTY 50 index-history request only",
         "source_url": mod.DAILY_URL,
         "method": "POST",
-        "request_body": mod.REQUEST_BODY,
+        "request_body": json.loads(json.dumps(mod.REQUEST_BODY)),
         "requests_max": 1,
         "response_bytes_max": 2 * 1024 * 1024,
         "timeout_seconds": 20,
