@@ -133,6 +133,17 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertEqual(rows[0]["delta"], "")
         self.assertEqual(rows[0]["gamma"], "")
 
+    def test_rule_expiry_map_uses_september_2025_monthly_transition_correctly(self):
+        sessions = {
+            "2025-09-01", "2025-09-22", "2025-09-23", "2025-09-24",
+            "2025-09-25", "2025-09-26", "2025-09-29", "2025-09-30",
+            "2025-10-01", "2025-10-27", "2025-10-28", "2025-10-29",
+        }
+        mapping = collector.build_rule_expiry_map(sessions, {}, True)
+        self.assertEqual(mapping[("2025-09-22", "MONTH", 0)]["expiry_date"], "2025-09-25")
+        self.assertEqual(mapping[("2025-09-26", "MONTH", 0)]["expiry_date"], "2025-10-28")
+        self.assertEqual(mapping[("2025-09-01", "WEEK", 0)]["expiry_date"], "2025-09-02")
+
     def test_black_scholes_signs(self):
         call = collector.black_scholes_greeks(100, 100, 0.25, 0.2, 0.04, 0.01, "CALL")
         put = collector.black_scholes_greeks(100, 100, 0.25, 0.2, 0.04, 0.01, "PUT")
