@@ -617,3 +617,8 @@ Latest research ledgers: [status](research/STATUS.md), [error log](research/ERRO
 - No new official-source request was made; no live manifest was created; the original Dhan single-use authorization remains SPENT. The cached 2024-01-02 sample remains unaccepted for modeling pending official NSE OHLC cross-check and Dhan instrument mapping verification.
 - **Next step:** rerun the offline tests on the exact current developer snapshot, record hashes/run ID, and obtain a fresh independent tester decision before any live request.
 - Research ledgers: [status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) · [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md) · [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
+
+
+## Research gate update — 2026-10-10 (hosted receipt pending)
+
+The Phase 7 official-source cross-check remains **BLOCKED / REQUEST CHANGES**. A comment-only commit was submitted to trigger the current offline test workflow, but the connected GitHub Actions interface did not return a run receipt or commit status. We cannot claim a current test pass. No NSE/Dhan public-source request was made, and no data is accepted for modeling. See the [Phase 7 status ledger](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), and [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
