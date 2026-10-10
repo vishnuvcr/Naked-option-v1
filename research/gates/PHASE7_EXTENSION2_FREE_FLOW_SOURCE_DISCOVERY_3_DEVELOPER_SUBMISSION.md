@@ -59,3 +59,23 @@ The original draft had two inconsistencies, now corrected in frozen spec blob `3
 ## Clarification after tester comment
 
 The spec's redirect rule was clarified to remove an internal contradiction: every non-HF-data request rejects all redirects without following them; only the HF HEAD and two Range requests may follow one redirect to an explicit host allowlist. Latest spec blob: `4e30415632545c04a2875d627afa0191afe3f383`. This is a scope tightening, and the latest exact blob must be reflected in the tester report before implementation.
+
+
+## Code/workflow gate submission — 2026-10-10
+
+The source-discovery sampler and separate workflows are implemented on the developer branch. No live source requests have been made by this snapshot.
+
+- Frozen proposal: `research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md` (Git blob `4e30415632545c04a2875d627afa0191afe3f383`; current spec-only tester gate PASS).
+- Code review request: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+- Snapshot commit: `b3a6c3dcde845923a0dba55a0f350d5e67361a76`.
+- Hosted offline suite: [Run 38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968), 27/27 tests passed.
+
+The six protected blob IDs and byte SHA-256 values are in the review request. Key safeguards include exact URL/method/range allowlists, shared request/byte budgets, strict 206/Content-Range checks, redirect allowlists and credential stripping, synthetic/provenance rejection, and a one-use approval manifest consumed **before** any source request.
+
+Recent test failures while tightening the byte-range contract were fixture mismatches: old 4-byte range fixtures and one stale Content-Range assertion were updated. These failures and their corrections are recorded in the error log. They are superseded by the 27/27 green exact-snapshot run.
+
+**Current gate:** independent tester code review pending. A code-gate PASS may authorize a new single-use manifest only; it does not authorize source requests. The one-run manifest is absent; no full history, feature table, labels, model fit, metrics/p-values or final-holdout access is authorized.
+
+**Developer → Tester:** Review all six current protected blobs against the hashes in the code review request, especially one-run consumption before data access.
+
+**Tester → Developer:** Return PASS/REQUEST CHANGES against this exact snapshot only. Keep network access blocked until a separate single-use manifest validates.
