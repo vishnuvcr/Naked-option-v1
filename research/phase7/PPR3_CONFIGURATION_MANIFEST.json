@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "protocol_id": "PPR3-v1",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "phase": "PPR-3",
+  "scope": "Documentation-only configuration matrix and protocol freeze proposal",
+  "branches": {
+    "developer": "phase-07-developer",
+    "tester": "phase-07-tester"
+  },
+  "governance": {
+    "ppr1_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+    "ppr1_tester_report": "research/gates/PHASE7_PPR1_REVIEW3_TESTER_REPORT.md",
+    "ppr1_tester_blob": "940197ae1e1546f25f6ec4de93ea565edc40d30d",
+    "ppr2_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+    "ppr2_tester_report": "research/gates/PHASE7_PPR2_TESTER_REPORT.md",
+    "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
+    "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
+    "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review."
+  },
+  "source_artifacts": {
+    "uploaded_pdf_evidence_matrix": {
+      "path": "research/literature/PAPER_SOURCE_EVIDENCE_MATRIX.md",
+      "blob": "fe61751cac09089d0052bb92212dddd4a7b670dc"
+    },
+    "uploaded_pdf_method_crosswalk": {
+      "path": "research/literature/PAPER_PREDICTION_METHOD_CROSSWALK.md",
+      "blob": "58f1f054fee33956c98d93a396fbca73e1397b0b"
+    },
+    "ppr2_registry_crosswalk": {
+      "path": "research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv",
+      "blob": "ac8491628913c5019d7a4b986339489b1dff1f14"
+    },
+    "ppr2_source_registry": {
+      "path": "research/literature/LITERATURE_REGISTRY.csv",
+      "blob": "2ee49ae119e61c8c523ed212c7f21bf15c5e8d7a"
+    }
+  },
+  "frozen_files": {
+    "configuration_matrix": {
+      "path": "research/phase7/PPR3_CONFIGURATION_MATRIX.csv",
+      "blob": "f55b46917404237cb32ab0c58795689905c04396",
+      "rows": 80
+    },
+    "expanded_candidate_cells": {
+      "path": "research/phase7/PPR3_CANDIDATE_CELLS.csv",
+      "blob": "a208c3331f7cfde20922fc3d9f0847fac53a90cc",
+      "rows": 1183
+    },
+    "model_settings": {
+      "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
+      "blob": "aff49cb66d8fe30b84b5a220ff44177bd64e5bc8"
+    },
+    "target_inference_contract": {
+      "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
+      "blob": "4822344b05923dba933a42f13b7b3d86754505b1"
+    }
+  },
+  "inventory": {
+    "configuration_ledger_rows": 80,
+    "candidate_configuration_rows_counted_toward_cap": 72,
+    "active_candidate_configuration_rows": 71,
+    "blocked_model_configuration_rows": 1,
+    "source_backlog_or_different_target_rows": 8,
+    "active_candidate_cells": 1183,
+    "cells_by_family": {
+      "COMMON_DIRECTION_3CLASS": 375,
+      "COMMON_CLOSE_REGRESSION": 760,
+      "NEXT_OPEN_REGRESSION": 48
+    },
+    "cells_by_pipeline": {
+      "CORE_OHLCV_TECH": 302,
+      "EXTERNAL_MARKET": 292,
+      "FLOWS_OPTIONS": 292,
+      "TIMESTAMPED_SENTIMENT_FUSION": 297
+    },
+    "cells_by_horizon_sessions": {
+      "1": 275,
+      "2": 227,
+      "3": 227,
+      "5": 227,
+      "10": 227
+    },
+    "source_claims_are_not_project_results": true
+  },
+  "fit_budget": {
+    "cap_configuration_rows": 93,
+    "actual_configuration_rows_counted": 72,
+    "unused_config_capacity_is_not_authorization_to_add_rows": true,
+    "maximum_feature_pipeline_classes": 4,
+    "maximum_common_horizons": 5,
+    "actual_candidate_cell_count": 1183,
+    "outer_fit_calls_upper_bound_at_3_seeds": 3549,
+    "neural_models_use_only_three_predeclared_seeds": "Non-neural candidates should ordinarily use one seed; budget conservatively allows three across every cell.",
+    "tuning": {
+      "candidate_cell_count": 12,
+      "rf_candidate_settings_per_cell": 18,
+      "xgboost_candidate_settings_per_cell": 8,
+      "chronological_inner_splits": 5,
+      "final_refit_per_hyperparameter_setting": true,
+      "counted_fit_calls": 936,
+      "exact_cells": [
+        "R010|CORE_OHLCV_TECH|1",
+        "R010|CORE_OHLCV_TECH|2",
+        "R010|CORE_OHLCV_TECH|3",
+        "R010|CORE_OHLCV_TECH|5",
+        "R010|CORE_OHLCV_TECH|10",
+        "R029|CORE_OHLCV_TECH|1",
+        "R029|CORE_OHLCV_TECH|2",
+        "R029|CORE_OHLCV_TECH|3",
+        "R029|CORE_OHLCV_TECH|5",
+        "R029|CORE_OHLCV_TECH|10",
+        "R038|CORE_OHLCV_TECH|1",
+        "R041|CORE_OHLCV_TECH|1"
+      ],
+      "all_other_cells_use_fixed_predeclared_settings": true
+    },
+    "total_model_fit_calls_upper_bound": 4485,
+    "repository_global_hard_limit": 8000,
+    "fit_call_definition": "One top-level estimator fit for a specified config/pipeline/horizon/seed, plus separately counted inner-fold and refit calls. No repeated outer refit during the PPR3 validation block."
+  },
+  "evaluation_protocol": {
+    "name": "PPR3_FIXED_FIT_HOLD_FORWARD_V1",
+    "split": "80% chronological training / next 20% validation over eligible development origins after excluding the sealed final holdout",
+    "single_fit_per_candidate_cell": true,
+    "evaluation_model_frozen": true,
+    "validation_features_updated_asof_each_decision": true,
+    "model_refit_or_retuning_during_validation": false,
+    "min_training_rows": 252,
+    "min_common_validation_origins": 250,
+    "training_label_end_strictly_before_first_validation_decision": true,
+    "common_origin_index_per_inference_family": true,
+    "sealed_holdout_exclusion_proof_required": true,
+    "if_holdout_exclusion_cannot_be_verified": "BLOCKED_GATE",
+    "final_holdout_unopened": true,
+    "deviation_from_existing_phase7_method": "Existing Phase 7 methods refit every 20 sessions; PPR3 uses one frozen fit per hold-forward validation segment to keep the paper-derived grid within the predeclared fit-call limit. Report separately; do not claim same refit cadence."
+  },
+  "target_schemas": {
+    "COMMON_DIRECTION_3CLASS": {
+      "horizons_sessions": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
+      "labels": [
+        "DOWN",
+        "FLAT",
+        "UP"
+      ],
+      "primary_metric": "multiclass Brier loss",
+      "primary_baseline": "causal Laplace-smoothed expanding training-rate probabilities",
+      "regression_derived_direction": "descriptive only; excluded from primary Brier family"
+    },
+    "COMMON_CLOSE_REGRESSION": {
+      "horizons_sessions": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
+      "target": "close[t+h]",
+      "primary_metric": "MAE in index points",
+      "baseline": "predict close[t]"
+    },
+    "NEXT_OPEN_REGRESSION": {
+      "horizons_sessions": [
+        1
+      ],
+      "target": "open[t+1]",
+      "primary_metric": "MAE in index points",
+      "baseline": "predict open[t+1] = close[t]"
+    }
+  },
+  "hard_boundary": {
+    "new_source_requests_authorized": false,
+    "market_data_downloads_authorized": false,
+    "model_fitting_tuning_scoring_authorized": false,
+    "final_holdout_access_authorized": false,
+    "option_pnl_authorized": false,
+    "ppr4_allowed_only_after_exact_ppr3_tester_pass": true
+  },
+  "unresolved_before_ppr4": [
+    "PPR-4 must search free-source options, FII/DII, sentiment/news, VIX, FX, global market and index sources before classifying data as BLOCKED_DATA.",
+    "PPR-4 must verify a machine-readable sealed-holdout exclusion boundary without opening any holdout values/labels.",
+    "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
+    "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
+  ]
+}
