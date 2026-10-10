@@ -88,10 +88,19 @@
     },
     {
       "year": 2023,
-      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023.json",
-      "request_count": 1833,
-      "spot_request_count": 13,
-      "option_request_count": 1820
+      "part": "A",
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023_A.json",
+      "request_count": 987,
+      "spot_request_count": 7,
+      "option_request_count": 980
+    },
+    {
+      "year": 2023,
+      "part": "B",
+      "path": "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023_B.json",
+      "request_count": 846,
+      "spot_request_count": 6,
+      "option_request_count": 840
     },
     {
       "year": 2024,
