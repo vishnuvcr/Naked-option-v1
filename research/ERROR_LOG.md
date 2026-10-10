@@ -1014,3 +1014,12 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Symptom: after commit `50f79a629b580063fbe561117da57cf7c9e2b044` triggered the path-filtered test-file update, the available connected GitHub workflow-run lookup returned no run and the combined commit status contained no statuses.
 - Impact: hosted exact-snapshot test outcome remains unknown. No tests are claimed as passed and no live-source request is authorized.
 - Disposition: preserve the gate as blocked; retrieve the actual Actions run receipt before asking the independent tester to re-review. Do not infer a workflow failure or success from missing connector visibility.
+
+
+## 2026-10-10 — Resume attempt: workflow receipt visibility remains unresolved
+- **Category:** CI observability / gate evidence
+- **Component:** Phase 7 official-reference cross-check offline workflow
+- **Action:** Re-read the workflow and current exact-snapshot tester report; checked the trigger commit status and connector's commit-associated workflow-run response.
+- **Observed:** commit `50f79a629b580063fbe561117da57cf7c9e2b044` has no status in the connected status response, and the available commit-run wrapper returned no runs. Its documented behavior filters to pull-request-triggered runs, so it cannot establish whether the push-triggered workflow ran.
+- **Impact:** hosted test outcome remains unknown; the independent tester's REQUEST CHANGES decision remains valid. No test success/failure is inferred; no network request was made.
+- **Next correction:** obtain the run ID and conclusion from a repository Actions run-listing page or a connector capability that lists push-triggered runs. Then verify the tested commit and current source/test/workflow blobs before requesting tester re-review.
