@@ -273,6 +273,8 @@ def test_chirag_record_date_and_provenance_are_required() -> None:
     good = {"date": "2026-10-01", "source": "nse", "fii_buy": 100, "fii_sell": 90, "dii_buy": 60, "dii_sell": 55}
     assert mod.validate_chirag_record(good)["status"] == "SCHEMA_SAMPLE_PASS"
     assert mod.validate_chirag_record({**good, "date": "2026-10-02"})["status"] == "REJECTED_SCHEMA"
+    assert mod.validate_chirag_record({**good, "date": "2026-10-01", "trade_date": "2026-10-02"})["status"] == "REJECTED_SCHEMA"
+    assert mod.validate_chirag_record({**good, "date": "not-a-date", "trade_date": "2026-10-01"})["status"] == "REJECTED_SCHEMA"
     assert mod.validate_chirag_record({**good, "source": "placeholder"})["status"] == "REJECTED_PROVENANCE"
     assert mod.validate_chirag_record({**good, "provenance": "historical-seed"})["status"] == "REJECTED_SYNTHETIC"
 
