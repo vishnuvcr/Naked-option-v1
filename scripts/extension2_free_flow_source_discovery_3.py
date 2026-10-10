@@ -83,12 +83,39 @@ def iso_utc() -> str:
 
 
 def safe_url_for_report(url: str) -> str:
-    """Record URL identity without persisting temporary signed redirect query values."""
+    """Record URL identity without persisting sensitive query parameter values."""
     parsed = urllib.parse.urlsplit(url)
-    if parsed.hostname in HF_ALLOWED_HOSTS and parsed.query:
-        safe_query = urllib.parse.urlencode([(key, "[REDACTED]") for key, _ in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)])
-        return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, safe_query, ""))
-    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, parsed.query, ""))
+    if not parsed.query:
+        return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, "", ""))
+    sensitive_tokens = ("token", "sig", "signature", "credential", "auth", "api_key", "apikey", "secret", "password", "expires", "access_key", "key")
+    safe_pairs = []
+    for key, value in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True):
+        safe_pairs.append((key, "[REDACTED]" if any(token in key.lower() for token in sensitive_tokens) else value))
+    safe_query = urllib.parse.urlencode(safe_pairs)
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, safe_query, ""))
+
+
+def redact_sensitive_json(value: Any) -> Any:
+    """Recursively remove credential-like keys and sanitize URLs in source JSON."""
+    sensitive_tokens = ("authorization", "cookie", "token", "secret", "password", "credential", "api_key", "apikey", "access_key", "private_key")
+    if isinstance(value, dict):
+        result = {}
+        for key, child in value.items():
+            lowered = str(key).lower().replace("-", "_")
+            if any(token in lowered for token in sensitive_tokens):
+                continue
+            result[str(key)] = redact_sensitive_json(child)
+        return result
+    if isinstance(value, list):
+        return [redact_sensitive_json(item) for item in value]
+    if isinstance(value, str):
+        value = re.sub(r"(?i)\bBearer\s+[^\s,;]+", "Bearer [REDACTED]", value)
+        if value.lower().startswith(("https://", "http://")):
+            try:
+                return safe_url_for_report(value)
+            except Exception:
+                return "[REDACTED_URL]"
+    return value
 
 
 def is_registered_probe_url(probe_id: str, url: str, method: str) -> bool:
@@ -845,7 +872,7 @@ def inspect_chirag(client: LimitedHTTP) -> dict[str, Any]:
         "source": "chirag127", "resolved_commit": commit, "commit_probe": commit_summary,
         "record_probe": summary, "record_validation": validate_chirag_record(obj),
         "status": "SCHEMA_SAMPLE_PASS" if validate_chirag_record(obj)["status"] == "SCHEMA_SAMPLE_PASS" else validate_chirag_record(obj)["status"],
-        "record": {k: v for k, v in obj.items() if k not in {"cookies", "token", "authorization"} } if isinstance(obj, dict) else None,
+        "record": redact_sensitive_json(obj) if isinstance(obj, dict) else None,
     }
 
 
