@@ -245,3 +245,12 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - The developer review request incorrectly labelled commit ID `1d899...` as the workflow Git blob. Actual workflow blob at that snapshot: `20470b88d29b1d97e8060936e5ed7a40fe28a80d`.
 - Full review: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md` (latest decision REQUEST CHANGES).
 - No live source call was made, no artifact exists for this snapshot, and no approval manifest was created. Full-history acquisition and model fitting remain blocked.
+
+
+## 2026-10-10 — Extension 2 exact-snapshot code gate PASS (Gate A only)
+
+- Current decision: **PASS WITH SCOPED RESTRICTIONS** for reviewed commit `6050908b98c53d75c10175140e84e87f48934896` and the exact six protected blobs in `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md`.
+- Hosted offline tests: [Run 38026024826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026024826), 22/22 checks passed; legacy offline-only safety workflow: [Run 38026080844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026080844), passed.
+- **Full-history acquisition: NOT AUTHORIZED. Model fitting: NOT AUTHORIZED.** One bounded source-feasibility batch may run only after the exact report/hash approval manifest validates in the guarded workflow.
+- Previous unapproved bounded source run [38025793938](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38025793938) is explicitly **NON-ACCEPTED EVIDENCE**. Legacy source-fetch workflow was changed to offline-only; no analysis/feature table/model was produced.
+- Next gate after the one bounded batch: independent artifact audit of both JSON reports before any further data or modeling step.
