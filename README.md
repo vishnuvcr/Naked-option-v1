@@ -389,3 +389,12 @@ The first approved bounded sample run completed, but the tester rejected its art
 The previous authorization manifest has been revoked. [Run 38026433233](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026433233) confirmed fail-closed behavior: offline tests passed, authorization failed, and source sampling was skipped. Developer corrected both issues; [offline tests Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed 24 checks. **These fixes still require independent code-gate approval before another bounded sample.**
 
 The alternative FII/DII sources so far provide only recent rows (164 GitHub mirror rows and 16 ChartDrift page rows); 500+ historical sessions remain unestablished. Continue free-source research before declaring that data unavailable. No full-history download, feature table, labels or model fit has occurred.
+
+
+### Corrected Gate A code gate — PASS, sample artifact still pending (2026-10-10)
+
+The independent tester passed the corrected exact eight-file sampler/workflow snapshot for **one bounded Gate A retry only**. [Offline Run 38026629021](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026629021) passed 25 checks (7 v1 + 18 v2). [Fail-closed Run 38026802711](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026802711) confirmed the revoked authorization is rejected and source sampling is skipped.
+
+**Important:** the previous source artifact (`11660395594`) remains rejected, and the source approval is still revoked. A new manifest must bind the current tester report hash and all eight protected files before another sample can run.
+
+The free-source search has been broadened and documented in [Extension 2 FII/DII source discovery](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). Leads include the official NSE/SEBI pages, several GitHub histories and public dashboards. Claims of 800 records or 14 years remain unverified; no new full-history file was fetched. Full-history acquisition and model fitting remain unauthorized.
