@@ -86,6 +86,39 @@ def valid_approval(manifest_raw: bytes) -> dict:
     }
 
 
+def test_live_workflow_secret_guard_precedes_spend_and_fetch() -> None:
+    workflow_path = ROOT / ".github/workflows/phase-07-dhan-daily-sample-live.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+    secret_guard = workflow.index("Confirm Dhan token secret is configured without exposing it")
+    manifest_check = workflow.index("Validate exact approved manifest and tester report")
+    spend = workflow.index("Spend one-use approval before the single market-data request")
+    fetch = workflow.index("Execute one validated daily NIFTY history request")
+    assert secret_guard < manifest_check < spend < fetch
+    guard_slice = workflow[secret_guard:manifest_check]
+    assert "DHAN_TOKEN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}" in guard_slice
+    assert "Blocked before spending the one-use approval" in guard_slice
+    spend_slice = workflow[spend:fetch]
+    assert "python scripts/validate_dhan_daily_sample_approval.py spend" in spend_slice
+    assert "git push origin HEAD:phase-07-developer" in spend_slice
+    fetch_slice = workflow[fetch:workflow.index("Commit validated public sample cache")]
+    assert "DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}" in fetch_slice
+    assert "DHAN_DAILY_SAMPLE_AUTHORIZED: \"1\"" in fetch_slice
+    assert "continue-on-error: true" in fetch_slice
+    assert "retry" not in fetch_slice.lower()
+    assert "contents: write" in workflow
+
+
+def test_live_workflow_has_manual_confirmation_and_no_redirect_follow() -> None:
+    workflow = (ROOT / ".github/workflows/phase-07-dhan-daily-sample-live.yml").read_text(encoding="utf-8")
+    assert "workflow_dispatch:" in workflow
+    assert "confirm_live_sample:" in workflow
+    assert "default: false" in workflow
+    assert "steps.spend_manifest.outcome == 'success'" in workflow
+    assert "redirect" in workflow.lower()
+    assert "retry" in workflow.lower()
+    assert "DHAN_ACCESS_TOKEN" in workflow
+
+
 def test_module_import_does_not_contact_network() -> None:
     assert mod.DAILY_URL == "https://api.dhan.co/v2/charts/historical"
     assert mod.REQUIRED_PROTECTED_FILES
