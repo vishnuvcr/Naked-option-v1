@@ -175,3 +175,14 @@ Please review these current developer artifacts before authorizing PPR-4:
 **Developer → Tester:** Audit the exact source-to-config links, task/target compatibility, duplicates, source ambiguity preservation, pipeline/horizon grid arithmetic, hyperparameter grids, training/validation chronology, label purging, max-statistic formulas, fit-call arithmetic and holdout protection. Return PASS/REQUEST CHANGES and state the exact next permitted phase.
 
 **Tester → Developer:** Do not start source acquisition, code execution, model fitting, tuning/scoring or holdout access until an exact-snapshot decision explicitly permits the next gate.
+
+
+## 12. Source-native link audit correction — 2026-10-10
+
+The independent-role review found and corrected four incorrect native-task/adaptation links before the resubmission:
+- `NT022` (four-class Twitter mood) now links only to the generic timestamped-sentiment pipeline class. It is not credited as the BERT-LSTM fusion (`C010`).
+- `NT023` (SOFNN with ellipsoidal basis) now links to `C011`, which is explicitly `BLOCKED_METHOD`; no generic/BERT substitute is implied.
+- `NT045` simple-average/seasonality calculations and `NT046` options simple-average strategy now have no common-task model link. They are not conflated with SMA/EMA 50/200 crossovers (`C020/C021`).
+
+The offline validator now asserts these exact source-to-adaptation distinctions. Source-native ledger rows remain descriptive and are never model-fit authorizations. Final resubmission is pending a successful exact-commit CI run with all blob pins enabled and a new tester report.
+
