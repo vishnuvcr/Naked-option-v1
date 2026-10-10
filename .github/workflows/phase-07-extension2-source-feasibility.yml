@@ -1,4 +1,4 @@
-name: Phase 7 Extension 2 Gate A Source Feasibility
+name: Phase 7 Extension 2 Gate A — Legacy Workflow Disabled (Offline Tests Only)
 
 on:
   push:
@@ -14,27 +14,26 @@ permissions:
   contents: read
 
 concurrency:
-  group: phase7-extension2-gate-a-${{ github.ref }}
+  group: phase7-extension2-legacy-offline-only-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  source-feasibility:
-    name: bounded-source-feasibility-only
+  offline-regressions-only:
+    name: offline-regressions-only-no-network
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Run offline source-schema regressions
-        run: python scripts/test_phase7_extension2_source_feasibility.py
-      - name: Fetch only registered Gate A samples
-        run: python scripts/phase7_extension2_source_feasibility.py
-      - name: Upload bounded feasibility report
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase7-extension2-gate-a-source-feasibility
-          path: data/reports/extension2_gate_a_source_feasibility.json
-          if-no-files-found: error
-          retention-days: 30
+      - name: Run offline parser/schema tests only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_phase7_extension2_source_feasibility.py
+
+# IMPORTANT: This legacy workflow is intentionally offline-only. It MUST NOT
+# call scripts/phase7_extension2_source_feasibility.py or any other source fetcher.
+# All live Gate A sampling is owned by phase-07-extension2-source-feasibility-v2.yml
+# and remains fail-closed behind the independent exact-snapshot tester manifest.
