@@ -6,6 +6,12 @@ on:
     paths:
       - "research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json"
   workflow_dispatch:
+    inputs:
+      run_source_sample:
+        description: "Fetch the bounded Gate A samples (requires exact-snapshot tester approval)"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,8 +21,96 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  source-feasibility:
+  independent-fixture-regression:
+    name: offline-source-schema-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline source/schema regressions only
+        run: |
+          python scripts/test_phase7_extension2_source_feasibility.py
+          python scripts/test_phase7_extension2_source_feasibility_v2.py
+
+  independent-tester-approval-check:
+    name: fail-closed-gate-a-approval-check
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_source_sample)
+    needs: independent-fixture-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      authorized: ${{ steps.guard.outputs.authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate exact-snapshot tester approval and protected hashes
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import subprocess
+          import sys
+
+          root = pathlib.Path(".")
+          manifest_path = root / "research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json"
+          report_path = root / "research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md"
+          if not manifest_path.is_file():
+              raise SystemExit("FAIL CLOSED: Gate A tester approval manifest is absent.")
+          if not report_path.is_file():
+              raise SystemExit("FAIL CLOSED: mirrored independent tester report is absent.")
+          try:
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          except Exception as exc:
+              raise SystemExit(f"FAIL CLOSED: approval JSON cannot be parsed: {type(exc).__name__}")
+          report_bytes = report_path.read_bytes()
+          report_hash = hashlib.sha256(report_bytes).hexdigest()
+          if manifest.get("decision") != "PASS WITH SCOPED RESTRICTIONS":
+              raise SystemExit("FAIL CLOSED: tester decision is not PASS WITH SCOPED RESTRICTIONS.")
+          required_scope = "Gate A small-sample source feasibility only; no full-history acquisition, no feature tables or labels, no model fitting, no metrics or p-values, and no final holdout access."
+          if manifest.get("authorized_scope") != required_scope:
+              raise SystemExit("FAIL CLOSED: authorization scope is not the registered Gate A scope.")
+          if manifest.get("tester_report_sha256") != report_hash:
+              raise SystemExit("FAIL CLOSED: mirrored tester report SHA-256 mismatch.")
+          expected = {
+              "research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md",
+              "scripts/phase7_extension2_source_feasibility.py",
+              "scripts/test_phase7_extension2_source_feasibility.py",
+              "scripts/phase7_extension2_source_feasibility_v2.py",
+              "scripts/test_phase7_extension2_source_feasibility_v2.py",
+              ".github/workflows/phase-07-extension2-source-feasibility-v2.yml",
+          }
+          approved = manifest.get("protected_file_sha256")
+          if not isinstance(approved, dict) or set(approved) != expected:
+              raise SystemExit("FAIL CLOSED: protected-file allowlist is missing, extra or mismatched.")
+          for rel in sorted(expected):
+              file_path = root / rel
+              if not file_path.is_file():
+                  raise SystemExit(f"FAIL CLOSED: protected path missing: {rel}")
+              actual = hashlib.sha256(file_path.read_bytes()).hexdigest()
+              if actual != approved[rel]:
+                  raise SystemExit(f"FAIL CLOSED: SHA-256 mismatch for {rel}")
+          reviewed_commit = manifest.get("reviewed_developer_commit")
+          if not isinstance(reviewed_commit, str) or len(reviewed_commit) != 40:
+              raise SystemExit("FAIL CLOSED: reviewed developer commit is malformed.")
+          subprocess.run(["git", "cat-file", "-e", f"{reviewed_commit}^{{commit}}"], check=True)
+          subprocess.run(["git", "merge-base", "--is-ancestor", reviewed_commit, "HEAD"], check=True)
+          print("PASS: exact-snapshot tester report, scope, ancestry, path set and hashes verified.")
+          print("authorized=true")
+          PY
+          echo "authorized=true" >> "$GITHUB_OUTPUT"
+
+  bounded-source-feasibility-only:
     name: bounded-source-feasibility-only
+    needs: [independent-fixture-regression, independent-tester-approval-check]
+    if: needs.independent-tester-approval-check.result == 'success' && needs.independent-tester-approval-check.outputs.authorized == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -24,10 +118,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Run offline source/schema regressions
-        run: |
-          python scripts/test_phase7_extension2_source_feasibility.py
-          python scripts/test_phase7_extension2_source_feasibility_v2.py
       - name: Fetch only registered Gate A samples
         run: python scripts/phase7_extension2_source_feasibility_v2.py
       - name: Upload bounded feasibility report
