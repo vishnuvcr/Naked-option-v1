@@ -533,3 +533,12 @@ An earlier automatic legacy workflow had run without tester approval (Run `38025
 **Developer → Tester:** The exact PASS report is mirrored; the source workflow will rerun offline checks and validate all protected hashes before its one bounded sample. After upload, audit both JSON reports separately.
 
 **Tester → Developer:** Do not progress beyond Gate A until post-run artifact review passes; full history and model fitting are still prohibited.
+
+
+## 2026-10-10 — Resume after Gate A artifact REQUEST CHANGES
+
+The independent artifact audit rejected Run `38026272245` output: official index CSV dates `DD-MM-YYYY` were not parsed, and an NSE FII/DII API call returned current-date rows despite a July 2024 window. The old exact-snapshot manifest was revoked; Run `38026433233` correctly failed closed and skipped source sampling. Developer corrected the parser and added row-window checks with targeted fixtures. Offline Run `38026502365` passed 24 checks, but an independent code gate is now required. The old artifact stays non-accepted; no source request, model, feature table or label was generated after revocation.
+
+**Developer → Tester:** Review the corrected sampler/test blobs, particularly numeric index dates and all-row API date-window rejection. Do not authorize full-history acquisition or fitting.
+
+**Tester → Developer:** After passing the exact corrected code snapshot, authorize at most a new bounded source sample; separately audit that artifact, and keep free-source FII/DII discovery open.
