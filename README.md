@@ -369,3 +369,14 @@ Before any live sample request, a second audit found the v2 sampler workflow did
 
 
 Repository [Research Protocol Check #38020253978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38020253978) succeeded, but it validates repository contract/literature registry only. It is not evidence that the Gate A v1/v2 source-schema test suites passed. The exact-snapshot review and the gated workflow run are still required before any live samples are fetched.
+
+
+### Extension 2 Gate A sampler v2 — exact-snapshot code PASS (2026-10-10)
+
+The independent tester has passed the current protected sampler/spec/test/workflow snapshot for **one bounded Gate A source-sampling run only**. Hosted offline regressions passed: [Run 38026024826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026024826) completed 22 unique checks (7 v1 + 15 v2); [Run 38026080844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026080844) confirmed the legacy workflow is now offline-only.
+
+The bounded sampler fixes the previous multi-year FII/DII API request. Its dated request is restricted to ten days; the API responses are capped at 512 KB and 50 rows, with regression tests for requests/response handling. The exact tester report is mirrored at [PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md).
+
+**Governance incident disclosed:** legacy Run 38025793938 fetched only bounded F&O dates and small page/API samples without the exact tester manifest. Its artifact `11659904438` is non-accepted evidence. The old live-fetch workflow was replaced with offline-only tests; the guarded v2 workflow remains the only live-sampling route. No full history, features/labels or model fitting occurred.
+
+**Next:** the approved, hash-bound manifest must pass in the guarded workflow, then one bounded run may upload two JSON source-feasibility reports. Those reports need another independent tester audit. **Full-history acquisition and model fitting remain unauthorized.**
