@@ -2,7 +2,7 @@
   "schema_version": 1,
   "phase": "PPR-4",
   "manifest_id": "PPR4_SOURCE_AVAILABILITY_MANIFEST_2026-10-10",
-  "audit_status": "READ_ONLY_INVENTORY_VALIDATED_EXIT_BLOCKED_PENDING_SOURCE_GATE",
+  "audit_status": "READ_ONLY_INVENTORY_COMPLETE_EXIT_BLOCKED",
   "gate_decision": "BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND",
   "created_at_utc": "2026-10-10",
   "branch": "phase-07-developer",
@@ -10,12 +10,12 @@
   "source_artifacts": {
     "source_availability_register": {
       "path": "research/phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv",
-      "blob": "143ffe396308719142b3c89d36444ec136c1ee0b",
-      "rows": 32
+      "blob": "07e668569d1ab32574bbef05dad1974ec2a2be7f",
+      "rows": 34
     },
     "source_feasibility_audit": {
       "path": "research/phase7/PPR4_SOURCE_FEASIBILITY_AUDIT.md",
-      "blob": "7540ad60cf35079d6f740dbf48006d1be239eda7"
+      "blob": "00c0142ba3b0982aa6c51d17a36f7c99db836488"
     },
     "holdout_metadata_audit": {
       "path": "research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json",
@@ -95,7 +95,7 @@
     }
   },
   "inventory_summary": {
-    "read_only_sources_registered": 32,
+    "read_only_sources_registered": 34,
     "official_primary_and_reference_leads_included": true,
     "free_public_metadata_discovery_complete_for_this_pass": true,
     "free_source_search_exhausted": false,
@@ -225,7 +225,7 @@
     },
     "ppr4_validator": {
       "path": "scripts/validate_ppr4_source_inventory.py",
-      "blob": "b93b80cf1c82474320e976f2d4b834c65011817c"
+      "blob": "bd351d48190f9e3fbdbd2e9f030dd965c9b1dd7d"
     },
     "ppr4_workflow": {
       "path": ".github/workflows/phase-07-ppr4-source-inventory.yml",
@@ -250,7 +250,7 @@
   },
   "governance": {
     "ppr3_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-    "ppr4_inventory_validation": "OFFLINE_METADATA_ONLY_VALIDATION_PASSED_BEFORE_TESTER_REPORT_PIN_UPDATE; RETRY_REQUIRED_AFTER_CONTRACT_STATUS_CORRECTION",
+    "ppr4_inventory_validation": "Awaiting exact-snapshot validation of the 34-row register and refreshed manifest pins.",
     "ppr4_gate_decision": "REQUEST_CHANGES_EXIT_BLOCKED_UNTIL_DESIGN_REVIEW_AND_BOUNDARY_IMPLEMENTATION_GATE",
     "ppr4_tester_report": "https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md",
     "ppr4_tester_report_blob": "1cf137d83c6b285cff093163b886484d1d9c55cb",
@@ -281,6 +281,7 @@
     "prospective_holdout_design_ci": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38076047468",
     "prospective_holdout_cumulative_fit_bound": 7908,
     "ppr4_overall_status": "SOURCE ACQUISITION GATE STILL BLOCKED; ONLY SOURCE-ACQUISITION/CACHE MANIFEST DRAFTING IS AUTHORIZED.",
-    "next_permitted_scope": "Draft a detailed exact-source acquisition/cache manifest for independent review. Do not issue source requests, download bytes, accept a model panel, fit/tune/score, record prospective holdout forecasts or release labels."
+    "next_permitted_scope": "Draft a source-specific acquisition/cache manifest only. Do not issue source requests, download bytes, accept the model panel, fit/tune/score, capture holdout forecasts or release labels.",
+    "ppr4_bse_extension": "P4-033 BSE SENSEX archive URL and P4-034 BSE FII/DII discovery gap added as unverified; neither accepted or downloaded."
   }
 }
