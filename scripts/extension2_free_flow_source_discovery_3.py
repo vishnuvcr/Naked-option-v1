@@ -26,6 +26,7 @@ MAX_HF_CSV_BYTES = 16 * 1024
 MAX_CSV_SAMPLE_ROWS = 10
 MAX_VISIBLE_ROWS = 20
 HF_COMMIT = "f90f7acad633ba5a803f25cf431fb5f13ce3d162"
+CURRENT_SPEC_GIT_BLOB = "4e30415632545c04a2875d627afa0191afe3f383"
 HF_PATH = "nifty historical data/fii dii data/fii_dii_2024_to_today.csv"
 HF_RESOLVE_URL = (
     "https://huggingface.co/datasets/johnwick3690/stocks/resolve/"
@@ -682,6 +683,7 @@ def parse_csv_edge(
     seen_dates: list[str] = []
     invalid_date_rows = 0
     nonnumeric_flow_cells = 0
+    nonfinite_flow_cells = 0
     for raw in data_lines:
         if len(row_objects) >= MAX_CSV_SAMPLE_ROWS:
             break
@@ -706,7 +708,7 @@ def parse_csv_edge(
                 try:
                     parsed_value = float(value)
                     if not math.isfinite(parsed_value):
-                        nonnumeric_flow_cells += 1
+                        nonfinite_flow_cells += 1
                 except ValueError:
                     nonnumeric_flow_cells += 1
     provenance_values = [
@@ -722,15 +724,18 @@ def parse_csv_edge(
     )
     sample_keys = list(dict.fromkeys(date_candidates + flow_candidates + provenance_candidates))[:20]
     row_sample = [{key: row.get(key, "") for key in sample_keys} for row in row_objects[:MAX_CSV_SAMPLE_ROWS]]
+    edge_status = "REJECTED_NONFINITE_FLOW" if nonfinite_flow_cells else "SAMPLED"
     return {
-        "edge": label, "status": "SAMPLED",
+        "edge": label, "status": edge_status,
         "header": normalized[:60], "parsed_rows": len(row_objects),
         "date_field_candidates": date_candidates, "flow_field_candidates": flow_candidates,
         "provenance_field_candidates": provenance_candidates, "provenance_status": provenance_status,
         "row_sample": row_sample,
         "date_values": seen_dates[:MAX_CSV_SAMPLE_ROWS],
         "duplicate_date_count_within_edge": len(seen_dates) - len(set(seen_dates)),
-        "invalid_date_rows": invalid_date_rows, "nonnumeric_flow_cells": nonnumeric_flow_cells,
+        "invalid_date_rows": invalid_date_rows,
+        "nonnumeric_flow_cells": nonnumeric_flow_cells,
+        "nonfinite_flow_cells": nonfinite_flow_cells,
         "raw_edge_sha256": sha256_bytes(data), "raw_edge_bytes": len(data),
     }
 
@@ -936,7 +941,7 @@ def report_main() -> dict[str, Any]:
         "phase": "EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3",
         "generated_at_utc": iso_utc(),
         "scope": "Bounded free-source metadata/schema probe only; no full history, feature table, labels, model fits, prediction metrics or final-holdout access.",
-        "spec_git_blob": "4e30415632545c04a2875d627afa0191afe3f383",
+        "spec_git_blob": CURRENT_SPEC_GIT_BLOB,
         "sources": {},
     }
     # Static CDSL archive index and two fixed single-day XLS reports.
