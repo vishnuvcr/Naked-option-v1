@@ -33,6 +33,12 @@ NIFTY_ROW = {
     "CLOSE": "21665.80",
 }
 NIFTY_RAW = json.dumps({"d": json.dumps([NIFTY_ROW])}).encode()
+DHAN_SAMPLE_RAW = b'{"open":[21751.35],"high":[21755.6],"low":[21555.65],"close":[21665.8],"volume":[2.63711568E8],"timestamp":[1.7041338E9]}'
+DHAN_SAMPLE_SHA256 = "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70"
+DHAN_SAMPLE_PARAMS = {
+    "exchangeSegment": "IDX_I", "fromDate": "2024-01-02", "instrument": "INDEX",
+    "oi": False, "securityId": "13", "toDate": "2024-01-03",
+}
 
 
 class FakeResponse:
@@ -104,6 +110,7 @@ def fixtures(folder: pathlib.Path, *, approval_status: str = "SPENT", override: 
         "source_specs": source_specs(),
         "expected_date": mod.adapter.EXPECTED_DATE,
         "expected_dhan_row": mod.adapter.EXPECTED_DHAN_ROW,
+        "dhan_sample_response_sha256": mod.adapter.EXPECTED_DHAN_SAMPLE_RESPONSE_SHA256,
         "expected_mapping": mod.adapter.EXPECTED_MAPPING,
     }
     manifest = {
@@ -130,8 +137,48 @@ def fixtures(folder: pathlib.Path, *, approval_status: str = "SPENT", override: 
     return manifest_path, approval_path
 
 
-def call(folder: pathlib.Path, *, env: dict, opener: SequentialOpener, nifty_raw=NIFTY_RAW, csv_raw=CSV):
+def create_cached_sample(folder: pathlib.Path, *, response_raw: bytes = DHAN_SAMPLE_RAW, manifest_override: dict | None = None):
+    bundle = folder / "existing-dhan-cache"
+    bundle.mkdir(parents=True, exist_ok=True)
+    response_path = bundle / "response.json"
+    manifest_path = bundle / "manifest.json"
+    response_path.write_bytes(response_raw)
+    payload = {
+        "fetched_at_utc": "2026-10-10T13:18:25.096341Z",
+        "request_metadata": {
+            "content_type": "application/json",
+            "cumulative_response_bytes": len(DHAN_SAMPLE_RAW),
+            "http_status": 200,
+            "request_count": 1,
+            "response_bytes": len(DHAN_SAMPLE_RAW),
+            "response_sha256": DHAN_SAMPLE_SHA256,
+        },
+        "request_parameters": DHAN_SAMPLE_PARAMS,
+        "request_scope_sha256": "478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba",
+        "response_bytes": len(DHAN_SAMPLE_RAW),
+        "response_sha256": DHAN_SAMPLE_SHA256,
+        "schema_version": 1,
+        "source_url": "https://api.dhan.co/v2/charts/historical",
+        "validation": {
+            "fields": ["open", "high", "low", "close", "volume"],
+            "first_timestamp": 1704133800,
+            "last_timestamp": 1704133800,
+            "row_count": 1,
+            "timestamp_sha256": "c9409b29365d6be13af702d451f59081ae96e6f549628aa5f1933905ed6ed5b9",
+        },
+    }
+    if manifest_override:
+        payload.update(manifest_override)
+    manifest_path.write_text(json.dumps(payload, sort_keys=True, indent=2), encoding="utf-8")
+    return response_path, manifest_path
+
+
+def call(folder: pathlib.Path, *, env: dict, opener: SequentialOpener, nifty_raw=NIFTY_RAW, csv_raw=CSV,
+         sample_raw: bytes = DHAN_SAMPLE_RAW, sample_manifest_override: dict | None = None):
     manifest, approval = fixtures(folder)
+    sample_response_path, sample_manifest_path = create_cached_sample(
+        folder, response_raw=sample_raw, manifest_override=sample_manifest_override
+    )
     responses = [
         FakeResponse(nifty_raw, content_type="application/json"),
         FakeResponse(csv_raw, content_type="text/csv"),
@@ -142,6 +189,8 @@ def call(folder: pathlib.Path, *, env: dict, opener: SequentialOpener, nifty_raw
     code = mod.run_crosscheck(
         env=env, opener_factory=lambda: opener,
         manifest_path=manifest, approval_path=approval,
+        cached_dhan_response_path=sample_response_path,
+        cached_dhan_manifest_path=sample_manifest_path,
         cache_root=cache, report_path=report,
         fetched_at_utc="2026-10-10T00:00:00Z",
     )

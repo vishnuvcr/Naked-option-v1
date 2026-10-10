@@ -33,6 +33,16 @@ EXPECTED_DHAN_ROW = {
     "close": "21665.80",
     "volume": "263711568",
 }
+EXPECTED_DHAN_SAMPLE_RESPONSE_SHA256 = "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70"
+EXPECTED_DHAN_SAMPLE_MANIFEST_BLOB = "601f956e4e31e5a1288a3381fbf59217e37dee10"
+EXPECTED_DHAN_SAMPLE_PARAMS = {
+    "exchangeSegment": "IDX_I",
+    "fromDate": "2024-01-02",
+    "instrument": "INDEX",
+    "oi": False,
+    "securityId": "13",
+    "toDate": "2024-01-03",
+}
 EXPECTED_MAPPING = {
     "security_id": "13",
     "exchange": "NSE",
@@ -301,6 +311,8 @@ def parse_dhan_instrument_mapping(
     instrument_type = (row.get("SEM_EXCH_INSTRUMENT_TYPE") or "").strip().upper()
     if exchange != expected["exchange"]:
         raise ValueError("dhan_mapping_exchange_mismatch")
+    if trading_symbol != expected["symbol"]:
+        raise ValueError("dhan_mapping_trading_symbol_mismatch")
     # Instrument List uses its own compact codes C/D/E/M. IDX_I is an API enum,
     # not a value to compare directly with SEM_SEGMENT.
     if compact_segment not in {"C", "D", "E", "M"}:

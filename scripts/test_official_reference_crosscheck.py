@@ -175,6 +175,7 @@ def test_mapping_rejects_missing_ambiguous_or_wrong_candidates() -> None:
         ("13,NSE,IDX_I,INDEX,NIFTY,NIFTY 50,NIFTY 50,IDX", "dhan_mapping_compact_segment_invalid"),
         ("13,NSE,E,INDEX,INDIAVIX,INDIA VIX,INDIA VIX,IDX", "dhan_mapping_symbol_mismatch"),
         ("13,NSE,E,INDEX,NIFTY,OTHER,OTHER,IDX", "dhan_mapping_symbol_name_mismatch"),
+        ("13,NSE,E,INDEX,NIFTY100,,,IDX", "dhan_mapping_trading_symbol_mismatch"),
     ]:
         raw = (CSV_HEADER + row + "\n").encode()
         must_raise(lambda raw=raw: mod.parse_dhan_instrument_mapping(raw), expected)
