@@ -66,6 +66,11 @@ Pre-registered experimental metrics and representations, including entropy/compl
 ### Phase 7 — Ensemble + regime-conditioned prediction
 Stack only models that have passed earlier gates. Compare static, regime-conditioned, mixture-of-experts and abstention policies. Freeze all selection rules before touching the final holdout.
 
+#### Phase 7 prediction-only available-data amendments
+
+- **Extension 1 (Run #44):** daily cross-market/global price predictors; independently audited with no statistically significant family result and no candidate promoted. This is a documented negative result, not exhaustion of the method registry.
+- **Extension 2 (proposed, not authorized):** pre-register the remaining free-data predictors G03 sector leadership, G14 FII/FPI flow, G15 DII flow, G17 advance/decline breadth, and F03/F04/F05 NIFTY option OI/volume features. The proposal is in `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md`. It uses official NSE archive source leads and a single global max-statistic bootstrap across all 35 method/horizon combinations. No full-history acquisition or empirical fit is allowed until the isolated tester approves the spec/source-feasibility gate and a separate exact-snapshot execution gate passes.
+
 ### Phase 8 — Long-option execution research
 Map directional forecasts to calls/puts. Test expiry, delta/moneyness, DTE, entry timing, exit timing, stop/time-stop, profit target, trailing exit, IV filters and no-trade rules. Never use information unavailable at trade time.
 
