@@ -20,6 +20,12 @@ on:
       - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_REQUEST.json"
       - "research/gates/OFFICIAL_NIFTY_SAMPLE_CROSSCHECK_APPROVAL.json"
   workflow_dispatch:
+    inputs:
+      confirm_offline_tests:
+        description: "Run offline/mocked tests only against phase-07-developer. No public-source request is made."
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -30,6 +36,7 @@ concurrency:
 
 jobs:
   offline-only-no-secrets-no-network:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.confirm_offline_tests == true)
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -43,10 +50,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python -m py_compile \
+            scripts/dhan_instrument_master.py \
+            scripts/official_reference_crosscheck.py \
+            scripts/run_official_reference_crosscheck.py \
+            scripts/test_dhan_instrument_master.py \
+            scripts/test_official_reference_crosscheck.py \
+            scripts/test_run_official_reference_crosscheck.py
           python scripts/test_dhan_instrument_master.py
           python scripts/test_official_reference_crosscheck.py
           python scripts/test_run_official_reference_crosscheck.py
           python scripts/official_reference_crosscheck.py
+          python scripts/run_official_reference_crosscheck.py
       - name: Verify manifest-protected hashes when a proposal exists
         shell: bash
         run: |
