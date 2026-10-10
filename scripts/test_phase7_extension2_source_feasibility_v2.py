@@ -45,6 +45,15 @@ def test_nse_fii_api_payload_rejects_excess_rows() -> None:
     assert "sample" not in result
 
 
+
+def test_nse_fii_api_payload_rejects_unrecognized_json_shape() -> None:
+    blob = json.dumps({"error": "request rejected", "message": "sample"}).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    result = mod.inspect_nse_fii_api_payload("fixture", blob, meta)
+    assert result["schema_status"] == "UNRECOGNIZED_JSON_SHAPE", result
+    assert "sample" not in result
+
+
 def test_nse_fii_api_payload_accepts_small_sample() -> None:
     rows = [{"tradeDate": "08-Jul-2024", "fiiBuy": 10, "fiiSell": 9}]
     blob = json.dumps(rows).encode()
@@ -170,6 +179,7 @@ def main() -> None:
     tests = [
         test_nse_fii_api_requests_are_bounded,
         test_nse_fii_api_payload_rejects_excess_rows,
+        test_nse_fii_api_payload_rejects_unrecognized_json_shape,
         test_nse_fii_api_payload_accepts_small_sample,
         test_index_csv_requires_all_frozen_indices_and_date,
         test_index_csv_missing_sector_fails,
