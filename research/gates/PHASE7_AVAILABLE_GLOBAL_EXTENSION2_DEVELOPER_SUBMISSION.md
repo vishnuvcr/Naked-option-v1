@@ -119,3 +119,17 @@ After Run #1, the developer prepared a revised bounded sampler using the officia
 **Developer → Tester:** Independently review the v2 network scope, exact source dates, row/date/schema validation, and FII/DII coverage reporting. Pass or request changes.
 
 **Tester → Developer:** Do not enable the v2 workflow until a fresh code-gate PASS is recorded.
+
+
+## Sampler v2 resubmission after REQUEST CHANGES — 2026-10-10
+
+The tester found that the initial v2 source audit checked FII/DII required fields only on the first record and could crash on malformed numeric values. The developer corrected the sampler to validate every row's required fields, ISO date, duplicate date, and finite numeric flows, and to report invalid-row counts/examples without crashing.
+
+- Corrected sampler blob: `6e5d30821f1a95eb508c17c0f027a6623ece94bc`.
+- Corrected offline test blob: `87d3ace0ee726dee8eb571efcf1f44aa585ac3fa`.
+- Added negative fixtures for a missing field on a later row, duplicate dates, and nonnumeric flow values.
+- No v2 workflow has been added or run.
+
+**Developer → Tester:** Re-review these exact blobs; if passed, authorize adding/running the bounded v2 Gate A workflow.
+
+**Tester → Developer:** Keep source downloads and model work closed until the corrected sampler receives an explicit code-gate PASS.
