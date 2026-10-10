@@ -1,37 +1,42 @@
 # Developer → Tester Review Request — DhanHQ Market-Data Recovery Specification
 
 **Requested decision: PASS / REQUEST CHANGES for specification only.**  
-**Reviewed developer commit containing spec:** `489bc83cdf655e54166af50a6b443b780e9af145`.  
-**Spec Git blob:** `2f8e31333ae2026fbe5887192403b6e388c26bf5`.  
-**Live requests authorized: NONE.** The previous FII/DII single-run manifest is spent and must not be reused.
+**Spec commit:** `5e761ffe535877448f494dfb17216bdff7373eee`.  
+**Current spec Git blob:** `a1100bd3adca6abd6115c356bfd4a447909576a4`.  
+**Live requests authorized: NONE.** The prior FII/DII one-run manifest is spent and must not be reused.
 
-## User request
+## User request and secret handling
 
-The user added repository secret `DHAN_ACCESS_TOKEN` and asked that it be used to resolve data-availability issues and rerun analyses. The token value has not been accessed, printed, committed, or included in artifacts. No Dhan API request has been made.
+The user says repository secret `DHAN_ACCESS_TOKEN` has been added and asks to use it to resolve data gaps and rerun analyses. The token value has not been accessed, printed, committed, hashed, or included in any artifact. No Dhan endpoint has been called.
 
-## Scope submitted for review
+## Exact proposed scope
 
-Read `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` at the exact blob above. The proposal asks for a finite, fail-closed DhanHQ source path:
+Review `research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md` at the exact spec blob above. This proposes a finite first sample only after future implementation and run gates:
 
-- one authentication/entitlement probe to `GET https://api.dhan.co/v2/profile`; discard the body and persist only redacted status/boolean fields;
-- official instrument-master resolution, with exact URL/size/parser pinning to be approved before any download;
-- up to four daily historical candle requests to `POST https://api.dhan.co/v2/charts/historical`, for no more than two uniquely resolved instruments and two fixed ten-calendar-day windows;
-- five authenticated requests maximum, 4 MiB total response-body cap, 64 KiB transport cap on the profile body, 1 MiB per candle response, 20-second timeout, no retries or redirects;
-- no trading/account/order endpoints, no token logging, no bulk history, features/labels, model fitting, metrics or holdout access.
+- one GET `https://api.dhan.co/v2/profile`; discard the body immediately and persist only redacted HTTP/status booleans (no client ID/name/UCC, active-segment list, validity timestamp, raw JSON or token);
+- one GET `https://api.dhan.co/v2/instrument/IDX_I` with a 1 MiB cap to resolve NIFTY 50 and India VIX IDs from official metadata; no guessed IDs and no all-instrument CSV download;
+- at most four POSTs to `https://api.dhan.co/v2/charts/historical`, at most two instruments and two fixed ten-calendar-day windows;
+- six authenticated requests maximum, 4 MiB total response-body budget, 64 KiB profile cap, 1 MiB instrument metadata cap, 1 MiB per candle response, 20-second timeout, no retry or redirect;
+- no order, trading, position, fund, or account transaction endpoint; no token logging; no bulk history, feature/label generation, model fitting, metrics, or holdout access.
 
-The documented daily historical endpoint returns instrument OHLCV candles and has a non-inclusive `toDate`. The official documentation says daily history may extend to instrument inception; intraday data has a five-year limit and at most 90 days per request. Data API access may require a separate subscription. These facts do **not** establish that Dhan provides aggregate daily FII/FPI and DII cash-flow totals; the spec explicitly preserves that unresolved data gap.
+The official DhanHQ v2 docs describe daily instrument candles (OHLCV, with OI where applicable), with a non-inclusive `toDate`; intraday data has a five-year limit and at most 90 days per call. Data API entitlement may require a separate subscription. Dhan's documented historical-candle endpoints do **not** document combined daily FII/FPI/DII cash-flow totals; this proposal must not claim to close that specific flow gap.
 
-## Independent review requested
+Official references:
+- Historical data: https://dhanhq.co/docs/v2/historical-data/
+- Authentication: https://dhanhq.co/docs/v2/authentication/
+- Instrument list: https://dhanhq.co/docs/v2/instruments/
+- Expired options: https://dhanhq.co/docs/v2/expired-options-data/
 
-Verify:
-1. official Dhan endpoint/authentication semantics and whether the token can be checked without persisting account-identifying profile fields;
-2. instrument-master identity must be resolved from official metadata, never guessed;
-3. request, response-byte, redirect, date-window and timeout caps are internally consistent;
-4. response errors and token values cannot leak through logs/artifacts;
-5. no live source request can happen before a new exact-snapshot code gate and single-use manifest;
-6. the proposal keeps Dhan candles separate from FII/FPI/DII aggregate flows;
-7. this is a specification gate only and does not authorize bulk acquisition or analysis.
+## Independent checks requested
 
-**Tester → Developer:** Return PASS or REQUEST CHANGES on the exact spec blob. Do not authorize live requests at this gate.
+1. Verify endpoint and authentication semantics from official docs.
+2. Verify that the profile body cannot leak identifying data and that token strings never enter logs/errors/artifacts.
+3. Verify the segment-specific metadata lookup, identity ambiguity handling and hard caps.
+4. Check that the request/byte/time budgets are internally consistent and that there is no automatic widening or redirect.
+5. Confirm all live calls remain impossible before a new exact-snapshot code PASS and a separate single-use manifest.
+6. Confirm candles are not misrepresented as FII/FPI/DII flow and the spec does not authorize full history or modeling.
+7. Return PASS or REQUEST CHANGES on this exact spec blob only.
 
-**Developer → Tester:** Implement only after the spec decision; submit exact script/test/workflow blobs for a new code gate. No source requests until the implementation PASS and a separate single-use manifest.
+**Tester → Developer:** Do not authorize live requests at this spec gate. If passing, permit implementation/offline tests only.
+
+**Developer → Tester:** After spec decision, submit exact adapter/test/workflow blobs for code review. A separate single-use manifest is required before one bounded authenticated sample. The resulting artifact needs its own audit.
