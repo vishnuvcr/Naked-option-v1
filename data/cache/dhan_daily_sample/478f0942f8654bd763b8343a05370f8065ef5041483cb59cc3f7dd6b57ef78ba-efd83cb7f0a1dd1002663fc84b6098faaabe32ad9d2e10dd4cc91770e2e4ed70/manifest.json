@@ -1,0 +1,37 @@
+{
+  "fetched_at_utc": "2026-10-10T13:18:25.096341Z",
+  "request_metadata": {
+    "content_type": "application/json",
+    "cumulative_response_bytes": 121,
+    "http_status": 200,
+    "request_count": 1,
+    "response_bytes": 121,
+    "response_sha256": "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70"
+  },
+  "request_parameters": {
+    "exchangeSegment": "IDX_I",
+    "fromDate": "2024-01-02",
+    "instrument": "INDEX",
+    "oi": false,
+    "securityId": "13",
+    "toDate": "2024-01-03"
+  },
+  "request_scope_sha256": "478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba",
+  "response_bytes": 121,
+  "response_sha256": "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70",
+  "schema_version": 1,
+  "source_url": "https://api.dhan.co/v2/charts/historical",
+  "validation": {
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ],
+    "first_timestamp": 1704133800,
+    "last_timestamp": 1704133800,
+    "row_count": 1,
+    "timestamp_sha256": "c9409b29365d6be13af702d451f59081ae96e6f549628aa5f1933905ed6ed5b9"
+  }
+}
