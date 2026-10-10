@@ -120,8 +120,7 @@ def test_allowed_hf_redirect_preserves_range_but_not_credentials() -> None:
     client.opener = fake
     result = client.request(
         "HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL, headers={
-            "Range": "bytes=0-3", "Authorization": "Bearer must-not-forward",
-            "Cookie": "must-not-forward",
+            "Range": "bytes=0-3",
         }, max_body_bytes=8, hf_redirects=True,
     )
     assert result["http_status"] == 206 and result["status"] == "FETCHED", result
@@ -131,6 +130,20 @@ def test_allowed_hf_redirect_preserves_range_but_not_credentials() -> None:
     assert fake.requests[1].get_header("Cookie") is None
     assert result["content_range"] == "bytes 0-3/10"
     assert client.budget.redirects == 1
+
+
+
+def test_credentials_are_rejected_before_network() -> None:
+    client = mod.LimitedHTTP()
+    fake = FakeOpener([FakeResponse(200, b"should-not-be-requested")])
+    client.opener = fake
+    result = client.request(
+        "HF-2-HEAD-RANGE", mod.HF_RESOLVE_URL,
+        headers={"Range": "bytes=0-3", "Authorization": "Bearer must-not-send"},
+        max_body_bytes=8, hf_redirects=True,
+    )
+    assert result["status"] == "REJECTED_SCOPE"
+    assert not fake.requests
 
 
 def test_hf_redirect_to_unregistered_host_is_rejected() -> None:
@@ -369,6 +382,7 @@ def main() -> None:
         test_unregistered_headers_are_rejected_before_network,
         test_no_auto_redirect_for_cdsl,
         test_allowed_hf_redirect_preserves_range_but_not_credentials,
+        test_credentials_are_rejected_before_network,
         test_hf_redirect_to_unregistered_host_is_rejected,
         test_hf_second_redirect_is_rejected,
         test_request_body_reads_cap_plus_one_and_rejects_overflow,
