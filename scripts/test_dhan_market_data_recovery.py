@@ -153,9 +153,9 @@ def test_instrument_mapping_requires_unique_exact_ids() -> None:
 
 def test_instrument_mapping_accepts_official_csv_headers() -> None:
     body = (
-        "SEM_TRADING_SYMBOL,SEM_CUSTOM_SYMBOL,SEM_SMST_SECURITY_ID,SEM_SEGMENT,SEM_INSTRUMENT_NAME\\n"
-        "NIFTY,NIFTY 50,101,IDX_I,INDEX\\n"
-        "INDIAVIX,INDIA VIX,102,IDX_I,INDEX\\n"
+        "SEM_TRADING_SYMBOL,SEM_CUSTOM_SYMBOL,SEM_SMST_SECURITY_ID,SEM_SEGMENT,SEM_INSTRUMENT_NAME\n"
+        "NIFTY,NIFTY 50,101,IDX_I,INDEX\n"
+        "INDIAVIX,INDIA VIX,102,IDX_I,INDEX\n"
     ).encode()
     got = mod.parse_index_instruments(body)
     assert got["NIFTY 50"]["security_id"] == "101"
