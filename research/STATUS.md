@@ -564,3 +564,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Corrected spec blob: `7f6cc6e86556db3da9f87c23c0e183bcb3282310`. It now defines legacy-to-UDiFF mapping, FII/DII imbalance denominator, exact F04/F05 formulas, canonical sector index identities, and global-bootstrap treatment of missing forecasts.
 - Updated handoff: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md`.
 - **Current gate: corrected spec re-review pending.** No source feasibility data were downloaded and no model was fit. If the tester passes, only small deterministic Gate A samples are authorized.
+
+
+## 2026-10-10 — Extension 2 Gate A Run #1: partial pass, source review changes required
+
+- [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019391488) passed all six offline source-schema tests and uploaded artifact ID `11657980203`, JSON SHA-256 `b39b7edce155a1ce0851186fff3f84d781474d89b5d3630831bcbf4f6df473b9`.
+- Official legacy F&O archive for 2024-07-05 and official UDiFF archive for 2024-07-08 both fetched and passed date/schema checks (33,930/34,390 rows; 1,634 NIFTY option rows each).
+- Official FII/DII API returned current schema but only two records for 2026-10-09. A free GitHub mirror has 164 unique records from 2026-01-14 through 2026-09-30, insufficient for the 500-date confirmatory family test.
+- Sector API URL returned generic HTML; official index CSV pattern `ind_close_all_DDMMYYYY.csv` identified as a better source but not yet sampled. Advances/Declines page did not expose historical rows in this sample.
+- Tester report `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_FEASIBILITY_RUN1_TESTER.md` = REQUEST CHANGES. Next bounded iteration must sample official daily index and equity bhavcopy CSVs and search more free historical FII/DII sources.
+- No full-history download, feature table, labels or model fitting occurred. Gate A remains open.
