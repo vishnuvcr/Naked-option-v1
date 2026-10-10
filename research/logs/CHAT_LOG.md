@@ -461,3 +461,12 @@ Proposal: `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md`. Submi
 **Developer → Tester:** Review formulas, timing, source/vintage assumptions, expiry filters, missingness and global multiplicity control; if passing, authorize only small-sample source feasibility.
 
 **Tester → Developer:** Do not fit models or download full history before the spec and source-feasibility gates are passed.
+
+
+## 2026-10-10 — Corrected Extension 2 specification resubmitted
+
+The tester rejected the initial spec before data acquisition. The developer corrected the legacy/UDiFF source mapping, flow denominator, OI acceleration and volume/OI formulas, sector index identities, and common-grid missing-candidate bootstrap rules. The corrected spec blob is `7f6cc6e86556db3da9f87c23c0e183bcb3282310`. It is back with the isolated tester for a fresh decision. No full history or feature data have been downloaded and no empirical model fit has occurred.
+
+**Developer → Tester:** Re-review the exact corrected spec and authorize only Gate A small-sample source feasibility if all formulas and source rules are now precise.
+
+**Tester → Developer:** Keep source/empirical work closed until a new explicit PASS is recorded.
