@@ -545,3 +545,11 @@ During proposal validation, a web-reader attempt to open the two fixed CDSL hist
 - Correction: every live-path Range fixture now uses the registered `bytes=0-8191` range; expected Content-Range/body length are consistent; bad range values are separately tested for pre-network rejection.
 - Latest exact-snapshot run [38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968) passes **27/27 offline checks**. No source request was made in any of the failed test runs.
 - Snapshot now submitted for independent code/workflow review. One-run manifest absent; do not treat a code PASS as source-sampling authorization.
+
+
+## 2026-10-10 — Discovery 3 extra parser/redaction checks added; latest suite green
+
+- Added CDSL candidate numeric flow-value mapping on the bounded equity row using columns associated with purchase/sale/net-investment labels. The output explicitly remains `CANDIDATE_NUMERIC_VALUES_EXTRACTED_NOT_ACCEPTED_FOR_FEATURE_BUILD`; no feature table may use these values until header semantics are independently verified.
+- Added recursive redaction of nested credential-like keys and sanitization of sensitive query values in URLs included in the public JSON row.
+- The associated hosted offline suite [Run 38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed 29/29 tests. Earlier fixture failures from obsolete 4-byte Range expectations were corrected; none of the failed runs made source requests.
+- Updated code-gate review request pins final code snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Tester review pending; live sampler and one-run manifest remain absent.
