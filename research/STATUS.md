@@ -679,3 +679,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Exact code/workflow review request: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
 - Separate workflows: offline tests only; guarded live probe requires an exact tester report, all six byte hashes/Git blobs, and reviewed commit ancestry. Before the one source probe it marks the manifest SPENT, preventing replay.
 - No live source requests occurred. Current one-run manifest absent. Full-history acquisition, features/labels, model fitting, predictive metrics/p-values and final holdout remain blocked pending a fresh code-gate review followed by separate one-run authorization.
+
+
+## 2026-10-10 — Discovery 3 updated snapshot; 29/29 offline tests passed
+
+- Latest protected-code snapshot: `918821ba9e74342bb282fe3a86138e8aa8e29ea7`.
+- Latest hosted offline test: [Run 38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365), **29/29 checks passed**.
+- Added CDSL candidate value extraction by matching buy/sell/net labels to same-column values on the sampled equity row, while retaining status `CANDIDATE_NUMERIC_VALUES_EXTRACTED_NOT_ACCEPTED_FOR_FEATURE_BUILD` until the grouped headers are reconciled.
+- Added recursive source-JSON credential redaction and signed-query redaction for non-HF URLs, plus regression tests.
+- Current exact handoff: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). It pins the six protected Git blobs and file-byte SHA-256 values.
+- **Current gate:** isolated tester code/workflow review pending. No live source requests, new manifest or sample artifact exist. Previous Gate A manifest is spent. Full history, features/labels and modeling remain blocked.
