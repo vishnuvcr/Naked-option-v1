@@ -567,3 +567,12 @@ PPR-1 received an independent **REQUEST CHANGES** decision; the report is archiv
 - The native-task ledger contains 81 method/component rows with distinct per-row target, horizon, data window, split, feature recipe, metric/result and uncertainty fields. Native paper tasks are not counted as executable cells.
 - Common adaptation grid: 72 active configurations, 1,188 model × pipeline × horizon cells; conservative current fit budget 4,344 calls (3,564 outer allowance + 780 inner-fold fits), below the repository's 8,000 cap.
 - PPR-4 may now perform read-only public source-availability/documentation discovery and existing-cache/metadata/PIT/holdout-boundary audit only. Bulk downloads into the modelling panel, model fitting/tuning/scoring, final-holdout access and option P&L remain blocked pending a separate PPR-4 tester gate.
+
+
+## PPR-4 Wave 1 documentation check — 2026-10-11
+
+- [Source/cache proposal](research/phase7/PPR4_SOURCE_ACQUISITION_CACHE_PROPOSAL.json) received a scoped tester PASS for proposal drafting only: [review 3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW3_SOURCE_ACQUISITION_PROPOSAL.md).
+- [Wave 1 metadata request draft](research/phase7/PPR4_WAVE1_METADATA_REQUEST_DRAFT.json) received a separate scoped PASS for three official documentation-page GETs only: [review 4](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md).
+- [Documentation findings](research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md): NSE lists index/TRI, India VIX and F&O archive links; NSE says India VIX uses best bid/ask NIFTY option prices to estimate 30-day expected volatility; Treasury page details were not sufficiently exposed.
+- The reader does not expose raw response bytes, full headers or raw-body hashes, so the 2 MiB transport cap cannot be independently attested. These are metadata findings only.
+- **Gate remains closed:** no data-series request/download, model-panel acceptance, fitting/tuning/scoring, holdout capture/release or option P&L.
