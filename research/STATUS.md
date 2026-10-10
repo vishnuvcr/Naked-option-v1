@@ -893,3 +893,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Independent tester report [PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md](gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md), tester commit `a7a77f790bd407f1ac72056e5fab7cd7c784e2b6`: **PASS WITH SCOPED RESTRICTIONS — offline validator/cache foundation only**.
 - New adapter performs offline CSV validation and atomic cache writes only. No live CSV was fetched and no cache was populated. The 8 MiB cap is provisional; actual source size remains unknown.
 - **Next gate:** developer may prepare a separate exact-URL fetch adapter with redirects disabled, no credentials, strict timeout/content-type/byte checks and fail-closed behavior, plus mocked offline tests. It must be submitted for independent code/workflow review. No live request or new manifest yet.
+
+
+## 2026-10-10 — Official NIFTY sample cross-check exact-snapshot gate
+
+- Independent review recorded at [PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md](gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md): **REQUEST CHANGES**.
+- The earlier hosted 32-test PASS ([run 38056916677](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056916677)) is tied to older adapter/runner/test blobs. Current snapshot hashes differ, so the historical PASS does not verify current code.
+- Current reviewed blobs: adapter `ef5b507d9c1706b2afd16338db8bec2bd517352d`; runner `ff593638d3f76671215cfe55a5cc1f96859096ea`; adapter tests `2817c41ba25882930ccb0a0fc2d7f77968da67ea`; runner tests `8c02fdef90593f6223a6d1b8bf3248163bf64880`; offline workflow `b450da4b9ffed8d8e38c8f7383084e1ba987b303`.
+- **No public-source requests were made.** No live manifest exists; no data was accepted for modeling. The next action is to run the offline suite on the exact current snapshot and submit run receipt plus pinned hashes for tester re-review.
