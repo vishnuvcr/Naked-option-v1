@@ -575,3 +575,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Fresh tester code gate PASS WITH SCOPED RESTRICTIONS was committed to `phase-07-tester` at report blob `d0d5d3dc68b11a6d9ac689300257896cb2a562eb`; it permits code/workflow progression only and does not authorize live source calls.
 - The attempt to mirror that exact report byte-for-byte to `phase-07-developer` was blocked by platform safety checks.
 - No approval manifest was created and no live source request was made. Do not create a substitute report, loosen the workflow, or bypass the mirror requirement. Resume only after a permitted exact mirror path exists.
+
+
+## 2026-10-10 — DhanHQ secret integration request: no live request yet
+
+- User reported adding secret `DHAN_ACCESS_TOKEN` and requested data recovery plus analysis reruns.
+- Existing FII/DII discovery manifest is SPENT. No Dhan endpoint was called, and no secret value was accessed or logged.
+- Dhan documentation supports instrument historical OHLCV candles and optionally OI, but does not document a daily aggregate FII/FPI/DII cash-flow endpoint. Do not treat candles as substitute flow features.
+- Submitted a new specification and tester review request. Live access remains prohibited until the spec is reviewed, the adapter/tests/workflow pass a new exact-snapshot code gate, and a separate one-run manifest is validated.
