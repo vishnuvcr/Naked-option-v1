@@ -211,3 +211,12 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Latest exact-snapshot report: PASS WITH SCOPED RESTRICTIONS, one Phase 7 empirical prediction batch only.
 - Developer branch has the identical tester report mirrored, but the hash-bound execution approval manifest has not been created because its write was blocked by platform safety checks.
 - Empirical execution has not started; there are no new prediction results to audit. Phase 8 remains blocked.
+
+
+## 2026-10-10 — Independent tester completed Run #44 artifact audit
+
+- Run #44 [38018506915](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915) completed successfully in all jobs. Artifact ID 11657636547, SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
+- Independent structural and metric audit passed: 91,988 rows, zero duplicate row keys, zero invalid probabilities, zero missing candidate labels/returns/probabilities, zero target-sign mismatches, and candidate metrics plus all five family p-values reproduced.
+- Family p-values at 1/2/3/5/10 sessions: 0.9840/0.8882/0.6786/0.7745/0.9800; all Bonferroni-adjusted p-values 1.0.
+- **Decision:** data/result integrity passes; no candidate promoted. Phase 8 and strategy development remain blocked.
+- Full report: `research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md`.
