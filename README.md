@@ -358,3 +358,11 @@ The existing tester PASS applies to an earlier sampler v2 blob. The current samp
 The Gate A workflow was strengthened again at blob `fdc0a6bef97796b38424048304b704d86f80c450`. A source-sampling run now requires an explicit tester report digest plus all six current protected Git blob IDs quoted in that report, matching file SHA-256 and Git blob maps, reviewed-commit ancestry, and explicit report text prohibiting full-history acquisition and model fitting. Manual sampling defaults to off. The previous sampler/workflow PASS is not treated as approval for changed blobs.
 
 See the [current exact-snapshot review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md). No Gate A source-sample run was triggered by this change; no approval manifest exists.
+
+
+### Gate A F&O archive sampling coverage correction — 2026-10-10
+
+Before any live sample request, a second audit found the v2 sampler workflow did not call the legacy/UDiFF F&O archive sampler. The workflow now runs both bounded source samplers and uploads both the F&O transition report and the index/equity/FII-DII report. Current workflow blob: `1d8991255ff284c6b9cb20c4071ab56555d18dc6`.
+
+- [Updated exact-snapshot review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md)
+- This correction did not fetch any live data. The current exact-snapshot tester gate must pass before the bounded Gate A source workflow can execute.
