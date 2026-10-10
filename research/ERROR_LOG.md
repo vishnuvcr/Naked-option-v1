@@ -504,3 +504,11 @@
 - Hosted offline run `38026502365` passed 7 v1 + 17 v2 checks.
 - Prior approval was revoked. Run `38026433233` correctly failed the approval gate and skipped live sampling.
 - Next: tester code review of exact updated blobs; only then may a new bounded sample run occur. FII/DII historical coverage still requires broader free-source research.
+
+
+## 2026-10-10 — Corrected code gate PASS; artifact still rejected
+
+- Tester PASS is current for code commit `784474de59a050ba6229ee5cb9a708c0f74ca2dc`, with eight protected files including both offline-only workflows.
+- Hosted offline suite Run `38026629021` passed 25 tests. Fail-closed check Run `38026802711` rejected the revoked manifest and skipped source acquisition, confirming the guard behavior.
+- Do not conflate the new code PASS with Gate A completion: artifact `11660395594` remains non-accepted because of index date parsing and out-of-window FII/DII response defects.
+- Approval must be rebuilt and hash-bound to the latest tester report and all eight protected files before another source request. The source job is still unauthorized at current state.
