@@ -8,6 +8,7 @@ import re
 import zipfile
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 from phase7_extension2_source_feasibility import TableSampler, fetch_bytes, sha256_bytes
 
@@ -66,6 +67,7 @@ NSE_FII_URLS = [
 ]
 MAX_FII_API_ROWS = 50
 MAX_FII_API_WINDOW_DAYS = 10
+MAX_FII_API_BYTES = 512_000
 
 
 def normalize_date(value: Any) -> str:
@@ -296,6 +298,66 @@ def inspect_fii_page(key: str, url: str) -> dict[str, Any]:
     }
 
 
+
+def validate_nse_fii_api_url(key: str, url: str) -> tuple[bool, str]:
+    """Fail closed if an NSE Gate A request is not one of the bounded registered probes."""
+    parsed = urlsplit(url)
+    query = parse_qs(parsed.query)
+    if parsed.scheme != "https" or parsed.hostname != "www.nseindia.com" or parsed.path != "/api/fiidiiTradeReact":
+        return False, "unregistered NSE FII/DII API host or path"
+    if key == "nse_fii_current":
+        if "fromDate" in query or "toDate" in query:
+            return False, "current endpoint must not carry an uncontrolled date range"
+        return True, "single current endpoint; response protected by byte and row limits"
+    if key != "nse_fii_date_params":
+        return False, "unregistered NSE FII/DII request key"
+    if set(query) != {"fromDate", "toDate"} or len(query["fromDate"]) != 1 or len(query["toDate"]) != 1:
+        return False, "date-parameter endpoint requires exactly one fromDate and one toDate"
+    try:
+        start = dt.datetime.strptime(query["fromDate"][0], "%d-%m-%Y").date()
+        end = dt.datetime.strptime(query["toDate"][0], "%d-%m-%Y").date()
+    except ValueError:
+        return False, "date parameters must use DD-MM-YYYY"
+    if end < start:
+        return False, "toDate precedes fromDate"
+    days = (end - start).days + 1
+    if days > MAX_FII_API_WINDOW_DAYS:
+        return False, f"date window is {days} days; Gate A limit is {MAX_FII_API_WINDOW_DAYS}"
+    return True, f"bounded {days}-day source window"
+
+
+def inspect_nse_fii_api_payload(key: str, data: bytes, meta: dict[str, Any]) -> dict[str, Any]:
+    """Parse a sample API payload without allowing a large historical response to pass."""
+    try:
+        obj = json.loads(data.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        text = data[:300].decode("utf-8", errors="replace")
+        return {
+            "key": key, **meta, "schema_status": "NON_JSON_RESPONSE",
+            "parse_error": type(exc).__name__, "body_prefix": text,
+        }
+    if isinstance(obj, list):
+        rows = obj
+    elif isinstance(obj, dict):
+        rows = obj.get("data", obj.get("rows", []))
+        if not isinstance(rows, list):
+            rows = []
+    else:
+        rows = []
+    row_count = len(rows) if isinstance(rows, list) else None
+    if row_count is not None and row_count > MAX_FII_API_ROWS:
+        return {
+            "key": key, **meta, "schema_status": "REJECTED_EXCESS_ROWS",
+            "row_count": row_count, "max_rows": MAX_FII_API_ROWS,
+            "reason": "source response exceeds Gate A sample row limit",
+        }
+    return {
+        "key": key, **meta, "schema_status": "JSON_PARSED",
+        "row_count": row_count,
+        "sample": rows[:4] if isinstance(rows, list) else obj,
+    }
+
+
 def main() -> None:
     report = {
         "schema_version": 2,
@@ -309,35 +371,23 @@ def main() -> None:
         "nse_fii_api": [],
     }
     for key, url in NSE_FII_URLS:
-        data, meta = fetch_bytes(url, timeout=30)
-        if data is None:
-            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NOT_VERIFIED"})
+        allowed, reason = validate_nse_fii_api_url(key, url)
+        if not allowed:
+            report["nse_fii_api"].append({
+                "key": key, "url": url, "status": "NOT_REQUESTED_SCOPE_FAIL",
+                "schema_status": "FAIL", "reason": reason,
+            })
             continue
-        try:
-            obj = json.loads(data.decode("utf-8"))
-            if isinstance(obj, list):
-                rows = obj
-            elif isinstance(obj, dict):
-                rows = obj.get("data", obj.get("rows", []))
-                if not isinstance(rows, list):
-                    rows = []
-            else:
-                rows = []
-            row_count = len(rows) if isinstance(rows, list) else None
-            if row_count is not None and row_count > MAX_FII_API_ROWS:
-                report["nse_fii_api"].append({
-                    "key": key, **meta, "schema_status": "REJECTED_EXCESS_ROWS",
-                    "row_count": row_count, "max_rows": MAX_FII_API_ROWS,
-                    "reason": "source response exceeds Gate A sample row limit",
-                })
-            else:
-                report["nse_fii_api"].append({
-                    "key": key, **meta, "schema_status": "JSON_PARSED",
-                    "row_count": row_count,
-                    "sample": rows[:4] if isinstance(rows, list) else obj,
-                })
-        except json.JSONDecodeError:
-            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NON_JSON_RESPONSE", "body_prefix": data[:300].decode("utf-8", errors="replace")})
+        data, meta = fetch_bytes(url, timeout=30, max_bytes=MAX_FII_API_BYTES)
+        if data is None:
+            report["nse_fii_api"].append({"key": key, **meta, "schema_status": "NOT_VERIFIED", "request_scope": reason})
+            continue
+        report["nse_fii_api"].append({
+            **inspect_nse_fii_api_payload(key, data, meta),
+            "request_scope": reason,
+            "max_response_bytes": MAX_FII_API_BYTES,
+            "max_response_rows": MAX_FII_API_ROWS,
+        })
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps({
