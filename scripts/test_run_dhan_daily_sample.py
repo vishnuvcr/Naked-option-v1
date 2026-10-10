@@ -75,28 +75,42 @@ class FakeOpener:
 def fixture_files(folder: pathlib.Path, *, approval_status: str = "SPENT"):
     manifest_path = folder / "request.json"
     approval_path = folder / "approval.json"
+    authorization = {
+        "scope_id": mod.SCOPE_ID,
+        "authorized_scope": "one tiny daily NIFTY 50 index-history request only",
+        "source_url": mod.DAILY_URL,
+        "method": "POST",
+        "request_body": json.loads(json.dumps(mod.REQUEST_BODY)),
+        "requests_max": 1,
+        "response_bytes_max": 2 * 1024 * 1024,
+        "timeout_seconds": 20,
+        "credential_host": "api.dhan.co",
+        "credential_header": "access-token",
+        "redirect_follow_allowed": False,
+        "retry_allowed": False,
+        "full_history_authorized": False,
+        "intraday_authorized": False,
+        "rolling_options_authorized": False,
+        "feature_engineering_authorized": False,
+        "model_fitting_authorized": False,
+        "strategy_testing_authorized": False,
+        "holdout_access_authorized": False,
+        "protected_files": {},
+    }
+    auth_raw = json.dumps(authorization, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
     manifest = {
-        "authorization": {
-            "scope_id": mod.SCOPE_ID,
-            "source_url": mod.DAILY_URL,
-            "method": "POST",
-            "request_body": mod.REQUEST_BODY,
-            "requests_max": 1,
-            "response_bytes_max": 2 * 1024 * 1024,
-            "redirect_follow_allowed": False,
-            "retry_allowed": False,
-            "full_history_authorized": False,
-            "feature_engineering_authorized": False,
-            "model_fitting_authorized": False,
-            "strategy_testing_authorized": False,
-            "holdout_access_authorized": False,
-        }
+        "schema_version": 1,
+        "status": "PROPOSED",
+        "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
+        "authorization": authorization,
+        "authorization_sha256": hashlib.sha256(auth_raw).hexdigest(),
     }
     raw = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode()
     manifest_path.write_bytes(raw)
     approval = {
         "status": approval_status,
         "decision": "SPENT_BEFORE_SOURCE_REQUEST",
+        "approved_authorization_sha256": manifest["authorization_sha256"],
         "request_manifest_sha256": hashlib.sha256(raw).hexdigest(),
         "request_manifest_git_blob": "a" * 40,
         "authorized_scope_id": mod.SCOPE_ID,
