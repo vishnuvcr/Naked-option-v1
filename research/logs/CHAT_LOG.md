@@ -659,3 +659,12 @@ The exact Dhan spec received a spec-only tester PASS. The adapter and offline su
 **Tester → Developer:** One exact sample manifest may now be prepared for the reviewed snapshot. Do not authorize full-history acquisition or modeling; independently audit the sample artifact.
 
 **Developer → Tester:** After the guarded one-run sample, review source response statuses, instrument mapping, coverage/date windows, hashes and secret redaction before any next step.
+
+
+## 2026-10-10 — Dhan first sample outcome
+
+The guarded Dhan run passed its exact manifest/hash checks, spent the manifest before source access, then stopped after two requests at `/v2/instrument/IDX_I`. Artifact `11666064550` reported `BLOCKED_INSTRUMENT_METADATA` without the HTTP status. Tester audit returned REQUEST CHANGES. No candle data was retrieved and no analyses were rerun. The adapter now reports only the numeric HTTP status and safe counters; a regression test checks that provider body/secret values do not leak.
+
+**Tester → Developer:** Review the status-reporting correction and new offline test; keep the previous manifest spent.
+
+**Developer → Tester:** Submit a fresh exact-snapshot review before any diagnostic retry. Do not broaden source scope or fit models.
