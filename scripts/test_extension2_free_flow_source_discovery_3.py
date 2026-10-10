@@ -403,6 +403,38 @@ def test_hf_probe_uses_exact_ranges_and_stays_within_16_kib() -> None:
 
 
 
+
+def test_source_json_redaction_is_recursive_and_preserves_nonsecret_data() -> None:
+    raw = {
+        "date": "2026-10-01",
+        "source": "nse",
+        "fii_buy": 100,
+        "nested": {
+            "Authorization": "Bearer top-secret",
+            "apiKey": "secret-key",
+            "safe_label": "observed",
+            "signed_url": "https://files.example/data.csv?date=2026-10-01&X-Amz-Signature=secretvalue&mode=csv",
+        },
+    }
+    safe = mod.redact_sensitive_json(raw)
+    assert safe["date"] == "2026-10-01" and safe["fii_buy"] == 100
+    assert "Authorization" not in safe["nested"]
+    assert "apiKey" not in safe["nested"]
+    assert safe["nested"]["safe_label"] == "observed"
+    assert "secretvalue" not in safe["nested"]["signed_url"]
+    assert "X-Amz-Signature=%5BREDACTED%5D" in safe["nested"]["signed_url"]
+    assert "date=2026-10-01" in safe["nested"]["signed_url"]
+
+
+def test_safe_url_redacts_sensitive_query_on_non_hf_hosts() -> None:
+    url = "https://data.example/file.json?date=2026-10-01&api_key=abc123&sig=secret&market=cash"
+    safe = mod.safe_url_for_report(url)
+    assert "abc123" not in safe and "secret" not in safe
+    assert "api_key=%5BREDACTED%5D" in safe
+    assert "sig=%5BREDACTED%5D" in safe
+    assert "date=2026-10-01" in safe and "market=cash" in safe
+
+
 def test_hf_range_values_are_exactly_bounded_before_network() -> None:
     for probe_id, range_value in [
         ("HF-2-HEAD-RANGE", "bytes=1-8192"),
@@ -480,6 +512,8 @@ def main() -> None:
         test_cdsl_archive_date_link_detects_compact_filename,
         test_csv_edge_marks_seeded_rows_as_synthetic,
         test_hf_probe_uses_exact_ranges_and_stays_within_16_kib,
+        test_source_json_redaction_is_recursive_and_preserves_nonsecret_data,
+        test_safe_url_redacts_sensitive_query_on_non_hf_hosts,
         test_hf_range_values_are_exactly_bounded_before_network,
         test_chirag_flow_fields_must_be_numeric_and_finite,
         test_live_workflow_consumes_manifest_before_any_source_request,
