@@ -803,3 +803,12 @@ Resume actions:
 - No token/client ID/profile fields are to be logged; no credentials go to images.dhan.co or redirect destinations; the prior redirect probe manifest remains SPENT and cannot be reused.
 
 **Developer → Tester:** Independently review the exact blobs in the code submission and the 30-test hosted run, checking request schemas, point-in-time implications, array validation, arithmetic, rate/byte/date limits, cache lineage, secret redaction and workflow permissions. Return PASS or REQUEST CHANGES; do not authorize live acquisition.
+
+
+### Dhan pipeline snapshot v2 — timestamp provenance and exact request contract hardened
+
+- A further adversarial code pass found that request payloads could include unrecognized keys, cache provenance did not yet recheck that returned timestamps sat inside the requested local-time window, and the daily range/OI type checks could be stricter.
+- Fixed by exact endpoint body-key allowlists; strict boolean OI; inclusive calendar-day caps; positive integral timestamps; alignment checks for every list-valued response field; cache-side re-computation of the entire validation report; and Asia/Kolkata timestamp-window checks before an atomic cache can be written.
+- New offline cases test unknown request fields, wrong OI types, nonpositive/fractional timestamps, misaligned extra arrays, and cache rejection when timestamps lie outside the requested period.
+- Latest run [38049314836](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314836) passed 34/34 offline/mock tests. Protocol check [38049314978](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38049314978) passed.
+- Revised code submission pins pipeline blob d483901227770b560b695ce051a131aced02dacf, test blob 8cbe345a1abde1a9c5470e5953fa5ab3a7fc3b47 and workflow blob dc0de4688bfac5ee932c32ccd25fdd586effd3c2 at exact snapshot commit 61c33eb8c0bf56fe2a01967c78b86295e618d8e8. No network request was made; tester code review is pending.
