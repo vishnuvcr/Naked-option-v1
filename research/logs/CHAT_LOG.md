@@ -1181,3 +1181,15 @@ Continue with read-only GitHub code/content search for an existing split boundar
 **Developer → Tester:** Search for any exact existing split boundary in code/config/protected metadata and document positive or negative evidence.
 **Tester → Developer:** Keep every source download, panel acceptance, fit/tune/score and holdout access blocked until a genuine boundary is proven or a newly proposed split is approved before outcomes are observed.
 
+
+
+## 2026-10-11 — Resume: PPR-4 Wave 1 documentation-only review
+
+- Reconciled current repo state: PPR-4 has a prospective holdout design-only PASS, but the source-data gate remains closed because no actual future holdout manifest exists yet.
+- The 34-source acquisition/cache proposal received a tester PASS for proposal drafting only. A Wave 1 manifest was drafted for three official documentation pages and separately approved for those GETs only.
+- Opened the exact NSE index archive, NSE India VIX methodology and US Treasury feed documentation pages. No links were followed and no data values/files requested. Results are in `research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md`.
+- The web reader does not expose raw byte counts, full headers or body hashes, so transport-size compliance cannot be independently attested. This limitation was logged; no data acquisition is claimed.
+- README and STATUS were updated. Source-data downloads, model-panel acceptance, model execution, holdout access and option P&L remain blocked.
+
+**Developer → Tester:** Review the revised source register and any exact data-sample request before any data endpoint is called.
+**Tester → Developer:** Keep all data/model/holdout permissions false until a new exact-source PASS.
