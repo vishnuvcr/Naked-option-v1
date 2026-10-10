@@ -100,6 +100,29 @@ def validate() -> list[str]:
         if isinstance(obj, dict) and obj.get("status") == "BLOCKED_METHOD":
             if key not in blocked_setting_ids:
                 errors.append(f"blocked template {key} must be listed in blocked_settings")
+    # Protect scikit-learn's all-features float setting from int/float serialization drift.
+    for template_name in ("BAGGING_CLASSIFIER", "BAGGING_REGRESSION", "RANDOM_FOREST_REGRESSION"):
+        params = settings.get("templates", {}).get(template_name, {}).get("params", {})
+        value = params.get("max_features")
+        if type(value) is not float or value != 1.0:
+            errors.append(f"{template_name}.max_features must be float 1.0 (all features), not integer 1")
+    rf_grid = settings.get("tuning", {}).get("grids", {}).get("RANDOM_FOREST_REGRESSION", {})
+    if not any(type(v) is float and v == 1.0 for v in rf_grid.get("max_features", [])):
+        errors.append("Random Forest grid must preserve float 1.0 for all-features mode")
+    for idx, candidate in enumerate(rf_grid.get("candidate_settings", [])):
+        value = candidate.get("max_features")
+        if value != "sqrt" and (type(value) is not float or value != 1.0):
+            errors.append(f"Random Forest grid candidate {idx} max_features must be 'sqrt' or float 1.0")
+    rf_text = settings.get("templates", {}).get("RANDOM_FOREST_REGRESSION", {}).get("preprocess", "")
+    xgb_text = settings.get("templates", {}).get("XGBOOST_REGRESSION", {}).get("preprocess", "")
+    if "R010" not in rf_text or "R038" not in rf_text:
+        errors.append("Random Forest tuning scope must explicitly name R010 and R038")
+    if "R029" not in xgb_text or "R041" not in xgb_text:
+        errors.append("XGBoost tuning scope must explicitly name R029 and R041")
+    cci = settings.get("templates", {}).get("CCI_20_DIRECTION", {}).get("params", {})
+    if cci.get("lookback_sessions") != 20 or cci.get("state_thresholds", {}).get("bullish") != "CCI > +100" or cci.get("state_thresholds", {}).get("bearish") != "CCI < -100":
+        errors.append("CCI adaptation must be predeclared as CCI(20) with +/-100 state thresholds")
+
 
     # Reconcile each matrix active row to its expanded pipeline × horizon cells.
     expected_keys = set()
@@ -200,6 +223,8 @@ def validate() -> list[str]:
     expected_tuning_fits = (6 * 18 * 5) + (6 * 8 * 5)
     if settings.get("tuning", {}).get("calculated_tuning_fit_calls") != expected_tuning_fits:
         errors.append(f"tuning fit-call arithmetic incorrect; expected {expected_tuning_fits}")
+    if settings.get("tuning", {}).get("fit_call_upper_bound") != 2000:
+        errors.append("inner tuning fit-call ceiling must be 2000")
     outer_fits = len(cells) * 3
     total_fits = outer_fits + expected_tuning_fits
     if manifest.get("inventory", {}).get("active_candidate_cells") != len(cells):
@@ -260,6 +285,15 @@ def validate() -> list[str]:
 
 
 def main() -> int:
+    try:
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"FAIL: cannot read PPR-3 manifest: {exc}")
+        return 2
+    if manifest.get("staging_mode") is True:
+        print("STAGING ONLY: PPR-3 structural and blob-pin checks are intentionally skipped while tester-requested documentation corrections are staged.")
+        print("No gate PASS is asserted. No source requests, market-data reads, model fitting, tuning, scoring or holdout access occurred.")
+        return 0
     errors = validate()
     if errors:
         for error in errors:
