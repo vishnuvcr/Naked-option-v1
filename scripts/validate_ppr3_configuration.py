@@ -231,12 +231,28 @@ def validate() -> list[str]:
         errors.append("manifest active candidate cell count differs from ledger")
     if manifest.get("inventory", {}).get("active_candidate_configuration_rows") != len(active):
         errors.append("manifest active configuration row count differs from matrix")
+    if manifest.get("inventory", {}).get("configuration_ledger_rows") != len(matrix):
+        errors.append("manifest configuration ledger row count differs from matrix")
+    if manifest.get("inventory", {}).get("candidate_configuration_rows_counted_toward_cap") != len(cap_rows):
+        errors.append("manifest cap-counted configuration rows differ from matrix")
+    if manifest.get("inventory", {}).get("paper_native_method_rows") != len(native):
+        errors.append("manifest paper-native method row count differs from ledger")
+    if manifest.get("fit_budget", {}).get("actual_candidate_cell_count") != len(cells):
+        errors.append("manifest actual candidate cell count differs from ledger")
+    if manifest.get("fit_budget", {}).get("candidate_configuration_rows_counted") != len(cap_rows):
+        errors.append("manifest fit-budget configuration row count differs from matrix")
+    if manifest.get("fit_budget", {}).get("actual_configuration_rows_counted") != len(cap_rows):
+        errors.append("manifest actual configuration row count differs from matrix")
     if manifest.get("fit_budget", {}).get("outer_fit_calls_upper_bound_at_3_seeds") != outer_fits:
         errors.append(f"outer fit-call cap incorrect; expected {outer_fits}")
     if manifest.get("fit_budget", {}).get("tuning", {}).get("counted_fit_calls") != expected_tuning_fits:
         errors.append("manifest tuning fit-call count incorrect")
     if manifest.get("fit_budget", {}).get("total_model_fit_calls_upper_bound") != total_fits:
         errors.append(f"total fit-call cap incorrect; expected {total_fits}")
+    if manifest.get("fit_budget", {}).get("tuning", {}).get("fit_call_upper_bound") != 2000:
+        errors.append("manifest tuning upper bound must equal 2000 inner fits")
+    if manifest.get("fit_budget", {}).get("theoretical_total_fit_calls_upper_bound") != 7580:
+        errors.append("theoretical total fit-call ceiling must be 7580 under current contract")
     hard_cap = contract.get("search_bounds", {}).get("max_total_fit_calls_including_inner_folds", 0)
     if total_fits > hard_cap:
         errors.append(f"planned fits {total_fits} exceed global cap {hard_cap}")
@@ -252,6 +268,13 @@ def validate() -> list[str]:
         errors.append("target/inference contract must remain proposed/not authorized")
     if contract.get("evaluation_protocol", {}).get("status") != "PROPOSED_FOR_TESTER_REVIEW":
         errors.append("evaluation protocol must remain proposed for tester review")
+    direction_targets = contract.get("common_targets", [])
+    direction_contract = next((x for x in direction_targets if x.get("family_id") == "COMMON_DIRECTION_3CLASS"), {})
+    flat_text = direction_contract.get("flat_semantics", "")
+    if "numerical zero-return tie" not in flat_text or "not an economically neutral move" not in flat_text:
+        errors.append("FLAT semantics must state numerical tie only, not economically neutral/no-trade")
+    if "FLAT means only a numerical zero-return tie" not in PROTOCOL_PATH.read_text(encoding="utf-8"):
+        errors.append("protocol freeze must document the fixed FLAT numerical-tie meaning")
     if not manifest.get("frozen_files", {}).get("configuration_matrix", {}).get("blob"):
         errors.append("manifest lacks matrix blob reference")
     if not manifest.get("frozen_files", {}).get("expanded_candidate_cells", {}).get("blob"):
