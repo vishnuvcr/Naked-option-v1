@@ -16,6 +16,7 @@ REQUIRED_FILES = {
     "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md",
     "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md",
     "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md",
+    "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md",
     "scripts/dhan_market_data_recovery.py",
     "scripts/test_dhan_market_data_recovery.py",
     "scripts/validate_dhan_redirect_probe_approval.py",
