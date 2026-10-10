@@ -1,6 +1,6 @@
 # Paper-method replication checkpoint — 2026-10-10
 
-**Current gate: PPR-1 PASS WITH SCOPED RESTRICTIONS; PPR-2 36-source mapping drafted and its offline validation passed; exact PPR-2 tester review is pending. No source pull, model fit/scoring, holdout access or option P&L is authorized.**
+**Current gate: PPR-1 PASS WITH SCOPED RESTRICTIONS; PPR-2 PASS WITH SCOPED RESTRICTIONS; PPR-3 PASS WITH SCOPED RESTRICTIONS. PPR-4 is limited to read-only source-availability/cache/PIT/holdout-boundary feasibility review. Bulk data/model downloads, model fitting/tuning/scoring, final-holdout access and option P&L remain blocked pending a PPR-4 tester gate.**
 
 Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
 
@@ -1017,3 +1017,34 @@ These are corrections in progress, not a passed gate. The page ranges are prelim
 
 **Developer → Tester:** Review new crosswalk/protocol blobs and specify remaining claim-level evidence requirements.  
 **Tester → Developer:** Keep the gate closed unless every P1 finding is resolved and source claims are traceable.
+
+
+## PPR-3 completion and PPR-4 scope — 2026-10-10
+
+PPR-3 tester re-review 2 was committed on `phase-07-tester`: [report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR3_REVIEW2_TESTER_REPORT.md), commit `7f9e240a9b1af9deb7c4edfc3434377932d7b9a5`. Decision: **PASS WITH SCOPED RESTRICTIONS**.
+
+Exact-snapshot offline workflow [38074087881](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38074087881) passed on developer commit `9513e737313a56156e409331f47ee1cb8ae8e0d5`. The log records the intended limited scope: config schema/cell expansion/native-task links/target families/tuning grids/fit budget/blob pins only; no source requests, market-data reads, modelling, tuning, scoring or holdout access.
+
+Canonical PPR-3 artifacts:
+- [Configuration matrix](phase7/PPR3_CONFIGURATION_MATRIX.csv): 81 rows; 73 count against the 93-row cap; 72 active configurations, 1 blocked SOFNN and 8 blocked/out-of-scope source/task entries.
+- [Expanded cells](phase7/PPR3_CANDIDATE_CELLS.csv): 1,188 cells (380 direction, 760 close regression, 48 next-open regression).
+- [Native task ledger](phase7/PPR3_PAPER_NATIVE_TASK_LEDGER.csv): 81 individual method/component rows with structured target/output, horizon, window, split, feature, metric/result and ambiguity fields. Native rows are descriptive and have zero executable cells.
+- [Settings](phase7/PPR3_MODEL_SETTINGS.json), [target/inference contract](phase7/PPR_TARGET_INFERENCE_CONTRACT.json), [protocol](phase7/PPR3_PROTOCOL_FREEZE.md) and [hash-pinned manifest](phase7/PPR3_CONFIGURATION_MANIFEST.json).
+- [Validator](../scripts/validate_ppr3_configuration.py) and [workflow](../.github/workflows/phase-07-ppr-contract-tests.yml).
+
+PPR-3 fit budget is 4,344 calls maximum under the current grid: up to 3,564 outer fits (three-seed conservative allowance) plus 780 inner chronological-fold fits. This remains below the global 8,000-call ceiling. No model has been fitted under PPR-3.
+
+### PPR-4 permitted scope
+
+Only read-only feasibility work is now permitted:
+1. Inspect repository source/cache inventory and existing files/metadata; do not delete or overwrite cached raw data.
+2. Search public/official free-source documentation and availability for price indices, global markets/macro/FX/gold/crude, India VIX, FII/FPI/DII, options OI/volume/IV/Greeks, corporate actions and historical news/social text where applicable.
+3. Document schema, history range, update/publication/ingestion timestamps, revisions/vintages, exchange-session joins, missingness, licensing/terms and source-specific limitations.
+4. Verify a sealed final-holdout exclusion boundary from metadata/manifest identifiers only. Do not read holdout observations or labels.
+5. Submit a frozen PPR-4 source/availability manifest, source-hash inventory and a report of data-eligible/blocked feature families. A new tester decision is required before bulk data acquisition, model-panel acceptance or any model execution.
+
+**PPR-4 hard boundary:** no bulk downloading into the model panel or pretrained-model cache, no accepted modelling dataset, no fitting/tuning/scoring, no final holdout access and no option P&L. The previously spent one-use Dhan approval remains spent.
+
+**Developer → Tester:** Review the PPR-4 source/cache/PIT manifest after read-only discovery; grant only exact-source and exact-operation scope.
+**Tester → Developer:** Keep raw-data acquisition, model use and empirical outputs blocked until the PPR-4 exact-snapshot gate explicitly permits them.
+
