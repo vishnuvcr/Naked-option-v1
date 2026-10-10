@@ -254,3 +254,14 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - **Full-history acquisition: NOT AUTHORIZED. Model fitting: NOT AUTHORIZED.** One bounded source-feasibility batch may run only after the exact report/hash approval manifest validates in the guarded workflow.
 - Previous unapproved bounded source run [38025793938](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38025793938) is explicitly **NON-ACCEPTED EVIDENCE**. Legacy source-fetch workflow was changed to offline-only; no analysis/feature table/model was produced.
 - Next gate after the one bounded batch: independent artifact audit of both JSON reports before any further data or modeling step.
+
+
+## 2026-10-10 — Gate A artifact Run 38026272245: REQUEST CHANGES
+
+- Run [38026272245](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026272245) passed offline tests and exact authorization, then uploaded artifact ID `11660395594` containing two JSON reports.
+- Legacy and UDiFF F&O single-day samples passed required-column/date checks (33,930/34,390 rows; 1,634 NIFTY option rows each); both official cash-equity archive samples passed.
+- Both official sector index CSVs were marked FAIL because their `Index Date` is `DD-MM-YYYY`, not supported by the date normalizer. All ten frozen sector names and NIFTY 50 were present.
+- NSE FII/DII API's date-filtered request for 2024-07-01 through 2024-07-10 returned the same two current 2026-10-09 records as the current endpoint. Response dates were outside the requested window, but the parser marked the data JSON_PARSED.
+- Sampled alternative historical FII/DII sources cover only 16 recent page rows and 164 mirror rows (2026); 500-session history remains unestablished.
+- **Decision: REQUEST CHANGES for the artifact gate.** Prior code gate PASS does not mean source feasibility passed. Approval revoked; no full-history acquisition/model fitting.
+- Details: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md`.
