@@ -729,3 +729,10 @@ The access token is bound only to the guarded workflow's final source step and i
 - No error was found in the narrow request-budget/artifact review. The existing one-use manifest is SPENT and cannot authorize any further request.
 - Public official Dhan documentation identifies compact and detailed instrument-master CSV URLs. This is documentation evidence only, not evidence of a successful download or complete/usable market dataset.
 - Developer added `research/phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md` as a no-network proposal. Remaining blocker is independent tester review; no CSV or history request may be made before a fresh exact-snapshot gate and manifest.
+
+
+## 2026-10-10 — Extension 3 offline implementation awaiting hosted test result
+
+- The independent tester passed the source-plan proposal with restrictions and permitted offline-only implementation/tests.
+- New offline-only adapter/test/workflow commits were pushed to `phase-07-developer`; hosted test run [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol run [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were still in progress at the last poll. No test outcome is assumed.
+- No live request was made. The new module has no network client and the workflow only runs offline tests. The old redirect manifest remains SPENT.
