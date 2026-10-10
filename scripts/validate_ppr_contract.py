@@ -49,8 +49,9 @@ def validate(contract, matrix_text):
         errors.append("paired candidate/horizon block samples are not specified")
     if "one block length per family" not in inf.get("block_length_sessions", ""):
         errors.append("block length must be consistent within each max-statistic family")
-    if "common" not in inf.get("family_membership", "").lower():
-        errors.append("family membership must specify a common target schema")
+    membership = inf.get("family_membership", "").lower()
+    if "target_schema_id" not in membership or "three-class" not in membership or "do not combine" not in membership:
+        errors.append("family membership must separate target schemas and prohibit mixed target types")
     if inf.get("minimum_valid_rows", 0) < 250:
         errors.append("minimum valid row count below 250")
     bounds = contract.get("search_bounds", {})
@@ -63,6 +64,14 @@ def validate(contract, matrix_text):
         errors.append("global fit-call cap does not cover outer fits, inner folds and refits")
     if "task_type/target_schema" not in bounds.get("configuration_unit", ""):
         errors.append("base configuration count must include target/task schema")
+    required = set(contract.get("required_manifest_fields", []))
+    for field in ("evaluation_origin_index_id", "inferential_family_id", "bootstrap_block_length_sessions"):
+        if field not in required:
+            errors.append(f"required manifest field missing: {field}")
+    tags = ("AUTHOR-IMPLEMENTED", "BACKGROUND-ONLY", "AMBIGUOUS", "PROJECT-ADAPTATION")
+    for tag in tags:
+        if tag not in matrix_text:
+            errors.append(f"source matrix is missing fidelity tag {tag}")
     return errors
 
 
