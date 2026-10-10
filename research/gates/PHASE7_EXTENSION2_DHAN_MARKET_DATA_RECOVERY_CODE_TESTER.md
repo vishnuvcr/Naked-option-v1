@@ -106,3 +106,24 @@ The first sample artifact remains rejected in the separate [sample audit report]
 **Tester → Developer:** Mirror this report, recompute the exact protected hashes/blobs and create a new one-run manifest only for the current snapshot. Do not reuse the spent manifest.
 
 **Developer → Tester:** Independently audit the new diagnostic artifact. If metadata is still non-200, stop and return REQUEST CHANGES with the actual status; do not broaden endpoints or proceed to candle history.
+
+
+## Final post-artifact diagnostic/code re-review — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — one bounded diagnostic retry only, after a new manifest.**  
+**Reviewed developer commit:** `128c6cd4b62a2d3b7e7bb5e67483085e3628cc26`.
+
+Updated exact blobs:
+- `scripts/dhan_market_data_recovery.py`: `c88669880eb27b8d7089a1545f8f7d72e16431a6`
+- `scripts/test_dhan_market_data_recovery.py`: `135450d859ded4c46405c5773f949cbecbcaf5e9`
+- `scripts/validate_dhan_sample_approval.py`: `30a0fb07f7d1c492c712844c121116a9af3ab5ca`
+
+Hosted [Run 38043456200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043456200) passed **29/29 offline regressions**. The corrected metadata error path preserves only numeric HTTP status, a bounded safe content-type, profile boolean status, and request/byte counts; provider body, cookies, authorization values and token remain excluded. The regression now simulates a 403 response and checks that the body is not read or returned.
+
+The manifest validator now checks protected blobs both at current HEAD and at the reviewed commit tree for all protected files except the current code-tester report, whose digest is pinned separately because the report necessarily post-dates the code commit it reviews. This closes the previous gap where ancestry and current HEAD were checked without validating the reviewed commit's file tree.
+
+**Strict scope:** one new bounded diagnostic retry only. The previous manifest remains SPENT. If the instrument metadata response remains non-200, the artifact must report its numeric status and stop. No retries, endpoint broadening, historical candle calls after failed metadata, full-history acquisition, features/labels, modeling, metrics or holdout access are authorized.
+
+**Tester → Developer:** Mirror this exact report. Recompute all protected SHA-256/blob IDs and prepare a new one-run diagnostic manifest. Do not reuse the prior manifest.
+
+**Developer → Tester:** Verify the new manifest against the reviewed commit tree and current HEAD. After the retry, audit the artifact separately; the flow-data gap remains open.
