@@ -699,3 +699,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Exact current handoff and six protected Git/blob-byte hashes: [code review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
 - Corrections include spec provenance pin, strict consistency across all date fields, explicit non-finite CSV rejection, camelCase-aware nested signature redaction, sanitized dated links, and per-path protected-blob checks at the exact reviewed commit.
 - **Current gate:** new independent code review pending. No source-probe manifest exists. No live requests, history downloads, feature/label tables, model fit or result statistics have been produced.
+
+
+## 2026-10-10 — Corrected Gate A resample audited; free-source discovery remains gated
+
+- Corrected resample [Run 38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369) succeeded; artifact ID `11661065266`, ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`. Independent review confirms official index CSVs now pass both dates; F&O and equity samples pass.
+- NSE date-filtered FII/DII response is correctly rejected as out-of-window (2026-10-09 rows for a July 2024 request). Public mirror has only 164 dates from 2026-01-14 to 2026-09-30; no 500+ aligned-session history is established.
+- The Gate A manifest is SPENT. No additional requests are authorized by it.
+- Next source phase: Discovery 3 free-source feasibility only. Current code review request: [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). Latest offline test run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32 checks, but isolated tester review is still pending.
+- **No live Discovery 3 requests, full-history downloads, feature/label generation, model fitting, metrics/p-values or final-holdout access are authorized.**
