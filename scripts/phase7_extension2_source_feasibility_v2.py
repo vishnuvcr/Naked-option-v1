@@ -71,9 +71,14 @@ def normalize_date(value: Any) -> str:
         return ""
     if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
         return raw[:10]
-    for fmt in ("%d-%b-%Y", "%d %b %Y", "%d-%B-%Y", "%d %B %Y"):
+    for fmt, candidate in (
+        ("%d-%b-%Y", raw[:11].title()),
+        ("%d %b %Y", raw[:11].title()),
+        ("%d-%B-%Y", raw[:20].title()),
+        ("%d %B %Y", raw[:20].title()),
+    ):
         try:
-            return dt.datetime.strptime(raw[:20].title(), fmt).date().isoformat()
+            return dt.datetime.strptime(candidate, fmt).date().isoformat()
         except ValueError:
             continue
     return raw
