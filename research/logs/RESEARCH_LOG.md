@@ -1077,3 +1077,11 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 - **Disposition:** remain in Phase 7 prediction research only. No new data, predictions, statistical results or strategy conclusions are accepted. Do not follow the HTTP 302 or request candles/history under this manifest. A supported authorized manual dispatch and independent audit of the resulting artifact are required before any next data step.
 
 **Developer → Tester:** Independently verify that this checkpoint preserves the role boundary and does not treat the manifest pin check as runtime authorization. If a manually dispatched run later exists, inspect its exact run/commit, manifest-spend step, HTTP status, request/byte counters and artifact redaction before issuing a separate artifact decision.
+
+
+## 2026-10-10 — Paper coverage inventory and research status inspection
+
+- Checked current Phase 7 status and results: no prediction candidate is promoted; Run #44 is a documented non-significant cross-market extension; the quarantined one-row Dhan sample remains excluded from modeling pending official source and instrument-map verification.
+- Compared the method registry (112 candidate methods) and literature registry (36 source records) against the 15 uploaded PDFs found in the conversation mount.
+- Created `research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md` as a first-pass paper inventory. Full-text method settings and exact replication-to-result crosswalk remain an open subtask.
+- This was a documentation/status step only: no dataset was accepted, no model was fitted, no holdout was opened, and no scientific metric changed.
