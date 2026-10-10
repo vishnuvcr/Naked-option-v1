@@ -63,7 +63,7 @@
     "max_wire_requests_total": 8701,
     "serial_max_requests_per_second": 2,
     "options_response_bytes_max": 2097152,
-    "options_aggregate_bytes_max": 4294967296,
+    "options_aggregate_bytes_max": 8589934592,
     "options_rows_per_response_max": 10000,
     "spot_response_bytes_max": 8388608,
     "spot_aggregate_bytes_max": 268435456,
@@ -117,11 +117,12 @@
   ],
   "output": {
     "bundle_artifact": "nifty-1m-composite-csv-parts",
-    "csv_parts_pattern": "data/exports/nifty_1m_composite/year=YYYY/nifty_1m_composite_YYYY.csv.gz",
+    "csv_parts_pattern": "data/exports/nifty_1m_composite/month=YYYY-MM/nifty_1m_composite_YYYY-MM.csv.gz",
     "companion_manifest": "data/exports/nifty_1m_composite/dataset_manifest.json",
     "coverage_report": "data/exports/nifty_1m_composite/coverage_and_errors.json",
     "README": "data/exports/nifty_1m_composite/README.md",
-    "not_publishing_subscribed_market_rows_to_public_git_or_release": true
+    "not_publishing_subscribed_market_rows_to_public_git_or_release": true,
+    "greeks": "Historical greeks derived only where an actual expiry calendar and risk-free rate series are available; otherwise explicit null and reason code. No current option-chain Greek snapshots are backfilled."
   },
   "provenance_rules": [
     "Raw response bytes and hashes immutable within cache; exact request body and request ID persisted separately",
@@ -132,5 +133,11 @@
     "Compute Black-Scholes Greeks only when historical expiry and risk-free inputs are available; otherwise null and reason-coded",
     "Missing source affects only its rows/feature family; continue other request IDs and report missing coverage",
     "Output CSV yearly parts only as Actions artifacts for user download; do not publish paid/subscription data in public repository assets"
-  ]
+  ],
+  "cache": {
+    "raw_responses": "data/cache/nifty_1m_composite/raw/<request_id>.json",
+    "raw_metadata": "data/cache/nifty_1m_composite/raw/<request_id>.meta.json",
+    "reuse": "Verify source request key, response hash, byte count, row/schema invariants before treating a cache hit as valid; only missing/invalid planned requests are fetched.",
+    "storage_policy": "No raw subscribed market observations are committed to the public repository or published in public release assets. Actions cache is resumable operational cache; a user-downloadable CSV bundle is produced as a workflow artifact for offline storage."
+  }
 }
