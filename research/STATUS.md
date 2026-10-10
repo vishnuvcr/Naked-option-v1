@@ -630,3 +630,12 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Current hosted offline tests [Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed **24 checks** (7 v1 + 17 v2).
 - Current protected sampler snapshot is **NOT YET APPROVED**. A new tester code review and renewed bounded sample gate are required. No full-history acquisition or model fitting is permitted.
 - FII/DII historical availability remains unresolved; continue the free-source search rather than declaring unavailable.
+
+
+## 2026-10-10 — Corrected sampler code gate PASS; new Gate A run still needs manifest
+
+- Independent tester passed the corrected eight-file sampler/workflow snapshot at reviewed commit `784474de59a050ba6229ee5cb9a708c0f74ca2dc`. Report includes the exact eight protected Git blob IDs and explicit Gate A-only scope.
+- Offline run [38026629021](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026629021) passed 25 checks (7 v1 + 18 v2). The fail-closed smoke test [38026802711](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026802711) showed tests pass, revoked authorization is rejected, and source sampling is skipped.
+- Prior source artifact `11660395594` remains REQUEST CHANGES; the source approval is revoked. The new code-gate PASS does not change that artifact decision.
+- New free-source inventory: [Extension 2 FII/DII source discovery](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). Several free sources claim broader date coverage, but the date range, record count, definitions and source-vintage must be validated in separately bounded source samples.
+- **Next:** create a renewed exact eight-file hash-bound manifest for one corrected source sample only. Then independently audit the new two-report artifact. No full history, features/labels or fitting.
