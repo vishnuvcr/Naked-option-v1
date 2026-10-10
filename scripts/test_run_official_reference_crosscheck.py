@@ -147,6 +147,15 @@ def call(folder: pathlib.Path, *, env: dict, opener: SequentialOpener, nifty_raw
     return code, report, cache, manifest, approval, responses
 
 
+def test_live_cli_requires_explicit_flag_and_workflow_authorization() -> None:
+    import os
+    from unittest.mock import patch
+    with patch.dict(os.environ, {}, clear=False):
+        os.environ.pop("OFFICIAL_CROSSCHECK_AUTHORIZED", None)
+        assert mod.main(["--live"]) == 1
+        assert mod.main(["--unexpected"]) == 2
+
+
 def test_import_and_cli_are_offline_only() -> None:
     assert mod.SCOPE_ID == "dhan-sample-official-crosscheck-2024-01-02-two-hosts"
     assert mod.main() == 0
