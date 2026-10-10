@@ -79,3 +79,12 @@ Recent test failures while tightening the byte-range contract were fixture misma
 **Developer → Tester:** Review all six current protected blobs against the hashes in the code review request, especially one-run consumption before data access.
 
 **Tester → Developer:** Return PASS/REQUEST CHANGES against this exact snapshot only. Keep network access blocked until a separate single-use manifest validates.
+
+
+## Final implementation snapshot refresh — 2026-10-10
+
+After the original 27-test handoff, implementation was further hardened: the CDSL XLS parser now emits bounded candidate purchase/sale/net numeric values from the equity row (without accepting them as feature inputs until header reconciliation), and source JSON redaction recursively removes credential-like fields and sensitive URL query values.
+
+Current code-gate snapshot: `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Latest hosted offline run [38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed **29/29 checks**. The refreshed request with final file-byte hashes/Git blobs is [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md).
+
+No live data were requested and the source-probe manifest remains absent. The isolated tester code gate is still pending.
