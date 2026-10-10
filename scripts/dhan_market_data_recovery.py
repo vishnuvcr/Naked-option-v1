@@ -15,6 +15,7 @@ import math
 import os
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -56,6 +57,28 @@ def _no_redirect_opener():
     return urllib.request.build_opener(RejectRedirect())
 
 
+def safe_redirect_target(location: str) -> dict[str, str]:
+    """Extract only scheme and normalized hostname; never return raw Location."""
+    try:
+        if not isinstance(location, str) or not location or len(location) > 2048:
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        if any(ch in location for ch in ("\\r", "\\n", "\\x00")):
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        parsed = urllib.parse.urlsplit(location)
+        if parsed.username is not None or parsed.password is not None or not parsed.hostname:
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        _ = parsed.port
+        host = parsed.hostname.encode("idna").decode("ascii").lower().rstrip(".")
+        if not host or len(host) > 253:
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        scheme = parsed.scheme.lower()
+        if scheme not in ("http", "https"):
+            return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+        return {"redirect_target_status": "PARSED", "redirect_scheme": scheme, "redirect_host": host}
+    except (ValueError, UnicodeError):
+        return {"redirect_target_status": "REDIRECT_TARGET_UNPARSEABLE"}
+
+
 def request_bytes(
     url: str,
     *,
@@ -86,19 +109,22 @@ def request_bytes(
     try:
         response = opener.open(req, timeout=TIMEOUT_SECONDS)
     except urllib.error.HTTPError as exc:
-        # Never read or retain the provider error body; only preserve safe content type.
+        # Never read or retain the provider error body; keep only safe metadata.
         safe_headers: dict[str, str] = {}
         try:
             content_type = exc.headers.get("Content-Type", "") if exc.headers else ""
+            location = exc.headers.get("Location", "") if exc.headers else ""
         except Exception:
-            content_type = ""
+            content_type, location = "", ""
         if (
             isinstance(content_type, str)
             and bool(content_type)
             and len(content_type) <= 120
-            and not any(ch in content_type for ch in ("\r", "\n"))
+            and not any(ch in content_type for ch in ("\\r", "\\n"))
         ):
             safe_headers["content-type"] = content_type
+        if location:
+            safe_headers.update(safe_redirect_target(location))
         return int(exc.code), b"", safe_headers
     except Exception as exc:
         # Exception text may include request details; deliberately redact it.
@@ -285,7 +311,7 @@ def blocked_metadata_result(status: int, headers: dict[str, str], budget: Budget
     content_type = headers.get("content-type", "")
     if len(content_type) > 120 or any(ch in content_type for ch in ("\r", "\n")):
         content_type = ""
-    return {
+    result = {
         "status": "BLOCKED_INSTRUMENT_METADATA",
         "instrument_metadata_http_status": int(status),
         "instrument_metadata_content_type": content_type,
@@ -293,6 +319,11 @@ def blocked_metadata_result(status: int, headers: dict[str, str], budget: Budget
         "request_count": budget.requests,
         "bytes_read": budget.bytes_read,
     }
+    for key in ("redirect_target_status", "redirect_scheme", "redirect_host"):
+        value = headers.get(key)
+        if value:
+            result[key] = value
+    return result
 
 
 def live_sample() -> dict[str, Any]:
