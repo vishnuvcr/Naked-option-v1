@@ -448,3 +448,12 @@ The [current code-gate review request](https://github.com/vishnuvcr/Naked-option
 The tester returned REQUEST CHANGES on the prior code snapshot. The developer corrected six items: current spec provenance, conflicting/malformed dates, non-finite CSV values, nested signature redaction, dated-link URL redaction, and exact reviewed-commit/tree binding in the guarded workflow. The newest hosted offline test [Run 38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed **32/32 checks**.
 
 The exact corrected snapshot commit is `1706a17d268e2b139fc9dba4504f498acc4f5de0`. See the refreshed [code review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). No live source calls or new source manifest exist. The independent tester must pass this exact code/workflow snapshot before a new single-use manifest can be prepared, and any resulting artifact must pass a separate audit. Full-history acquisition, feature/label generation and model fitting remain blocked.
+
+
+### Corrected Gate A resample and FII/DII coverage status — 2026-10-10
+
+The corrected bounded resample [Run 38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369) passed the official index date checks for both 2024-07-05 and 2024-07-08; F&O and cash-equity samples also passed. The NSE date-parameter FII/DII endpoint still returned 2026-10-09 rows for a July 2024 request, but the corrected parser now rejects those out-of-window rows.
+
+The available public GitHub FII/DII mirror contains only 164 unique dates from 2026-01-14 through 2026-09-30. Current endpoint/page samples do not establish the 500+ aligned historical sessions needed for the registered confirmatory research. **Historical FII/DII availability remains unresolved; do not treat the source gate as complete.**
+
+The previous one-run manifest is spent. The next step is a separate bounded free-source discovery gate described in [PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md). Its offline tests passed 32/32 in [Run 38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734), but independent tester code review is pending. No live discovery requests, full-history download or model fitting may occur until that gate and its new single-run manifest pass.
