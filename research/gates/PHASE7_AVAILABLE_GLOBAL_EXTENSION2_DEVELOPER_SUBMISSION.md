@@ -50,3 +50,14 @@ No source feasibility downloads or model fitting occurred during this correction
 **Developer → Tester:** Re-review the corrected spec blob and explicitly decide whether Gate A may begin. Do not authorize full-history acquisition or model fitting at this stage.
 
 **Tester → Developer:** If any formula, archive transition, or missingness rule remains ambiguous, return REQUEST CHANGES with a precise correction before source access proceeds.
+
+
+## Final specification clarification before independent re-review — 2026-10-10
+
+The G03 sector formula has been made explicit as two features: equal-weight sector excess 1-session return and equal-weight sector excess 5-session return, each relative to NIFTY and calculated across all ten frozen sector indices. The spec also allows a secondary public provider only for the identical index definition after a pre-run 60-session overlap audit, a frozen source mapping and documented source lineage; no performance-driven source switching is permitted.
+
+Current exact spec blob: `8b5f17dd05c2f2d379142ca8eb2779149ca0fdbc`. No data has been downloaded. Please review this exact blob, not the earlier version.
+
+**Developer → Tester:** Review this final spec snapshot and decide whether Gate A small-sample source feasibility may begin.
+
+**Tester → Developer:** Return the gate decision against blob `8b5f17dd05c2f2d379142ca8eb2779149ca0fdbc`; do not authorize full-history acquisition or fitting.
