@@ -141,7 +141,7 @@ jobs:
           set -euo pipefail
           python scripts/validate_nifty_1m_composite_approval.py finish
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add research/gates/NIFTY_1M_COMPOSITE_APPROVAL.json
           git commit -m "Record NIFTY 1m composite acquisition disposition"
           git push origin HEAD:phase-07-developer
