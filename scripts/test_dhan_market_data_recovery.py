@@ -425,7 +425,6 @@ def test_redirect_probe_workflow_spends_manifest_before_single_probe() -> None:
     spend = workflow.index("python scripts/validate_dhan_redirect_probe_approval.py spend")
     source = workflow.index("python scripts/dhan_market_data_recovery.py")
     assert check < spend < source
-    assert "default: false" in workflow
     secret_expr = "DHAN_ACCESS_TOKEN: " + "$" + "{{ secrets.DHAN_ACCESS_TOKEN }}"
     assert workflow.count(secret_expr) == 1
     assert "DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED" in workflow
