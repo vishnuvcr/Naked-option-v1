@@ -145,3 +145,12 @@
 - Because tester authorization was missing, its artifact ID `11659904438` is **NON-ACCEPTED EVIDENCE** and cannot pass Gate A.
 - The legacy workflow was replaced with offline-only tests (blob `f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3`). Safety-correction Run `38026080844` passed the v1 regression suite and contains no source-fetch step.
 - Current protected sampler/workflow snapshot then received an exact-snapshot PASS with 22 hosted offline tests passing. Approval is limited to one bounded Gate A run only. Full-history acquisition and model fitting remain prohibited.
+
+
+## 2026-10-10 — Gate A artifact REQUEST CHANGES / authorization revoked
+
+- Artifact ID `11660395594` (Run `38026272245`) is not accepted as a passed Gate A report.
+- Bug 1: both official index CSVs contained dates like `05-07-2024`; the current parser returned `date_check_all_rows=false` because numeric `DD-MM-YYYY` was unsupported.
+- Bug 2: NSE FII/DII date endpoint requested 2024-07-01 through 2024-07-10 but returned two rows dated 2026-10-09; response SHA-256 was identical to the unfiltered endpoint. Date-window matching was not checked after retrieval.
+- Historical FII/DII coverage remains unproven: current-only official API and a limited recent GitHub mirror/page are insufficient to establish 500+ sessions. Continue free-source discovery before declaring unavailable.
+- Current source approval is revoked. No full history/features/labels/model fits occurred. The developer must correct date parsing and response-window validation and seek a fresh exact-snapshot gate.
