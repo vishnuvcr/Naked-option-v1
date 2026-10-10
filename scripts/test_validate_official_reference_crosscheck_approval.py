@@ -236,6 +236,46 @@ def test_spend_transition_is_single_use_and_populates_runner_scope() -> None:
     must_raise(lambda: mod.prepare_spent(approval, spent_from_commit="not-a-commit"), "spent_from_commit_invalid")
 
 
+def test_live_workflow_is_strictly_gated_and_spends_before_first_request() -> None:
+    workflow_path = ROOT / ".github/workflows/phase-07-official-crosscheck-live.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+    gate_check = workflow.index("Verify exact READY manifest, protected files and independent tester report")
+    spend = workflow.index("Spend one-use approval before first public-source request")
+    fetch = workflow.index("Request the one-date official OHLC and Dhan public mapping")
+    cache = workflow.index("Commit matched raw-source cache bundle")
+    assert gate_check < spend < fetch < cache
+    assert "contents: write" in workflow
+    assert "confirm_official_crosscheck:" in workflow
+    assert "default: false" in workflow
+    assert "inputs.confirm_official_crosscheck == true" in workflow
+    assert "READY Official crosscheck approval" in workflow
+    spend_block = workflow[spend:fetch]
+    assert "python scripts/validate_official_reference_crosscheck_approval.py spend" in spend_block
+    assert "git push origin HEAD:phase-07-developer" in spend_block
+    request_block = workflow[fetch:cache]
+    assert 'OFFICIAL_CROSSCHECK_AUTHORIZED: "1"' in request_block
+    assert "continue-on-error: true" in request_block
+    assert "secrets." not in workflow
+    assert "DHAN_ACCESS_TOKEN" not in workflow
+    assert "access-token" not in workflow.lower()
+    assert "retry" in workflow.lower() and "redirect" in workflow.lower()
+    assert "official-nifty-sample-crosscheck" in workflow
+    assert "if: steps.fetch_crosscheck.outcome != 'success'" in workflow
+
+
+def test_default_and_developer_live_workflow_contents_match() -> None:
+    import subprocess
+    working = (ROOT / ".github/workflows/phase-07-official-crosscheck-live.yml").read_bytes()
+    try:
+        main_content = subprocess.check_output(
+            ["git", "show", "origin/main:.github/workflows/phase-07-official-crosscheck-live.yml"],
+            cwd=ROOT,
+        )
+    except subprocess.CalledProcessError:
+        raise AssertionError("default branch live workflow must exist") from None
+    assert working == main_content
+
+
 TESTS = [value for name, value in globals().copy().items() if name.startswith("test_") and callable(value)]
 for test in TESTS:
     test()
