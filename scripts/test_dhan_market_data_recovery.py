@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import importlib.util
+import io
 import json
 import pathlib
 import sys
@@ -178,6 +179,68 @@ def test_blocked_metadata_report_keeps_status_and_redacts_body() -> None:
     assert "secret" not in encoded
 
 
+def test_live_sample_metadata_http_error_preserves_only_safe_content_type() -> None:
+    profile_body = b'{"dataPlan":"Active","dhanClientId":"PRIVATE_PROFILE_ID"}'
+    error_body = io.BytesIO(b"PRIVATE_PROVIDER_ERROR_BODY")
+    http_error = urllib.error.HTTPError(
+        mod.INDEX_INSTRUMENT_URL,
+        403,
+        "forbidden",
+        {
+            "Content-Type": "application/json",
+            "Set-Cookie": "PRIVATE_COOKIE",
+            "Authorization": "PRIVATE_AUTH",
+        },
+        error_body,
+    )
+
+    class Response:
+        status = 200
+        headers = {"Content-Type": "application/json"}
+
+        def read(self, n):
+            assert n >= len(profile_body)
+            return profile_body
+
+        def close(self):
+            pass
+
+    class Opener:
+        def open(self, req, timeout):
+            assert timeout == mod.TIMEOUT_SECONDS
+            if req.full_url == mod.PROFILE_URL:
+                return Response()
+            if req.full_url == mod.INDEX_INSTRUMENT_URL:
+                raise http_error
+            raise AssertionError("unexpected URL requested")
+
+    with patch.dict(
+        mod.os.environ,
+        {
+            "DHAN_LIVE_SAMPLE_AUTHORIZED": "1",
+            "DHAN_ACCESS_TOKEN": "PRIVATE_ACCESS_TOKEN",
+        },
+        clear=True,
+    ), patch.object(mod.urllib.request, "build_opener", return_value=Opener()):
+        result = mod.live_sample()
+
+    encoded = json.dumps(result)
+    assert result["status"] == "BLOCKED_INSTRUMENT_METADATA"
+    assert result["instrument_metadata_http_status"] == 403
+    assert result["instrument_metadata_content_type"] == "application/json"
+    assert result["request_count"] == 2
+    assert result["bytes_read"] == len(profile_body)
+    assert error_body.tell() == 0
+    for private_value in (
+        "PRIVATE_PROVIDER_ERROR_BODY",
+        "PRIVATE_COOKIE",
+        "PRIVATE_AUTH",
+        "PRIVATE_ACCESS_TOKEN",
+        "PRIVATE_PROFILE_ID",
+    ):
+        assert private_value not in encoded
+
+
 def test_http_error_returns_status_without_provider_body() -> None:
     class Opener:
         def open(self, req, timeout):
@@ -334,6 +397,7 @@ def main() -> None:
         test_instrument_mapping_accepts_official_csv_headers,
         test_http_error_returns_status_without_provider_body,
         test_blocked_metadata_report_keeps_status_and_redacts_body,
+        test_live_sample_metadata_http_error_preserves_only_safe_content_type,
         test_instrument_mapping_rejects_ambiguous_security_id,
         test_windows_are_fixed_and_non_overlapping,
         test_payload_uses_non_inclusive_end_and_resolved_id,
