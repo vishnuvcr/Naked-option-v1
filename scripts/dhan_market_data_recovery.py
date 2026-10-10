@@ -94,6 +94,7 @@ def request_bytes(
             content_type = ""
         if (
             isinstance(content_type, str)
+            and bool(content_type)
             and len(content_type) <= 120
             and not any(ch in content_type for ch in ("\r", "\n"))
         ):
