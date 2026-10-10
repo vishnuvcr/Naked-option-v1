@@ -334,6 +334,37 @@ def blocked_metadata_result(status: int, headers: dict[str, str], budget: Budget
     return result
 
 
+def redirect_target_probe() -> dict[str, Any]:
+    """One-request diagnostic: report only status and redirect scheme/hostname."""
+    if os.environ.get("DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED") != "1":
+        raise RuntimeError("redirect_diagnostic_not_authorized")
+    token = os.environ.get("DHAN_ACCESS_TOKEN", "")
+    if not token:
+        return {"status": "BLOCKED_SECRET_MISSING", "request_count": 0, "bytes_read": 0}
+    budget = Budget()
+    status, body, headers = request_bytes(
+        INDEX_INSTRUMENT_URL, method="GET", token=token, body=None,
+        cap=1024, budget=budget,
+    )
+    # Body is never parsed or returned. Only redirect metadata and bounded counters survive.
+    result: dict[str, Any] = {
+        "http_status": status,
+        "request_count": budget.requests,
+        "bytes_read": budget.bytes_read,
+        "content_type": headers.get("content-type", ""),
+    }
+    for key in ("redirect_target_status", "redirect_scheme", "redirect_host"):
+        if headers.get(key):
+            result[key] = headers[key]
+    if 300 <= status < 400:
+        result["status"] = "REDIRECT_TARGET_RECORDED" if result.get("redirect_target_status") == "PARSED" else "REDIRECT_TARGET_UNVERIFIED"
+    elif status == 200:
+        result["status"] = "METADATA_ENDPOINT_NO_REDIRECT"
+    else:
+        result["status"] = "METADATA_ENDPOINT_BLOCKED"
+    return result
+
+
 def live_sample() -> dict[str, Any]:
     """Called only by a future guarded workflow after consuming a one-run manifest."""
     if os.environ.get("DHAN_LIVE_SAMPLE_AUTHORIZED") != "1":
@@ -380,10 +411,14 @@ def live_sample() -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    if os.environ.get("DHAN_LIVE_SAMPLE_AUTHORIZED") != "1":
-        raise SystemExit("Blocked: no approved Dhan sample manifest.")
-    result = live_sample()
-    out = __import__("pathlib").Path("data/reports/dhan_market_data_sample.json")
+    if os.environ.get("DHAN_REDIRECT_DIAGNOSTIC_AUTHORIZED") == "1":
+        result = redirect_target_probe()
+        out = __import__("pathlib").Path("data/reports/dhan_redirect_target_probe.json")
+    else:
+        if os.environ.get("DHAN_LIVE_SAMPLE_AUTHORIZED") != "1":
+            raise SystemExit("Blocked: no approved Dhan sample manifest.")
+        result = live_sample()
+        out = __import__("pathlib").Path("data/reports/dhan_market_data_sample.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
     print(json.dumps({
