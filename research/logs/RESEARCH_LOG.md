@@ -1055,3 +1055,8 @@ The first guarded sample [Run 38043148580](https://github.com/vishnuvcr/Naked-op
 ## 2026-10-10 — Dhan metadata diagnostic correction
 
 Independent artifact audit rejected the first Dhan sample because the metadata endpoint's numeric HTTP status was omitted. The adapter now reports status/content-type/counters only and never reads the provider error body. Tests simulate a 403 and verify token/profile identifiers and response body remain absent. The manifest validator was also tightened to check protected blobs against the reviewed commit tree, not only current HEAD. Offline Run `38043456200` passed 29 checks. Tester approved a new bounded diagnostic retry only after exact hash-bound manifest creation. No candle data or model analysis has yet been obtained.
+
+
+## 2026-10-10 — Dhan redirect blocks index metadata
+
+The second approved Dhan sample confirms token validity and active Data API plan, but the official `/v2/instrument/IDX_I` endpoint responds HTTP 302. The strict transport did not follow the redirect, and no historical candle request was made. Artifact `11667455094` is recorded in the independent audit as REQUEST CHANGES. The one-run manifest is spent. A separate finite proposal now asks to expose only redirect scheme/hostname in one request, without following it or recording raw Location path/query. No analysis rerun or FII/FPI/DII data recovery occurred.
