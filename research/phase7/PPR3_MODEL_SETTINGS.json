@@ -563,7 +563,7 @@
         "random_state": 20261010,
         "n_jobs": 1
       },
-      "preprocess": "only PPR3 tuned-cell IDs may use the frozen grid; other cells use these fixed defaults"
+      "preprocess": "Only the frozen R010 close-regression and R038 next-open-regression CORE_OHLCV_TECH cells use the declared RF TimeSeriesSplit grid. All other cells use fixed default parameters."
     },
     "MLP_REGRESSION": {
       "family": "sklearn MLPRegressor",
@@ -689,7 +689,7 @@
         "random_state": 20261010,
         "n_jobs": 1
       },
-      "preprocess": "Only the declared R029 close-regression and R041 next-open-regression CORE_OHLCV_TECH cells use the frozen TimeSeriesSplit grid; every other cell uses fixed default parameters."
+      "preprocess": "Only the frozen R029 close-regression and R041 next-open-regression CORE_OHLCV_TECH cells use the declared XGBoost TimeSeriesSplit grid. All other cells use fixed default parameters."
     },
     "LSTM_REGRESSION_ISMLA_ADAPT": {
       "status": "MERGED_INTO",
