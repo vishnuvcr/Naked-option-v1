@@ -320,6 +320,105 @@ def load_greek_inputs() -> tuple[dict[tuple[str, str, int], dict[str, str]], lis
     return expiry, rates, missing
 
 
+
+def _last_weekday(year: int, month: int, weekday: int) -> dt.date:
+    if month == 12:
+        next_month = dt.date(year + 1, 1, 1)
+    else:
+        next_month = dt.date(year, month + 1, 1)
+    day = next_month - dt.timedelta(days=1)
+    while day.weekday() != weekday:
+        day -= dt.timedelta(days=1)
+    return day
+
+
+def build_rule_expiry_map(
+    session_dates: set[str],
+    external_expiry_map: dict[tuple[str, str, int], dict[str, str]],
+    session_calendar_complete: bool,
+) -> dict[tuple[str, str, int], dict[str, str]]:
+    """Best-effort expiry map; explicit source/assumption labels travel with every row.
+
+    Policy used: Thursday expiry dates through 2025-08-28, Tuesday expiry dates
+    from 2025-09-02, with holiday adjustments to the previous observed Dhan spot
+    session where available. This is a rule-derived research fallback, not a
+    historical contract-master archive. Exact user-supplied dated mappings override it.
+    """
+    combined = dict(external_expiry_map)
+    if not session_dates:
+        return combined
+    sessions = sorted(dt.date.fromisoformat(value) for value in session_dates)
+    session_set = set(sessions)
+    first = sessions[0]
+    last = sessions[-1]
+    start = first - dt.timedelta(days=45)
+    end = last + dt.timedelta(days=75)
+    last_thursday = dt.date(2025, 8, 28)
+    first_tuesday = dt.date(2025, 9, 2)
+    weekly_candidates: list[dt.date] = []
+    cursor = start
+    while cursor <= end:
+        if cursor.weekday() == 3 and cursor <= last_thursday:
+            weekly_candidates.append(cursor)
+        elif cursor.weekday() == 1 and cursor >= first_tuesday:
+            weekly_candidates.append(cursor)
+        cursor += dt.timedelta(days=1)
+
+    monthly_candidates: list[dt.date] = []
+    month_cursor = dt.date(first.year, first.month, 1)
+    if month_cursor.month == 1:
+        month_cursor = dt.date(month_cursor.year - 1, 12, 1)
+    else:
+        month_cursor = dt.date(month_cursor.year, month_cursor.month - 1, 1)
+    final_month = dt.date(end.year, end.month, 1)
+    while month_cursor <= final_month:
+        last_day = _last_weekday(month_cursor.year, month_cursor.month,
+                                 3 if month_cursor < dt.date(2025, 9, 1) else 1)
+        monthly_candidates.append(last_day)
+        if month_cursor.month == 12:
+            month_cursor = dt.date(month_cursor.year + 1, 1, 1)
+        else:
+            month_cursor = dt.date(month_cursor.year, month_cursor.month + 1, 1)
+
+    def adjust_expiry(candidate: dt.date) -> dt.date:
+        if candidate in session_set:
+            return candidate
+        if candidate <= last:
+            previous = [session for session in sessions if session < candidate]
+            if previous:
+                return previous[-1]
+        # We have no spot-session observations beyond the acquisition boundary.
+        # Keep the calendar-rule date and tag the rule source rather than inventing
+        # a future holiday adjustment.
+        return candidate
+
+    weekly = sorted(set(adjust_expiry(value) for value in weekly_candidates))
+    monthly = sorted(set(adjust_expiry(value) for value in monthly_candidates))
+    source = "RULE_DERIVED_NIFTY_EXPIRY_WEEKDAY_POLICY_V1"
+    if not session_calendar_complete:
+        source += "_PARTIAL_SPOT_SESSION_CALENDAR"
+    elif end > last:
+        source += "_FUTURE_HOLIDAY_ADJUSTMENT_NOT_OBSERVED"
+    for session_text in session_dates:
+        session = dt.date.fromisoformat(session_text)
+        for flag, dates in (("WEEK", weekly), ("MONTH", monthly)):
+            available = [value for value in dates if value >= session]
+            for code in (0, 1, 2):
+                key = (session_text, flag, code)
+                if key in combined:
+                    continue
+                if len(available) <= code:
+                    continue
+                expiry = available[code]
+                combined[key] = {
+                    "expiry_date": expiry.isoformat(),
+                    "dividend_yield_decimal": "",
+                    "expiry_mapping_source": source,
+                    "dividend_yield_source": "",
+                }
+    return combined
+
+
 def get_asof_rate(timestamp_utc: dt.datetime, rates: list[tuple[dt.datetime, float, str, str]]) -> tuple[float | None, str]:
     available = [item for item in rates if item[0] <= timestamp_utc]
     if not available:
