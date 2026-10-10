@@ -464,3 +464,11 @@
 - Current workflow blob `c535610e69c2e90934ab4e59d754b584e29ff6ec` adds a separate offline-regression job and a fail-closed exact tester-report/manifest/hash gate on both push and manual source-sampling triggers.
 - Run #1 / 38019728293 failed in offline tests before any source requests; the fetch and artifact-upload steps were skipped.
 - No current approval manifest exists and no live source was fetched. Await exact-snapshot independent re-review and successful hosted tests.
+
+
+## 2026-10-10 — Gate A workflow exact-report enforcement strengthened
+
+- Replaced workflow blob `c535610e69c2e90934ab4e59d754b584e29ff6ec` with `fdc0a6bef97796b38424048304b704d86f80c450`.
+- The approval guard now validates the current scoped decision line, explicit no-full-history/no-model-fitting statements, exact tester report digest, protected content hashes, Git blob IDs quoted in the report, and reviewed-commit ancestry.
+- This closes the risk of a historical PASS in a report authorizing a later sampler/workflow version.
+- No sample is permitted until the independent tester reviews the current exact snapshot. No data was fetched by this change.
