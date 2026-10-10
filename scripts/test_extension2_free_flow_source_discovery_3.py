@@ -223,15 +223,28 @@ def test_budget_stops_at_total_bytes_and_counts_every_exchange() -> None:
         raise AssertionError("initial request limit should be enforced")
     assert b2.initial_requests == mod.MAX_INITIAL_REQUESTS
 
+    b3 = mod.Budget()
+    for i in range(mod.MAX_REDIRECTS):
+        b3.start_redirect(f"redirect-{i}", f"https://example.invalid/{i}")
+    try:
+        b3.start_redirect("redirect-overflow", "https://example.invalid/overflow")
+    except mod.BudgetExceeded:
+        pass
+    else:
+        raise AssertionError("global redirect limit should be enforced")
+    assert b3.redirects == mod.MAX_REDIRECTS
+    assert b3.exhausted
+
 
 def test_cdsl_xls_parser_uses_expected_date_and_equity_row() -> None:
     class FakeSheet:
-        nrows = 3
-        ncols = 4
+        nrows = 4
+        ncols = 5
         cells = [
-            ["CDSL Daily FPI Report", "30-Sep-2024", "", ""],
-            ["Equity", "Stock Exchange", "Gross Purchases", "Net Investment"],
-            ["Debt", "Stock Exchange", "Gross Purchases", "Net Investment"],
+            ["CDSL Daily FPI Report", "30-Sep-2024", "", "", ""],
+            ["Market", "Instrument", "Gross Purchases", "Gross Sales", "Net Investment"],
+            ["Equity", "Stock Exchange", "123", "100", "23"],
+            ["Debt", "Stock Exchange", "50", "40", "10"],
         ]
         def cell_value(self, row, col):
             return self.cells[row][col]
@@ -247,6 +260,8 @@ def test_cdsl_xls_parser_uses_expected_date_and_equity_row() -> None:
     assert ok["status"] == "SCHEMA_SAMPLE_PASS", ok
     assert ok["source_semantics"] == "FPI_ONLY"
     assert ok["equity_stock_exchange_rows_found"] == 1
+    assert ok["numeric_flow_mapping_status"] == "CANDIDATE_NUMERIC_VALUES_EXTRACTED_NOT_ACCEPTED_FOR_FEATURE_BUILD"
+    assert {x["group"]: x["numeric_value"] for x in ok["candidate_flow_value_samples"]} == {"buy": 123.0, "sell": 100.0, "net": 23.0}
 
     with patch.object(mod.xlrd, "open_workbook", return_value=FakeBook()):
         bad = mod.parse_cdsl_xls(b"fixture", "2024-10-01", mod.FIXED_URLS["CDSL-2"])
