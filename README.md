@@ -508,3 +508,14 @@ Dhan historical candles may help price/index/derivative coverage, but the combin
 The second guarded sample [Run 38043667443](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043667443) confirmed that the Dhan token is valid and the Data API plan is active, but the official `/v2/instrument/IDX_I` endpoint returns HTTP 302. The workflow did not follow the redirect and did not request candle history. The artifact is recorded as REQUEST CHANGES in [sample audit 2](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT_2.md). Both one-run manifests are spent.
 
 A new proposal [Dhan redirect-target discovery spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md) seeks approval for one request that reports only redirect scheme/hostname, without following the redirect or storing its path/query. This requires a fresh tester gate. No price history was retrieved, no analyses were rerun, and the FII/FPI/DII flow gap remains open.
+
+
+### Dhan redirect-target diagnostic — code gate passed (2026-10-10)
+
+The Dhan index metadata endpoint returns HTTP 302 despite a valid token and active Data API plan. The current policy does not follow redirects. A new redirect-target-only probe extracts only the scheme and hostname, with no raw Location path/query and no token forwarding.
+
+- [Redirect-target specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md)
+- [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md)
+- [Dedicated one-request workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-dhan-redirect-probe-live.yml)
+
+[Offline Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 37 checks. Tester approval is limited to one diagnostic request after a fresh exact-hash manifest. Following the redirect, downloading instrument metadata/candles, full history, and rerunning prediction analyses remain blocked until this diagnostic is audited and any next source step receives its own approval.
