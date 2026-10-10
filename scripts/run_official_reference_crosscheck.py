@@ -14,6 +14,7 @@ import os
 import pathlib
 import re
 import shutil
+import sys
 import tempfile
 from typing import Any, Callable
 
@@ -333,7 +334,31 @@ def run_crosscheck(
         return 1
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """Default CLI is offline-only; live mode requires the explicit flag and workflow gate."""
+    args = list(sys.argv[1:] if argv is None else argv)
+    if not args:
+        print(json.dumps({
+            "status": "OFFLINE_VALIDATION_ONLY",
+            "network_enabled": False,
+            "live_request_authorized": False,
+            "scope_id": SCOPE_ID,
+        }, sort_keys=True))
+        return 0
+    if args != ["--live"]:
+        print(json.dumps({
+            "status": "BLOCKED",
+            "failure_code": "crosscheck_cli_arguments_invalid",
+            "network_enabled": False,
+        }, sort_keys=True))
+        return 2
+    if os.environ.get("OFFICIAL_CROSSCHECK_AUTHORIZED") != "1":
+        print(json.dumps({
+            "status": "BLOCKED",
+            "failure_code": "crosscheck_live_request_not_authorized",
+            "network_enabled": False,
+        }, sort_keys=True))
+        return 1
     return run_crosscheck()
 
 
