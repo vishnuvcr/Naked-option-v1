@@ -186,3 +186,20 @@ The independent-role review found and corrected four incorrect native-task/adapt
 
 The offline validator now asserts these exact source-to-adaptation distinctions. Source-native ledger rows remain descriptive and are never model-fit authorizations. Final resubmission is pending a successful exact-commit CI run with all blob pins enabled and a new tester report.
 
+
+
+## 13. Structured native-task evidence fields
+
+The native-task ledger has now been extended so each of its 81 method/component rows separately carries:
+- native task-family ID;
+- source-native target/output type;
+- source-native horizon or an explicit unresolved/not-applicable status;
+- source-native data window;
+- source-native split description;
+- source-native feature recipe;
+- source-reported metric/result or explicit statement that no standalone metric applies;
+- evidence/fidelity status; and
+- a specific gap/ambiguity note.
+
+These structured fields supplement, rather than override, the PDF source locator and source quote/context already recorded. If the paper gives only a paper-wide split or metric and does not attribute it to an individual method, the row says that attribution remains unresolved. “Project adaptation” rows must not inherit author-reported scores. The offline validator fails when any structured native-task field is blank and preserves the corrected NT022/NT023/NT045/NT046 links.
+
