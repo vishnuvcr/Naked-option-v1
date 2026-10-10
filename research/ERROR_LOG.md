@@ -744,3 +744,61 @@ The access token is bound only to the guarded workflow's final source step and i
 - Independent tester passed the offline parser/cache foundation with restrictions. No defect was recorded in the tested scope.
 - Known unverified conditions: actual remote CSV size/content type/schema are not yet observed; 8 MiB remains a conservative provisional cap. No request/download/cache population has occurred.
 - Next is code review of a separate fetch adapter only. The SPENT Extension 2 manifest remains invalid for any new request.
+
+
+## 2026-10-10 — Dhan historical pipeline offline-gate correction record
+
+All entries below are test/integration failures only. None made a Dhan request, used the Dhan token, acquired market data, or generated scientific metrics.
+
+### Hosted run 38048612882 — redirect mock tried to inspect a closed error stream
+- Category: regression harness
+- Symptom: ValueError: I/O operation on closed file in test_redirect_is_rejected_without_reading_error_body_or_following.
+- Root cause: urllib.error.HTTPError.close() closes the underlying mock stream, so .tell() is not a valid proof that no read occurred after closure.
+- Correction: added ReadTrackedBody and asserted read_count == 0, independently proving the provider error body was not read.
+
+### Hosted run 38048646335 — same mock defect in HTTP 4xx redaction case
+- Category: regression harness
+- Symptom: the second error-body regression had the same ValueError: I/O operation on closed file.
+- Root cause: the first patch updated the redirect fixture but missed the independent 4xx fixture.
+- Correction: converted the 4xx fixture to ReadTrackedBody and assert no read.
+
+### Hosted run 38048674633 — cache secret-key detector missed a nested auth token name
+- Category: security regression
+- Symptom: assertion expected cache_manifest_contains_forbidden_key, but nested auth_token was not rejected.
+- Root cause: the detector matched a finite set of complete keys and did not consider compound names containing token.
+- Correction: recursively reject any metadata key containing token, authorization, or cookie, as well as other listed credential key names.
+
+### Hosted run 38048796935 — invalid-token regression stopped at request-body validation
+- Category: regression harness / fail-closed ordering
+- Symptom: expected missing_or_invalid_dhan_access_token; got daily_request_instrument_fields_missing.
+- Root cause: endpoint payload validation ran before the token-shape guard, obscuring the intended failure reason (although no network call occurred).
+- Correction: validate token presence/CRLF safety before endpoint payload validation.
+
+### Hosted run 38048827782 — response test fixture did not satisfy the new request schema
+- Category: regression harness
+- Symptom: daily request body validation failed before the malformed-response assertion.
+- Root cause: after adding request-shape validation inside the request helper, an old response test retained an empty body.
+- Correction: use a valid, deterministic daily request fixture for response-handling tests.
+
+### Hosted run 38048849791 — overflow fixture failed before cap handling
+- Category: regression harness
+- Symptom: expected dhan_response_byte_cap_exceeded; got daily_request_instrument_fields_missing.
+- Root cause: same outdated empty request fixture meant response-size guard was never reached.
+- Correction: provide the valid daily request object in the cap+1 response test.
+
+### Hosted run 38048870511 — bad-JSON fixture failed before response parser
+- Category: regression harness
+- Symptom: expected dhan_json_invalid; got daily_request_instrument_fields_missing.
+- Root cause: malformed response test still used an empty request body after the request-schema guard was added.
+- Correction: route all response-parse fixtures through a valid fixed request shape.
+
+### Hosted run 38049019218 — cache helper began enforcing source request manifest
+- Category: regression harness / cache provenance
+- Symptom: daily_request_instrument_fields_missing in cache setup.
+- Root cause: the cache helper was strengthened to validate full request parameters, but the repeat-cache test supplied only dates.
+- Correction: use the exact DAILY_REQ manifest with security ID, segment, instrument, dates and OI flag.
+
+### Final verified status for this correction cycle
+- Hosted run 38049058737 on developer commit c4b6bc5a06f296bb8765e6facd85c2d8e396eb53 passed 30/30 offline/mock tests.
+- Hosted Research Protocol Check 38049058835 passed.
+- Remaining gate is independent tester code review. No live request or history download is authorized.
