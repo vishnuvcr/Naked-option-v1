@@ -620,3 +620,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - A prior unapproved legacy run [38025793938](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38025793938) fetched two single-day F&O archives and small public-page/API samples. Artifact `11659904438` is **NON-ACCEPTED EVIDENCE** due to missing authorization. No features, labels or models were produced. The unguarded legacy workflow has been replaced with offline-only tests.
 - The v2 live-source workflow still requires the exact mirrored tester report digest, protected byte hashes/Git blob IDs, reviewed-commit ancestry, and successful offline tests before any source request.
 - **Next gate:** create the exact hash-bound manifest for the tester-approved snapshot; once the single guarded run completes, submit both reports for separate independent artifact review.
+
+
+## 2026-10-10 — Gate A artifact REQUEST CHANGES; approval revoked; corrections submitted
+
+- Post-run independent audit rejected artifact `11660395594` from Run `38026272245`. The F&O archive and cash-equity sample schemas passed, but official sector-index CSVs failed because the parser did not recognize numeric `DD-MM-YYYY` dates, and the dated NSE FII/DII API returned current 2026 rows outside the requested July 2024 window.
+- The prior Gate A approval manifest was explicitly revoked; [revocation run 38026433233](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026433233) passed the offline suite, failed the authorization check on purpose, and skipped source sampling.
+- Developer corrections: v2 parser now supports `DD-MM-YYYY`; every row in a dated API response is checked against the requested date window, and out-of-window/missing dates are rejected.
+- Current hosted offline tests [Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed **24 checks** (7 v1 + 17 v2).
+- Current protected sampler snapshot is **NOT YET APPROVED**. A new tester code review and renewed bounded sample gate are required. No full-history acquisition or model fitting is permitted.
+- FII/DII historical availability remains unresolved; continue the free-source search rather than declaring unavailable.
