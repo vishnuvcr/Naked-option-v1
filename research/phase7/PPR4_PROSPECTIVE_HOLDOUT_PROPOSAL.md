@@ -55,6 +55,15 @@ Only after all 252 forecast origins and the 10-session maturity tail are complet
 
 No option P&L or strategy inference is part of this holdout protocol. A separate approved economic gate would still need current Paytm Money brokerage/statutory charges, bid/ask spread, slippage, lot/contract validity and fill constraints.
 
+
+### 2.5 Confirmatory family completeness is fail-closed
+
+The eligible confirmatory model/pipeline/horizon set and family membership must be fixed before the first prospective holdout origin using only source availability, license, timestamp coverage and development-period tests. A source that fails those checks is labelled `BLOCKED_DATA` before the final candidate manifest is frozen.
+
+After the freeze, a candidate may not be silently removed because future source rows are missing or its forecast is inconvenient. If a frozen candidate cannot produce a finite registered output on a common confirmatory origin, record an explicit abstention/reason and preserve the row. Under the existing PPR target/inference contract, a missing planned candidate/horizon means the family is `INCOMPLETE_NOT_PROMOTABLE`; do not pairwise-drop the row, translate an abstention into a made-up probability, or issue a confirmatory family p-value/promotion from a smaller subset. Per-candidate descriptive coverage may be reported separately with its abstention rate, clearly marked non-confirmatory. The 250-row minimum does not waive this family-completeness rule.
+
+The boundary selector is intentionally conservative: use the first official NSE session whose local IST trading date is strictly later than the Asia/Kolkata local date containing the freeze approval commit. Thus the commit-date session is excluded even if its close has not occurred; the exact first session is computed from the frozen official calendar after approval and before any holdout outcome is available.
+
 ## 3. How this differs from the prior design
 
 | Issue | Legacy Phase 7 | Proposed final holdout |
