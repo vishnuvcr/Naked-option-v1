@@ -1006,3 +1006,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Root cause: implementation/test files changed after the cited hosted test run; the gate handoff did not pin and verify the exact post-test snapshot.
 - Correction: require a fresh offline workflow run tied to the exact current developer commit, then record the commit and protected file blob hashes and resubmit for tester review.
 - Prevention: future gate reports must list tested commit SHA and protected file blob hashes, and compare them against current branch immediately before any live authorization.
+
+
+## 2026-10-10 — CI receipt not observable through connected GitHub tools
+- Category: infrastructure / verification visibility
+- Component: Phase 7 official cross-check hosted offline workflow receipt
+- Symptom: after commit `50f79a629b580063fbe561117da57cf7c9e2b044` triggered the path-filtered test-file update, the available connected GitHub workflow-run lookup returned no run and the combined commit status contained no statuses.
+- Impact: hosted exact-snapshot test outcome remains unknown. No tests are claimed as passed and no live-source request is authorized.
+- Disposition: preserve the gate as blocked; retrieve the actual Actions run receipt before asking the independent tester to re-review. Do not infer a workflow failure or success from missing connector visibility.
