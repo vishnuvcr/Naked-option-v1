@@ -40,9 +40,6 @@ jobs:
           python scripts/test_run_dhan_daily_sample.py
           python scripts/test_validate_dhan_daily_sample_approval.py
           python scripts/dhan_history_pipeline.py
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            python scripts/validate_dhan_daily_sample_approval.py review-check
-          fi
       - name: Print verified manifest fingerprints using Python hashlib and Git
         shell: bash
         run: |
@@ -75,3 +72,8 @@ jobs:
               "authorization_digest_matches_manifest": hashlib.sha256(canonical).hexdigest() == manifest.get("authorization_sha256"),
           }, sort_keys=True))
           PY
+      - name: Validate pending manifest and approval pins (read only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_dhan_daily_sample_approval.py review-check
