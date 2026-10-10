@@ -133,12 +133,16 @@ def validate() -> list[str]:
                     or body.get("toDate") != end or set(body.get("requiredData", [])) != OPTIONS_FIELDS):
                 errors.append(f"option_request_body_mismatch:{r.get('request_id')}")
             allowed = set(range(-10, 11)) if code == 0 else set(range(-3, 4))
-            want = "ATM" if strike == "ATM" else strike.replace("ATM", "0").replace("+", "")
             try:
-                strike_offset = int(want)
                 if strike == "ATM":
                     strike_offset = 0
-            except Exception:
+                elif isinstance(strike, str) and strike.startswith("ATM+"):
+                    strike_offset = int(strike[4:])
+                elif isinstance(strike, str) and strike.startswith("ATM-"):
+                    strike_offset = -int(strike[4:])
+                else:
+                    strike_offset = 999
+            except (TypeError, ValueError):
                 strike_offset = 999
             if strike_offset not in allowed:
                 errors.append(f"strike_outside_allowed_grid:{r.get('request_id')}:{strike}")
