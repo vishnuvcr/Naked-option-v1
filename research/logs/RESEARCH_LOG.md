@@ -953,3 +953,10 @@ The latest repository [Research Protocol Check](https://github.com/vishnuvcr/Nak
 The exact corrected sampler/source workflow snapshot was passed on tester branch and mirrored byte-identically on developer branch. Reviewed commit: `6050908b98c53d75c10175140e84e87f48934896`. Protected blob IDs and scoped decision are recorded in `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md`. Hosted offline tests passed in Run `38026024826` (22 unique checks); the offline-only legacy-workflow correction passed in Run `38026080844`.
 
 Governance incident: the previous unguarded v1 workflow ran Run `38025793938` without exact tester authorization. Its artifact `11659904438` contains bounded single-day archive/page/API source feasibility only but is **NON-ACCEPTED EVIDENCE**. No model, features/labels, full history or predictive metrics were generated. The legacy workflow is now offline-only. The current v2 workflow is the only permitted live source path and is fail-closed behind the tester manifest. One bounded run is authorized only after the exact manifest validates; its outputs require another tester audit before the next gate.
+
+
+## 2026-10-10 — Gate A artifact correction implementation
+
+After the independent tester returned REQUEST CHANGES on the first authorized sample artifact, the developer corrected two data-validation defects: (1) accept the official index CSV's numeric `DD-MM-YYYY` date field, and (2) validate every date in the NSE FII/DII API response against the fixed requested window, rejecting any out-of-window or missing/unparseable row dates. The corresponding regression tests were added.
+
+Current offline suite [Run 38026502365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026502365) passed 24 checks (7 v1 + 17 v2). The exact-snapshot source approval remains revoked, and the new blobs have not yet received an independent tester code gate. No source requests, model fits, metrics or p-values were produced after revocation. Free FII/DII historical-source discovery remains open.
