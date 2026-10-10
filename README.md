@@ -6,6 +6,9 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 
 ## Latest acquisition gate — 2026-10-11
 
+**Execution update:** the developer created the one-use pinned approval and started [guarded acquisition run 38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220). The approval was marked spent before the first request; the live collector is running. No CSV artifact/coverage report has been confirmed yet. Tester will review the realized data-coverage report after completion.
+
+
 The independent tester has **PASS WITH SCOPED RESTRICTIONS** on the exact five-year NIFTY one-minute composite request grid and guarded acquisition workflow. The decision approves the enumerated Dhan acquisition only; it does not authorize fitting, scoring, holdout access or trading strategy evaluation. The user waived any Dhan-versus-NSE/third-party price-value cross-check, and that waiver remains in force.
 
 - [Tester report and complete blob pins](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md)
