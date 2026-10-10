@@ -1100,3 +1100,28 @@ No PPR-2 registry reconciliation, new source pulls, fitting/tuning/scoring, fina
 **Developer → Tester:** Review the newest method fidelity ledger and contract after the corrected hosted check; return explicit PASS/REQUEST CHANGES with allowed scope.
 **Tester → Developer:** Do not progress beyond paper-evidence/protocol documentation until the exact current snapshots are reviewed and the gate is recorded.
 
+
+
+## 2026-10-10 — User asked to continue autonomously; PPR-2 literature mapping
+
+### User request
+User said: “Continue yourself. Automate the conversation between tester and developer. Don't wait for me.”
+
+### Gate transition and developer work
+- Rechecked current repository state and confirmed PPR-1 tester-role report 3 had approved only PPR-2 literature-registry reconciliation. Report is on `phase-07-tester`, commit `f52ec8037270b4351c0ee902d43725ca847e50b7`; it explicitly says the tester role is performed in the same connected assistant session and is not a separate human/LLM identity.
+- Read `research/literature/LITERATURE_REGISTRY.csv`, parsed all 36 entries, and found L003 semantic column misalignment that the existing CSV structural validator missed. Corrected the DOI placement and restored related method/hypothesis/replication fields; existing protocol workflow passed at run 38069197259.
+- Created row-wise crosswalk `research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.csv` with all 36 IDs exactly once and seven added columns for review depth, disposition, exact uploaded-PDF match, conceptual-only overlap, source task, next action, and limitations. All 36 are explicitly marked `NONE_EXACT` vs the 15 uploaded PDFs; topic/method overlap is not called a duplicate/replication.
+- Added overview `research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md`, PPR-2 validator and exact-commit GitHub Actions workflow with manual dispatch. The first crosswalk CI run [38069565482](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069565482) failed because the validator's depth-label list did not recognize `REPOSITORY_README_VERIFIED`. The allowlist was fixed. Exact-commit retry [38069596564](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564) passed on commit `974bed3013fa1a0a608f83a56220ed449514580a`; job log confirms the exact checkout SHA and offline-only scope.
+- Created the PPR-2 developer handoff `research/gates/PHASE7_PPR2_DEVELOPER_SUBMISSION.md`, corrected it to list blob hashes (not commit hashes), and requested exact-snapshot tester review. README, status and error log updated; current PPR-2 remains pending the tester report.
+- Evidence depth is deliberately mixed: L032 and L034 metadata-only, L031 abstract-verified, L033 abstract/metadata, L036 public README only. The map does not claim all 36 sources have been full-text read, and makes no source pulls. No model fitting/tuning/scoring, holdout access or options P&L was performed.
+
+### Exact reviewed PPR-2 artifacts
+- Registry blob: `2ee49ae119e61c8c523ed212c7f21bf15c5e8d7a`
+- Crosswalk CSV blob: `ac8491628913c5019d7a4b986339489b1dff1f14`
+- Crosswalk summary blob: `63ae0486b016f541bb70628525bd45f33585ace8`
+- Validator blob: `3dc96155e460f92a192d45502973c89bc9bd68c3`
+- Workflow blob: `dffa5262b991db9843df35c34157e1273365d8f5`
+- Tester submission currently on developer branch; verify its latest hash before review: `c74550f146cece68f98fa4fa4af503804da9e62c`.
+
+**Developer → Tester:** Review the exact PPR-2 artifacts and run 38069596564; return PASS/REQUEST CHANGES, allowing at most PPR-3 documentation-only if PASS.
+**Tester → Developer:** Do not pull additional sources, execute predictors or open holdout; retain source-depth caveats and review all 36 row mappings against the corrected registry.
