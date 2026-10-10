@@ -91,6 +91,42 @@ def test_fii_history_reports_distinct_dates_and_fields() -> None:
     assert result["distinct_date_count"] == 2
 
 
+def test_later_fii_row_missing_field_fails() -> None:
+    rows = [
+        {"date": "02-Jul-2026", "fii_buy": 100, "fii_sell": 90, "dii_buy": 50, "dii_sell": 40},
+        {"date": "01-Jul-2026", "fii_buy": 110, "fii_sell": 100, "dii_buy": 60},
+    ]
+    blob = json.dumps(rows).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    with patch.object(mod, "fetch_bytes", return_value=(blob, meta)):
+        result = mod.inspect_fii_history()
+    assert result["schema_status"] == "FAIL"
+    assert result["missing_required_field_row_count"] == 1
+
+
+def test_duplicate_fii_dates_fail() -> None:
+    row = {"date": "02-Jul-2026", "fii_buy": 100, "fii_sell": 90, "dii_buy": 50, "dii_sell": 40}
+    blob = json.dumps([row, dict(row)]).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    with patch.object(mod, "fetch_bytes", return_value=(blob, meta)):
+        result = mod.inspect_fii_history()
+    assert result["schema_status"] == "FAIL"
+    assert result["duplicate_date_count"] == 1
+
+
+def test_nonnumeric_fii_flow_fails_without_crashing() -> None:
+    rows = [
+        {"date": "02-Jul-2026", "fii_buy": 100, "fii_sell": 90, "dii_buy": 50, "dii_sell": 40},
+        {"date": "01-Jul-2026", "fii_buy": "bad", "fii_sell": 100, "dii_buy": 60, "dii_sell": 55},
+    ]
+    blob = json.dumps(rows).encode()
+    meta = {"url": "fixture", "status": "FETCHED", "bytes": len(blob), "sha256": mod.sha256_bytes(blob)}
+    with patch.object(mod, "fetch_bytes", return_value=(blob, meta)):
+        result = mod.inspect_fii_history()
+    assert result["schema_status"] == "FAIL"
+    assert result["nonnumeric_or_nonfinite_flow_row_count"] == 1
+
+
 def main() -> None:
     tests = [
         test_index_csv_requires_all_frozen_indices_and_date,
@@ -98,6 +134,9 @@ def main() -> None:
         test_legacy_equity_archive_checks_all_dates_and_counts_eligible_rows,
         test_udiff_equity_mixed_date_archive_fails,
         test_fii_history_reports_distinct_dates_and_fields,
+        test_later_fii_row_missing_field_fails,
+        test_duplicate_fii_dates_fail,
+        test_nonnumeric_fii_flow_fails_without_crashing,
     ]
     for test in tests:
         test()
