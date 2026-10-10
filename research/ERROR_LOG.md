@@ -106,3 +106,11 @@
 - Hosted Run #43 passed 8 acquisition/cache, 11 predictor and 11 result-validator tests; the empirical job was skipped because approval was not yet mirrored.
 - The developer attempted to create the hash-bound approval JSON after mirroring the tester report, but the write was blocked by platform safety checks. The file remains absent. No alternative trigger has been used and no prediction outputs exist.
 - Current disposition: tester code gate passed for one exact snapshot, but operational execution remains blocked until the protected authorization step can be completed through a permitted route.
+
+
+## 2026-10-10 — Independent audit of Run #44
+
+- No arithmetic, target-sign, duplicate-key, probability-range, missing-output, metric-reconciliation or bootstrap-p-value mismatch was found in the immutable result artifact.
+- The only cache note is that all 11 global-source records reported `cache_hit: false`; the old cache did not satisfy the current cache contract and the sources were reacquired. The job completed and the updated data were retained in the artifact/cache.
+- No statistically significant candidate was found; all adjusted horizon-family p-values were 1.0. This is a negative result, not an infrastructure failure.
+- Report: `research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md`.
