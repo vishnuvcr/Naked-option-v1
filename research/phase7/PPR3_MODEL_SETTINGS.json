@@ -596,7 +596,7 @@
         "centers": 50,
         "center_algorithm": "KMeans fitted only to training features",
         "basis": "Gaussian",
-        "width_rule": "inverse median training-center distance with a frozen numeric guard",
+        "width_rule": "gamma = 1 / max(median(training-only squared distance between RBF centers), 1e-12)",
         "output_layer": "ridge regression alpha=1.0",
         "random_state": 20261010
       },
@@ -1130,7 +1130,117 @@
           1
         ],
         "candidate_count": 18,
-        "grid_rule": "use the fixed 18-cell list embedded in the PPR3 manifest; not the full Cartesian product of all listed values"
+        "grid_rule": "Use this explicit list of 18 hyperparameter configurations; do not materialize the full Cartesian product of the descriptive value lists.",
+        "candidate_settings": [
+          {
+            "n_estimators": 300,
+            "max_depth": null,
+            "min_samples_leaf": 5,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": null,
+            "min_samples_leaf": 5,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": null,
+            "min_samples_leaf": 10,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": null,
+            "min_samples_leaf": 10,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": 8,
+            "min_samples_leaf": 5,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": 8,
+            "min_samples_leaf": 5,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": 8,
+            "min_samples_leaf": 10,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": 8,
+            "min_samples_leaf": 10,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": null,
+            "min_samples_leaf": 5,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": null,
+            "min_samples_leaf": 5,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": null,
+            "min_samples_leaf": 10,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": null,
+            "min_samples_leaf": 10,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": 8,
+            "min_samples_leaf": 5,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": 8,
+            "min_samples_leaf": 5,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": 8,
+            "min_samples_leaf": 10,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": 8,
+            "min_samples_leaf": 10,
+            "max_features": 1
+          },
+          {
+            "n_estimators": 300,
+            "max_depth": null,
+            "min_samples_leaf": 20,
+            "max_features": "sqrt"
+          },
+          {
+            "n_estimators": 500,
+            "max_depth": null,
+            "min_samples_leaf": 20,
+            "max_features": "sqrt"
+          }
+        ]
       },
       "XGBOOST_REGRESSION": {
         "n_estimators": [
@@ -1151,7 +1261,66 @@
         "colsample_bytree": [
           0.8
         ],
-        "candidate_count": 8
+        "candidate_count": 8,
+        "candidate_settings": [
+          {
+            "n_estimators": 200,
+            "max_depth": 2,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 200,
+            "max_depth": 2,
+            "learning_rate": 0.07,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 200,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 200,
+            "max_depth": 4,
+            "learning_rate": 0.07,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 400,
+            "max_depth": 2,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 400,
+            "max_depth": 2,
+            "learning_rate": 0.07,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 400,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          },
+          {
+            "n_estimators": 400,
+            "max_depth": 4,
+            "learning_rate": 0.07,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
+          }
+        ],
+        "grid_rule": "Exactly 8 predefined settings: two n_estimators values x two max_depth values x two learning_rate values; subsample and colsample_bytree fixed at 0.8."
       }
     },
     "max_candidate_cells": 20,
