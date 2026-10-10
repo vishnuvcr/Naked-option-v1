@@ -237,7 +237,7 @@ def test_success_fetches_each_host_once_and_caches_only_after_match() -> None:
         assert first[0].full_url == mod.adapter.NIFTY_INDICES_URL and first[0].get_method() == "POST"
         assert second[0].full_url == mod.adapter.DHAN_COMPACT_MASTER_URL and second[0].get_method() == "GET"
         for req, _ in opener.calls:
-            headers = {key.lower() for key in req.header_items()}
+            headers = {key.lower() for key, _ in req.header_items()}
             assert not headers.intersection({"authorization", "access-token", "cookie", "dhanclientid"})
         assert "NIFTY" in json.dumps(out) and "raw_provider_error" not in json.dumps(out)
         bundle = next(cache.iterdir())
