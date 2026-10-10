@@ -695,3 +695,15 @@ Tester passed the redirect-target-only specification and exact parser/workflow s
 **Tester → Developer:** Verify all current hashes in the one-request manifest.
 
 **Developer → Tester:** Audit the one diagnostic artifact. Only propose a redirect follow after checking the target host against official docs and obtaining another gate.
+
+
+## 2026-10-10 — User command: Resume
+
+Resume actions:
+- Re-read current developer status, README checkpoint, research log, chat log, error log, redirect specification, guarded workflow, validator, one-use manifest and isolated tester decision before choosing the next action.
+- Independently compared all ten protected Git blob IDs in the developer branch against the READY manifest; all ten matched. This does not execute the manifest validator or validate byte-level SHA-256 at hosted runtime.
+- Confirmed the tester code/workflow report is PASS WITH SCOPED RESTRICTIONS, with **live request authorized: NONE**.
+- Checked available GitHub tool operations; no workflow-dispatch action is exposed. The live diagnostic remains unexecuted, so no new market data/results were produced and prediction conclusions remain unchanged.
+- No strategy evaluation or holdout access was started. Phase 7 remains open; Phase 8 remains blocked.
+
+**Developer → Tester:** Verify the audit record and keep the exact-snapshot/manifest-spend/artifact-review requirements intact. Do not infer data availability from this checkpoint.
