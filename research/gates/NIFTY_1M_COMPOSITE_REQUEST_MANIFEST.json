@@ -134,15 +134,15 @@
     "Never reconcile/correct Dhan values against NSE/third-party market-price values; the user waived that requirement",
     "Join spot OHLCV by exact epoch timestamp; retain rolling endpoint spot in separate column",
     "Only use real source/contract/calendar inputs for actual expiry; no expiry-date fabrication",
-    "Compute Black-Scholes Greeks only when historical expiry and risk-free inputs are available; otherwise null and reason-coded",
+    "Derive source-based Black-Scholes Greeks when point-in-time expiry/rate/dividend inputs exist; otherwise only separately labelled proxy Greeks may use rule-derived expiry dates and explicit zero-rate/zero-dividend assumptions with source/assumption columns; leave Greek values null with a reason code if expiry cannot be mapped.",
     "Missing source affects only its rows/feature family; continue other request IDs and report missing coverage",
-    "Output CSV yearly parts only as Actions artifacts for user download; do not publish paid/subscription data in public repository assets"
+    "Output encrypted monthly CSV parts only as Actions artifacts for user download; do not publish paid/subscription market rows as plaintext in public repository assets."
   ],
   "cache": {
-    "raw_responses": "data/cache/nifty_1m_composite/raw/<request_id>.json",
+    "raw_responses": "data/cache/nifty_1m_composite/raw/<request_id>.json.enc",
     "raw_metadata": "data/cache/nifty_1m_composite/raw/<request_id>.meta.json",
     "reuse": "Verify source request key, response hash, byte count, row/schema invariants before treating a cache hit as valid; only missing/invalid planned requests are fetched.",
-    "storage_policy": "No raw subscribed market observations are committed to the public repository or published in public release assets. Actions cache is resumable operational cache; a user-downloadable CSV bundle is produced as a workflow artifact for offline storage."
+    "storage_policy": "Raw subscribed market data are never committed in plaintext to this public repository. Raw payloads and CSV parts are encrypted at rest using AES-256-GCM; reusable encrypted shards and the cumulative request ledger are carried in the encrypted GitHub Actions cache, subject to Actions cache retention/eviction. The user-downloadable artifact contains encrypted monthly CSV parts plus manifest and coverage report."
   },
   "data_safety": {
     "raw_responses_encrypted_at_rest": true,
