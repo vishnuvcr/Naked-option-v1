@@ -495,3 +495,12 @@
 - Root cause: the older workflow `.github/workflows/phase-07-extension2-source-feasibility.yml` automatically fetched samples after source/test file changes and had no approval gate.
 - Correction: legacy workflow changed to offline-only, blob `f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3`. Safety correction Run `38026080844` passed and its workflow has no source-fetch step.
 - Current v2 snapshot passed independent exact-snapshot code review and 22 offline checks. Only one bounded run is authorized after its exact hash-bound manifest validates. Full-history acquisition/model fitting remain prohibited.
+
+
+## 2026-10-10 — Gate A artifact validation defect correction
+
+- Tester marked artifact `11660395594` from run `38026272245` REQUEST CHANGES. Two official index CSVs failed schema date checks because values such as `05-07-2024` were not supported by the date normalizer. NSE FII/DII API returned 2026-10-09 rows for the requested 2024-07-01..2024-07-10 window; the parser had not verified response dates.
+- Correction: add numeric `DD-MM-YYYY` date parsing; bind response-date validation to the requested range; reject out-of-range rows and missing/unparseable response dates. Added targeted unit tests.
+- Hosted offline run `38026502365` passed 7 v1 + 17 v2 checks.
+- Prior approval was revoked. Run `38026433233` correctly failed the approval gate and skipped live sampling.
+- Next: tester code review of exact updated blobs; only then may a new bounded sample run occur. FII/DII historical coverage still requires broader free-source research.
