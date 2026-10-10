@@ -11,7 +11,7 @@
 - Current recorded Gate A disposition: schema samples pass, but G14/G15 source-coverage gate remains open. No feature/label table, model fitting or metrics have been produced.
 
 ## Exact frozen spec snapshot
-- Spec Git blob: `57c804f473395207cb0bf4fadfe6e8c53cf2f5fb`
+- Spec Git blob: `3313d80f539957f1cdeaa8f9baeeb819379c6af1`
 - The spec defines a maximum of 15 HTTP requests, 2 MiB total data, two 8-KiB HF byte ranges (requires status 206 + exact Content-Range), no full-file fallback, two fixed single-day CDSL XLS reports, one pinned chirag date JSON, and metadata-only probes for SEBI/NSE/CalcSetu/other mirrors.
 - It explicitly rejects generated/seeded daily values. The MrChartist `seed_history.js` source code describes generating “realistic per-day” values from monthly/yearly aggregate totals, so its `historical-seed` rows are not treated as raw daily ground truth.
 
@@ -35,6 +35,6 @@ Independently audit:
 
 Return PASS or REQUEST CHANGES for this specification only. A spec PASS authorizes implementation plus offline regression tests—not network retrieval. A separate code gate and a separate one-run exact-snapshot manifest will be required before any source probe is made.
 
-**Developer → Tester:** Review spec blob `57c804f473395207cb0bf4fadfe6e8c53cf2f5fb`, with particular attention to the HF byte-range and CDSL XLS limits. Do not authorize network calls at the spec gate.
+**Developer → Tester:** Review spec blob `3313d80f539957f1cdeaa8f9baeeb819379c6af1`, with particular attention to the HF byte-range and CDSL XLS limits. Do not authorize network calls at the spec gate.
 
 **Tester → Developer:** Only after a spec PASS may the developer implement the finite sampler and offline tests. Require a fresh exact-blob code-gate PASS and manifest before any data probe. No full-history acquisition or model fitting.
