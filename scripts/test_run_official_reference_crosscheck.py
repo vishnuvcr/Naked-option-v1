@@ -8,6 +8,7 @@ import json
 import pathlib
 import sys
 import tempfile
+import io
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
