@@ -1,0 +1,45 @@
+{
+  "approval_spent_from_commit": "6cc6ece9a97c6e86df49db37b553508810c78d09",
+  "cache_bundle_name": "478f0942f8654bd763b8343a05370f8065ef5041483cb59cc3f7dd6b57ef78ba-efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70",
+  "cache_created": true,
+  "cache_status": "CACHE_CREATED",
+  "content_type": "application/json",
+  "fetched_at_utc": "2026-10-10T13:18:25.096341Z",
+  "github_run_id": "38055202149",
+  "github_sha": "97b455b9060536bc9ee8cee9b16d6c4d27035fb7",
+  "holdout_access_authorized": false,
+  "http_status": 200,
+  "model_fitting_authorized": false,
+  "raw_provider_error_saved": false,
+  "redirect_followed": false,
+  "request_count": 1,
+  "request_manifest_sha256": "41866df6f882205739ac48e9ee6e3c5dc656319bb29bbfd4c4fa7ff252e6446f",
+  "request_parameters": {
+    "exchangeSegment": "IDX_I",
+    "fromDate": "2024-01-02",
+    "instrument": "INDEX",
+    "oi": false,
+    "securityId": "13",
+    "toDate": "2024-01-03"
+  },
+  "response_bytes": 121,
+  "response_sha256": "efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70",
+  "retry_count": 0,
+  "schema_version": 1,
+  "scope_id": "dhan-nifty50-daily-2024-01-02-one-request",
+  "source_url": "https://api.dhan.co/v2/charts/historical",
+  "status": "SOURCE_SAMPLE_VALIDATED",
+  "validation": {
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ],
+    "first_timestamp": 1704133800,
+    "last_timestamp": 1704133800,
+    "row_count": 1,
+    "timestamp_sha256": "c9409b29365d6be13af702d451f59081ae96e6f549628aa5f1933905ed6ed5b9"
+  }
+}
