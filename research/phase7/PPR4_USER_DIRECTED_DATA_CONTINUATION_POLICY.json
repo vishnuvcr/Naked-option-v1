@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "policy_id": "PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY_2026-10-11",
+  "branch": "phase-07-developer",
+  "status": "SUBMITTED_FOR_EXACT_SNAPSHOT_TESTER_REVIEW",
+  "user_directives": {
+    "accept_dhan_values_as_returned": true,
+    "external_cross_source_dhan_value_reconciliation_required": false,
+    "research_stops_due_only_to_missing_source": false,
+    "use_free_alternatives_when_dhan_lacks_feature": true,
+    "combine_sources_with_explicit_lineage": true,
+    "paid_sources_allowed_before_free_options_exhausted": false
+  },
+  "data_acceptance": {
+    "sample_waiver_path": "research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json",
+    "provider_source_data_accepted_for_development_when_received": true,
+    "external_price_value_cross_check": "WAIVED_BY_USER",
+    "structural_schema_timestamp_hash_checks": true,
+    "silent_value_correction_or_imputation": false
+  },
+  "continuation_rules": {
+    "source_failure_scope": "SOURCE_OR_FEATURE_FAMILY_ONLY",
+    "global_research_stop_on_source_unavailability": false,
+    "fallback_order": [
+      "Dhan Data API for fields it documents and returns",
+      "Official NSE/BSE/RBI/SEBI/CDSL or underlying-provider free archives",
+      "Other free/open data APIs with documented schema and acceptable use terms",
+      "GitHub/Kaggle/Hugging Face/community caches only after dataset/license/provenance review",
+      "Composite source panel with source_id, available_at, observed_at, retrieval/version and hashes preserved"
+    ],
+    "when_all_sources_for_a_family_fail": "Mark only that feature family or candidate cell NOT_ESTIMABLE/BLOCKED_DATA, record attempts/errors, and continue all other families/phases.",
+    "missing_values": "Keep missingness explicit, do not replace missing prices/OI/news with zero, do not interpolate option prices, and do not silently forward-fill beyond the pre-registered availability rule.",
+    "phase_completion": "A phase can finish with explicit feature-family limitations; unavailable fields are not a global stop condition.",
+    "permitted_technical_stops": [
+      "A secret is about to be exposed",
+      "A request exceeds approved size/rate/endpoint scope",
+      "A schema/temporal/leakage defect makes the affected artifact unsafe to parse",
+      "A required governance or independent tester gate has not been passed"
+    ]
+  },
+  "source_specific_limits": {
+    "dhan_daily_candles": "Provider docs: daily candles back to instrument inception; split large downloads by deterministic calendar-year chunks when needed.",
+    "dhan_intraday_candles": "Provider docs: up to 5 years; intervals 1, 5, 15, 25, 60 minutes; maximum 90 days per request.",
+    "dhan_expired_options": "Provider docs: up to 5 years of rolling strike-relative expired option data; 1, 5, 15, 25, 60 minutes; maximum 30 days per request; OHLC, IV, volume, OI, strike and spot fields.",
+    "dhan_rate_limit": "Provider docs list Data API rate limits of 5 requests/second and 100,000/day; implement a safer serial limit, checkpointing and resumable shards."
+  },
+  "research_boundaries": {
+    "all_historical_observations_before_final_freeze": "DEVELOPMENT_ONLY",
+    "future_holdout": "Use the tester-approved prospective holdout design only after the real freeze manifest and official session calendar are committed before any holdout label release.",
+    "holdout_sessions": 252,
+    "label_maturity_tail_sessions": 10,
+    "holdout_results_during_capture": "SEALED",
+    "prediction_only_scope_until_phase_8": true,
+    "future_strategy_economics_must_include": [
+      "Paytm Money brokerage",
+      "exchange/statutory fees",
+      "bid/ask spread",
+      "slippage",
+      "latency",
+      "premium decay",
+      "effective-dated lot size"
+    ]
+  },
+  "execution_gate": {
+    "new_bulk_acquisition_manifest_required": true,
+    "exact_snapshot_tester_review_required_before_live_workflow": true,
+    "existing_one_use_dhan_approval_reusable": false,
+    "live_data_requests_authorized_by_this_policy_file": false,
+    "reason_live_requests_not_yet_authorized": "This policy changes how unavailable sources are handled; it is not the exact source-by-source request manifest required for the next Dhan/open-source bulk acquisition run."
+  },
+  "sources": {
+    "dhan_historical_docs": "https://dhanhq.co/docs/v2/historical-data/",
+    "dhan_expired_options_docs": "https://dhanhq.co/docs/v2/expired-options-data/",
+    "dhan_rate_limits_docs": "https://dhanhq.co/docs/v2/",
+    "nse_derivatives_archive": "https://www.nseindia.com/all-reports-derivatives",
+    "nse_index_archive": "https://www.nseindia.com/static/resources/historical-reports-capital-market-daily-monthly-archives",
+    "cdsl_fpi": "https://www.cdslindia.com/Publications/ForeignPortInvestor.html",
+    "sebi_fpi": "https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html",
+    "cb oe_vix": "https://www.cboe.com/tradable_products/vix/vix_historical_data",
+    "us_treasury": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
+    "gdelt": "https://www.gdeltproject.org/"
+  }
+}
