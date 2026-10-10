@@ -227,3 +227,12 @@ The independent tester found that the source sampler checked the requested trade
 **Tester → Developer:** Fix row-wise date validation and tests, then resubmit exact blobs.
 
 **Developer → Tester:** Keep Gate A workflow disabled until the corrected sampler is independently approved.
+
+
+## 2026-10-10 — Tester blocked Gate A sampler due to full-history URL
+
+Fresh exact-snapshot independent review returned REQUEST CHANGES: the Gate A v2 sampler contained a 2020–2025 NSE FII/DII URL, contradicting the limited sample-only authorization. The review also caught a wrong workflow Git-blob pin in the developer handoff. No source requests were made. The developer must bound the API to a short window, add strict body/row caps and tests, correct the blob/commit distinction, then request a new review.
+
+**Tester → Developer:** Fix the request bounds and sample caps; keep the approval manifest absent.
+
+**Developer → Tester:** Re-review the corrected exact source/workflow snapshot; source calls remain disabled until the new PASS.
