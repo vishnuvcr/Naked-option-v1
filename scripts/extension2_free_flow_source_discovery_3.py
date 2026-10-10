@@ -234,12 +234,34 @@ class LimitedHTTP:
                 "error": "unregistered request header for this probe",
                 "history": [], "bytes_read": 0,
             }
-        if "range" in {k.lower() for k in supplied} and probe_id not in {"HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
+        range_values = [v for k, v in supplied.items() if k.lower() == "range"]
+        if range_values and probe_id not in {"HF-2-HEAD-RANGE", "HF-2-TAIL-RANGE"}:
             return {
                 "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
                 "error": "Range is only permitted for the two registered HF range probes",
                 "history": [], "bytes_read": 0,
             }
+        if probe_id == "HF-2-HEAD-RANGE" and range_values != [f"bytes=0-{MAX_RANGE_BYTES - 1}"]:
+            return {
+                "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                "error": "head Range must be exactly the first 8 KiB",
+                "history": [], "bytes_read": 0,
+            }
+        if probe_id == "HF-2-TAIL-RANGE":
+            match = re.fullmatch(r"bytes=(\d+)-(\d+)", range_values[0]) if len(range_values) == 1 else None
+            if not match:
+                return {
+                    "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                    "error": "tail Range must be one inclusive byte range",
+                    "history": [], "bytes_read": 0,
+                }
+            range_start, range_end = map(int, match.groups())
+            if range_start <= 0 or range_end < range_start or range_end - range_start + 1 != MAX_RANGE_BYTES:
+                return {
+                    "probe_id": probe_id, "url": url, "status": "REJECTED_SCOPE",
+                    "error": "tail Range must be exactly 8 KiB and start after byte zero",
+                    "history": [], "bytes_read": 0,
+                }
         try:
             self.budget.start_initial(probe_id, url)
         except BudgetExceeded as exc:
