@@ -479,3 +479,12 @@ The bounded workflow ran successfully. Official NSE legacy F&O (2024-07-05) and 
 **Developer → Tester:** Review the next bounded sampler with official index/equity CSV samples and free historical flow-source discovery.
 
 **Tester → Developer:** Do not proceed to full history or model fitting until the Gate A source report passes; do not claim FII/DII or breadth unavailable until more free sources are checked.
+
+
+## 2026-10-10 — v2 source sampler failed offline test, corrected
+
+The v2 workflow attempt failed on a valid FII/DII date fixture because the ISO-date regex was over-escaped. The failure occurred before any live download. The developer corrected the regex and changed the workflow push trigger to require the explicit Gate A approval manifest. The corrected exact sampler is resubmitted for independent tester review; no data were downloaded and no model work occurred.
+
+**Developer → Tester:** Re-review the corrected regex, tests and approval-file trigger before any source request.
+
+**Tester → Developer:** Do not create the approval manifest or run source feasibility until a new explicit code-gate PASS is recorded.
