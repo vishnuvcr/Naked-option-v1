@@ -163,9 +163,10 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertEqual(row["rolling_spot"], "24704.5")
         self.assertEqual(row["nifty_close"], "24705")
         self.assertEqual(row["spot_join_status"], "EXACT_TIMESTAMP_MATCH")
-        self.assertEqual(row["greek_status"], "CALCULATED_BS_V1_SOURCED_INPUTS")
+        self.assertEqual(row["greek_status"], "CALCULATED_BS_V1_SOURCED_INPUTS_IV_UNIT_HEURISTIC")
         self.assertGreater(float(row["gamma"]), 0)
         self.assertGreater(float(row["delta"]), 0)
+        self.assertIn("IV unit convention is undocumented", row["greek_assumption"])
         self.assertEqual(row["option_type"], "CALL")
 
     def test_option_greeks_remain_null_without_actual_expiry_calendar(self):
