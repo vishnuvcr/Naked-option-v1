@@ -104,7 +104,8 @@ def redact_sensitive_json(value: Any) -> Any:
     if isinstance(value, dict):
         result = {}
         for key, child in value.items():
-            lowered = str(key).lower().replace("-", "_")
+            normalized_key = re.sub(r"(?<!^)(?=[A-Z])", "_", str(key)).replace("-", "_")
+            lowered = normalized_key.lower()
             if lowered in sensitive_exact or any(lowered.endswith(suffix) for suffix in sensitive_suffixes):
                 continue
             result[str(key)] = redact_sensitive_json(child)
