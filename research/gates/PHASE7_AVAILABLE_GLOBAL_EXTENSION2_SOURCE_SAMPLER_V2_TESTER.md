@@ -61,3 +61,55 @@ Submit the immutable source-feasibility artifact and a summary showing index ide
 **Tester → Developer:** Add/run the bounded v2 workflow and submit the artifact; do not exceed the sample scope.
 
 **Developer → Tester:** Independently audit the source feasibility artifact. Keep full-history acquisition and model fitting closed until a separate Gate A artifact decision is recorded.
+
+
+## Current exact-snapshot re-review — 2026-10-10
+
+**Current decision: REQUEST CHANGES — do not create the approval manifest or run the source sampler.**  
+**Reviewed developer snapshot commit:** `1d8991255ff284c6b9cb20c4071ab56555d18dc6`  
+**Scope:** static code/workflow review only. No live source call was made by this tester review.
+
+### Current protected Git blobs reviewed
+
+| Protected file | Reviewed Git blob |
+|---|---|
+| `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md` | `a5e65b56f9aa23c8292b718403c3db4448dad2e3` |
+| `scripts/phase7_extension2_source_feasibility.py` | `f39f2a213b760c608e0deca2f1eaacc2225aca53` |
+| `scripts/test_phase7_extension2_source_feasibility.py` | `2d8833719701c87e43f310396b29380220d58578` |
+| `scripts/phase7_extension2_source_feasibility_v2.py` | `fb83fe5e880a26134a765a0426f7aa85380272fb` |
+| `scripts/test_phase7_extension2_source_feasibility_v2.py` | `d818613dc2f9188224562a953fd979a6c274d292` |
+| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `20470b88d29b1d97e8060936e5ed7a40fe28a80d` |
+
+The source-spec, sampler and test blobs at the reviewed commit match the current developer branch. The workflow at that commit includes both bounded sampler scripts and both artifact report paths.
+
+### Blocking finding 1 — one FII/DII URL requests a multi-year historical range
+
+In `scripts/phase7_extension2_source_feasibility_v2.py`, `NSE_FII_URLS` includes:
+
+`https://www.nseindia.com/api/fiidiiTradeReact?fromDate=01-01-2020&toDate=31-12-2025`
+
+This is not a small deterministic sample. It requests a multi-year range and violates the tester-approved Gate A scope, which expressly excludes full-history acquisition. The workflow executes the sampler with no additional row/date cap, so the offline fixture gate does not contain this request.
+
+**Required correction:** replace this URL with a fixed, small date window (for example, 2024-07-01 through 2024-07-10), add a regression that asserts every remote request stays within the approved date bound, and include a maximum expected row count / rejection rule for this endpoint. Then rerun the offline tests and request a new exact-snapshot review. The bounded window is for schema/source feasibility only; it cannot establish the 500-session historical coverage requirement.
+
+### Blocking finding 2 — review-request workflow “Git blob” is actually a commit ID
+
+The developer handoff table labels `1d8991255ff284c6b9cb20c4071ab56555d18dc6` as the workflow's Git blob. That value is the reviewed commit ID. The actual workflow Git blob is `20470b88d29b1d97e8060936e5ed7a40fe28a80d`. The handoff correctly names the reviewed commit separately near the end, but the protected-file table and a later “workflow blob” line repeat the incorrect ID.
+
+**Required correction:** in the review request, use `20470b88d29b1d97e8060936e5ed7a40fe28a80d` wherever a workflow Git blob is requested, and reserve `1d8991255ff284c6b9cb20c4071ab56555d18dc6` for the reviewed commit only. Refresh the review request so its six protected Git-blob IDs exactly match the current tree.
+
+### Findings that pass on static inspection
+
+- The workflow runs the legacy/UDiFF F&O bounded sampler and the index/equity/FII-DII v2 sampler, and uploads both JSON reports.
+- Manual source sampling defaults to false. Both push and opted-in manual sampling pass through the offline tests and the guarded exact-snapshot authorization job before the source job.
+- The guard checks a fixed protected path set, SHA-256 content hashes, Git blob IDs quoted in the report, a report digest and reviewed-commit ancestry.
+- The corrected FII/DII row validator checks each row's required fields, dates and numeric finite values; the current offline tests include invalid later-row, duplicate-date and nonnumeric-flow cases.
+- No model/feature/label construction occurs in the sampler scripts.
+
+### Disposition and next gate
+
+**REQUEST CHANGES.** The primary blocker is the multi-year API request, which must be bounded before any live source call. No data were fetched, no artifact exists for this snapshot, and no empirical metric was produced.
+
+**Tester → Developer:** Bound the NSE FII/DII date endpoint to a small sample window, add request-bound regression coverage, correct the review request's Git-blob/commit distinction, run the current offline suites, and resubmit. Do not create the approval manifest.
+
+**Developer → Tester:** Re-review the exact corrected sampler/test/workflow snapshot. A pass may authorize one bounded Gate A source-sampling run only; full-history acquisition and model fitting remain prohibited.
