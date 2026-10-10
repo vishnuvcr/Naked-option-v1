@@ -71,12 +71,18 @@ jobs:
           except Exception as exc:
               raise SystemExit(f"FAIL CLOSED: approval JSON cannot be parsed: {type(exc).__name__}")
           report_bytes = report_path.read_bytes()
+          report_text = report_bytes.decode("utf-8")
           report_hash = hashlib.sha256(report_bytes).hexdigest()
           if manifest.get("decision") != "PASS WITH SCOPED RESTRICTIONS":
               raise SystemExit("FAIL CLOSED: tester decision is not PASS WITH SCOPED RESTRICTIONS.")
           required_scope = "Gate A small-sample source feasibility only; no full-history acquisition, no feature tables or labels, no model fitting, no metrics or p-values, and no final holdout access."
           if manifest.get("authorized_scope") != required_scope:
               raise SystemExit("FAIL CLOSED: authorization scope is not the registered Gate A scope.")
+          required_decision_line = "**Current decision: PASS WITH SCOPED RESTRICTIONS — exact current sampler/workflow snapshot, Gate A only.**"
+          if required_decision_line not in report_text:
+              raise SystemExit("FAIL CLOSED: tester report does not contain the required current exact-snapshot decision line.")
+          if "Full-history acquisition: NOT AUTHORIZED" not in report_text or "Model fitting: NOT AUTHORIZED" not in report_text:
+              raise SystemExit("FAIL CLOSED: tester report does not explicitly restrict execution to Gate A.")
           if manifest.get("tester_report_sha256") != report_hash:
               raise SystemExit("FAIL CLOSED: mirrored tester report SHA-256 mismatch.")
           expected = {
@@ -88,8 +94,11 @@ jobs:
               ".github/workflows/phase-07-extension2-source-feasibility-v2.yml",
           }
           approved = manifest.get("protected_file_sha256")
+          approved_blobs = manifest.get("protected_git_blob_sha")
           if not isinstance(approved, dict) or set(approved) != expected:
-              raise SystemExit("FAIL CLOSED: protected-file allowlist is missing, extra or mismatched.")
+              raise SystemExit("FAIL CLOSED: protected-file SHA-256 allowlist is missing, extra or mismatched.")
+          if not isinstance(approved_blobs, dict) or set(approved_blobs) != expected:
+              raise SystemExit("FAIL CLOSED: protected Git-blob allowlist is missing, extra or mismatched.")
           for rel in sorted(expected):
               file_path = root / rel
               if not file_path.is_file():
@@ -97,6 +106,11 @@ jobs:
               actual = hashlib.sha256(file_path.read_bytes()).hexdigest()
               if actual != approved[rel]:
                   raise SystemExit(f"FAIL CLOSED: SHA-256 mismatch for {rel}")
+              actual_blob = subprocess.check_output(["git", "rev-parse", f"HEAD:{rel}"], text=True).strip()
+              if actual_blob != approved_blobs[rel]:
+                  raise SystemExit(f"FAIL CLOSED: Git-blob mismatch for {rel}")
+              if actual_blob not in report_text:
+                  raise SystemExit(f"FAIL CLOSED: tester report does not mention reviewed blob for {rel}")
           reviewed_commit = manifest.get("reviewed_developer_commit")
           if not isinstance(reviewed_commit, str) or len(reviewed_commit) != 40:
               raise SystemExit("FAIL CLOSED: reviewed developer commit is malformed.")
