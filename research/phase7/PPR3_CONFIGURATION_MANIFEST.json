@@ -16,7 +16,9 @@
     "ppr2_tester_report": "research/gates/PHASE7_PPR2_TESTER_REPORT.md",
     "ppr2_tester_blob": "110e0b1fc9f231fa79a1f8c70cca370c14356df8",
     "ppr2_test_run": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38069596564",
-    "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review."
+    "allowed_scope": "PPR-3 documentation/configuration freeze only. PPR-4 source feasibility is not yet authorized until this exact manifest passes tester review.",
+    "ppr3_decision": "PENDING_EXACT_SNAPSHOT_TESTER_REVIEW",
+    "ppr3_test_scope": "Offline configuration and hash-pin validation only. Does not authorize source access or model execution."
   },
   "source_artifacts": {
     "uploaded_pdf_evidence_matrix": {
@@ -34,6 +36,10 @@
     "ppr2_source_registry": {
       "path": "research/literature/LITERATURE_REGISTRY.csv",
       "blob": "2ee49ae119e61c8c523ed212c7f21bf15c5e8d7a"
+    },
+    "ppr2_registry_overview": {
+      "path": "research/literature/PPR2_LITERATURE_REGISTRY_CROSSWALK.md",
+      "blob": "63ae0486b016f541bb70628525bd45f33585ace8"
     }
   },
   "frozen_files": {
@@ -49,11 +55,23 @@
     },
     "model_settings": {
       "path": "research/phase7/PPR3_MODEL_SETTINGS.json",
-      "blob": "aff49cb66d8fe30b84b5a220ff44177bd64e5bc8"
+      "blob": "fdf7c8e9b065eebac537d578b3d9e1e6fe62b122"
     },
     "target_inference_contract": {
       "path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
       "blob": "4822344b05923dba933a42f13b7b3d86754505b1"
+    },
+    "protocol_freeze": {
+      "path": "research/phase7/PPR3_PROTOCOL_FREEZE.md",
+      "blob": "abd66d76d5a56be0227e91fc359bf4b672df0db8"
+    },
+    "ppr3_validator": {
+      "path": "scripts/validate_ppr3_configuration.py",
+      "blob": "e03b6322ab07876dd2aa9766168e59fd3a2b9efb"
+    },
+    "ppr3_workflow": {
+      "path": ".github/workflows/phase-07-ppr-contract-tests.yml",
+      "blob": "db379d1890a473ea09ca4fccf41ce30ee6d02a3b"
     }
   },
   "inventory": {
@@ -117,7 +135,8 @@
     },
     "total_model_fit_calls_upper_bound": 4485,
     "repository_global_hard_limit": 8000,
-    "fit_call_definition": "One top-level estimator fit for a specified config/pipeline/horizon/seed, plus separately counted inner-fold and refit calls. No repeated outer refit during the PPR3 validation block."
+    "fit_call_definition": "One top-level estimator fit for a specified config/pipeline/horizon/seed, plus separately counted inner-fold and refit calls. No repeated outer refit during the PPR3 validation block.",
+    "snapshot_rule": "Every current file in frozen_files/source_artifacts is pinned to its Git blob SHA. The offline validator recomputes each blob ID from the triggering commit checkout."
   },
   "evaluation_protocol": {
     "name": "PPR3_FIXED_FIT_HOLD_FORWARD_V1",
@@ -187,5 +206,6 @@
     "PPR-4 must verify a machine-readable sealed-holdout exclusion boundary without opening any holdout values/labels.",
     "Source-vintage/PIT evidence must be established; same-day end-of-day option snapshots are not assumed usable for earlier decisions.",
     "Data-eligible cells and the common evaluation-origin index must be frozen before any fitting; no candidate exclusions may depend on model results."
-  ]
+  ],
+  "snapshot_checks_enabled": true
 }
