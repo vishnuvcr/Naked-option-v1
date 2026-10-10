@@ -69,3 +69,8 @@ A second static audit found that the prior v2 workflow ran only the index/cash-e
 - `scripts/phase7_extension2_source_feasibility_v2.py` for official index CSVs, equity cash bhavcopy dates, FII/DII endpoints/history, and schema checks.
 
 Both bounded JSON reports are uploaded in the same artifact. The exact workflow changed again and therefore needs the tester to review the current workflow blob, including both samplers, the approval guard and both artifact paths. No approval manifest has been created and no live source sample has run on this current workflow.
+
+
+## Immutable source snapshot commit to review
+
+**Reviewed developer snapshot commit to use for the Gate A manifest:** `1d8991255ff284c6b9cb20c4071ab56555d18dc6`. This is the commit that introduced the current workflow that invokes both bounded samplers; all six protected blobs listed at the top match the versions at that commit. Later commits after it update only review-request/status/error/research/chat/README documentation, not any of the six protected paths. The approval manifest's `reviewed_developer_commit` must use this snapshot commit, and the protected file SHA-256/Git blob maps must exactly match the table above.
