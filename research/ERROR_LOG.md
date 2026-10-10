@@ -697,3 +697,11 @@ The access token is bound only to the guarded workflow's final source step and i
 - This is a UI-availability correction only. It did not dispatch a run, spend the manifest, access a secret, make a Dhan request, or authorize any further data access.
 
 **Developer → Tester:** Independently compare the main-branch workflow copy with the pinned developer workflow; verify the default-branch registration fix introduces no push trigger and retains the branch/confirmation/manifest guards. A manual run remains a separate, explicitly confirmed action.
+
+
+## 2026-10-10 — User requested assistant dispatch after workflow recreation
+
+- Rechecked available connected GitHub tool operations. They support workflow run/job inspection, artifact inspection and rerunning existing jobs, but do not expose the GitHub Actions `workflow_dispatch` API operation.
+- Verified the recreated workflow on `main` still includes `workflow_dispatch`, `confirm_probe` default false, and no push trigger. The job itself remains restricted to `phase-07-developer`.
+- No fresh run was started. Existing failed jobs were not rerun because that is not equivalent to a fresh, explicitly confirmed dispatch. No secret was accessed and no external Dhan request/data acquisition occurred.
+- Disposition: dispatch capability remains an execution blocker. Use GitHub UI's manual dispatch once it is visible; do not weaken trigger/authorization controls to simulate dispatch.
