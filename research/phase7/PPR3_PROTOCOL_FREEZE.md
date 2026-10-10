@@ -166,8 +166,8 @@ PPR-3 approval **does not** authorize source access or model execution.
 ## 11. Exact-snapshot review request
 
 Please review these current developer artifacts before authorizing PPR-4:
-- `PPR3_CONFIGURATION_MATRIX.csv` — all 80 rows; 71 active configs; one blocked SOFNN config; eight non-candidate source/task blockers.
-- `PPR3_CANDIDATE_CELLS.csv` — exactly 1,183 model × pipeline × horizon cells.
+- `PPR3_CONFIGURATION_MATRIX.csv` — all 81 rows; 72 active configs including the CCI(20) spot-direction adaptation; one blocked SOFNN config; eight non-candidate source/task blockers.
+- `PPR3_CANDIDATE_CELLS.csv` — exactly 1,188 common-task model × pipeline × horizon cells.
 - `PPR3_MODEL_SETTINGS.json` — frozen defaults, pipeline recipes, seeds, exact 18-/8-setting RF/XGBoost grids and 12 tuning cells.
 - `PPR3_CONFIGURATION_MANIFEST.json` — hashes, cell counts, fit budget and boundaries.
 - `PPR_TARGET_INFERENCE_CONTRACT.json` — target/inference contract and PPR3 fixed-fit hold-forward protocol.
