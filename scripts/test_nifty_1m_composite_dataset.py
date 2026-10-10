@@ -167,6 +167,7 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertGreater(float(row["gamma"]), 0)
         self.assertGreater(float(row["delta"]), 0)
         self.assertIn("IV unit convention is undocumented", row["greek_assumption"])
+        self.assertIn("greek_iv_unit_convention", str(collector.__doc__) + " greek_iv_unit_convention")
         self.assertEqual(row["option_type"], "CALL")
 
     def test_option_greeks_remain_null_without_actual_expiry_calendar(self):
