@@ -34,7 +34,8 @@
       "baseline": "expanding training-only class frequency with Laplace alpha=1, recomputed causally at every decision time",
       "positive_improvement": "baseline_brier_loss - model_brier_loss",
       "evaluation_alignment": "all candidates at a given horizon use identical decision timestamps and label endpoints",
-      "inference_status": "confirmatory_after_PPR3_manifest_freeze"
+      "inference_status": "confirmatory_after_PPR3_manifest_freeze",
+      "flat_semantics": "FLAT is only a numerical zero-return tie: absolute close-to-close return <= 1e-8. It is not an economically neutral move, cost-aware no-trade class, or claim that an option has no edge. Keep this tolerance fixed; do not tune it after outcome inspection."
     },
     {
       "family_id": "COMMON_CLOSE_REGRESSION",
@@ -195,5 +196,8 @@
     "refit_policy": "No repeated 20-session refits, no periodic retuning, and no test-block updates to model parameters. Online training-rate baseline updates may use only labels whose endpoint is strictly earlier than the current decision time.",
     "reproducibility": "Record eligible panel row IDs, split boundary, decision-origin index, label endpoint per horizon, holdout-exclusion proof, source cache digests, preprocessing parameters and fit count before permitting execution.",
     "fit_call_accounting": "Outer fit cap = active candidate cells x 3 conservative seeds. Inner fit cap = 6 Random Forest tuning cells x 18 settings x 5 folds + 6 XGBoost tuning cells x 8 settings x 5 folds. The selected-setting outer refit is part of the outer fit cap; do not count an additional full-prefix refit per setting."
-  }
+  },
+  "notes": [
+    "Common FLAT label denotes only a numerical zero-return tie under the fixed 1e-8 tolerance; it is not an economic no-trade state."
+  ]
 }
