@@ -1468,6 +1468,10 @@
     },
     "BLOCKED_CODE_REVIEW": {
       "status": "BLOCKED_METHOD"
+    },
+    "SOFNN_SOURCE_NATIVE": {
+      "status": "BLOCKED_METHOD",
+      "reason": "The uploaded paper names a five-layer SOFNN with ellipsoidal basis, but exact reproducible implementation settings and dependencies are not fully specified in the available full text. Do not guess or substitute a generic neural network."
     }
   }
 }
