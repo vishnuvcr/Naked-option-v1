@@ -151,6 +151,30 @@ def test_instrument_mapping_requires_unique_exact_ids() -> None:
     assert got["INDIA VIX"]["security_id"] == "102"
 
 
+def test_instrument_mapping_accepts_official_csv_headers() -> None:
+    body = (
+        "SEM_TRADING_SYMBOL,SEM_CUSTOM_SYMBOL,SEM_SMST_SECURITY_ID,SEM_SEGMENT,SEM_INSTRUMENT_NAME\\n"
+        "NIFTY,NIFTY 50,101,IDX_I,INDEX\\n"
+        "INDIAVIX,INDIA VIX,102,IDX_I,INDEX\\n"
+    ).encode()
+    got = mod.parse_index_instruments(body)
+    assert got["NIFTY 50"]["security_id"] == "101"
+    assert got["INDIA VIX"]["security_id"] == "102"
+
+
+def test_http_error_returns_status_without_provider_body() -> None:
+    class Opener:
+        def open(self, req, timeout):
+            raise urllib.error.HTTPError(req.full_url, 401, "unauthorized", {}, None)
+    b = mod.Budget()
+    status, body, headers = mod.request_bytes(
+        mod.PROFILE_URL, method="GET", token="secret-token", body=None,
+        cap=mod.MAX_PROFILE_BYTES, budget=b, opener_factory=Opener,
+    )
+    assert status == 401 and body == b"" and headers == {}
+    assert b.requests == 1
+
+
 def test_instrument_mapping_rejects_ambiguous_security_id() -> None:
     rows = [
         {"symbol": "NIFTY", "name": "NIFTY 50", "securityId": "101", "segment": "IDX_I", "instrument": "INDEX"},
@@ -268,6 +292,8 @@ def main() -> None:
         test_request_rejects_over_cap_and_counts_overflow_byte,
         test_global_budget_fails_closed,
         test_instrument_mapping_requires_unique_exact_ids,
+        test_instrument_mapping_accepts_official_csv_headers,
+        test_http_error_returns_status_without_provider_body,
         test_instrument_mapping_rejects_ambiguous_security_id,
         test_windows_are_fixed_and_non_overlapping,
         test_payload_uses_non_inclusive_end_and_resolved_id,
