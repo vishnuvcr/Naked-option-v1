@@ -132,12 +132,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Fetch only registered Gate A samples
-        run: python scripts/phase7_extension2_source_feasibility_v2.py
-      - name: Upload bounded feasibility report
+      - name: Fetch registered Gate A samples (F&O archives, source pages, index/equity CSVs, FII/DII)
+        run: |
+          python scripts/phase7_extension2_source_feasibility.py
+          python scripts/phase7_extension2_source_feasibility_v2.py
+      - name: Upload bounded source-feasibility reports
         uses: actions/upload-artifact@v4
         with:
           name: phase7-extension2-gate-a-source-feasibility-v2
-          path: data/reports/extension2_gate_a_source_feasibility_v2.json
+          path: |
+            data/reports/extension2_gate_a_source_feasibility.json
+            data/reports/extension2_gate_a_source_feasibility_v2.json
           if-no-files-found: error
           retention-days: 30
