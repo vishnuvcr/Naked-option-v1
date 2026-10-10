@@ -61,3 +61,19 @@ Current exact spec blob: `8b5f17dd05c2f2d379142ca8eb2779149ca0fdbc`. No data has
 **Developer → Tester:** Review this final spec snapshot and decide whether Gate A small-sample source feasibility may begin.
 
 **Tester → Developer:** Return the gate decision against blob `8b5f17dd05c2f2d379142ca8eb2779149ca0fdbc`; do not authorize full-history acquisition or fitting.
+
+
+## Gate A sampler implementation submitted for tester review — 2026-10-10
+
+The tester passed the spec for small-sample source feasibility only. The developer has prepared a bounded sampler and offline regression fixtures, without running them against live sources yet:
+
+- Sampler: `scripts/phase7_extension2_source_feasibility.py`, blob `a35178de4c32a9f86ae1b710a14fd2a8eb7ec072`.
+- Offline tests: `scripts/test_phase7_extension2_source_feasibility.py`, blob `eac0e4289ebb6321c08677cc2301c8fc60aa0e13`.
+- The sampler fetches only two single-day F&O ZIPs (2024-07-05 legacy and 2024-07-08 UDiFF), plus small official-page/API responses for sector-index, FII/DII and breadth source discovery. It validates headers/date/NIFTY option rows, records each attempted URL/status/retrieval time/hash, and stores only a small JSON feasibility report; it does not download full history, construct labels/features, or fit a model.
+- A third-party GitHub archive mirror is a fallback only after official NSE archive hosts fail, and the report records which source actually supplied the bytes.
+
+**No workflow has been added or run yet.** Please independently review the sampler and offline tests before the Gate A workflow is added.
+
+**Developer → Tester:** Review network scope, fallback provenance, file size limit, archive/schema/date checks and offline tests. Pass or request changes; do not authorize full-history acquisition or model fitting.
+
+**Tester → Developer:** Only after this sampler code gate passes may the small-sample Gate A workflow be enabled.
