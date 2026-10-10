@@ -92,6 +92,8 @@ jobs:
               "scripts/phase7_extension2_source_feasibility_v2.py",
               "scripts/test_phase7_extension2_source_feasibility_v2.py",
               ".github/workflows/phase-07-extension2-source-feasibility-v2.yml",
+              ".github/workflows/phase-07-extension2-source-feasibility.yml",
+              ".github/workflows/phase-07-extension2-source-feasibility-tests.yml",
           }
           approved = manifest.get("protected_file_sha256")
           approved_blobs = manifest.get("protected_git_blob_sha")
