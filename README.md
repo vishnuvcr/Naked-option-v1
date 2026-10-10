@@ -318,3 +318,8 @@ To continue the finite registered prediction universe without entering options s
 - [Run #44 independent audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md)
 
 **Gate status:** Extension 2 is proposal-only. No full-history download or model fitting is authorized until the independent tester reviews the exact specification and source-feasibility plan. Phase 8 remains blocked and the final holdout remains unopened.
+
+
+### Extension 2 specification gate update — 2026-10-10
+
+The first independent spec review returned **REQUEST CHANGES** before any data access. The developer corrected the F&O legacy-to-UDiFF transition, FII/DII normalization, F04/F05 formulas, sector-index identities, and global bootstrap treatment of missing candidate forecasts. The corrected [specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md) and [developer resubmission](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md) await a fresh independent tester decision. No source data have been downloaded and no model has been fit for Extension 2. If passed, the next gate permits only small-sample source feasibility—not full-history acquisition or empirical prediction.
