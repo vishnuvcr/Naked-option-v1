@@ -1,3 +1,37 @@
+# Paper-method replication checkpoint — 2026-10-10
+
+**Current gate: PPR-1 developer submission ready; independent tester review is still required. No new paper-specific model fitting was launched.**
+
+The user's latest instruction is to test the prediction methods actually described in the research papers, rather than assuming a registry family name proves replication.
+
+- Full-text method extraction and a method-by-method crosswalk for the 15 PDFs mounted in the conversation have been committed to [PAPER_PREDICTION_METHOD_CROSSWALK.md](literature/PAPER_PREDICTION_METHOD_CROSSWALK.md).
+- A finite, gated prediction-only amendment is proposed in [PAPER_REPLICATION_EXTENSION_SPEC.md](phase7/PAPER_REPLICATION_EXTENSION_SPEC.md), and submitted for independent review in [PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md](gates/PHASE7_PAPER_REPLICATION_DEVELOPER_SUBMISSION.md).
+- This covers specific estimator/feature designs including tabular regression/classification, RNN/LSTM/GRU/CNN/TCN and hybrids, backward-elimination LSTM, four-class Twitter mood/SOFNN, BERT-news/LSTM, FII/DII/FX/VIX/PCR features and 50/200-day SMA/EMA. Each is still unreplicated unless a matching immutable project artifact and an independent tester report exist.
+- The source-derived crosswalk covers the 15 uploaded PDFs; it does **not** yet prove complete coverage of the repository's separate 36-record literature inventory. That is PPR-2 and remains open.
+- Run #44 remains separate historical evidence: 12 daily methods × five horizons on 1,676 NIFTY rows (2020-01-01–2026-10-09), and none of the five horizon-family tests was significant after multiplicity correction. It does not count as results for every paper-specific configuration.
+- The same 2020–2026 artifact cannot support exact 5-, 10- and 20-year replications. Older data and the required news, FII/DII, options and source-vintage histories need the existing source/authorization gates.
+- Do not train/tune paper-specific models, fetch full history, spend the one-use Dhan approval again, or access the final untouched holdout until the relevant exact-snapshot tester and data gates authorize it. Strategy/option P&L remains outside this prediction-only amendment.
+
+## Paper replication phases
+
+| Phase | Status | Next action |
+|---|---|---|
+| PPR-0 Governance/source-state review | COMPLETE FOR THIS SUBMISSION | Keep branch roles and existing phase gates unchanged |
+| PPR-1 Uploaded-PDF full-text crosswalk | Developer draft committed; tester review pending | Tester review exact crosswalk and protocol draft |
+| PPR-2 All 36 literature-record crosswalk | NOT STARTED | Reconcile every registered source to a method, background-only record, or justified exclusion |
+| PPR-3 Exact configuration matrix and protocol freeze | NOT AUTHORIZED | Freeze each model/config/target/horizon, training budget and inference scope after PPR-2 |
+| PPR-4 Free-source feasibility | NOT AUTHORIZED for new sources | Run only after protocol and source-gate approval |
+| PPR-5 Implementation/offline regression | NOT STARTED | Add deterministic runner and leakage/arithmetic tests after freeze |
+| PPR-6 Independent pre-run tester gate | NOT PASSED | Exact commit/blob/hash-bound PASS required |
+| PPR-7 Authorized empirical execution | BLOCKED | Automatic workflow may run only with a valid tester manifest |
+| PPR-8 Independent artifact audit | BLOCKED | Tester independently recomputes metrics and inference |
+| PPR-9 Coverage reconciliation | BLOCKED | Every paper × method × pipeline × horizon receives a terminal reason/status |
+| PPR-10 Manuscript/final synthesis | BLOCKED | Complete only after results and final gates |
+
+Last updated: 2026-10-10
+
+---
+
 # Research Status
 
 ## Uploaded-paper method coverage — 2026-10-10
