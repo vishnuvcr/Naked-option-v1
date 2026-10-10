@@ -599,3 +599,12 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Artifact `11666064550`, ZIP SHA-256 `45f2b23a0835cb6b1af52ac12913bf86062f9c82a0d3edcef4c810a3f30f38d9`, contained only `request_count: 2` and `status: BLOCKED_INSTRUMENT_METADATA`. No raw token/profile fields were included.
 - Tester artifact audit returned REQUEST CHANGES because the numeric HTTP status was missing. Adapter now includes only the status code and counts in blocked metadata results; an offline redaction regression was added.
 - The spent manifest must not be reused. A fresh exact-snapshot code review and single-use manifest are required for any diagnostic retry. No candle data/model analysis was produced.
+
+
+## 2026-10-10 — Dhan HTTP-error diagnostic regression failures (rectified)
+
+- Run [38043413140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043413140) failed after the first header-preservation implementation because the pre-existing no-header fixture expected an empty dictionary. The adapter was changed to emit a content-type only when a non-empty, bounded, newline-free value is available.
+- Runs [38043429927](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043429927) and [38043446436](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043446436) captured the same assertion failure on intermediate code/test snapshots. These workflows were offline only; they did not make source requests or expose the Dhan secret.
+- The new integration-style fixture now exercises the profile-success / metadata-HTTPError path with a fake opener. It verifies numeric status and safe content-type retention while ensuring the provider error body, cookie, authorization header, profile ID and access token are absent from the result.
+- Latest hosted offline suite: [Run 38043456200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043456200), **29/29 regressions passed** on the corrected adapter/test snapshot.
+- **Gate remains pending independent review of the corrected exact snapshot.** The first sample's one-run manifest remains SPENT. No retry, additional source request, candle acquisition or model analysis is authorized until a fresh tester code/workflow PASS and new single-use manifest exist.
