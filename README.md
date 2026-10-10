@@ -292,3 +292,15 @@ A further audit found that the NIFTY acquisition script used by the empirical jo
 **Developer → Tester:** Audit exact hashes and regression evidence independently; when the authorized immutable prediction batch is produced, reconcile its source and row-level artifacts before any statistical or strategy promotion.
 
 **Tester → Developer:** Keep execution fail-closed absent the one-run exact-snapshot manifest and keep Phase 8 blocked until empirical output passes independent review.
+
+
+## Phase 7 Run #44 — available-data prediction result (2026-10-10)
+
+- [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915) completed regression, exact-snapshot authorization, prediction, result validation and artifact upload successfully.
+- Immutable result artifact: ID `11657636547`, SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
+- Independent audit reconciled the 91,988-row prediction panel, source hashes, all candidate metrics and all five family bootstrap p-values. All 60 registered method/horizon cells executed.
+- Best descriptive Brier leaders: G13 global-equity composite at 1–2 sessions; G06 Asia composite at 3–5 sessions; G02 Bank Nifty at 10 sessions. G06 at five sessions had Brier improvement +0.001623 and ROC AUC 0.556, but family p=0.7745.
+- Family p-values at horizons 1/2/3/5/10 were 0.9840/0.8882/0.6786/0.7745/0.9800; every Bonferroni-adjusted p-value was 1.0. **No candidate is promoted; the registered family did not demonstrate statistically persuasive predictive skill.**
+- [Full result summary](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md), [tester audit on isolated branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md), and [mirrored tester audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md).
+- **Phase 8 remains blocked.** The final untouched holdout remains unopened. This was prediction-only research; options, brokerage, slippage, spreads, Paytm Money execution and trading P&L were not tested.
+- All 11 global source entries reported cache misses in this run because the previous cache did not meet the current contract; the newly acquired files were retained in the immutable artifact and workflow cache.
