@@ -969,3 +969,15 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 Resumed full-text inspection of the 15 uploaded PDFs. Exact method names and design details are now extracted for several papers, including multi-model regression, LSTM/MLP, BERT-news sentiment, backward-elimination LSTM, CCI option rules, and option Greeks/IV-based ML signals. This remains a literature extraction step, **not an empirical replication**. The complete paper-by-paper inventory and remaining extraction fields are tracked in [Uploaded Paper Method Coverage Audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md).
 
 **Gate state unchanged:** no new method is authorized for empirical testing by this extraction alone. In particular, CCI requires a protocol amendment and isolated tester review before being added to the finite registry. Phase 7 still requires the current exact-snapshot authorization gate; Phase 8 remains blocked. No model or strategy is promoted.
+
+
+## PPR-1 tester correction checkpoint — 2026-10-10
+
+**Decision remains REQUEST CHANGES; no empirical work authorized.** The tester report is archived on `phase-07-tester`: [report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PAPER_REPLICATION_TESTER_REPORT.md). Developer amendments have been committed:
+- [Amended protocol](phase7/PAPER_REPLICATION_EXTENSION_SPEC.md): separate directional and price-regression inference families; define Brier primary statistic, paired moving-block bootstrap, endpoint contract, PIT conventions, metric edge cases and search bounds.
+- [Crosswalk source-evidence locator audit](literature/PAPER_PREDICTION_METHOD_CROSSWALK.md): PDF page-range navigation aids and required fidelity labels added for all 15 PDFs.
+
+These are corrections in progress, not a passed gate. The page ranges are preliminary navigation aids and are not yet individual claim-level citations. Exact source verification, target manifest, and offline regression tests remain outstanding. Do not start PPR-2, data pulls, fitting, scoring, or holdout access until a new exact-snapshot tester PASS is recorded.
+
+**Developer → Tester:** Review new crosswalk/protocol blobs and specify remaining claim-level evidence requirements.  
+**Tester → Developer:** Keep the gate closed unless every P1 finding is resolved and source claims are traceable.
