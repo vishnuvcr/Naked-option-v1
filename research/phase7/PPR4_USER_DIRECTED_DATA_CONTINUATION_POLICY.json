@@ -79,5 +79,103 @@
     "cboe_vix": "https://www.cboe.com/tradable_products/vix/vix_historical_data",
     "us_treasury": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
     "gdelt": "https://www.gdeltproject.org/"
+  },
+  "cache_contract": {
+    "authoritative_cache_hierarchy": [
+      "Git data/cache committed raw/normalized chunks when license and size permit",
+      "repository-controlled GitHub Release assets or approved Git LFS for larger redistributable immutable shards, catalogue committed to Git",
+      "metadata-only provenance when source terms prohibit persistent payload storage",
+      "GitHub Actions artifacts are temporary diagnostics, not authoritative cache"
+    ],
+    "cache_hit_requires": [
+      "sha256",
+      "byte_count",
+      "source_revision_or_query_hash",
+      "schema_version",
+      "min_timestamp",
+      "max_timestamp",
+      "row_count",
+      "license_basis"
+    ],
+    "verify_before_fetch": true,
+    "fetch_only_missing_or_invalid_manifest_approved_shards": true
+  },
+  "acquisition_budget_contract": {
+    "serial_requests_per_second_max": 2,
+    "daily_dhan_request_budget_max": 8250,
+    "daily_index": {
+      "chunk": "calendar year",
+      "from_date": "1990-01-01",
+      "to_date_exclusive": "2026-10-10",
+      "request_max": 40,
+      "response_bytes_max": 1048576,
+      "aggregate_bytes_max": 20971520,
+      "rows_per_response_max": 400
+    },
+    "intraday_index": {
+      "chunk_calendar_days": 30,
+      "provider_window_days_max": 90,
+      "window": "latest five years ending 2026-10-10",
+      "interval": "1-minute canonical input",
+      "request_max": 70,
+      "response_bytes_max": 8388608,
+      "aggregate_bytes_max": 268435456,
+      "rows_per_response_max": 12000
+    },
+    "rolling_options": {
+      "chunk_calendar_days": 30,
+      "provider_window_days_max": 30,
+      "window": "latest five years ending 2026-10-10",
+      "interval_minutes": 5,
+      "expiry_flags": [
+        "WEEK",
+        "MONTH"
+      ],
+      "expiry_codes": [
+        0,
+        1,
+        2
+      ],
+      "relative_strikes": [
+        "ATM-5",
+        "ATM-4",
+        "ATM-3",
+        "ATM-2",
+        "ATM-1",
+        "ATM",
+        "ATM+1",
+        "ATM+2",
+        "ATM+3",
+        "ATM+4",
+        "ATM+5"
+      ],
+      "option_types": [
+        "CALL",
+        "PUT"
+      ],
+      "request_max": 8100,
+      "response_bytes_max": 2097152,
+      "aggregate_bytes_max": 2147483648,
+      "rows_per_response_max": 2500,
+      "required_fields": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "iv",
+        "volume",
+        "strike",
+        "oi",
+        "spot"
+      ]
+    },
+    "other_free_source_pilot": {
+      "source_count_max": 10,
+      "request_max": 20,
+      "response_bytes_max": 4194304,
+      "aggregate_bytes_max": 33554432,
+      "sample_rows_max": 20
+    },
+    "scope_rule": "Exact manifest must enumerate every actual request key and use a lower-or-equal budget; no implicit Cartesian expansion or auto-retries."
   }
 }
