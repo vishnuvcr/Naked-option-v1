@@ -265,3 +265,12 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Sampled alternative historical FII/DII sources cover only 16 recent page rows and 164 mirror rows (2026); 500-session history remains unestablished.
 - **Decision: REQUEST CHANGES for the artifact gate.** Prior code gate PASS does not mean source feasibility passed. Approval revoked; no full-history acquisition/model fitting.
 - Details: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md`.
+
+
+## 2026-10-10 — Gate A Run 2 artifact audit: schema results accepted, source coverage open
+
+- Corrected sample Run [38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369), artifact ID `11661065266`, ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`.
+- The corrected official NSE index CSV samples, two daily cash-equity bhavcopies, and legacy/UDiFF F&O schema samples all passed. The numeric date-format and API response-window checks work.
+- The NSE date-parameter FII/DII API returned current rows for an old requested window and is correctly rejected. MrChartist's raw history sample has 164 unique dates (2026-01-14..2026-09-30), not the required 500+ sessions; sampled HTML snippets did not prove longer coverage.
+- [Independent artifact report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md) = REQUEST CHANGES for complete Gate A due G14/G15 source coverage. This artifact remains valid bounded evidence for the sources/schema it sampled.
+- The one-run approval is now spent. Next step is a new bounded free-source discovery proposal and independent gate; no further fetches, full history or model fitting are authorized under the spent manifest.
