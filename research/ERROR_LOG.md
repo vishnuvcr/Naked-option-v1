@@ -1040,3 +1040,12 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Impact:** policy gate is not passed; no source requests or data reads occurred.
 - **Correction:** align assertions to the documented maximum-window wording and add a dedicated later-phase cost section covering Paytm Money brokerage, statutory/exchange costs, spread, slippage, latency, fill assumptions and premium decay.
 - **Disposition:** rerun the exact-snapshot offline workflow and log its outcome. This is a documentation/test issue, not evidence of a Dhan data failure.
+
+## 2026-10-11 — PPR-4 continuation-policy offline test iteration 2
+
+- **Category:** Validator/plan wording mismatch (repeat).
+- **Workflow:** [Run 38078126806](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38078126806), commit `cd16fa4dc1534036c12bc3bd7c360d8ae8cd4c5c`.
+- **Observed:** compile passed; 3/4 unit tests passed. The consistency test still rejected the plan's semantically correct “up to 90 days per request” / “up to 30 days per request” language because the validator required “90-day maximum per request” / “30-day maximum per request”.
+- **Impact:** policy gate remains failed; no source request or data access occurred.
+- **Correction:** validator now checks the stable concepts “90 days per request” and “30 days per request” rather than exact hyphenated phrasing. The Paytm Money section was added in the previous correction.
+- **Disposition:** rerun exact-snapshot offline validation. Keep this run as failed history; it is not a data failure.
