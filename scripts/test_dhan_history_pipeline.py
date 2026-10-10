@@ -41,6 +41,16 @@ ROLLING = {
 }
 
 
+class ReadTrackedBody(io.BytesIO):
+    def __init__(self, initial_bytes: bytes):
+        super().__init__(initial_bytes)
+        self.read_count = 0
+
+    def read(self, size: int = -1) -> bytes:
+        self.read_count += 1
+        return super().read(size)
+
+
 class FakeResponse:
     def __init__(self, body: bytes, *, status: int = 200, headers: dict | None = None):
         self.body = body
@@ -158,7 +168,7 @@ def test_request_posts_only_to_allowlisted_dhan_host_and_redacts_token() -> None
 
 
 def test_redirect_is_rejected_without_reading_error_body_or_following() -> None:
-    body = io.BytesIO(b"private-provider-error")
+    body = ReadTrackedBody(b"private-provider-error")
     error = urllib.error.HTTPError(
         mod.DAILY_URL, 302, "Found",
         {"Location": "https://other-host.example/private/path", "Set-Cookie": "secret"},
@@ -174,12 +184,12 @@ def test_redirect_is_rejected_without_reading_error_body_or_following() -> None:
         "dhan_redirect_rejected",
     )
     assert len(opener.calls) == 1
-    assert body.tell() == 0
+    assert body.read_count == 0
     assert budget.requests == 1 and budget.bytes_read == 0
 
 
 def test_http_error_does_not_leak_body_or_headers() -> None:
-    body = io.BytesIO(b"PRIVATE_ACCESS_TOKEN_OR_ACCOUNT")
+    body = ReadTrackedBody(b"PRIVATE_ACCESS_TOKEN_OR_ACCOUNT")
     error = urllib.error.HTTPError(
         mod.DAILY_URL, 403, "Forbidden",
         {"Content-Type": "application/json", "Authorization": "secret"},
