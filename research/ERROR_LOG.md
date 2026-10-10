@@ -472,3 +472,10 @@
 - The approval guard now validates the current scoped decision line, explicit no-full-history/no-model-fitting statements, exact tester report digest, protected content hashes, Git blob IDs quoted in the report, and reviewed-commit ancestry.
 - This closes the risk of a historical PASS in a report authorizing a later sampler/workflow version.
 - No sample is permitted until the independent tester reviews the current exact snapshot. No data was fetched by this change.
+
+
+## 2026-10-10 — Gate A workflow source-coverage defect corrected
+
+- Static audit found the v2 source job ran only `phase7_extension2_source_feasibility_v2.py`, which samples official index CSV, cash-equity bhavcopy and FII/DII data but not the required F&O archive format boundary.
+- The workflow was corrected at blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` to run both bounded samplers and upload both source reports. No data fetch occurred during the fix.
+- This is a pre-run coverage defect. The new workflow needs an exact-snapshot tester code-gate pass before any source request.
