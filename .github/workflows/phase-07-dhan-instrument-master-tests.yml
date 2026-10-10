@@ -1,0 +1,33 @@
+name: Phase 7 Dhan Instrument Master — Offline Tests
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/dhan_instrument_master.py"
+      - "scripts/test_dhan_instrument_master.py"
+      - ".github/workflows/phase-07-dhan-instrument-master-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase7-dhan-instrument-master-offline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-tests-only-no-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline-only instrument master validation tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_dhan_instrument_master.py
+          python scripts/dhan_instrument_master.py
