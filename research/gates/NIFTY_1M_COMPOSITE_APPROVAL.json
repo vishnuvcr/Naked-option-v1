@@ -1,24 +1,71 @@
 {
-  "schema_version": 1,
   "approval_id": "NIFTY_1M_COMPOSITE_ONESHOT_2026-10-11_REVIEW3",
-  "status": "READY",
-  "decision": "APPROVED_EXACT_REQUEST_GRID_AND_WORKFLOW",
-  "created_at_utc": "2026-10-11T01:34:00+05:30",
+  "approved_sources": [
+    {
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "family": "NIFTY_SPOT_1M",
+      "interval": "1",
+      "request_manifest_scope": "root manifest only"
+    },
+    {
+      "endpoint": "https://api.dhan.co/v2/charts/rollingoption",
+      "family": "NIFTY_ROLLING_OPTION_1M",
+      "interval": "1",
+      "request_manifest_scope": "root manifest only"
+    }
+  ],
   "authorized_branch": "phase-07-developer",
-  "reviewed_developer_commit": "98ef6ca039b19f0284981c57fc17b39124284869",
-  "request_manifest_path": "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json",
-  "request_manifest_git_blob": "0c1a125ca2c16e72b07177bdebc403f50edf4cb7",
-  "tester_review": {
-    "branch": "phase-07-tester",
-    "path": "research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md",
-    "git_blob": "367dcc0db9da602e452a2c005eb4f6f4036ef65e",
-    "decision": "PASS WITH SCOPED RESTRICTIONS",
-    "approved_scope": "EXACT MANIFEST AND ACQUISITION WORKFLOW ONLY",
-    "required_price_value_cross_check": false
+  "completion_state": null,
+  "consumed_at_utc": null,
+  "created_at_utc": "2026-10-11T01:34:00+05:30",
+  "date_window_count": 61,
+  "decision": "SPENT",
+  "github_run_id": "38082385220",
+  "holdout_access_authorized": false,
+  "live_requests_authorized": false,
+  "max_retries_per_request": 1,
+  "max_retry_requests_total": 100,
+  "max_wire_requests_total": 8701,
+  "model_fitting_authorized": false,
+  "notes": [
+    "This approval is spent by the live workflow before its first network request.",
+    "A valid empty provider response is a resolved selector request but is reported as empty; it is not represented as observed quote rows.",
+    "Historical Greek output is derived and labelled; current option-chain Greeks are never backfilled into historical rows.",
+    "If a request grid, budget, cache protocol, protected blob or workflow changes after review, approval check must fail and a new tester review is required.",
+    "The request counts and protected pins were independently audited on the tester branch."
+  ],
+  "one_use": true,
+  "options_aggregate_bytes_max": 8589934592,
+  "options_response_bytes_max": 2097152,
+  "output_constraints": {
+    "allow_partial_result": true,
+    "encrypt_csv_parts": true,
+    "encrypt_raw_cache": true,
+    "export_monthly_csv_parts": true,
+    "missing_source_disposition": "Mark local requests/feature family partial, continue eligible independent request keys, then submit unresolved recoverable gaps under a separate open-source fallback manifest.",
+    "no_plaintext_subscribed_rows_in_public_git_or_release": true,
+    "publish_coverage_and_error_report": true
   },
+  "planned_request_count": 8601,
+  "prediction_scoring_authorized": false,
   "protected_files": {
-    "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json": {
-      "git_blob": "0c1a125ca2c16e72b07177bdebc403f50edf4cb7"
+    ".github/workflows/phase-07-nifty-1m-composite-live.yml": {
+      "git_blob": "cf4d072b2f6530ffc89c65f2e849bb042e6f9cd5"
+    },
+    ".github/workflows/phase-07-nifty-1m-composite-manifest-tests.yml": {
+      "git_blob": "1af2d77af8ddf8c828eef19aea04bdb9d4c36016"
+    },
+    ".github/workflows/phase-07-nifty-1m-composite-tests.yml": {
+      "git_blob": "b4126d5c782c2a2f6566ffd06514bea8d2a08d64"
+    },
+    ".github/workflows/phase-07-ppr4-data-continuation-policy-tests.yml": {
+      "git_blob": "16852f45c22b3165bd1020c5869df81643a5f48c"
+    },
+    "requirements-composite.txt": {
+      "git_blob": "8c74241f2035a3e388087078be5e5aaf846addca"
+    },
+    "research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json": {
+      "git_blob": "7979a8e3212e874489c5f3b2e59f96307e436ae6"
     },
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2021.json": {
       "git_blob": "213bb4e0a4c2e73d0d5596d83bc7c49ac3f74d0a"
@@ -26,14 +73,14 @@
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2022.json": {
       "git_blob": "88930d72c27db2c8e7249931a5065b5a6b9f0db8"
     },
+    "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023.json": {
+      "git_blob": "ae076d2f8af47a415769b64e2080b9c7d93271cb"
+    },
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023_A.json": {
       "git_blob": "b8152967f4d08417f765c300d9f1aef0e9420178"
     },
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023_B.json": {
       "git_blob": "009a460e8e831c70c9efec04f9c524b1d24f1c17"
-    },
-    "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2023.json": {
-      "git_blob": "ae076d2f8af47a415769b64e2080b9c7d93271cb"
     },
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2024.json": {
       "git_blob": "a8be3617c9b68095b1455635af66280a9dba1166"
@@ -44,111 +91,65 @@
     "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2026.json": {
       "git_blob": "0437eb1ddfbf9065dfea6cc0fd8c9ce3fc7108df"
     },
+    "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json": {
+      "git_blob": "0c1a125ca2c16e72b07177bdebc403f50edf4cb7"
+    },
     "research/phase7/PPR4_DHAN_OPEN_SOURCE_ACQUISITION_PLAN.md": {
       "git_blob": "9f82add4eddbc3af91faf94da4d5f143c7e2d0ce"
     },
     "research/phase7/PPR4_USER_DIRECTED_DATA_CONTINUATION_POLICY.json": {
       "git_blob": "6dfd44e5a663d08c1f2e2a50669e30043d5bea18"
     },
-    "research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json": {
-      "git_blob": "7979a8e3212e874489c5f3b2e59f96307e436ae6"
+    "scripts/decrypt_nifty_1m_composite.py": {
+      "git_blob": "6ba27b65548b9197e0db35deeafcedbade6ca445"
     },
     "scripts/run_nifty_1m_composite_dataset.py": {
       "git_blob": "d639cd66dd3f427cd46c849fccb08cc9cf3933ab"
     },
-    "scripts/decrypt_nifty_1m_composite.py": {
-      "git_blob": "6ba27b65548b9197e0db35deeafcedbade6ca445"
-    },
-    "scripts/validate_nifty_1m_composite_manifest.py": {
-      "git_blob": "39e71ec194dc81ee00a75330f805c7eb02a06d79"
-    },
-    "scripts/validate_nifty_1m_composite_approval.py": {
-      "git_blob": "1a020d16d57396b8333c8432c1d33558c2e14e52"
-    },
-    "scripts/validate_ppr4_continuation_policy.py": {
-      "git_blob": "d7de4479acf3750d8d37ee61fd0058d066f999e5"
+    "scripts/test_nifty_1m_composite_dataset.py": {
+      "git_blob": "bfdf8b05c17b6b98805f83028fc927dfb077b993"
     },
     "scripts/test_nifty_1m_composite_manifest.py": {
       "git_blob": "ecfe9841c21dd4ee2bc52ab1a8e447401739dc9c"
     },
-    "scripts/test_nifty_1m_composite_dataset.py": {
-      "git_blob": "bfdf8b05c17b6b98805f83028fc927dfb077b993"
-    },
     "scripts/test_ppr4_continuation_policy.py": {
       "git_blob": "d21313a49548f96925498cbd10b2963f48be880b"
     },
-    "requirements-composite.txt": {
-      "git_blob": "8c74241f2035a3e388087078be5e5aaf846addca"
+    "scripts/validate_nifty_1m_composite_approval.py": {
+      "git_blob": "1a020d16d57396b8333c8432c1d33558c2e14e52"
     },
-    ".github/workflows/phase-07-nifty-1m-composite-manifest-tests.yml": {
-      "git_blob": "1af2d77af8ddf8c828eef19aea04bdb9d4c36016"
+    "scripts/validate_nifty_1m_composite_manifest.py": {
+      "git_blob": "39e71ec194dc81ee00a75330f805c7eb02a06d79"
     },
-    ".github/workflows/phase-07-nifty-1m-composite-tests.yml": {
-      "git_blob": "b4126d5c782c2a2f6566ffd06514bea8d2a08d64"
-    },
-    ".github/workflows/phase-07-nifty-1m-composite-live.yml": {
-      "git_blob": "cf4d072b2f6530ffc89c65f2e849bb042e6f9cd5"
-    },
-    ".github/workflows/phase-07-ppr4-data-continuation-policy-tests.yml": {
-      "git_blob": "16852f45c22b3165bd1020c5869df81643a5f48c"
+    "scripts/validate_ppr4_continuation_policy.py": {
+      "git_blob": "d7de4479acf3750d8d37ee61fd0058d066f999e5"
     }
   },
-  "planned_request_count": 8601,
-  "spot_request_count": 61,
+  "request_manifest_git_blob": "0c1a125ca2c16e72b07177bdebc403f50edf4cb7",
+  "request_manifest_path": "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json",
+  "reuse_of_prior_dhan_sample_approval": false,
+  "reviewed_developer_commit": "98ef6ca039b19f0284981c57fc17b39124284869",
   "rolling_option_request_count": 8540,
-  "date_window_count": 61,
-  "max_retry_requests_total": 100,
-  "max_retries_per_request": 1,
-  "max_wire_requests_total": 8701,
+  "schema_version": 1,
   "serial_requests_per_second_max": 2,
-  "options_response_bytes_max": 2097152,
-  "options_aggregate_bytes_max": 8589934592,
-  "spot_response_bytes_max": 8388608,
+  "source_operations_started": true,
   "spot_aggregate_bytes_max": 268435456,
-  "approved_sources": [
-    {
-      "family": "NIFTY_SPOT_1M",
-      "endpoint": "https://api.dhan.co/v2/charts/intraday",
-      "interval": "1",
-      "request_manifest_scope": "root manifest only"
-    },
-    {
-      "family": "NIFTY_ROLLING_OPTION_1M",
-      "endpoint": "https://api.dhan.co/v2/charts/rollingoption",
-      "interval": "1",
-      "request_manifest_scope": "root manifest only"
-    }
-  ],
+  "spot_request_count": 61,
+  "spot_response_bytes_max": 8388608,
+  "started_at_utc": "2026-10-10T20:05:54Z",
+  "status": "SPENT_BEFORE_SOURCE_REQUEST",
+  "tester_review": {
+    "approved_scope": "EXACT MANIFEST AND ACQUISITION WORKFLOW ONLY",
+    "branch": "phase-07-tester",
+    "decision": "PASS WITH SCOPED RESTRICTIONS",
+    "git_blob": "367dcc0db9da602e452a2c005eb4f6f4036ef65e",
+    "path": "research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md",
+    "required_price_value_cross_check": false
+  },
+  "trading_pnl_authorized": false,
   "user_directives": {
     "accept_dhan_values_without_external_market_value_cross_check": true,
     "no_global_stop_on_source_unavailability": true,
     "use_free_source_fallbacks_for_unavailable_feature_families": true
-  },
-  "output_constraints": {
-    "export_monthly_csv_parts": true,
-    "encrypt_raw_cache": true,
-    "encrypt_csv_parts": true,
-    "no_plaintext_subscribed_rows_in_public_git_or_release": true,
-    "publish_coverage_and_error_report": true,
-    "allow_partial_result": true,
-    "missing_source_disposition": "Mark local requests/feature family partial, continue eligible independent request keys, then submit unresolved recoverable gaps under a separate open-source fallback manifest."
-  },
-  "live_requests_authorized": true,
-  "model_fitting_authorized": false,
-  "prediction_scoring_authorized": false,
-  "holdout_access_authorized": false,
-  "trading_pnl_authorized": false,
-  "source_operations_started": false,
-  "one_use": true,
-  "reuse_of_prior_dhan_sample_approval": false,
-  "consumed_at_utc": null,
-  "github_run_id": null,
-  "completion_state": null,
-  "notes": [
-    "This approval is spent by the live workflow before its first network request.",
-    "A valid empty provider response is a resolved selector request but is reported as empty; it is not represented as observed quote rows.",
-    "Historical Greek output is derived and labelled; current option-chain Greeks are never backfilled into historical rows.",
-    "If a request grid, budget, cache protocol, protected blob or workflow changes after review, approval check must fail and a new tester review is required.",
-    "The request counts and protected pins were independently audited on the tester branch."
-  ]
+  }
 }
