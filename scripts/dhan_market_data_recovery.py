@@ -316,4 +316,14 @@ def live_sample() -> dict[str, Any]:
 if __name__ == "__main__":
     if os.environ.get("DHAN_LIVE_SAMPLE_AUTHORIZED") != "1":
         raise SystemExit("Blocked: no approved Dhan sample manifest.")
-    print(json.dumps(live_sample(), indent=2, sort_keys=True))
+    result = live_sample()
+    out = __import__("pathlib").Path("data/reports/dhan_market_data_sample.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    print(json.dumps({
+        "report_path": str(out),
+        "status": result.get("status"),
+        "request_count": result.get("request_count"),
+        "bytes_read": result.get("bytes_read"),
+        "sample_count": len(result.get("sample_reports", [])),
+    }, indent=2, sort_keys=True))
