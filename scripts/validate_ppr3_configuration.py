@@ -166,7 +166,7 @@ def validate() -> list[str]:
         "source_native_metric_result", "native_detail_evidence_status", "native_config_gap_notes",
     )
     for field in native_required_fields:
-        if field not in native[0] if native else True:
+        if not native or field not in native[0]:
             errors.append(f"paper-native ledger missing required field {field}")
             continue
         blank = [r.get("native_task_id", "") for r in native if not r.get(field, "").strip()]
