@@ -938,7 +938,7 @@ def _validate_spot_for_map(rows: list[dict[str, Any]]) -> tuple[dict[int, dict[s
 
 def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: RequestPacer,
                     wire_budget: dict[str, int], budget: dict[str, Any],
-                    auth_state: dict[str, bool]) -> tuple[dict[str, Any] | None, str, str, int, int]:
+                    auth_state: dict[str, bool], attempt_ledger: dict[str, Any]) -> tuple[dict[str, Any] | None, str, str, int, int]:
     cached = get_cached_payload(request, key)
     family = request["source_family"]
     if cached:
@@ -955,9 +955,15 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         except Exception as exc:
             budget["errors"].append(_error_record(request, "cached_payload_invalid_" + type(exc).__name__, None))
             return None, "CACHE_INVALID", "", 0, 0
-    if auth_state.get("failed"):
+    if auth_state.get("failed") or family in attempt_ledger.get("permanent_failure_families", {}):
         budget["errors"].append(_error_record(request, "Dhan source halted after authentication/entitlement failure", None))
         return None, "SKIPPED_AUTH_FAILURE", "", 0, 0
+    if "__ALL__" in attempt_ledger.get("permanent_failure_families", {}):
+        budget["errors"].append(_error_record(request, "attempt_ledger_corrupt_fail_closed", None))
+        return None, "SKIPPED_PERMANENT_FAILURE", "", 0, 0
+    if request["request_id"] in attempt_ledger.get("permanent_failure_requests", {}):
+        budget["errors"].append(_error_record(request, "request_permanent_failure_recorded", None))
+        return None, "SKIPPED_PERMANENT_FAILURE", "", 0, 0
     disabled = budget.setdefault("disabled_families", {})
     if disabled.get(family):
         budget["errors"].append(_error_record(request, "family_aggregate_byte_budget_exhausted", None))
@@ -973,7 +979,7 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         raw, status, content_type, attempt = fetch_live(
             request, token, pacer, wire_budget,
             int(budget["max_wire_requests"]), int(budget["max_retry_requests"]),
-            response_cap_override=remaining - 1
+            attempt_ledger=attempt_ledger, response_cap_override=remaining - 1
         )
         budget["downloaded_bytes"] += len(raw)
         budget["request_attempts"] = wire_budget["wire_requests"]
@@ -993,6 +999,11 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
     except SourceRequestError as exc:
         if (exc.http_status in (401, 403) or exc.reason.startswith("dhan_api_auth_or_entitlement")):
             auth_state["failed"] = True
+            attempt_ledger["permanent_failure_families"][family] = "authentication_or_entitlement_failure"
+            save_attempt_ledger(attempt_ledger)
+        if exc.reason in {"per_request_attempt_budget_exhausted", "cumulative_wire_request_budget_exhausted", "cumulative_retry_budget_exhausted"}:
+            attempt_ledger["permanent_failure_requests"][request["request_id"]] = exc.reason
+            save_attempt_ledger(attempt_ledger)
         budget["errors"].append(_error_record(request, exc.reason, exc.http_status))
         budget["request_attempts"] = wire_budget["wire_requests"]
         budget["retry_requests"] = wire_budget["retry_requests"]
@@ -1011,6 +1022,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
         shutil.rmtree(WORK_ROOT)
     WORK_ROOT.mkdir(parents=True, exist_ok=True)
     REPORTS_ROOT.mkdir(parents=True, exist_ok=True)
+    attempt_ledger = load_attempt_ledger()
     pacer = RequestPacer()
     wire_budget = {"wire_requests": 0, "retry_requests": 0}
     family_limits = {
@@ -1021,6 +1033,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
         "max_wire_requests": int(root["budgets"]["max_wire_requests_total"]),
         "max_retry_requests": int(root["budgets"]["max_retry_requests_total"]),
         "downloaded_bytes": 0, "request_attempts": 0, "retry_requests": 0,
+        "attempt_ledger": attempt_ledger,
         "family_payload_bytes": {family: _read_cached_raw_total(family) for family in family_limits},
         "family_byte_limits": family_limits, "errors": [], "request_results": [],
         "request_count_planned": len(requests), "request_count_processed": 0,
@@ -1049,7 +1062,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
             continue
 
         payload, cache_status, digest, status_code, size = request_payload(
-            spot_request, token, key, pacer, wire_budget, budget, auth_state
+            spot_request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger
         )
         result = {
             "request_id": spot_request["request_id"], "source_family": spot_request["source_family"],
@@ -1123,7 +1136,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
             if request["source_family"] == "NIFTY_SPOT_1M":
                 continue
             payload, cache_status, digest, status_code, size = request_payload(
-                request, token, key, pacer, wire_budget, budget, auth_state
+                request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger
             )
             result = {
                 "request_id": request["request_id"], "source_family": request["source_family"],
@@ -1205,7 +1218,10 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
         status = "DHAN_AUTH_OR_ENTITLEMENT_FAILURE"
     budget_summary = {k: v for k, v in budget.items() if k not in ("errors", "request_results", "family_byte_limits")}
     budget_summary.update({
-        "wire_requests": wire_budget["wire_requests"], "retry_requests": wire_budget["retry_requests"],
+        "wire_requests_this_run": wire_budget["wire_requests"],
+        "retry_requests_this_run": wire_budget["retry_requests"],
+        "wire_requests_cumulative": attempt_ledger["total_wire_attempts"],
+        "retry_requests_cumulative": attempt_ledger["total_retry_attempts"],
         "family_payload_bytes": budget["family_payload_bytes"],
         "observed_trading_session_count": len(session_dates),
         "observed_trading_session_calendar_complete": session_calendar_complete,
@@ -1313,8 +1329,10 @@ def main() -> int:
         "status": result["status"],
         "request_count_processed": result["summary"].get("request_count_processed"),
         "request_count_planned": result["summary"].get("request_count_planned"),
-        "wire_requests": result["summary"].get("wire_requests"),
-        "retry_requests": result["summary"].get("retry_requests"),
+        "wire_requests_this_run": result["summary"].get("wire_requests_this_run"),
+        "retry_requests_this_run": result["summary"].get("retry_requests_this_run"),
+        "wire_requests_cumulative": result["summary"].get("wire_requests_cumulative"),
+        "retry_requests_cumulative": result["summary"].get("retry_requests_cumulative"),
         "rows_spot": result["summary"].get("rows_spot"),
         "rows_options": result["summary"].get("rows_options"),
         "failed_responses": result["summary"].get("failed_responses"),
