@@ -10,7 +10,7 @@
   "source_artifacts": {
     "source_availability_register": {
       "path": "research/phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv",
-      "blob": "07e668569d1ab32574bbef05dad1974ec2a2be7f",
+      "blob": "17bec0c63f93fbecbebfaabab7f62d273ab41fc4",
       "rows": 34
     },
     "source_feasibility_audit": {
@@ -105,6 +105,11 @@
     "wave1_documentation_results": {
       "path": "research/phase7/PPR4_WAVE1_DOCUMENTATION_RESULTS.md",
       "blob": "7ad4dc6b4af39c711616b3dc310788da530a7e42"
+    },
+    "wave1_tester_review4": {
+      "path": "research/gates/PHASE7_PPR4_TESTER_REVIEW4_WAVE1_METADATA.md",
+      "branch": "phase-07-tester",
+      "blob": "0416ec29679cf8619629187658a17b19df8bd84d"
     }
   },
   "inventory_summary": {
@@ -194,7 +199,7 @@
   "frozen_files": {
     "source_availability_register": {
       "path": "research/phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv",
-      "blob": "07e668569d1ab32574bbef05dad1974ec2a2be7f",
+      "blob": "17bec0c63f93fbecbebfaabab7f62d273ab41fc4",
       "rows": 34
     },
     "source_feasibility_audit": {
@@ -299,8 +304,8 @@
     "prospective_holdout_tester_commit": "c96e426736d58ac5d7cd1f08948bffd86d199c7d",
     "prospective_holdout_design_ci": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38076047468",
     "prospective_holdout_cumulative_fit_bound": 7908,
-    "ppr4_overall_status": "SOURCE-DATA ACQUISITION GATE STILL BLOCKED; DOCUMENTATION-ONLY CHECKS COMPLETED WITH RAW TRANSPORT METADATA LIMITATION.",
-    "next_permitted_scope": "Source acquisition/cache proposal drafting and tester review only. Do not issue requests, download bytes or accept data/model panel, fit/tune/score or access holdout.",
+    "ppr4_overall_status": "SOURCE-DATA ACQUISITION GATE STILL BLOCKED; DOCUMENTATION-ONLY CHECKS COMPLETED WITH TRANSPORT-METADATA LIMITATION.",
+    "next_permitted_scope": "Update source register and continue documentation-only research; any data-value request requires a fresh exact-source tester PASS and a transport that enforces byte caps and records raw hashes.",
     "ppr4_bse_extension": "P4-033 BSE SENSEX archive is an official but access/license/coverage-unverified lead. P4-034 records a BSE FII/DII endpoint discovery gap, not global unavailability. Neither source is accepted or requested.",
     "source_acquisition_cache_proposal": "DRAFT_AWAITING_EXACT_SNAPSHOT_TESTER_REVIEW",
     "source_acquisition_cache_proposal_blob": "e94b97164a8223fec4be7dd7583f00c359b11a5c",
@@ -322,6 +327,11 @@
     "wave1_data_bytes_downloaded": 0,
     "model_panel_accepted": false,
     "model_execution_authorized": false,
-    "holdout_access_authorized": false
+    "holdout_access_authorized": false,
+    "source_register_blob_after_wave1": "17bec0c63f93fbecbebfaabab7f62d273ab41fc4",
+    "wave1_documentation_completed": true,
+    "wave1_docs_only": true,
+    "transport_size_and_raw_hash_verified": false,
+    "wave1_transport_limitation": "Web reader does not expose raw response bytes, complete HTTP headers or raw-body hashes; 2 MiB cap could not be independently attested."
   }
 }
