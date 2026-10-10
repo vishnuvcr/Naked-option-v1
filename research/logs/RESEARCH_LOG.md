@@ -994,3 +994,12 @@ Governance incident: the full public `MrChartist/fii-dii-data/data/history.json`
 Tester passed exact spec blob `52b030e09213cb30c4de6a1633da38e6b2558b1f` for implementation/offline testing only. Budget controls: 15 initial requests, at most 3 one-hop HF redirects, 2 MiB aggregate body cap, 8 KiB head/tail sample windows, strict HTTP 206 and exact Content-Range, no full-file fallback, no file-specific GitHub history Contents calls, and no synthetic seed data. No live data request is authorized by this spec gate.
 
 A web-reader attempt to validate the two CDSL XLS links failed with unsupported content type and returned no parsed values; recorded as non-accepted activity. The next research step is implementation of the finite sampler and offline fixtures, followed by an independent code gate. Full acquisition/modeling remain closed.
+
+
+## 2026-10-10 — Discovery 3 bounded sampler implemented; code gate requested
+
+Implemented the pinned-source discovery runner, request-budget accounting, strict HF byte-range handling, per-source and global byte caps, no-auto-redirect client, host allowlists, signed-URL redaction, metadata-only GitHub directory parser, date/schema/provenance parsing, and two workflows. The live workflow consumes the new one-run approval manifest before the first source request and fails closed if branch state moves or a spent manifest is replayed. A static regression ensures the offline workflow does not call the live sampler.
+
+Latest hosted offline suite [Run 38028738968](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38028738968) passed 27/27 checks on commit `b3a6c3dcde845923a0dba55a0f350d5e67361a76`. During the last range-hardening changes several tests exposed stale 4-byte/Content-Range fixtures; they were corrected, and no live source requests occurred. Exact protected Git blobs and byte hashes are frozen in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_CODE_REVIEW_REQUEST.md`.
+
+No source samples, data artifacts, features, labels, model fit, metrics or p-values were produced. Await isolated tester code gate before constructing a one-run manifest; the previous Gate A manifest is spent and cannot be reused.
