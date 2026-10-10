@@ -274,3 +274,13 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - The NSE date-parameter FII/DII API returned current rows for an old requested window and is correctly rejected. MrChartist's raw history sample has 164 unique dates (2026-01-14..2026-09-30), not the required 500+ sessions; sampled HTML snippets did not prove longer coverage.
 - [Independent artifact report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md) = REQUEST CHANGES for complete Gate A due G14/G15 source coverage. This artifact remains valid bounded evidence for the sources/schema it sampled.
 - The one-run approval is now spent. Next step is a new bounded free-source discovery proposal and independent gate; no further fetches, full history or model fitting are authorized under the spent manifest.
+
+
+## 2026-10-10 — Free Flow Source Discovery 3 SPEC PASS (implementation only)
+
+- Independent tester passed the frozen spec `research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md`, Git blob `52b030e09213cb30c4de6a1633da38e6b2558b1f`.
+- Decision/report: `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
+- Approval scope: implementation and offline tests only. **No live source request is authorized by this spec gate.**
+- The design is limited to 15 initial probe requests plus up to three one-hop HF redirects, 2 MiB overall, with exact HF Range/Content-Range validation and no raw history file API calls.
+- A browser-link verification attempt to the two CDSL XLS links returned unsupported content type; no table values were read or stored. Keep this as non-accepted discovery activity.
+- Next gate: developer implements safe source sampler and fixtures; then the tester independently reviews exact script/test/workflow blobs before any network access. Prior Gate A manifest stays spent.
