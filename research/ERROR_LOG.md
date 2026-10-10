@@ -553,3 +553,10 @@ During proposal validation, a web-reader attempt to open the two fixed CDSL hist
 - Added recursive redaction of nested credential-like keys and sanitization of sensitive query values in URLs included in the public JSON row.
 - The associated hosted offline suite [Run 38029034365](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029034365) passed 29/29 tests. Earlier fixture failures from obsolete 4-byte Range expectations were corrected; none of the failed runs made source requests.
 - Updated code-gate review request pins final code snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Tester review pending; live sampler and one-run manifest remain absent.
+
+
+## 2026-10-10 — Discovery 3 audit-finding corrections and final offline suite
+
+Tester code review found six issues in commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7`. Developer corrected the report spec hash, JSON multi-date validation, non-finite CSV status, nested signature redaction, dated-link redaction, and workflow exact reviewed-commit/tree binding. The first new fixture run failed because the redactor did not normalize camelCase `requestSignature`; the code was corrected to split camelCase keys before matching sensitive suffixes.
+
+Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029615734) passed 32/32 offline tests. None of the related test runs made source requests. The current exact snapshot has been resubmitted; no source-sampling manifest has been created.
