@@ -739,25 +739,45 @@ def save_attempt_ledger(ledger: dict[str, Any]) -> None:
 
 def fetch_live(request: dict[str, Any], token: str, pacer: RequestPacer,
                wire_budget: dict[str, int], max_wire_requests: int,
-               max_retry_requests: int, response_cap_override: int | None = None) -> tuple[bytes, int, str, int]:
+               max_retry_requests: int, attempt_ledger: dict[str, Any],
+               response_cap_override: int | None = None) -> tuple[bytes, int, str, int]:
     url = request["endpoint"]
     cap = int(request["max_response_bytes"])
     if response_cap_override is not None:
         cap = min(cap, max(0, int(response_cap_override)))
+    if cap <= 0:
+        raise SourceRequestError("aggregate_byte_budget_exhausted")
     body = json.dumps(request["body"], separators=(",", ":"), sort_keys=True).encode("utf-8")
     if len(body) > 16 * 1024:
         raise SourceRequestError("request_body_byte_cap_exceeded")
+    request_id = str(request["request_id"])
     last_exc: Exception | None = None
-    for attempt in range(2):
-        is_retry = attempt > 0
-        if wire_budget["wire_requests"] >= max_wire_requests:
-            raise SourceRequestError("wire_request_budget_exceeded")
-        if is_retry and wire_budget["retry_requests"] >= max_retry_requests:
-            raise SourceRequestError("retry_budget_exceeded")
+
+    while True:
+        attempts_before = int(attempt_ledger["request_attempts_by_id"].get(request_id, 0))
+        if attempts_before >= 2:
+            raise SourceRequestError("per_request_attempt_budget_exhausted")
+        if request_id in attempt_ledger["permanent_failure_requests"]:
+            raise SourceRequestError("request_permanent_failure_recorded")
+        if "__ALL__" in attempt_ledger["permanent_failure_families"]:
+            raise SourceRequestError("attempt_ledger_invalid_fail_closed")
+        if int(attempt_ledger["total_wire_attempts"]) >= max_wire_requests:
+            raise SourceRequestError("cumulative_wire_request_budget_exhausted")
+        is_retry = attempts_before >= 1
+        if is_retry and int(attempt_ledger["total_retry_attempts"]) >= max_retry_requests:
+            raise SourceRequestError("cumulative_retry_budget_exhausted")
+
         pacer.wait()
+        # Spend the attempt before I/O so interruption cannot lead to uncounted repeats.
+        attempt_ledger["request_attempts_by_id"][request_id] = attempts_before + 1
+        attempt_ledger["total_wire_attempts"] = int(attempt_ledger["total_wire_attempts"]) + 1
+        if is_retry:
+            attempt_ledger["total_retry_attempts"] = int(attempt_ledger["total_retry_attempts"]) + 1
+        save_attempt_ledger(attempt_ledger)
         wire_budget["wire_requests"] += 1
         if is_retry:
             wire_budget["retry_requests"] += 1
+
         req = urllib.request.Request(
             url, data=body, method="POST",
             headers={"Accept": "application/json", "Content-Type": "application/json",
@@ -772,49 +792,73 @@ def fetch_live(request: dict[str, Any], token: str, pacer: RequestPacer,
             except Exception:
                 pass
             if 300 <= status < 400:
+                attempt_ledger["permanent_failure_requests"][request_id] = "redirect_rejected"
+                save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("redirect_rejected", status) from None
-            if attempt == 0 and (status == 429 or status >= 500):
+            if status in (401, 403):
+                attempt_ledger["permanent_failure_families"][request["source_family"]] = "authentication_or_entitlement_failure"
+                save_attempt_ledger(attempt_ledger)
+                raise SourceRequestError("http_status_" + str(status), status) from None
+            retryable = status == 429 or status >= 500
+            if retryable and int(attempt_ledger["request_attempts_by_id"].get(request_id, 0)) < 2:
                 time.sleep(2.0 if status == 429 else 1.0)
                 continue
+            if not retryable:
+                attempt_ledger["permanent_failure_requests"][request_id] = "http_status_" + str(status)
+                save_attempt_ledger(attempt_ledger)
             raise SourceRequestError("http_status_" + str(status), status) from None
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             last_exc = exc
-            if attempt == 0:
+            if int(attempt_ledger["request_attempts_by_id"].get(request_id, 0)) < 2:
                 time.sleep(1.0)
                 continue
-            raise SourceRequestError("transport_error_" + type(exc).__name__) from None
+            raise SourceRequestError("transport_error_" + type(last_exc).__name__) from None
+
         try:
             status = int(getattr(response, "status", 0))
             headers = getattr(response, "headers", {})
             raw_type = str(headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
             if 300 <= status < 400:
+                attempt_ledger["permanent_failure_requests"][request_id] = "redirect_rejected"
+                save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("redirect_rejected", status)
             if status < 200 or status >= 300:
+                retryable = status == 429 or status >= 500
+                if not retryable:
+                    attempt_ledger["permanent_failure_requests"][request_id] = "http_status_" + str(status)
+                    save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("http_status_" + str(status), status)
             if raw_type not in ("application/json", "text/json") and not raw_type.endswith("+json"):
+                attempt_ledger["permanent_failure_requests"][request_id] = "unexpected_content_type"
+                save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("unexpected_content_type")
             declared = headers.get("Content-Length")
             if declared:
                 try:
                     declared_int = int(declared)
                 except ValueError:
+                    attempt_ledger["permanent_failure_requests"][request_id] = "invalid_content_length"
+                    save_attempt_ledger(attempt_ledger)
                     raise SourceRequestError("invalid_content_length")
                 if declared_int < 0 or declared_int > cap:
+                    attempt_ledger["permanent_failure_requests"][request_id] = "response_byte_cap_exceeded"
+                    save_attempt_ledger(attempt_ledger)
                     raise SourceRequestError("response_byte_cap_exceeded")
             data = response.read(cap + 1)
             if len(data) > cap:
+                attempt_ledger["permanent_failure_requests"][request_id] = "response_byte_cap_exceeded"
+                save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("response_byte_cap_exceeded")
             if declared and int(declared) != len(data):
+                attempt_ledger["permanent_failure_requests"][request_id] = "content_length_mismatch"
+                save_attempt_ledger(attempt_ledger)
                 raise SourceRequestError("content_length_mismatch")
-            return data, status, raw_type, attempt
+            return data, status, raw_type, int(is_retry)
         finally:
             try:
                 response.close()
             except Exception:
                 pass
-    if last_exc:
-        raise SourceRequestError("transport_error_" + type(last_exc).__name__) from None
-    raise SourceRequestError("retry_exhausted")
 
 
 def _validate_request_payload(payload: dict[str, Any], request: dict[str, Any]) -> None:
