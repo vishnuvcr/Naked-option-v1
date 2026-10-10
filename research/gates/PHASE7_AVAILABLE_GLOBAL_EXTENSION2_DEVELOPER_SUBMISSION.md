@@ -133,3 +133,11 @@ The tester found that the initial v2 source audit checked FII/DII required field
 **Developer → Tester:** Re-review these exact blobs; if passed, authorize adding/running the bounded v2 Gate A workflow.
 
 **Tester → Developer:** Keep source downloads and model work closed until the corrected sampler receives an explicit code-gate PASS.
+
+
+### Exact sampler v2 blobs after final date-normalization fix
+
+- Sampler: `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`.
+- Offline tests: `d818613dc2f9188224562a953fd979a6c274d292`.
+- Date normalization now handles ISO dates and a day-month-year date with an optional timestamp suffix; a dedicated fixture was added.
+- These supersede the earlier v2 blob IDs above. No workflow has been run.
