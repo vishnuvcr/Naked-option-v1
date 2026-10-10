@@ -113,3 +113,53 @@ The developer handoff table labels `1d8991255ff284c6b9cb20c4071ab56555d18dc6` as
 **Tester → Developer:** Bound the NSE FII/DII date endpoint to a small sample window, add request-bound regression coverage, correct the review request's Git-blob/commit distinction, run the current offline suites, and resubmit. Do not create the approval manifest.
 
 **Developer → Tester:** Re-review the exact corrected sampler/test/workflow snapshot. A pass may authorize one bounded Gate A source-sampling run only; full-history acquisition and model fitting remain prohibited.
+
+
+## Final corrected exact-snapshot code review — 2026-10-10
+
+**Current decision: PASS WITH SCOPED RESTRICTIONS — exact current sampler/workflow snapshot, Gate A only.**  
+**Reviewed developer commit:** `6050908b98c53d75c10175140e84e87f48934896`.  
+**Full-history acquisition: NOT AUTHORIZED.**  
+**Model fitting: NOT AUTHORIZED.**  
+**Scope:** one bounded Gate A source-sampling run only, conditional on the exact report/hash manifest validating in the guarded workflow.
+
+### Protected blobs independently re-fetched
+
+| Protected file | Reviewed Git blob |
+|---|---|
+| `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md` | `a5e65b56f9aa23c8292b718403c3db4448dad2e3` |
+| `scripts/phase7_extension2_source_feasibility.py` | `532c1212fad29dbd771d609b1e0ddb85d46d9e50` |
+| `scripts/test_phase7_extension2_source_feasibility.py` | `4b470468a4aef23ba59d5efef8755be33ce23fe0` |
+| `scripts/phase7_extension2_source_feasibility_v2.py` | `aa714264481034c52b9e2b75d020a270212c8204` |
+| `scripts/test_phase7_extension2_source_feasibility_v2.py` | `43bd50df257ecc6d094ca64c6770f26a50340ecf` |
+| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `20470b88d29b1d97e8060936e5ed7a40fe28a80d` |
+
+These six protected Git blob IDs match between the reviewed developer commit and current developer branch. The actual workflow blob is kept distinct from the reviewed commit hash.
+
+### Regression evidence
+
+- [Offline v1+v2 suite — Run 38026024826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026024826) succeeded on commit `b7713ff1ae90ac6ea8d3c477a01683634259dab1`: all **22 distinct offline checks passed** (7 v1 + 15 v2).
+- [Legacy-workflow safety correction — Run 38026080844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026080844) succeeded on commit `6050908b98c53d75c10175140e84e87f48934896`; its v1 offline suite passed.
+- The v2 live-source workflow runs the same offline suites first, and the live source job depends on both those tests and the separate authorization job. It checks the exact report digest, fixed current-decision line, explicit scope restrictions, path allowlist, file hashes, Git blob IDs quoted in this report, and reviewed-commit ancestry.
+- The NSE FII/DII date endpoint is fixed to a ten-day window. URL validation refuses wider or unregistered requests before fetch; API response bytes are capped at 512,000 and rows at 50. New tests exercise both the pre-fetch rejection and the row/byte/JSON-shape conditions.
+- The only remaining live step in this approval scope is the bounded source sampler and report upload. It does not construct features or labels and does not fit models.
+
+### Governance incident and containment
+
+[Run 38025793938](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38025793938) had executed the legacy source sampler before the exact-snapshot approval gate was in place. It fetched only the two single-day F&O archive dates and a small set of public pages/API responses; it did not perform feature/label construction, model fitting or full-history acquisition. Because it ran without tester authorization, its artifact is **NON-ACCEPTED EVIDENCE** and must not be used to pass Gate A. This is recorded in the developer error log.
+
+Containment was verified: the old workflow `.github/workflows/phase-07-extension2-source-feasibility.yml` is now offline tests only at Git blob `f23bb9fe8a5b1343a2a94d308c77b4e26de1d0f3`; its successful Run 38026080844 demonstrates it no longer includes the source-fetch step. The v2 live-source workflow remains the only enabled live sampling path and is fail-closed behind the exact manifest.
+
+### Decision and strict limits
+
+**PASS WITH SCOPED RESTRICTIONS** for one bounded Gate A sample run with the current exact six-file snapshot only. The approval manifest must bind the six Git blobs above and their byte-level SHA-256 hashes, plus this tester report's SHA-256, and the reviewed commit must be an ancestor of the workflow run.
+
+- **Full-history acquisition: NOT AUTHORIZED.**
+- **Model fitting: NOT AUTHORIZED.**
+- No historical feature table, labels, predictions, metrics or p-values may be produced.
+- Do not open the final untouched holdout or proceed to Phase 8.
+- After the bounded sample artifact is uploaded, tester must perform a separate source-feasibility artifact audit. Any full-history acquisition or model fitting requires a later, separate approval.
+
+**Tester → Developer:** Mirror this exact report to the developer branch and create only the hash-bound one-run Gate A approval manifest. Confirm the hosted job passes offline tests and the authorization guard before treating any bounded source report as evidence; submit both reports for separate post-run review. Keep full-history acquisition and model fitting closed.
+
+**Developer → Tester:** Independently audit both uploaded Gate A JSON reports, source hashes/URLs, date coverage, all-row schema checks, official-versus-third-party provenance, and the historical F&O transition. If source identity/coverage remains unresolved, return REQUEST CHANGES rather than expanding the request beyond the approved sample.
