@@ -1,6 +1,6 @@
 # Paper-method replication checkpoint — 2026-10-10
 
-**Current gate: PPR-1 PASS WITH SCOPED RESTRICTIONS; PPR-2 PASS WITH SCOPED RESTRICTIONS; PPR-3 PASS WITH SCOPED RESTRICTIONS. PPR-4 is limited to read-only source-availability/cache/PIT/holdout-boundary feasibility review. Bulk data/model downloads, model fitting/tuning/scoring, final-holdout access and option P&L remain blocked pending a PPR-4 tester gate.**
+**Current gate: PPR-1, PPR-2 and PPR-3 PASS WITH SCOPED RESTRICTIONS. PPR-4 source/cache inventory validation is complete, but PPR-4 EXIT IS BLOCKED: no machine-readable final-holdout boundary has been found after a 23-branch metadata search. Only read-only metadata searches may continue. No source download, model-panel acceptance, model fitting/tuning/scoring, final-holdout access or option P&L is authorized.**
 
 Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
 
@@ -1047,4 +1047,34 @@ Only read-only feasibility work is now permitted:
 
 **Developer → Tester:** Review the PPR-4 source/cache/PIT manifest after read-only discovery; grant only exact-source and exact-operation scope.
 **Tester → Developer:** Keep raw-data acquisition, model use and empirical outputs blocked until the PPR-4 exact-snapshot gate explicitly permits them.
+
+
+
+## PPR-4 tester review 1 — inventory verified, research exit blocked (2026-10-10)
+
+Tester decision: **REQUEST CHANGES / PPR-4 EXIT BLOCKED**. Report: [PHASE7_PPR4_TESTER_REVIEW1.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR4_TESTER_REVIEW1.md), commit `749d8f02b2764edf5428df5f9b1e3d301de3d862`. Issue #6 is updated with the same decision.
+
+PPR-4 offline inventory run [38075342074](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075342074) passed on exact trigger commit `ee5890e0cbe96b3ba934e16f1d018dd0699f6d52`. It verifies the 32-source register, 5-entry metadata cache inventory, license/status fields, fail-closed operations and current Git blob pins. It does not validate data coverage from raw rows and does not open any source/holdout values. A later manifest update changed the audit status string and triggered failure [38075537411](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075537411); the value was aligned with the validator's frozen status literal and a new exact-snapshot retry is [run 38075566251](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38075566251). The failed run is preserved as a failure, not re-labelled as a pass.
+
+Current artifacts:
+- [32-row source availability register](phase7/PPR4_SOURCE_AVAILABILITY_REGISTER.csv)
+- [Source feasibility audit](phase7/PPR4_SOURCE_FEASIBILITY_AUDIT.md)
+- [All-branch holdout metadata audit](phase7/PPR4_HOLDOUT_METADATA_AUDIT.json)
+- [Repository cache inventory](phase7/PPR4_REPO_CACHE_INVENTORY.csv)
+- [Read-only source availability manifest](phase7/PPR4_SOURCE_AVAILABILITY_MANIFEST.json)
+- [Offline validator](../scripts/validate_ppr4_source_inventory.py) and [PPR-4 Actions workflow](../.github/workflows/phase-07-ppr4-source-inventory.yml)
+
+### PPR-4 findings
+
+- Public-source metadata provides viable *leads* for official NSE index and derivatives archives, HF options datasets, Cboe VIX, US Treasury rates, EIA crude, RBI FX, CDSL/SEBI FPI data, GDELT and corporate actions. No dataset is accepted into the modelling panel; free-source search is not declared exhausted, and no paid source has been pursued.
+- Git `data/` contains only five metadata/tree entries including a single 121-byte one-row Dhan daily sample and its manifest/status. The associated one-use approval is SPENT; it cannot be reused.
+- A repository-wide path search checked all 23 branches plus relevant PPR3/Run44 source documents and workflow artifact names/metadata. It found prose that the final holdout was “unopened” but no machine-readable date boundary, dataset/split ID or row-ID hash. Artifact contents and holdout values/labels were not opened.
+- `PPR4_SOURCE_AVAILABILITY_MANIFEST.json` preserves `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`. The exact date boundary, split ID and row-ID hash remain null; do not invent them.
+
+### Next permitted step
+
+Continue only read-only GitHub file/content/commit/approval metadata searches for a genuine split/holdout artifact under non-obvious names. If no artifact exists, draft a separate pre-outcome split/holdout governance proposal and ask the tester to review that proposal before implementing it. Do not download sources, accept a modelling panel, create features/labels, fit/tune/score models, inspect any holdout values, or conduct option P&L.
+
+**Developer → Tester:** Search for a genuine existing split boundary using metadata/content search only; if none is found, review a distinct new split-governance proposal before any implementation.
+**Tester → Developer:** Maintain REQUEST CHANGES / BLOCKED_GATE until the boundary is proved or a new pre-outcome split design is approved. Keep data and model execution disabled.
 
