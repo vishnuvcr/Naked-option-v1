@@ -35,3 +35,29 @@ If an official NSE archive URL fails and the GitHub mirror supplies the sample, 
 **Tester → Developer:** Correct full-file date validation and add the two mixed-date negative fixtures. Resubmit the exact sampler/test blobs.
 
 **Developer → Tester:** Do not add or run the source-feasibility workflow until the corrected sampler receives a fresh independent code-gate decision.
+
+
+## Corrected sampler re-review — 2026-10-10
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — Gate A sample workflow may be added/run.**  
+**Full-history acquisition/model fitting remain NOT AUTHORIZED.**
+
+Exact reviewed blobs:
+- Sampler: `f39f2a213b760c608e0deca2f1eaacc2225aca53`
+- Offline tests: `2d8833719701c87e43f310396b29380220d58578`
+
+The corrected sampler validates the requested trade date across every non-empty row in both archive formats and records the distinct observed date count. The two new negative fixtures put a wrong date in the second row after a valid first row; both must fail. The previous four happy-path/schema/date tests remain. The workflow has not yet been run, so no claim is made about live source availability.
+
+### Authorized Gate A action
+
+- Add a bounded automatic/manual workflow that runs only the sampler and offline regression tests.
+- Fetch only the two pre-transition/post-transition single-day F&O archive samples plus the already listed small page/API requests. Retain per-source status, attempted URL, retrieval time, content hashes, schema/coverage and minimal sample rows.
+- Do not download full historical series, create normalized historical feature tables, create labels, fit models, calculate prediction metrics or p-values, or open the final holdout.
+- If a third-party mirror supplies a sample, keep it explicitly labelled as a mirror and do not claim official-source verification.
+- If NSE blocks a source, record the failed attempt and explore other free source routes; do not declare the data unavailable solely from one failed URL.
+
+After the run, submit the immutable Gate A artifact and its source report to the tester. Full-history acquisition remains gated on a separate tester decision after that artifact is reviewed.
+
+**Tester → Developer:** Add/run the bounded Gate A workflow and submit the source-feasibility artifact for review; no model fitting.
+
+**Developer → Tester:** Independently inspect the live sample results, archive hashes and source labels. Approve or reject Gate A output before full-history acquisition is attempted.
