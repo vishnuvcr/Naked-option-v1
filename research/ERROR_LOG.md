@@ -456,3 +456,11 @@
 - Corrected sampler blob: `fb83fe5e880a26134a765a0426f7aa85380272fb`.
 - The workflow's push trigger is now gated on `research/gates/PHASE7_EXTENSION2_SOURCE_SAMPLER_V2_APPROVAL.json`; a code push alone cannot trigger source requests. Manual dispatch remains available after independent approval.
 - No live data was downloaded, and no model/feature work occurred. Current exact sampler is back for tester review.
+
+
+## 2026-10-10 — Extension 2 Gate A v2 exact-snapshot review mismatch
+
+- Prior tester PASS reviewed v2 sampler blob `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`; current sampler blob is `fb83fe5e880a26134a765a0426f7aa85380272fb` after the date-regex correction. Prior PASS is not an exact-snapshot approval for the current code.
+- Current workflow blob `c535610e69c2e90934ab4e59d754b584e29ff6ec` adds a separate offline-regression job and a fail-closed exact tester-report/manifest/hash gate on both push and manual source-sampling triggers.
+- Run #1 / 38019728293 failed in offline tests before any source requests; the fetch and artifact-upload steps were skipped.
+- No current approval manifest exists and no live source was fetched. Await exact-snapshot independent re-review and successful hosted tests.
