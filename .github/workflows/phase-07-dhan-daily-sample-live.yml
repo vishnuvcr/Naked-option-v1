@@ -63,6 +63,17 @@ jobs:
             exit 1
           fi
 
+      - name: Confirm Dhan token secret is configured without exposing it
+        env:
+          DHAN_TOKEN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$DHAN_TOKEN_CONFIGURED" != "true" ]]; then
+            echo "Blocked before spending the one-use approval: DHAN_ACCESS_TOKEN is not configured."
+            exit 1
+          fi
+
       - name: Validate exact approved manifest and tester report
         id: gate_check
         shell: bash
