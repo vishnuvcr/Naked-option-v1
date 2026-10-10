@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "decision": "APPROVED_ONE_RUN",
+  "status": "READY",
+  "authorized_scope": "one bounded Dhan profile/IDX_I metadata and daily-candle schema sample only",
+  "reviewed_developer_commit": "2df2d2874074dbeb65b8687ab5fcaa005bb0714a",
+  "tester_report_sha256": "8a257941c8b9b4684f3aed9917381e060e18831ea20180b8e8594f2ab7723fae",
+  "protected_files": {
+    "research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md": {
+      "sha256": "cc70e5733017b156c15d465ec658c6d5d6c21d9c243cc26a7084ee9543a39889",
+      "git_blob": "f87e8ecaec0a26947438131fef466aae3e57d824"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md": {
+      "sha256": "db6c4be4cbfadbe93423d806d3b1ac17374387ae1aafc10a7437714575ebfbdb",
+      "git_blob": "9db93dfb56e309dcccf549e51da09004e5f4b276"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md": {
+      "sha256": "8a257941c8b9b4684f3aed9917381e060e18831ea20180b8e8594f2ab7723fae",
+      "git_blob": "2bb45b79f9860a65d7b51181a524ad01362122fd"
+    },
+    "scripts/dhan_market_data_recovery.py": {
+      "sha256": "189abacec4113a7f2c144d8f34c9e1c6f3fff2e0c96dd7089d3bcda90c8b6551",
+      "git_blob": "2398cc3a3b050e15107ef7fa88c5415f93845fe9"
+    },
+    "scripts/test_dhan_market_data_recovery.py": {
+      "sha256": "399f323b1fb62a88679c7ffd8e1ba970ad8c541186e2ff54254de4d107c90e0d",
+      "git_blob": "acf5140f34da4cd406d95a1c9b567ec29cd83609"
+    },
+    "scripts/validate_dhan_sample_approval.py": {
+      "sha256": "166d69975cc5171a0b6033c08b22fdacd02fd17ac5d9fb08d10d3a7681be8446",
+      "git_blob": "3c99140a5488cd58ee3bed9c21cd659183adbdf2"
+    },
+    ".github/workflows/phase-07-dhan-market-data-tests.yml": {
+      "sha256": "8f0f0c14268956aad22c3a28e82582effe02502ad997f2d0721d0ea89f94b69d",
+      "git_blob": "b43ce4dadca4e5867173136531e71c63bb74e9a3"
+    },
+    ".github/workflows/phase-07-dhan-market-data-live.yml": {
+      "sha256": "b9c272262a21b2c56fdbd55cc295cd16d9a2e7b9400f77a42a19657a44fa5711",
+      "git_blob": "aa37cec66d46f3c181a7bda213226991c045b189"
+    }
+  },
+  "full_history_authorized": false,
+  "model_fitting_authorized": false,
+  "requests_max": 6,
+  "response_bytes_max": 4194304,
+  "sample_windows": [
+    [
+      "2024-07-01",
+      "2024-07-11"
+    ],
+    [
+      "2024-07-15",
+      "2024-07-25"
+    ]
+  ],
+  "instruments": [
+    "NIFTY 50",
+    "INDIA VIX"
+  ],
+  "note": "One run only. Any full acquisition, options-history probe, FII/FPI/DII aggregate-flow acquisition, feature/label construction, model fitting, metrics or holdout access requires a separate proposal and approval."
+}
