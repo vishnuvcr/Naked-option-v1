@@ -235,6 +235,40 @@ def test_gate_metadata_rejects_manifest_or_review_commit_mismatch() -> None:
     ), "reviewed_manifest_commit_mismatch")
 
 
+def test_pending_review_gate_requires_exact_manifest_pins() -> None:
+    approval = {
+        "status": "PENDING_REVIEW",
+        "decision": "AWAITING_INDEPENDENT_MANIFEST_REVIEW",
+        "scope_id": mod.SCOPE_ID,
+        "request_manifest_path": str(mod.MANIFEST_PATH.relative_to(mod.ROOT)),
+        "tester_report_path": str(mod.TESTER_REPORT_PATH.relative_to(mod.ROOT)),
+        "request_manifest_git_blob": "a" * 40,
+        "request_manifest_sha256": "b" * 64,
+        "approved_authorization_sha256": "c" * 64,
+    }
+    mod.validate_pending_review_gate(
+        approval, manifest_sha256="b" * 64, manifest_git_blob="a" * 40,
+        authorization_sha256="c" * 64
+    )
+    cases = [
+        ({**approval, "request_manifest_sha256": "0" * 64},
+         "approval_manifest_sha256_mismatch"),
+        ({**approval, "request_manifest_git_blob": "0" * 40},
+         "approval_manifest_blob_mismatch"),
+        ({**approval, "approved_authorization_sha256": "0" * 64},
+         "approved_authorization_digest_mismatch"),
+        ({**approval, "scope_id": "other"},
+         "approval_gate_scope_mismatch"),
+        ({**approval, "status": "READY"},
+         "approval_gate_not_pending"),
+    ]
+    for invalid, expected in cases:
+        must_raise(lambda invalid=invalid, expected=expected: mod.validate_pending_review_gate(
+            invalid, manifest_sha256="b" * 64, manifest_git_blob="a" * 40,
+            authorization_sha256="c" * 64
+        ), expected)
+
+
 def test_approval_requires_report_scope_markers() -> None:
     raw = json.dumps(valid_manifest(), sort_keys=True, indent=2).encode() + b"\n"
     approval = valid_approval(raw)
