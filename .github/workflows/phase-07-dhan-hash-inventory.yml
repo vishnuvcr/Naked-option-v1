@@ -1,4 +1,4 @@
-name: Phase 7 Dhan Protected File Hash Inventory
+name: Phase 7 Dhan Protected File Hash Inventory (refresh 2)
 
 on:
   push:
