@@ -304,3 +304,17 @@ A further audit found that the NIFTY acquisition script used by the empirical jo
 - [Full result summary](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md), [tester audit on isolated branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md), and [mirrored tester audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md).
 - **Phase 8 remains blocked.** The final untouched holdout remains unopened. This was prediction-only research; options, brokerage, slippage, spreads, Paytm Money execution and trading P&L were not tested.
 - All 11 global source entries reported cache misses in this run because the previous cache did not meet the current contract; the newly acquired files were retained in the immutable artifact and workflow cache.
+
+
+## Next prediction-only research step — Extension 2 proposal (2026-10-10)
+
+Run #44 was independently audited and found no statistically significant candidate: family p-values for 1/2/3/5/10 sessions were 0.9840/0.8882/0.6786/0.7745/0.9800, with every Bonferroni-adjusted p-value equal to 1.0. No model was promoted, and the final untouched holdout remains unopened.
+
+To continue the finite registered prediction universe without entering options strategy research, the developer has proposed a new family covering **G03 sector leadership, G14 FII/FPI flow, G15 DII flow, G17 advance/decline breadth, F03 put/call OI ratio, F04 OI-change acceleration, and F05 volume/OI pressure**. Source leads are the official [NSE F&O reports](https://www.nseindia.com/all-reports-derivatives), [NSE historical index and breadth archives](https://www.nseindia.com/resources/historical-reports-capital-market-daily-monthly-archives), and [NSE FII/FPI/DII reports](https://www.nseindia.com/reports/fii-dii). The proposal freezes seven candidates and uses one global max-statistic bootstrap across 35 method/horizon cells.
+
+- [Extension 2 specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md)
+- [Developer submission for independent tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md)
+- [Run #44 results](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md)
+- [Run #44 independent audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md)
+
+**Gate status:** Extension 2 is proposal-only. No full-history download or model fitting is authorized until the independent tester reviews the exact specification and source-feasibility plan. Phase 8 remains blocked and the final holdout remains unopened.
