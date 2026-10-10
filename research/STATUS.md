@@ -294,3 +294,15 @@ Tester reviewed exact commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` after 29
 ## 2026-10-10 — Discovery 3 independent code gate: REQUEST CHANGES
 
 Tester reviewed exact commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` after 29/29 offline checks passed, and returned REQUEST CHANGES. Blocking findings are recorded in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md` (mirrored byte-identically to developer branch): stale spec blob embedded in report output; JSON record may pass when recognized dates conflict; CSV float parsing accepts NaN/Inf; nested signature/sig fields are not redacted; dated HTML links persist raw query values; and workflow does not bind the reviewer commit to every protected Git blob at that commit. No live source request or approval manifest is authorized. Correct code/tests and request a fresh review.
+
+## 2026-10-11 — NIFTY one-minute composite acquisition tester gate
+
+- **Decision:** PASS WITH SCOPED RESTRICTIONS — EXACT MANIFEST AND ACQUISITION WORKFLOW ONLY.
+- **Reviewed developer commit:** `98ef6ca039b19f0284981c57fc17b39124284869`.
+- **Tester report:** [PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md); report blob `367dcc0db9da602e452a2c005eb4f6f4036ef65e`.
+- **Scope approved:** 8,601 explicit requests over 61 non-overlapping date windows; 61 spot requests and 8,540 rolling-option selectors; 100 retries maximum and 8,701 total wire requests maximum. User's waiver of Dhan price-value cross-check remains active.
+- **Validation:** independent request-grid reconstruction found 0 issues; all associated offline CI checks passed. The 2023 request set is divided into two inspectable files because the original was too large for the repository reader.
+- **Not yet done:** no live historical-data API call, no downloadable CSV has been produced yet, and no model fitting/holdout/trading-economic task is authorized by this gate.
+- **Next developer step:** create the one-use acquisition approval with exact reviewed blobs and the tester report pin, then execute the guarded workflow. When collection finishes, return the coverage/errors and encrypted artifact to the tester for an independent data-coverage review. A PARTIAL result must remain partial; unresolved features must go through a separate free-source fallback plan rather than stopping unrelated research.
+
+**Tester → Developer:** Proceed with the one-use approval and enumerated acquisition only. Re-submit the realized coverage snapshot for independent review before modeling.
