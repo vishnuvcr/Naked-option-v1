@@ -215,7 +215,7 @@ def parse_candles(status: int, body: bytes, from_date: str, to_date: str) -> dic
     for i, ts in enumerate(obj["timestamp"]):
         if isinstance(ts, bool) or not isinstance(ts, (int, float)) or not math.isfinite(float(ts)):
             return {"status": "REJECTED_TIMESTAMP", "row": i}
-        day = dt.datetime.fromtimestamp(int(ts), tz=dt.timezone.utc).date().isoformat()
+        day = dt.datetime.fromtimestamp(int(ts), tz=dt.timezone(dt.timedelta(hours=5, minutes=30))).date().isoformat()
         if not (from_date <= day < to_date):
             return {"status": "REJECTED_OUTSIDE_REQUESTED_WINDOW", "row": i, "date": day}
         if previous is not None and int(ts) <= previous:
