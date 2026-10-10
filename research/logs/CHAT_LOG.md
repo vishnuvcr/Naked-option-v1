@@ -987,3 +987,16 @@ After the independent REQUEST CHANGES decision, developer added a comment-only t
 
 **Developer → Tester:** Hold the gate at REQUEST CHANGES pending a verifiable exact-snapshot hosted receipt.
 **Tester → Developer:** Re-review only the exact tested commit and preserve the no-live-request restriction until fresh approval.
+
+
+## 2026-10-10 — Status query: uploaded paper methods coverage
+
+User asked for current research status and whether all methods from the research papers had been checked.
+
+Developer checked the current main README/status, the Phase 7 developer status ledger, the finite method registry, literature registry and hosted workflow receipts. The registry has 112 method rows across Families A–J and 36 literature source records. Fifteen PDFs are mounted in the current conversation. This does **not** establish exhaustive paper-level reproduction. Created `research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md` as a first-pass inventory and marked each uploaded paper as not verified as replicated unless an exact result artifact plus accepted independent tester report is available. Broad method-family overlap is not treated as reproduction.
+
+Current prediction checkpoint remains negative: Phase 7 Run #994 accepted with scoped restrictions reported ten non-significant family tests; the newer daily cross-market Run #44 extension tested 12 methods across five horizons (60 cells), with all five horizon-family tests non-significant after multiplicity correction. The Dhan single-row sample has not been admitted to modeling and official source/instrument mapping gates remain open. No method was newly tested and no result changed during this status inspection. No research-plan scope change was made; the paper-level crosswalk is an execution/review task under the existing literature/methodology phase.
+
+Developer → Tester: Independently review the paper inventory for omissions and the exact method-to-registry crosswalk. Require full-text method extraction, frozen protocol, and source/test/workflow hash verification before any paper-specific empirical claim is accepted.
+
+Tester → Developer: Send corrections and missing-method findings from the isolated tester branch. Do not mark any listed PDF reproduced based on name-level or family-level similarity alone.
