@@ -677,3 +677,12 @@ The first guarded Dhan run did not reach candle requests. The independent artifa
 **Tester → Developer:** Recompute byte hashes and blob IDs and create one new exact manifest only for the reviewed snapshot.
 
 **Developer → Tester:** Verify the new manifest; audit the diagnostic artifact independently. If metadata remains non-200, stop and do not fetch candles or broaden scope.
+
+
+## 2026-10-10 — Dhan redirect-target review proposal
+
+The second bounded sample found the Dhan token valid and Data API plan active, but `GET /v2/instrument/IDX_I` returned HTTP 302. The workflow rejected it; no candles were fetched. Artifact `11667455094` was audited as REQUEST CHANGES and both prior manifests are spent. A new spec proposes one redirect-target-only diagnostic request that extracts scheme/hostname but never follows the redirect or stores the raw Location path/query. It must pass an independent spec/code/run gate before any further request.
+
+**Tester → Developer:** Review the redirect-target-only proposal; no network access at this gate.
+
+**Developer → Tester:** After spec PASS, implement offline parser/tests and request a fresh code review. Do not follow the redirect until its host is verified and separately approved.
