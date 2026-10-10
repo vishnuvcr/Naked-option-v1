@@ -1,24 +1,55 @@
 {
-  "decision": "APPROVED_ONE_RUN",
-  "status": "READY",
   "authorized_scope": "one Dhan instrument metadata request to record redirect scheme/hostname only; no redirect follow",
-  "reviewed_developer_commit": "9bfd1d61c05f8658d5b6165759a735e317740328",
-  "tester_report_sha256": "504c3bbaf95f5e66d19978c7e7778b71d268a39223f80e8f380138b2076e63cf",
-  "protected_files": {
-    ".github/workflows/phase-07-dhan-market-data-tests.yml": {"sha256":"8f0f0c14268956aad22c3a28e82582effe02502ad997f2d0721d0ea89f94b69d","git_blob":"b43ce4dadca4e5867173136531e71c63bb74e9a3"},
-    ".github/workflows/phase-07-dhan-redirect-probe-live.yml": {"sha256":"bbf00941b1353fa7c7a17a04c387a17cea90331e7f20d799bcdb5c3ccd3fdb94","git_blob":"c8700b6e7bd0160603a71477e31e5291ff58008a"},
-    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md": {"sha256":"af5688c07ee93903e935bdf12d56b4f02ffd918abaebfb448a43b1ca3e4cdc44","git_blob":"f2310d6f8802141c452cb8b83b15c35c25e19bc1"},
-    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md": {"sha256":"db6c4be4cbfadbe93423d806d3b1ac17374387ae1aafc10a7437714575ebfbdb","git_blob":"9db93dfb56e309dcccf549e51da09004e5f4b276"},
-    "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md": {"sha256":"504c3bbaf95f5e66d19978c7e7778b71d268a39223f80e8f380138b2076e63cf","git_blob":"0d6d70ee0347464e247737e59d64e4cfff002e6f"},
-    "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md": {"sha256":"49750ebf56c22fde81a387c36bd09b4243039656d2969c33ccedf93d14549362","git_blob":"06a8cc5c0e57abdbeb5294fc9dcaa4fb8bd46b28"},
-    "research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md": {"sha256":"c9ff41077ba4962701f82218ed1fa3caacf1fd49be29f8ade0efea0f0462626c","git_blob":"7044afeb8ddc242059490686727a3fe354e87b6d"},
-    "scripts/dhan_market_data_recovery.py": {"sha256":"f97391bbd1e83891eb3de3e411e46922a3f85bfe30d080f8bf767e9f97ce637a","git_blob":"266a9abd5677b15e93143a7538308828b2a7f0a3"},
-    "scripts/test_dhan_market_data_recovery.py": {"sha256":"c8ec9f3b847c50d59f68f1e072174e8a704bc286fc67185435805c24ecc638ef","git_blob":"e22a48bf83e121d5b1e4b64ff17f79e4cbc398dc"},
-    "scripts/validate_dhan_redirect_probe_approval.py": {"sha256":"2069504ecf4c41df1ef0c9bad249758e03b82d130073ef9506dd90a0963f188b","git_blob":"6f349bd29102daeff777c2423df63bd156ef4c64"}
-  },
+  "decision": "SPENT_BEFORE_SOURCE_REQUEST",
   "full_history_authorized": false,
   "model_fitting_authorized": false,
+  "note": "Single-use authorization for redirect target metadata only. Must be manually dispatched with confirm_probe=true. Do not follow redirect, fetch candles/history, or access model/holdout data.",
+  "protected_files": {
+    ".github/workflows/phase-07-dhan-market-data-tests.yml": {
+      "git_blob": "b43ce4dadca4e5867173136531e71c63bb74e9a3",
+      "sha256": "8f0f0c14268956aad22c3a28e82582effe02502ad997f2d0721d0ea89f94b69d"
+    },
+    ".github/workflows/phase-07-dhan-redirect-probe-live.yml": {
+      "git_blob": "c8700b6e7bd0160603a71477e31e5291ff58008a",
+      "sha256": "bbf00941b1353fa7c7a17a04c387a17cea90331e7f20d799bcdb5c3ccd3fdb94"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_CODE_TESTER.md": {
+      "git_blob": "f2310d6f8802141c452cb8b83b15c35c25e19bc1",
+      "sha256": "af5688c07ee93903e935bdf12d56b4f02ffd918abaebfb448a43b1ca3e4cdc44"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_TESTER.md": {
+      "git_blob": "9db93dfb56e309dcccf549e51da09004e5f4b276",
+      "sha256": "db6c4be4cbfadbe93423d806d3b1ac17374387ae1aafc10a7437714575ebfbdb"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md": {
+      "git_blob": "0d6d70ee0347464e247737e59d64e4cfff002e6f",
+      "sha256": "504c3bbaf95f5e66d19978c7e7778b71d268a39223f80e8f380138b2076e63cf"
+    },
+    "research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_WORKFLOW_TESTER.md": {
+      "git_blob": "06a8cc5c0e57abdbeb5294fc9dcaa4fb8bd46b28",
+      "sha256": "49750ebf56c22fde81a387c36bd09b4243039656d2969c33ccedf93d14549362"
+    },
+    "research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md": {
+      "git_blob": "7044afeb8ddc242059490686727a3fe354e87b6d",
+      "sha256": "c9ff41077ba4962701f82218ed1fa3caacf1fd49be29f8ade0efea0f0462626c"
+    },
+    "scripts/dhan_market_data_recovery.py": {
+      "git_blob": "266a9abd5677b15e93143a7538308828b2a7f0a3",
+      "sha256": "f97391bbd1e83891eb3de3e411e46922a3f85bfe30d080f8bf767e9f97ce637a"
+    },
+    "scripts/test_dhan_market_data_recovery.py": {
+      "git_blob": "e22a48bf83e121d5b1e4b64ff17f79e4cbc398dc",
+      "sha256": "c8ec9f3b847c50d59f68f1e072174e8a704bc286fc67185435805c24ecc638ef"
+    },
+    "scripts/validate_dhan_redirect_probe_approval.py": {
+      "git_blob": "6f349bd29102daeff777c2423df63bd156ef4c64",
+      "sha256": "2069504ecf4c41df1ef0c9bad249758e03b82d130073ef9506dd90a0963f188b"
+    }
+  },
   "requests_max": 1,
   "response_bytes_max": 1024,
-  "note": "Single-use authorization for redirect target metadata only. Must be manually dispatched with confirm_probe=true. Do not follow redirect, fetch candles/history, or access model/holdout data."
+  "reviewed_developer_commit": "9bfd1d61c05f8658d5b6165759a735e317740328",
+  "spent_at_commit": "c9fb50e09563bb4c35870f73d17ac73fcfd3abc1",
+  "status": "SPENT",
+  "tester_report_sha256": "504c3bbaf95f5e66d19978c7e7778b71d268a39223f80e8f380138b2076e63cf"
 }
