@@ -1,6 +1,6 @@
 # Paper-method replication checkpoint — 2026-10-10
 
-**Current gate: PPR-1 developer submission ready; independent tester review is still required. No new paper-specific model fitting was launched.**
+**Current gate: PPR-1 remains REQUEST CHANGES; corrected source matrix and inference contract are submitted for tester re-review. No paper-specific model fitting, scoring, new source pull or holdout access is authorized.**
 
 Independent review request opened as [GitHub issue #6](https://github.com/vishnuvcr/Naked-option-v1/issues/6). The issue binds the tester request to the exact crosswalk/protocol/submission blob SHAs and explicitly prohibits new source pulls/model fitting until a report is recorded.
 
@@ -13,6 +13,21 @@ The user's latest instruction is to test the prediction methods actually describ
 - Run #44 remains separate historical evidence: 12 daily methods × five horizons on 1,676 NIFTY rows (2020-01-01–2026-10-09), and none of the five horizon-family tests was significant after multiplicity correction. It does not count as results for every paper-specific configuration.
 - The same 2020–2026 artifact cannot support exact 5-, 10- and 20-year replications. Older data and the required news, FII/DII, options and source-vintage histories need the existing source/authorization gates.
 - Do not train/tune paper-specific models, fetch full history, spend the one-use Dhan approval again, or access the final untouched holdout until the relevant exact-snapshot tester and data gates authorize it. Strategy/option P&L remains outside this prediction-only amendment.
+
+## PPR-1 source-evidence and inference-contract resubmission — 2026-10-10
+
+The tester-role second pass is archived on `phase-07-tester`: [report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_PPR1_REVIEW2_TESTER_REPORT.md), tester commit `6abdd399c1af1a825e49b1305079918715b981de`. It issued **REQUEST CHANGES** against the previous crosswalk/protocol/status blobs. The report explicitly records that this was a tester-role review in the same connected assistant session, not a separate human/LLM identity.
+
+Developer corrections now committed:
+- [Claim-level source evidence matrix](literature/PAPER_SOURCE_EVIDENCE_MATRIX.md), current blob `8d297a5ccf4d4747f39a76982467b749a06269d3`; the Kumar & Sharma 99.2152% abstract claim is accurately located, but stays undefined/non-comparable.
+- [Machine-readable target/inference contract](phase7/PPR_TARGET_INFERENCE_CONTRACT.json), current blob `c85df8b0c2f7e6d5048de7e014f4187170cebb41`; target schemas, fixed class order, baselines, PIT rules, null-centered moving-block bootstrap, familywise intervals, common origins, missing-cell failure policy and global fit budget.
+- [Offline validator](../scripts/validate_ppr_contract.py) and [GitHub Actions offline workflow](../.github/workflows/phase-07-ppr-contract-tests.yml). Run [38068745869](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068745869) passed on commit `bf48db331da46377aff772e828fac3ca6fd3d753`; validator log explicitly says document/schema checks only, no source requests, market-data reads or fitting.
+- [Updated protocol](phase7/PAPER_REPLICATION_EXTENSION_SPEC.md) and [crosswalk](literature/PAPER_PREDICTION_METHOD_CROSSWALK.md) point to these artifacts and retain the fail-closed boundary.
+
+The passing offline workflow is a structural check, **not** a scientific gate PASS and not an independent sign-off on the new latest blob set. The protocol workflow on the latest documentation revision is still pending at the time of this checkpoint. Tester must review the exact latest blobs and any current hosted run receipt. PPR-2 remains not authorized; the only allowed work before PASS is further documentation/offline-check correction.
+
+**Developer → Tester:** Review the new exact blobs and test receipt and record an explicit gate decision.
+**Tester → Developer:** Do not progress to PPR-2, new source acquisition, modelling/scoring or holdout access without an exact-snapshot PASS and the expressly allowed next scope.
 
 ## Paper replication phases
 
