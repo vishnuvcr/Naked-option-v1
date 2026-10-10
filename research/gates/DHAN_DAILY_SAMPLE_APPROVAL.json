@@ -12,6 +12,6 @@
   "tester_report_sha256": "47ad9b6c5515d072907f9920c83fce405175f08684febe2568c6dcf2c98bcaf8",
   "reviewed_manifest_developer_commit": "685607d809ccfe5c1c5f82cce8a1073d8ab3edd8",
   "spent_at_commit": null,
-  "note": "READY for one daily NIFTY historical-candle POST only. This is a preflight transition with no acquisition trigger in the commit message; runtime check must validate exact hashes/report before a later explicitly gated sample attempt.",
+  "note": "READY approval committed to trigger one permitted daily NIFTY request. Workflow must repeat exact checks, verify DHAN_ACCESS_TOKEN exists, mark SPENT and push that state before the single POST. No retries/redirects and no wider data/model scope.",
   "spent_from_commit": null
 }
