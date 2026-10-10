@@ -927,3 +927,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: offline test job failed before runner tests could finish. This was a test assertion issue, not a network failure; no NSE Indices or Dhan CSV request was made.
 - Correction: amended `scripts/test_official_reference_crosscheck.py` at commit `ec6817eb3b0892a185c2d863a0794a008ffe591a` / blob `6e63170a036fc96b82a58c8efe75d2a21f3d9f66` to assert the actual fail-closed validation order.
 - Disposition: rerun the complete offline test workflow and log subsequent failures before independent code review. Both official-source requests remain unauthorized.
+
+
+## 2026-10-10 — Official-reference adapter offline test iteration 2
+
+- Category: mocked CSV validation expectation mismatch.
+- Workflow: [Run 38056067954](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056067954), commit 88bac8d7cd6e32748b0485d89dec8e21da718525.
+- Symptom: a duplicate security-ID/segment CSV fixture raised csv_duplicate_segment_security_id in the existing generic CSV validator before the cross-check parser's own mapping-duplicate check.
+- Impact: offline test job failed before later adapter/runner tests. No source requests were made.
+- Correction: scripts/test_official_reference_crosscheck.py updated at commit 2c5d6b3866839bf8937940a4d0cd1f008108afc5 / blob 5c4416c5d0f1de4a0941437c21a73a6f7651381a to assert the actual earlier safe rejection.
+- Disposition: rerun the same offline-only suite; the independent review has not yet authorized a request.
