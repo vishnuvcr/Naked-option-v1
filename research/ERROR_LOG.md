@@ -917,3 +917,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Secondary external cross-check: EquityPandit row at [lines 746](https://www.equitypandit.com/share-price/today/nifty-50-historical-data) matches O/H/L/C/volume exactly; prior close 21741.90 implies about -0.35%, matching the table. This is not a substitute for official primary-source validation.
 - Disposition: sample artifact accepted as a successful source-feasibility/checksum artifact only; not accepted for feature engineering/training/validation. The one-use sample manifest is SPENT and is not reusable.
 - Next gate: prepare an offline-tested, separately reviewed one-date official NSE Indices OHLC cross-check plus official Dhan mapping lookup. No bulk acquisition, feature fitting, prediction rerun or holdout access yet.
+
+
+## 2026-10-10 — Official-reference adapter first offline test run
+
+- Category: mocked regression expectation mismatch.
+- Workflow: [Run 38056011320](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056011320), commit `0060f667f83ddcacd55a92d62d3012077214a189`.
+- Symptom: the test expected a non-finite `OPEN=NaN` value to raise `nifty_reference_ohlc_inconsistent`, but the parser correctly rejects it earlier as `nifty_reference_numeric_invalid_open`.
+- Impact: offline test job failed before runner tests could finish. This was a test assertion issue, not a network failure; no NSE Indices or Dhan CSV request was made.
+- Correction: amended `scripts/test_official_reference_crosscheck.py` at commit `ec6817eb3b0892a185c2d863a0794a008ffe591a` / blob `6e63170a036fc96b82a58c8efe75d2a21f3d9f66` to assert the actual fail-closed validation order.
+- Disposition: rerun the complete offline test workflow and log subsequent failures before independent code review. Both official-source requests remain unauthorized.
