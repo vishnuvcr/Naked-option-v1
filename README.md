@@ -562,3 +562,10 @@ The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phas
 - Independent tester report [PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md](research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_PROBE_RUN9_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS — diagnostic only**.
 - Developer proposed [Extension 3 — Official Dhan Instrument-Source Validation Plan](research/phase7/EXTENSION3_DHAN_OFFICIAL_INSTRUMENT_SOURCE_PLAN.md), based on the official [Dhan instrument documentation](https://dhanhq.co/docs/v2/instruments/). The proposal does not authorize a request. Independent tester proposal review is next.
 - The previous one-use redirect manifest is SPENT. No price history, options data, prediction metrics, strategy tests or holdout data were produced by this diagnostic.
+
+
+## Phase 7 Extension 3 — official instrument-master source
+
+- The independent tester passed the source-plan proposal with restrictions: [tester report](research/gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_PLAN_TESTER.md).
+- The plan identifies official Dhan instrument-master CSV URLs but authorizes no request. Developer added an offline-only CSV validator/cache helper and tests: [adapter](scripts/dhan_instrument_master.py), [tests](scripts/test_dhan_instrument_master.py), [offline workflow](.github/workflows/phase-07-dhan-instrument-master-tests.yml).
+- Hosted offline tests [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) and protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) were pending at the last status check. No live request/data acquisition has occurred; no new prediction result is available.
