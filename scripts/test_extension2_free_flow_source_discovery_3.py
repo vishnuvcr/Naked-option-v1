@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+from pathlib import Path
 from unittest.mock import patch
 
 import extension2_free_flow_source_discovery_3 as mod
@@ -385,6 +386,51 @@ def test_hf_probe_uses_exact_ranges_and_stays_within_16_kib() -> None:
     assert len(client.calls) == 3
 
 
+
+def test_hf_range_values_are_exactly_bounded_before_network() -> None:
+    for probe_id, range_value in [
+        ("HF-2-HEAD-RANGE", "bytes=1-8192"),
+        ("HF-2-HEAD-RANGE", "bytes=0-16383"),
+        ("HF-2-TAIL-RANGE", "bytes=0-8191"),
+        ("HF-2-TAIL-RANGE", "bytes=100-200"),
+    ]:
+        client = mod.LimitedHTTP()
+        fake = FakeOpener([FakeResponse(206, b"x" * 8192, {"Content-Range": "bytes 0-8191/20000"})])
+        client.opener = fake
+        result = client.request(
+            probe_id, mod.HF_RESOLVE_URL,
+            headers={"Range": range_value}, max_body_bytes=mod.MAX_RANGE_BYTES, hf_redirects=True,
+        )
+        assert result["status"] == "REJECTED_SCOPE", (probe_id, range_value, result)
+        assert not fake.requests
+
+
+def test_chirag_flow_fields_must_be_numeric_and_finite() -> None:
+    good = {
+        "date": "2026-10-01", "source": "nse",
+        "fii_buy": 100, "fii_sell": 90, "dii_buy": "50.5", "dii_sell": "₹40 Cr",
+    }
+    assert mod.validate_chirag_record(good)["status"] == "SCHEMA_SAMPLE_PASS"
+    bad_text = mod.validate_chirag_record({**good, "fii_buy": "not-a-number"})
+    assert bad_text["status"] == "REJECTED_SCHEMA", bad_text
+    bad_nan = mod.validate_chirag_record({**good, "dii_sell": float("nan")})
+    assert bad_nan["status"] == "REJECTED_SCHEMA", bad_nan
+
+
+def test_live_workflow_consumes_manifest_before_any_source_request() -> None:
+    root = Path(__file__).resolve().parents[1]
+    live = (root / ".github/workflows/phase-07-free-flow-source-discovery-3.yml").read_text(encoding="utf-8")
+    offline = (root / ".github/workflows/phase-07-free-flow-source-discovery-3-tests.yml").read_text(encoding="utf-8")
+    assert live.index("Consume the one-run manifest before any source request") < live.index("Run one frozen source probe")
+    assert "SPENT — ONE BOUNDED SOURCE-DISCOVERY RUN CONSUMED" in live
+    assert "[manifest-consumed]" in live
+    assert "!contains(github.event.head_commit.message, '[manifest-consumed]')" in live
+    assert "contents: write" in live
+    assert ".github/workflows/phase-07-free-flow-source-discovery-3.yml" in offline
+    assert "python scripts/test_extension2_free_flow_source_discovery_3.py" in offline
+    assert "python scripts/extension2_free_flow_source_discovery_3.py" not in offline
+
+
 def test_fixed_probe_list_is_finite_and_fits_budget() -> None:
     initial = len(mod.FIXED_URLS) + 1 + 3  # Chirag single record; HF HEAD + two Range requests.
     assert initial == mod.MAX_INITIAL_REQUESTS == 15
@@ -418,6 +464,9 @@ def main() -> None:
         test_cdsl_archive_date_link_detects_compact_filename,
         test_csv_edge_marks_seeded_rows_as_synthetic,
         test_hf_probe_uses_exact_ranges_and_stays_within_16_kib,
+        test_hf_range_values_are_exactly_bounded_before_network,
+        test_chirag_flow_fields_must_be_numeric_and_finite,
+        test_live_workflow_consumes_manifest_before_any_source_request,
         test_fixed_probe_list_is_finite_and_fits_budget,
     ]
     for test in tests:
