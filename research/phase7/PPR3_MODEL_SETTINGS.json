@@ -122,7 +122,7 @@
       "params": {
         "n_estimators": 100,
         "max_samples": 0.8,
-        "max_features": 1,
+        "max_features": 1.0,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -526,7 +526,7 @@
       "params": {
         "n_estimators": 100,
         "max_samples": 0.8,
-        "max_features": 1,
+        "max_features": 1.0,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -557,7 +557,7 @@
         "n_estimators": 500,
         "max_depth": null,
         "min_samples_leaf": 10,
-        "max_features": 1,
+        "max_features": 1.0,
         "random_state": 20261010,
         "n_jobs": 1
       },
@@ -1244,7 +1244,7 @@
         ],
         "max_features": [
           "sqrt",
-          1
+          1.0
         ],
         "candidate_count": 18,
         "grid_rule": "Use this explicit list of 18 hyperparameter configurations; do not materialize the full Cartesian product of the descriptive value lists.",
