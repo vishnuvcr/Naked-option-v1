@@ -646,6 +646,29 @@ def inspect_chirag(client: LimitedHTTP) -> dict[str, Any]:
     }
 
 
+def parse_gh_directory_metadata(obj: Any) -> dict[str, Any]:
+    if not isinstance(obj, list):
+        return {"schema_status": "REJECTED_SCHEMA", "reason": "directory endpoint did not return a listing"}
+    entries = []
+    for entry in obj:
+        if not isinstance(entry, dict):
+            continue
+        # The Contents API directory response should contain metadata only. Inline
+        # content would violate this phase's scope and is rejected immediately.
+        if "content" in entry:
+            return {"schema_status": "REJECTED_SCOPE", "reason": "unexpected inline content payload in directory metadata"}
+        if entry.get("type") == "file" and re.search(r"(history|latest|daily|fii|dii).*\.json$", str(entry.get("name", "")), re.I):
+            if not isinstance(entry.get("size"), int) or not re.fullmatch(r"[0-9a-f]{40}", str(entry.get("sha", ""))):
+                return {"schema_status": "REJECTED_SCHEMA", "reason": "file metadata lacks valid size/SHA"}
+            entries.append({k: entry[k] for k in ("name", "path", "size", "sha", "type") if k in entry})
+    return {
+        "schema_status": "COVERAGE_LEAD_ONLY",
+        "directory_file_metadata_sample": entries[:MAX_VISIBLE_ROWS],
+        "directory_file_count": len(obj),
+        "reason": "metadata only; raw JSON file content was not requested",
+    }
+
+
 def inspect_gh_directory(client: LimitedHTTP, probe_id: str, url: str) -> dict[str, Any]:
     r = client.request(probe_id, url, max_body_bytes=PROBE_CAPS[probe_id])
     summary = {k: v for k, v in r.items() if k != "body"}
@@ -655,17 +678,7 @@ def inspect_gh_directory(client: LimitedHTTP, probe_id: str, url: str) -> dict[s
         obj = json.loads(r["body"].decode("utf-8"))
     except Exception:
         return {**summary, "schema_status": "REJECTED_SCHEMA", "reason": "directory metadata was not JSON"}
-    if not isinstance(obj, list):
-        return {**summary, "schema_status": "REJECTED_SCHEMA", "reason": "directory endpoint did not return a listing"}
-    entries = []
-    for entry in obj:
-        if not isinstance(entry, dict):
-            continue
-        if "content" in entry:
-            return {**summary, "schema_status": "REJECTED_SCOPE", "reason": "unexpected inline content payload in directory metadata"}
-        if entry.get("type") == "file" and re.search(r"(history|latest|daily|fii|dii).*\.json$", str(entry.get("name", "")), re.I):
-            entries.append({k: entry[k] for k in ("name", "path", "size", "sha", "type") if k in entry})
-    return {**summary, "schema_status": "COVERAGE_LEAD_ONLY", "directory_file_metadata_sample": entries[:MAX_VISIBLE_ROWS], "directory_file_count": len(obj), "reason": "metadata only; raw JSON file content was not requested"}
+    return {**summary, **parse_gh_directory_metadata(obj)}
 
 
 def report_main() -> dict[str, Any]:
