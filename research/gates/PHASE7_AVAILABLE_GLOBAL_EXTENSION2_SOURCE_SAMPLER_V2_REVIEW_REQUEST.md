@@ -13,7 +13,7 @@ All blob IDs below were fetched from `phase-07-developer` immediately before thi
 | `scripts/test_phase7_extension2_source_feasibility.py` | `2d8833719701c87e43f310396b29380220d58578` |
 | `scripts/phase7_extension2_source_feasibility_v2.py` | `fb83fe5e880a26134a765a0426f7aa85380272fb` |
 | `scripts/test_phase7_extension2_source_feasibility_v2.py` | `d818613dc2f9188224562a953fd979a6c274d292` |
-| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `fdc0a6bef97796b38424048304b704d86f80c450` |
+| `.github/workflows/phase-07-extension2-source-feasibility-v2.yml` | `1d8991255ff284c6b9cb20c4071ab56555d18dc6` |
 
 The latest tester report is `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md` on `phase-07-tester` (blob `26e58f647a692b6e7ecc486914e290120065bfd5`). It contains a scoped PASS for a prior sampler blob `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f`, not the current sampler blob `fb83fe5e880a26134a765a0426f7aa85380272fb`. The prior PASS therefore does not approve this exact code/workflow snapshot.
 
@@ -54,9 +54,18 @@ A PASS may authorize only one bounded Gate A sample run and upload of `extension
 
 ## Additional fail-closed hardening — current workflow blob
 
-The workflow was further tightened at blob `fdc0a6bef97796b38424048304b704d86f80c450`:
+The workflow was further tightened at blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6`:
 - Gate A authorization now requires the exact standardized report line `**Current decision: PASS WITH SCOPED RESTRICTIONS — exact current sampler/workflow snapshot, Gate A only.**`.
 - The report must explicitly state `Full-history acquisition: NOT AUTHORIZED` and `Model fitting: NOT AUTHORIZED`.
 - The manifest must bind both SHA-256 file bytes and Git blob IDs for all six protected paths, and the report text must mention every reviewed Git blob.
 - The reviewed commit must exist in the checked-out history and be an ancestor of the run commit.
 This prevents an earlier historical PASS in the same report from authorizing a changed source/workflow snapshot.
+
+
+## F&O archive samples added to the current workflow — 2026-10-10
+
+A second static audit found that the prior v2 workflow ran only the index/cash-equity/FII-DII v2 sampler and did not invoke the separate bounded legacy/UDiFF F&O archive sampler. This left the central options-format transition unverified in the v2 artifact. The current workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` now invokes both:
+- `scripts/phase7_extension2_source_feasibility.py` for legacy F&O 2024-07-05, UDiFF F&O 2024-07-08, and small page/API checks;
+- `scripts/phase7_extension2_source_feasibility_v2.py` for official index CSVs, equity cash bhavcopy dates, FII/DII endpoints/history, and schema checks.
+
+Both bounded JSON reports are uploaded in the same artifact. The exact workflow changed again and therefore needs the tester to review the current workflow blob, including both samplers, the approval guard and both artifact paths. No approval manifest has been created and no live source sample has run on this current workflow.
