@@ -870,6 +870,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
                         _write_temp_rows(tmp, spot_rows)
                         temp_files.append(tmp)
                         budget["rows_spot"] += len(spot_rows)
+                        result["row_count"] = len(spot_rows)
                         if problems:
                             budget["errors"].append(_error_record(spot_request, "provider_duplicate_timestamps", status))
                         budget["cache_hits"] += int(cache_status == "CACHE_HIT")
@@ -908,6 +909,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
                     _write_temp_rows(tmp, rows)
                     temp_files.append(tmp)
                     budget["rows_options"] += len(rows)
+                    result["row_count"] = len(rows)
                     budget["spot_join_matched"] += sum(row["spot_join_status"] == "EXACT_TIMESTAMP_MATCH" for row in rows)
                     budget["spot_join_missing"] += sum(row["spot_join_status"] == "NO_EXACT_TIMESTAMP_SPOT_MATCH" for row in rows)
                     budget["cache_hits"] += int(cache_status == "CACHE_HIT")
