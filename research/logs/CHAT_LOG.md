@@ -506,3 +506,12 @@ The Gate A workflow was strengthened to require a standardized tester decision l
 **Developer → Tester:** Review current workflow blob `fdc0a6bef97796b38424048304b704d86f80c450` along with sampler/spec/test blobs in the review request.
 
 **Tester → Developer:** Approval must explicitly bind the current six protected Git blobs and Gate A-only scope; do not approve full-history acquisition or fitting.
+
+
+## 2026-10-10 — F&O sampler coverage gap found before source access
+
+While reviewing the current v2 source sampler, found that it did not execute the separate legacy/UDiFF F&O archive sampler. That meant the options schema transition—the key for F03–F05—would not have been included in the v2 artifact. Corrected workflow blob `1d8991255ff284c6b9cb20c4071ab56555d18dc6` now runs both bounded samplers and uploads both reports. No live data was fetched. Because the workflow changed, the current exact-snapshot tester gate must be renewed.
+
+**Developer → Tester:** Review the latest exact workflow blob; verify both F&O and cash-market source samples are bounded and uploaded.
+
+**Tester → Developer:** Keep source requests blocked until the current workflow/code snapshot passes.
