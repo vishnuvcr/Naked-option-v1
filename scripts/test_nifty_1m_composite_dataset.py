@@ -181,6 +181,30 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertEqual(rows[0]["delta"], "")
         self.assertEqual(rows[0]["gamma"], "")
 
+    def test_proxy_greeks_are_explicitly_tagged(self):
+        request = option_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"data": {"ce": {
+            "timestamp": [ts], "open": [120], "high": [122], "low": [119], "close": [121],
+            "iv": [18.5], "volume": [100], "strike": [24700], "oi": [3210], "spot": [24705]
+        }, "pe": None}}
+        expiry_map = {
+            ("2026-10-01", "WEEK", 0): {
+                "expiry_date": "2026-10-08",
+                "dividend_yield_decimal": "",
+                "expiry_mapping_source": "RULE_DERIVED_TEST_FIXTURE",
+                "dividend_yield_source": "",
+            }
+        }
+        rows, _ = collector.parse_option_response(payload, request, {}, "c" * 64, "FETCHED", expiry_map, [])
+        row = rows[0]
+        self.assertEqual(row["greek_status"], "CALCULATED_BS_V1_PROXY_INPUTS")
+        self.assertEqual(row["risk_free_rate_source"], "ASSUMED_ZERO_RATE_PROXY")
+        self.assertEqual(row["dividend_yield_source"], "ASSUMED_ZERO_DIVIDEND_PROXY")
+        self.assertIn("expiry estimated", row["greek_assumption"])
+        self.assertIn("IV unit convention is undocumented", row["greek_assumption"])
+        self.assertGreater(float(row["gamma"]), 0)
+
     def test_rule_expiry_map_uses_september_2025_monthly_transition_correctly(self):
         sessions = {
             "2025-09-01", "2025-09-02", "2025-09-22", "2025-09-23", "2025-09-24",
