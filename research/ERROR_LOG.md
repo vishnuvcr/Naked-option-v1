@@ -947,3 +947,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: offline-only adapter test job stopped before completion. No public-source requests were made.
 - Correction: scripts/test_official_reference_crosscheck.py updated at commit c2e07b62f93e72e2987fdc72e4f31d5f26e0a922 / blob 0436144c26edd4de19364529a96a6b12cdc38f31 to unpack the header tuples.
 - Disposition: rerun all mocked suites and preserve any further test-harness defects. No live official-source authorization exists.
+
+
+## 2026-10-10 — Official-reference runner CLI and duplicate-test iteration 4
+
+- Category: test/CLI guard compatibility.
+- Workflow runs: [38056387108](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056387108) and [38056403364](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056403364).
+- Findings: the separate runner test's smoke test called the runner CLI without a live flag while expecting the old behavior. The runner now intentionally defaults to offline-only mode; this contract is safer and lets ordinary smoke tests complete without writing a failure artifact. The same separate duplicate test file also had a Request.header_items tuple-unpacking defect.
+- Additional fixture issue fixed in the prior sub-iteration: the isolated runner fixture wrote literal backslash-n instead of an actual JSON line ending, which made the test manifest unreadable. The test fixture now writes valid JSON, and the runner CLI requires explicit --live plus OFFICIAL_CROSSCHECK_AUTHORIZED=1 for live mode.
+- Correction: test_run_official_reference_crosscheck.py header tuple handling fixed in commit f84f30b0579cbcd35208c7bf0e42b858276ff11e / blob 2f38938478e3e5b19fc4c969f8dae110c955c1d7. Runner CLI is offline-only by default at commit 02e5a01eebfbe303a05d9886ccfee0c68a86c65f.
+- Safety: these failures were mocked/offline-only; no official source request occurred and no cache was created.
+- Next disposition: rerun both offline workflows after this correction; preserve any remaining failures before independent code review.
