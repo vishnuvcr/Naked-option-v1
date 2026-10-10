@@ -145,7 +145,7 @@
 | Data | PDF p. 3 | Daily NSE NIFTY data from 3-Apr-2006 to 16-May-2016, 3,335 instances. | Paper-native data window is longer than the current project sample. |
 | Target/horizon | PDF pp. 3–5 | Forecasts OHLC price fields. | Exact forecast shift must be verified before scoring a next-session task. |
 | Split | PDF p. 3 | 70% training and 30% testing. | The page does not clearly establish the chronological order; record `split_order=AMBIGUOUS` unless another exact locator does. |
-| Metrics/results | PDF pp. 4–5 | Reports normalized train/test RMSE, including main-network values 0.0078485851 and 0.0106902067. | The inspected results support those RMSE values. The crosswalk's 99.2152% “accuracy” is **unverified** in these source sections; locate the exact page and formula or remove it from source-verified claims. |
+| Metrics/results | PDF p. 1 (abstract); PDF pp. 4–5 | Abstract reports “average accuracy 99.2152%” and RMSE about 0.0079; results pages report normalized train/test RMSE 0.0078485851 and 0.0106902067 for the main network. | The 99.2152% figure is located, but its meaning/formula is not defined sufficiently to treat it as directional accuracy or compare it across papers. Preserve it as an **author-reported, undefined metric**. The reported RMSE values are in normalized space, not raw index points. |
 | Limitations | PDF pp. 3–5 | Results use normalized-space RMSE and graphical comparison; chronology/horizon/accuracy formula remain insufficiently located. | Do not compare reported normalized errors to raw-price RMSE without inverse-scaling. |
 
 ## Paper 14 — JRFM (2023), `jrfm-16-00423.pdf`
