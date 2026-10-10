@@ -31,6 +31,17 @@ DAILY_REQ = {
     "fromDate": "2023-11-15", "toDate": "2023-11-16", "oi": False,
 }
 
+
+def cache_meta(raw: bytes) -> dict:
+    return {
+        "http_status": 200,
+        "content_type": "application/json",
+        "response_sha256": hashlib.sha256(raw).hexdigest(),
+        "response_bytes": len(raw),
+        "request_count": 1,
+        "cumulative_response_bytes": len(raw),
+    }
+
 ROLLING = {
     "data": {
         "ce": {
@@ -157,7 +168,7 @@ def test_request_posts_only_to_allowlisted_dhan_host_and_redacts_token() -> None
     response = FakeResponse(raw)
     opener = FakeOpener(response, expected_url=mod.DAILY_URL)
     budget = mod.RequestBudget()
-    result, meta = mod.request_json(
+    result, meta, raw_response = mod.request_json(
         mod.DAILY_URL, DAILY_REQ, token="TEST_TOKEN_DO_NOT_LEAK",
         budget=budget, opener_factory=lambda: opener, live_authorized=True, now=100,
     )
@@ -166,6 +177,7 @@ def test_request_posts_only_to_allowlisted_dhan_host_and_redacts_token() -> None
     assert req.get_header("Access-token") == "TEST_TOKEN_DO_NOT_LEAK"
     assert timeout == mod.TIMEOUT_SECONDS
     assert result == payload
+    assert raw_response == raw
     assert meta["response_sha256"] == hashlib.sha256(raw).hexdigest()
     assert meta["request_count"] == 1 and meta["response_bytes"] == len(raw)
     assert "TEST_TOKEN_DO_NOT_LEAK" not in json.dumps(meta)
@@ -409,7 +421,7 @@ def test_cache_rejects_response_timestamps_outside_requested_window() -> None:
     with tempfile.TemporaryDirectory() as temp:
         must_raise(lambda: mod.atomic_cache_bundle(
             raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={}, request_parameters=outside,
+            request_metadata=cache_meta(raw), request_parameters=outside,
             fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_timestamp_outside_requested_window")
         assert list(pathlib.Path(temp).iterdir()) == []
@@ -461,9 +473,7 @@ def test_atomic_cache_bundle_hashes_and_preserves_content() -> None:
     with tempfile.TemporaryDirectory() as temp:
         report = mod.atomic_cache_bundle(
             raw, validation, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={"http_status": 200, "content_type": "application/json",
-                              "response_bytes": len(raw), "request_count": 1,
-                              "cumulative_response_bytes": len(raw), "network_enabled": True},
+            request_metadata=cache_meta(raw),
             request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z",
         )
@@ -474,9 +484,7 @@ def test_atomic_cache_bundle_hashes_and_preserves_content() -> None:
         assert "access-token" not in json.dumps(manifest).lower()
         again = mod.atomic_cache_bundle(
             raw, validation, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={"http_status": 200, "content_type": "application/json",
-                              "response_bytes": len(raw), "request_count": 1,
-                              "cumulative_response_bytes": len(raw)},
+            request_metadata=cache_meta(raw),
             request_parameters=DAILY_REQ,
             fetched_at_utc="2026-10-10T00:00:00Z",
         )
@@ -493,7 +501,7 @@ def test_cache_rejects_unapproved_host_and_credential_key() -> None:
         ), "cache_source_url_unregistered")
         must_raise(lambda: mod.atomic_cache_bundle(
             raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
-            request_metadata={}, request_parameters={"auth_token": "should-not-persist"},
+            request_metadata=cache_meta(raw), request_parameters={"auth_token": "should-not-persist"},
             fetched_at_utc="2026-10-10T00:00:00Z"
         ), "cache_manifest_contains_forbidden_key")
 
