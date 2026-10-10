@@ -28,7 +28,7 @@ CANDLES = {
 }
 DAILY_REQ = {
     "securityId": "13", "exchangeSegment": "IDX_I", "instrument": "INDEX",
-    "fromDate": "2024-01-01", "toDate": "2024-01-03", "oi": False,
+    "fromDate": "2023-11-15", "toDate": "2023-11-16", "oi": False,
 }
 
 ROLLING = {
@@ -277,6 +277,11 @@ def test_candle_arrays_and_ohlc_validate() -> None:
     assert result["row_count"] == 2 and result["first_timestamp"] == 1700000000
 
 
+def test_all_additional_response_arrays_must_align() -> None:
+    must_raise(lambda: mod.validate_candle_payload({**CANDLES, "open_interest": [1]}),
+               "candle_array_length_mismatch_open_interest")
+
+
 def test_candle_missing_unequal_and_empty_arrays_rejected() -> None:
     for bad, expected in [
         ({k: v for k, v in CANDLES.items() if k != "close"}, "candle_array_missing_close"),
@@ -395,6 +400,19 @@ def test_rolling_option_validator_handles_custom_required_fields() -> None:
         required_fields=("open", "high", "low", "close", "volume"),
     )
     assert result["row_count"] == 2
+
+
+def test_cache_rejects_response_timestamps_outside_requested_window() -> None:
+    raw = json.dumps(CANDLES, sort_keys=True).encode()
+    valid = mod.validate_candle_payload(CANDLES)
+    outside = {**DAILY_REQ, "fromDate": "2024-01-01", "toDate": "2024-01-03"}
+    with tempfile.TemporaryDirectory() as temp:
+        must_raise(lambda: mod.atomic_cache_bundle(
+            raw, valid, cache_root=temp, source_url=mod.DAILY_URL,
+            request_metadata={}, request_parameters=outside,
+            fetched_at_utc="2026-10-10T00:00:00Z"
+        ), "cache_timestamp_outside_requested_window")
+        assert list(pathlib.Path(temp).iterdir()) == []
 
 
 def test_cache_bundle_rejects_invalid_json_or_validation() -> None:
