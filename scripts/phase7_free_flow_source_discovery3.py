@@ -235,11 +235,9 @@ class LimitedFetcher:
         except RuntimeError as exc:
             return FetchResult(url=url, final_url=url, status="BUDGET_REJECTED", http_status=None, error=str(exc))
 
-        clean_headers = dict(headers)
-        # This discovery probe uses public resources; do not send secrets or cookies.
-        for secret_header in ("Authorization", "Cookie", "Proxy-Authorization"):
-            clean_headers.pop(secret_header, None)
-            clean_headers.pop(secret_header.lower(), None)
+        # Drop credentials case-insensitively on every initial or redirected request.
+        secret_headers = {"authorization", "cookie", "proxy-authorization"}
+        clean_headers = {k: v for k, v in headers.items() if k.lower() not in secret_headers}
         request = urllib.request.Request(url, headers=clean_headers, method=method)
         try:
             response = self._opener.open(request, timeout=20)
@@ -306,6 +304,48 @@ class LimitedFetcher:
                 bytes_read=len(data), sha256=hashlib.sha256(data).hexdigest(),
             )
 
+    @staticmethod
+    def _is_registered_request(
+        url: str, source: str, method: str, headers: dict[str, str]
+    ) -> tuple[bool, str]:
+        method = method.upper()
+        if source == "cdsl":
+            if method == "GET" and url in {CDSL_INDEX_URL, CDSL_TRENDS_URL, *(u for u, _ in CDSL_XLS.values())}:
+                return True, ""
+        elif source == "hf_metadata":
+            if method == "GET" and url == HF_METADATA_URL:
+                return True, ""
+        elif source == "hf_file":
+            if url != HF_FILE_URL:
+                return False, "HF file URL is not the frozen resolve URL"
+            range_value = next((v for k, v in headers.items() if k.lower() == "range"), None)
+            if method == "HEAD" and range_value is None:
+                return True, ""
+            if method == "GET" and range_value is not None:
+                match = re.fullmatch(r"bytes=(\d+)-(\d+)", range_value.strip())
+                if match:
+                    start, end = int(match.group(1)), int(match.group(2))
+                    if start == 0 and end == MAX_HF_RANGE_BYTES - 1:
+                        return True, ""
+                    if end - start + 1 == MAX_HF_RANGE_BYTES and end >= MAX_HF_RANGE_BYTES:
+                        return True, ""
+            return False, "HF file request method/range is outside the frozen plan"
+        elif source == "github_api":
+            allowed = {CHIRAG_COMMIT_URL, *GH_HISTORY_DIR_URLS.values()}
+            if method == "GET" and url in allowed:
+                return True, ""
+        elif source == "github_raw":
+            pattern = r"https://raw\.githubusercontent\.com/chirag127/fii-dii-activity-api/[0-9a-f]{40}/data/2026-10-01\.json"
+            if method == "GET" and re.fullmatch(pattern, url):
+                return True, ""
+        elif source == "sebi" and method == "GET" and url == SEBI_URL:
+            return True, ""
+        elif source == "nse" and method == "GET" and url == NSE_URL:
+            return True, ""
+        elif source == "calcsetu" and method == "GET" and url == CALCSETU_URL:
+            return True, ""
+        return False, f"unregistered source/method/URL: {source} {method} {url}"
+
     def get(
         self,
         url: str,
@@ -316,6 +356,13 @@ class LimitedFetcher:
         method: str = "GET",
         permit_hf_redirect: bool = False,
     ) -> FetchResult:
+        supplied_headers = headers or {}
+        registered, reason = self._is_registered_request(url, source, method, supplied_headers)
+        if not registered:
+            return FetchResult(
+                url=url, final_url=url, status="UNREGISTERED_URL", http_status=None,
+                error=reason,
+            )
         request_headers = dict(HEADERS)
         if headers:
             request_headers.update(headers)
@@ -349,10 +396,8 @@ class LimitedFetcher:
             first.error = "redirect URL may not contain credentials"
             return first
 
-        final_headers = dict(request_headers)
-        for secret_header in ("Authorization", "Cookie", "Proxy-Authorization"):
-            final_headers.pop(secret_header, None)
-            final_headers.pop(secret_header.lower(), None)
+        secret_headers = {"authorization", "cookie", "proxy-authorization"}
+        final_headers = {k: v for k, v in request_headers.items() if k.lower() not in secret_headers}
         redirected = self._single_exchange(
             parsed_location.geturl(), method, final_headers, body_cap, is_redirect=True
         )
@@ -605,8 +650,12 @@ def inspect_cdsl_source(fetcher: LimitedFetcher) -> dict[str, Any]:
     if index.status == "FETCHED":
         page = html_text_sample(index.data)
         result["index_page_sample"] = page
+        # Parse all links from the already capped CDSL page body to estimate its
+        # visible date span; only 20 are written to the report.
+        links = LinkParser()
+        links.feed(index.data.decode("utf-8", errors="replace"))
         dated_links: list[dict[str, str]] = []
-        for link in page["link_samples"]:
+        for link in links.links:
             text = link.get("text", "")
             normalized = parse_date(text)
             if normalized:
@@ -706,8 +755,6 @@ def parse_csv_edge(data: bytes, *, edge: str) -> dict[str, Any]:
     # For either edge, only complete line records are admitted. A truncated
     # final line is dropped instead of being interpreted as a valid record.
     complete_lines = [line for line in lines if line.endswith(("\n", "\r"))]
-    if edge == "head" and lines and not lines[-1].endswith(("\n", "\r")):
-        complete_lines = complete_lines[:-1] if len(complete_lines) > 0 else []
     reader = csv.reader(complete_lines)
     parsed = list(reader)
     parsed = [row for row in parsed if row and any(cell.strip() for cell in row)]
@@ -1059,9 +1106,9 @@ def main(argv: list[str] | None = None) -> int:
     fetcher = LimitedFetcher()
     report = run_sources(fetcher)
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    serialized = json.dumps(report, indent=2, sort_keys=True).encode("utf-8")
+    serialized = json.dumps(report, indent=2, sort_keys=True).encode("utf-8") + b"\n"
     report_sha = sha256_bytes(serialized)
-    REPORT_PATH.write_bytes(serialized + b"\n")
+    REPORT_PATH.write_bytes(serialized)
     summary = {
         "report_path": str(REPORT_PATH.relative_to(ROOT)),
         "report_sha256_without_trailing_newline": report_sha,
