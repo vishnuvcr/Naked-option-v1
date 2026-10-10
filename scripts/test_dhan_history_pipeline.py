@@ -256,7 +256,7 @@ def test_bad_json_and_non_object_root_rejected() -> None:
         response = FakeResponse(raw)
         must_raise(
             lambda response=response: mod.request_json(
-                mod.DAILY_URL, {}, token="x", budget=mod.RequestBudget(),
+                mod.DAILY_URL, DAILY_REQ, token="x", budget=mod.RequestBudget(),
                 opener_factory=lambda: FakeOpener(response), live_authorized=True, now=100,
             ),
             expected,
