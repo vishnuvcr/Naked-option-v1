@@ -574,3 +574,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Sector API URL returned generic HTML; official index CSV pattern `ind_close_all_DDMMYYYY.csv` identified as a better source but not yet sampled. Advances/Declines page did not expose historical rows in this sample.
 - Tester report `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_FEASIBILITY_RUN1_TESTER.md` = REQUEST CHANGES. Next bounded iteration must sample official daily index and equity bhavcopy CSVs and search more free historical FII/DII sources.
 - No full-history download, feature table, labels or model fitting occurred. Gate A remains open.
+
+
+## 2026-10-10 — Gate A sampler v2 regression failed before source requests
+
+- [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in the offline test step due to an over-escaped ISO date regex; no live source request or artifact upload occurred.
+- Developer corrected the regex and changed the workflow push trigger to require a tester-approved Gate A approval file.
+- Corrected sampler blob `fb83fe5e880a26134a765a0426f7aa85380272fb`; tests blob `d818613dc2f9188224562a953fd979a6c274d292`; workflow blob `d303d8bd05978ef4837e1935ed40f8c2cdec851c`.
+- **Status:** independent re-review pending. No source feasibility v2 download, full history, or model fitting is authorized yet.
