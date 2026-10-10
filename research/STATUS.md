@@ -1,29 +1,28 @@
 # Research Status
 
-## Current checkpoint — 2026-10-10, available-data prediction extension
+## Current checkpoint — 2026-10-10, after Phase 7 Run #44
 
 | Workstream | Current state | Evidence / next gate |
 |---|---|---|
-| Previously accepted Phase 7 Run #994 | Accepted technical artifact with scoped restrictions; no significant family-level predictive improvement | [Independent empirical audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md); all ten family p-values were non-significant |
-| Available-data prediction extension | **Developer submission prepared; independent tester review pending** | [Method specification](phase7/AVAILABLE_DATA_PREDICTION_SPEC.md) and [developer handoff](gates/PHASE7_AVAILABLE_GLOBAL_DEVELOPER_SUBMISSION.md) |
-| Extension regression | **PASS on run #5** | [Workflow run #5](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37984078118); 6 deterministic regression checks passed |
-| Extension empirical execution | **NOT AUTHORIZED / SKIPPED** | Workflow correctly skipped predictions because no independent tester approval JSON had been mirrored |
-| Options strategy research | **OUT OF SCOPE for this user request** | Do not enter Phase 8; no option trades or strategy P&L are being tested |
-| Final untouched holdout | **UNOPENED** | Retain for a later independently approved forward-validation gate |
+| Prior Phase 7 ensemble/regime Run #994 | Accepted technical artifact with scoped restrictions; no candidate promoted | [Independent empirical audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md) |
+| Available-data extension 1 (global/peer daily prices) | **COMPLETED — NO CANDIDATE PROMOTED** | [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915); all five horizon-family tests non-significant; [results](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/results/PHASE7_RUN44_AVAILABLE_GLOBAL_PREDICTION_RESULTS.md) |
+| Run #44 independent audit | **PASS WITH SCOPED RESTRICTIONS — integrity only** | [Tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md); metrics and all five family p-values independently reproduced |
+| Available-data extension 2 (sector, breadth, FII/DII, option OI/volume predictors) | **PROPOSED — TESTER SPEC REVIEW PENDING** | [Frozen proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md); [developer submission](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md) |
+| Full-history acquisition / empirical fit for extension 2 | **NOT AUTHORIZED** | Wait for independent spec review; if approved, only Gate A small-sample source feasibility may proceed |
+| Options strategy / Phase 8 | **BLOCKED / OUT OF CURRENT USER SCOPE** | Do not run option P&L or strategy optimization while user requests prediction research only |
+| Final untouched holdout | **UNOPENED** | Keep sealed for later independent forward-validation gate |
 
-### Current extension scope
+### Current prediction-only work
 
-- Candidate data: SENSEX, Bank Nifty, S&P 500, Nasdaq Composite, Nikkei 225, Hang Seng, Cboe VIX, USD/INR, gold, crude oil, and India VIX where free historical acquisition passes validation.
-- Candidate methods: G01/G02, G04/G05/G06, G08/G09/G11/G12/G13/G16, plus a deliberately limited G18 weekday/annual-cycle control.
-- Horizons: 1, 2, 3, 5, and 10 NIFTY sessions.
-- Method code: [acquisition](../scripts/acquire_global_history.py), [predictor](../scripts/run_phase7_available_global.py), [regression tests](../scripts/test_phase7_available_global.py), [gated workflow](../.github/workflows/phase-07-available-global.yml).
-- Strict point-in-time rule remains unchanged: global source session date must be strictly earlier than the NIFTY session date. Source failures are isolated and recorded; no fabricated data or backfilled values.
-- Regression runs #1 and #3 failed on test-fixture mistakes and are preserved/logged as non-evidence. Run #4 passed after fixture correction; run #5 passed after cache-freshness refinement. No empirical prediction result has yet been created for this extension.
-- Next step: independent tester must audit source timing, leakage/purging, feature and result formulas, family bootstrap, code hashes, and workflow fail-closed behavior. Empirical execution is authorized only if the tester explicitly approves the exact protected code snapshot.
+- Extension 1 tested 12 registered daily methods over 5 horizons (60/60 cells), using 11 global/peer series and 1,676 NIFTY daily rows. The 91,988-row panel was independently audited.
+- Raw family p-values at 1/2/3/5/10 sessions were 0.9840 / 0.8882 / 0.6786 / 0.7745 / 0.9800; all Bonferroni-adjusted p-values were 1.0. No candidate is promoted.
+- The best descriptive Brier leader was G06 Asia composite at five sessions (Brier improvement +0.001623, ROC AUC 0.556), but its family p-value was 0.7745; this is not persuasive predictive evidence.
+- Extension 2 is a proposal only. It adds no results and has not changed the frozen Run #44 scope. Official source leads are NSE F&O UDiFF bhavcopy, historical indices/Advances-Declines, and FII/FPI/DII CSV reports. No full history has been downloaded for this extension.
+- The final untouched holdout remains unopened.
 
-Developer → Tester: review all submitted files independently and issue a gate report; do not infer scientific validity from regression success alone.
+Developer → Tester: Independently review the exact Extension 2 proposal and issue PASS/REQUEST CHANGES. If the spec passes, authorize only small-sample source-feasibility work, not full history or model fitting.
 
-Tester → Developer: report any mathematical, data-alignment, leakage, or workflow issue; provide verified protected SHA-256 values and explicit approval/rejection for one empirical prediction run.
+Tester → Developer: Keep empirical work fail-closed until the spec and each subsequent source/code/empirical gate is independently passed.
 
 ---
 
@@ -34,15 +33,15 @@ Tester → Developer: report any mathematical, data-alignment, leakage, or workf
 | Phase 2 Data engineering/PIT | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived |
 | Phase 3 Labels/baselines | PASSED WITH SCOPED RESTRICTIONS | final tester gate archived; B9/B10 blocked |
 | Phase 4 Single-family methods | PASSED WITH SCOPED RESTRICTIONS | Family B and Family C tester gates archived |
-| Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
-| Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
-| Phase 7 Ensemble/regime | **BLOCKED — CORRECTION WORKFLOW REQUEST CHANGES** | Four result defects have implementation/test corrections, but tester requires approval to bind to exact protected-code snapshot; see [correction review](gates/PHASE7_RUN925_CORRECTION_REVIEW_TESTER.md) |
-| Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
+| Phase 5 Statistical/ML | PASSED WITH SCOPED RESTRICTIONS | Family D Run #23 independently accepted; no model promoted |
+| Phase 6 Novel methods | PASSED WITH SCOPED RESTRICTIONS | Run #581 independently accepted; no method promoted |
+| Phase 7 Ensemble/regime and prediction-only amendments | **PASS WITH SCOPED RESTRICTIONS; extension 2 pending tester spec gate** | Run #994 accepted; Run #44 cross-market extension audited with no significant candidate |
+| Phase 8 Long-option execution | BLOCKED | Not in current prediction-only scope; future Paytm Money/cost/execution gate |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-09
+Last updated: 2026-10-10
 
 ## Phase 5 current state
 
