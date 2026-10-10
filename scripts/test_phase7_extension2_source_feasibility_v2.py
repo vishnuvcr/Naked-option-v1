@@ -127,6 +127,11 @@ def test_nonnumeric_fii_flow_fails_without_crashing() -> None:
     assert result["nonnumeric_or_nonfinite_flow_row_count"] == 1
 
 
+def test_date_normalizer_handles_timestamp_suffix() -> None:
+    assert mod.normalize_date("05-Jul-2024 00:00:00") == "2024-07-05"
+    assert mod.normalize_date("2024-07-08T00:00:00") == "2024-07-08"
+
+
 def main() -> None:
     tests = [
         test_index_csv_requires_all_frozen_indices_and_date,
@@ -137,6 +142,7 @@ def main() -> None:
         test_later_fii_row_missing_field_fails,
         test_duplicate_fii_dates_fail,
         test_nonnumeric_fii_flow_fails_without_crashing,
+        test_date_normalizer_handles_timestamp_suffix,
     ]
     for test in tests:
         test()
