@@ -778,3 +778,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Dedicated one-request workflow: `.github/workflows/phase-07-dhan-redirect-probe-live.yml`; validator: `scripts/validate_dhan_redirect_probe_approval.py`.
 - Hosted [Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 38/38 offline regressions.
 - Independent tester PASS authorizes one exact-hash redirect-target-only request after a new single-use manifest. It does not authorize following the redirect or requesting candles/history. Existing manifests are spent.
+
+
+## 2026-10-10 — Current resume checkpoint: redirect probe re-review
+
+- Research remains prediction-only in Phase 7. Existing model-family/horizon results are unchanged; no candidate has met the registered significance gate, and no option strategy test is authorized.
+- Dhan profile check returned HTTP 200 (token valid, Data API plan active); the index instrument metadata endpoint returned HTTP 302. The redirect has never been followed; neither of the guarded samples obtained candle data. The combined FII/FPI/DII aggregate-flow series is still unresolved.
+- The redirect-host-only diagnostic specification was approved. Developer code now parses HTTPS-only host metadata, rejects malformed/control-character URLs and credential-bearing redirects, only parses Location on 3xx, enforces a one-request/1 KiB budget, and avoids raw Location/body/token output.
+- Dedicated workflow manual dispatch requires `confirm_probe=true`; its default is false. Exact-snapshot review must include that workflow, the manifest validator, source and tests.
+- Hosted offline suite [Run 38044495634](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044495634) passed. A guarded attempt [Run 38044387209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044387209) passed all 38 offline regressions but stopped at the validator because the new single-use manifest is intentionally absent; secret injection and source request were skipped.
+- **Current gate: waiting for independent tester review of the exact corrected snapshot. No READY manifest exists.** Only after tester PASS and a matching hash-pinned manifest may the one redirect-host-only diagnostic run; no redirect follow, instrument-master download, candle/history calls, model fit, or holdout access is authorized.
