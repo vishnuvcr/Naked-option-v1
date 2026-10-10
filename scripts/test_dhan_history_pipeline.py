@@ -204,7 +204,7 @@ def test_http_error_does_not_leak_body_or_headers() -> None:
         assert "PRIVATE" not in str(exc) and "secret" not in str(exc)
     else:
         raise AssertionError("HTTP error accepted")
-    assert body.tell() == 0
+    assert body.read_count == 0
 
 
 def test_non_json_content_type_rejected() -> None:
