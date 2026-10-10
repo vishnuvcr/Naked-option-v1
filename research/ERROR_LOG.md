@@ -583,3 +583,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - Existing FII/DII discovery manifest is SPENT. No Dhan endpoint was called, and no secret value was accessed or logged.
 - Dhan documentation supports instrument historical OHLCV candles and optionally OI, but does not document a daily aggregate FII/FPI/DII cash-flow endpoint. Do not treat candles as substitute flow features.
 - Submitted a new specification and tester review request. Live access remains prohibited until the spec is reviewed, the adapter/tests/workflow pass a new exact-snapshot code gate, and a separate one-run manifest is validated.
+
+
+## 2026-10-10 — Dhan adapter offline regression failures and fixes
+
+- Run `38042825681` failed because the CSV fixture used literal escaped newline text. Corrected the fixture; later tests added explicit CSV parsing.
+- Run `38042956380` failed from a malformed workflow assertion string. Run `38042983388` failed because a Python string assertion incorrectly escaped the literal GitHub Actions secret expression. Both assertions were corrected.
+- Current [Run 38043020539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043020539) passed 27/27 offline regressions.
+- These were offline fixture/guard errors only; no Dhan token was passed to test jobs and no Dhan API request occurred.
