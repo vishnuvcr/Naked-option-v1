@@ -575,3 +575,8 @@ Downloaded and independently inspected artifact ID `11657636547` from [Run #44](
 ## 2026-10-10 — Extension 2 proposal review: REQUEST CHANGES
 
 Independent tester reviewed the proposed seven-method NSE flow/breadth/options-feature family and returned REQUEST CHANGES before any data acquisition. Required amendments are exact legacy F&O-to-UDiFF coverage, deterministic flow normalization, explicit F04/F05 formulas, canonical sector-index identity, and a synthetic missing-candidate bootstrap fixture. No data were downloaded and no model was fit. The proposal remains closed at specification Gate B until corrected and re-reviewed.
+
+
+## 2026-10-10 — Gate A sampler code review
+
+Tester returned REQUEST CHANGES before enabling the source-feasibility workflow because the sample archive parser checked the expected date only on the first row. The developer must validate every row's trade date and add mixed-date negative fixtures for both legacy and UDiFF. No live source sample was downloaded; the workflow has not been added or run.
