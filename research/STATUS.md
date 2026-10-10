@@ -908,3 +908,14 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Developer commit [50f79a629b580063fbe561117da57cf7c9e2b044](https://github.com/vishnuvcr/Naked-option-v1/commit/50f79a629b580063fbe561117da57cf7c9e2b044) added a comment-only trigger to the offline test file so the path-filtered CI suite would execute against the latest implementation snapshot.
 - Current protected blobs at this checkpoint: adapter `ef5b507d9c1706b2afd16338db8bec2bd517352d`; runner `ff593638d3f76671215cfe55a5cc1f96859096ea`; adapter tests `2817c41ba25882930ccb0a0fc2d7f77968da67ea`; runner tests `19da2c5f99c340c9b0aa312e3e6e198d033b3a4f`; workflow `f23a2dcbd13eb35f0afcbd80ed4d28ff67bb644e`.
 - The available GitHub connector returned no workflow run receipt/status for this commit. Therefore a hosted PASS cannot be asserted yet. **Live source requests remain blocked** until the actual workflow conclusion and independent exact-snapshot tester PASS are available.
+
+
+## 2026-10-10 — Resume checkpoint: exact-snapshot CI receipt still unverified
+
+- Re-read the current README, phase status, error log, chat log, cross-check implementation/runner/tests/workflow, and the independent tester report before continuing.
+- Exact-snapshot tester decision remains **REQUEST CHANGES**. The historical offline pass is stale relative to the current blobs. The trigger commit is `50f79a629b580063fbe561117da57cf7c9e2b044`; connected GitHub tools returned no workflow receipt and no commit status. The commit-run lookup available here only filters PR-triggered runs, so this absence is not evidence of a failed or successful push-triggered run.
+- No public-source request, model run, strategy test, or holdout access occurred. The old Dhan one-use approval remains SPENT. No new source data is accepted for modeling.
+- **Next:** obtain a verifiable Actions receipt from the repository workflow page or an available run-listing/dispatch capability, pin the exact tested commit and file blobs, and resubmit to the isolated tester. Do not bypass the gate by treating local/static review or the historical test run as a pass.
+
+**Developer → Tester:** Keep the decision at REQUEST CHANGES until an exact-snapshot hosted test receipt is independently verifiable.
+**Tester → Developer:** Re-review only the exact tested snapshot and its receipt; continue to block all live-source requests until a fresh explicit PASS.
