@@ -42,7 +42,7 @@ Each URL below is fixed in code before the workflow runs. A source can be marked
 | SEBI-1 | `https://www.sebi.gov.in/statistics/fpi-investment/trade-wise-equity-data-of-fpi.html` | 1 | 128 KiB | Archive link/date metadata only; do not download monthly transaction files |
 | NSE-1 | `https://www.nseindia.com/reports/fii-dii/` | 1 | 128 KiB | Visible fields/CSV link metadata only; do not submit date-range queries |
 | CALCSETU-1 | `https://calcsetu.com/Utility/Diifii/` | 1 | 64 KiB | At most 20 visible recent table rows, page metadata only; no pagination/range requests |
-| GH-META-1 | GitHub Contents API metadata-only calls to `/repos/marketcalls/fii-dii-data/contents/data/history.json` and `/repos/r7sh7/fii-dii-data/contents/data/history.json` | 2 | 64 KiB per response | Repository metadata and tracked-file sizes only; no raw history files |
+| GH-META-1 | GitHub Contents API directory metadata-only calls to `https://api.github.com/repos/marketcalls/fii-dii-data/contents/data` and `https://api.github.com/repos/r7sh7/fii-dii-data/contents/data` | 2 | 64 KiB per response | Directory listing provides per-file sizes/SHAs; never call a file-specific `/contents/data/history.json` endpoint because it can return file content |
 
 **Global limits:** maximum 15 initial probe requests, plus at most 3 one-hop redirects for the three HF HEAD/range requests (18 HTTP request/response exchanges maximum in total), and maximum 2 MiB (2,097,152 bytes) read across all response bodies, including redirect/error/partial bodies. The sum of the declared maximum source body budgets is 1,584 KiB, leaving 464 KiB headroom under the global byte cap. A shared byte/request budget must be enforced across the whole run; any unregistered URL/host, excess redirect, exceeded request count or exhausted global byte budget stops all subsequent requests. The HF dataset-metadata request must return 200 directly; no redirect is followed for metadata, CDSL, NSE, SEBI, CalcSetu or GitHub metadata requests. Only the HEAD plus two HF range requests may use one allowlisted redirect each.
 
@@ -63,7 +63,7 @@ No other source, URL, date, time range, path, or endpoint may be added after res
 
 ### Hugging Face CSV
 - Pinned repository commit and exact filepath are mandatory.
-- HEAD must provide a credible content length. The sampler may read only the first 8 KiB and last 8 KiB via Range; it must require status 206 and validate Content-Range against the requested interval.
+- HEAD must provide a credible content length. The sampler may read only the first 8 KiB and last 8 KiB via Range; it must require status 206 and validate Content-Range against the requested interval. If HEAD omits/invalidates Content-Length or reports `L <= 8192`, make no tail-range request and mark the CSV source NOT_VERIFIED/COVERAGE_LEAD_ONLY.
 - Report header, a maximum of 10 parsed rows from the head and 10 rows from the tail, date field candidates, FII/DII buy/sell field candidates, numeric validity and duplicate dates within the sampled rows.
 - If the file is too small to satisfy the restricted two-range plan, Range is unsupported, content-length is missing, or the response would exceed caps, mark the probe unverified/rejected; do not fall back to downloading the file.
 - The 503-line public diff is only a discovery clue, not proof of 500 unique dated observations. No full-file row count or model-usable coverage conclusion may be asserted from a partial sample.
@@ -101,6 +101,9 @@ Tests must include:
 10. The CDSL archive-form response may return 403; the report records `NOT_VERIFIED` without trying a bypass.
 11. A failed/ignored NSE date-range response remains rejected; no broader retry is issued.
 12. No sampler function calls the model runner, makes target labels, or writes predictor tables.
+13. A valid HF HEAD length `L > 8192` defines tail Range `L-8192` through `L-1`; missing/invalid length or `L <= 8192` must skip tail fetch and fail closed.
+14. GitHub metadata tests use only the `contents/data` directory endpoints and validate that the parser reads file `size`/`sha` metadata, not any `content` payload. No request may use a file-specific Contents API endpoint.
+15. Redirect tests verify exactly one allowlisted HF hop at most, reject an unregistered host or two-hop chain, and verify no authorization/cookie headers are sent to redirected hosts.
 
 The source-specific runner must be import-safe. The offline workflow must run tests only and must not call any source retrieval module. The live workflow must remain a separate, fail-closed job.
 
