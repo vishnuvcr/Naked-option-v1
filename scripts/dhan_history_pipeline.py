@@ -109,6 +109,7 @@ def request_json(
         raise ValueError("unregistered_or_unsafe_url")
     if not isinstance(body_obj, dict):
         raise ValueError("request_body_must_be_object")
+    validate_request_window(url, body_obj)
     body = json.dumps(body_obj, separators=(",", ":"), sort_keys=True).encode("utf-8")
     if len(body) > MAX_REQUEST_BODY_BYTES:
         raise ValueError("request_body_byte_cap_exceeded")
@@ -293,6 +294,8 @@ def validate_rolling_option_payload(
     )
     # Numeric and sign checks for non-OHLC fields.
     for field in ("iv", "oi", "strike", "spot"):
+        if field not in required:
+            continue
         for value in rows[field]:
             if isinstance(value, bool):
                 raise ValueError(f"rolling_option_value_invalid_{field}")
@@ -318,7 +321,8 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
         start, end = body.get("fromDate"), body.get("toDate")
         if not body.get("securityId") or not body.get("exchangeSegment") or not body.get("instrument"):
             raise ValueError("daily_request_instrument_fields_missing")
-        _validate_date_range(start, end, max_days=None)
+        # Programmatic safeguard: daily bulk requests are partitioned into <=365-day windows.
+        _validate_date_range(start, end, max_days=365)
         if body.get("oi", False) not in (True, False):
             raise ValueError("daily_request_oi_invalid")
         return {"source": "daily_candles", "fromDate": start, "toDate": end}
@@ -372,6 +376,10 @@ def _validate_datetime_range(start: Any, end: Any, *, max_days: int) -> None:
         to_date = dt.datetime.fromisoformat(str(end).replace(" ", "T"))
     except (ValueError, TypeError):
         raise ValueError("datetime_range_invalid") from None
+    # Dhan examples use local-naive Asia/Kolkata timestamps. Reject mixed/explicit
+    # offsets rather than silently compare or reinterpret them.
+    if from_date.tzinfo is not None or to_date.tzinfo is not None:
+        raise ValueError("datetime_timezone_not_allowed")
     if to_date <= from_date:
         raise ValueError("datetime_range_not_increasing")
     if (to_date.date() - from_date.date()).days > max_days:
@@ -393,6 +401,19 @@ def atomic_cache_bundle(
         raise ValueError("cache_source_url_unregistered")
     if not isinstance(payload_bytes, bytes) or not payload_bytes:
         raise ValueError("cache_payload_empty")
+    if len(payload_bytes) > MAX_RESPONSE_BYTES:
+        raise ValueError("cache_response_byte_cap_exceeded")
+    try:
+        parsed_payload = json.loads(payload_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        raise ValueError("cache_response_json_invalid") from None
+    if not isinstance(parsed_payload, dict) or not parsed_payload:
+        raise ValueError("cache_response_json_root_invalid")
+    if (not isinstance(validation, dict) or
+            isinstance(validation.get("row_count"), bool) or
+            not isinstance(validation.get("row_count"), int) or
+            validation.get("row_count", 0) <= 0):
+        raise ValueError("cache_validation_report_invalid")
     digest = hashlib.sha256(payload_bytes).hexdigest()
     root = pathlib.Path(cache_root)
     root.mkdir(parents=True, exist_ok=True)
@@ -425,6 +446,13 @@ def atomic_cache_bundle(
         return False
     if contains_forbidden_key(manifest):
         raise ValueError("cache_manifest_contains_forbidden_key")
+    allowed_parameter_keys = {
+        "securityId", "exchangeSegment", "instrument", "fromDate", "toDate",
+        "oi", "interval", "expiryFlag", "expiryCode", "strike",
+        "drvOptionType", "requiredData",
+    }
+    if not isinstance(request_parameters, dict) or not set(request_parameters).issubset(allowed_parameter_keys):
+        raise ValueError("cache_request_parameters_unapproved")
     encoded_manifest = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode("utf-8")
     if destination.exists():
         existing = destination / "manifest.json"
