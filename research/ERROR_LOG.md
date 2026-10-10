@@ -422,3 +422,12 @@
 - **Cache note:** all 11 global source manifest records have `cache_hit: false`; existing cache entries were rejected under current validation and reacquired. The current data/schema were uploaded to the workflow cache at job completion. Verify cache reuse on any future authorized run.
 - Artifact ID `11657636547`; artifact SHA-256 `63b607db7227cdd91f3a62a0a8ca5f0b010d12c3bad1848ebbd9f59961804891`.
 - No options strategy, Paytm Money execution cost, slippage, brokerage, or trading P&L was tested. Phase 8 remains blocked; do not interpret green workflow status as predictive significance.
+
+
+## 2026-10-10 — Next prediction family proposed; empirical execution remains closed
+
+- Run #44 completed and was independently audited. All five horizon family tests were non-significant and no candidate was promoted.
+- Developer proposed Extension 2 using the already registered G03/G14/G15/G17/F03/F04/F05 methods. It targets official NSE sector index, Advances/Declines, FII/FPI/DII and F&O UDiFF bhavcopy data.
+- Proposal: `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md`; handoff: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_DEVELOPER_SUBMISSION.md`.
+- Source pages were identified, but full-history acquisition, feature generation and model fitting have **not** started. Awaiting independent tester spec review.
+- The single global max-statistic family test across 35 method/horizon cells is registered in the proposal to reduce selection across methods and horizons. Any change requires a versioned spec amendment before results are viewed.
