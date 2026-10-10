@@ -338,13 +338,23 @@ def inspect_nse_fii_api_payload(key: str, data: bytes, meta: dict[str, Any]) -> 
         }
     if isinstance(obj, list):
         rows = obj
-    elif isinstance(obj, dict):
-        rows = obj.get("data", obj.get("rows", []))
+    elif isinstance(obj, dict) and ("data" in obj or "rows" in obj):
+        rows = obj.get("data", obj.get("rows"))
         if not isinstance(rows, list):
-            rows = []
+            return {
+                "key": key, **meta, "schema_status": "UNRECOGNIZED_JSON_SHAPE",
+                "top_level_keys": sorted(str(k) for k in obj.keys())[:50],
+                "reason": "data/rows member is not a list",
+            }
+    elif isinstance(obj, dict) and any(k in obj for k in ("date", "tradeDate", "tradeDateString")):
+        rows = [obj]
     else:
-        rows = []
-    row_count = len(rows) if isinstance(rows, list) else None
+        return {
+            "key": key, **meta, "schema_status": "UNRECOGNIZED_JSON_SHAPE",
+            "top_level_keys": sorted(str(k) for k in obj.keys())[:50] if isinstance(obj, dict) else [],
+            "reason": "expected a top-level row list, data/rows list, or one dated record",
+        }
+    row_count = len(rows)
     if row_count is not None and row_count > MAX_FII_API_ROWS:
         return {
             "key": key, **meta, "schema_status": "REJECTED_EXCESS_ROWS",
