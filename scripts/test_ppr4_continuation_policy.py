@@ -57,6 +57,7 @@ class TestPPR4ContinuationPolicy(unittest.TestCase):
         self.assertEqual(budget["daily_index"]["request_max"], 40)
         self.assertEqual(budget["intraday_index"]["request_max"], 70)
         self.assertEqual(budget["rolling_options"]["request_max"], 8540)
+        self.assertEqual(budget["rolling_options"]["aggregate_bytes_max"], 8589934592)
         self.assertFalse(policy["execution_gate"]["live_data_requests_authorized_by_this_policy_file"])
         cache = policy["cache_contract"]
         self.assertTrue(cache["verify_before_fetch"])
