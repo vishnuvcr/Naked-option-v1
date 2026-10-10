@@ -220,3 +220,11 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Family p-values at 1/2/3/5/10 sessions: 0.9840/0.8882/0.6786/0.7745/0.9800; all Bonferroni-adjusted p-values 1.0.
 - **Decision:** data/result integrity passes; no candidate promoted. Phase 8 and strategy development remain blocked.
 - Full report: `research/gates/PHASE7_AVAILABLE_GLOBAL_RUN44_TESTER.md`.
+
+
+## 2026-10-10 — Extension 2 specification gate: REQUEST CHANGES
+
+- Independent review of `research/phase7/AVAILABLE_DATA_PREDICTION_EXTENSION_2_SPEC.md` returned REQUEST CHANGES before any data acquisition.
+- Blocking points: legacy F&O bhavcopy/UDiFF transition coverage, undefined FII/DII normalization denominator, ambiguous F04/F05 arithmetic, non-canonical sector index identity, and incomplete deterministic treatment of candidate abstentions in the global bootstrap.
+- No source data were downloaded, no feature table was created, and no model was fit.
+- Full review: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md`.
