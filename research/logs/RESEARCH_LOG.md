@@ -924,3 +924,10 @@ Hosted [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/380193
 ## 2026-10-10 — Gate A sampler v2 regression failure and correction
 
 The first v2 workflow [Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed in offline tests before live requests. The failure was an over-escaped ISO date regex in FII/DII history validation. Developer corrected the regex and added an approval-file-only push trigger so the source workflow cannot auto-run on arbitrary code changes. Current exact blobs are sampler `fb83fe5e880a26134a765a0426f7aa85380272fb`, tests `d818613dc2f9188224562a953fd979a6c274d292`, workflow `d303d8bd05978ef4837e1935ed40f8c2cdec851c`. No source requests were made in the failed run. Awaiting tester re-review before creating approval.
+
+
+## 2026-10-10 — Sampler v2 resubmitted to tester after code/workflow changes
+
+The corrected FII/DII date regex changed the sampler blob from the previously reviewed `4c69b20e3eb4a6a0f99c6f0137de06806a13ff1f` to `fb83fe5e880a26134a765a0426f7aa85380272fb`. The v2 workflow was also changed to make offline regressions run first and require an exact-snapshot approval report/manifest before source acquisition, including when manually dispatched. Its current blob is `c535610e69c2e90934ab4e59d754b584e29ff6ec`.
+
+[Run #1](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38019728293) failed the prior regex regression before network fetch; the sampler and artifact-upload steps were skipped. This did not fetch live data. Exact code review request: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md`. No approval manifest or source-sample artifact exists for the current snapshot. Await tester decision before source requests.
