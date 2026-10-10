@@ -78,6 +78,29 @@ def test_unregistered_url_is_rejected_before_network() -> None:
     assert client.budget.initial_requests == 0
 
 
+
+def test_per_source_cap_is_enforced_by_http_wrapper() -> None:
+    client = mod.LimitedHTTP()
+    fake = FakeOpener([FakeResponse(200, b"body")])
+    client.opener = fake
+    result = client.request("CDSL-1", mod.FIXED_URLS["CDSL-1"], max_body_bytes=mod.MAX_TOTAL_BYTES)
+    assert result["status"] == "REJECTED_SCOPE"
+    assert not fake.requests
+    assert client.budget.initial_requests == 0
+
+
+def test_unregistered_headers_are_rejected_before_network() -> None:
+    client = mod.LimitedHTTP()
+    fake = FakeOpener([FakeResponse(200, b"body")])
+    client.opener = fake
+    result = client.request(
+        "CDSL-1", mod.FIXED_URLS["CDSL-1"],
+        headers={"Range": "bytes=0-8191"}, max_body_bytes=1024,
+    )
+    assert result["status"] == "REJECTED_SCOPE"
+    assert not fake.requests
+
+
 def test_no_auto_redirect_for_cdsl() -> None:
     client = mod.LimitedHTTP()
     fake = FakeOpener([FakeResponse(302, b"", {"Location": "https://www.cdslindia.com/elsewhere"})])
@@ -342,6 +365,8 @@ def main() -> None:
         test_parse_date_formats,
         test_exact_content_range_is_required,
         test_unregistered_url_is_rejected_before_network,
+        test_per_source_cap_is_enforced_by_http_wrapper,
+        test_unregistered_headers_are_rejected_before_network,
         test_no_auto_redirect_for_cdsl,
         test_allowed_hf_redirect_preserves_range_but_not_credentials,
         test_hf_redirect_to_unregistered_host_is_rejected,
