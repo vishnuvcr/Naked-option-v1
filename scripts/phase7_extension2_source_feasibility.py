@@ -135,9 +135,21 @@ def archive_schema(data: bytes, spec: dict[str, str], source: str) -> dict[str, 
         reader = csv.DictReader(io.StringIO(text))
         headers = [str(h).strip() for h in (reader.fieldnames or [])]
         rows = list(reader)
+        def normalize_udiff_date(value: Any) -> str:
+            raw = str(value or "").strip()
+            if not raw:
+                return ""
+            if re.match(r"^\\d{4}-\\d{2}-\\d{2}", raw):
+                return raw[:10]
+            try:
+                return dt.datetime.strptime(raw[:11].title(), "%d-%b-%Y").date().isoformat()
+            except ValueError:
+                return raw
+
         if spec["format"] == "legacy":
             required = ["INSTRUMENT", "SYMBOL", "EXPIRY_DT", "STRIKE_PR", "OPTION_TYP", "CLOSE", "CONTRACTS", "OPEN_INT", "TIMESTAMP"]
-            date_ok = bool(rows) and str(rows[0].get("TIMESTAMP", "")).upper() == "05-JUL-2024"
+            observed_dates = sorted({str(r.get("TIMESTAMP", "")).strip().upper() for r in rows if str(r.get("TIMESTAMP", "")).strip()})
+            date_ok = bool(rows) and all(str(r.get("TIMESTAMP", "")).strip().upper() == "05-JUL-2024" for r in rows)
             option_rows = [
                 r for r in rows
                 if str(r.get("INSTRUMENT", "")).strip() == "OPTIDX"
@@ -146,7 +158,8 @@ def archive_schema(data: bytes, spec: dict[str, str], source: str) -> dict[str, 
             ]
         else:
             required = ["TradDt", "Sgmt", "TckrSymb", "XpryDt", "StrkPric", "OptnTp", "ClsPric", "TtlTradgVol", "OpnIntrst"]
-            date_ok = bool(rows) and str(rows[0].get("TradDt", ""))[:10] in {"2024-07-08", "08-Jul-2024"}
+            observed_dates = sorted({normalize_udiff_date(r.get("TradDt")) for r in rows if normalize_udiff_date(r.get("TradDt"))})
+            date_ok = bool(rows) and all(normalize_udiff_date(r.get("TradDt")) == "2024-07-08" for r in rows)
             option_rows = [
                 r for r in rows
                 if str(r.get("Sgmt", "")).strip() == "FO"
@@ -163,6 +176,8 @@ def archive_schema(data: bytes, spec: dict[str, str], source: str) -> dict[str, 
             "headers": headers,
             "missing_required_columns": missing,
             "requested_date_check": bool(date_ok),
+            "distinct_trade_date_count": len(observed_dates),
+            "observed_trade_dates": observed_dates[:10],
             "nifty_index_option_rows": len(option_rows),
             "option_sample": [
                 {k: r.get(k) for k in (["TIMESTAMP", "INSTRUMENT", "SYMBOL", "EXPIRY_DT", "STRIKE_PR", "OPTION_TYP", "CLOSE", "CONTRACTS", "OPEN_INT"] if spec["format"] == "legacy" else ["TradDt", "Sgmt", "TckrSymb", "XpryDt", "StrkPric", "OptnTp", "ClsPric", "TtlTradgVol", "OpnIntrst"])}
