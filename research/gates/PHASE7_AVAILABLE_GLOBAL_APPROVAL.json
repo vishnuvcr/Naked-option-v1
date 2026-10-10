@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "decision": "PASS WITH SCOPED RESTRICTIONS",
+  "empirical_execution_authorized": true,
+  "authorized_run_count": 1,
+  "authorized_scope": "One Phase 7 available-data prediction batch only; no strategy promotion, no final-holdout opening, and no Phase 8 authorization.",
+  "reviewed_developer_commit": "f04b96bc47477981bfdc63271f1e80402f9428e8",
+  "reviewed_regression_run_id": 37992695619,
+  "reviewed_regression_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37992695619",
+  "tester_report_sha256": "32ba1c0b32d8d905ea328e309e3658e8eca6952d4479dc5c7a82ae1ca48c07d4",
+  "protected_file_sha256": {
+    "research/phase7/AVAILABLE_DATA_PREDICTION_SPEC.md": "37ab05618fdc75514090c1871c6a276998fbddfc19519e28db7ddbf5cf5ecd30",
+    "scripts/acquire_global_history.py": "4a6f1b4064c312153db7109131edf3fe07b17f2bf2d78cc03c0be265ff220def",
+    "scripts/acquire_nifty_daily_history.py": "30d9900d29d40c5b93955aee6b290ac18d81a11a9f5cb8d8b5f3b93b350b6e19",
+    "scripts/test_acquire_nifty_daily_history.py": "b7269fb207d311309feebc322309adecdc9acbe64a4dc418170cfcf3502ec34e",
+    "scripts/run_phase7_available_global.py": "aa3f8ab8751bb6ac0bdb3238dbd1a440f15f3019076666c02100b23aefd2e716",
+    "scripts/test_phase7_available_global.py": "4d8b11a4dca4804ce3fa277977623e392815854833f431d80e42d3a2971d7832",
+    "scripts/validate_phase7_available_global_results.py": "1f5459f64b0cfea94bd2ec3290f0f493a8c54d06e7039f3be3548766716ff7bc",
+    "scripts/test_validate_phase7_available_global_results.py": "697a434c4b4d4b14aae474340dab41fb803b60ea681699d74a362b9640be8fd7",
+    "requirements-phase7-available.txt": "c4e77ae82f1ac8b8a81d61351d580432c07760798595d0f34d488c4b5cd57022",
+    ".github/workflows/phase-07-available-global.yml": "e137ed819e5c2e16ac07ac0ba6e6fd8628e212485649dd307486edcdda2e7df3"
+  }
+}
