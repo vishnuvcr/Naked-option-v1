@@ -565,3 +565,8 @@ The cache-reuse patch passed hosted tests in [Run #40](https://github.com/vishnu
 ## 2026-10-10 — Tester PASS for one exact-snapshot prediction batch
 
 Tester reviewed developer commit `f04b96bc47477981bfdc63271f1e80402f9428e8` and hosted Run #43. Regression evidence is 8/8 acquisition/cache, 11/11 predictor and 11/11 result-validator tests passing. The corrected source timestamp conversion, IST query boundary, pre-close cache cutoff and overlap/CSV reconciliation were reviewed; exact protected SHA-256 values are recorded in `research/gates/PHASE7_AVAILABLE_GLOBAL_TESTER.md`. Decision is PASS WITH SCOPED RESTRICTIONS for one prediction batch only, pending the exact-snapshot approval manifest in the developer branch. The manifest write was blocked by platform safety checks, so no empirical output exists yet.
+
+
+## 2026-10-10 — Tester audit of Run #44
+
+Downloaded and independently inspected artifact ID `11657636547` from [Run #44](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38018506915). Verified NIFTY, global-manifest and prediction-panel SHA-256 values against JSON provenance. The 91,988-row panel has unique row keys, valid probabilities, no missing candidate predictions/labels/returns and no future-return direction mismatch. Independently recomputed all candidate metrics and the 500-replicate/20-session moving-block max-statistic family tests; all matched the result JSON. All five family p-values are non-significant, and all Bonferroni-adjusted p-values are 1.0. Tester disposition is PASS WITH SCOPED RESTRICTIONS for integrity only; no candidate is promoted and Phase 8 remains blocked.
