@@ -1082,3 +1082,21 @@ User instructed: “Continue yourself. Automate the conversation between tester 
 **Developer → Tester:** Review the new matrix, JSON contract, validator/workflow and current hosted receipt against exact blob hashes; return an explicit gate decision.
 **Tester → Developer:** Do not proceed to PPR-2 or any empirical/data acquisition step until a new exact-snapshot PASS defines the allowed next scope.
 
+
+
+## 2026-10-10 — Claim-level method fidelity ledger and hosted protocol-check correction
+
+### Developer actions
+- Expanded the PDF evidence matrix with a per-method ledger for the named estimators, hybrid architectures, sentiment/flow/options components and strategy-only studies. Each entry has its own source locator and a fidelity or ambiguity label. Current matrix blob: `fe61751cac09089d0052bb92212dddd4a7b670dc`.
+- Fixed the source citation wording for Kumar & Sharma: the 99.2152% “average accuracy” claim is in the abstract (PDF p.1), but is not established as a directional accuracy formula; reported RMSE values in later pages are normalized-space metrics.
+- Strengthened the offline contract validator to check target schema separation, within-family block length, required manifest fields and fit-budget math.
+- The strengthened validator first failed because it relied on a literal word instead of the actual schema contract. This failure is retained in the error log (runs 38068895685 and 38068938072); the wording check was changed to test the contract fields.
+- Hosted retry [38068967518](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38068967518) completed successfully on commit `06f9d106ff4685ddc2c5d2b3ac5fd0dc6770b5e6`. The job confirms document/schema structure only, not data/model research.
+- README, status and error log updated after these steps. PPR-1 remains REQUEST CHANGES pending independent-style exact-snapshot review of the newest blobs.
+
+### Gate boundary
+No PPR-2 registry reconciliation, new source pulls, fitting/tuning/scoring, final holdout access or options P&L was started.
+
+**Developer → Tester:** Review the newest method fidelity ledger and contract after the corrected hosted check; return explicit PASS/REQUEST CHANGES with allowed scope.
+**Tester → Developer:** Do not progress beyond paper-evidence/protocol documentation until the exact current snapshots are reviewed and the gate is recorded.
+
