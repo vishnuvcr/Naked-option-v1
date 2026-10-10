@@ -464,3 +464,13 @@ The previous one-run manifest is spent. The next step is a separate bounded free
 The current bounded source-discovery code has passed a fresh independent code/workflow review, limited to the implementation and its offline safeguards. [Offline workflow Run 38029797600](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029797600) passed all 32 fixture regressions. The tester report is available on the [tester branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md).
 
 **This does not authorize a live source probe.** The platform blocked mirroring the exact tester report to the developer branch, so no single-use manifest has been created. No live source requests or model fitting occurred. Next steps are to complete an allowed exact report mirror, compute byte-level SHA-256 values for the six protected files, and only then create a separate single-use manifest. Full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access remain prohibited.
+
+
+### DhanHQ data recovery — specification gate pending (2026-10-10)
+
+The user has added `DHAN_ACCESS_TOKEN` and requested that Dhan data be used to address data gaps and rerun prediction analyses. A finite proposal and independent review request are on `phase-07-developer`:
+
+- [DhanHQ recovery spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/EXTENSION2_DHAN_MARKET_DATA_RECOVERY_SPEC.md)
+- [Tester review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_RECOVERY_REVIEW_REQUEST.md)
+
+Official Dhan docs describe historical instrument candles (OHLCV, optionally OI), which may help fill NIFTY/index and derivative history. They do **not** document the required combined daily FII/FPI/DII cash-flow aggregate. The token therefore cannot be claimed to resolve that particular gap. No Dhan request has been made and the token value was not accessed or exposed. The prior FII/DII source-discovery manifest is spent; the next live request requires a new tester-approved exact-snapshot code gate and single-use manifest. No full-history acquisition or model fitting is authorized yet.
