@@ -639,3 +639,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Prior source artifact `11660395594` remains REQUEST CHANGES; the source approval is revoked. The new code-gate PASS does not change that artifact decision.
 - New free-source inventory: [Extension 2 FII/DII source discovery](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md). Several free sources claim broader date coverage, but the date range, record count, definitions and source-vintage must be validated in separately bounded source samples.
 - **Next:** create a renewed exact eight-file hash-bound manifest for one corrected source sample only. Then independently audit the new two-report artifact. No full history, features/labels or fitting.
+
+
+## 2026-10-10 — Corrected Gate A sample artifact audited; overall Gate A remains OPEN
+
+- Corrected sample run [38026993369](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026993369) passed offline regressions, exact approval and bounded source sampling. Artifact ID `11661065266`, ZIP SHA-256 `10a3fba40359c230bafa0f47c2d01be8f057e39b5eed0b70335710b59c57558a`.
+- Independent tester found no remaining schema/date parsing bug in the sampled official sources. Both sector-index CSVs now pass for 2024-07-05 and 2024-07-08, all ten sector identities plus NIFTY 50 present; both cash equity dates and both legacy/UDiFF F&O samples passed.
+- The dated NSE FII/DII request was correctly rejected because it returned two current 2026-10-09 rows for the requested July 2024 window. The rolling GitHub flow file had 164 unique dates (2026-01-14 to 2026-09-30), fewer than the 500-session minimum; sampled dashboard HTML did not establish the missing coverage.
+- Tester report [PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_EXTENSION2_GATE_A_RUN2_ARTIFACT_TESTER.md) = REQUEST CHANGES for complete Gate A because G14/G15 source coverage is insufficient, while accepting the schema checks as bounded evidence.
+- One-run source manifest has been marked spent. **No further network sampling, full-history acquisition or fitting is authorized until a new bounded free-source discovery proposal receives independent approval.**
+- Free sources reviewed are inventoried at [EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md](sources/EXTENSION2_FII_DII_FREE_SOURCE_DISCOVERY_2026-10-10.md).
