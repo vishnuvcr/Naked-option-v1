@@ -499,11 +499,11 @@ def parse_cdsl_xls(data: bytes, expected_date: str, source_url: str) -> dict[str
     found_dates = {parse_date(m.group(0)) for m in re.finditer(r"\b\d{1,2}[-/ ]\w{2,9}[-/ ]\d{4}\b|\b\d{2}[-/]\d{2}[-/]\d{4}\b", flattened)}
     found_dates.discard("")
     date_ok = expected_date in found_dates or any(expected_date.replace("-", "") in re.sub(r"\D", "", x) for x in found_dates)
-    equity_rows = []
-    for row in grid:
+    equity_rows: list[dict[str, Any]] = []
+    for row_i, row in enumerate(grid):
         text = " ".join(row).lower()
         if "equity" in text and ("stock exchange" in text or "stockexchange" in text or "cash market" in text):
-            equity_rows.append(row[:20])
+            equity_rows.append({"row": row_i, "values": row[:20]})
     flow_labels: dict[str, list[dict[str, Any]]] = {"buy": [], "sell": [], "net": []}
     for row_i, row in enumerate(grid):
         for col_i, value in enumerate(row):
@@ -514,16 +514,55 @@ def parse_cdsl_xls(data: bytes, expected_date: str, source_url: str) -> dict[str
                 flow_labels["sell"].append({"row": row_i, "column": col_i, "label": value[:100]})
             if "net" in low and any(token in low for token in ("investment", "invest", "value")):
                 flow_labels["net"].append({"row": row_i, "column": col_i, "label": value[:100]})
-    # Keep only bounded row/cell previews. Do not infer a numeric mapping if
-    # the report's grouped headers cannot be reconciled unambiguously.
+
+    def numeric_cell(raw: Any) -> float | None:
+        value = str(raw or "").strip().replace(",", "").replace("₹", "")
+        value = re.sub(r"\s*(?:cr|crore|crores)$", "", value, flags=re.I).strip()
+        if not value:
+            return None
+        try:
+            parsed = float(value)
+        except ValueError:
+            return None
+        return parsed if float("-inf") < parsed < float("inf") else None
+
+    flow_value_samples: list[dict[str, Any]] = []
+    numeric_flow_groups: set[str] = set()
+    for equity in equity_rows:
+        values = equity["values"]
+        for group, candidates in flow_labels.items():
+            for label_info in candidates:
+                col_i = label_info["column"]
+                if col_i >= len(values) or label_info["row"] == equity["row"]:
+                    continue
+                raw_value = values[col_i]
+                parsed_value = numeric_cell(raw_value)
+                if parsed_value is not None:
+                    numeric_flow_groups.add(group)
+                flow_value_samples.append({
+                    "equity_row": equity["row"], "label_row": label_info["row"],
+                    "group": group, "column": col_i, "label": label_info["label"],
+                    "raw_value": raw_value[:100], "numeric_value": parsed_value,
+                })
+                if len(flow_value_samples) >= 30:
+                    break
+            if len(flow_value_samples) >= 30:
+                break
+        if len(flow_value_samples) >= 30:
+            break
+    # Preserve candidate value mappings for independent review. Grouped XLS
+    # headers can be ambiguous; these candidates are not accepted feature inputs.
+    mapping_ok = all(group in numeric_flow_groups for group in ("buy", "sell", "net"))
     report.update({
         "status": "SCHEMA_SAMPLE_PASS" if date_ok and equity_rows else "NOT_VERIFIED",
         "date_check": "PASS" if date_ok else "FAIL_OR_NOT_FOUND",
         "equity_stock_exchange_rows_found": len(equity_rows),
-        "equity_row_samples": equity_rows[:3],
+        "equity_row_samples": [{"row": x["row"], "values": x["values"]} for x in equity_rows[:3]],
         "flow_field_label_candidates": {k: v[:10] for k, v in flow_labels.items()},
         "flow_field_label_coverage": {k: bool(v) for k, v in flow_labels.items()},
-        "numeric_flow_mapping_status": "NOT_VERIFIED_REQUIRES_HEADER_RECONCILIATION" if not all(flow_labels.values()) else "CANDIDATE_LABELS_FOUND_MAPPING_NOT_YET_ACCEPTED",
+        "candidate_flow_value_samples": flow_value_samples[:30],
+        "numeric_flow_groups_with_candidate_values": sorted(numeric_flow_groups),
+        "numeric_flow_mapping_status": "CANDIDATE_NUMERIC_VALUES_EXTRACTED_NOT_ACCEPTED_FOR_FEATURE_BUILD" if mapping_ok else "NOT_VERIFIED_REQUIRES_HEADER_RECONCILIATION",
         "grid_preview": grid[:15],
         "reason": None if date_ok and equity_rows else "could not validate expected report date and equity stock-exchange row together",
     })
