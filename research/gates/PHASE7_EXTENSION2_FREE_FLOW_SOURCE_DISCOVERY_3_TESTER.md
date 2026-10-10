@@ -160,3 +160,51 @@ The guarded workflow validates that `reviewed_developer_commit` exists and is an
 **Tester → Developer:** Correct the stale spec ID, conflicting-date acceptance, non-finite CSV handling, recursive signature redaction, dated-link URL redaction, and reviewed-commit/tree binding. Do not create a source-probe approval manifest.
 
 **Developer → Tester:** Resubmit the exact corrected snapshot with offline tests green. The tester must re-review the code/workflow gate before any new single-use manifest can be created.
+
+
+## Fresh exact-snapshot independent code gate — 2026-10-10
+
+**Decision: PASS WITH SCOPED RESTRICTIONS — code/workflow gate only.**  
+**Reviewed developer commit:** `37ed60f260d8833d37d1964dc01c8317f1dcf6b3`.  
+**Live source requests: NOT YET AUTHORIZED.** No single-use approval manifest is authorized by this code-gate decision alone.
+
+### Current protected Git blobs independently re-fetched
+
+| Protected path | Git blob ID |
+|---|---|
+| `research/phase7/EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_SPEC.md` | `4e30415632545c04a2875d627afa0191afe3f383` |
+| `scripts/extension2_free_flow_source_discovery_3.py` | `34b9dcb47288d103c236a8fd34603daf66135bc4` |
+| `scripts/test_extension2_free_flow_source_discovery_3.py` | `9c2e89ff810d2820d6dacdec36fbaf0a18cf4eec` |
+| `requirements-source-discovery-3.txt` | `921812b1d6da657ee1de2a4b35e7ff8b43cc8ce6` |
+| `.github/workflows/phase-07-free-flow-source-discovery-3-tests.yml` | `634f87014f334d3c4a903269a073c4e5e2786d46` |
+| `.github/workflows/phase-07-free-flow-source-discovery-3.yml` | `e29f66b67bd47f488b00a708988fca708b391732` |
+
+The exact Git blob IDs above match the current developer branch. The live workflow's reviewed-commit guard checks the exact commit line in the tester report, commit ancestry, current HEAD blob IDs and the reviewed-commit tree blob IDs. The live source job is downstream of the offline regression and authorization jobs, and the manifest is marked SPENT before the source script is called.
+
+### Review of the six previous blocking findings
+
+1. **Stale specification identity — PASS.** Report output uses `CURRENT_SPEC_GIT_BLOB` pinned to the current approved spec blob. Regression `test_report_metadata_pins_current_spec_blob` covers this.
+2. **Conflicting/malformed dates — PASS.** The JSON probe validates recognized non-empty date fields and rejects invalid/conflicting dates. The offline suite includes conflicting-date and malformed-date cases.
+3. **NaN/Infinity flows — PASS.** CSV numeric validation uses finite-value checks, reports `nonfinite_flow_cells`, and returns `REJECTED_NONFINITE_FLOW`; a dedicated fixture tests `nan` and `inf`.
+4. **Recursive signature redaction — PASS.** Recursive JSON redaction covers exact and suffix-style signature keys, including nested objects; regression `test_source_json_redaction_is_recursive_and_preserves_nonsecret_data` is present.
+5. **Dated-link URL redaction — PASS.** Dated links pass through `safe_url_for_report`; the regression checks signed query values are removed while harmless path/date/query information remains.
+6. **Reviewed commit/tree binding — PASS.** The workflow requires the exact reviewed-commit line in the report, validates ancestry, compares each protected file's current and reviewed-commit blob IDs to the manifest, and consumes the manifest before source access. Static regression `test_live_workflow_consumes_manifest_before_any_source_request` is present.
+
+### Hosted offline evidence
+
+[Run 38029797600](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38029797600) succeeded on commit `5a8793d7cfe66ad8d68094ff85a0750758f0c5c9` and logged **32/32 offline regressions passed**. The offline workflow installs the pinned parser dependency and invokes the fixture test script only; it has no live source-fetch step. The six protected blobs above are the current reviewed snapshot, so the developer must rerun the offline suite on that exact candidate before any approval manifest is created.
+
+### Strict scope and remaining prerequisites
+
+This code-gate PASS is **not** a data-source feasibility PASS and does not establish 500+ historical FII/DII sessions. The prior bounded artifact's NSE date-filtered API result was rejected as out-of-window; that finding remains valid. Free-source coverage research must continue within separately approved bounded stages.
+
+- **Live source requests: NOT AUTHORIZED by this report alone.**
+- **Full-history acquisition: NOT AUTHORIZED.**
+- **Feature/label construction and model fitting: NOT AUTHORIZED.**
+- **Metrics/p-values and final-holdout access: NOT AUTHORIZED.**
+
+Before any source call, the developer must run the offline tests against the exact reviewed snapshot, calculate and verify byte-level SHA-256 hashes for all six protected files, mirror this report byte-for-byte to the developer branch, and create a separate single-use manifest binding the exact report digest, reviewed commit, Git blob IDs and file hashes. The guarded workflow must validate it and spend it before the first request. The resulting artifact needs another independent tester audit.
+
+**Tester → Developer:** Code/workflow gate PASS for this exact snapshot only. Re-run the offline workflow on the exact candidate, compute all six byte SHA-256 hashes, mirror this report, and submit a separate one-run manifest for review. Do not expand the probe inventory.
+
+**Developer → Tester:** Independently verify the manifest's hashes/scope before source access. After the bounded artifact is uploaded, audit provenance, requested dates, source hashes, parsing/redaction and coverage; do not authorize full-history acquisition or model fitting.
