@@ -236,3 +236,12 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Blocking issue: archive trade-date validation checks only the first row in legacy and UDiFF files. A mixed-date archive could pass.
 - Required: validate every row's trade date, record distinct date count, and add mixed-date negative fixtures for both formats.
 - No workflow ran and no source sample was downloaded.
+
+
+## 2026-10-10 — Current exact-snapshot sampler v2 review: REQUEST CHANGES
+
+- Tester reviewed the exact six protected blobs at developer snapshot commit `1d8991255ff284c6b9cb20c4071ab56555d18dc6`.
+- Blocking finding: `scripts/phase7_extension2_source_feasibility_v2.py` included an NSE FII/DII URL from 2020 through 2025, which violates the approved bounded Gate A scope. A small date window and strict response byte/row limits are required.
+- The developer review request incorrectly labelled commit ID `1d899...` as the workflow Git blob. Actual workflow blob at that snapshot: `20470b88d29b1d97e8060936e5ed7a40fe28a80d`.
+- Full review: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_TESTER.md` (latest decision REQUEST CHANGES).
+- No live source call was made, no artifact exists for this snapshot, and no approval manifest was created. Full-history acquisition and model fitting remain blocked.
