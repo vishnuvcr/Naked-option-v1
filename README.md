@@ -540,3 +540,12 @@ The redirect-target-only proposal and code gate are recorded in [the tester repo
 **Current gate:** another independent exact-snapshot review is pending after the latest workflow and artifact-writer changes. No new single-use manifest exists and no further live request is authorized yet. Even after the one permitted diagnostic, following the redirect or requesting instrument master/candle/history data requires a separate review; no full-history download, feature/label creation, model fitting, prediction rerun or final-holdout access is authorized at this stage.
 
 The access token is bound only to the guarded workflow's final source step and is not logged or persisted in diagnostic artifacts.
+
+
+## Resume checkpoint — 10 October 2026
+
+- The ten protected Git blob pins in the READY one-use Dhan redirect-target manifest match the current `phase-07-developer` file blobs.
+- This does **not** establish that the hosted manifest validator passed: the runtime check is still pending.
+- The isolated tester's code/workflow approval is restricted to code only; **no live request is authorized by that report**.
+- The guarded workflow remains manual-only (`confirm_probe=true`, default false). The currently connected GitHub interface does not expose a workflow-dispatch action, so no live probe was launched and no data or prediction results changed.
+- Phase 7 prediction research remains active; no candidate is promoted, no strategy test is authorized, and Phase 8 remains blocked pending the permitted data/gate workflow and independent review.
