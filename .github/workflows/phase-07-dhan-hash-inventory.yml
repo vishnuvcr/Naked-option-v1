@@ -1,4 +1,4 @@
-name: Phase 7 Dhan Protected File Hash Inventory (refresh 2)
+name: Phase 7 Dhan Protected File Hash Inventory (redirect gate)
 
 on:
   push:
@@ -30,7 +30,11 @@ jobs:
             scripts/test_dhan_market_data_recovery.py \
             scripts/validate_dhan_sample_approval.py \
             .github/workflows/phase-07-dhan-market-data-tests.yml \
-            .github/workflows/phase-07-dhan-market-data-live.yml; do
+            .github/workflows/phase-07-dhan-market-data-live.yml \
+            research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md \
+            research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md \
+            scripts/validate_dhan_redirect_probe_approval.py \
+            .github/workflows/phase-07-dhan-redirect-probe-live.yml; do
             sha256sum "$f"
             printf 'GIT_BLOB '
             git rev-parse "HEAD:$f"
