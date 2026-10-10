@@ -263,6 +263,17 @@ def test_live_workflow_is_strictly_gated_and_spends_before_first_request() -> No
     assert "if: steps.fetch_crosscheck.outcome != 'success'" in workflow
 
 
+def test_offline_workflow_has_read_only_permissions_and_no_source_request_step() -> None:
+    offline = (ROOT / ".github/workflows/phase-07-official-crosscheck-tests.yml").read_text(encoding="utf-8")
+    assert "permissions:\\n  contents: read" in offline
+    assert "OFFICIAL_CROSSCHECK_AUTHORIZED" not in offline
+    assert "DHAN_ACCESS_TOKEN" not in offline
+    assert "secrets." not in offline
+    assert "Run existing and new mocked cross-check test suites" in offline
+    assert "CANDIDATE_PROTECTED_FINGERPRINTS=" in offline
+    assert "No public-source calls are performed" in offline
+
+
 def test_default_and_developer_live_workflow_contents_match() -> None:
     import subprocess
     working = (ROOT / ".github/workflows/phase-07-official-crosscheck-live.yml").read_bytes()
