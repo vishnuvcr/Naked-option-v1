@@ -222,6 +222,10 @@ def validate_candle_payload(
             value = int(raw)
         except (ValueError, TypeError, OverflowError):
             raise ValueError("candle_timestamp_invalid") from None
+        if isinstance(raw, float) and not raw.is_integer():
+            raise ValueError("candle_timestamp_invalid")
+        if value <= 0:
+            raise ValueError("candle_timestamp_invalid")
         timestamps.append(value)
     if any(a >= b for a, b in zip(timestamps, timestamps[1:])):
         raise ValueError("candle_timestamps_not_strictly_increasing")
@@ -336,7 +340,7 @@ def validate_request_window(url: str, body: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("daily_request_instrument_fields_missing")
         # Program safeguard: daily bulk requests are partitioned into <=365-day windows.
         _validate_date_range(start_date, end_date, max_days=365)
-        if body.get("oi", False) not in (True, False):
+        if not isinstance(body.get("oi", False), bool):
             raise ValueError("daily_request_oi_invalid")
         return {"source": "daily_candles", "fromDate": start_date, "toDate": end_date}
 
@@ -391,7 +395,7 @@ def _validate_date_range(start: Any, end: Any, *, max_days: int | None) -> None:
         raise ValueError("date_range_invalid") from None
     if to_date <= from_date:
         raise ValueError("date_range_not_increasing")
-    if max_days is not None and (to_date - from_date).days > max_days:
+    if max_days is not None and (to_date - from_date).days + 1 > max_days:
         raise ValueError("date_range_exceeds_documented_cap")
 
 
@@ -408,7 +412,7 @@ def _validate_datetime_range(start: Any, end: Any, *, max_days: int) -> None:
         raise ValueError("datetime_timezone_not_allowed")
     if to_date <= from_date:
         raise ValueError("datetime_range_not_increasing")
-    if (to_date.date() - from_date.date()).days > max_days:
+    if (to_date.date() - from_date.date()).days + 1 > max_days:
         raise ValueError("date_range_exceeds_documented_cap")
 
 
