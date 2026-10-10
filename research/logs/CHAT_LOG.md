@@ -894,3 +894,13 @@ Resume actions:
 - Next gate: offline implementation + mock regressions for an official NSE Indices single-date OHLC check and a minimal official Dhan mapping lookup, then an independent tester review of the exact workflow/manifest before that network call.
 
 **Developer → Tester:** Review the upcoming official-reference cross-check implementation and manifest. Confirm one-date scope, exact host/endpoint/body allowlists, response parsing, caps, hashes/cache provenance, no Dhan token disclosure to the NIFTY indices host, and that no model or bulk acquisition step is included.
+
+
+## 2026-10-10 — Official-reference cross-check offline test iteration 1
+
+- Implemented `scripts/official_reference_crosscheck.py`, `scripts/run_official_reference_crosscheck.py`, adapter tests and mocked runner tests on the developer branch. A deliberate logic correction was made after re-reading official Dhan instrument-list docs: the compact CSV `SEM_SEGMENT` uses its own segment codes and must not be compared directly to the API enum `IDX_I`. The adapter now records/validates the compact code separately and requires index/symbol evidence from the actual row.
+- The first automated run [38056011320](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056011320) passed all 9 existing CSV tests then failed on a test expectation: non-finite `OPEN=NaN` is rejected as `nifty_reference_numeric_invalid_open` before OHLC inequalities are checked.
+- Corrected the assertion in commit `ec6817eb3b0892a185c2d863a0794a008ffe591a`. No official-source network call occurred.
+- Next: rerun offline suites, correct any additional defects, then seek independent implementation review. The proposal plan/tester gate is for planning only; a separate exact-snapshot tester review and fresh one-use authorization are still required before official-source requests.
+
+**Developer → Tester:** Review the latest corrected adapter, tests and runner after hosted test runs conclude; verify compact Dhan CSV fields are not confused with API enums and the exact two-source scope remains fail-closed. Do not authorize requests until code/workflow/manifest gates separately pass.
