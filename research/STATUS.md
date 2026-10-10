@@ -901,3 +901,10 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - The earlier hosted 32-test PASS ([run 38056916677](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38056916677)) is tied to older adapter/runner/test blobs. Current snapshot hashes differ, so the historical PASS does not verify current code.
 - Current reviewed blobs: adapter `ef5b507d9c1706b2afd16338db8bec2bd517352d`; runner `ff593638d3f76671215cfe55a5cc1f96859096ea`; adapter tests `2817c41ba25882930ccb0a0fc2d7f77968da67ea`; runner tests `8c02fdef90593f6223a6d1b8bf3248163bf64880`; offline workflow `b450da4b9ffed8d8e38c8f7383084e1ba987b303`.
 - **No public-source requests were made.** No live manifest exists; no data was accepted for modeling. The next action is to run the offline suite on the exact current snapshot and submit run receipt plus pinned hashes for tester re-review.
+
+
+## 2026-10-10 — Exact-snapshot CI trigger submitted
+
+- Developer commit [50f79a629b580063fbe561117da57cf7c9e2b044](https://github.com/vishnuvcr/Naked-option-v1/commit/50f79a629b580063fbe561117da57cf7c9e2b044) added a comment-only trigger to the offline test file so the path-filtered CI suite would execute against the latest implementation snapshot.
+- Current protected blobs at this checkpoint: adapter `ef5b507d9c1706b2afd16338db8bec2bd517352d`; runner `ff593638d3f76671215cfe55a5cc1f96859096ea`; adapter tests `2817c41ba25882930ccb0a0fc2d7f77968da67ea`; runner tests `19da2c5f99c340c9b0aa312e3e6e198d033b3a4f`; workflow `f23a2dcbd13eb35f0afcbd80ed4d28ff67bb644e`.
+- The available GitHub connector returned no workflow run receipt/status for this commit. Therefore a hosted PASS cannot be asserted yet. **Live source requests remain blocked** until the actual workflow conclusion and independent exact-snapshot tester PASS are available.
