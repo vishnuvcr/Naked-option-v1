@@ -599,3 +599,15 @@ The guarded [Dhan Redirect Target Guarded Probe workflow](.github/workflows/phas
 - Hosted offline tests [38048191811](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191811) passed: 9 tests. Repository protocol check [38048191923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38048191923) passed.
 - Independent tester [report](research/gates/PHASE7_EXTENSION3_DHAN_INSTRUMENT_SOURCE_CODE_TESTER.md) passed the offline CSV validation/cache foundation with restrictions. No network fetch or cache population has occurred.
 - Next gate is independent review of a separate bounded fetch implementation. The previous redirect manifest remains SPENT; no live source request is authorized.
+
+## Phase 7 Dhan one-use historical sample — 2026-10-10
+
+- Guarded one-use acquisition [run 38055202149](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202149) succeeded after exact manifest/report checks and the approval was pushed as **SPENT before the single Dhan request**. The offline gate [run 38055202163](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38055202163) also passed.
+- Request scope was exactly one daily NIFTY index candle for 2024-01-02: one POST, HTTP 200, JSON, 121 response bytes, zero retries, zero redirects. Raw response SHA-256: `efd83cb7f0a1dd1002663fc84b6098faaabe32ad9d2e10dd4cc91770e2e4ed70`.
+- Cached row: open 21751.35, high 21755.60, low 21555.65, close 21665.80, volume 263711568. The timestamp maps to midnight Asia/Kolkata on 2024-01-02.
+- Cache is committed under [data/cache/dhan_daily_sample](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-07-developer/data/cache/dhan_daily_sample); safe status is [dhan_daily_sample_status.json](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/data/reports/dhan_daily_sample_status.json).
+- Independent [artifact review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_DAILY_SAMPLE_ARTIFACT_TESTER.md) passed the one-run acquisition/cache integrity with restrictions. Its raw OHLCV values match [EquityPandit's published NIFTY 50 historical row](https://www.equitypandit.com/share-price/today/nifty-50-historical-data), but an official NSE Indices historical row and exact official Dhan instrument-master mapping have not yet been fetched.
+- **Important:** this one row is not yet accepted for training/validation, and no prediction/model/strategy rerun occurred. The final holdout remains sealed. The Dhan one-use manifest is SPENT and cannot be reused.
+- **Next gate:** implement and independently test a new, bounded official-reference cross-check for the 2024-01-02 NIFTY 50 OHLC row and the minimal Dhan instrument mapping. That new workflow/manifest must receive tester approval before any official-source lookup; no bulk history or modeling until it passes.
+
+Latest research ledgers: [status](research/STATUS.md), [error log](research/ERROR_LOG.md), [conversation log](research/logs/CHAT_LOG.md).
