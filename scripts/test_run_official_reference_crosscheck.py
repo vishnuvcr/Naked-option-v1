@@ -366,67 +366,62 @@ def test_cached_dhan_sample_hash_and_manifest_are_required_before_sources() -> N
             assert not opener.calls and not cache.exists()
 
 
-def test_existing_bundle_with_corrupt_manifest_is_not_reused() -> None:
-    with tempfile.TemporaryDirectory() as temp:
-        root = pathlib.Path(temp)
-        sample_response_path, sample_manifest_path = create_cached_sample(root)
-        sample_row, sample_meta = mod._load_verified_dhan_sample(sample_response_path, sample_manifest_path)
-        nifty_raw = NIFTY_RAW
-        csv_raw = CSV
-        nifty_row = mod.adapter.parse_nifty_indices_response(nifty_raw)
-        mapping_row = mod.adapter.parse_dhan_instrument_mapping(csv_raw)
-        comparison = mod.adapter.compare_ohlc(nifty_row, sample_row)
-        nifty_meta = {
-            "source": "nifty_indices", "url": mod.adapter.NIFTY_INDICES_URL, "method": "POST",
-            "http_status": 200, "content_type": "application/json", "response_bytes": len(nifty_raw),
-            "response_sha256": hashlib.sha256(nifty_raw).hexdigest(), "request_count": 1,
-            "retry_count": 0, "redirect_followed": False,
-        }
-        master_meta = {
-            "source": "dhan_instrument_master", "url": mod.adapter.DHAN_COMPACT_MASTER_URL, "method": "GET",
-            "http_status": 200, "content_type": "text/csv", "response_bytes": len(csv_raw),
-            "response_sha256": hashlib.sha256(csv_raw).hexdigest(), "request_count": 1,
-            "retry_count": 0, "redirect_followed": False,
-        }
-        manifest_sha = "a" * 64
-        cache_root = root / "crosscheck-cache"
-        bundle = mod._atomic_bundle(
-            nifty_raw=nifty_raw,
-            master_raw=csv_raw,
-            nifty_meta=nifty_meta,
-            master_meta=master_meta,
-            nifty_row=nifty_row,
-            master_row=mapping_row,
-            comparison=comparison,
-            manifest_sha256=manifest_sha,
-            dhan_sample_row=sample_row,
-            dhan_sample_response_sha256=sample_meta["response_sha256"],
-            dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"],
-            cache_root=cache_root,
-            fetched_at_utc="2026-10-10T00:00:00Z",
-        )
-        target = pathlib.Path(bundle["path"])
-        (target / "manifest.json").write_text("{bad", encoding="utf-8")
-        try:
-            mod._atomic_bundle(
-                nifty_raw=nifty_raw,
-                master_raw=csv_raw,
-                nifty_meta=nifty_meta,
-                master_meta=master_meta,
-                nifty_row=nifty_row,
-                master_row=mapping_row,
-                comparison=comparison,
-                manifest_sha256=manifest_sha,
-                dhan_sample_row=sample_row,
+def test_existing_bundle_with_invalid_or_inconsistent_manifest_is_not_reused() -> None:
+    for corrupt_mode in ("malformed_json", "wrong_source_url"):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            sample_response_path, sample_manifest_path = create_cached_sample(root)
+            sample_row, sample_meta = mod._load_verified_dhan_sample(sample_response_path, sample_manifest_path)
+            nifty_raw = NIFTY_RAW
+            csv_raw = CSV
+            nifty_row = mod.adapter.parse_nifty_indices_response(nifty_raw)
+            mapping_row = mod.adapter.parse_dhan_instrument_mapping(csv_raw)
+            comparison = mod.adapter.compare_ohlc(nifty_row, sample_row)
+            nifty_meta = {
+                "source": "nifty_indices", "url": mod.adapter.NIFTY_INDICES_URL, "method": "POST",
+                "http_status": 200, "content_type": "application/json", "response_bytes": len(nifty_raw),
+                "response_sha256": hashlib.sha256(nifty_raw).hexdigest(), "request_count": 1,
+                "retry_count": 0, "redirect_followed": False,
+            }
+            master_meta = {
+                "source": "dhan_instrument_master", "url": mod.adapter.DHAN_COMPACT_MASTER_URL, "method": "GET",
+                "http_status": 200, "content_type": "text/csv", "response_bytes": len(csv_raw),
+                "response_sha256": hashlib.sha256(csv_raw).hexdigest(), "request_count": 1,
+                "retry_count": 0, "redirect_followed": False,
+            }
+            manifest_sha = "a" * 64
+            cache_root = root / "crosscheck-cache"
+            bundle = mod._atomic_bundle(
+                nifty_raw=nifty_raw, master_raw=csv_raw, nifty_meta=nifty_meta, master_meta=master_meta,
+                nifty_row=nifty_row, master_row=mapping_row, comparison=comparison,
+                manifest_sha256=manifest_sha, dhan_sample_row=sample_row,
                 dhan_sample_response_sha256=sample_meta["response_sha256"],
-                dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"],
-                cache_root=cache_root,
-                fetched_at_utc="2026-10-10T00:01:00Z",
+                dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"], cache_root=cache_root,
+                fetched_at_utc="2026-10-10T00:00:00Z",
             )
-        except ValueError as exc:
-            assert str(exc) == "crosscheck_existing_manifest_invalid"
-        else:
-            raise AssertionError("corrupt cache manifest must not be reused")
+            target = pathlib.Path(bundle["path"])
+            manifest_path = target / "manifest.json"
+            if corrupt_mode == "malformed_json":
+                manifest_path.write_text("{bad", encoding="utf-8")
+                expected_error = "crosscheck_existing_manifest_invalid"
+            else:
+                saved = json.loads(manifest_path.read_text(encoding="utf-8"))
+                saved["source_metadata"]["nifty_indices"]["url"] = "https://evil.example/fake"
+                manifest_path.write_text(json.dumps(saved, sort_keys=True, indent=2), encoding="utf-8")
+                expected_error = "crosscheck_existing_manifest_mismatch"
+            try:
+                mod._atomic_bundle(
+                    nifty_raw=nifty_raw, master_raw=csv_raw, nifty_meta=nifty_meta, master_meta=master_meta,
+                    nifty_row=nifty_row, master_row=mapping_row, comparison=comparison,
+                    manifest_sha256=manifest_sha, dhan_sample_row=sample_row,
+                    dhan_sample_response_sha256=sample_meta["response_sha256"],
+                    dhan_sample_manifest_sha256=sample_meta["cache_manifest_sha256"], cache_root=cache_root,
+                    fetched_at_utc="2026-10-10T00:01:00Z",
+                )
+            except ValueError as exc:
+                assert str(exc) == expected_error
+            else:
+                raise AssertionError(f"invalid existing manifest accepted: {corrupt_mode}")
 
 
 TESTS = [v for k, v in globals().copy().items() if k.startswith("test_") and callable(v)]

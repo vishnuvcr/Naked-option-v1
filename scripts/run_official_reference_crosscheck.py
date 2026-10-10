@@ -309,18 +309,12 @@ def _atomic_bundle(
         }
         if any(existing_manifest.get(key) != value for key, value in checks.items()):
             raise ValueError("crosscheck_existing_manifest_mismatch")
-        for source, expected_hash, expected_bytes in (
-            ("nifty_indices", expected_nifty_hash, len(nifty_raw)),
-            ("dhan_instrument_master", expected_master_hash, len(master_raw)),
-        ):
-            source_meta = existing_manifest.get("source_metadata", {}).get(source, {})
-            if (source_meta.get("http_status") != 200
-                    or source_meta.get("response_sha256") != expected_hash
-                    or source_meta.get("response_bytes") != expected_bytes
-                    or source_meta.get("request_count") != 1
-                    or source_meta.get("retry_count") != 0
-                    or source_meta.get("redirect_followed") is not False):
-                raise ValueError("crosscheck_existing_manifest_mismatch")
+        expected_source_metadata = {
+            "nifty_indices": nifty_meta,
+            "dhan_instrument_master": master_meta,
+        }
+        if existing_manifest.get("source_metadata") != expected_source_metadata:
+            raise ValueError("crosscheck_existing_manifest_mismatch")
         return {"status": "CACHE_ALREADY_PRESENT", "path": str(final_dir), "bundle_name": bundle_name}
 
     bundle_manifest = {
