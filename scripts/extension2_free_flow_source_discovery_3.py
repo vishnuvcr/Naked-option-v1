@@ -82,6 +82,15 @@ def iso_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
+def safe_url_for_report(url: str) -> str:
+    """Record URL identity without persisting temporary signed redirect query values."""
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.hostname in HF_ALLOWED_HOSTS and parsed.query:
+        safe_query = urllib.parse.urlencode([(key, "[REDACTED]") for key, _ in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)])
+        return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, safe_query, ""))
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, parsed.query, ""))
+
+
 def is_registered_probe_url(probe_id: str, url: str, method: str) -> bool:
     """Reject URLs and HTTP methods outside the frozen discovery inventory."""
     if probe_id in FIXED_URLS:
@@ -231,7 +240,10 @@ class LimitedHTTP:
                 "error": "Range is only permitted for the two registered HF range probes",
                 "history": [], "bytes_read": 0,
             }
-        self.budget.start_initial(probe_id, url)
+        try:
+            self.budget.start_initial(probe_id, url)
+        except BudgetExceeded as exc:
+            return self._failure(probe_id, safe_url_for_report(url), "BUDGET_EXCEEDED", str(exc), [])
         current_url = url
         redirect_count = 0
         exchange_kind = "initial"
@@ -270,7 +282,7 @@ class LimitedHTTP:
                 except Exception:
                     pass
                 record = {
-                    "probe_id": probe_id, "url": current_url, "method": method,
+                    "probe_id": probe_id, "url": safe_url_for_report(current_url), "method": method,
                     "status": status, "content_type": content_type,
                     "content_length_header": length_header,
                     "content_range": response_headers.get("Content-Range"),
@@ -299,7 +311,13 @@ class LimitedHTTP:
                         }
                     next_url = urllib.parse.urljoin(current_url, location)
                     parsed = urllib.parse.urlsplit(next_url)
-                    if parsed.scheme != "https" or parsed.hostname not in HF_ALLOWED_HOSTS:
+                    if (
+                        parsed.scheme != "https"
+                        or parsed.hostname not in HF_ALLOWED_HOSTS
+                        or parsed.username is not None
+                        or parsed.password is not None
+                        or parsed.port not in {None, 443}
+                    ):
                         return {
                             "probe_id": probe_id, "url": url, "status": "REJECTED_REDIRECT_HOST",
                             "history": history,
@@ -308,7 +326,7 @@ class LimitedHTTP:
                     redirect_count += 1
                     current_url = next_url
                     exchange_kind = "redirect"
-                    self.budget.start_redirect(probe_id, current_url)
+                    self.budget.start_redirect(probe_id, safe_url_for_report(current_url))
                     # Preserve non-sensitive headers such as Range, but never credentials.
                     headers = {
                         k: v for k, v in (headers or {}).items()
@@ -316,7 +334,7 @@ class LimitedHTTP:
                     }
                     continue
                 result = {
-                    "probe_id": probe_id, "url": url, "final_url": current_url,
+                    "probe_id": probe_id, "url": safe_url_for_report(url), "final_url": safe_url_for_report(current_url),
                     "status": "FETCHED" if 200 <= status < 300 else "HTTP_ERROR",
                     "http_status": status, "content_type": content_type,
                     "content_length_header": length_header,
