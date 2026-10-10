@@ -61,8 +61,8 @@ COLUMNS = [
     "spot_join_status",
     "source_provider", "source_endpoint", "source_request_id",
     "request_scope_sha256", "response_sha256", "cache_status",
-    "expiry_date", "time_to_expiry_years", "risk_free_rate_decimal",
-    "dividend_yield_decimal", "delta", "gamma", "theta_per_day",
+    "expiry_date", "expiry_mapping_source", "time_to_expiry_years", "risk_free_rate_decimal",
+    "risk_free_rate_source", "dividend_yield_decimal", "dividend_yield_source", "greek_assumption", "delta", "gamma", "theta_per_day",
     "vega_per_1pct_iv", "rho_per_1pct_rate", "greek_model", "greek_status",
     "data_quality_flags",
 ]
@@ -275,8 +275,8 @@ def parse_spot_response(payload: dict[str, Any], request: dict[str, Any]) -> tup
             "request_scope_sha256": request_scope_hash(request),
             "response_sha256": "",
             "cache_status": "",
-            "expiry_date": "", "time_to_expiry_years": "",
-            "risk_free_rate_decimal": "", "dividend_yield_decimal": "",
+            "expiry_date": "", "expiry_mapping_source": "", "time_to_expiry_years": "",
+            "risk_free_rate_decimal": "", "risk_free_rate_source": "", "dividend_yield_decimal": "", "dividend_yield_source": "", "greek_assumption": "",
             "delta": "", "gamma": "", "theta_per_day": "",
             "vega_per_1pct_iv": "", "rho_per_1pct_rate": "",
             "greek_model": "Black-Scholes-European-v1",
@@ -388,13 +388,14 @@ def apply_greeks(row: dict[str, str], expiry_map: dict[tuple[str, str, int], dic
     key = (row["session_date"], row["expiry_flag"], int(row["expiry_code"]))
     exp_info = expiry_map.get(key)
     if exp_info is None:
-        row["greek_status"] = "EXPIRY_CALENDAR_NOT_AVAILABLE"
+        row["greek_status"] = "EXPIRY_MAPPING_UNAVAILABLE"
         return
     expiry_date = exp_info.get("expiry_date", "")
     if not expiry_date:
         row["greek_status"] = "EXPIRY_DATE_MISSING"
         return
     row["expiry_date"] = expiry_date
+    row["expiry_mapping_source"] = exp_info.get("expiry_mapping_source", "UNSPECIFIED_EXPIRY_SOURCE")
     try:
         expiry_dt = dt.datetime.combine(dt.date.fromisoformat(expiry_date), dt.time(15, 30), tzinfo=IST)
     except ValueError:
@@ -406,14 +407,16 @@ def apply_greeks(row: dict[str, str], expiry_map: dict[tuple[str, str, int], dic
     if years <= 0:
         row["greek_status"] = "EXPIRY_REACHED_OR_PASSED"
         return
-    rate, _ = get_asof_rate(decision_dt, rates)
+    rate, rate_source = get_asof_rate(decision_dt, rates)
     if rate is None:
-        row["greek_status"] = "RISK_FREE_RATE_UNAVAILABLE_ASOF"
-        return
+        rate = 0.0
+        rate_source = "ASSUMED_ZERO_RATE_PROXY"
     dividend = _nullable_number(exp_info.get("dividend_yield_decimal", ""))
     if dividend is None:
-        row["greek_status"] = "DIVIDEND_YIELD_UNAVAILABLE"
-        return
+        dividend = 0.0
+        dividend_source = "ASSUMED_ZERO_DIVIDEND_PROXY"
+    else:
+        dividend_source = exp_info.get("dividend_yield_source", "EXPIRY_TABLE_DIVIDEND_INPUT")
     spot = _nullable_number(row.get("rolling_spot"))
     strike = _nullable_number(row.get("returned_strike"))
     iv = _norm_iv(row.get("implied_volatility"))
@@ -428,10 +431,20 @@ def apply_greeks(row: dict[str, str], expiry_map: dict[tuple[str, str, int], dic
         row["greek_status"] = "GREEK_MODEL_INPUT_INVALID"
         return
     row["risk_free_rate_decimal"] = _value_string(rate)
+    row["risk_free_rate_source"] = rate_source
     row["dividend_yield_decimal"] = _value_string(dividend)
+    row["dividend_yield_source"] = dividend_source
+    assumptions = []
+    if rate_source == "ASSUMED_ZERO_RATE_PROXY":
+        assumptions.append("r=0 proxy; no point-in-time historical India yield series was available")
+    if dividend_source == "ASSUMED_ZERO_DIVIDEND_PROXY":
+        assumptions.append("q=0 proxy; no point-in-time NIFTY dividend-yield input was available")
+    if row["expiry_mapping_source"].startswith("RULE_DERIVED"):
+        assumptions.append("expiry estimated from NIFTY expiry weekday rule and observed Dhan spot session dates; not verified against historical contract master")
     for field, value in greeks.items():
         row[field] = format(value, ".12g")
-    row["greek_status"] = "CALCULATED_BS_V1_IV_NORMALIZATION_HEURISTIC"
+    row["greek_assumption"] = "; ".join(assumptions) if assumptions else "point-in-time sourced inputs"
+    row["greek_status"] = "CALCULATED_BS_V1_PROXY_INPUTS" if assumptions else "CALCULATED_BS_V1_SOURCED_INPUTS"
 
 
 def parse_option_response(payload: dict[str, Any], request: dict[str, Any],
@@ -495,8 +508,8 @@ def parse_option_response(payload: dict[str, Any], request: dict[str, Any],
             "source_request_id": request["request_id"],
             "request_scope_sha256": request_scope_hash(request),
             "response_sha256": response_digest, "cache_status": cache_status,
-            "expiry_date": "", "time_to_expiry_years": "",
-            "risk_free_rate_decimal": "", "dividend_yield_decimal": "",
+            "expiry_date": "", "expiry_mapping_source": "", "time_to_expiry_years": "",
+            "risk_free_rate_decimal": "", "risk_free_rate_source": "", "dividend_yield_decimal": "", "dividend_yield_source": "", "greek_assumption": "",
             "delta": "", "gamma": "", "theta_per_day": "",
             "vega_per_1pct_iv": "", "rho_per_1pct_rate": "",
             "greek_model": "Black-Scholes-European-v1", "greek_status": "",
