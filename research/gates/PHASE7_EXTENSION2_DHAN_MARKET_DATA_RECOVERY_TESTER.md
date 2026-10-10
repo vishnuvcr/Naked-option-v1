@@ -1,8 +1,8 @@
 # Independent Tester Report — DhanHQ Market-Data Recovery Specification
 
 **Current decision: PASS WITH SCOPED RESTRICTIONS — specification only.**  
-**Reviewed spec commit:** `91e626242bc5192d532e6c136d8b74dcd3b9bffe`.  
-**Reviewed spec Git blob:** `7fb4a477d4c85b382656073f97881fe036cd6646`.  
+**Reviewed spec commit:** `56c8197832e1bb04a20b3b6d9b68f6468ffeaf49`.  
+**Reviewed spec Git blob:** `f87e8ecaec0a26947438131fef466aae3e57d824`.  
 **Live source requests: NOT AUTHORIZED.**  
 **Full-history acquisition: NOT AUTHORIZED.**  
 **Model fitting: NOT AUTHORIZED.**
@@ -35,9 +35,8 @@ The proposal discards the `/v2/profile` response body and stores only redacted s
 ### Pass — bounded sample budget is internally consistent
 
 - At most six authenticated requests: one profile, one `IDX_I` instrument metadata request, four daily-candle requests.
-- Maximum response bodies: profile 64 KiB, index metadata 1 MiB, each of four candle responses 768 KiB. Worst-case aggregate is 64 KiB + 1 MiB + 3 MiB = 4.0625 MiB, which is **slightly above 4 MiB**.
-
-**Blocking arithmetic correction:** the stated global cap is 4 MiB, but the declared individual caps sum to 4.0625 MiB. Reduce the four candle responses to a maximum of 752 KiB each (4 × 752 KiB = 3008 KiB; plus 1024 KiB metadata and 64 KiB profile = 4096 KiB exactly), or lower the global cap to a stated value that is at least 4.0625 MiB. The global budget must be enforced across all calls, including error bodies; do not rely on the per-response limits alone.
+- Maximum response bodies: profile 64 KiB, index metadata 1 MiB, each of four candle responses 752 KiB. Worst-case aggregate is 64 KiB + 1024 KiB + 4 × 752 KiB = 4096 KiB exactly, matching the 4 MiB global cap.
+- The global budget must be enforced across all calls, including error bodies; do not rely on per-response limits alone.
 
 ### Pass — staged authorization remains appropriate
 
@@ -45,7 +44,7 @@ The proposal correctly separates specification, offline implementation, code rev
 
 ## 3. Decision and limits
 
-**PASS WITH SCOPED RESTRICTIONS — specification only, subject to the byte-budget arithmetic correction above before implementation is considered ready for code review.**
+**PASS WITH SCOPED RESTRICTIONS — specification only, corrected exact spec blob.**
 
 This does not authorize:
 - any Dhan network request;
