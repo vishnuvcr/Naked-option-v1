@@ -168,3 +168,8 @@
 ## 2026-10-10 — Source Discovery 3 spec review web-reader limitation (non-evidence)
 
 During specification validation, the web reader was directed to the two fixed CDSL historical XLS URLs to verify the visible archive links. It returned an unsupported-content-type/internal-error response and did not provide any parsed XLS values. The resulting attempts are **not accepted data samples**, do not establish field schema or date coverage, and must not be used to pass the future artifact gate. The attempts and limitations are disclosed in `research/gates/PHASE7_EXTENSION2_FREE_FLOW_SOURCE_DISCOVERY_3_TESTER.md`. No repository dataset or model was changed. All further source retrieval still requires the new code gate and one-run approval.
+
+
+## 2026-10-10 — Discovery 3 code gate REQUEST CHANGES (six blockers)
+
+Tester rejected the implementation snapshot `918821ba9e74342bb282fe3a86138e8aa8e29ea7` despite 29 passing offline fixtures. Findings: (1) output report still carries stale spec Git blob `52b030...` instead of `4e30415632545c04a2875d627afa0191afe3f383`; (2) one matching JSON date lets conflicting other date fields pass; (3) numeric flow parsing accepts NaN/Infinity; (4) nested signature/sig values are not redacted; (5) dated page hrefs go into reports unsanitized; (6) live-workflow manifest reviewer commit is not proven to be the exact reviewed tree with all approved blobs at that commit. Must fix all six, add tests, pass offline suite, then request fresh exact-snapshot code gate. No source request/manifest allowed.
