@@ -40,9 +40,9 @@ The implementation must define a shared request/byte budget, URL allowlist, stri
 - If unauthorized/expired, missing secret, or data plan inactive, stop all further calls and report the category only. Do not attempt token renewal or login automation.
 
 ### B. Instrument identity
-- Use the official Dhan instrument-list source only under a separately defined byte cap and pinned URL/revision/checksum, or use already-cached repository metadata if current and verified.
-- Resolve NIFTY 50 and India VIX IDs by official symbol/segment/instrument metadata. Reject ambiguous or multiple mappings; do not guess or silently select the first match.
-- Instrument master download is not authorized until its exact URL, format, size cap and parser tests are in the reviewed implementation.
+- Use the official segment-specific endpoint `GET https://api.dhan.co/v2/instrument/IDX_I` to resolve index metadata. The official docs describe this endpoint as returning instruments for one exchange segment. Enforce a 1 MiB transport cap, no redirect, 20-second timeout and no retry.
+- Resolve NIFTY 50 and India VIX IDs by exact official symbol/segment/instrument metadata. Reject ambiguous or multiple mappings; do not guess or silently select the first match.
+- Do not download the unbounded all-instrument CSV in this phase. If `IDX_I` is not a parseable supported response, stop and propose a separately reviewed fallback rather than widening the request.
 
 ### C. Daily candle schema sample
 - At most two instruments (NIFTY 50 and India VIX, if resolved unambiguously), and at most two non-overlapping fixed windows of ten calendar days each. Total at most four daily-candle POST requests.
@@ -58,8 +58,8 @@ The implementation must define a shared request/byte budget, URL allowlist, stri
 - Do not infer historical option premiums/OI from current option-chain snapshots.
 
 ### E. Request budget
-- Maximum 1 profile request + 4 historical daily-candle requests; total maximum 5 authenticated requests in the first sample.
-- Maximum total response bodies 4 MiB across the run; profile body is discarded and must be bounded at transport level (64 KiB maximum).
+- Maximum 1 profile request + 1 segment-specific instrument metadata request + 4 historical daily-candle requests; total maximum 6 authenticated requests in the first sample.
+- Maximum total response bodies 4 MiB across the run; profile body is discarded and must be bounded at transport level (64 KiB maximum); index-segment metadata is capped at 1 MiB.
 - Per-request timeout 20 seconds; no retry, no redirect, no fallback to a different host. If a response exceeds a cap, abort and mark the source unverified.
 - Workflow must not run a source request unless offline tests pass and the one-run exact-snapshot manifest validates. The manifest is consumed before the first request. Any changed protected blob invalidates it.
 
