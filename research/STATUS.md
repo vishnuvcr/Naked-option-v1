@@ -599,3 +599,11 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - The guard now requires a specific current tester-decision line, explicit denial of full-history/model fitting, matching report SHA-256, protected file SHA-256 values, protected Git blob IDs quoted in the report, and reviewed-commit ancestry. Manual source sampling remains off by default and fails closed without the exact manifest.
 - Current review request: [sampler v2 exact-snapshot review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
 - No current approval manifest exists. No live source requests or artifact generation are authorized pending a new tester PASS and green hosted offline tests.
+
+
+## 2026-10-10 — Gate A workflow now includes F&O transition samples
+
+- Static audit found that the earlier v2 workflow omitted the legacy/UDiFF F&O archive sampler. That would have left the options schema transition unverified even though cash-equity schema samples were present.
+- Corrected workflow blob: `1d8991255ff284c6b9cb20c4071ab56555d18dc6`. It runs both the bounded F&O sample/page sampler and the index/equity/FII-DII sampler, uploading both JSON reports.
+- Updated exact-snapshot review request: [sampler v2 review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SOURCE_SAMPLER_V2_REVIEW_REQUEST.md).
+- **Gate remains closed** pending tester review of the current workflow blob and the current sampler/test/spec blobs. No approval manifest and no current source-sample artifact exist.
