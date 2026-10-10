@@ -228,3 +228,11 @@ Static review of developer commit 39e964d passed for a future run only. The corr
 - Blocking points: legacy F&O bhavcopy/UDiFF transition coverage, undefined FII/DII normalization denominator, ambiguous F04/F05 arithmetic, non-canonical sector index identity, and incomplete deterministic treatment of candidate abstentions in the global bootstrap.
 - No source data were downloaded, no feature table was created, and no model was fit.
 - Full review: `research/gates/PHASE7_AVAILABLE_GLOBAL_EXTENSION2_SPEC_TESTER.md`.
+
+
+## 2026-10-10 — Gate A sampler code review: REQUEST CHANGES
+
+- Tester reviewed sampler blob `a35178de4c32a9f86ae1b710a14fd2a8eb7ec072` and offline tests blob `eac0e4289ebb6321c08677cc2301c8fc60aa0e13`.
+- Blocking issue: archive trade-date validation checks only the first row in legacy and UDiFF files. A mixed-date archive could pass.
+- Required: validate every row's trade date, record distinct date count, and add mixed-date negative fixtures for both formats.
+- No workflow ran and no source sample was downloaded.
