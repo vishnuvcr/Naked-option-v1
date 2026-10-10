@@ -608,3 +608,11 @@ Latest run [38029615734](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 - The new integration-style fixture now exercises the profile-success / metadata-HTTPError path with a fake opener. It verifies numeric status and safe content-type retention while ensuring the provider error body, cookie, authorization header, profile ID and access token are absent from the result.
 - Latest hosted offline suite: [Run 38043456200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38043456200), **29/29 regressions passed** on the corrected adapter/test snapshot.
 - **Gate remains pending independent review of the corrected exact snapshot.** The first sample's one-run manifest remains SPENT. No retry, additional source request, candle acquisition or model analysis is authorized until a fresh tester code/workflow PASS and new single-use manifest exist.
+
+
+## 2026-10-10 — Dhan diagnostic status and manifest-validator correction
+
+- First sample artifact `11666064550` was rejected because the `IDX_I` metadata request failed non-200 but its numeric status was not included. Adapter now returns the status and a safe content-type only.
+- Offline Run `38043259438` exposed that the new test expected an empty header map while the implementation intentionally retains safe Content-Type; test fixture/adapter behavior was reconciled. A further run failed because live sample did not pass the safe headers into the report helper; corrected by forwarding only sanitized headers.
+- Manifest validator now checks protected file blobs against the reviewed commit tree as well as current HEAD. This closes the ancestry-only weakness; current code-tester report is digest-pinned separately because it post-dates the code commit.
+- Current offline Run `38043456200` passed 29/29 checks. Tester approved one diagnostic retry only; the original manifest is spent and cannot be reused.
