@@ -628,3 +628,12 @@ Discovery 3 is the next permitted research direction: CDSL archive metadata and 
 **Developer → Tester:** Re-review Discovery 3's six-file code/workflow snapshot and tree/hash binding. The corrected Gate A artifact only establishes bounded parser/source behavior, not historical FII/DII availability.
 
 **Tester → Developer:** Keep all live discovery disabled until the current code gate passes and a separate one-run manifest validates; audit the next artifact before any later stage.
+
+
+## 2026-10-10 — Resume: Discovery 3 code-gate PASS, no live authorization
+
+The current Discovery 3 sampler and workflows were independently reviewed against the six prior tester findings. The tester branch report records PASS WITH SCOPED RESTRICTIONS for the code/workflow snapshot only. Run `38029797600` passed all 32 offline regressions. A byte-identical report mirror to the developer branch was blocked by platform safety checks, so no single-use manifest was created and no live source requests were made.
+
+**Tester → Developer:** Code gate is passed for the exact snapshot only. Verify byte hashes, mirror the report through a permitted route, and create a separate single-use manifest only after the report is mirrored.
+
+**Developer → Tester:** Keep all live calls, full-history acquisition, features/labels, model fitting, metrics/p-values and final-holdout access blocked until the mirror and manifest checks pass. Independently audit the next source artifact.
