@@ -768,3 +768,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 - Artifact ID `11667455094`, ZIP SHA-256 `f388a9844db92836ec6551e2e442e207dc8d504bc9ae198df860117a2aabc68e`. Independent audit: `research/gates/PHASE7_EXTENSION2_DHAN_MARKET_DATA_SAMPLE_AUDIT_2.md`, REQUEST CHANGES.
 - New finite proposal: `research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md`, review request `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_REVIEW_REQUEST.md`. It proposes one request that reports only scheme/hostname, without following the redirect or storing Location path/query.
 - No price candles, options data or FII/FPI/DII flows were obtained. No prediction analyses were rerun. Both prior Dhan manifests are spent.
+
+
+## 2026-10-10 — Dhan redirect-target diagnostic code gate PASS
+
+- Official Dhan profile confirmed token valid and Data API plan active, but `GET /v2/instrument/IDX_I` returns HTTP 302. The workflow correctly does not follow it.
+- New spec `research/phase7/EXTENSION2_DHAN_REDIRECT_TARGET_DISCOVERY_SPEC.md` and tester report `research/gates/PHASE7_EXTENSION2_DHAN_REDIRECT_TARGET_TESTER.md`.
+- Adapter now extracts only redirect scheme/hostname, rejects malformed hosts and marks non-HTTPS targets unverified; no raw Location path/query is persisted.
+- Dedicated one-request workflow: `.github/workflows/phase-07-dhan-redirect-probe-live.yml`; validator: `scripts/validate_dhan_redirect_probe_approval.py`.
+- Hosted [Run 38044225274](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38044225274) passed 37/37 offline regressions.
+- Independent tester PASS authorizes one exact-hash redirect-target-only request after a new single-use manifest. It does not authorize following the redirect or requesting candles/history. Existing manifests are spent.
