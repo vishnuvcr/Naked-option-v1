@@ -622,3 +622,12 @@ Latest research ledgers: [status](research/STATUS.md), [error log](research/ERRO
 ## Research gate update — 2026-10-10 (hosted receipt pending)
 
 The Phase 7 official-source cross-check remains **BLOCKED / REQUEST CHANGES**. A comment-only commit was submitted to trigger the current offline test workflow, but the connected GitHub Actions interface did not return a run receipt or commit status. We cannot claim a current test pass. No NSE/Dhan public-source request was made, and no data is accepted for modeling. See the [Phase 7 status ledger](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), and [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
+
+
+## Latest checkpoint — 2026-10-10: exact-snapshot CI receipt not verified
+
+- The official-reference cross-check remains blocked by the independent tester's **REQUEST CHANGES** decision: the previously cited hosted test run used older source/test blobs.
+- A comment-only trigger commit exists: [50f79a6](https://github.com/vishnuvcr/Naked-option-v1/commit/50f79a629b580063fbe561117da57cf7c9e2b044). The connected status lookup returned no status, and the available commit-associated run lookup returned no run; that wrapper only covers PR-triggered runs, so the push-triggered workflow outcome is **unknown**, not a pass or failure.
+- No official NSE Indices or Dhan instrument-master request was made. The earlier one-use Dhan sample approval remains SPENT; no new data has been accepted for modeling and no prediction or strategy result changed.
+- **Next gate:** obtain a verifiable hosted Actions receipt for the exact current commit, pin the tested source/test/workflow blobs, then submit that exact snapshot to the isolated tester. Live acquisition remains prohibited until a new explicit tester PASS.
+- See [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), [chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md), and [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md).
