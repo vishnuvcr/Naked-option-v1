@@ -610,3 +610,13 @@ Tester static review accepted the P10 diagnostic correction in commit 39e964d fo
 
 
 - Repository-level [Research Protocol Check](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38020253978) succeeded on the latest documentation commit. It validates repository contract/literature registry only; it is **not** a run of the Gate A v1/v2 source-schema regression suites. The Gate A sampler workflow remains untriggered because the exact tester approval manifest is absent.
+
+
+## 2026-10-10 — Extension 2 sampler v2 exact-snapshot PASS; one bounded run authorized
+
+- Independent tester passed the corrected exact six-file snapshot at reviewed commit `6050908b98c53d75c10175140e84e87f48934896`; report mirrored byte-identically on tester/developer branches.
+- Offline hosted suite [Run 38026024826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026024826): **22/22 unique tests passed** (7 v1 + 15 v2). Offline-only legacy-workflow safety check [Run 38026080844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38026080844) also passed.
+- Current PASS scope is one bounded Gate A source sample and upload of two JSON reports only. **Full-history acquisition and model fitting are NOT AUTHORIZED.**
+- A prior unapproved legacy run [38025793938](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38025793938) fetched two single-day F&O archives and small public-page/API samples. Artifact `11659904438` is **NON-ACCEPTED EVIDENCE** due to missing authorization. No features, labels or models were produced. The unguarded legacy workflow has been replaced with offline-only tests.
+- The v2 live-source workflow still requires the exact mirrored tester report digest, protected byte hashes/Git blob IDs, reviewed-commit ancestry, and successful offline tests before any source request.
+- **Next gate:** create the exact hash-bound manifest for the tester-approved snapshot; once the single guarded run completes, submit both reports for separate independent artifact review.
