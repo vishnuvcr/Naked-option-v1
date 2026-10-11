@@ -190,6 +190,11 @@ class DatasetValueAuditTests(unittest.TestCase):
         self.assertIn("rm -rf", workflow)
         self.assertIn("research/data/DATASET_VALUE_AUDIT_RESULT.json", workflow)
         self.assertIn("PASS_WITH_COVERAGE_RESTRICTIONS", workflow)
+        self.assertIn("\\n      - name: Download the existing encrypted artifact only\\n        id: download\\n        continue-on-error: true\\n        uses: actions/download-artifact@v4", workflow)
+        self.assertLess(
+            workflow.index("Test decryptor and semantic auditor before artifact access"),
+            workflow.index("Download the existing encrypted artifact only"),
+        )
         self.assertNotIn("api.dhan.co", workflow)
         self.assertNotIn("rollingoption", workflow)
         self.assertNotIn("model fitting or scoring performed", workflow.lower())
