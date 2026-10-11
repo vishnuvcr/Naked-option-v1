@@ -1589,3 +1589,12 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Verify the exact scanner/test snapshot after a successful synthetic CI run and workflow-policy resolution.
 **Tester → Developer:** Keep real-file preflight, fitting, holdout, source-request and strategy gates closed until the exact-snapshot gate passes.
+
+### 2026-10-11 — Synthetic preflight gate passed, real-file gate remains separate
+- Updated action pinning to full commit SHAs and added static policy guard/tests.
+- Successful exact-snapshot synthetic CI: [run 38135712550](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38135712550).
+- Tester decision: PASS_WITH_SCOPED_RESTRICTIONS for synthetic code gate only, exact reviewed PR head `0e9b5f592f8004022576598936a7f24a8268caca`.
+- Merged PR #9 into `phase-07-developer` as `b295a5da96722a42865d36f40eeeca1eec31eab2`.
+- Real CSV.GZ is absent from current runtime. No real-file scan, model fit, holdout, new source request, or strategy/P&L work was performed.
+**Developer → Tester:** Review the next real-file audit proposal before any workflow receives the dataset.
+**Tester → Developer:** Keep the actual-file and all downstream gates closed until an exact-file authorization is issued.
