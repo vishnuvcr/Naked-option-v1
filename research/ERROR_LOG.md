@@ -1303,3 +1303,7 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Corrected both assertions and reran the exact implementation snapshot. Actions run 38137514604 passed.
 - Added explicit gate-name validation, exact blob matching, source-artifact lineage checks and cleanup of the report-associated SQLite temporary file.
 - Execution request commit `eb307f32294924591320dc4688127462e8e6b091` was submitted after the tester's scoped authorization. The real-file run/report is not yet verified through the available Actions interface; no result is inferred.
+
+## 2026-10-11 — Exact-hash gate mismatch caught before execution acceptance
+- Post-review changes had altered the blob hashes for `phase-07-offline-preflight-tests.yml`, `check_workflow_action_pinning.py`, and `test_workflow_action_pinning.py`. The tester's exact-hash authorization would therefore reject the run.
+- Restored each file to its reviewed blob SHA and verified all 11 required paths now match. Reissued the explicit request as R2; no audit result is accepted until a completed run receipt and sanitized report are retrieved.
