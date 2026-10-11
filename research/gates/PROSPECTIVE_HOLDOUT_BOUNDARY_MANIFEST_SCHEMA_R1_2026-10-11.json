@@ -1,0 +1,40 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Sanitized Prospective Holdout Boundary Manifest",
+  "type":"object",
+  "additionalProperties":false,
+  "required":[
+    "schema_version","gate_id","dataset_sha256","expected_columns","row_count","row_type_counts",
+    "session_count","train_session_count","validation_session_count","holdout_session_count",
+    "train_end_session","validation_end_session","holdout_start_session",
+    "train_end_byte_offset","validation_end_byte_offset","holdout_start_byte_offset",
+    "holdout_range_sha256","horizons","purge_counts","min_train_metadata_eligible_origins",
+    "common_validation_metadata_eligible_origins","value_fields_accessed","holdout_values_decoded","status"
+  ],
+  "properties":{
+    "schema_version":{"type":"integer","const":1},
+    "gate_id":{"type":"string","const":"PROSPECTIVE_HOLDOUT_BOUNDARY_R1"},
+    "dataset_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "expected_columns":{"type":"integer","minimum":1},
+    "row_count":{"type":"integer","minimum":1},
+    "row_type_counts":{"type":"object","additionalProperties":false,"required":["OPTION","SPOT"],"properties":{"OPTION":{"type":"integer","minimum":0},"SPOT":{"type":"integer","minimum":0}}},
+    "session_count":{"type":"integer","minimum":3},
+    "train_session_count":{"type":"integer","minimum":1},
+    "validation_session_count":{"type":"integer","minimum":1},
+    "holdout_session_count":{"type":"integer","minimum":1},
+    "train_end_session":{"type":"string","format":"date"},
+    "validation_end_session":{"type":"string","format":"date"},
+    "holdout_start_session":{"type":"string","format":"date"},
+    "train_end_byte_offset":{"type":"integer","minimum":1},
+    "validation_end_byte_offset":{"type":"integer","minimum":1},
+    "holdout_start_byte_offset":{"type":"integer","minimum":1},
+    "holdout_range_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "horizons":{"type":"array","items":{"type":"integer","enum":[1,2,3,5,10]},"minItems":1,"uniqueItems":true},
+    "purge_counts":{"type":"object","additionalProperties":{"type":"object","additionalProperties":false,"required":["train_cross_boundary_origins","validation_cross_boundary_origins","train_metadata_eligible_origins","validation_metadata_eligible_origins"],"properties":{"train_cross_boundary_origins":{"type":"integer","minimum":0},"validation_cross_boundary_origins":{"type":"integer","minimum":0},"train_metadata_eligible_origins":{"type":"integer","minimum":0},"validation_metadata_eligible_origins":{"type":"integer","minimum":0}}}},
+    "min_train_metadata_eligible_origins":{"type":"integer","minimum":0},
+    "common_validation_metadata_eligible_origins":{"type":"integer","minimum":0},
+    "value_fields_accessed":{"type":"boolean","const":false},
+    "holdout_values_decoded":{"type":"boolean","const":false},
+    "status":{"type":"string","enum":["PASS_WITH_RESTRICTIONS","NOT_ESTIMABLE","BLOCKED"]}
+  }
+}
