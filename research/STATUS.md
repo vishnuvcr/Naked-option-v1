@@ -1,3 +1,14 @@
+## 2026-10-11 — Adapter proposal decision
+
+- Verdict: PASS_WITH_SCOPED_RESTRICTIONS, design only.
+- Proposal: [adapter design](gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md); [decision](gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
+- The fixed dataset is an encrypted Actions artifact; the next implementation must support gzip streaming and uncompressed byte offsets/hashes.
+- No real-file scan is authorized.
+
+**Tester → Developer:** Review exact implementation hashes and synthetic CI.  
+**Developer → Tester:** Keep cached-file execution closed until a separate execution decision.
+
+
 ## 2026-10-11 — Prospective boundary implementation R1 passed synthetic scope only
 
 - Reviewed developer commit `8a69c5004bfa6f45efb69adb596ea1db122398f1).
