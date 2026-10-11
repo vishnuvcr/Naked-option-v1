@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_R6",
+  "verdict": "REQUEST_CHANGES",
+  "reviewed_developer_commit": "052e8afe1cb590a3aa43145bea254ee742aade26",
+  "reviewed_blobs": {
+    "scripts/modeling_readiness_feasibility_run.py": "647caf57a0d3892062039b9e33f9b67d475c0778",
+    "tests/test_modeling_readiness_feasibility_run.py": "b99efb9e7a82c78d900486f2b5786d795a864009",
+    "research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json": "c7e34cdd134a741eeb1235236b492acd04ebf524",
+    ".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml": "c47fad18419fadeeb08d3d26a88789c3ba245786"
+  },
+  "ci": {
+    "run_id": 38152966001,
+    "conclusion": "success",
+    "scope": "synthetic-only",
+    "tests_observed": 13
+  },
+  "blocking_findings": [
+    {
+      "id": "F01",
+      "severity": "BLOCKER",
+      "finding": "Train/validation endpoint purge and minimum origin counts are trusted manifest assertions; not independently recomputed from scanned rows."
+    },
+    {
+      "id": "F02",
+      "severity": "BLOCKER",
+      "finding": "Target counts are pooled pre-holdout counts, not per-split counts; common validation origins are not computed and split_status can overstate evidence."
+    },
+    {
+      "id": "F03",
+      "severity": "BLOCKER",
+      "finding": "Official-close linkage is a boolean claim without a pinned, structurally validated evidence record."
+    }
+  ],
+  "permissions": {
+    "real_data_execution": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_observation_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "next_step": "Developer must implement split-specific label endpoint computation, compute the 252/250 rules from observations, require close-linkage evidence, add synthetic tests, and resubmit exact hashes.",
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
