@@ -323,3 +323,15 @@ The developer's one-use approval was consumed before the first request. [Guarded
 - Tester limitation: same connected assistant session, not a separate human/external AI; the output artifact binary was not directly downloaded for a second tester-side hash pass. Runner-side per-part hash checks, workflow logs, the published manifest/report and artifact metadata were reviewed.
 - **Tester → Developer:** update main status/docs/logs and prepare a distinct exact-snapshot modelling-readiness gate. No fitting or holdout access yet.
 - **Developer → Tester:** submit modelling-readiness logic/coverage rules for exact-SHA review before any model run.
+
+
+## 2026-10-11 — Offline CSV export completed
+- Exact export run [38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676) succeeded all steps; encrypted-only artifact [11699299285](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676/artifacts/11699299285) was downloaded and decrypted locally.
+- Verified compressed CSV.GZ is 230,858,600 bytes with SHA-256 `f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5`, matching the hosted manifest; gzip integrity passed.
+- Verified plain CSV is 4,747,892,392 bytes with SHA-256 `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`; 8,999,865 data rows + one header, 47 columns. All records were width-validated in two adjacent parser-validated segments.
+- Only ciphertext was uploaded to the one-day Action artifact. The private key and intermediary files were removed after local decryption; plaintext was not committed to repository history.
+- Final machine-readable decision: [OFFLINE_CSV_EXPORT_TESTER_DECISION_RUN_38133038676.json](gates/OFFLINE_CSV_EXPORT_TESTER_DECISION_RUN_38133038676.json) = `PASS_WITH_SCOPED_RESTRICTIONS` for export integrity only. No model/holdout/strategy authorization changes.
+
+**Tester → Developer:** Keep public repository and Action artifacts free of plaintext CSV and private keys; no further export action required.
+
+**Developer → Tester:** Preserve the output hashes and residual coverage restrictions; keep research gates unchanged.
