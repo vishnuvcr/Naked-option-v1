@@ -30,11 +30,12 @@ class PreflightTests(unittest.TestCase):
     def test_passes_fixture_reports_metadata_only_and_creates_nested_report_dir(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
+            header = ["timestamp_epoch", "instrument_type", "symbol", "expiry", "strike", "option_type", "close"] + [f"c{i}" for i in range(40)]
             rows = [
-                ["1700000000", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41,
-                ["1700000060", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41,
+                ["1700000000", "spot", "NIFTY", "NA", "0", "SPOT", "12345.67"] + [""] * 40,
+                ["1700000060", "spot", "NIFTY", "NA", "0", "SPOT", "12345.67"] + [""] * 40,
             ]
-            path = self.make_file(td, rows, KEY_HEADER)
+            path = self.make_file(td, rows, header)
             out = root / "nested" / "reports" / "report.json"
             report = run(path, out, self.digest(path), 2, 47)
             self.assertEqual(report["data_rows"], 2)
@@ -44,7 +45,7 @@ class PreflightTests(unittest.TestCase):
             self.assertEqual(report["duplicate_key_count"], 0)
             # No row values, symbols, or source records are included in the report.
             self.assertNotIn("NIFTY", out.read_text(encoding="utf-8"))
-            self.assertNotIn("1700000000", out.read_text(encoding="utf-8"))
+            self.assertNotIn("12345.67", out.read_text(encoding="utf-8"))
             self.assertFalse(Path(str(out) + ".sqlite.tmp").exists())
 
     def test_digest_mismatch_fails_closed(self):
