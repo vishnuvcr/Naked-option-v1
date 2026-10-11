@@ -34,14 +34,14 @@
   },
   "tester_decision_blob": "817af6b8b2db14c2ca22f80ea61b6e5279d4d01f",
   "post_recovery_tester_review": {
-    "status": "OFFLINE_CODE_GATE_COMPLETE_ARTIFACT_REVIEW_PENDING",
+    "status": "ARTIFACT_METADATA_AUDIT_COMPLETE_DATA_GATE_REQUEST_CHANGES",
     "requested_at_utc": "2026-10-11T06:24:30Z",
     "reviewed_developer_commit": "a5437ba8a31fe325b2988b92a8bf9325ee002450",
     "tester_workflow_run_id": "38117905217",
     "tester_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
     "deterministic_checks_passed": true,
     "ai_reviewer_available": false,
-    "artifact_level_review_completed": false,
+    "artifact_level_review_completed": true,
     "reason": "Exact-snapshot offline tester cycle passed the code gate after aggregate response-byte accounting was moved before validation and regression coverage added. It did not inspect/decrypt the realized recovery artifact or validate the six failed shards and realized counters.",
     "restrictions": [
       "no new live source requests",
@@ -50,6 +50,15 @@
       "no holdout access",
       "no strategy or P&L testing",
       "prediction-only research"
-    ]
+    ],
+    "artifact_review_report_blob": "92518c0b120bfd336cd4fc61f848da33d00274c1",
+    "data_completeness_decision": "REQUEST_CHANGES",
+    "failed_shards": 6,
+    "failed_shard_reason": "response_row_cap_exceeded",
+    "failed_shard_response_bytes": 6517187,
+    "all_47_response_bytes": 28248554,
+    "archive_hash_matches_github_digest": true,
+    "encrypted_parts_verified": 57,
+    "encrypted_market_values_decrypted": false
   }
 }
