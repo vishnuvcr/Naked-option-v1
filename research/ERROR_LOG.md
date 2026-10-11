@@ -1,3 +1,12 @@
+## 2026-10-11 — Modeling-readiness implementation R5 test failures and correction
+- Category: synthetic CI / test-snapshot sequencing.
+- Runs: [38149876496](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149876496), [38149891577](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149891577), and [38149898567](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149898567) failed while sequential commits were updating implementation and tests. The most recent inspected failure was the old test expecting `sanitize_report({"rows":100,"columns":47})` to succeed after the sanitizer had correctly begun enforcing the complete report schema.
+- Root cause: intermediate repository snapshots had the hardened implementation but the legacy report test; not a data or model failure.
+- Resolution: expanded tests to construct a complete metadata-only report and reject extra fields, nested non-status payloads, missing required fields, negative counts, and inconsistent row totals. Also added tests for generator horizons, invalid tolerance and negative session/split counts.
+- Final exact snapshot: [run 38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) succeeded; tester approved synthetic implementation only.
+- Impact: no market-data audit or model result was produced. Empirical feasibility, fitting/scoring, holdout, new source requests, and strategy/P&L remain unauthorized.
+
+
 # Error Log
 
 ## 2026-10-11 — Independent tester report wording does not match tolerant volume behavior
