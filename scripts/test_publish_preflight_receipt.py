@@ -17,7 +17,7 @@ class PublishReceiptTests(unittest.TestCase):
     def report(self, **updates):
         value = {
             "status": "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS",
-            "file_name": "dataset.csv.gz", "file_size_bytes": 123,
+            "file_name": "nifty_repaired_composite_2021-10_to_2026-10.csv.gz", "file_size_bytes": 123,
             "sha256": "b" * 64, "gzip_integrity": "PASS",
             "data_rows": 8999865, "columns": 47, "column_names": ["timestamp_epoch"],
             "recognized_timestamp_column": "timestamp_epoch",
@@ -65,9 +65,8 @@ class PublishReceiptTests(unittest.TestCase):
             path = Path(td) / "report.json"
             value = self.report(limitations=["raw option price: 123.45"])
             path.write_text(json.dumps(value), encoding="utf-8")
-            # Schema is structurally valid; publisher must not infer whether free-text is safe.
-            receipt = build_receipt(self.metadata(), path)
-            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS")
+            with self.assertRaisesRegex(ValueError, "REPORT_LIMITATIONS_INVALID"):
+                build_receipt(self.metadata(), path)
 
     def test_invalid_hash_or_count_types_are_rejected(self):
         with tempfile.TemporaryDirectory() as td:
