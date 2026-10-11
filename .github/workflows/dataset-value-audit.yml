@@ -48,6 +48,7 @@ jobs:
           ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/dataset-value-audit.yml"); puts "PASS: value-audit workflow YAML parses"'
 
 
+      - name: Download the existing encrypted artifact only
         id: download
         continue-on-error: true
         uses: actions/download-artifact@v4
