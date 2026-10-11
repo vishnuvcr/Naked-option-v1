@@ -9,6 +9,6 @@
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "repair_mode": "REVIEWER_UNAVAILABLE",
-  "reviewed_developer_commit": "df0854790fe53c9aed31addd1a947b653c1dc7a2",
+  "reviewed_developer_commit": "6ea695600d08c8768e3bcce2a0217111d8ef577e",
   "schema_version": 1
 }
