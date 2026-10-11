@@ -42,5 +42,25 @@ class ActualCompositeSchemaTests(unittest.TestCase):
             self.assertEqual(report["incomplete_composite_key_rows"], 1)
 
 
+    def test_duplicate_detection_across_10000_row_batch_boundary(self):
+        with tempfile.TemporaryDirectory() as td:
+            header = ["timestamp_epoch", "row_type", "underlying", "expiry_code", "returned_strike", "option_type"] + [f"c{i}" for i in range(41)]
+            rows = []
+            first = ["1700000000", "SPOT", "NIFTY", "", "", ""] + [""] * 41
+            for i in range(10000):
+                rows.append([str(1700000000 + 60 * i), "SPOT", "NIFTY", "", "", ""] + [""] * 41)
+            rows.append(first)
+            path = Path(td) / "batch-boundary.csv.gz"
+            with gzip.open(path, "wt", encoding="utf-8", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(header)
+                writer.writerows(rows)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            report = run(path, Path(td) / "report.json", digest, len(rows), 47)
+            self.assertEqual(report["duplicate_key_count"], 1)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
+            self.assertEqual(report["incomplete_composite_key_rows"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()
