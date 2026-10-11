@@ -240,6 +240,9 @@ jobs:
           key: nifty1m-composite-${{ github.run_id }}
           restore-keys: |
             nifty1m-composite-
+      - name: Account the authorized non-persisting diagnostic wire attempt
+        working-directory: developer
+        run: python scripts/account_nifty_1m_probe_attempt.py
       - name: Verify all 8,540 option responses are cached and 61 spot requests remain eligible
         id: cache_audit
         working-directory: developer
