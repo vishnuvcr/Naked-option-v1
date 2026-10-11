@@ -36,6 +36,7 @@ env:
   REFERENCE_ARTIFACT_ID: "11638738288"
   REFERENCE_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
   REFERENCE_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
+  REFERENCE_AGGREGATE_SHA256: "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
 
 jobs:
   restore-frozen-spot-inputs:
@@ -64,14 +65,28 @@ jobs:
           github-token: ${{ github.token }}
           path: data/cache/reference/phase7_run994/unpacked
 
-      - name: Verify embedded manifest identity before reading its source pins
+      - name: Verify immutable Run #994 manifest and aggregate before reading source pins
         run: |
           set -euo pipefail
           manifest="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
-          test -s "$manifest"
-          actual="$(sha256sum "$manifest" | awk '{print $1}')"
-          echo "embedded_manifest_sha256=$actual"
-          test "$actual" = "$REFERENCE_MANIFEST_SHA256"
+          aggregate="data/cache/reference/phase7_run994/unpacked/phase7_ensemble_results.json"
+          test -s "$manifest" && test -s "$aggregate"
+          manifest_actual="$(sha256sum "$manifest" | awk '{print $1}')"
+          aggregate_actual="$(sha256sum "$aggregate" | awk '{print $1}')"
+          echo "embedded_manifest_sha256=$manifest_actual"
+          echo "aggregate_sha256=$aggregate_actual"
+          test "$manifest_actual" = "$REFERENCE_MANIFEST_SHA256"
+          test "$aggregate_actual" = "$REFERENCE_AGGREGATE_SHA256"
+          python - <<'PY'
+          import json, os
+          path="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          manifest=json.load(open(path, encoding="utf-8"))
+          assert manifest["status"] == "COMPLETE" and manifest["schema_version"] == 1
+          assert str(manifest["run_id"]) == os.environ["REFERENCE_RUN_ID"]
+          assert manifest["commit"] == os.environ["REFERENCE_COMMIT"]
+          assert len(manifest["prediction_panels"]) == 10
+          assert sum(int(x["rows"]) for x in manifest["prediction_panels"]) == 50555
+          PY
 
       - name: Restore existing Phase 3 cache as candidate inputs only
         uses: actions/cache/restore@v4
