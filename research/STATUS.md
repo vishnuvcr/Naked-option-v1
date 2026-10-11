@@ -1607,3 +1607,16 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
  
 **Developer → Tester:** Inspect R5's canonical duplicate counts, incomplete keys, coverage diagnostics, exact decoded hash and cleanup evidence after completion.
 **Tester → Developer:** Do not treat the R4 duplicate count as valid or open models/holdout/strategy/P&L until R5 receives a separate data-readiness decision.
+
+
+## 2026-10-11 — R5 canonical structural audit checkpoint
+
+- Latest verified run: [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301).
+- Synthetic authorization and regression job: **success**. Exact tester decision and request validation, repaired source run/artifact checks, encrypted artifact download, 61-part manifest/hash validation, and decryption/merge all completed successfully.
+- The real-file metadata-only structural preflight is **still in progress**. Sanitized report upload and plaintext/temporary-index cleanup are pending. No R5 duplicate count, incomplete-key count, or structural verdict is accepted at this checkpoint.
+- R5 uses canonical OPTION identity: timestamp_epoch, row_type, source_request_id, expiry_flag, expiry_code, requested_relative_strike, option_type; SPOT timestamp uniqueness is checked separately.
+- R4's 4,148,431 duplicate-row count remains rejected and must not be reused.
+- Model fitting/scoring, holdout access, new source requests, and strategy/P&L remain **CLOSED** until the R5 output is inspected and a separate data-readiness decision is recorded.
+
+**Developer → Tester:** Review the R5 sanitized report, canonical OPTION/SPOT duplicate counts, incomplete keys, content hash, timestamp/width results and cleanup evidence after the job completes.
+**Tester → Developer:** Do not promote the dataset or open prediction models based on an in-progress scan or the rejected R4 duplicate count.
