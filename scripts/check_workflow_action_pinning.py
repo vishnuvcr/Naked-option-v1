@@ -19,7 +19,7 @@ FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_SECRETS = {"GITHUB_TOKEN", "HF_TOKEN"}
 
 
-def inspect_workflow(text: str, allow_secrets: bool = False, allow_actions_read: bool = False) -> list[str]:
+def inspect_workflow(text: str, allow_secrets: bool = False, allow_actions_read: bool = False, allow_contents_write: bool = False) -> list[str]:
     errors: list[str] = []
     found = 0
     for line_number, line in enumerate(text.splitlines(), start=1):
@@ -52,7 +52,7 @@ def inspect_workflow(text: str, allow_secrets: bool = False, allow_actions_read:
         errors.append("manual workflow_dispatch trigger is missing")
     permission_block = text.split("permissions:", 1)[1].split("\njobs:", 1)[0] if "permissions:" in text and "\njobs:" in text else ""
     permissions = dict(re.findall(r"(?m)^\s{2}([a-z_]+):\s*([a-z_]+)\s*$", permission_block))
-    expected = {"contents": "read"}
+    expected = {"contents": "write" if allow_contents_write else "read"}
     if allow_actions_read:
         expected["actions"] = "read"
     if permissions != expected:
@@ -72,6 +72,7 @@ def main() -> int:
     parser.add_argument("workflow", nargs="?", default=".github/workflows/phase-07-offline-preflight-tests.yml")
     parser.add_argument("--allow-secrets", action="store_true")
     parser.add_argument("--allow-actions-read", action="store_true")
+    parser.add_argument("--allow-contents-write", action="store_true")
     args = parser.parse_args()
     path = Path(args.workflow)
     try:
@@ -79,7 +80,7 @@ def main() -> int:
     except OSError as exc:
         print(json.dumps({"status": "FAIL", "errors": [f"cannot read workflow: {exc}"]}), file=sys.stderr)
         return 2
-    errors = inspect_workflow(text, allow_secrets=args.allow_secrets, allow_actions_read=args.allow_actions_read)
+    errors = inspect_workflow(text, allow_secrets=args.allow_secrets, allow_actions_read=args.allow_actions_read, allow_contents_write=args.allow_contents_write)
     result = {"status": "PASS" if not errors else "FAIL", "workflow": str(path), "errors": errors}
     print(json.dumps(result, sort_keys=True))
     return 0 if not errors else 2
