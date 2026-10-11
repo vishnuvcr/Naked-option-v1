@@ -987,3 +987,10 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - Model fitting/scoring, holdout access, new source requests and strategy/P&L remain closed.
 **Developer → Tester:** Verify the exact-file findings and review schema compatibility of duplicate-key detection.
 **Tester → Developer:** Issue a written tester decision; do not open the next gate until uniqueness and other data-readiness checks are independently accepted.
+
+
+## 2026-10-11 — Preflight key-schema correction submitted
+
+- The tester found the generic duplicate-key groups did not recognize the actual CSV header. The developer added OPTION/SPOT schema-specific keys and batched SQLite inserts, added actual-schema regression tests, and wired the tests into the offline workflow.
+- [Developer handoff](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md) records exact blobs and current verification limits. Hosted synthetic CI is not yet verified.
+- The previous exact-file authorization is invalid after the scanner/workflow changes. No full uniqueness count or data-readiness PASS is claimed. Modelling, holdout and strategy/P&L remain closed pending new tester approval and an authorized scan.
