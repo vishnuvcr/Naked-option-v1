@@ -89,7 +89,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/validate_real_file_preflight_authorization.py \
-            --decision tester-review/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json \
+            --decision tester-review/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R5_2026-10-11.json \
             --request research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json \
             --reviewed-files \
               .github/workflows/phase-07-real-file-preflight-audit.yml \
