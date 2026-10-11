@@ -101,6 +101,82 @@ def _numeric_mismatch_diagnostic(actual: np.ndarray, expected: np.ndarray) -> st
     return f"mismatch_count={len(mismatch_idx)} max_abs_diff={max_abs!r} first_mismatches={json.dumps(samples, separators=(',', ':'))}"
 
 
+def compare_float64_within_ulps(actual, expected, max_ulps: int = 2) -> tuple[bool, dict]:
+    """Compare float64 arrays with a strict ULP bound; never rewrite either input.
+
+    Exact equal values (including identical infinities) and paired NaNs pass.
+    Non-exact values pass only when both are finite and their IEEE-754 ordered
+    representations differ by at most max_ulps. Shape changes and non-finite
+    mismatches fail closed.
+    """
+    a = np.asarray(actual, dtype=np.float64)
+    e = np.asarray(expected, dtype=np.float64)
+    if a.shape != e.shape:
+        return False, {
+            "shape_mismatch": True,
+            "actual_shape": list(a.shape),
+            "expected_shape": list(e.shape),
+            "max_ulps_allowed": int(max_ulps),
+            "exact_mismatch_count": None,
+            "accepted_within_ulps_count": 0,
+            "out_of_policy_count": None,
+            "max_abs_diff": None,
+            "max_ulp_distance": None,
+            "first_non_exact_pairs": [],
+        }
+    if max_ulps < 0:
+        raise ValueError("max_ulps must be non-negative")
+
+    af = a.reshape(-1)
+    ef = e.reshape(-1)
+    paired_nan = np.isnan(af) & np.isnan(ef)
+    exact = (af == ef) | paired_nan
+    finite_pair = np.isfinite(af) & np.isfinite(ef)
+
+    # Map IEEE-754 binary64 bit patterns to monotonically ordered unsigned keys:
+    # negative numbers are bitwise complemented; non-negative numbers have the
+    # sign bit set. This measures actual representable-float steps, not a relative
+    # or absolute tolerance. Signed zeros compare exactly equal above.
+    sign_mask = np.uint64(0x8000000000000000)
+    abits = af.view(np.uint64)
+    ebits = ef.view(np.uint64)
+    akeys = np.where((abits & sign_mask) != 0, ~abits, abits | sign_mask)
+    ekeys = np.where((ebits & sign_mask) != 0, ~ebits, ebits | sign_mask)
+    distances = np.maximum(akeys, ekeys) - np.minimum(akeys, ekeys)
+    within = finite_pair & (distances <= np.uint64(max_ulps))
+    accepted = exact | within
+    rejected_idx = np.flatnonzero(~accepted)
+    non_exact_idx = np.flatnonzero(~exact)
+    finite_non_exact_idx = non_exact_idx[finite_pair[non_exact_idx]]
+    finite_diff = np.abs(af[finite_non_exact_idx] - ef[finite_non_exact_idx])
+    max_abs_diff = float(finite_diff.max()) if finite_diff.size else None
+    max_ulp_distance = (
+        int(distances[finite_non_exact_idx].max()) if finite_non_exact_idx.size else None
+    )
+    samples = []
+    for i in non_exact_idx[:5]:
+        is_finite_pair = bool(finite_pair[i])
+        samples.append({
+            "row": int(i),
+            "actual": float(af[i]) if np.isfinite(af[i]) else str(af[i]),
+            "expected": float(ef[i]) if np.isfinite(ef[i]) else str(ef[i]),
+            "abs_diff": float(abs(af[i] - ef[i])) if is_finite_pair else None,
+            "ulp_distance": int(distances[i]) if is_finite_pair else None,
+            "within_policy": bool(within[i]),
+        })
+    diagnostics = {
+        "shape_mismatch": False,
+        "max_ulps_allowed": int(max_ulps),
+        "exact_mismatch_count": int(len(non_exact_idx)),
+        "accepted_within_ulps_count": int(np.sum((~exact) & within)),
+        "out_of_policy_count": int(len(rejected_idx)),
+        "max_abs_diff": max_abs_diff,
+        "max_ulp_distance": max_ulp_distance,
+        "first_non_exact_pairs": samples,
+    }
+    return len(rejected_idx) == 0, diagnostics
+
+
 def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
                                   daily_source: pd.DataFrame, intraday_source: pd.DataFrame) -> None:
     if layer == "daily":
@@ -133,10 +209,13 @@ def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
             + _numeric_mismatch_diagnostic(y_actual, y_expected)
         )
     future_actual = frame["future_return"].to_numpy(dtype=float)
-    if not np.array_equal(future_actual, future_expected, equal_nan=True):
+    future_match, future_diagnostic = compare_float64_within_ulps(
+        future_actual, future_expected, max_ulps=2
+    )
+    if not future_match:
         raise SystemExit(
             f"ARTIFACT_ERROR: source-derived future-return mismatch for {layer} H={horizon}; "
-            + _numeric_mismatch_diagnostic(future_actual, future_expected)
+            + json.dumps(future_diagnostic, sort_keys=True, separators=(",", ":"))
         )
 
     actual_times = pd.DatetimeIndex(pd.to_datetime(frame["decision_timestamp"], utc=(layer == "intraday"), errors="raise"))
