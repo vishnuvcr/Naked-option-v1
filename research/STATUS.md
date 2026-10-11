@@ -312,3 +312,14 @@ Tester reviewed exact commit `918821ba9e74342bb282fe3a86138e8aa8e29ea7` after 29
 The developer's one-use approval was consumed before the first request. [Guarded Dhan acquisition run 38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220) is in progress. The workflow's offline regression, tester report/blob pin validation and secret-configuration checks passed. The tester has not yet received a final dataset artifact or coverage report, so there is no accepted realized coverage result yet.
 
 **Next:** developer finishes collection/export and posts the redacted coverage report and encrypted artifact. Tester independently evaluates actual request completion, empty responses, source gaps, row totals/checksums and encrypted artifact existence. Only after this post-acquisition review may the data be admitted to prediction experiments; the current approval still forbids fitting, scoring and holdout access.
+
+
+## 2026-10-11 — Derived dataset repair output review
+- Tester report: [DERIVED_DATASET_REPAIR_OUTPUT_TESTER_REPORT_RUN_38131641336.md](gates/DERIVED_DATASET_REPAIR_OUTPUT_TESTER_REPORT_RUN_38131641336.md).
+- Machine-readable decision: [DERIVED_DATASET_REPAIR_OUTPUT_TESTER_DECISION_RUN_38131641336.json](gates/DERIVED_DATASET_REPAIR_OUTPUT_TESTER_DECISION_RUN_38131641336.json).
+- Exact hosted repair run [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) succeeded. Output artifact 11698879857; 61 encrypted parts; 8,999,865 rows preserved; post-repair audit `PASS_WITH_COVERAGE_RESTRICTIONS`; plaintext cleanup passed.
+- Review decision: **PASS WITH SCOPED RESTRICTIONS — repair output and post-repair audit only**. This is not a model-readiness or strategy approval.
+- Restrictions retained: 19,021 unmatched option rows across 421 timestamps, 24,847 weekend-session review flags, 12 standalone SPOT OHLC rows masked, 309 SPOT volume values masked, and 11 option-volume values masked.
+- Tester limitation: same connected assistant session, not a separate human/external AI; the output artifact binary was not directly downloaded for a second tester-side hash pass. Runner-side per-part hash checks, workflow logs, the published manifest/report and artifact metadata were reviewed.
+- **Tester → Developer:** update main status/docs/logs and prepare a distinct exact-snapshot modelling-readiness gate. No fitting or holdout access yet.
+- **Developer → Tester:** submit modelling-readiness logic/coverage rules for exact-SHA review before any model run.
