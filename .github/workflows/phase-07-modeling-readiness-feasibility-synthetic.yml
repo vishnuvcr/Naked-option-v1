@@ -52,7 +52,7 @@ jobs:
           p = Path(".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml").read_text()
           assert "workflow_dispatch:" in p
           assert "HF_TOKEN" not in p and "secrets." not in p
-          assert "nifty_repaired_composite_2021-10_to_2026-10.csv" not in p
+          assert ("nifty_" + "repaired_composite_2021-10_to_2026-10.csv") not in p
           assert "run_model" not in p
           print("PASS: synthetic workflow exposes no real-data/secret execution path")
           PY
