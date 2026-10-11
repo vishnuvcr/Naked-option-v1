@@ -2,7 +2,7 @@
 
 - Decision: REQUEST_CHANGES
 - Reviewed developer commit: cfb4f359ba2af769eb8f8fec36da04ec4e835530
-- Report time (UTC): 2026-10-11T04:21:41Z
+- Report time (UTC): 2026-10-11T04:23:51Z
 - Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / REQUEST_CHANGES
 - Automatic repair attempt: 1
@@ -36,5 +36,7 @@ AI reviewer unavailable; no independent AI verdict was produced.
 ## Gate scope
 
 This report applies only to the exact developer commit named above. PASS does not create or spend the separate one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.
+
+When AI inference is unavailable, any PASS is deterministic-only and scoped to this offline code gate; it is not an AI review or acquisition approval.
 
 Only action summaries and findings are retained; private model reasoning is not written to the repository.
