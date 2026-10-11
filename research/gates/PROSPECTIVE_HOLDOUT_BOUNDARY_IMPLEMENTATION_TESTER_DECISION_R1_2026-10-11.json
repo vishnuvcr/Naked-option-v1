@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-11",
+  "gate": "PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_R1",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_commit": "8a69c5004bfa6f45efb69adb596ea1db122398f1",
+  "reviewed_blobs": {
+    "scripts/prospective_holdout_boundary.py": "364ae6e5a95e1d62bc1ae0640f29d954337c8237",
+    "tests/test_prospective_holdout_boundary.py": "32430369f67ac6fd7a3409139fe087bf964f066e",
+    "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_MANIFEST_SCHEMA_R1_2026-10-11.json": "79519f214042bc13a569974b9e173b57b6580bab",
+    ".github/workflows/prospective-holdout-boundary-synthetic.yml": "c27cc77e910d7e3bd3b13ec9f4c1a179664481bc"
+  },
+  "ci": {
+    "run_id": 38153402133,
+    "conclusion": "success",
+    "tests_observed": 5,
+    "scope": "synthetic-only"
+  },
+  "allowed_scope": [
+    "synthetic tests",
+    "offline self-test"
+  ],
+  "prohibited_scope": [
+    "cached composite scan",
+    "market/holdout value access",
+    "model fitting/tuning/scoring",
+    "new source requests",
+    "strategy P&L",
+    "trading"
+  ],
+  "restrictions": [
+    "metadata-only origin counts are not proof of label availability",
+    "official NSE calendar and source/close-linkage provenance remain separate readiness checks",
+    "real-file scan requires separate exact-hash execution decision"
+  ],
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
