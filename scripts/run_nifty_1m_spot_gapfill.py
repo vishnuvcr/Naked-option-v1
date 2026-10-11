@@ -158,9 +158,60 @@ def _count_rows(parts: list[pathlib.Path]) -> tuple[int, int, dict[str, int]]:
     return option_rows, spot_rows, dict(rows_by_month)
 
 
+def _normalize_artifact_layout(source_dir: pathlib.Path) -> pathlib.Path:
+    """Create a metadata + encrypted-part view of the Actions artifact.
+
+    upload-artifact preserves the 'encrypted/' directory while the embedded
+    dataset manifest lists encrypted part basenames. The existing decryptor
+    expects those basenames at the input root. Use symlinks in scratch space
+    rather than rewriting the immutable downloaded artifact or duplicating its
+    encrypted bytes.
+    """
+    if not source_dir.is_dir():
+        raise FileNotFoundError("original_encrypted_artifact_directory_missing")
+    manifests = [p for p in source_dir.rglob("dataset_manifest.json") if p.is_file()]
+    if len(manifests) != 1:
+        raise FileNotFoundError("original_dataset_manifest_missing_or_ambiguous")
+    manifest_path = manifests[0]
+    manifest = _load_object(manifest_path)
+    parts = manifest.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise ValueError("original_dataset_manifest_parts_invalid")
+    view = WORK_ROOT / "source_artifact_view"
+    if view.exists() or view.is_symlink():
+        if view.is_dir() and not view.is_symlink():
+            shutil.rmtree(view)
+        else:
+            view.unlink()
+    view.mkdir(parents=True, exist_ok=True)
+
+    # Attach safe metadata files by basename.
+    for name in ("dataset_manifest.json", "coverage_and_errors.json", "README.md"):
+        candidates = [p for p in source_dir.rglob(name) if p.is_file()]
+        if name == "dataset_manifest.json":
+            source_file = manifest_path
+        elif candidates:
+            source_file = candidates[0]
+        else:
+            continue
+        target = view / name
+        target.symlink_to(source_file.resolve())
+
+    for part in parts:
+        name = str(part.get("file", ""))
+        if not name.endswith(".csv.gz.enc") or pathlib.Path(name).name != name:
+            raise ValueError("unsafe_original_encrypted_part_name")
+        matches = [p for p in source_dir.rglob(name) if p.is_file()]
+        if len(matches) != 1:
+            raise FileNotFoundError("original_encrypted_part_missing_or_ambiguous")
+        (view / name).symlink_to(matches[0].resolve())
+    return view
+
+
 def preflight(source_dir: pathlib.Path, plain_dir: pathlib.Path, hf_token: str) -> dict[str, Any]:
     if not hf_token:
         raise ValueError("HF_TOKEN_NOT_CONFIGURED")
+    source_dir = _normalize_artifact_layout(source_dir)
     source_manifest = decryptor.read_manifest(source_dir)
     if (source_manifest.get("download_bundle_contains_encrypted_data_only") is not True
             or source_manifest.get("source_row_count_options") != EXPECTED_OPTION_ROWS):
@@ -542,8 +593,9 @@ def execute(args: argparse.Namespace) -> int:
     preflight_result = preflight(source_dir, plain_dir, hf_token)
     if preflight_result.get("status") != "PASS":
         raise ValueError("encrypted_original_artifact_preflight_failed")
-    old_coverage = _load_object(source_dir / "coverage_and_errors.json")
-    old_manifest = decryptor.read_manifest(source_dir)
+    normalized_source_dir = _normalize_artifact_layout(source_dir)
+    old_coverage = _load_object(normalized_source_dir / "coverage_and_errors.json")
+    old_manifest = decryptor.read_manifest(normalized_source_dir)
     key = derive_key(hf_token)
 
     # Clear only temporary new spot rows, never the downloaded source artifact or the original data.
