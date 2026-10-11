@@ -64,10 +64,26 @@ class ReadinessPrimitiveTests(unittest.TestCase):
         self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=0,spot_duplicate_keys=1).status,"BLOCKED")
         self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=-1,spot_duplicate_keys=0).status,"BLOCKED_INVALID_COUNTS")
 
-    def test_report_allowlist_prevents_row_level_output(self):
-        self.assertEqual(sanitize_report({"rows":100,"columns":47})["rows"],100)
+    def test_report_schema_rejects_missing_keys_nested_payloads_and_bad_counts(self):
+        base = {
+            "dataset_sha256": "a"*64, "rows": 10, "columns": 47, "option_rows": 8, "spot_rows": 2,
+            "row_width_errors": 0, "timestamp_parse_errors": 0, "incomplete_keys": 0, "duplicate_keys": 0,
+            "session_status": "PASS", "target_statuses": {"1": "CANDIDATE"},
+            "feature_family_statuses": {"spot_ohlcv": "CANDIDATE"}, "split_status": "NOT_ESTIMABLE",
+            "exclusion_counts": {"invalid_ohlc": 1}, "origin_manifest_sha256": "b"*64,
+            "cleanup_status": "PASS", "gate_status": "PASS_WITH_RESTRICTIONS",
+        }
+        self.assertEqual(sanitize_report(base)["rows"], 10)
         with self.assertRaises(ValueError):
-            sanitize_report({"rows":100,"last_price":22000.0})
+            sanitize_report({**base, "last_price": 22000.0})
+        with self.assertRaises(ValueError):
+            sanitize_report({**base, "target_statuses": {"1": {"close": 22000.0}}})
+        with self.assertRaises(ValueError):
+            sanitize_report({k:v for k,v in base.items() if k != "cleanup_status"})
+        with self.assertRaises(ValueError):
+            sanitize_report({**base, "rows": -1})
+        with self.assertRaises(ValueError):
+            sanitize_report({**base, "rows": 11})
 
 if __name__=="__main__":
     unittest.main()
