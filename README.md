@@ -1027,3 +1027,15 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - The likely defect is comparing the byte hash of a recompressed gzip container with the previously exported gzip hash; gzip timestamp metadata can make those byte hashes differ. This will be confirmed, not assumed, by pinning and checking the full uncompressed CSV content hash separately while retaining compressed-hash metadata.
 - [R3 hash mismatch record](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG_ADDENDUM_R3_HASH_MISMATCH_2026-10-11.md) and [status addendum](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/R3_HASH_MISMATCH_STATUS_2026-10-11.md).
 - R3 authorization is consumed. Fresh code/test review and exact-hash tester approval are required before another real-file audit. Modelling, holdout and strategy/P&L remain closed.
+
+ 
+## 2026-10-11 — R3 hash gate fixed; R4 awaiting tester decision
+
+- R3 real-file audit [38144072524](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38144072524) failed closed at the recompressed gzip SHA check before row-level structural results were produced. Cleanup passed. No duplicate count or data-readiness result came from that run.
+- The revised scanner checks exact **decompressed CSV content SHA-256** separately from the gzip-container SHA; the pinned content hash is `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. A content mismatch is an explicit non-pass. An earlier expected raw byte count without authoritative provenance was removed from the required gate.
+- Receipt publisher optional-size fix merged via [PR #19](https://github.com/vishnuvcr/Naked-option-v1/pull/19) (merge commit `008586fdbf87dfafb7e27468e569ba32d85e4366)); its tester review is [here](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/RECEIPT_OPTIONAL_SIZE_TESTER_REVIEW_2026-10-11.md).
+- Latest hosted tests passed: [developer unit suite 38146005545](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005545) and [audit synthetic authorization suite 38146005462](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005462). In the audit run, real-file steps were skipped because R3 is spent and R4 is not yet authorized.
+- Next: independent tester review and fresh exact-hash decision, then one-use R4 execution request. Until a structural report and cleanup evidence receive separate acceptance, modelling, holdout, new source requests, and strategy/P&L remain closed.
+ 
+**Developer → Tester:** Review the frozen content-hash snapshot and decide on R4 authorization.
+**Tester → Developer:** Keep R4 request false until hashes match; independently inspect the completed data report before opening predictions.
