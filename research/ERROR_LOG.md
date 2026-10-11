@@ -1345,3 +1345,10 @@ All entries below are test/integration failures only. None made a Dhan request, 
  
 **Developer → Tester:** Review the fail-closed hash gate and the standalone workflow anomaly; only authorize the exact snapshot after independent review.
 **Tester → Developer:** Reject any R4 request whose decision or file hashes differ; keep modelling and strategy gates closed.
+
+ 
+## 2026-10-11 — R4 execution started under fresh exact-hash decision
+
+- Tester decision: `1ff485037ca359cffc7750ff6f96b51afa2b74d2`; its 17 reviewed blobs were freshly rechecked with 17/17 matches. R4 request commit: `55a6ce4ae69b26696533adb20c512832c15c8c38`.
+- Audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) has passed its synthetic authorization/test job; the real-file job is queued/running. No full structural report is available at this checkpoint.
+- No data readiness, duplicate key count or model result is inferred until report status, exact uncompressed SHA, expected row/column counts, row widths, key coverage, timestamp errors and final cleanup are verified.
