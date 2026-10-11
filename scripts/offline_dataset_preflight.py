@@ -173,12 +173,12 @@ def run(path: Path, report_path: Path, expected_sha: str,
         elif duplicate_keys:
             duplicate_status = "FAIL_DUPLICATE_KEYS_FOUND"
             overall_status = "PREFLIGHT_FAIL_DUPLICATE_KEYS"
-        elif incomplete_key_rows:
-            duplicate_status = "PARTIAL_INCOMPLETE_COMPOSITE_KEYS"
-            overall_status = "PREFLIGHT_REVIEW_INCOMPLETE_COMPOSITE_KEYS"
         elif timestamp_parse_errors:
             duplicate_status = "PASS"
             overall_status = "PREFLIGHT_REVIEW_TIMESTAMP_PARSE_ERRORS"
+        elif incomplete_key_rows:
+            duplicate_status = "PARTIAL_INCOMPLETE_COMPOSITE_KEYS"
+            overall_status = "PREFLIGHT_REVIEW_INCOMPLETE_COMPOSITE_KEYS"
         else:
             duplicate_status = "PASS"
             overall_status = "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS"
