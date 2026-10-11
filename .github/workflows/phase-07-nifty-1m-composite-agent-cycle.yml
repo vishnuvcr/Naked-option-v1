@@ -14,7 +14,7 @@ on:
         required: false
         default: false
   push:
-    branches: [phase-07-developer]
+    branches: [main, phase-07-developer]
     paths:
       - "scripts/run_nifty_1m_composite_dataset.py"
       - "scripts/test_nifty_1m_composite_dataset.py"
@@ -22,6 +22,8 @@ on:
       - "scripts/validate_nifty_1m_composite_approval.py"
       - ".github/workflows/phase-07-nifty-1m-composite-live.yml"
       - ".github/workflows/phase-07-nifty-1m-composite-tests.yml"
+      - ".github/workflows/phase-07-nifty-1m-composite-agent-cycle.yml"
+      - "automation/nifty_composite_agent.py"
 
 permissions:
   contents: read
