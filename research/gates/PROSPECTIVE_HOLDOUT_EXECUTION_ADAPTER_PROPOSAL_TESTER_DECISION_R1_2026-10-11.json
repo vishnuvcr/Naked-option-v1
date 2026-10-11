@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-11",
+  "gate": "PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_commit": "50bffc2855ee3ec08a6a73e023ade71127c977fb",
+  "reviewed_blobs": {
+    "research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md": "59ce8b873a2bd99734196f7c0526ea49db8151ca",
+    "research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_SCOPE_R1_2026-10-11.json": "e69b679fe5142f37cfd320b43ad3ee39c8f35e17"
+  },
+  "allowed_scope": "implement constrained adapter and synthetic tests only",
+  "permissions": {
+    "implementation": true,
+    "synthetic_tests": true,
+    "cached_file_scan": false,
+    "market_value_access": false,
+    "holdout_value_access": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "required_checks": [
+    "developer-branch marker path only",
+    "atomic marker creation before file open",
+    "exact hashes checked before marker creation",
+    "no payloads or secrets in marker",
+    "synthetic workflow cannot pass real dataset path",
+    "separate execution decision required"
+  ],
+  "next_step": "Developer implements adapter and synthetic tests; tester reviews exact implementation snapshot before any execution decision.",
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
