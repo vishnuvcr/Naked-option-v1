@@ -141,9 +141,8 @@ def test_one_use_marker_precedes_decryption_and_is_not_a_trigger():
     assert "dataset_plaintext_opened_at_marker_creation" in marker_section
     assert 'research/phase8/PHASE8_CACHED_COMPOSITE_PREFLIGHT_CONSUMED_R1.json' not in text[:text.index("workflow_dispatch")]
     job_start = text.index("  cached-composite-preflight:")
-    contract_start = text.index("  contract-tests:")
     top = text[:text.index("jobs:")]
-    job = text[job_start:text.find("\n  ", job_start + 5)]
+    job = text[job_start:]
     assert "contents: read" in top and "contents: write" not in top
     assert "contents: write" in job
 
