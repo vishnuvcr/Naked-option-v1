@@ -16,7 +16,7 @@ class AuthorizationValidationTests(unittest.TestCase):
         approval = {
             "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
             "real_file_preflight_execution_authorized": True,
-            "reviewed_files": {"source.py": blob_sha(source)},
+            "reviewed_files": {str(source): blob_sha(source)},
         }
         decision.write_text(json.dumps(approval), encoding="utf-8")
         request["tester_decision_blob_sha"] = blob_sha(decision)
@@ -25,7 +25,7 @@ class AuthorizationValidationTests(unittest.TestCase):
     def test_exact_matching_approval_authorizes(self):
         with tempfile.TemporaryDirectory() as td:
             source, decision_path, request, approval = self.setup_case(Path(td))
-            result = evaluate(approval, request, decision_path, ["source.py"])
+            result = evaluate(approval, request, decision_path, [str(source)])
             self.assertTrue(result["authorized"], result)
 
     def test_missing_real_file_permission_fails_closed(self):
@@ -42,7 +42,7 @@ class AuthorizationValidationTests(unittest.TestCase):
             source.write_text("changed\n", encoding="utf-8")
             result = evaluate(approval, request, decision_path, ["source.py"])
             self.assertFalse(result["authorized"])
-            self.assertIn("REVIEWED_FILE_HASH_MISMATCH:source.py", result["failures"])
+            self.assertIn("REVIEWED_FILE_HASH_MISMATCH:" + str(source), result["failures"])
 
     def test_changed_decision_blob_hash_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
