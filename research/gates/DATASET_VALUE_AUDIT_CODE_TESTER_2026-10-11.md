@@ -2,9 +2,9 @@
 
 - Review date: 2026-10-11 UTC
 - Branch: `phase-07-tester`
-- Exact developer commit reviewed: `c8ad0cd978a83221c082587e561ca653e2010a1a`
-- Offline composite test run: [38121491434](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121491434) — success
-- Protocol check: [38121491534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121491534) — success
+- Exact developer commit reviewed: `a6fb2d62bc469f0706e92e49d70a0343f83e1650`
+- Offline composite test run: [38121662540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121662540) — success (includes parsing the new audit workflow and its self-test workflow step)
+- Protocol check: [38121662694](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121662694) — success
 - Reviewer independence caveat: this tester-role report was created in the same connected assistant session; it is not an independent human identity or independent AI review. The repository's HF AI reviewer was previously unavailable with HTTP 402.
 
 ## Exact files reviewed
@@ -13,7 +13,9 @@
 |---|---|
 | `scripts/audit_nifty_1m_composite_values.py` | `65a281e56f60e42774b83924d9dbc8c2cd164ba9` |
 | `scripts/test_audit_nifty_1m_composite_values.py` | `ea473a13bbe59e2708c7b0847cebc7f50993fb33` |
-| `.github/workflows/dataset-value-audit.yml` | `72befb178231b8164dedef9c8139b7abbc2e3102` |
+| `scripts/decrypt_nifty_1m_composite.py` | `6ba27b65548b9197e0db35deeafcedbade6ca445` |
+| `requirements-composite.txt` | `8c74241f2035a3e388087078be5e5aaf846addca` |
+| `.github/workflows/dataset-value-audit.yml` | `0200f2c2cea3ca767e79b2df8c35375b7dbb3e8d` |
 | `.github/workflows/phase-07-nifty-1m-composite-tests.yml` | `db7666905fb97f703784e7f3e7bda8958b106715` |
 
 ## Findings and checks
