@@ -1,0 +1,16 @@
+{
+  "base_artifact_id": "11697215166",
+  "base_artifact_sha256": "07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a",
+  "created_at_utc": "2026-10-11T08:49:54.065529Z",
+  "github_run_id": "38126168547",
+  "live_option_requests_allowed": false,
+  "max_patch_requests": 7,
+  "max_retry_requests": 0,
+  "patch_proposal_blob_sha": "8f24ee75490d4e8f9e9759b569d9a4d4e10e0c19",
+  "reviewed_developer_commit": "41b4b6d167560448d1496fe90609b9f613acc9dc",
+  "reviewed_workflow_blob_sha": "4b7c20d9272d512cdd00e36a78a1d658e2f835c2",
+  "schema_version": 1,
+  "scope": "PATCH_ONLY_PREVIOUSLY_FAILED_WINDOW",
+  "status": "SPENT_BEFORE_SOURCE_REQUEST",
+  "tester_decision_blob": "3331217c9b60db9a6e12e1b3ed10d3803d47fd93"
+}
