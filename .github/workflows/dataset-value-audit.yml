@@ -38,7 +38,16 @@ jobs:
           echo "Source: immutable existing Actions artifact run 38116772719 / artifact 11693866249"
           echo "Scope: decrypt and inspect only; no market-data endpoint calls."
 
-      - name: Download the existing encrypted artifact only
+      - name: Test decryptor and semantic auditor before artifact access
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements-composite.txt
+          python -m py_compile scripts/decrypt_nifty_1m_composite.py scripts/audit_nifty_1m_composite_values.py scripts/test_audit_nifty_1m_composite_values.py
+          python scripts/test_audit_nifty_1m_composite_values.py
+          ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/dataset-value-audit.yml"); puts "PASS: value-audit workflow YAML parses"'
+
+
         id: download
         continue-on-error: true
         uses: actions/download-artifact@v4
