@@ -1,6 +1,6 @@
 {
   "ai_reviewer_available": false,
-  "attempt": 2,
+  "attempt": 1,
   "auto_repair_eligible": true,
   "decision": "REQUEST_CHANGES",
   "deterministic_pass": false,
@@ -8,6 +8,6 @@
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "repair_mode": "DETERMINISTIC_TEST_GAP_FIX",
-  "reviewed_developer_commit": "cfb4f359ba2af769eb8f8fec36da04ec4e835530",
+  "reviewed_developer_commit": "3826cd61742a17abe27c82ecdfded62cc1ed2dac",
   "schema_version": 1
 }

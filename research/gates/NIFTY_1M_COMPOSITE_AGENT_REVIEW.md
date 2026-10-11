@@ -1,11 +1,11 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: REQUEST_CHANGES
-- Reviewed developer commit: cfb4f359ba2af769eb8f8fec36da04ec4e835530
-- Report time (UTC): 2026-10-11T04:24:42Z
+- Reviewed developer commit: 3826cd61742a17abe27c82ecdfded62cc1ed2dac
+- Report time (UTC): 2026-10-11T04:26:03Z
 - Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / REQUEST_CHANGES
-- Automatic repair attempt: 2
+- Automatic repair attempt: 1
 - Live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
