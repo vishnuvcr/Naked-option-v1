@@ -1,9 +1,9 @@
 {
   "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R4",
-  "requested": true,
+  "requested": false,
   "tester_decision_blob_sha": "1ff485037ca359cffc7750ff6f96b51afa2b74d2",
   "reviewed_developer_sha": "current triggering commit; authorization binds all 17 exact runtime and publisher file blobs listed in the tester decision",
   "scope": "single exact-lineage structural preflight; validate uncompressed CSV content SHA; sanitized metadata report only; no modelling",
   "reviewed_file_hashes_verified_at_request": true,
-  "note": "R4 is a fresh single-use request following R3's compressed-container SHA mismatch. All 17 file blob hashes were independently rechecked 17/17 against the new tester decision immediately before this request. Do not proceed on any mismatch. Uncompressed expected byte count is deliberately omitted because no independently verified reference value exists."
+  "note": "R4 single-use request consumed by run 38146429502. The raw decoded content SHA matched, but the preflight duplicate count is rejected by the tester because the key differs from the repository's established canonical identity. This request is marked spent; canonical row-key correction and fresh R5 tester authorization are required."
 }
