@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/phase-07-publish-preflight-receipt.yml'
+      - '.github/workflows/phase-07-real-file-preflight-audit.yml'
       - 'scripts/publish_preflight_receipt.py'
   workflow_run:
     workflows: ["Phase 07 Exact-File Offline Preflight Audit"]
