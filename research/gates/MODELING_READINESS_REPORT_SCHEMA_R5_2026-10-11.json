@@ -60,16 +60,69 @@
       "minimum": 0
     },
     "session_status": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "PASS",
+        "PASS_WITH_RESTRICTIONS",
+        "PASS_WITH_EXCLUSIONS",
+        "BLOCKED",
+        "BLOCKED_INVALID_COUNTS",
+        "NOT_ESTIMABLE"
+      ]
     },
     "target_statuses": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "PASS_WITH_RESTRICTIONS",
+          "PASS_WITH_EXCLUSIONS",
+          "CANDIDATE",
+          "BLOCKED",
+          "BLOCKED_DATA",
+          "BLOCKED_HOLDOUT_PROOF",
+          "BLOCKED_LEAKAGE",
+          "BLOCKED_INVALID_COUNTS",
+          "NOT_ESTIMABLE",
+          "INCOMPLETE_NOT_PROMOTABLE",
+          "NOT_RUN"
+        ]
+      }
     },
     "feature_family_statuses": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "PASS_WITH_RESTRICTIONS",
+          "PASS_WITH_EXCLUSIONS",
+          "CANDIDATE",
+          "BLOCKED",
+          "BLOCKED_DATA",
+          "BLOCKED_HOLDOUT_PROOF",
+          "BLOCKED_LEAKAGE",
+          "BLOCKED_INVALID_COUNTS",
+          "NOT_ESTIMABLE",
+          "INCOMPLETE_NOT_PROMOTABLE",
+          "NOT_RUN"
+        ]
+      }
     },
     "split_status": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "PASS",
+        "PASS_WITH_RESTRICTIONS",
+        "BLOCKED",
+        "BLOCKED_HOLDOUT_PROOF",
+        "BLOCKED_LEAKAGE",
+        "BLOCKED_INVALID_COUNTS",
+        "INCOMPLETE_NOT_PROMOTABLE",
+        "NOT_ESTIMABLE",
+        "NOT_RUN"
+      ]
     },
     "exclusion_counts": {
       "type": "object",
