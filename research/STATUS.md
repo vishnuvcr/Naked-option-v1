@@ -370,3 +370,15 @@ The developer's one-use approval was consumed before the first request. [Guarded
 - Updating the machine-readable decision at `research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_2026-10-11.json` was blocked by repository tool safety controls. The old decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c` therefore remains current and does not authorize the new scanner hash. Do not trigger the real-file workflow or use the markdown review as a substitute for the machine-readable gate.
 - Model fitting/scoring, holdout access, new source requests and strategy/P&L remain CLOSED.
 - Review record: [schema-fix review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_SCHEMA_FIX_TESTER_REVIEW_2026-10-11.md).
+
+
+## 2026-10-11 — R5 canonical structural result reviewed
+- Tester result report: [REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md](gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md), verdict **PASS WITH SCOPED RESTRICTIONS** for the structural preflight only.
+- Machine decision: [REAL_FILE_PREFLIGHT_RESULT_TESTER_DECISION_R5_2026-10-11.json](gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_DECISION_R5_2026-10-11.json).
+- Run [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301) succeeded; 17/17 reviewed blobs matched the exact triggering snapshot; decoded CSV hash and gzip integrity passed; 8,999,865 rows / 47 columns reconcile as 8,490,723 OPTION plus 509,142 SPOT.
+- Canonical OPTION duplicate count = 0; separate SPOT timestamp duplicate count = 0; incomplete key rows = 0; row-width and timestamp parse errors = 0. Cleanup passed.
+- This is **not model readiness**. Missing expiry-date/TTE/Greek/rate/dividend fields, 19,021 unmatched OPTION rows, 24,847 weekend-session-review flags and masked OHLCV values require a separate exact-snapshot readiness proposal. Fitting, holdout, new source requests and strategy/P&L remain closed.
+- Reviewer-independence limitation: same connected assistant session, not a separate human/external-model reviewer.
+
+**Tester → Developer:** Update main README and developer logs, then submit an exact-snapshot data/model-readiness proposal with deterministic target, missingness, session and leakage checks.
+**Developer → Tester:** Review that proposal and tests before authorizing any prediction fitting or holdout access.
