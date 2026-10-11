@@ -128,3 +128,11 @@ No scientific or protocol change was made during this checkpoint.
 - Downloaded output artifact ID 11709261335 and independently checked its ZIP digest and all ten Parquet hashes. Manifest reports PASS, 10/10 cells reproduced, 50,555 rows, exact source/run/commit identity and tolerance 1e-9.
 - Tester report/decision saved at `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_REPORT.md` and `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`.
 - This clears only the forecast reproducibility gate. The next required step is a versioned method-spec clarification for R2 plus exact review of the no-refit option execution runner; no empirical P&L was authorized.
+
+
+## 2026-10-11 — Phase 8 R3 re-review after developer correction
+
+- Tester reviewed the R2 request-changes response against hosted run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060), whose synthetic/contract jobs passed and real-data job skipped.
+- The exact canonical source SHA and its regression assertion now agree. The mixed missing-header data-gap bug is fixed and tested, including the empty-row behavior.
+- New independent report and decision are recorded at `research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R3_2026-10-11.md` and `research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json`: PASS WITH SCOPED RESTRICTIONS for the exact code-only snapshot.
+- This is not permission to reopen consumed R1 or compute option P&L; contract-data gaps and the separate daily H=1 numerical anomaly remain open.
