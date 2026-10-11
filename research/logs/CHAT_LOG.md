@@ -412,3 +412,12 @@ No scientific or protocol change was made during this checkpoint.
 
 **Developer → Tester:** Verify the exact-HEAD reconstruction artifact and make a concise pass/fail decision.
 **Tester → Developer:** Keep the gate open only for this evidence gap; do not add unrelated requirements.
+
+## 2026-10-12 — Workflow hardening during exact-HEAD reconstruction
+
+- The exact-HEAD reconstruction was triggered through the Phase 8 workflow after adding a cache-only source check. Review of the full job graph showed the separate source-audit job still ran with empirical authorization false and downloaded official sample archives plus a secondary HF sample. This was an unintended side effect, logged in `research/ERROR_LOG.md`; its outputs are not accepted for the current gate.
+- Corrected the workflow in [commit a3c3e4c](https://github.com/vishnuvcr/Naked-option-v1/commit/a3c3e4c04f094f92aff61b5615f64ff74e0eafb5) so future source acquisition runs only when empirical Phase 8 is explicitly authorized. The reconstruction's source-data step is now cache-only in [commit d012713](https://github.com/vishnuvcr/Naked-option-v1/commit/d012713dae811dba0ad919f2a6a0edb5821f0ff8).
+- Current reconstruction run: [#38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602), started on commit `d012713dae811dba0ad919f2a6a0edb5821f0ff8). Await exact output and independent tester review. No option P&L or holdout is authorized.
+
+**Developer → Tester:** Review the exact reconstruction artifact and workflow guard fix.
+**Tester → Developer:** Keep current source-audit outputs out of accepted evidence; decide only on exact forecast reconstruction.
