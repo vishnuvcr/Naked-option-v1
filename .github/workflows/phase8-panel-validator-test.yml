@@ -10,6 +10,7 @@ on:
       - scripts/test_phase8_cached_source_inputs.py
       - scripts/authorize_phase8_source_cache_bootstrap.py
       - scripts/test_phase8_source_cache_bootstrap.py
+      - .github/workflows/phase8-frozen-source-restore.yml
       - .github/workflows/phase8-panel-validator-test.yml
   workflow_dispatch:
 
