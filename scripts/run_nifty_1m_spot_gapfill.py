@@ -38,15 +38,18 @@ from run_nifty_1m_composite_dataset import (
 # spot requests only; it never invokes the rolling-option endpoint.
 import run_nifty_1m_composite_dataset as collector
 import decrypt_nifty_1m_composite as decryptor
+import validate_nifty_1m_spot_gapfill_split_proposal as split_proposal_validator
 
 ROOT_MANIFEST = ROOT / "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json"
 GAPFILL_MANIFEST = ROOT / "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json"
 EXECUTION_MARKER = ROOT / "research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
+SPLIT_EXECUTION_MARKER = ROOT / "research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json"
 PREFLIGHT_RESULT = ROOT / "research/gates/NIFTY_1M_SPOT_GAPFILL_PREFLIGHT.json"
 RECOVERY_RESULT = ROOT / "research/gates/NIFTY_1M_SPOT_RECOVERY_RESULT.json"
 WORK_ROOT = ROOT / "data/work/nifty_1m_spot_gapfill"
 REPORTS_ROOT = ROOT / "data/reports/nifty_1m_spot_gapfill"
 ATTEMPT_LEDGER = REPORTS_ROOT / "attempt_ledger.json"
+SPLIT_ATTEMPT_LEDGER = REPORTS_ROOT / "attempt_ledger_split.json"
 IST = ZoneInfo("Asia/Kolkata")
 TIMEOUT_SECONDS = 35
 MIN_REQUEST_INTERVAL_SECONDS = 0.5
@@ -249,13 +252,13 @@ def preflight(
     }
 
 
-def _read_ledger() -> dict[str, Any]:
+def _read_ledger(path: pathlib.Path = ATTEMPT_LEDGER) -> dict[str, Any]:
     REPORTS_ROOT.mkdir(parents=True, exist_ok=True)
-    if not ATTEMPT_LEDGER.exists():
+    if not path.exists():
         return {"schema_version": 1, "wire_attempts_new": 0, "retry_attempts_new": 0,
                 "attempts_by_request_id": {}, "failures": {}, "updated_at_utc": utc_now()}
     try:
-        ledger = _load_object(ATTEMPT_LEDGER)
+        ledger = _load_object(path)
         if ledger.get("schema_version") != 1:
             raise ValueError
         return ledger
@@ -263,17 +266,29 @@ def _read_ledger() -> dict[str, Any]:
         raise ValueError("gapfill_attempt_ledger_corrupt_fail_closed") from None
 
 
-def _save_ledger(ledger: dict[str, Any]) -> None:
+def _save_ledger(ledger: dict[str, Any], path: pathlib.Path = ATTEMPT_LEDGER) -> None:
     ledger["updated_at_utc"] = utc_now()
-    atomic_write(ATTEMPT_LEDGER, (json.dumps(ledger, sort_keys=True, indent=2) + "\n").encode("utf-8"))
+    atomic_write(path, (json.dumps(ledger, sort_keys=True, indent=2) + "\n").encode("utf-8"))
 
 
 class SpotGapFillCollector:
-    def __init__(self, token: str, key: bytes, requests: list[dict[str, Any]], ledger: dict[str, Any]):
+    def __init__(
+        self,
+        token: str,
+        key: bytes,
+        requests: list[dict[str, Any]],
+        ledger: dict[str, Any],
+        baseline_wire_attempts: int = BASELINE_WIRE_ATTEMPTS,
+        baseline_retry_attempts: int = BASELINE_RETRY_ATTEMPTS,
+        ledger_path: pathlib.Path = ATTEMPT_LEDGER,
+    ):
         self.token = token
         self.key = key
         self.requests = requests
         self.ledger = ledger
+        self.baseline_wire_attempts = baseline_wire_attempts
+        self.baseline_retry_attempts = baseline_retry_attempts
+        self.ledger_path = ledger_path
         self.pacer = RequestPacer(MIN_REQUEST_INTERVAL_SECONDS)
         self.spot_by_epoch: dict[int, dict[str, str]] = {}
         self.handles: dict[str, tuple[Any, Any]] = {}
@@ -300,8 +315,8 @@ class SpotGapFillCollector:
         writer.writerow(row)
 
     def _record_attempt(self, request: dict[str, Any], is_retry: bool) -> None:
-        wire_now = BASELINE_WIRE_ATTEMPTS + DIAGNOSTIC_WIRE_ATTEMPTS + int(self.ledger["wire_attempts_new"])
-        retry_now = BASELINE_RETRY_ATTEMPTS + int(self.ledger["retry_attempts_new"])
+        wire_now = self.baseline_wire_attempts + DIAGNOSTIC_WIRE_ATTEMPTS + int(self.ledger["wire_attempts_new"])
+        retry_now = self.baseline_retry_attempts + int(self.ledger["retry_attempts_new"])
         if wire_now >= 8_701:
             raise ValueError("gapfill_global_wire_budget_exhausted")
         if is_retry and retry_now >= 100:
@@ -314,7 +329,7 @@ class SpotGapFillCollector:
         if is_retry:
             self.ledger["retry_attempts_new"] += 1
             self.retry_attempts_this_run += 1
-        _save_ledger(self.ledger)
+        _save_ledger(self.ledger, self.ledger_path)
 
     def _charge_downloaded_bytes(self, size: int) -> None:
         if size < 0:
@@ -502,8 +517,8 @@ class SpotGapFillCollector:
             "downloaded_bytes": self.downloaded_bytes,
             "wire_requests_this_run": int(self.ledger["wire_attempts_new"]),
             "retry_requests_this_run": int(self.ledger["retry_attempts_new"]),
-            "wire_requests_cumulative": BASELINE_WIRE_ATTEMPTS + DIAGNOSTIC_WIRE_ATTEMPTS + int(self.ledger["wire_attempts_new"]),
-            "retry_requests_cumulative": BASELINE_RETRY_ATTEMPTS + int(self.ledger["retry_attempts_new"]),
+            "wire_requests_cumulative": self.baseline_wire_attempts + DIAGNOSTIC_WIRE_ATTEMPTS + int(self.ledger["wire_attempts_new"]),
+            "retry_requests_cumulative": self.baseline_retry_attempts + int(self.ledger["retry_attempts_new"]),
             "attempt_ledger": self.ledger,
         }
 
