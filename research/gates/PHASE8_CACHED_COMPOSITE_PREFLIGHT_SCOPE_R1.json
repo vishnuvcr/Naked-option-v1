@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-cached-composite-preflight-r1",
+  "date": "2026-10-11",
+  "status": "PROPOSAL_ONLY",
+  "developer_branch": "phase-08-developer",
+  "tester_branch": "phase-08-tester",
+  "proposal_path": "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_PROPOSAL_R1.md",
+  "forecast": {
+    "run_id": 37957677656,
+    "commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+    "artifact_id": 11638738288,
+    "artifact_name": "phase7-ensemble-reference",
+    "archive_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+    "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+    "panels": 10,
+    "rows": 50555,
+    "accepted_validation_run": 38157819076,
+    "tolerance": 1e-9
+  },
+  "composite": {
+    "source_run_id": 38131641336,
+    "source_commit": "5e769cd4b19887311213baf16eb81b97416322d7",
+    "artifact_id": 11698879857,
+    "artifact_name": "nifty-1m-derived-repaired-r2-38126168547",
+    "gzip_sha256": "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5",
+    "canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "rows": 8999865,
+    "columns": 47,
+    "row_types": {
+      "OPTION": 8490723,
+      "SPOT": 509142
+    },
+    "encrypted_monthly_parts": 61
+  },
+  "current_developer_head": "2630b3ba9adb5ccc38bcdbec6062520372739cc7",
+  "code_blob_pins": {
+    "scripts/run_phase8_long_option.py": "6904ce2c544fb24b25e42d2db138a5dc16efb9cd",
+    "scripts/test_phase8_long_option_runner.py": "aee6b809edd321a2e085c9b72778f53bc49fcdde",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca"
+  },
+  "planned_output": "phase8-cached-composite-preflight-metadata",
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_promotion_authorized": false,
+  "new_market_source_requests_authorized": false,
+  "expected_strict_contract_eligibility": false,
+  "cleanup_required": true
+}
