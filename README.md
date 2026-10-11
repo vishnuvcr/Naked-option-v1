@@ -722,3 +722,19 @@ A duplicate-trigger issue was fixed by restricting automatic push triggers to `p
 ## Research continuation checkpoint — 2026-10-11
 
 The latest repository resume re-read the exact-snapshot gates and logs before continuing. Developer documentation updates now record the current source-gate denial and clarify the uploaded-paper audit status. The 34-shard spot recovery is still unexecuted: [split gate run 38119160629](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119160629) denied execution with the request job skipped because the tester decision is offline-only and live authorization remains false. No new market-data request, model fit/score, holdout access or strategy test occurred. See the [current Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [research log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/ERROR_LOG.md), and [tester documentation review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/UPLOADED_PAPER_METHOD_COVERAGE_TESTER.md).
+
+
+## Data collection closure and offline integrity audit — 2026-10-11
+
+The user has closed data collection. No further source requests should be made under the current plan. The existing encrypted artifact passed ZIP integrity checks: all 57 encrypted monthly parts were present and matched manifest byte sizes and SHA-256 hashes; their row-count sum reconciles to 8,894,387. This verifies archive integrity, not market-data correctness or completeness.
+
+The manifest still reports `PARTIAL_GRID` and `SPOT_GAPFILL_PARTIAL`: 8,490,723 option rows, 403,664 spot rows, 7,591,172 matched spot joins, 899,551 unmatched option rows, and six failed spot-gapfill windows. The payload was not decrypted during this audit. Dataset readiness is therefore **not established**; model fitting, holdout access and strategy/P&L testing remain separately gated.
+
+- [Offline dataset integrity audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/DATASET_OFFLINE_INTEGRITY_AUDIT_2026-10-11.md)
+- [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md)
+- [Research log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md)
+- [Conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md)
+
+**Developer → Tester:** Recompute the pinned artifact metadata checks and report scope/limitations.
+
+**Tester → Developer:** Do not interpret the archive-integrity pass as a complete dataset or as authorization to fit models.
