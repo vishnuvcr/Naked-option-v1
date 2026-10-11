@@ -212,7 +212,7 @@ jobs:
           fi
 
       - name: Append aggregate findings to README and research status
-        if: steps.diagnostic.outcome == 'success' && steps.cleanup.outcome == 'success'
+        if: steps.diagnostic.outcome == 'success' && steps.value_diagnostic.outcome == 'success' && steps.cleanup.outcome == 'success'
         env:
           OUTPUT_JSON: ${{ github.workspace }}/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
           VALUE_OUTPUT_JSON: ${{ github.workspace }}/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
