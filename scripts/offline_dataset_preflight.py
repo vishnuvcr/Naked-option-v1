@@ -21,6 +21,10 @@ EXPECTED_SHA256 = "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a
 TIMESTAMP_NAMES = ("timestamp_epoch", "timestamp", "datetime", "date_time", "timestamp_ist")
 ROWTYPE_NAMES = ("row_type", "instrument_type", "record_type", "data_type")
 KEY_GROUPS = (
+    # Canonical groups for the actual repaired composite CSV schema.
+    ("timestamp_epoch", "row_type", "underlying", "expiry_code", "returned_strike", "option_type"),
+    ("timestamp_epoch", "row_type", "underlying"),
+    # Compatibility groups retained for older/synthetic schemas.
     ("timestamp_epoch", "instrument_type", "symbol", "expiry", "strike", "option_type"),
     ("timestamp_epoch", "row_type", "symbol", "expiry", "strike", "option_type"),
     ("timestamp_epoch", "instrument_type", "security_id"),
@@ -75,6 +79,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
     incomplete_key_rows = 0
     key_group_row_counts = Counter()
     key_cols = None
+    key_batch = []
     db = None
     db_path = None
     try:
@@ -155,11 +160,18 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         group_number, candidate_values = selected_key
                         key_group_row_counts[group_number] += 1
                         key = json.dumps([group_number, *candidate_values], separators=(",", ":"), ensure_ascii=False)
-                        try:
-                            db.execute("INSERT INTO keys_seen(k) VALUES (?)", (key,))
-                        except sqlite3.IntegrityError:
-                            duplicate_keys += 1
+                        key_batch.append((key,))
+                        if len(key_batch) >= 10_000:
+                            before = db.total_changes
+                            db.executemany("INSERT OR IGNORE INTO keys_seen(k) VALUES (?)", key_batch)
+                            duplicate_keys += len(key_batch) - (db.total_changes - before)
+                            key_batch.clear()
                 if counts["data_rows"] % 250_000 == 0 and db is not None:
+                    if key_batch:
+                        before = db.total_changes
+                        db.executemany("INSERT OR IGNORE INTO keys_seen(k) VALUES (?)", key_batch)
+                        duplicate_keys += len(key_batch) - (db.total_changes - before)
+                        key_batch.clear()
                     db.commit()
 
         if width_errors:
@@ -167,6 +179,11 @@ def run(path: Path, report_path: Path, expected_sha: str,
         if counts["data_rows"] != expected_rows:
             raise ValueError("ROW_COUNT_MISMATCH")
         if db is not None:
+            if key_batch:
+                before = db.total_changes
+                db.executemany("INSERT OR IGNORE INTO keys_seen(k) VALUES (?)", key_batch)
+                duplicate_keys += len(key_batch) - (db.total_changes - before)
+                key_batch.clear()
             db.commit()
 
         if not key_cols:
