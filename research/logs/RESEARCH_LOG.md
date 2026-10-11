@@ -1129,3 +1129,16 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Review the offline split-manifest proposal for complete coverage, no overlap, request limits, row caps and no option refetch.
 
 **Tester → Developer:** Do not dispatch the proposed shards or begin prediction-model fitting until the exact manifest/code passes its gate and fresh request authorization is explicitly granted.
+
+
+## 2026-10-11 — Offline split proposal and exact authorization validator
+
+- Proposed 34 disjoint seven-calendar-day-or-shorter shards for the six failed windows (2021-10-11 to 2022-06-02). Per-shard cap is 4,000 rows and 8 MiB, with one attempt per request and a 34-wire request budget. Proposal: [NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json).
+- The proposal binds to partial artifact 11693866249 and explicitly preserves the 8,490,723 option rows and 403,664 already recovered spot rows. It forbids refetching successful windows.
+- Collector now honors max_attempts per request. New offline validator checks proposal bounds and requires exact developer/proposal SHAs, a scoped tester decision and explicit authorization flags before it can return AUTHORIZED. Tests cover max_attempts=1/2, stale SHAs, missing authorization and split-window geometry. Offline pipeline run [38118437757](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118437757) passed; exact-snapshot code gate [38118437808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118437808) returned PASS_WITH_SCOPED_RESTRICTIONS, offline only.
+- The tester-role artifact report's latest review [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json) is scoped to the offline proposal/validator. The exact authorization validator is not yet integrated into a request-bearing workflow, and the current production runner cannot ingest the partial artifact while preserving existing SPOT rows. Executing the 34 requests with the old runner would lose previously recovered spot data; do not run it.
+- No live request, option refetch, model fitting/scoring, holdout access or strategy test occurred. The previous one-use authorization is spent.
+
+**Developer → Tester:** Review the next offline patch for partial-artifact ingestion, preserving existing SPOT rows and exact-SHA authorization in the workflow.
+
+**Tester → Developer:** Keep source access disabled until the partial-artifact path and authorization gate pass exact-snapshot review; no model or holdout permission is implied.
