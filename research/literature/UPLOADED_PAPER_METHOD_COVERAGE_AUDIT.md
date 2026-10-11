@@ -2,14 +2,14 @@
 
 **Audit date:** 2026-10-10  
 **Branch:** `phase-07-developer`  
-**Status:** FIRST-PASS INVENTORY — NOT A COMPLETE FULL-TEXT METHOD REVIEW  
+**Status:** STRUCTURED SOURCE-MATRIX PASS — EXACT REPLICATION NOT VERIFIED  
 **Research scope:** Prediction methods first. Option strategy papers are inventoried but strategy/P&L research remains outside the current prediction-only gate.
 
 ## Executive finding
 
 The repository has a finite registry of 112 methods across Families A–J and a literature registry of 36 source records. These are useful research controls, but neither count establishes that every method from each uploaded PDF was implemented and independently replicated.
 
-The current conversation contains 15 PDF files. A first-pass title/abstract/early-page extraction identified the topics below. Exact paper-specific settings, datasets, target/horizon, feature definitions, split protocol, baseline, metric definitions and reported results have **not** yet been reconciled for every paper. Unless a separate result artifact and independent tester report are linked, mark the paper-level method as **NOT VERIFIED AS REPLICATED**. Broad overlap with a method family is not an exact replication.
+The current conversation contains 15 PDF files. A structured [paper source-evidence matrix](PAPER_SOURCE_EVIDENCE_MATRIX.md) now has a section for each uploaded PDF and an individual method-fidelity ledger with page locators. This is a **source-extraction aid, not proof that every field is resolved**: the matrix explicitly preserves ambiguous targets, splits, metric definitions, date windows and option-versus-spot schema questions. No paper is considered replicated without a matching project result artifact and a gate-accepted tester report; the status for all paper-specific methods remains **NOT VERIFIED AS REPLICATED**. Broad overlap with a method family is not an exact replication.
 
 ## Uploaded-PDF inventory
 
@@ -41,9 +41,9 @@ The current conversation contains 15 PDF files. A first-pass title/abstract/earl
 
 ## Required next substeps
 
-- **P1 — Full-text method extraction:** inspect each paper's Methods/Experimental Setup/Results tables and extract the exact models, indicators/features, input fields, labels, sampling frequency, forecast horizon, dates, train/validation/test split, tuning approach, metrics and costs.
-- **P2 — Registry crosswalk:** map each extracted paper method to existing method IDs or document a proposed registry amendment before seeing new test results.
-- **P3 — Data feasibility:** check current cached data and all viable free sources for required fields; log coverage and missingness without imputing away economically important gaps.
+- **P1 — Claim-level source verification:** use `PAPER_SOURCE_EVIDENCE_MATRIX.md` as the starting point; visually recheck source pages and result tables where extraction order or table layout may be unreliable. Keep any unresolved value AMBIGUOUS.
+- **P2 — Registry crosswalk:** map every extracted paper method to existing method IDs or document a proposed registry amendment before seeing new test results. Keep source-native price regression, direction classification and option strategy tasks as separate task types.
+- **P3 — Data feasibility:** check current cached data and viable free sources for required fields; log coverage and missingness without imputation. This remains separate from the closed Phase 7 empirical/data gate.
 - **P4 — Reproduction design:** define a causal, leakage-safe replication protocol with strong baselines, walk-forward splits, uncertainty and multiplicity control.
 - **P5 — Developer implementation:** implement only after the frozen protocol and data requirements pass their gate.
 - **P6 — Independent tester:** verify formulas, signs, splits, look-ahead controls, arithmetic, schemas and exact source/test/workflow hashes before execution and again audit immutable results.
@@ -72,4 +72,13 @@ The mounted PDFs were programmatically read beyond title-only inventory. The fol
 - **Chatterjee et al. (IJNRD, 2022; 15 pages):** general Indian-market options strategies and hedging/risk framing; not a standalone forecast model.
 - **Kumar & Sharma (ANN/NIFTY paper above) and Bansal et al. (multi-company ML paper) have overlapping estimator names with registry families, but differing targets, data and evaluation protocols; these are not exact replications.
 
-The remaining PDFs still require structured method/results-table extraction and cross-check. No paper is marked REPLICATED solely from this extraction. For every paper, the outstanding fields are: exact target and horizon, data period/source, features and transforms, estimator/configuration, chronological split, tuning, benchmark, metrics, reported numeric results, limitations, and a matching project result artifact plus tester report.
+The source matrix represents all 15 PDFs, but it is not a page-by-page independent verification of every table or a faithful reproduction of each paper's exact experiment. No paper is marked REPLICATED. The unresolved work is now **claim-level verification and normalization**, rather than adding another title-only list: for each candidate configuration, settle the exact target/horizon, date/source, feature transforms, estimator/configuration, chronological split, tuning, benchmark and numerical result—or leave that field explicitly AMBIGUOUS—and connect it to a project artifact and accepted tester report.
+
+
+## 2026-10-11 — Coverage wording synchronized with source matrix
+
+The dedicated source-evidence matrix has one section for each of the 15 uploaded PDFs plus an individual method-fidelity ledger. This supersedes the earlier wording that could be read as though only a title/abstract inventory existed. It does **not** mean exact methods are reproducible or replicated: unresolved target/split/metric/schema details remain explicit, and source-reported performance is not project evidence. The next work is claim-level verification and crosswalking into the frozen method registry; any new candidate (including CCI) still requires a separate protocol amendment and tester gate before it can enter empirical testing.
+
+**Developer → Tester:** Check the 15 source-matrix sections against the uploaded PDFs and identify any missing or wrongly attributed method/result claim. Treat unresolved fields as ambiguous.
+
+**Tester → Developer:** Return a claim-level correction list on the tester branch; do not authorize model fitting from the source matrix alone.
