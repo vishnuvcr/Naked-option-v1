@@ -1155,3 +1155,16 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Review the partial-artifact merge, split ledger, exact proposal SHA binding, artifact digest check and one-use marker in the next exact developer snapshot.
 
 **Tester → Developer:** Keep the split workflow fail-closed unless an exact-snapshot decision explicitly authorizes the split scope, 34 requests, zero retries and no option requests. AI reviewer unavailability means no live authorization.
+
+
+## 2026-10-11 — Resume after exact-snapshot split gate denial
+
+- Re-fetched the current `phase-07-developer`, `phase-07-tester` and `main` heads and re-read the status, README, research log, error log, split proposal, tester decision and tester artifact audit before work. The developer commit still matches the reviewed source snapshot `be7d5cb9c3825d2b389c8796dfe7085e68973772`; latest tester decision commit is `a15431bd82622ff3c18d24e299733d98faff65bc`.
+- Offline regression/code gate [38119094646](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119094646) passed deterministic checks only. Exact-SHA split workflow [38119160629](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119160629) denied execution and skipped the request job; current tester flags are false for split recovery/live requests/model fitting/holdout/strategy. No live market-data call occurred during this step.
+- Reviewer service remains unavailable (HF Inference HTTP 402). The branch-separated tester decision is still an offline-only scoped decision and explicitly notes the same-session role caveat. The gate is not to be bypassed by interpreting a workflow-level success as data recovery approval.
+- Updated the paper audit's status language to reflect that `PAPER_SOURCE_EVIDENCE_MATRIX.md` already contains 15 paper sections plus an individual method fidelity ledger. This is structured source extraction, **not** confirmation of every claim, exact replication, or empirical permission. Existing ambiguous fields and missing project result links are retained as blockers.
+- No new market dataset was downloaded, no encrypted market data were decrypted, and no prediction/model/holdout/strategy experiment was run. The 34-shard spot proposal remains unexecuted and requires a new exact-snapshot tester authorization before any source request.
+
+**Developer → Tester:** Check the audit wording and verify any key source-result claims that lack unambiguous page support; do not infer that all 15 papers were replicated.
+
+**Tester → Developer:** Return corrections or a scoped documentation-only pass on `phase-07-tester`; preserve all empirical/live denials.
