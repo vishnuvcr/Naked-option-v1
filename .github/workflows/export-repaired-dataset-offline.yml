@@ -1,0 +1,230 @@
+name: One-time Encrypted Offline CSV Export
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/export-repaired-dataset-offline.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: offline-repaired-csv-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SOURCE_EXPORT_RUN_ID: "38131641336"
+      SOURCE_EXPORT_HEAD_SHA: "5e769cd4b19887311213baf16eb81b97416322d7"
+      SOURCE_EXPORT_ARTIFACT_ID: "11698879857"
+      SOURCE_EXPORT_ARTIFACT_NAME: "nifty-1m-derived-repaired-r2-38126168547"
+      PLAIN_EXPORT_NAME: "nifty_repaired_composite_2021-10_to_2026-10.csv.gz"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Validate workflow YAML
+        run: ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/export-repaired-dataset-offline.yml"); puts "PASS export workflow YAML parses"'
+
+      - name: Verify exact repaired source run and artifact
+        id: preflight
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_EXPORT_RUN_ID")"
+          [[ "$(jq -r '.name // ""' <<< "$run_json")" == "Phase 7 Derived Dataset Repair — Exact Artifact Only" ]] || { echo "source_run_name_mismatch"; exit 1; }
+          [[ "$(jq -r '.head_sha // ""' <<< "$run_json")" == "$SOURCE_EXPORT_HEAD_SHA" ]] || { echo "source_run_sha_mismatch"; exit 1; }
+          [[ "$(jq -r '.status // ""' <<< "$run_json")" == "completed" ]] || { echo "source_run_not_completed"; exit 1; }
+          [[ "$(jq -r '.conclusion // ""' <<< "$run_json")" == "success" ]] || { echo "source_run_not_successful"; exit 1; }
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_EXPORT_RUN_ID/artifacts?per_page=100")"
+          count="$(jq --arg n "$SOURCE_EXPORT_ARTIFACT_NAME" --argjson id "$SOURCE_EXPORT_ARTIFACT_ID" '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$artifacts")"
+          [[ "$count" == "1" ]] || { echo "exact_repaired_artifact_missing_or_expired"; exit 1; }
+          echo "PASS exact repaired artifact confirmed"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned crypto dependency
+        run: python -m pip install -r requirements-composite.txt
+
+      - name: Download exact encrypted repaired dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-derived-repaired-r2-38126168547
+          run-id: 38131641336
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/offline-export-bundle
+
+      - name: Locate and verify the derived manifest and 61 encrypted parts
+        id: prepare
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/offline-export-bundle
+          INPUT_DIR: ${{ runner.temp }}/offline-export-input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path(os.environ["BUNDLE_DIR"])
+          candidates=list(root.rglob("dataset_manifest.json"))
+          if len(candidates)!=1: raise SystemExit("derived_manifest_count_invalid")
+          manifest_path=candidates[0]
+          manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("dataset_id")!="NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1":
+              raise SystemExit("derived_dataset_id_mismatch")
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
+              raise SystemExit("derived_encrypted_only_marker_missing")
+          derived=manifest.get("derived_from",{})
+          if derived.get("parent_artifact_run_id")!=38126168547 or derived.get("parent_artifact_id")!=11696937921:
+              raise SystemExit("derived_parent_artifact_mismatch")
+          if derived.get("parent_artifact_sha256")!="5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b":
+              raise SystemExit("derived_parent_hash_mismatch")
+          parts=manifest.get("parts")
+          if not isinstance(parts,list) or len(parts)!=61: raise SystemExit("derived_part_count_mismatch")
+          expected_total=sum(int(p.get("row_count",-1)) for p in parts)
+          if expected_total!=8999865: raise SystemExit("derived_row_count_total_mismatch")
+          input_dir=pathlib.Path(os.environ["INPUT_DIR"])
+          input_dir.mkdir(parents=True,exist_ok=True)
+          shutil.copyfile(manifest_path,input_dir/"dataset_manifest.json")
+          for part in parts:
+              name=part.get("file","")
+              if not name.endswith(".csv.gz.enc") or pathlib.Path(name).name!=name:
+                  raise SystemExit("unsafe_part_name")
+              src=manifest_path.parent/name
+              if not src.is_file(): raise SystemExit("encrypted_part_missing")
+              if src.stat().st_size!=int(part.get("encrypted_bytes",-1)):
+                  raise SystemExit("encrypted_part_size_mismatch")
+              digest=hashlib.sha256()
+              with src.open("rb") as stream:
+                  for block in iter(lambda:stream.read(1024*1024),b""): digest.update(block)
+              if digest.hexdigest()!=part.get("encrypted_sha256"):
+                  raise SystemExit("encrypted_part_sha256_mismatch")
+              shutil.copyfile(src,input_dir/name)
+          if len(list(input_dir.glob("*.csv.gz.enc")))!=61: raise SystemExit("prepared_part_count_mismatch")
+          print(json.dumps({"status":"PASS","parts":61,"expected_rows":expected_total,"parent_artifact_id":11696937921}))
+          PY
+
+      - name: Decrypt monthly parts and create one merged CSV.GZ
+        id: merge
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/offline-export-input
+          PARTS_DIR: ${{ runner.temp }}/offline-export-monthly
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "HF_TOKEN secret is missing; refusing to export."; exit 1; }
+          python scripts/decrypt_nifty_1m_composite.py --input-dir "$INPUT_DIR" --output-dir "$PARTS_DIR" --merge-output "$MERGED_PATH"
+          python - <<'PY'
+          import csv,gzip,hashlib,json,os,pathlib
+          path=pathlib.Path(os.environ["MERGED_PATH"])
+          manifest=json.loads((pathlib.Path(os.environ["INPUT_DIR"])/"dataset_manifest.json").read_text(encoding="utf-8"))
+          expected=sum(int(p["row_count"]) for p in manifest["parts"])
+          count=0
+          with gzip.open(path,"rt",encoding="utf-8",newline="") as handle:
+              reader=csv.reader(handle)
+              header=next(reader,None)
+              if header!=manifest.get("columns"): raise SystemExit("merged_csv_header_mismatch")
+              for _ in reader: count+=1
+          if count!=expected or count!=8999865: raise SystemExit("merged_csv_row_count_mismatch")
+          digest=hashlib.sha256()
+          with path.open("rb") as handle:
+              for block in iter(lambda:handle.read(1024*1024),b""): digest.update(block)
+          print(json.dumps({"status":"PASS","data_rows":count,"columns":len(header),"csv_gz_bytes":path.stat().st_size,"csv_gz_sha256":digest.hexdigest()}))
+          PY
+
+      - name: Encrypt the export to a one-time public key
+        id: encrypt
+        env:
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          PUBLIC_KEY_PATH: .github/keys/one-time-offline-export-public.pem
+          EXPORT_DIR: ${{ runner.temp }}/offline-export-encrypted
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64,csv,gzip,hashlib,json,os,pathlib
+          from cryptography.hazmat.primitives import hashes,serialization
+          from cryptography.hazmat.primitives.asymmetric import padding
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          source=pathlib.Path(os.environ["MERGED_PATH"])
+          public=serialization.load_pem_public_key(pathlib.Path(os.environ["PUBLIC_KEY_PATH"]).read_bytes())
+          out=pathlib.Path(os.environ["EXPORT_DIR"])
+          out.mkdir(parents=True,exist_ok=True)
+          key=os.urandom(32)
+          nonce=os.urandom(12)
+          aad=b"Naked-option-v1:offline-export:v1"
+          plain=source.read_bytes()
+          encrypted=b"N1OE"+nonce+AESGCM(key).encrypt(nonce,plain,aad)
+          wrapped=public.encrypt(key,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+          enc_path=out/"nifty_repaired_composite_2021-10_to_2026-10.csv.gz.n1oe"
+          key_path=out/"wrapped_aes_key.bin"
+          enc_path.write_bytes(encrypted)
+          key_path.write_bytes(wrapped)
+          def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+          metadata={
+              "schema_version":1,
+              "export_status":"ENCRYPTED_FOR_REQUESTER",
+              "encrypted_format":"N1OE + 12-byte nonce + AES-256-GCM ciphertext/tag; AES key wrapped with RSA-OAEP-SHA256",
+              "associated_data":"Naked-option-v1:offline-export:v1",
+              "source_repair_run_id":38131641336,
+              "source_derived_artifact_id":11698879857,
+              "source_parent_artifact_id":11696937921,
+              "csv_gz_filename":"nifty_repaired_composite_2021-10_to_2026-10.csv.gz",
+              "csv_gz_sha256":sha(source),
+              "csv_gz_bytes":source.stat().st_size,
+              "encrypted_payload_filename":enc_path.name,
+              "encrypted_payload_sha256":sha(enc_path),
+              "encrypted_payload_bytes":enc_path.stat().st_size,
+              "wrapped_aes_key_filename":key_path.name,
+              "wrapped_aes_key_sha256":sha(key_path),
+              "data_rows":8999865,
+              "contains_header":True,
+              "contains_plaintext":False,
+              "retention_note":"This Action artifact contains encrypted export bytes only; no CSV plaintext is uploaded."
+          }
+          (out/"offline_export_manifest.json").write_text(json.dumps(metadata,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          print(json.dumps({"status":"PASS","encrypted_bytes":enc_path.stat().st_size,"csv_gz_bytes":source.stat().st_size,"data_rows":8999865,"plaintext_uploaded":False}))
+          PY
+
+      - name: Upload encrypted-only one-time export bundle
+        id: upload_export
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ format('nifty-repaired-offline-encrypted-{0}', github.run_id) }}
+          path: ${{ runner.temp }}/offline-export-encrypted/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Remove all plaintext export files and verify cleanup
+        if: always()
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/offline-export-bundle
+          INPUT_DIR: ${{ runner.temp }}/offline-export-input
+          PARTS_DIR: ${{ runner.temp }}/offline-export-monthly
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          EXPORT_DIR: ${{ runner.temp }}/offline-export-encrypted
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PARTS_DIR" "$MERGED_PATH" "$EXPORT_DIR"
+          if find "${{ runner.temp }}" -type f \( -name '*.csv.gz' -o -name '*.csv' -o -name '*.csv.gz.tmp' \) -print -quit | grep -q .; then
+            echo "ERROR: plaintext CSV export remnants remain."
+            exit 1
+          fi
+          echo "PASS: plaintext export and decrypted monthly parts removed from runner."
