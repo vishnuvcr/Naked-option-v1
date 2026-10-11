@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_R5",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_blobs": {
+    "proposal": "915aeaca6564be7ed11299e93834d5c8b28aafa6",
+    "scope": "bb08010a43dd499da38443b55d2fa77e9c210095"
+  },
+  "allowed_scope": "design only; implementation may be developed for a separate exact-hash review",
+  "permissions": {
+    "real_file_audit": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_observation_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "required_before_execution": [
+    "exact hashes for runner, tests, workflow, schema, dataset receipt and cached source/calendar manifest",
+    "synthetic tests pass",
+    "workflow is metadata-only and has no network/data-export path",
+    "Python sanitizer and JSON Schema validation enforced",
+    "cleanup evidence",
+    "fresh tester implementation decision"
+  ],
+  "next_step": "developer implements bounded metadata-only runner and submits exact hashes; do not run real dataset yet"
+}
