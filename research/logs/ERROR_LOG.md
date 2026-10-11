@@ -320,3 +320,11 @@ New errors must be appended, never overwritten.
 - Table II lists 43 profitable and 25 losing trades (68 total); the surrounding prose uses 42 profitable + 25 losing (67). Table III lists the same 43 and 25 row counts but total 80. Percentages (63.25%, 36.75%) and the displayed chi-square statistic 4.765 are consistent with a denominator of 68. Explicit recomputation: `(43-34)^2/34 + (25-34)^2/34 = 4.7647...`.
 - This source is options-strategy-only, not a spot-direction forecasting method. Do not treat the displayed author return/strike-rate/significance claims as verified, and do not enter strategy/P&L testing from this review.
 - Detailed evidence and caveats: [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](../literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md). Tester report is on the isolated tester branch; it is a same-session role check, not a separate independent human/AI reviewer.
+
+
+## 2026-10-11 — Literature crosswalk tester role is not an independent identity
+
+- **Category:** governance limitation (not a numerical failure).
+- **Observed:** the isolated tester branch has exact-SHA source-note and configuration crosswalk reports, and the repository protocol workflow passed. However, both developer and tester reports were authored in the same connected assistant session; the intended separate human/AI reviewer was unavailable (previous AI review returned HTTP 402).
+- **Impact:** scoped documentation PASS confirms source arithmetic/mapping consistency within this session but must not be misrepresented as independent external verification. It does not satisfy live data, model-fitting, holdout, or strategy approval gates.
+- **Disposition:** preserve this caveat in status and reports; require a genuine separate reviewer/exact-snapshot decision before opening any gated empirical work. Do not change authorization flags to compensate for the unavailable reviewer.
