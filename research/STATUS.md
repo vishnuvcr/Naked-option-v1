@@ -409,3 +409,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Run [38157166375](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157166375): protocol PASS, workflow and execution-engine regressions PASS, free-source audit PASS, archive/embedded manifest/aggregate hashes PASS.
 - The real saved-panel validator then failed at exact source-derived future-return comparison for daily H=1; the panel label array and timestamps passed first.
 - Added diagnostic-only mismatch count/max absolute difference/examples to error output. Exact equality remains in place; no tolerance was changed and no panel was accepted yet. The option grid remains disabled.
+
+
+## 2026-10-11 — Run #994 panel audit identifies abstention/mask consumer defect
+
+- On [run 38157508843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157508843), protocol, synthetic regressions, free-source audit and all immutable artifact hashes passed.
+- Panel source labels/timestamps passed. The prior daily future-return mismatch did not reproduce in this run; its cause remains unproven.
+- Metric reconciliation then exposed validator drift: P10's frozen [0.45,0.55] abstention band was omitted, and P05/P06 chronological block summaries were recomputed without their eligibility masks. The validator now uses abstention bands from the exact loaded Run #994 source module and applies the same mask to chronological diagnostics.
+- Next: rerun synthetic and real validation. The 1e-9 comparison remains unchanged; no option P&L or strategy promotion.

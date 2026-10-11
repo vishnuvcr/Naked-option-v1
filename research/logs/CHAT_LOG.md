@@ -291,3 +291,9 @@ No scientific or protocol change was made during this checkpoint.
 ## 2026-10-11 — Diagnose saved forecast future-return alignment
 - Run 38157166375 is the first attempt that passed archive integrity and reached real saved-panel validation. The daily H=1 future-return check failed exactly; labels and decision timestamps had passed.
 - No tolerance adjustment is made without knowing the mismatch magnitudes/positions. Added diagnostics to report count/max absolute delta/sample rows, while retaining exact equality and fail-closed behavior. Synthetic regression asserts that a deliberate 0.01 change is surfaced.
+
+
+## 2026-10-11 — Correct the exact Run #994 abstention/mask consumer
+- Diagnostic run 38157508843 passed source labels/timestamps and archive/code/data lineage checks, then failed the metric comparison on P05/P06 block counts and P10 metrics.
+- Cause is identified in the consumer: the current Phase 8 branch carried an older local ABSTAIN dictionary and omitted the eligibility mask for per-block statistics; the archived Run #994 source correctly contains P10 [0.45,0.55] abstention and mask-aware block diagnostics.
+- The validator now obtains abstention rules from the exact source module loaded from Run #994's commit and passes each candidate's mask into the same module's block-diagnostic function. Tests use an explicit synthetic adapter matching that frozen contract. No model refit or tolerance relaxation.

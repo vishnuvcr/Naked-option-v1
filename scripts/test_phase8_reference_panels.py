@@ -14,6 +14,33 @@ import validate_phase8_forecast_panel as phase8_panel_validator
 from validate_phase7_reference_panels import compare_panel
 validator.p7 = p7
 
+def run994_block_diagnostics(y, p, blocks, eligibility_mask=None):
+    """Test adapter matching the exact Run #994 block-diagnostic signature."""
+    out = []
+    eligibility = None if eligibility_mask is None else np.asarray(eligibility_mask, dtype=bool)
+    for rows in blocks:
+        mask = np.isfinite(y[rows]) & np.isfinite(p[rows])
+        if eligibility is not None:
+            mask &= eligibility[rows]
+        if not mask.any():
+            continue
+        yy = y[rows][mask].astype(int)
+        pp = np.clip(p[rows][mask], 1e-6, 1 - 1e-6)
+        pred = (pp >= 0.5).astype(int)
+        out.append({
+            "n": int(len(yy)),
+            "accuracy": float(np.mean(pred == yy)),
+            "balanced_accuracy": float(p7.p6.balanced_accuracy_score(yy, pred)),
+            "brier": float(np.mean((pp - yy) ** 2)),
+        })
+    return out
+
+
+# Synthetic fixtures deliberately emulate the frozen Run #994 abstention/mask
+# contract rather than the older Phase 8 working-tree copy of the Phase 7 code.
+p7.ABSTAIN = {**p7.ABSTAIN, "P10": (0.45, 0.55)}
+p7.block_diagnostics = run994_block_diagnostics
+
 
 def test_saved_panel_metrics_reconcile_without_model_refit():
     n = 240
@@ -49,7 +76,7 @@ def test_saved_panel_metrics_reconcile_without_model_refit():
                 "evaluable_n": int(finite.sum()),
             }
         result = p7.p6.metrics(y, pred, future, block_len, extra=extra, mask=mask)
-        result["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks)
+        result["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks, mask)
         expected[name] = result
     expected["_FAMILY_TEST"] = p7.family_bootstrap(y, candidates, baseline, block_len)
     outcome = compare_panel(frame, expected, intraday=False)
@@ -171,7 +198,7 @@ def test_full_artifact_directory_validation():
                                 "evaluable_n": int(finite.sum()),
                             }
                         metric = p7.p6.metrics(y, pred, future, block_len, extra=extra, mask=mask)
-                        metric["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks)
+                        metric["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks, mask)
                         if name in ("P08", "P09", "P10"):
                             metric["regime_diagnostics"] = []
                             metric["regime_fallback_count"] = 0

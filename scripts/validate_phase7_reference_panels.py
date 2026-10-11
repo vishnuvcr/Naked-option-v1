@@ -18,7 +18,7 @@ p7 = None
 from reconstruct_phase7_predictions import recursive_compare, TOL
 
 METHODS = [f"P{i:02d}" for i in range(1, 11)]
-ABSTAIN = {"P05": (0.45, 0.55), "P06": (0.40, 0.60)}
+ABSTAIN = {"P05": (0.45, 0.55), "P06": (0.40, 0.60)}  # fallback only for test doubles; production uses immutable Phase 7 module
 LAYERS = {"daily": (False, [1, 2, 3, 5, 10]), "intraday": (True, [5, 15, 30, 60, 120])}
 
 
@@ -169,11 +169,12 @@ def compare_panel(frame: pd.DataFrame, expected_cell: dict, intraday: bool):
     block_len = 60 if intraday else 20
     baseline = p7.causal_baseline(y, blocks)
     actual = {}
+    abstain_bands = getattr(p7, "ABSTAIN", ABSTAIN)
     for name, pred in candidates.items():
         mask = None
         extra = {}
-        if name in ABSTAIN:
-            lo, hi = ABSTAIN[name]
+        if name in abstain_bands:
+            lo, hi = abstain_bands[name]
             finite = np.isfinite(pred)
             mask = finite & ~((pred >= lo) & (pred <= hi))
             extra = {
@@ -182,7 +183,9 @@ def compare_panel(frame: pd.DataFrame, expected_cell: dict, intraday: bool):
                 "evaluable_n": int(finite.sum()),
             }
         res = p7.p6.metrics(y, pred, future, block_len, extra=extra, mask=mask)
-        res["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks)
+        # Run #994's immutable block-diagnostic helper accepts the exact same
+        # abstention eligibility mask used for aggregate metrics.
+        res["chronological_blocks"] = p7.block_diagnostics(y, pred, blocks, mask)
         actual[name] = res
     actual["_FAMILY_TEST"] = p7.family_bootstrap(y, candidates, baseline, block_len)
 

@@ -395,3 +395,12 @@
 - Current interpretation: the validator uses exact float equality. The magnitude and positions are not yet known from the first report, so no claim is made yet that this is merely floating-point drift.
 - Correction: add a diagnostic-only error formatter reporting mismatched count, maximum absolute difference and up to five row/value examples. Keep the exact comparison and fail-closed behavior unchanged. Add a regression assertion that a deliberate 0.01 future-return mutation is reported with its magnitude.
 - Next decision depends on reported deltas. Do not loosen source alignment or run option P&L before the mismatch is understood and resolved under the frozen protocol.
+
+
+## 2026-10-11 — Real saved-panel audit found a Phase 7 metric-consumer contract mismatch
+- Category: scientific metric reconciliation / implementation drift
+- Run: 38157508843; developer commit 0dce4d678e80d665162ec1339d7dfa21d66770a0.
+- Exact artifact ZIP, embedded manifest and aggregate hashes passed. Source labels and timestamps passed; the daily future-return mismatch from the prior attempt did not reproduce on this run, so its cause remains unresolved rather than declared fixed.
+- The validator advanced to aggregate reconciliation and failed with concrete discrepancies: P05/P06 chronological-block array lengths differed, P10 abstention summary keys were missing and P10 metrics differed from the frozen aggregate. Source review isolated the cause: the validator used an older Phase 8 local abstention dictionary (P05/P06 only) and called block diagnostics without the frozen eligibility mask. Run #994's immutable Phase 7 source includes P10 abstention [0.45,0.55] and passes each candidate mask into block diagnostics.
+- Correction: derive abstention thresholds from the loaded immutable Phase 7 module and pass the exact eligible mask to the immutable block-diagnostic helper. Synthetic tests now emulate the Run #994 ABSTAIN map and mask-aware block-diagnostic signature.
+- Prevention: validator calculations must use the code/constants from the exact reference commit, not duplicated local constants or older branch copies. Keep tolerance 1e-9; no panel has been accepted and no option P&L ran.
