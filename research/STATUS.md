@@ -149,3 +149,16 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Report: [PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md). Decision: **REQUEST_CHANGES**; machine gate [JSON](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R1_2026-10-11.json).
 - Requested correction: bounded 2-ULP exact-or-near-equality for source-derived float64 `future_return` only, with ULP diagnostics and synthetic tests for 1/2/3 ULP cases and non-finite/sign errors. Preserve exact label/timestamp checks, metric aggregate tolerance, source pins and immutable Run #994 artifact. Hosted evidence must prove all observed mismatches are within 2 ULP; otherwise remain blocked.
 - This is not strategy evidence and grants no option P&L, holdout access, source-data request or strategy promotion.
+
+
+## 2026-10-12 — Tester gate PHASE8_GREEK_ENRICHMENT_R1
+
+- Exact developer snapshot reviewed: 467a08195bb5031bf73eb01fc86f2129f9776227.
+- Workflow [#38168820750](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38168820750) passed exact four-blob checks, ran the developer synthetic suite in an isolated worktree, and passed 162 independently generated CE/PE Black–Scholes reference cases including IV inversion, Greek sign/bounds, finite-difference Delta/Gamma/Vega and invalid-premium rejection.
+- Decision: [machine JSON](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R1_2026-10-12.json) = PASS_WITH_SCOPED_RESTRICTIONS; [review report](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R1_2026-10-12.md).
+- Scope authorized: only public HF NIFTY minute spot + dated NIFTY expiry partition-list retrieval and enrichment of the existing encrypted cached partial grid. No Dhan API, P&L, holdout, strategy promotion, commercial use or plaintext output is authorized.
+- Developer hosted run [#38168504700 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38168504700) is currently restoring the pinned source artifact, has successfully fetched HF spot/expiry metadata, and is executing the enrichment/re-encryption step. Final output coverage, row hashes and encryption checks remain pending.
+
+**Tester → Developer:** independently verify the terminal artifact, coverage report, row preservation, encrypted-part hashes and unresolved-Greek statuses before accepting delivery.
+
+**Developer → Tester:** report terminal run outcome and preserve the partial-grid / proxy / non-commercial restrictions in all final references.
