@@ -362,3 +362,12 @@ No scientific or protocol change was made during this checkpoint.
 - The same report showed expiry_date, expiry_mapping_source and time_to_expiry_years blank in all 8,999,865 composite rows, but the critical-data-gap boolean was false because code only checked header existence. Corrected code to count blank expiry fields on OPTION rows and added synthetic tests.
 - Matrix SHA was `83a45d8c0692322f9cbf88523cb076fc97ff559a7fb089c681782a3f31477bd3`; 4,800/4,800 configuration rows are INELIGIBLE under strict fixed-contract execution. No option P&L was generated and no strategy conclusion follows from this preflight.
 - R1 consumed marker remains committed; request file has been reset to requested=false so it cannot replay. Cleanup verified success.
+
+
+## 2026-10-11 — Final R1 data-readiness evidence and corrections
+
+- The one-use preflight (run 38161788742) reached its cached dataset, checked all 61 encrypted monthly parts, validated Run #994 archive/manifest/aggregate, committed the durable marker before decryption, and merged 8,999,865 rows. Its decoded CSV hash matched the pinned 64-character canonical hash; row totals were OPTION 8,490,723 / SPOT 509,142, 47 columns, 0 width errors. Forecast panel checks passed 10 cells / 50,555 rows.
+- Metadata artifact 11710418667 was produced and cleanup passed. The workflow was red only because of a one-character expected-hash typo in the final shell assertion. R1 was immediately closed and is non-replayable; no second real-data scan has run.
+- Preflight matrix SHA-256 `83a45d8c0692322f9cbf88523cb076fc97ff559a7fb089c681782a3f31477bd3`; all 4,800 configurations remain INELIGIBLE. The report showed all rows blank for expiry_date, expiry_mapping_source and time_to_expiry_years; lot_size and tick_size columns are absent. This is data readiness, not a negative/positive trading performance result.
+- Fixed the final assertion literal and the expiry-value completeness code. A rerun of the contract test caught the same short hash duplicated in its own assertion; correcting that second copy is the latest code patch. Any future real scan requires a versioned new request and exact-hash tester gate.
+- Separate forecast reconstruction check failed at daily H=1 on 64 future_return comparisons whose largest difference is 3.47e-18 due to floating-point rounding. This needs an explicit tester-reviewed near-equality policy, not silent suppression or a change to the stored Run #994 artifact.
