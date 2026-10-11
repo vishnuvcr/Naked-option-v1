@@ -1456,3 +1456,18 @@ The automatic offline suite [38127450732](https://github.com/vishnuvcr/Naked-opt
 - The export workflow encrypts the merged file to a one-time public key. Only ciphertext, wrapped AES key and sanitized metadata are uploaded to a one-day Actions artifact; plaintext is removed from runner scratch. No plaintext CSV is committed to the public repository.
 - Final downloadable files are **not ready yet**. Do not claim export success until the workflow succeeds, the encrypted artifact is downloaded, local decryption validates the SHA-256 and all 8,999,865 rows, and temporary private key material is removed.
 - The existing research data, repair artifact, and model/holdout/strategy gates are unchanged; this is a user-requested offline export only.
+
+
+## 2026-10-11 — Offline CSV export completed and verified
+
+- [Export workflow run 38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676) succeeded. It decrypted the exact 61-part repaired artifact, merged one CSV.GZ, checked 8,999,865 data rows and 47 columns, encrypted the handoff package to a one-time public key, uploaded only ciphertext, and verified runner plaintext cleanup.
+- Encrypted-only handoff artifact: [11699299285](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676/artifacts/11699299285), size 230,930,593 bytes, retention one day. No decrypted CSV or private key was committed or uploaded to Actions.
+- Locally decrypted compressed CSV: `nifty_repaired_composite_2021-10_to_2026-10.csv.gz`, 230,858,600 bytes, SHA-256 `f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5`. Its checksum matches the hosted export manifest and gzip integrity passed.
+- Locally expanded CSV: `nifty_repaired_composite_2021-10_to_2026-10.csv`, 4,747,892,392 bytes, SHA-256 `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. The physical line count is 8,999,866 (one header plus 8,999,865 records). Header has 47 columns and required key columns; width/schema validation passed over two adjacent parser-validated segments covering all data rows.
+- Local verification manifest: `nifty_repaired_composite_offline_manifest.json`, SHA-256 `ac9736c6c757c9624dc9ddbf8acf1e016faa44dd0e37d76a0a7b340ce3fe6254`.
+- Temporary local RSA private key and intermediary encrypted packages/helper scripts were removed after verification. Plaintext files are retained only in the response workspace for the user's download and remain absent from repository / Actions artifacts.
+- Tester review: [OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md) and [machine-readable decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_DECISION_RUN_38133038676.json) — `PASS_WITH_SCOPED_RESTRICTIONS`, export only.
+- Data restrictions remain unchanged: 19,021 option rows unmatched across 421 timestamps, 24,847 weekend-session review flags and masked invalid OHLC/volume values. This export does not approve model fitting, holdout access or strategy/P&L testing.
+
+**Developer → Tester:** Final export gate is recorded; keep the data/model/holdout/strategy permissions unchanged.
+**Tester → Developer:** Confirm no plaintext/private-key material enters public repository history in subsequent changes.
