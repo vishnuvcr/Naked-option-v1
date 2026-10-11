@@ -78,9 +78,14 @@ def _parse_iso(value: str) -> dt.datetime:
 
 def _check_ohlc(row: dict[str, str], fields: tuple[str, ...], key: str,
                 counters: Counter[str], empty_counter: Counter[str]) -> None:
-    vals = [_decimal(row.get(name, "")) for name in fields]
+    try:
+        vals = [_decimal(row.get(name, "")) for name in fields]
+    except ValueError as exc:
+        counters[key + "_" + str(exc)] += 1
+        return
     if any(v is None for v in vals):
-        empty_counter[key] += 1
+        counters[key + "_missing"] += 1
+        empty_counter[key + "_missing_rows"] += 1
         return
     op, hi, lo, cl = vals
     if min(vals) <= 0 or hi < max(op, cl) or lo > min(op, cl) or lo > hi:
