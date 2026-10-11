@@ -994,3 +994,15 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - The tester found the generic duplicate-key groups did not recognize the actual CSV header. The developer added OPTION/SPOT schema-specific keys and batched SQLite inserts, added actual-schema regression tests, and wired the tests into the offline workflow.
 - [Developer handoff](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md) records exact blobs and current verification limits. Hosted synthetic CI is not yet verified.
 - The previous exact-file authorization is invalid after the scanner/workflow changes. No full uniqueness count or data-readiness PASS is claimed. Modelling, holdout and strategy/P&L remain closed pending new tester approval and an authorized scan.
+
+
+## 2026-10-11 — Preflight schema tests passed; data audit still gated
+
+- The revised key scanner now handles actual OPTION/SPOT schemas, rejects incomplete OPTION keys instead of falling back to SPOT keys, batches duplicate checks, and canonicalizes numeric strike/categorical values.
+- Hosted synthetic tests passed in [run 38140375493](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38140375493). Supplementary batch-boundary coverage passed in [run 38140046876](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38140046876) on the prior scanner revision; its batching logic is unchanged.
+- Current code-review report: [tester schema-fix review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_SCHEMA_FIX_TESTER_REVIEW_2026-10-11.md) — implementation review PASS WITH SCOPED RESTRICTIONS only.
+- **The actual data audit has not run.** Updating the machine-readable decision was blocked by repository tool safety controls, so the previous exact-hash decision remains stale for the revised scanner. No R3 request was made; no duplicate-key count or data-readiness PASS is claimed.
+- Supplemental operational records: [status update](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS_UPDATE_SCHEMA_FIX_2026-10-11.md) and [error log addendum](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG_ADDENDUM_SCHEMA_FIX_2026-10-11.md). Model fitting/scoring, holdout, new data requests, and strategy/P&L remain closed.
+
+**Developer → Tester:** Preserve current CI/review artifacts; do not trigger the audit with the stale decision.
+**Tester → Developer:** Resume only after a valid machine-readable exact-hash decision can be recorded and then independently review the audit receipt.
