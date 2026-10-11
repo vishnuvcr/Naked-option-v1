@@ -1497,3 +1497,15 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 ### 2026-10-11 — Patch runner manifest mismatch corrected before execution
 Independent code review identified a schema mismatch: the runner referenced missing top-level `expected_existing_spot_rows` rather than the existing `base_partial_artifact.existing_spot_rows` field. Corrected this before any R2 source requests and added a regression assertion. This was a fail-before-network defect; no data changed. The new exact developer commit must pass offline checks and tester review.
+
+
+### 2026-10-11 — R2 patch outcome and timestamp-join discrepancy
+
+- R2 exact-SHA patch workflow [38126168547](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547) passed and made exactly 7 spot requests, zero retries. Encrypted output artifact 11696937921, ZIP SHA-256 `5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b`.
+- All 7 shard results were HTTP 200 / collector-valid; total 2,244 new spot rows (374 each for Nov 8, 9, 10, 11, 12 and 13; zero on Nov 14). Existing option rows=8,490,723 and spot rows=506,898 were preserved.
+- Despite new rows, exact joins remained unchanged at 8,471,702 matched / 19,021 missing. Dataset stays partial. The Saturday Nov 13 row count is an additional source-date anomaly to investigate, not a basis for guessed correction.
+- Initial post-run audit run [38126536143](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126536143) failed before audit due malformed expression escaping. The failure is logged, workflow corrected, and follow-up audit [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432) is active to validate the encrypted output and count exact timestamp overlap and nearest epoch offsets without exposing prices.
+- No further source requests, model fitting, holdout access or strategy tests should occur until this mismatch is explained; the R2 marker is spent.
+
+**Developer → Tester:** Independently verify exact timestamp overlap, weekend-session anomalies, merged row preservation and full semantic audit on artifact 11696937921. Request changes if the mismatch remains unexplained.
+**Tester → Developer:** Do not promote or refetch with expanded scope. Report the timestamp-alignment diagnostic and value audit; keep model/holdout/strategy gates closed.

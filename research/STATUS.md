@@ -1394,3 +1394,15 @@ The first R2 offline suite run `38125662209` failed only in a pre-existing fail-
 
 ## 2026-10-11 — Tester-style review found runner/manifest field mismatch
 The first exact review of the bounded R2 runner found a pre-execution blocker: the proposal stores the pinned base spot count under `base_partial_artifact.existing_spot_rows`, but the runner looked for nonexistent top-level `expected_existing_spot_rows`. That would have caused a KeyError before decryption/source access, not corrupted data. The runner is corrected to read the pinned manifest field and a regression test asserts this contract. Live patch remains unauthorized until the new exact developer snapshot is tested and independently reviewed.
+
+
+## R2 failed-week patch result — 2026-10-11
+
+- **Patch workflow:** [run 38126168547](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547) completed successfully at workflow level. Exact-snapshot tester gate passed; seven Dhan spot requests were made; retries=0.
+- **Output artifact:** [artifact 11696937921](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547/artifacts/11696937921); ZIP SHA-256 `5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b`. Encrypted-only dataset plus safe metadata; plaintext cleanup passed.
+- **Preservation:** all 8,490,723 option rows and 506,898 previously present spot rows preserved. New spot rows=2,244; total spot rows=509,142.
+- **Requests:** all 7 requests returned HTTP 200 and passed the collector's schema/row caps; 0 retries; 131,915 response bytes. Per-request reported row counts were 374 each for 2021-11-08 through 2021-11-13, and 0 for 2021-11-14.
+- **Critical result:** exact-join counters did not improve: 8,471,702 matched, 19,021 unmatched—the same counts as before the patch. The dataset must remain `PARTIAL_GRID` / `SPOT_GAPFILL_PARTIAL`. Do not call this patch a successful gap-fill merely because the request statuses were valid.
+- **Potential source-date concern:** 2021-11-13 was a Saturday yet its request yielded 374 spot rows. This is not silently corrected; the post-run offline audit must check returned timestamps against the expected session dates and original option timestamps. The join mismatch may reflect timestamps that do not line up with the missing option epochs, but that is not yet established.
+- **Post-run audit:** first audit attempt [38126536143](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126536143) failed before artifact inspection because this newly authored workflow left a backslash in GitHub expression strings, corrupting `TARGET_RUN_ID`. Error is logged. The workflow was corrected and the automatic audit re-triggered as [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432), which is running the encrypted-part checks, local decryption, timestamp-alignment diagnostic and semantic audit.
+- **Next gate:** inspect timestamp-alignment report and value audit; do not request more live data or fit models until the actual cause of the no-join improvement is identified. R2 one-use authorization is spent and cannot be reused.

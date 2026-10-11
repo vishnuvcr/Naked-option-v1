@@ -1217,3 +1217,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Impact:** would raise KeyError before preflight or any Dhan source request; no market values or rows were changed. No R2 source request has been made.
 - **Fix:** read the existing spot count from the pinned base-artifact object and add an offline regression test to prevent repeating the mismatch.
 - **Gate:** rerun the entire offline suite; tester must review the new exact commit and workflow/proposal hashes before authorizing the seven calls.
+
+
+## 2026-10-11 — R2 spot calls succeeded but did not improve exact joins
+- Workflow [38126168547](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547) completed successfully and uploaded encrypted artifact 11696937921 (ZIP SHA-256 `5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b`).
+- Seven calls, zero retries, all HTTP 200/collector-valid. The collector added 2,244 spot rows; cumulative spot rows=509,142. Option rows remained 8,490,723; all 506,898 pre-existing spot rows retained.
+- **Blocking data finding:** join counters stayed at 8,471,702 matched and 19,021 missing after patch. Therefore the patch did not repair the advertised exact-join gap. Dataset remains partial; do not promote.
+- **Potential invalid session date:** request window 2021-11-13 (Saturday) returned 374 bars under its response hash and timestamp scope. Preserve raw values encrypted; do not date-shift, interpolate or rewrite values based on inference. Rerun structural timestamp/date checks and inspect overlap of new request timestamps with unmatched option epochs before considering any new data call.
+- **Audit workflow failure:** [38126536143](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126536143) stopped at preflight due a literal backslash in expression interpolation. It did not decrypt/audit the artifact. This tool-configuration mistake was fixed by commit [18d6aa1](https://github.com/vishnuvcr/Naked-option-v1/commit/18d6aa13e3727be36092d1076803f20bae2c2ac5); audit run [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432) is now active.
+- **Do not repeat:** never equate valid HTTP responses with a successful join. Acceptance must include improved missing joins, timestamp/session validity, encrypted-part integrity and the full value audit. The R2 marker is spent; no new live request authorization is implied.
+
