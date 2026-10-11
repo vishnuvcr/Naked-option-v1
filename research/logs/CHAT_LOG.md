@@ -269,3 +269,9 @@ No scientific or protocol change was made during this checkpoint.
 
 - Commit 78a3bce updated the workflow contract test, but run 38156532719 did not enter Phase 8 because the caller path filter omitted that test and the saved-panel validator/test.
 - Logged as a workflow coverage defect. Updated .github/workflows/research-protocol.yml to trigger Phase 8 when any of those files changes, preventing test code from changing without the gate running.
+
+
+## 2026-10-11 — Fix exact root cause of Run #994 artifact retrieval
+- Run 38156623933 logs expose that the download command used literal doubled backslashes, causing shell continuation failure and curl's bad-hostname error.
+- Correct the workflow to invoke curl on a single shell line. Keep the exact artifact ZIP, embedded manifest and aggregate hashes pinned; do not relax any guard.
+- The next run must pass artifact integrity before source-aligned saved-panel validation can begin. No model refitting, option P&L or empirical grid until the full gate passes.

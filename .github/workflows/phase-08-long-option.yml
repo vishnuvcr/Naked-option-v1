@@ -104,11 +104,7 @@ jobs:
           mkdir -p data/cache/reference/phase7_run994
           zip="data/cache/reference/phase7_run994/phase7_reference.zip"
           if [ ! -s "$zip" ]; then
-            curl --fail --location --silent --show-error --retry 2 --retry-all-errors \\
-              -H "Authorization: Bearer ${GH_TOKEN}" \\
-              -H "Accept: application/vnd.github+json" \\
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" \\
-              --output "$zip"
+            curl --fail --location --silent --show-error --retry 2 --retry-all-errors -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" --output "$zip"
           fi
           test -s "$zip"
           actual="$(sha256sum "$zip" | awk '{print $1}')"

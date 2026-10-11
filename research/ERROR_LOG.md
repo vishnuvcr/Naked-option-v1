@@ -359,3 +359,12 @@
 - Root cause: the Phase 8 detector pattern was incomplete relative to its registered tests and validator.
 - Correction: commit 82915b8 registers those three paths as Phase 8-triggering changes.
 - Prevention: keep workflow path filters synchronized with every executable test/validator in the gate; do not interpret generic protocol PASS as Phase 8 regression success.
+
+
+## 2026-10-11 — Phase 8 R2 artifact acquisition: root cause identified
+- Category: workflow shell quoting / command continuation
+- Run: 38156623933; commit 82915b8f51183772f47cc09270b18e4ec24d52ec.
+- Symptom: `curl: (3) URL rejected: Bad hostname` at the Run #994 artifact download step.
+- Root cause: the YAML run block contained literal double backslashes at line ends; shell line continuation therefore failed and the following curl arguments were parsed as a malformed separate command.
+- Correction: replace the multiline curl invocation with a single explicit authenticated `curl --fail --location` line; preserve fail-closed archive/manifest/aggregate hash checks. Add regression coverage for the exact line and forbid escaped multiline continuations.
+- Scope: this is an engineering fix only. Forecast validation was skipped; no option P&L was run and no prediction/strategy result is accepted from this attempt.

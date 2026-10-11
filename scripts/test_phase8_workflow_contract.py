@@ -26,8 +26,10 @@ def main():
     require(text, 'if [ "$actual" != "$REFERENCE_ARTIFACT_SHA256" ]')
     require(text, 'if [ "$manifest_actual" != "$REFERENCE_MANIFEST_SHA256" ]')
     require(text, 'if [ "$aggregate_actual" != "$REFERENCE_AGGREGATE_SHA256" ]')
-    require(text, "curl --fail --location --silent --show-error")
+    require(text, 'curl --fail --location --silent --show-error --retry 2 --retry-all-errors -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" --output "$zip"')
     require(text, "REFERENCE_ARCHIVE_HASH_MISMATCH")
+    artifact_block = text.split("  artifact:", 1)[1].split("  sources:", 1)[0]
+    assert "\\\\\n" not in artifact_block, "artifact download must not use escaped multiline continuations"
     require(text, "scripts/validate_phase7_reference_panels.py")
     require(text, "phase8-run994-")
     reconstruct = text.split("  reconstruct:", 1)[1].split("  empirical-authorization:", 1)[0]

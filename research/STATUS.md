@@ -380,3 +380,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 - Hosted run 38156532719 ran generic protocol checks but skipped Phase 8; the path filter had missed test-only changes.
 - Commit 82915b8 adds the workflow-contract test, saved-panel synthetic test and saved-panel validator to the Phase 8 detector allowlist. The next workflow run must execute the Phase 8 regression and artifact-validation jobs.
+
+
+## 2026-10-11 — R2 hosted validation attempt 3 identifies shell continuation defect
+
+- Hosted run [38156623933](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156623933): protocol PASS, full regression PASS, free-source audit PASS; reference artifact job failed before hash checking.
+- Job log isolated the defect: the curl command in the YAML contained literal doubled backslashes before line breaks, so the shell did not continue the command and curl rejected the following malformed argument as a bad hostname.
+- Fix: put the authenticated, redirect-following artifact download on one shell line; preserve archive, embedded-manifest and aggregate SHA-256 checks. Regression now verifies the exact single-line command and disallows escaped multiline continuations.
+- No real forecast-panel validation or option P&L ran in attempt 3. This run is failure evidence only.
