@@ -1613,3 +1613,10 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - No actual data-audit result has been verified yet. No model fit, holdout use, new source request or strategy/P&L run occurred.
 **Developer → Tester:** Review the sanitized report only after the exact run receipt is verified.
 **Tester → Developer:** Keep all downstream gates closed until the data gate is independently reviewed.
+
+### 2026-10-11 — Resume: exact-file authorization revalidation
+- Detected that post-review synthetic-test maintenance changed three reviewed blobs. Authorization was not bypassed; the gate would fail closed.
+- Restored the exact reviewed blobs and revalidated 11/11 file hashes. Reissued request R2 at `6d75d26f0f30036595d3996f48602c6657a34b97`.
+- Audit outcome and receipt are still pending verification. No model or strategy work occurred.
+**Developer → Tester:** Independently re-check the 11 exact hashes and inspect the eventual sanitized report/run receipt.
+**Tester → Developer:** Accept only the exact authorized run with a verified metadata report and cleanup confirmation.
