@@ -23,3 +23,13 @@ New errors must be appended, never overwritten.
 
 
 | 2026-10-10 | Phase 7 authorization | Static P10 code review passed for future run, but new exact-snapshot manifest could not be verified | Attempted updated report/manifest hashes did not match a second independent digest check; restored last verified manifest/report from Run #994 snapshot to fail closed | Keep new P10 code correction unexecuted until exact report digest and all 25 protected-file SHA-256 hashes are generated/verified and byte-identical report/manifest copies are on tester and developer branches | Run #994 remains valid only for its immutable source; no new run authorized, Phase 8 blocked |
+
+
+## 2026-10-11 — Data-quality provenance and derived repair
+
+- Fixed a malformed JSON output issue in the unmatched-timestamp diagnostic; the hosted rerun [38129159707](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129159707) completed successfully, including plaintext cleanup and sanitized report publication.
+- Provenance audit: 382 joined-NIFTY OHLC violation occurrences correspond to 7 distinct timestamps; 12 standalone SPOT OHLC violation occurrences correspond to 12 timestamps; 309 negative spot-volume occurrences correspond to 309 timestamps; 11 negative option-volume occurrences affect 10 timestamps. No duplicate spot timestamps were found.
+- The 19,021 unmatched option rows span 421 timestamps and have zero exact overlap with the existing standalone spot timestamp set. Nearest offsets are diagnostics only; no approximate joins were used.
+- The offline regression suite caught stale assertions when the source artifact was changed from run 38116772719 to run 38126168547. Updated assertions and reran successfully; no data collection occurred during the failed test.
+- Added a separate encrypted derived-data repair pipeline. It reconciles matched NIFTY OHLCV only against the standalone SPOT row at the same epoch, masks invalid OHLC/volume as missing, flags weekend-dated rows for calendar review, and preserves unmatched rows without interpolation. Source artifact remains immutable.
+- Repair workflow remains gated until the exact encrypted output artifact, row-count reconciliation, and plaintext cleanup pass. Model fitting, holdout access, and strategy/P&L tests remain unauthorized.

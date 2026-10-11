@@ -5,7 +5,6 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/dataset-value-audit.yml"
       - "scripts/audit_nifty_1m_composite_values.py"
       - "scripts/decrypt_nifty_1m_composite.py"
 
@@ -35,7 +34,7 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           mkdir -p research/data
           rm -f research/data/DATASET_VALUE_AUDIT_RESULT.json
-          echo "Source: immutable existing Actions artifact run 38116772719 / artifact 11693866249"
+          echo "Source: immutable existing Actions artifact run 38126168547 / artifact 11696937921"
           echo "Scope: decrypt and inspect only; no market-data endpoint calls."
 
       - name: Test decryptor and semantic auditor before artifact access
@@ -53,8 +52,8 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: nifty-1m-composite-spot-recovery-38116772719
-          run-id: 38116772719
+          name: nifty-1m-spot-failed-window-patch-38126168547
+          run-id: 38126168547
           repository: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ runner.temp }}/dataset-bundle
@@ -82,18 +81,14 @@ jobs:
           if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
               raise SystemExit("artifact_plaintext_scope_marker_invalid")
           parts = manifest.get("parts")
-          if not isinstance(parts, list) or len(parts) != 57:
+          if not isinstance(parts, list) or len(parts) != 61:
               raise SystemExit("artifact_part_count_mismatch")
           summary = manifest.get("dataset_summary", {})
           expected = {
-              "original_rows_options": 8490723,
               "rows_options": 8490723,
-              "rows_spot": 403664,
-              "spot_join_matched": 7591172,
-              "spot_join_missing": 899551,
-              "gapfill_request_count_planned": 47,
-              "gapfill_request_count_succeeded": 41,
-              "gapfill_request_count_failed": 6,
+              "rows_spot": 509142,
+              "spot_join_matched": 8471702,
+              "spot_join_missing": 19021,
           }
           for key, value in expected.items():
               if summary.get(key) != value:
@@ -123,13 +118,13 @@ jobs:
           actual_names = {p.name for p in encrypted_root.glob("*.csv.gz.enc") if p.is_file()}
           if actual_names != manifest_names:
               raise SystemExit("artifact_part_set_mismatch")
-          if total_rows != 8894387:
+          if total_rows != 8999865:
               raise SystemExit("artifact_manifest_row_sum_mismatch")
           out.mkdir(parents=True, exist_ok=True)
           shutil.copyfile(manifest_path, out / "dataset_manifest.json")
           for name in sorted(manifest_names):
               (out / name).symlink_to(encrypted_root / name)
-          print("ARTIFACT_PREFLIGHT_PASS: 57 encrypted parts; manifest counts/hash/size checks pass.")
+          print("ARTIFACT_PREFLIGHT_PASS: 61 encrypted parts; manifest counts/hash/size checks pass.")
           PY
 
       - name: Decrypt monthly gzip parts using the existing secret
@@ -200,19 +195,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ ! -s research/data/DATASET_VALUE_AUDIT_RESULT.json ]]; then
-            python - <<'PY'
-            import json, pathlib
-            pathlib.Path("research/data/DATASET_VALUE_AUDIT_RESULT.json").write_text(json.dumps({
-              "schema_version": 1,
-              "audit_type": "OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT",
-              "status": "AUDIT_ERROR",
-              "detail": "No valid sanitized audit result was produced.",
-              "sensitive_market_values_in_report": False,
-              "plaintext_uploaded": False,
-              "live_source_requests_made": False,
-              "permission_conclusion": "NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"
-            }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            PY
+            printf '%s\n' '{"schema_version":1,"audit_type":"OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT","status":"AUDIT_ERROR","detail":"No valid sanitized audit result was produced.","sensitive_market_values_in_report":false,"plaintext_uploaded":false,"live_source_requests_made":false,"permission_conclusion":"NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"}' > research/data/DATASET_VALUE_AUDIT_RESULT.json
           fi
           rm -rf "${{ runner.temp }}/dataset-plain" "${{ runner.temp }}/dataset-input" "${{ runner.temp }}/dataset-bundle"
           rm -f "${{ runner.temp }}/dataset-audit-keys.sqlite" \
@@ -223,7 +206,11 @@ jobs:
             echo "ERROR: plaintext monthly CSV.GZ remained in runner temp."
             exit 1
           fi
-          echo "Plaintext monthly parts and duplicate-check database removed."
+          if [[ -e "${{ runner.temp }}/dataset-audit-keys.sqlite" ]]; then
+            echo "ERROR: temporary duplicate-check database remained in runner temp."
+            exit 1
+          fi
+          echo "Plaintext monthly parts and duplicate-check database removed and verified."
 
       - name: Commit only the sanitized aggregate result
         if: always()
@@ -237,6 +224,7 @@ jobs:
             echo "Sanitized audit report unchanged."
           else
             git commit -m "Publish sanitized offline dataset value audit result"
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
 

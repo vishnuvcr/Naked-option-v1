@@ -69,10 +69,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install pinned encryption dependency
-        if: steps.preflight.outputs.audit_ready == 'true'
-        run: python -m pip install -r requirements-composite.txt
-
       - name: Run offline diagnostic unit tests
         if: steps.preflight.outputs.audit_ready == 'true'
         run: |
@@ -216,7 +212,7 @@ jobs:
           fi
 
       - name: Append aggregate findings to README and research status
-        if: steps.diagnostic.outcome == 'success' && steps.cleanup.outcome == 'success'
+        if: steps.diagnostic.outcome == 'success' && steps.value_diagnostic.outcome == 'success' && steps.cleanup.outcome == 'success'
         env:
           OUTPUT_JSON: ${{ github.workspace }}/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
           VALUE_OUTPUT_JSON: ${{ github.workspace }}/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
@@ -242,7 +238,7 @@ jobs:
             f"- R2 spot rows on weekend-dated session labels: {spots['weekend_spot_rows']}. All rows remain unmodified.",
             f"- Value anomaly occurrence categories: {json.dumps(issue_counts,sort_keys=True)}.",
             f"- Distinct joined-NIFTY OHLC violation epochs: {values['distinct_timestamp_diagnostics']['matched_option_epochs_with_invalid_joined_nifty_ohlc']}; standalone spot OHLC violation epochs: {values['distinct_timestamp_diagnostics']['standalone_spot_epochs_with_ohlc_violations']}.",
-            f"- Timestamp report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}",
+            f"- Timestamp report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.relative_to(pathlib.Path.cwd()).as_posix()}",
             f"- Value anomaly report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{v.as_posix()}",
             "- No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run."
           ]
