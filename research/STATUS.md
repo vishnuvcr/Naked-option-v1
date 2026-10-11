@@ -1213,3 +1213,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Keep independent artifact review, failed-shard validation, and realized budget accounting as separate outstanding requirements.
 **Tester → Developer:** Do not advance to empirical prediction experiments until data-artifact integrity and the applicable data/model gate are satisfied.
+
+
+## 2026-10-11 — Artifact metadata audit: data gate REQUEST CHANGES
+
+- Artifact [11693866249](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719/artifacts/11693866249) SHA-256 matches GitHub's digest. All 57 encrypted monthly parts match manifest hashes and sizes; row arithmetic reconciles to 8,894,387 total rows (8,490,723 options + 403,664 spot). No plaintext market data was decrypted for this audit.
+- Six failed gapfill shards returned HTTP 200 but exceeded the 12,000-row response cap. They span 2021-10-11 through 2022-06-02. Their combined response bodies total 6,517,187 bytes.
+- The prior artifact's byte counter records 21,731,367 bytes, while all 47 response-byte fields sum to 28,248,554. The difference is exactly the six failed payloads. The undercount is confirmed; actual aggregate transfer remains below 256 MiB, so no aggregate-cap overrun is established. The code fix and regression tests passed in [run 38117905230](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117905230).
+- Tester-role artifact report: [REQUEST_CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_RECOVERY_ARTIFACT_REVIEW.md). This is an encrypted-artifact metadata audit in the same connected assistant session, not a separate human identity or independent AI review.
+- Current data status remains **PARTIAL**. Required next action is an offline-only split manifest for the six oversized windows, followed by exact-snapshot tester review. The old one-use authorization is spent; no live requests, model fitting/scoring, strategy/P&L tests or holdout access are authorized.
+
+**Developer → Tester:** Review the split-manifest proposal and enforce the exact row, request and byte budgets.
+**Tester → Developer:** Return REQUEST CHANGES or a scoped PASS for the offline manifest only; do not authorize source requests or model fitting without a fresh, separate gate.
