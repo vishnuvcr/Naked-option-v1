@@ -1106,3 +1106,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Impact:** request-level coverage and current shard-level progress cannot yet be independently confirmed from the returned log archive. No dataset is accepted, and no prediction result is generated.
 - **Disposition:** wait for this already-authorized run to complete; then retrieve its job/artifact metadata, inspect the encrypted bundle's manifest and coverage/error report, and submit the realized artifact to the independent tester. Do not reuse the spent approval or infer completeness from request counts alone.
 - **Prevention:** treat active-run log retrieval errors separately from collector errors; check job/run state and artifacts before deciding whether a rerun is necessary.
+
+
+## 2026-10-11 — NIFTY composite run 38082385220 partial acquisition and final-status push rejection
+- Category: data-adapter validation / workflow concurrency.
+- Components: `scripts/run_nifty_1m_composite_dataset.py`; `.github/workflows/phase-07-nifty-1m-composite-live.yml`.
+- Observed outcome: run completed with conclusion `failure`; 8,601 request IDs processed, 7,481 failed responses/validation records, 8,490,723 option rows, zero spot rows. The encrypted artifact was uploaded successfully (214,850,953 bytes; 40 files). No prediction data panel was accepted.
+- Parser diagnostic defect: every spot request was logged only as `unexpected_ValueError`; generic exception handling discarded the safe parser reason. The underlying spot schema mismatch is therefore **not yet confirmed**; do not assume volume is the cause or silently relax validation.
+- Workflow defect: final status sealing attempted to push a detached-HEAD commit to `phase-07-developer` after the branch had advanced; Git rejected it as non-fast-forward. Artifact upload continued and succeeded.
+- Correction in progress: commit `38643c71e718cf53a5e745652c590e35519e5174` adds bounded, sanitized parser-reason logging; commit `bae5586f140c1a33146183631670084cfeb7a690` adds regression coverage that rejects long/unsafe reason text. No new live requests have been made.
+- Next: amend final-status workflow to fetch/rebase/retry without force-push; run all offline regressions; obtain an exact-snapshot tester decision; only then authorize a bounded recovery request for missing spot shards. Preserve option cache and never repeat the 8,540 option requests unless the tester-approved recovery plan proves they are needed.
+- Prevention: do not interpret `unexpected_ValueError` as a diagnosis; require a specific safe reason code. Never force-push to resolve concurrent workflow commits. Keep model/holdout/strategy gates closed until artifact coverage is independently reviewed.
