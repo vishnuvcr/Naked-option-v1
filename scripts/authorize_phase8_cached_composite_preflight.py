@@ -43,6 +43,32 @@ def evaluate_authorization(request: dict[str, Any], decision: dict[str, Any],
         raise ValueError("AUTH_BLOCKED: request schema/gate mismatch")
     if request.get("requested") is not True:
         return {"authorized": False, "reason": "REQUEST_NOT_ENABLED", "pnl_authorized": False}
+    if request.get("requested_scope") != "metadata-only cached composite preflight":
+        raise ValueError("AUTH_BLOCKED: request scope is not metadata-only preflight")
+    expected_source = {
+        "run_id": 38131641336,
+        "commit": "5e769cd4b19887311213baf16eb81b97416322d7",
+        "artifact_id": 11698879857,
+        "name": "nifty-1m-derived-repaired-r2-38126168547",
+        "canonical_csv_sha256": "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204",
+        "rows": 8999865, "columns": 47, "encrypted_parts": 61,
+    }
+    expected_forecast = {
+        "run_id": 37957677656,
+        "commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+        "artifact_id": 11638738288,
+        "name": "phase7-ensemble-reference",
+        "archive_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+        "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+        "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+        "panels": 10, "rows": 50555,
+    }
+    if request.get("source") != expected_source or request.get("forecast") != expected_forecast:
+        raise ValueError("AUTH_BLOCKED: immutable source/forecast identity changed")
+    for key in ("empirical_option_pnl_authorized", "holdout_access_authorized",
+                "new_market_source_requests_authorized", "strategy_promotion_authorized"):
+        if request.get(key) is not False:
+            raise ValueError(f"AUTH_BLOCKED: request must keep {key}=false")
     if decision.get("schema_version") != 1 or decision.get("gate") != "phase8-cached-composite-preflight-implementation-r1":
         raise ValueError("AUTH_BLOCKED: implementation tester decision missing or wrong gate")
     if decision.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
