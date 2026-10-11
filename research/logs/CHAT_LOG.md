@@ -379,3 +379,11 @@ No scientific or protocol change was made during this checkpoint.
 - Diagnosed run #38162721421: synthetic contract tests failed in `test_exact_snapshot_only` because the authorization script's canonical composite SHA literal omitted one `b`; request/manifest/fixture values agree on the frozen 64-character hash.
 - Developer correction committed as `be8b9c630a1061558fcf14a5bdb50a388f6e329b`; only the one incorrect identity literal was changed. R1 stays consumed and disabled; no dataset access or P&L is authorized by this work.
 - Next gate: tester reviews the corrected exact snapshot; hosted synthetic CI and the separate daily H=1 floating-point review remain pending. No strategy is promoted.
+
+
+## 2026-10-11 — Tester review and second correction cycle
+
+- Synthetic gate [38163364534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163364534) passed after the authorizer and static assertion hash fixes. Data job skipped correctly because R1 is consumed/disabled.
+- Tester independently reviewed exact developer snapshot `6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11`, then issued REQUEST CHANGES in [R2 tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R2_2026-10-11.md). Reason: one missing expiry column could set the all-fields-blank flag even when remaining headers had nonblank values.
+- Developer corrected the predicate in commit `8511ba7de2b198ce1e1e4925bebd0a9acb96a810` and added mixed-header / zero-row regressions in commit `4d93085519675484570bb054cbedb1c2405708f0`.
+- Next gate is fresh hosted synthetic CI plus exact code-only tester review. No scan/P&L/holdout/source request/promotion has been started; the original one-use R1 marker remains effective. Daily H=1 floating-point mismatch remains separate.
