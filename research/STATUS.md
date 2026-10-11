@@ -1,3 +1,14 @@
+## 2026-10-11 — Prospective boundary scanner R2 passed gzip synthetic tests
+
+- Scanner now supports gzip-stream fixtures, computing content hash and byte offsets on the uncompressed CSV stream while separately recording the container hash.
+- Hosted synthetic run [38153849924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153849924) passed 6 tests and the CLI guard.
+- Tester R2 verdict: **PASS_WITH_SCOPED_RESTRICTIONS — synthetic only** ([review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R2_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R2_2026-10-11.json)).
+- No cached artifact was downloaded/decrypted/scanned. Next: implement durable one-use marker and exact-hash adapter, then obtain separate execution authorization.
+
+**Developer → Tester:** Review the guarded adapter snapshot after synthetic CI.  
+**Tester → Developer:** Keep the cached artifact unopened until a separate execution decision.
+
+
 ## 2026-10-11 — Adapter design approved; encrypted artifact integration required
 
 - Adapter proposal: [design](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md) · [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_SCOPE_R1_2026-10-11.json).
