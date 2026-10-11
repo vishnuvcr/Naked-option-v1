@@ -2,8 +2,8 @@
   "auto_repair_attempts": 0,
   "holdout_access_authorized": false,
   "last_ai_reviewer_available": false,
-  "last_decision": "REQUEST_CHANGES",
-  "last_reviewed_developer_commit": "75931274ed1e286a30ec3c09ba42423de2f2323f",
+  "last_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "last_reviewed_developer_commit": "2c2ab99a52d7074a2da5c03070437c79e6bc385e",
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "schema_version": 1
