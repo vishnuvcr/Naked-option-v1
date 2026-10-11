@@ -1409,3 +1409,12 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 **Developer → Tester:** Recompute the source checks from cited PDF pages independently.
 
 **Tester → Developer:** Return corrections on `phase-07-tester`; keep live/model/holdout/strategy denials intact.
+
+### 2026-10-11 — CCI strategy paper claim review
+- Rendered and reviewed SSRN CCI paper PDF pp. 9–10. The recorded counts conflict (43+25=68 in Table II; prose says 42+25=67; Table III prints total 80 although its row counts/percentages and χ²=4.765 correspond to 68).
+- Appended the exact source PDF SHA and arithmetic to PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md, and updated the error log, research log and status.
+- The paper remains strategy-only; no strategy, P&L or market-data action was performed. Tester report is pinned to the new source-note blob and is awaiting its final repository check.
+
+**Developer → Tester:** Review the 68-versus-80 and 42-versus-43 count issue independently from the rendered source page.
+
+**Tester → Developer:** Return a scoped literature-only decision; preserve the current strategy gate.
