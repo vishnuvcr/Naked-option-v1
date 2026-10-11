@@ -919,3 +919,18 @@ The developer branch now contains a bounded-memory structural preflight script, 
 
 Developer → Tester: review the corrected exact snapshot and successful synthetic CI run.
 Tester → Developer: keep real-file preflight and downstream gates closed until resubmission passes.
+
+
+## 2026-10-11 — Offline preflight correction checkpoint
+
+The previous tester review requested stronger failure-path coverage and cleanup. Developer changes are now on `phase-07-developer`:
+- Scanner correction: [commit d7095ea](https://github.com/vishnuvcr/Naked-option-v1/commit/d7095ea89f697b4d0ba6df8b771cc38781295d09).
+- Regression coverage: [commit ca500c3](https://github.com/vishnuvcr/Naked-option-v1/commit/ca500c3b931c8e8204ec59f5b2baa57bb19170d7).
+- [Implementation checkpoint](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/PREFLIGHT_IMPLEMENTATION_CHECKPOINT_2026-10-11.md).
+
+The scanner now cleans up its SQLite duplicate index after failures, reports numeric/ISO-parsed timestamp extrema and parse errors, and avoids treating incomplete composite keys as valid uniqueness evidence. Synthetic tests now cover corrupt/truncated gzip, malformed row widths, duplicate and absent keys, incomplete keys, timestamp parse errors, nested report directories and cleanup.
+
+**Gate remains closed:** no successful CI receipt has been verified, and the actual CSV is not mounted in the current tool execution environment. No real-file audit, prediction fit/scoring, holdout read, market-data request or strategy/P&L test is claimed. See [research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) and [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md).
+
+Developer → Tester: Review the exact code/test snapshot and verify a passing synthetic CI run before authorizing any real-file audit.
+Tester → Developer: Keep modelling, holdout, source-request and strategy gates closed pending exact-snapshot review.
