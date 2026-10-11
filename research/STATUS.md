@@ -1,3 +1,15 @@
+## 2026-10-11 — Feasibility runner implementation gate: REQUEST_CHANGES
+
+- Exact developer snapshot reviewed: `4c2b3e54697474739da97f517476f4f87ed98b09`.
+- Tester report: [implementation review](gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_REVIEW_R5_2026-10-11.md); machine decision: [REQUEST_CHANGES JSON](gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_DECISION_R5_2026-10-11.json).
+- Blocking findings: target labels lack official-close/timestamp proof; split label-endpoint purge and minimum-origin checks are incomplete; `one_use` can be replayed; output feature-family keys are not allowlisted; byte boundary needs runtime validation; blocked report overstates cleanup.
+- Hosted synthetic CI run/job details were not verifiably retrieved, so no hosted-pass claim is accepted.
+- No real-data feasibility run, model fitting/scoring, holdout access, new source request, strategy/P&L or trading occurred.
+
+**Tester → Developer:** Correct F01–F06, inspect the hosted synthetic workflow, and resubmit a fresh exact-hash snapshot.
+**Developer → Tester:** Keep execution and all downstream permissions closed until a fresh tester decision passes.
+
+
 # Research Status
 
 | Phase | Status | Gate |
