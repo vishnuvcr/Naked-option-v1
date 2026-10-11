@@ -1,5 +1,17 @@
 # NIFTY Naked-Option Direction Research
 
+## 2026-10-11 — Latest active gate: R5 canonical structural audit
+
+- **Workflow:** [Run 38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301).
+- The synthetic authorization/regression job passed. Exact tester approval, source run/artifact lineage, encrypted-part hashes and decrypt/merge completed successfully.
+- The real-file metadata-only scan is still in progress; report upload and plaintext/temp-index cleanup have not completed. There is **no accepted R5 duplicate count or data-readiness verdict yet**.
+- R5 checks the canonical seven-field OPTION request identity and separate SPOT timestamp uniqueness. R4's 4,148,431 duplicate count was rejected and must not be used.
+- Prediction fitting/scoring, holdout, new source requests and strategy/P&L remain closed pending the completed R5 report and separate data-readiness decision.
+
+**Developer → Tester:** Review the completed R5 output and cleanup evidence.
+**Tester → Developer:** Keep downstream gates closed until an evidence-backed data-readiness decision is recorded.
+
+
 ## One-time offline CSV export — complete
 
 Export [run 38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676) succeeded. A single decrypted CSV is available in the current conversation workspace after local checksum/row-count verification; the public repository and Actions artifact contain no plaintext. Export details and hashes are below in the research status and [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md).
