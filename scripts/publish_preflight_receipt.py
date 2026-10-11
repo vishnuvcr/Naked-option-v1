@@ -74,6 +74,28 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
             raise ValueError("REPORT_COUNT_MAP_INVALID")
     if not isinstance(report.get("limitations"), list) or not all(x in ALLOWED_LIMITATIONS for x in report["limitations"]):
         raise ValueError("REPORT_LIMITATIONS_INVALID")
+    if report.get("gzip_integrity") != "PASS":
+        raise ValueError("REPORT_GZIP_STATUS_INVALID")
+    if report.get("duplicate_key_check") not in {"PASS", "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY", "FAIL_DUPLICATE_KEYS_FOUND", "PARTIAL_INCOMPLETE_COMPOSITE_KEYS"}:
+        raise ValueError("REPORT_DUPLICATE_CHECK_INVALID")
+    for field in ("duplicate_key_count", "incomplete_composite_key_rows"):
+        value = report.get(field)
+        if value is not None and (not isinstance(value, int) or value < 0):
+            raise ValueError("REPORT_COUNT_FIELD_INVALID")
+    for field in ("timestamp_epoch_min", "timestamp_epoch_max"):
+        value = report.get(field)
+        if value is not None and (not isinstance(value, (int, float)) or isinstance(value, bool)):
+            raise ValueError("REPORT_TIMESTAMP_EXTREMA_INVALID")
+    if not all(isinstance(k, str) and SAFE_NAME.fullmatch(k) for k in report["recognized_row_type_counts"]):
+        raise ValueError("REPORT_ROW_TYPE_NAME_INVALID")
+    groups = report.get("key_group_row_counts")
+    if not isinstance(groups, dict):
+        raise ValueError("REPORT_KEY_GROUP_COUNTS_INVALID")
+    for group in groups.values():
+        if not isinstance(group, dict) or not isinstance(group.get("fields"), list) or not all(name in report["column_names"] for name in group["fields"]):
+            raise ValueError("REPORT_KEY_GROUP_COUNTS_INVALID")
+        if not isinstance(group.get("rows_assigned"), int) or group["rows_assigned"] < 0:
+            raise ValueError("REPORT_KEY_GROUP_COUNTS_INVALID")
     if not set(report["null_or_blank_counts_by_column"]).issubset(set(report["column_names"])):
         raise ValueError("REPORT_NULL_COUNT_COLUMN_INVALID")
     if not isinstance(report.get("duplicate_key_fields"), list):
