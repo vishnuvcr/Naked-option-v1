@@ -282,3 +282,7 @@ No scientific or protocol change was made during this checkpoint.
 - Run 38156879393 passed Phase 8 regression and the free-source audit. The corrected single-line authenticated curl command downloaded the Run #994 artifact.
 - The archive hash check failed closed because the configured SHA had an accidental extra character (65 characters versus the actual 64-character digest in the run log).
 - Updated the exact digest across active manifest, workflow, test contract and proposal; recorded this as an implementation mistake in the error log. No integrity checks were weakened and no panels/P&L were executed in this run.
+
+
+## 2026-10-11 — Final stale hash assertion in legacy regression
+- R2 attempt 5: the contract test passed but `test_manifest_is_json` retained the malformed earlier digest. Correct that specific expected value and preserve exact hash checks. This is test evidence only; no option P&L executed.

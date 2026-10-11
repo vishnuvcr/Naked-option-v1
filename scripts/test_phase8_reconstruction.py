@@ -149,7 +149,7 @@ def test_manifest_is_json():
     assert data["reference_version"] == "R2"
     assert data["phase7_run"] == 994
     assert data["artifact_id"] == 11638738288
-    assert data["artifact_sha256"] == "3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9"
+    assert data["artifact_sha256"] == "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
     assert data["embedded_manifest_sha256"] == "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
     assert data["aggregate_result_sha256"] == "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
     assert data["empirical_option_execution_authorized"] is False

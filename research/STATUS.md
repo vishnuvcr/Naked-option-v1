@@ -396,3 +396,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The integrity check then correctly rejected a typo in the frozen R2 artifact SHA: the copied value had 65 characters, while the downloaded ZIP's actual SHA-256 is 64 characters.
 - Corrected the archive digest consistently in the R2 manifest, workflow, workflow-contract test and proposal. No hash gate was relaxed. Rerun needed to verify exact ZIP/embedded-manifest/aggregate digests, then validate all saved forecast panels.
 - Forecast-panel validation and option P&L remain unexecuted by this run; empirical authorization is false.
+
+
+## 2026-10-11 — R2 hosted validation attempt 5: stale test assertion corrected
+
+- Hosted run [38157041722](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157041722) passed protocol and the workflow-contract test but failed the legacy reconstruction regression because one expected archive SHA was not updated with R2.
+- Updated that last assertion to match the verified 64-character artifact digest. This run generated no real panel-validation or option-P&L result.

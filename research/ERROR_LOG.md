@@ -377,3 +377,12 @@
 - Root cause: one extra `c` was introduced into the copied archive digest in the Phase 8 R2 manifest/workflow/test/proposal; this is not a source-data or archive corruption event.
 - Correction: replace the malformed 65-character value with the actual 64-character artifact SHA-256 `3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9`, consistently across the active manifest, workflow, test contract, proposal and status.
 - Prevention: validate hash length = 64 and require exact agreement between the Actions artifact metadata, downloaded ZIP and frozen manifest before opening panel content. Do not weaken or bypass hash comparisons.
+
+
+## 2026-10-11 — R2 reconstruction regression still contained stale archive hash
+- Category: test fixture / configuration consistency
+- Run: 38157041722; developer commit f32166cac396ec09d6d266e7d198c0a5f8c75e22.
+- Symptom: workflow-contract test passed, but `scripts/test_phase8_reconstruction.py::test_manifest_is_json` failed because its expected artifact digest still included the old extra character.
+- Root cause: the first checksum-correction commit updated active manifest/workflow/test-contract/proposal but omitted the legacy reconstruction test's manifest assertion.
+- Correction: update the remaining assertion to the exact 64-character Run #994 archive SHA-256; keep the same exact hash in active manifest and workflow.
+- Impact: artifact and forecast-panel jobs were skipped. No saved panel was accepted and no option P&L ran.
