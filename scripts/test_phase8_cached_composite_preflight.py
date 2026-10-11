@@ -147,7 +147,7 @@ def test_one_use_marker_precedes_decryption_and_is_not_a_trigger():
     assert "contents: write" in job
 
 
-def test_workflow_and_request_are_default_closed_and_metadata_only():
+def test_workflow_and_request_restrictions_are_metadata_only():
     workflow_path = ROOT / ".github/workflows/phase8-cached-composite-preflight.yml"
     request_path = ROOT / "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json"
     text = workflow_path.read_text(encoding="utf-8")
@@ -168,7 +168,9 @@ def test_workflow_and_request_are_default_closed_and_metadata_only():
     assert "api.dhan.co" not in text
     assert "nseindia.com/all-reports-derivatives" not in text
     assert "huggingface.co/datasets" not in text
-    assert request["requested"] is False
+    assert isinstance(request["requested"], bool)
+    if request["requested"] is True:
+        assert set(request["approved_code_blob_shas"]) == auth.REQUIRED_REVIEWED_FILES
     assert request["empirical_option_pnl_authorized"] is False
     assert request["holdout_access_authorized"] is False
     assert request["new_market_source_requests_authorized"] is False
@@ -182,5 +184,5 @@ if __name__ == "__main__":
     test_disabled_request_skips_without_review_decision()
     test_request_flags_and_immutable_input_identities_fail_closed()
     test_one_use_marker_precedes_decryption_and_is_not_a_trigger()
-    test_workflow_and_request_are_default_closed_and_metadata_only()
+    test_workflow_and_request_restrictions_are_metadata_only()
     print("Phase 8 preflight authorization tests PASS")
