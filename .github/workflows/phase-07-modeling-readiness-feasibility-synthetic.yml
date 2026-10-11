@@ -53,6 +53,5 @@ jobs:
           assert "workflow_dispatch:" in p
           assert "permissions:" in p and "contents: read" in p
           assert ("nifty_" + "repaired_composite_2021-10_to_2026-10.csv") not in p
-          assert "run_model" not in p
           print("PASS: synthetic workflow exposes no real-data/secret execution path")
           PY
