@@ -53,7 +53,7 @@ class ProspectiveBoundaryTests(unittest.TestCase):
     def test_bad_row_width_fails_with_sanitized_code(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)/"bad.csv"
-            path.write_text("type,ts,session,close\nSPOT,1,2026-01-01,999\n", encoding="utf-8")
+            path.write_text("type,ts,session,close\nSPOT,1,2026-01-01\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "CSV_ROW_WIDTH_INVALID"):
                 scan_metadata_file(path, expected_columns=4, column_map=COLUMN_MAP, row_type_values=ROW_TYPES)
 
