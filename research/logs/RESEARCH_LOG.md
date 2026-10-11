@@ -1218,3 +1218,15 @@ The developer added a separate claim-to-configuration supplement referencing the
 The tester source-claim report and crosswalk-traceability report were committed on `phase-07-tester`. Repository protocol check for crosswalk tester report [38120239164](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120239164) passed; the related developer crosswalk protocol run [38120221001](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120221001) also passed. Verdict is scoped to literature arithmetic/traceability, with the important caveat that the same connected assistant session occupies both roles; no external separate reviewer was available.
 
 The 34-shard source recovery remains unexecuted and separately denied. No source call, model fit/score, holdout access, or option P&L activity was performed during this step.
+
+
+## 2026-10-11 — Offline artifact integrity audit
+
+- Audited the existing 229,145,190-byte encrypted ZIP offline. SHA-256 is `aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`; ZIP member integrity passed; all 57 encrypted data parts were present and matched manifest size/hash.
+- Manifest monthly-part row counts sum to 8,894,387, matching 8,490,723 option rows + 403,664 spot rows. Spot join counts reconcile: 7,591,172 matched + 899,551 missing = 8,490,723.
+- Six of 47 spot gap-fill windows remain failed with `response_row_cap_exceeded`. Audit report: `research/data/DATASET_OFFLINE_INTEGRITY_AUDIT_2026-10-11.md`.
+- This is an archive/metadata audit only. The market data remained encrypted; no values were decrypted, and no source requests or model/holdout/strategy experiments occurred. Collection remains closed. Dataset readiness remains unestablished pending feature/value-level checks and scoped tester review.
+
+**Developer → Tester:** Recompute the metadata checks from the pinned artifact/manifest and report discrepancies.
+
+**Tester → Developer:** Provide a scoped report without widening model, holdout, or strategy permissions.
