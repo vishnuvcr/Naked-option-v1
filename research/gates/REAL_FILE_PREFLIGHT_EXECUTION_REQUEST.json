@@ -1,8 +1,9 @@
 {
-  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R1",
+  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R2",
   "requested": true,
   "tester_decision_blob_sha": "67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c",
-  "reviewed_developer_sha": "7a430ba836e1169e9761298ca544f2fab3dc569e",
+  "reviewed_developer_sha": "current triggering commit; authorization is bound to the reviewed file blobs below",
   "scope": "single exact-lineage structural preflight; metadata-only output; no modelling",
-  "note": "This request triggers the workflow only if the tester-branch decision blob and every reviewed file hash still match."
+  "note": "Reissued after restoring every reviewed implementation file to the exact tester-approved blob SHA. Any mismatch must fail closed.",
+  "reviewed_file_hashes_verified_at_request": true
 }
