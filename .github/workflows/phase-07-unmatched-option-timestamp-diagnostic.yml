@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml"
+      - "scripts/diagnose_nifty_1m_value_anomalies.py"
+      - "scripts/test_diagnose_nifty_1m_value_anomalies.py"
   workflow_dispatch:
     inputs:
       patch_run_id:
@@ -181,6 +183,19 @@ jobs:
           set -euo pipefail
           python scripts/diagnose_nifty_1m_unmatched_spot_targets.py --input-dir "$PLAIN_DIR" --output-json "$OUTPUT_JSON"
 
+      - name: Diagnose OHLC and volume anomalies by provenance
+        id: value_diagnostic
+        if: steps.diagnostic.outcome == 'success'
+        env:
+          PLAIN_DIR: ${{ runner.temp }}/unmatched-spot-plain
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f "$OUTPUT_JSON"
+          python scripts/diagnose_nifty_1m_value_anomalies.py --input-dir "$PLAIN_DIR" --output-json "$OUTPUT_JSON"
+          python -m json.tool "$OUTPUT_JSON" >/dev/null
+
       - name: Remove plaintext and downloaded scratch
         id: cleanup
         if: always()
@@ -200,16 +215,20 @@ jobs:
         if: steps.diagnostic.outcome == 'success' && steps.cleanup.outcome == 'success'
         env:
           OUTPUT_JSON: ${{ github.workspace }}/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
+          VALUE_OUTPUT_JSON: ${{ github.workspace }}/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
           TARGET_PATCH_RUN_ID: ${{ env.TARGET_PATCH_RUN_ID }}
         run: |
           python - <<'PY'
           import json,os,pathlib
           p=pathlib.Path(os.environ["OUTPUT_JSON"])
           report=json.loads(p.read_text(encoding="utf-8"))
+          v=pathlib.Path(os.environ["VALUE_OUTPUT_JSON"])
+          values=json.loads(v.read_text(encoding="utf-8"))
           unmatched=report["unmatched_option_rows"]
           spots=report["spot_coverage"]
           offsets=report["nearest_timestamp_diagnostic_seconds"]
           counts=report["row_counts"]
+          issue_counts=values["issue_occurrence_counts"]
           rows=[
             f"- Offline source: encrypted patch artifact 11696937921; patch run https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['TARGET_PATCH_RUN_ID']}.",
             f"- Dataset counts verified: {counts['option_rows']} option rows; {counts['spot_rows']} spot rows.",
@@ -217,8 +236,11 @@ jobs:
             f"- Exact match inconsistencies: {unmatched['timestamps_marked_missing_but_present_in_existing_spot_rows']['distinct_timestamps']} unmatched timestamps are already present in the spot row set; R2 overlap is {unmatched['new_r2_patch_exact_timestamp_overlap']['distinct_unmatched_option_timestamps']}.",
             f"- Nearest same-session spot offsets within 60 / 300 seconds: {offsets['nearest_offset_within_60_seconds']} / {offsets['nearest_offset_within_300_seconds']}. This is diagnostic only, not an approximate join.",
             f"- R2 spot rows on weekend-dated session labels: {spots['weekend_spot_rows']}. All rows remain unmodified.",
-            f"- Report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}",
-            "- No prices were emitted; no source requests, modelling, holdout access or strategies were run."
+            f"- Value anomaly occurrence categories: {json.dumps(issue_counts,sort_keys=True)}.",
+            f"- Distinct joined-NIFTY OHLC violation epochs: {values['distinct_timestamp_diagnostics']['matched_option_epochs_with_invalid_joined_nifty_ohlc']}; standalone spot OHLC violation epochs: {values['distinct_timestamp_diagnostics']['standalone_spot_epochs_with_ohlc_violations']}.",
+            f"- Timestamp report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}",
+            f"- Value anomaly report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{v.as_posix()}",
+            "- No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run."
           ]
           for path,heading in [
             (pathlib.Path("research/STATUS.md"),"Offline unmatched-option timestamp distribution"),
@@ -236,7 +258,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json" research/STATUS.md README.md
+          git add "research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json" "research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json" research/STATUS.md README.md
           git commit -m "research: map unmatched option timestamps by date"
           git pull --rebase origin main
           git push origin HEAD:main
@@ -245,7 +267,9 @@ jobs:
         if: always() && steps.diagnostic.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: unmatched-option-timestamp-distribution-${{ env.TARGET_PATCH_RUN_ID }}
-          path: research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
+          name: unmatched-and-value-anomaly-diagnostics-${{ env.TARGET_PATCH_RUN_ID }}
+          path: |
+            research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
+            research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_${{ env.TARGET_PATCH_RUN_ID }}.json
           if-no-files-found: error
           retention-days: 90
