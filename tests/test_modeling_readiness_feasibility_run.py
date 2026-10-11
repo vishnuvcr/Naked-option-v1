@@ -8,7 +8,7 @@ from pathlib import Path
 from scripts.modeling_readiness_feasibility_run import (
     EXPECTED_DATASET_SHA256, EXPECTED_DATASET_ID, EXPECTED_ROWS, EXPECTED_COLUMNS,
     git_blob_sha1, validate_execution_authorization, validate_input_manifests,
-    build_blocked_report, sanitize_report, _report_schema_subset_validate,
+    build_blocked_report, sanitize_report, _report_schema_subset_validate, _scan_prefix,
 )
 
 
@@ -93,6 +93,60 @@ class FeasibilityRunTests(unittest.TestCase):
             _report_schema_subset_validate({**valid,"dataset_sha256":"not-a-hash"}, schema)
         with self.assertRaisesRegex(ValueError, "REPORT_SCHEMA_MINIMUM"):
             _report_schema_subset_validate({**valid,"count":-1}, schema)
+
+    def test_real_schema_validates_blocked_report_and_nested_targets(self):
+        schema_path = Path("research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json")
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        report = build_blocked_report({"dataset_sha256": EXPECTED_DATASET_SHA256}, "BLOCKED_HOLDOUT_PROOF")
+        self.assertEqual(sanitize_report(report, schema)["gate_status"], "BLOCKED")
+        bad = json.loads(json.dumps(report))
+        bad["target_horizons"]["1"]["price"] = 22000
+        with self.assertRaisesRegex(ValueError, "REPORT_SCHEMA_EXTRA_PROPERTY"):
+            sanitize_report(bad, schema)
+
+    def test_prefix_scan_stops_at_exact_holdout_byte_boundary(self):
+        header = ["type","ts","date","o","h","l","c","v","q","j"] + [f"x{i}" for i in range(37)]
+        rows = []
+        observations = [
+            ("OPTION", 1000, "2026-01-01", "", "", "", "", "", "", "MATCHED"),
+            ("SPOT",   1000, "2026-01-01", "100","101","99","100","10","","MATCHED"),
+            ("OPTION", 2000, "2026-01-02", "", "", "", "", "", "", "MATCHED"),
+            ("SPOT",   2000, "2026-01-02", "100","103","99","102","10","","MATCHED"),
+            ("OPTION", 3000, "2026-01-05", "", "", "", "", "", "", "UNMATCHED"),
+            ("SPOT",   3000, "2026-01-05", "99","100","98","99","10","","MATCHED"),
+        ]
+        for record in observations:
+            rows.append(list(record) + [""] * 37)
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "synthetic.csv"
+            from io import StringIO
+            buffer = StringIO()
+            writer = csv.writer(buffer, lineterminator="\n")
+            writer.writerow(header)
+            writer.writerows(rows)
+            prefix_bytes = buffer.getvalue().encode("utf-8")
+            # Deliberately malformed row after the boundary must never be parsed.
+            path.write_bytes(prefix_bytes + b'"bad"unexpected,holdout,row\n')
+            input_manifest = {
+                "column_map": {"row_type":"type","timestamp_epoch":"ts","session_date":"date","open":"o",
+                               "high":"h","low":"l","close":"c","volume":"v","quality_flags":"q","join_status":"j"},
+                "row_type_values": {"option":"OPTION","spot":"SPOT"}
+            }
+            source_manifest = {"feature_families":[
+                {"family":"SPOT_CLOSE","row_type":"SPOT","columns":["c"],"pit_proven":True,"join_validity_proven":True}
+            ]}
+            calendar_manifest = {"valid_sessions":["2026-01-01","2026-01-02","2026-01-05","2026-01-06"]}
+            split_manifest = {"train_end_session":"2026-01-01","validation_end_session":"2026-01-02",
+                              "holdout_start_session":"2026-01-06","pre_holdout_prefix_rows":6}
+            report = _scan_prefix(path, len(prefix_bytes), split_manifest, input_manifest, source_manifest, calendar_manifest)
+            self.assertEqual(report["prefix_rows_scanned"], 6)
+            self.assertEqual(report["option_rows_scanned"], 3)
+            self.assertEqual(report["spot_rows_scanned"], 3)
+            self.assertEqual(report["unmatched_option_rows"], 1)
+            self.assertEqual(report["feature_families"]["SPOT_CLOSE"]["coverage_rate"], 1.0)
+            schema = json.loads(Path("research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json").read_text(encoding="utf-8"))
+            report.update({"source_manifest_sha256":"a"*64,"calendar_manifest_sha256":"b"*64,"split_manifest_sha256":"c"*64})
+            self.assertEqual(sanitize_report(report, schema)["gate_status"], "PASS_WITH_RESTRICTIONS")
 
     def test_report_blocked_output_has_no_price_fields(self):
         report = build_blocked_report({"dataset_sha256":EXPECTED_DATASET_SHA256}, "BLOCKED_HOLDOUT_PROOF")
