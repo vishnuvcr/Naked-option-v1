@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-run994-saved-forecast-r2",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "Real immutable saved forecast panel integrity/reproducibility for Phase 8 R2 only",
+  "developer_commit": "3fe13c49ed29e77b001485abe50b2d41dbb6c160",
+  "workflow_run_id": 38157819076,
+  "workflow_conclusion": "success",
+  "forecast_artifact_id": 11709261335,
+  "forecast_artifact_name": "phase8-forecast-reconstruction",
+  "forecast_artifact_sha256": "249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c",
+  "reference_run_id": 37957677656,
+  "reference_commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+  "reference_artifact_id": 11638738288,
+  "reference_artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+  "reference_manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+  "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+  "panels": 10,
+  "rows": 50555,
+  "all_cells_reproduced": true,
+  "tolerance_abs": 1e-9,
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_promotion_authorized": false,
+  "required_next_gate": "Versioned Phase 8 specification clarification plus no-refit runner code review and synthetic dry-run",
+  "caveats": [
+    "A prior source-derived daily future-return mismatch did not recur on the accepted run; preserve it as a logged anomaly.",
+    "Existing Phase 8 method spec retains legacy Run #654 wording and must be clarified before P&L.",
+    "Passing a free-source sample audit does not prove complete quote-executable point-in-time option history.",
+    "Branch-separated tester is not an external human/model instance."
+  ]
+}
