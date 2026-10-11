@@ -72,6 +72,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
     header = None
     width_errors = 0
     duplicate_keys = None
+    incomplete_key_rows = 0
     key_cols = None
     db = None
     db_path = None
@@ -135,6 +136,8 @@ def run(path: Path, report_path: Path, expected_sha: str,
                             db.execute("INSERT INTO keys_seen(k) VALUES (?)", (key,))
                         except sqlite3.IntegrityError:
                             duplicate_keys += 1
+                    else:
+                        incomplete_key_rows += 1
                 if counts["data_rows"] % 250_000 == 0 and db is not None:
                     db.commit()
 
@@ -145,14 +148,21 @@ def run(path: Path, report_path: Path, expected_sha: str,
         if db is not None:
             db.commit()
 
-        duplicate_status = (
-            "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY" if not key_cols
-            else ("FAIL_DUPLICATE_KEYS_FOUND" if duplicate_keys else "PASS")
-        )
-        overall_status = (
-            "PREFLIGHT_FAIL_DUPLICATE_KEYS" if key_cols and duplicate_keys
-            else "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS"
-        )
+        if not key_cols:
+            duplicate_status = "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY"
+            overall_status = "PREFLIGHT_REVIEW_DUPLICATE_CHECK_NOT_ESTIMABLE"
+        elif duplicate_keys:
+            duplicate_status = "FAIL_DUPLICATE_KEYS_FOUND"
+            overall_status = "PREFLIGHT_FAIL_DUPLICATE_KEYS"
+        elif incomplete_key_rows:
+            duplicate_status = "PARTIAL_INCOMPLETE_COMPOSITE_KEYS"
+            overall_status = "PREFLIGHT_REVIEW_INCOMPLETE_COMPOSITE_KEYS"
+        elif timestamp_parse_errors:
+            duplicate_status = "PASS"
+            overall_status = "PREFLIGHT_REVIEW_TIMESTAMP_PARSE_ERRORS"
+        else:
+            duplicate_status = "PASS"
+            overall_status = "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS"
         report = {
             "status": overall_status,
             "file_name": path.name,
@@ -175,6 +185,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
             "duplicate_key_check": duplicate_status,
             "duplicate_key_fields": [header[i] for i in key_cols] if key_cols else [],
             "duplicate_key_count": duplicate_keys,
+            "incomplete_composite_key_rows": incomplete_key_rows,
             "limitations": [
                 "This is structural preflight only, not modelling-readiness approval.",
                 "Unparseable timestamps and incomplete composite identifiers are reported but not repaired.",
