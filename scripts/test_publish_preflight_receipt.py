@@ -19,6 +19,14 @@ class PublishReceiptTests(unittest.TestCase):
             "status": "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS",
             "file_name": "nifty_repaired_composite_2021-10_to_2026-10.csv.gz", "file_size_bytes": 123,
             "sha256": "b" * 64, "gzip_integrity": "PASS",
+            "expected_compressed_sha256": "b" * 64,
+            "compressed_sha256_matches_expected": True,
+            "uncompressed_sha256": "c" * 64,
+            "expected_uncompressed_sha256": "c" * 64,
+            "uncompressed_sha256_matches_expected": True,
+            "uncompressed_size_bytes": 4747892392,
+            "expected_uncompressed_size_bytes": 4747892392,
+            "uncompressed_size_matches_expected": True,
             "data_rows": 8999865, "columns": 47, "column_names": ["timestamp_epoch"],
             "recognized_timestamp_column": "timestamp_epoch",
             "timestamp_epoch_min": 1, "timestamp_epoch_max": 2,
@@ -45,6 +53,41 @@ class PublishReceiptTests(unittest.TestCase):
             self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS")
             self.assertTrue(receipt["report_available"])
             self.assertEqual(receipt["report"]["sha256"], "b" * 64)
+
+    def test_recompressed_gzip_is_accepted_when_content_hash_matches(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            report = self.report(compressed_sha256_matches_expected=False)
+            path.write_text(json.dumps(report), encoding="utf-8")
+            receipt = build_receipt(self.metadata(), path)
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS_CONTENT_HASH_VERIFIED")
+            self.assertTrue(receipt["report"]["uncompressed_sha256_matches_expected"])
+
+    def test_content_hash_mismatch_never_receives_pass_receipt(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            report = self.report(uncompressed_sha256_matches_expected=False)
+            path.write_text(json.dumps(report), encoding="utf-8")
+            receipt = build_receipt(self.metadata(), path)
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_CONTENT_IDENTITY_MISMATCH")
+
+    def test_missing_content_identity_fields_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            report = self.report()
+            report.pop("uncompressed_sha256")
+            path.write_text(json.dumps(report), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "REPORT_REQUIRED_METADATA_MISSING"):
+                build_receipt(self.metadata(), path)
+
+    def test_structural_fail_statuses_are_preserved_as_nonpass_receipts(self):
+        for status in ("PREFLIGHT_FAIL_ROW_WIDTH", "PREFLIGHT_FAIL_ROW_COUNT",
+                       "PREFLIGHT_FAIL_UNCOMPRESSED_SHA256", "PREFLIGHT_FAIL_UNCOMPRESSED_SIZE"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "report.json"
+                path.write_text(json.dumps(self.report(status=status)), encoding="utf-8")
+                receipt = build_receipt(self.metadata(), path)
+                self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_NONPASS")
 
     def test_unexpected_raw_field_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
