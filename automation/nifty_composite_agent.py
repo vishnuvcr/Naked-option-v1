@@ -22,6 +22,8 @@ REVIEW_FILES = [
     "scripts/run_nifty_1m_spot_diagnostic.py",
     "scripts/test_nifty_1m_spot_diagnostic.py",
     "scripts/audit_nifty_1m_composite_cache.py",
+    "scripts/account_nifty_1m_probe_attempt.py",
+    "scripts/test_account_nifty_1m_probe_attempt.py",
     "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
     ".github/workflows/phase-07-nifty-1m-composite-live.yml",
     ".github/workflows/phase-07-nifty-1m-composite-tests.yml",
