@@ -1379,3 +1379,11 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 - At the last check, only the collector/merge step was running; there was no published recovery result/artifact and no basis yet to claim successful spot recovery.
 - Updated [research status](../STATUS.md), [research log](RESEARCH_LOG.md), and [error log](ERROR_LOG.md); refreshed the main-branch README checkpoint. Recorded only user-visible requests, verified states, results, and review findings; private chain-of-thought is not stored.
 - Prediction/model fitting, scoring, strategy/P&L, and final-holdout access remain gated by independent audit of the realized recovery artifact.
+
+
+### 2026-10-11 — Resume research (`Ok proceed`)
+
+- User asked to continue. Re-checked repository main README, phase status, error/research logs, developer split proposal, and exact-snapshot tester decision/report before any action.
+- Outcome: offline code gate passed, but split-recovery live gate was correctly denied and request job skipped. The HF AI reviewer remains unavailable with HTTP 402; no new data requests or model/holdout/strategy runs were made.
+- Continued in a permitted offline workstream by aligning the uploaded-paper coverage audit with the existing 15-paper source-evidence matrix and fidelity ledger. Clarified that source-matrix coverage is not exact replication and does not grant empirical authorization.
+- Next: tester reviews the documentation consistency and claim-level paper evidence on the isolated tester branch; developer remains prediction-focused and must not proceed to empirical fitting or split recovery without the appropriate exact-snapshot gate.
