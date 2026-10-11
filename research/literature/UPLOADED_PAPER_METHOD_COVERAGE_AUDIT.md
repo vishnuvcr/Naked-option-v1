@@ -82,3 +82,12 @@ The dedicated source-evidence matrix has one section for each of the 15 uploaded
 **Developer → Tester:** Check the 15 source-matrix sections against the uploaded PDFs and identify any missing or wrongly attributed method/result claim. Treat unresolved fields as ambiguous.
 
 **Tester → Developer:** Return a claim-level correction list on the tester branch; do not authorize model fitting from the source matrix alone.
+
+
+## Targeted rendered-page verification — 2026-10-11
+
+A rendered-page claim audit was added in [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md). It records a PCR rule/example gap plus unreconciled metric definitions in Naik & Inamdar; a source-internal LSTM parameter-count discrepancy and full-sample feature-selection leakage in JRFM; a sign/interpretation mismatch for the Bansal paper's reported average R²; and severe negative SVR results that should be retained from the Cureus multi-window table. PDF hashes and page locators are recorded there. These are literature-source findings only, not project model results or permissions.
+
+**Developer → Tester:** Independently recheck the exact rendered page locators and arithmetic in the supplemental claim audit.
+
+**Tester → Developer:** Return source-specific corrections on the tester branch only; do not widen any live/model/holdout/strategy permissions.
