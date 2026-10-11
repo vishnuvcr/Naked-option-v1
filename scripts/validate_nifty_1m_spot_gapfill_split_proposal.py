@@ -116,7 +116,8 @@ def validate_exact_authorization(
         errors.append("developer_sha_invalid")
     if decision.get("reviewed_developer_commit") != developer_sha:
         errors.append("tester_developer_sha_mismatch")
-    if decision.get("split_proposal_blob_sha") != proposal_blob_sha:
+    decision_proposal_sha = decision.get("split_proposal_blob_sha", decision.get("proposal_blob_sha"))
+    if decision_proposal_sha != proposal_blob_sha:
         errors.append("tester_proposal_blob_sha_mismatch")
     if decision.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
         errors.append("tester_decision_not_pass")
