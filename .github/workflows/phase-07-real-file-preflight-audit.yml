@@ -1,0 +1,220 @@
+name: Phase 07 Exact-File Offline Preflight Audit
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - '.github/workflows/phase-07-real-file-preflight-audit.yml'
+      - 'scripts/offline_dataset_preflight.py'
+      - 'scripts/validate_real_file_preflight_authorization.py'
+      - 'scripts/test_validate_real_file_preflight_authorization.py'
+      - 'scripts/check_workflow_action_pinning.py'
+      - 'scripts/test_workflow_action_pinning.py'
+      - 'research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase-07-real-file-preflight-audit
+  cancel-in-progress: false
+
+env:
+  SOURCE_EXPORT_RUN_ID: '38131641336'
+  SOURCE_EXPORT_HEAD_SHA: '5e769cd4b19887311213baf16eb81b97416322d7'
+  SOURCE_EXPORT_ARTIFACT_ID: '11698879857'
+  SOURCE_EXPORT_ARTIFACT_NAME: 'nifty-1m-derived-repaired-r2-38126168547'
+  EXPECTED_DATASET_ID: 'NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1'
+  EXPECTED_PARENT_ARTIFACT_ID: '11696937921'
+  EXPECTED_PARENT_ARTIFACT_SHA256: '5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b'
+  EXPECTED_CSV_GZ_SHA256: 'f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5'
+  EXPECTED_ROWS: '8999865'
+  EXPECTED_COLUMNS: '47'
+
+jobs:
+  synthetic-authorization-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Check pinned actions on both preflight workflows
+        run: |
+          python scripts/check_workflow_action_pinning.py .github/workflows/phase-07-offline-preflight-tests.yml
+          python scripts/check_workflow_action_pinning.py --allow-secrets --allow-actions-read .github/workflows/phase-07-real-file-preflight-audit.yml
+      - name: Run synthetic regression suites
+        env:
+          PYTHONPATH: scripts
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py
+      - name: Confirm no dataset plaintext is staged
+        run: |
+          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv
+          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          test ! -e .env
+
+  real-file-audit:
+    needs: synthetic-authorization-tests
+    if: github.ref == 'refs/heads/phase-07-developer'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: phase-07-tester
+          path: tester-review
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Check exact tester approval and execution request
+        id: authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate_real_file_preflight_authorization.py \
+            --decision tester-review/research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_2026-10-11.json \
+            --request research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json \
+            --reviewed-files \
+              .github/workflows/phase-07-real-file-preflight-audit.yml \
+              .github/workflows/phase-07-offline-preflight-tests.yml \
+              scripts/offline_dataset_preflight.py \
+              scripts/test_offline_dataset_preflight.py \
+              scripts/validate_real_file_preflight_authorization.py \
+              scripts/test_validate_real_file_preflight_authorization.py \
+              scripts/check_workflow_action_pinning.py \
+              scripts/test_workflow_action_pinning.py \
+              scripts/decrypt_nifty_1m_composite.py \
+              requirements-composite.txt \
+              research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json \
+            > "$RUNNER_TEMP/authorization.json"
+          cat "$RUNNER_TEMP/authorization.json"
+          authorized="$(python -c 'import json,sys; print("true" if json.load(open(sys.argv[1])).get("authorized") else "false")' "$RUNNER_TEMP/authorization.json")"
+          echo "authorized=$authorized" >> "$GITHUB_OUTPUT"
+          if [[ "$authorized" != "true" ]]; then
+            echo "Real-file audit skipped: exact tester authorization is absent, stale, or does not match these file hashes."
+          fi
+      - name: Verify exact repaired source run and artifact
+        if: steps.authorization.outputs.authorized == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_EXPORT_RUN_ID")"
+          [[ "$(jq -r '.name // ""' <<< "$run_json")" == "Phase 7 Derived Dataset Repair — Exact Artifact Only" ]] || { echo "source_run_name_mismatch"; exit 1; }
+          [[ "$(jq -r '.head_sha // ""' <<< "$run_json")" == "$SOURCE_EXPORT_HEAD_SHA" ]] || { echo "source_run_sha_mismatch"; exit 1; }
+          [[ "$(jq -r '.status // ""' <<< "$run_json")" == "completed" ]] || { echo "source_run_not_completed"; exit 1; }
+          [[ "$(jq -r '.conclusion // ""' <<< "$run_json")" == "success" ]] || { echo "source_run_not_successful"; exit 1; }
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_EXPORT_RUN_ID/artifacts?per_page=100")"
+          count="$(jq --arg n "$SOURCE_EXPORT_ARTIFACT_NAME" --argjson id "$SOURCE_EXPORT_ARTIFACT_ID" '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$artifacts")"
+          [[ "$count" == "1" ]] || { echo "exact_repaired_artifact_missing_or_expired"; exit 1; }
+          echo "PASS exact repaired artifact confirmed"
+      - name: Download exact encrypted repaired dataset
+        if: steps.authorization.outputs.authorized == 'true'
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: nifty-1m-derived-repaired-r2-38126168547
+          run-id: 38131641336
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/offline-audit-bundle
+      - name: Verify derived manifest and encrypted part hashes
+        if: steps.authorization.outputs.authorized == 'true'
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/offline-audit-bundle
+          INPUT_DIR: ${{ runner.temp }}/offline-audit-input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path(os.environ["BUNDLE_DIR"])
+          candidates=list(root.rglob("dataset_manifest.json"))
+          if len(candidates)!=1: raise SystemExit("derived_manifest_count_invalid")
+          manifest_path=candidates[0]
+          manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("dataset_id")!=os.environ["EXPECTED_DATASET_ID"]: raise SystemExit("derived_dataset_id_mismatch")
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True: raise SystemExit("encrypted_only_marker_missing")
+          derived=manifest.get("derived_from",{})
+          if derived.get("parent_artifact_run_id")!=38126168547 or derived.get("parent_artifact_id")!=int(os.environ["EXPECTED_PARENT_ARTIFACT_ID"]): raise SystemExit("parent_artifact_lineage_mismatch")
+          if derived.get("parent_artifact_sha256")!=os.environ["EXPECTED_PARENT_ARTIFACT_SHA256"]: raise SystemExit("parent_artifact_hash_mismatch")
+          parts=manifest.get("parts")
+          if not isinstance(parts,list) or len(parts)!=61: raise SystemExit("derived_part_count_mismatch")
+          if sum(int(p.get("row_count",-1)) for p in parts)!=int(os.environ["EXPECTED_ROWS"]): raise SystemExit("derived_row_count_total_mismatch")
+          target=pathlib.Path(os.environ["INPUT_DIR"]); target.mkdir(parents=True,exist_ok=True)
+          shutil.copyfile(manifest_path,target/"dataset_manifest.json")
+          for part in parts:
+              name=part.get("file","")
+              if not name.endswith(".csv.gz.enc") or pathlib.Path(name).name!=name: raise SystemExit("unsafe_part_name")
+              source=manifest_path.parent/name
+              if not source.is_file() or source.stat().st_size!=int(part.get("encrypted_bytes",-1)): raise SystemExit("encrypted_part_missing_or_size_mismatch")
+              digest=hashlib.sha256(source.read_bytes()).hexdigest()
+              if digest!=part.get("encrypted_sha256"): raise SystemExit("encrypted_part_hash_mismatch")
+              shutil.copyfile(source,target/name)
+          if len(list(target.glob("*.csv.gz.enc")))!=61: raise SystemExit("prepared_part_count_mismatch")
+          print(json.dumps({"status":"PASS","encrypted_parts":61,"expected_rows":int(os.environ["EXPECTED_ROWS"])}))
+          PY
+      - name: Install pinned crypto dependency
+        if: steps.authorization.outputs.authorized == 'true'
+        run: python -m pip install --requirement requirements-composite.txt
+      - name: Decrypt and merge into ephemeral runner storage
+        if: steps.authorization.outputs.authorized == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/offline-audit-input
+          PARTS_DIR: ${{ runner.temp }}/offline-audit-monthly
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "HF_TOKEN secret is missing; refusing to decrypt."; exit 1; }
+          python scripts/decrypt_nifty_1m_composite.py --input-dir "$INPUT_DIR" --output-dir "$PARTS_DIR" --merge-output "$MERGED_PATH"
+      - name: Run metadata-only structural preflight
+        if: steps.authorization.outputs.authorized == 'true'
+        id: audit
+        env:
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          REPORT_PATH: ${{ runner.temp }}/offline_preflight_report.json
+        shell: bash
+        run: |
+          set +e
+          python scripts/offline_dataset_preflight.py --input "$MERGED_PATH" --report "$REPORT_PATH" --expected-sha256 "$EXPECTED_CSV_GZ_SHA256" --expected-rows "$EXPECTED_ROWS" --expected-columns "$EXPECTED_COLUMNS"
+          rc=$?
+          if [[ -f "$REPORT_PATH" ]]; then echo "report_exists=true" >> "$GITHUB_OUTPUT"; fi
+          exit "$rc"
+      - name: Upload sanitized metadata-only report
+        if: always() && steps.authorization.outputs.authorized == 'true' && steps.audit.outputs.report_exists == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ format('phase07-offline-preflight-metadata-{0}', github.run_id) }}
+          path: ${{ runner.temp }}/offline_preflight_report.json
+          if-no-files-found: error
+          retention-days: 3
+      - name: Remove plaintext data and temporary index, verify cleanup
+        if: always() && steps.authorization.outputs.authorized == 'true'
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/offline-audit-bundle
+          INPUT_DIR: ${{ runner.temp }}/offline-audit-input
+          PARTS_DIR: ${{ runner.temp }}/offline-audit-monthly
+          MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          REPORT_PATH: ${{ runner.temp }}/offline_preflight_report.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PARTS_DIR" "$MERGED_PATH" "$MERGED_PATH.tmp" "$REPORT_PATH.sqlite.tmp"
+          find "$RUNNER_TEMP" -type f -name '*.sqlite.tmp' -delete
+          if find "$RUNNER_TEMP" -type f \( -name '*.csv.gz' -o -name '*.csv' -o -name '*.csv.gz.tmp' -o -name '*.sqlite.tmp' \) -print -quit | grep -q .; then
+            echo "ERROR: plaintext or temporary SQLite files remain in runner temp."
+            exit 1
+          fi
+          echo "PASS: plaintext CSV and temporary SQLite files removed."
