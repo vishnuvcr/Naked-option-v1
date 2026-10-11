@@ -458,3 +458,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 - Hosted run [38159986058](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159986058) found one runner unit-test assertion mismatch: a fake composite was correctly rejected, but the diagnostic said “decoded” rather than “canonical CSV” SHA-256 mismatch.
 - Corrected the diagnostic only. Exact hash comparison is unchanged; hosted runner tests must pass before tester code review and real composite preflight.
+
+
+
+## 2026-10-11 — Phase 8 cached-composite preflight implementation
+
+- Full Phase 8 forecast pipeline passed on [run 38160161955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38160161955): Phase 8 protocol/regression, free-source sample audit, pinned Run #994 artifact/manifest/aggregate hashes and saved-panel validation. The saved R2 panels remain accepted at 1e-9; this is not a trading result.
+- Added a dedicated [cached-composite metadata-preflight workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/.github/workflows/phase8-cached-composite-preflight.yml), bundle hash/lineage validator and exact-snapshot authorization checks. The request at `research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json` defaults to `requested=false`.
+- Hosted development revealed the Phase 8 branch did not contain two already-pinned Phase 7 prerequisites: `requirements-composite.txt` and `scripts/decrypt_nifty_1m_composite.py`; it also lacked the static 61-part dataset manifest. Those files are being copied verbatim from their already reviewed Phase 7 blobs rather than rewritten. The first two test attempts failed before opening or decrypting any market data.
+- Latest preflight contract tests on the source snapshot passed encrypted-bundle tests, reviewer-gate tests, the 4,800-cell runner contract, existing cost-engine regressions and the synthetic runner self-test. Exact static manifest checks passed after the manifest was copied.
+- The latest hosted rerun after copying the original decryptor is still the implementation CI gate. Real composite preflight will remain skipped until the exact implementation tester decision and a separate request=true commit match all reviewed code hashes.
+- No new market-source requests, no decrypted data scan accepted yet, no option P&L, no holdout access, and no strategy promotion.
