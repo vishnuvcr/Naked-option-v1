@@ -567,3 +567,7 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** Review the cache-miss evidence and advise whether a one-time pinned historical-source restore is acceptable.
 **Tester → Developer:** Keep the gate open and empirical P&L/holdout closed until source provenance is restored and verified.
+
+### Independent tester R3 decision
+
+- Tester recorded [R3 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R3_2026-10-12.json): the exact-HEAD reconstruction cannot run because the frozen daily source cache is missing. Next is locating an already archived hash-verifiable copy; any one-time historical-source restoration requires a separate tester review first.
