@@ -123,5 +123,25 @@ class DerivedDatasetRepairTests(unittest.TestCase):
                 repair.repair_dataset(root, root, root / "report.json", SECRET)
 
 
+
+    def test_independent_post_repair_validator_checks_exact_join(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp) / "input"
+            option = base_row("OPTION", "request-opt")
+            spot = base_row("SPOT", "request-spot")
+            write_fixture(root, [option], [spot])
+            manifest_path = root / "dataset_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["dataset_id"] = "synthetic_DERIVED_REPAIR_V1"
+            manifest["derived_from"] = {"parent_dataset_id": "synthetic-parent"}
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report_path = pathlib.Path(tmp) / "safe-report.json"
+            result = repaired_validator.audit(root, report_path, pathlib.Path(tmp) / "audit.sqlite")
+            self.assertEqual(result["status"], "PASS_WITH_COVERAGE_RESTRICTIONS")
+            self.assertEqual(result["row_counts"]["total"], 2)
+            self.assertEqual(result["join_counts"]["exact_join_field_mismatches"], 0)
+            self.assertNotIn("21000", report_path.read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()
