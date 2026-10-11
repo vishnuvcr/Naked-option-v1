@@ -67,6 +67,16 @@ class TestSpotDiagnostic(unittest.TestCase):
         self.assertNotIn("never log this", json.dumps(result))
         self.assertNotIn("errorMessage", json.dumps(result))
 
+    def test_unrecognized_provider_field_names_are_not_emitted(self):
+        req = spot_request()
+        result = diagnostic.summarize_response(
+            b'{"errorCode":806,"responseId":"private-provider-id","privateDetail":"hidden"}',
+            req, 200, "application/json", "a" * 40
+        )
+        self.assertEqual(result["api_error_code"], "806")
+        self.assertNotIn("responseId", json.dumps(result))
+        self.assertNotIn("privateDetail", json.dumps(result))
+
     def test_non_200_does_not_parse_or_log_response_body(self):
         req = spot_request()
         result = diagnostic.summarize_response(b"secret body must not appear", req, 403, "", "a" * 40)
