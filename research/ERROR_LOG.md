@@ -1352,3 +1352,16 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Tester decision: `1ff485037ca359cffc7750ff6f96b51afa2b74d2`; its 17 reviewed blobs were freshly rechecked with 17/17 matches. R4 request commit: `55a6ce4ae69b26696533adb20c512832c15c8c38`.
 - Audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) has passed its synthetic authorization/test job; the real-file job is queued/running. No full structural report is available at this checkpoint.
 - No data readiness, duplicate key count or model result is inferred until report status, exact uncompressed SHA, expected row/column counts, row widths, key coverage, timestamp errors and final cleanup are verified.
+
+ 
+## 2026-10-11 — R4 duplicate count invalidated by noncanonical key
+
+- R4 scan [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) reported 4,148,431 duplicates using `timestamp_epoch,row_type,underlying,expiry_code,returned_strike,option_type`. This is not the project's official identity and may merge separate requests returning the same strike.
+- The canonical key from `scripts/run_nifty_1m_composite_dataset.py::_row_key`, `scripts/audit_nifty_1m_composite_values.py::ROW_KEY_FIELDS`, and `scripts/validate_repaired_nifty_1m_composite.py` is `timestamp_epoch,row_type,source_request_id,expiry_flag,expiry_code,requested_relative_strike,option_type`. SPOT timestamp uniqueness is a separate check.
+- Initial schema rewrite broke legacy synthetic fixtures by making the one-column SPOT key available as a universal fallback. This was caught in CI (runs 38147400905 / 38147400906), logged before acceptance, and fixed by choosing canonical key groups only when the full actual schema exists; other schemas retain legacy group definitions.
+- Corrected hosted CI: [38147564246](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147564246), success (50 tests); [38147564314](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147564314), synthetic authorization success, no data run because R4 was consumed.
+- Tester R4 report: [REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_DATA_READINESS_TESTER_REVIEW_R4_2026-10-11.md). R4 request was marked spent/false. R5 was separately approved against 17 exact hashes; R5 run 38147761301 is currently in progress.
+- Separate data-coverage risk: expiry date and time-to-expiry, Greeks, risk-free-rate and dividend fields are blank throughout the R4 report. Model readiness requires an explicit coverage decision even if R5's canonical duplicate check passes.
+ 
+**Developer → Tester:** Verify the R5 duplicate count against canonical identity and coverage concerns after report upload.
+**Tester → Developer:** Do not promote the dataset or open modelling from the R4 result; require the R5 report and a separate data-readiness ruling.
