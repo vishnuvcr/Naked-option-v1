@@ -61,6 +61,46 @@ class TestSpotGapfillManifest(unittest.TestCase):
                          47 + 47, 8701)
 
 
+class TestSpotGapfillSplitProposal(unittest.TestCase):
+    def test_split_proposal_is_complete_disjoint_bounded_and_not_authorized(self):
+        proposal_path = gapfill.ROOT / "research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json"
+        proposal = collector.load_json(proposal_path)
+        requests = proposal["requests"]
+        self.assertEqual(proposal["status"], "DRAFT_OFFLINE_ONLY_NOT_EXECUTABLE")
+        self.assertFalse(proposal["live_requests_authorized"])
+        self.assertFalse(proposal["live_option_requests_allowed"])
+        self.assertFalse(proposal["model_fitting_authorized"])
+        self.assertFalse(proposal["holdout_access_authorized"])
+        self.assertFalse(proposal["strategy_testing_authorized"])
+        self.assertEqual(proposal["requests_planned"], 34)
+        self.assertEqual(proposal["max_wire_requests"], 34)
+        self.assertEqual(proposal["max_retry_requests"], 0)
+        self.assertEqual(proposal["max_attempts_per_request"], 1)
+        self.assertEqual(len(requests), 34)
+        self.assertEqual(len({r["request_id"] for r in requests}), 34)
+        self.assertEqual(requests[0]["window_start_inclusive"], "2021-10-11")
+        self.assertEqual(requests[-1]["window_end_exclusive"], "2022-06-02")
+        for i, request in enumerate(requests):
+            start = dt.date.fromisoformat(request["window_start_inclusive"])
+            end = dt.date.fromisoformat(request["window_end_exclusive"])
+            self.assertGreater((end - start).days, 0)
+            self.assertLessEqual((end - start).days, 7)
+            self.assertEqual(request["max_rows"], 4000)
+            self.assertEqual(request["max_response_bytes"], 8_388_608)
+            self.assertEqual(request["max_attempts"], 1)
+            self.assertEqual(request["source_family"], "NIFTY_SPOT_1M")
+            self.assertEqual(request["body"]["fromDate"], f"{start.isoformat()} 09:15:00")
+            expected_last_day = (end - dt.timedelta(days=1)).isoformat()
+            self.assertEqual(request["body"]["toDate"], f"{expected_last_day} 15:30:00")
+            if i:
+                self.assertEqual(requests[i-1]["window_end_exclusive"], request["window_start_inclusive"])
+        self.assertEqual(
+            sum((dt.date.fromisoformat(r["window_end_exclusive"]) -
+                 dt.date.fromisoformat(r["window_start_inclusive"])).days for r in requests),
+            234,
+        )
+
+
 class TestSpotGapfillMerge(unittest.TestCase):
     def test_option_rows_are_preserved_and_exact_spot_values_fill_join_columns(self):
         epoch = int(dt.datetime.fromisoformat("2026-10-01T09:15:00+05:30").timestamp())
