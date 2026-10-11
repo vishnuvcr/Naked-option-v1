@@ -92,11 +92,10 @@ def run(path: Path, report_path: Path, expected_sha: str,
             indexes = {name.strip().lower(): i for i, name in enumerate(header)}
             ts_col = next((indexes[n] for n in TIMESTAMP_NAMES if n in indexes), None)
             rowtype_col = next((indexes[n] for n in ROWTYPE_NAMES if n in indexes), None)
-            key_cols = next(
-                (tuple(indexes[n] for n in group)
-                 for group in KEY_GROUPS if all(n in indexes for n in group)),
-                None,
-            )
+            key_cols = [
+                (tuple(group), tuple(indexes[n] for n in group))
+                for group in KEY_GROUPS if all(n in indexes for n in group)
+            ] or None
             if key_cols:
                 # SQLite keeps the duplicate index on disk rather than retaining all rows in RAM.
                 db_path = report_path.with_name(report_path.name + ".sqlite.tmp")
@@ -128,16 +127,36 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         timestamp_max = normalized if timestamp_max is None else max(timestamp_max, normalized)
 
                 if key_cols and db is not None:
-                    key_values = [row[i].strip() for i in key_cols]
-                    # Incomplete identifiers are not treated as unique or duplicate.
-                    if all(key_values):
-                        key = json.dumps(key_values, separators=(",", ":"), ensure_ascii=False)
+                    # Select the first usable key schema per row. For example, spot rows
+                    # may lack option expiry/strike/type but still have a security_id key.
+                    selected_key = None
+                    for group_number, (_group_names, column_indexes) in enumerate(key_cols):
+                        candidate_values = []
+                        complete = True
+                        for column_index in column_indexes:
+                            value = row[column_index].strip()
+                            if header[column_index].strip().lower() == "timestamp_epoch":
+                                normalized_epoch = normalize_timestamp(value, header[column_index])
+                                if normalized_epoch is None:
+                                    complete = False
+                                    break
+                                value = format(normalized_epoch, ".15g")
+                            if not value:
+                                complete = False
+                                break
+                            candidate_values.append(value)
+                        if complete:
+                            selected_key = (group_number, candidate_values)
+                            break
+                    if selected_key is None:
+                        incomplete_key_rows += 1
+                    else:
+                        group_number, candidate_values = selected_key
+                        key = json.dumps([group_number, *candidate_values], separators=(",", ":"), ensure_ascii=False)
                         try:
                             db.execute("INSERT INTO keys_seen(k) VALUES (?)", (key,))
                         except sqlite3.IntegrityError:
                             duplicate_keys += 1
-                    else:
-                        incomplete_key_rows += 1
                 if counts["data_rows"] % 250_000 == 0 and db is not None:
                     db.commit()
 
@@ -183,7 +202,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
             "null_or_blank_counts_by_column": dict(nulls),
             "row_width_errors": width_errors,
             "duplicate_key_check": duplicate_status,
-            "duplicate_key_fields": [header[i] for i in key_cols] if key_cols else [],
+            "duplicate_key_fields": [[header[i] for i in column_indexes] for _group, column_indexes in key_cols] if key_cols else [],
             "duplicate_key_count": duplicate_keys,
             "incomplete_composite_key_rows": incomplete_key_rows,
             "limitations": [
