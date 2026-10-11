@@ -2,7 +2,7 @@ name: Phase 07 Receipt Content Hash Tests
 
 on:
   push:
-    branches: [phase-07-receipt-content-hash-developer-20261011]
+    branches: [main]
     paths:
       - 'scripts/publish_preflight_receipt.py'
       - 'scripts/test_publish_preflight_receipt.py'
