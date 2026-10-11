@@ -1397,3 +1397,15 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Review numeric/source-locator claims in the next paper crosswalk.
 **Tester → Developer:** Send source-specific corrections; do not widen empirical permissions.
+
+
+### 2026-10-11 — Source table/formula cross-check continuation
+
+- Rendered and visually inspected claim pages in four uploaded papers (IJCSE, JRFM, Bansal et al., Cureus) and cross-checked selected values against extracted text.
+- Created `research/literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md` with source hashes/page locators and four categories of findings: PCR boundary gap/sample label mismatch; JRFM parameter-count arithmetic mismatch (30,369 in layer sum/model summary vs 330,369 in prose); Bansal negative average (R^2) incorrectly described as close to +1; Cureus very poor SVR test rows retained with no cherry-picking.
+- These are source-reported findings, not project model results. Frozen PPR-3 configurations were not modified. No source requests, data decryption, training/scoring, holdout inspection, or strategy/P&L testing occurred.
+- Next: isolated tester checks these rendered-page locators/math. Split recovery still denied because the current tester decision remains offline-only and live request authorization is false.
+
+**Developer → Tester:** Recompute the source checks from cited PDF pages independently.
+
+**Tester → Developer:** Return corrections on `phase-07-tester`; keep live/model/holdout/strategy denials intact.
