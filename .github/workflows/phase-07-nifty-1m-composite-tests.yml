@@ -14,6 +14,9 @@ on:
       - "scripts/run_nifty_1m_spot_diagnostic.py"
       - "scripts/test_nifty_1m_spot_diagnostic.py"
       - "scripts/audit_nifty_1m_composite_cache.py"
+      - "scripts/run_nifty_1m_spot_gapfill.py"
+      - "scripts/test_nifty_1m_spot_gapfill.py"
+      - "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json"
       - "scripts/test_audit_nifty_1m_composite_cache.py"
       - "scripts/account_nifty_1m_probe_attempt.py"
       - "scripts/test_account_nifty_1m_probe_attempt.py"
@@ -63,6 +66,8 @@ jobs:
           scripts/run_nifty_1m_spot_diagnostic.py
           scripts/test_nifty_1m_spot_diagnostic.py
           scripts/audit_nifty_1m_composite_cache.py
+          scripts/run_nifty_1m_spot_gapfill.py
+          scripts/test_nifty_1m_spot_gapfill.py
           scripts/test_audit_nifty_1m_composite_cache.py
           scripts/account_nifty_1m_probe_attempt.py
           scripts/test_account_nifty_1m_probe_attempt.py
@@ -75,6 +80,7 @@ jobs:
           python -m unittest -v test_nifty_1m_spot_diagnostic
           python -m unittest -v test_account_nifty_1m_probe_attempt
           python -m unittest -v test_audit_nifty_1m_composite_cache
+          python -m unittest -v test_nifty_1m_spot_gapfill
       - name: Verify exact request grid
         run: python scripts/validate_nifty_1m_composite_manifest.py
       - name: Validate acquisition approval helper offline
