@@ -16,6 +16,7 @@ SOURCE_PATHS = {
 REQUIRED_CODE_PATHS = (
     ".github/workflows/phase-08-long-option.yml",
     ".github/workflows/phase8-panel-validator-test.yml",
+    ".github/workflows/phase8-frozen-source-restore.yml",
     "scripts/acquire_nifty_daily_history.py",
     "scripts/acquire_hf_intraday_sample.py",
     "scripts/verify_phase8_cached_source_inputs.py",
