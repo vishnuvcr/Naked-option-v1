@@ -455,14 +455,30 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
     sessions = sorted(calendar)
     close_by_session = {k: v[1] for k, v in spot_by_session.items()}
     target_results: dict[str, Any] = {}
-    eligible_origins = 0
+    validation_origin_sets: list[set[str]] = []
+    train_counts: list[int] = []
+    validation_counts: list[int] = []
     for horizon in HORIZONS:
         down = flat = up = excluded = 0
+        train_eligible = validation_eligible = 0
+        validation_origins: set[str] = set()
         for i, session in enumerate(sessions):
-            if _iso_date(session) >= holdout_start or i + horizon >= len(sessions):
+            session_date = _iso_date(session)
+            if session_date >= holdout_start or i + horizon >= len(sessions):
                 continue
             endpoint = sessions[i + horizon]
-            if _iso_date(endpoint) >= holdout_start:
+            endpoint_date = _iso_date(endpoint)
+            if endpoint_date >= holdout_start:
+                continue
+            if session_date <= train_end:
+                # Purge any training origin whose forward label would cross train_end.
+                if endpoint_date > train_end:
+                    continue
+            elif train_end < session_date <= validation_end:
+                # Purge any validation origin whose forward label would cross validation_end.
+                if endpoint_date > validation_end:
+                    continue
+            else:
                 continue
             start_price = close_by_session.get(session)
             end_price = close_by_session.get(endpoint)
@@ -470,6 +486,11 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
                 excluded += 1
                 continue
             ret = (end_price - start_price) / start_price
+            if session_date <= train_end:
+                train_eligible += 1
+            else:
+                validation_eligible += 1
+                validation_origins.add(session)
             if abs(ret) <= FLAT_TOLERANCE:
                 flat += 1
             elif ret > 0:
@@ -477,12 +498,22 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
             else:
                 down += 1
         total = down + flat + up
-        eligible_origins = max(eligible_origins, total)
+        train_counts.append(train_eligible)
+        validation_counts.append(validation_eligible)
+        validation_origin_sets.append(validation_origins)
         target_results[str(horizon)] = {
-            "status": "CANDIDATE" if total > 0 else "NOT_ESTIMABLE",
+            "status": "CANDIDATE" if train_eligible >= 252 and validation_eligible >= 250 else "NOT_ESTIMABLE",
             "eligible_origins": total, "excluded_missing_endpoint": excluded,
             "down_count": down, "flat_count": flat, "up_count": up,
+            "train_eligible_origins": train_eligible,
+            "validation_eligible_origins": validation_eligible,
         }
+    min_train_eligible_origins = min(train_counts, default=0)
+    common_validation_origins = len(set.intersection(*validation_origin_sets)) if validation_origin_sets else 0
+    if manifest.get("train_eligible_origins") != min_train_eligible_origins:
+        raise ValueError("SPLIT_ORIGIN_COUNT_MISMATCH")
+    if manifest.get("common_validation_origins") != common_validation_origins:
+        raise ValueError("SPLIT_ORIGIN_COUNT_MISMATCH")
 
     feature_results: dict[str, Any] = {}
     for spec in feature_specs:
@@ -514,14 +545,19 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
         "duplicate_spot_epoch_rows": count["duplicate_spot_epochs"], "unmatched_option_rows": count["unmatched_option"],
         "weekend_review_rows": count["weekend_review"], "target_horizons": target_results,
         "feature_families": feature_results, "train_session_count": len(session_rows["train"]),
-        "validation_session_count": len(session_rows["validation"]), "session_status": split,
-        "split_status": "PASS", "source_manifest_sha256": "", "calendar_manifest_sha256": "",
+        "validation_session_count": len(session_rows["validation"]),
+        "min_train_eligible_origins": min_train_eligible_origins,
+        "common_validation_origins": common_validation_origins, "session_status": split,
+        "split_status": "PASS" if min_train_eligible_origins >= 252 and common_validation_origins >= 250 else "NOT_ESTIMABLE",
+        "source_manifest_sha256": "", "calendar_manifest_sha256": "",
         "split_manifest_sha256": "", "cleanup_status": "NOT_RUN",
-        "gate_status": "PASS_WITH_RESTRICTIONS" if (
-            split != "PASS" or count["unmatched_option"] > 0 or count["weekend_review"] > 0
-            or any(v["status"] != "CANDIDATE" for v in feature_results.values())
-            or any(v["status"] != "CANDIDATE" for v in target_results.values())
-        ) else "PASS",
+        "gate_status": "NOT_ESTIMABLE" if min_train_eligible_origins < 252 or common_validation_origins < 250 else (
+            "PASS_WITH_RESTRICTIONS" if (
+                split != "PASS" or count["unmatched_option"] > 0 or count["weekend_review"] > 0
+                or any(v["status"] != "CANDIDATE" for v in feature_results.values())
+                or any(v["status"] != "CANDIDATE" for v in target_results.values())
+            ) else "PASS"
+        ),
     }
     return report
 
