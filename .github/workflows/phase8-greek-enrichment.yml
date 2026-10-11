@@ -23,6 +23,7 @@ permissions:
 jobs:
   enrich:
     name: Verify, test, and enrich cached NIFTY 1-minute data
+    if: ${{ github.event_name == 'push' || inputs.run_enrichment == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -137,7 +138,11 @@ jobs:
           root=pathlib.Path(os.environ["RUNNER_TEMP_DIR"])/"hf-nifty"
           root.mkdir(parents=True,exist_ok=True)
           (root/"expiry_files.txt").write_text("\n".join(sorted(expiry))+"\n")
-          spot=hf_hub_download(repo_id=repo,filename="index/NIFTY.parquet",repo_type="dataset",revision=revision,token=token,local_dir=str(root/"snapshot"))
+          try:
+              spot=hf_hub_download(repo_id=repo,filename="index/NIFTY.parquet",repo_type="dataset",revision=revision,token=token,local_dir=str(root/"snapshot"))
+          except Exception as e:
+              print("HF authenticated spot download failed; trying public read only: "+type(e).__name__)
+              spot=hf_hub_download(repo_id=repo,filename="index/NIFTY.parquet",repo_type="dataset",revision=revision,token=False,local_dir=str(root/"snapshot"))
           meta={"repo_id":repo,"revision":revision,"expiry_partition_count":len(expiry),"latest_expiry_path":max(expiry),"spot_file_relative_path":"index/NIFTY.parquet","license":"CC-BY-NC-4.0","non_commercial_research_only":True}
           (root/"source_metadata.json").write_text(json.dumps(meta,indent=2,sort_keys=True))
           with open(os.environ["GITHUB_ENV"],"a") as f:
@@ -183,7 +188,7 @@ jobs:
           PY
 
       - name: Upload encrypted dataset bundle and coverage report
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: nifty-1m-greeks-enriched-r1
