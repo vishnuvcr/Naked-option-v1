@@ -217,5 +217,29 @@ class TestSpotGapfillByteBudget(unittest.TestCase):
         self.assertEqual(self.collector.downloaded_bytes, cap - len(self.raw) + 1)
 
 
+    def test_max_attempts_one_disables_retry(self):
+        self.request["max_attempts"] = 1
+        failure = collector.SourceRequestError("http_status_500", 500)
+        with mock.patch.object(gapfill, "get_cached_payload", return_value=None), \
+             mock.patch.object(self.collector, "_http_fetch", side_effect=failure) as fetch:
+            payload, status, digest, http_status, size = self.collector._get_payload(self.request)
+        self.assertIsNone(payload)
+        self.assertEqual(status, "FAILED_REQUEST")
+        self.assertEqual(fetch.call_count, 1)
+
+    def test_max_attempts_two_allows_one_retry(self):
+        self.request["max_attempts"] = 2
+        failures = [
+            collector.SourceRequestError("http_status_500", 500),
+            collector.SourceRequestError("http_status_500", 500),
+        ]
+        with mock.patch.object(gapfill, "get_cached_payload", return_value=None), \
+             mock.patch.object(self.collector, "_http_fetch", side_effect=failures) as fetch:
+            payload, status, digest, http_status, size = self.collector._get_payload(self.request)
+        self.assertIsNone(payload)
+        self.assertEqual(status, "FAILED_REQUEST")
+        self.assertEqual(fetch.call_count, 2)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
