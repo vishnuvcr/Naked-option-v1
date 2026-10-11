@@ -1325,3 +1325,10 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Developer added schema-specific OPTION and SPOT keys and bounded SQLite insert batching, plus a new synthetic test file wired into the offline test workflow.
 - Hosted test completion is not yet verified; exact-hash authorization for the real-file workflow is invalidated by these changes. No real-file scan or uniqueness result is claimed after the correction.
 - Handoff: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md. Await independent tester review and new authorization.
+
+
+## 2026-10-11 — OPTION key fallback edge case caught before acceptance
+
+- Static review found that a malformed/incomplete OPTION row could potentially match the shorter SPOT key group if the scanner tried every key group indiscriminately.
+- Corrected the scanner to restrict OPTION rows to the OPTION key group and SPOT rows to the SPOT key group when the actual `row_type` schema is present. The synthetic incomplete-OPTION fixture is intended to cover this case.
+- Hosted CI is not yet verified and the real-file exact-hash authorization remains invalid after code changes. No uniqueness count is accepted.
