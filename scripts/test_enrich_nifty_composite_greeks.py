@@ -39,7 +39,8 @@ def main():
         td=Path(td); spotpath=td/"spot.parquet"; spotpath.write_text("synthetic placeholder")
         ts=pd.Timestamp("2026-07-28 09:15:00",tz="Asia/Kolkata")
         spot=pd.DataFrame({"timestamp":[ts],"open":[25000.],"high":[25001.],"low":[24999.],"close":[25000.],"volume":[1]})
-        tte=(pd.Timestamp("2026-07-28 15:30:00",tz="Asia/Kolkata")-ts).total_seconds()/(365*86400)
+        bar_close=ts+pd.Timedelta(seconds=60)
+        tte=(pd.Timestamp("2026-07-28 15:30:00",tz="Asia/Kolkata")-bar_close).total_seconds()/(365*86400)
         cp=bs(25000,25000,tte,.22,True); pp=bs(25000,25000,tte,.22,False)
         rows=[]
         for typ,price in (("CE",cp),("PE",pp)):
@@ -50,6 +51,8 @@ def main():
         assert len(out)==3 and report["greek_rows_with_delta"]==2,report
         assert out.loc[0,"greek_status"]=="GREEKS_ESTIMATED_FROM_INVERTED_IV",out.loc[0,"greek_status"]
         assert out.loc[0,"delta"]>0 and out.loc[1,"delta"]<0
+        assert abs(float(out.loc[0,"time_to_expiry_years"])-tte)<1e-12
+        assert out.loc[0,"greek_valuation_offset_seconds"]==60
         assert out.loc[2,"greek_status"]=="NOT_OPTION_ROW"
     print("PASS: IV inversion, Greek signs, finite-difference delta/gamma, invalid premium, expiry calendar, row-preserving synthetic enrichment")
 if __name__=="__main__": main()
