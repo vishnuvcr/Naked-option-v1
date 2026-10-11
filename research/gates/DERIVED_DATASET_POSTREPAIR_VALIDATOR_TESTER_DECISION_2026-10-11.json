@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "reviewed_at_utc": "2026-10-11T10:16:00Z",
+  "reviewed_at_utc": "2026-10-11T10:21:00Z",
   "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
   "decision_scope": "OFFLINE_DERIVED_REPAIR_AND_POSTREPAIR_VALIDATION_ONLY",
-  "reviewed_developer_commit": "c4654b551a061652c98c6b0be81ae46a90083f6b",
-  "offline_test_run_id": 38131302858,
-  "protocol_check_run_id": 38131303137,
+  "reviewed_developer_commit": "350776e764ec238e23dd325b2a4d64f3d9fa468c",
+  "offline_test_run_id": 38131565150,
+  "protocol_check_run_id": 38131565322,
   "source_patch_run_id": 38126168547,
   "source_artifact_id": 11696937921,
   "source_artifact_sha256": "5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b",
@@ -18,7 +18,7 @@
   "require_plaintext_cleanup_proof": true,
   "reviewer_independence": "same_connected_assistant_session_not_external_independent_reviewer",
   "report_path": "research/gates/DERIVED_DATASET_POSTREPAIR_VALIDATOR_TESTER_REPORT_2026-10-11.md",
-  "rationale": "Offline test suite passed on exact reviewed snapshot. Synthetic test fixture manifest mismatch was corrected and rerun. This decision permits only a repeat of the offline derived repair against the exact already-collected R2 artifact; the output must pass independent post-repair structural validation and cleanup checks.",
+  "rationale": "The follow-up offline suite passed after the unmatched synthetic fixture counts were corrected and the repair test was scoped to the repair workflow's own dependency/install checks. The independent post-repair validator is integrated into the repair routine and must pass on the real derived artifact before repair is declared complete. Separate diagnostic-workflow dependency drift remains tracked in PR #8 and is not marked resolved.",
   "developer_next_action": "Promote the exact reviewed implementation and rerun the existing fixed-artifact repair workflow. No source requests.",
   "tester_next_action": "Audit the resulting report, artifact lineage, row totals, quality invariants and cleanup logs."
 }
