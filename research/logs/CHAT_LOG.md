@@ -1659,3 +1659,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
  
 **Developer → Tester:** Review current exact hashes and fail-path tests; create a new one-use R4 decision only for this revision.
 **Tester → Developer:** Do not set R4 requested=true until the machine-readable decision blob is available and all reviewed hashes match.
+
+ 
+### 2026-10-11 — R4 request submitted
+
+- Tester created new decision `REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json` (blob `1ff485037ca359cffc7750ff6f96b51afa2b74d2`) and an independent report.
+- Rechecked all 17 reviewed file hashes; 17/17 matched. Submitted R4 request commit `55a6ce4ae69b26696533adb20c512832c15c8c38`.
+- Audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) started; synthetic authorization passed, real-file job queued/running. No row-level audit result or data-readiness decision exists yet.
+ 
+**Developer → Tester:** Inspect report plus cleanup after R4 completes.
+**Tester → Developer:** No model, holdout or strategy/P&L work until actual report passes independent data-readiness review.
