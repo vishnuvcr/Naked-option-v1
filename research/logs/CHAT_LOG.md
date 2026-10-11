@@ -1,3 +1,14 @@
+## 2026-10-11 — Feasibility proposal reviewed
+
+- Developer submitted the bounded MR-0 to MR-5 feasibility proposal and scope for the frozen R5 composite.
+- Tester approved the proposal/design only. No runner execution or empirical audit is authorized.
+- Rechecked the existing PPR-4 holdout metadata audit: it records `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`. Therefore MR-4 must fail closed until a machine-readable boundary is established; no boundary may be inferred from prose.
+- Next developer task is implementation plus synthetic tests, exact-hash review submission, and no real-data execution until separately authorized.
+
+Developer → Tester: Review the implementation snapshot and its isolation controls.
+Tester → Developer: Keep empirical gates closed; block MR-4 if the holdout boundary remains absent.
+
+
 ## 2026-10-11 — Modeling-readiness implementation review and correction
 
 - Tester first returned REQUEST_CHANGES for the synthetic readiness primitives: unconstrained nested report schema, generator horizon exhaustion, negative metadata counts, and invalid tolerance inputs.
