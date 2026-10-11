@@ -40,7 +40,7 @@ class AuthorizationValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             source, decision_path, request, approval = self.setup_case(Path(td))
             source.write_text("changed\n", encoding="utf-8")
-            result = evaluate(approval, request, decision_path, ["source.py"])
+            result = evaluate(approval, request, decision_path, [str(source)])
             self.assertFalse(result["authorized"])
             self.assertIn("REVIEWED_FILE_HASH_MISMATCH:" + str(source), result["failures"])
 
@@ -48,7 +48,7 @@ class AuthorizationValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             source, decision_path, request, approval = self.setup_case(Path(td))
             request["tester_decision_blob_sha"] = "0" * 40
-            self.assertFalse(evaluate(approval, request, decision_path, ["source.py"])["authorized"])
+            self.assertFalse(evaluate(approval, request, decision_path, [str(source)])["authorized"])
 
     def test_unapproved_verdict_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
@@ -56,7 +56,7 @@ class AuthorizationValidationTests(unittest.TestCase):
             approval["verdict"] = "REQUEST_CHANGES"
             decision_path.write_text(json.dumps(approval), encoding="utf-8")
             request["tester_decision_blob_sha"] = blob_sha(decision_path)
-            self.assertFalse(evaluate(approval, request, decision_path, ["source.py"])["authorized"])
+            self.assertFalse(evaluate(approval, request, decision_path, [str(source)])["authorized"])
 
     def test_missing_reviewed_file_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
