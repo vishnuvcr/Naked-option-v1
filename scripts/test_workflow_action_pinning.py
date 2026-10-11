@@ -79,7 +79,7 @@ jobs:
 """
         errors = inspect_workflow(text)
         self.assertTrue(any("workflow_dispatch" in item for item in errors))
-        self.assertTrue(any("contents: read" in item for item in errors))
+        self.assertTrue(any("permissions must be exactly" in item for item in errors))
 
 
 if __name__ == "__main__":
