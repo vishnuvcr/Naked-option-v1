@@ -89,13 +89,15 @@ class PreflightTests(unittest.TestCase):
             self.assertTrue(report_path.is_file())
             self.assertFalse(Path(str(report_path) + ".sqlite.tmp").exists())
 
-    def test_row_count_mismatch_fails_closed_and_cleans_sqlite(self):
+    def test_row_count_mismatch_writes_fail_report_and_cleans_sqlite(self):
         with tempfile.TemporaryDirectory() as td:
             path = self.make_file(td, [["1", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41], KEY_HEADER)
-            report = Path(td) / "r.json"
-            with self.assertRaisesRegex(ValueError, "ROW_COUNT_MISMATCH"):
-                run(path, report, self.digest(path), 2, 47)
-            self.assertFalse(Path(str(report) + ".sqlite.tmp").exists())
+            report_path = Path(td) / "r.json"
+            report = run(path, report_path, self.digest(path), 2, 47)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_ROW_COUNT")
+            self.assertTrue(report_path.is_file())
+            self.assertEqual(report["data_rows"], 1)
+            self.assertFalse(Path(str(report_path) + ".sqlite.tmp").exists())
 
     def test_duplicate_header_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
@@ -110,13 +112,15 @@ class PreflightTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "COLUMN_COUNT_MISMATCH"):
                 run(path, Path(td) / "r.json", self.digest(path), 1, 47)
 
-    def test_malformed_row_width_fails_closed_and_cleans_sqlite(self):
+    def test_malformed_row_width_writes_fail_report_and_cleans_sqlite(self):
         with tempfile.TemporaryDirectory() as td:
             path = self.make_file(td, [["1", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 40], KEY_HEADER)
-            report = Path(td) / "r.json"
-            with self.assertRaisesRegex(ValueError, "ROW_WIDTH_MISMATCH"):
-                run(path, report, self.digest(path), 1, 47)
-            self.assertFalse(Path(str(report) + ".sqlite.tmp").exists())
+            report_path = Path(td) / "r.json"
+            report = run(path, report_path, self.digest(path), 1, 47)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_ROW_WIDTH")
+            self.assertEqual(report["row_width_errors"], 1)
+            self.assertTrue(report_path.is_file())
+            self.assertFalse(Path(str(report_path) + ".sqlite.tmp").exists())
 
     def test_duplicate_composite_key_is_detected(self):
         with tempfile.TemporaryDirectory() as td:
