@@ -108,3 +108,8 @@ The artifact is encrypted using a key derived from the repository's HF_TOKEN. Th
 **Tester → Developer:** Keep the request job disabled unless an exact-snapshot tester decision explicitly authorizes the split execution scope; AI reviewer unavailability is not approval.
 
 **Developer → Tester:** Re-review only after the authorization decision or code changes; do not infer permission from an offline code-gate pass.
+
+
+## Final exact-SHA gate check — 2026-10-11
+
+The current developer snapshot `be7d5cb9c3825d2b389c8796dfe7085e68973772` passed deterministic offline code checks in [run 38119094646](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119094646). The split authorization workflow then checked the exact proposal and tester decision in [run 38119160629](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119160629): decision `DENIED`, with errors limited to `tester_scope_not_split_recovery_execution`, `split_recovery_not_authorized`, and `live_requests_not_authorized`. The split-recovery job was skipped; no market-data request occurred. This is the expected fail-closed result while AI review is unavailable and the tester decision remains offline-only.
