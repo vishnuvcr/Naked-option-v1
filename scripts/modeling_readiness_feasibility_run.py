@@ -15,6 +15,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -92,6 +93,14 @@ def validate_execution_authorization(auth: Mapping[str, Any], paths: Mapping[str
         raise ValueError("AUTH_SCOPE_MISMATCH")
     if auth.get("one_use") is not True:
         raise ValueError("AUTH_NOT_ONE_USE")
+    # A fresh exact run ID and first attempt are required; reruns need a new tester grant.
+    run_id = os.environ.get("GITHUB_RUN_ID")
+    try:
+        run_attempt = int(os.environ.get("GITHUB_RUN_ATTEMPT", "0"))
+    except ValueError:
+        run_attempt = 0
+    if not run_id or str(auth.get("authorized_workflow_run_id")) != run_id or run_attempt != 1:
+        raise ValueError("AUTH_WORKFLOW_RUN_OR_ATTEMPT_MISMATCH")
     permissions = auth.get("permissions")
     if not isinstance(permissions, dict) or any(permissions.get(key) is not False for key in BLOCKED_SCOPE_KEYS):
         raise ValueError("AUTH_DOWNSTREAM_PERMISSION_NOT_CLOSED")
@@ -535,6 +544,18 @@ def build_blocked_report(input_manifest: Mapping[str, Any], reason: str) -> dict
 
 
 def execute(args: argparse.Namespace) -> dict[str, Any]:
+    # The marker is created exclusively in the job workspace before any dataset is opened.
+    # Same-job duplicate invocations fail; reruns are separately blocked by attempt binding.
+    marker = Path(args.consumed_marker)
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(marker, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError as exc:
+        raise ValueError("AUTH_ALREADY_CONSUMED_IN_WORKSPACE") from exc
+    with os.fdopen(fd, "w", encoding="utf-8") as stream:
+        stream.write(json.dumps({"workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+                                 "workflow_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+                                 "authorization_sha256": sha256_file(args.authorization)}, sort_keys=True))
     paths = {
         "scripts/modeling_readiness_feasibility_run.py": args.runner_file,
         "tests/test_modeling_readiness_feasibility_run.py": args.tests_file,
@@ -590,13 +611,14 @@ def main() -> int:
     parser.add_argument("--tests-file")
     parser.add_argument("--workflow-file")
     parser.add_argument("--output")
+    parser.add_argument("--consumed-marker")
     args = parser.parse_args()
     if args.self_test:
         print(json.dumps({"suite": "modeling-readiness-feasibility-v1", "real_data_execution": "NOT_RUN",
                           "model_fitting": "NOT_AUTHORIZED", "holdout_access": "NOT_AUTHORIZED"}, sort_keys=True))
         return 0
     required = ("dataset", "input_manifest", "source_manifest", "calendar_manifest", "split_manifest",
-                "authorization", "schema", "runner_file", "tests_file", "workflow_file", "output")
+                "authorization", "schema", "runner_file", "tests_file", "workflow_file", "output", "consumed_marker")
     if any(not getattr(args, key) for key in required):
         parser.error("real mode requires every path, an exact-snapshot authorization and all frozen input manifests")
     try:
