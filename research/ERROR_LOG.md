@@ -1,3 +1,11 @@
+## 2026-10-11 — Prospective boundary scanner synthetic test failures corrected
+
+- Run [38153358621](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153358621): two test fixtures had incorrect expectations. The purported bad-width row actually had the expected width, and the invalid row-type test expected a width error. Corrected the fixture to omit a field and corrected the expected error code.
+- The corrected suite passed in [run 38153402133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153402133); all 5 tests and the CLI guard succeeded.
+- No real-file scan or market-value access occurred during either run. These failures were test-fixture defects, not evidence of a data-source problem.
+
+
+
 ## 2026-10-11 — MR feasibility synthetic CI failures corrected (R7)
 
 - Run [38152782473](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38152782473): synthetic tests exposed an invalid feature-family fixture and an authorization test that did not bind the expected Actions run/attempt. Fixed the fixture allowlist and test environment.
