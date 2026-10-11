@@ -24,7 +24,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any, Iterable
 from zoneinfo import ZoneInfo
 
@@ -190,6 +190,37 @@ def parse_json_numbers(raw: bytes) -> dict[str, Any]:
     return obj
 
 
+def _normalize_epoch_timestamp(value: Any) -> int:
+    """Normalize integral epoch seconds while rejecting ambiguous/malformed time values.
+
+    Dhan's published schema says integer epoch seconds, but the one-request
+    diagnostic showed the live response was rejected specifically as a
+    non-integer timestamp. Accept only exact integral numeric representations
+    (int, finite integral float/Decimal, or digit-string); never round/truncate.
+    """
+    if isinstance(value, bool):
+        raise ValueError("response_timestamp_not_integer_epoch")
+    if isinstance(value, int):
+        epoch = value
+    elif isinstance(value, (float, Decimal, str)):
+        try:
+            text = str(value).strip()
+            if not text:
+                raise ValueError
+            number = Decimal(text)
+            if not number.is_finite() or number != number.to_integral_value():
+                raise ValueError
+            epoch = int(number)
+        except (InvalidOperation, ValueError, OverflowError):
+            raise ValueError("response_timestamp_not_integer_epoch") from None
+    else:
+        raise ValueError("response_timestamp_not_integer_epoch")
+    # Research range guard: epoch must be compatible with 2021–2026 data.
+    if epoch < 1600000000 or epoch > 1900000000:
+        raise ValueError("response_timestamp_epoch_out_of_research_range")
+    return epoch
+
+
 def _array_set(obj: dict[str, Any], fields: list[str]) -> tuple[list[int], dict[str, list[Any]]]:
     arrays: dict[str, list[Any]] = {}
     lengths = set()
@@ -201,9 +232,8 @@ def _array_set(obj: dict[str, Any], fields: list[str]) -> tuple[list[int], dict[
         lengths.add(len(value))
     if len(lengths) != 1:
         raise ValueError("response_field_array_length_mismatch")
-    timestamps = arrays["timestamp"]
-    if any(isinstance(ts, bool) or not isinstance(ts, int) for ts in timestamps):
-        raise ValueError("response_timestamp_not_integer_epoch")
+    raw_timestamps = arrays["timestamp"]
+    timestamps = [_normalize_epoch_timestamp(ts) for ts in raw_timestamps]
     return timestamps, arrays
 
 
