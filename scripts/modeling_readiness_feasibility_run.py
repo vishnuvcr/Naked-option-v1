@@ -176,7 +176,14 @@ def validate_input_manifests(
 
     if input_manifest.get("timestamp_semantics") not in {"BAR_START", "BAR_END"}:
         return False, "CANDLE_SEMANTICS_UNPROVEN"
-    if input_manifest.get("official_close_linkage_proven") is not True:
+    evidence = input_manifest.get("official_close_linkage_evidence")
+    if input_manifest.get("official_close_linkage_proven") is not True or not isinstance(evidence, dict):
+        return False, "CLOSE_LINKAGE_UNPROVEN"
+    if (evidence.get("source_family") != "SPOT_OFFICIAL_CLOSE"
+            or not _sha(evidence.get("source_sha256"))
+            or evidence.get("mapping_rule") != "LAST_VALID_BAR_MATCHES_OFFICIAL_DAILY_CLOSE"
+            or not _sha(evidence.get("validation_report_sha256"))
+            or evidence.get("independent_validation_passed") is not True):
         return False, "CLOSE_LINKAGE_UNPROVEN"
 
     if split_manifest.get("holdout_boundary_found") is not True:
