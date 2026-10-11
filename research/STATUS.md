@@ -1,3 +1,14 @@
+## 2026-10-11 — Adapter design approved; encrypted artifact integration required
+
+- Adapter proposal: [design](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md) · [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_SCOPE_R1_2026-10-11.json).
+- Tester: **PASS_WITH_SCOPED_RESTRICTIONS — design only** ([review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json)).
+- The cached dataset is an encrypted 61-part Actions artifact, not a plaintext repository file. Reuse the existing [offline export workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/export-repaired-dataset-offline.yml) and [real-file preflight workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-real-file-preflight-audit.yml).
+- Next implementation: gzip streaming, uncompressed-byte offsets/hash, one-use marker and exact-hash authorization. **No real-file scan has occurred.**
+
+**Developer → Tester:** Review gzip support and adapter hashes before execution.  
+**Tester → Developer:** Keep cached-file execution closed pending a separate exact-hash decision.
+
+
 ## 2026-10-11 — Prospective boundary implementation R1 passed synthetic gate only
 
 - Design proposal and scope were tester-approved for design only: [proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_R1_2026-10-11.md), [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_SCOPE_R1_2026-10-11.json).
