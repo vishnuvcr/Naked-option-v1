@@ -23,7 +23,7 @@ on:
           - PHASE8_SOURCE_CACHE_RESTORE_R1_2026-10-12
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 concurrency:
@@ -159,6 +159,46 @@ jobs:
             --tester-ref origin/phase-08-tester \
             --manifest data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json \
             --output data/reports/phase8/source_cache_bootstrap_authorization.json
+
+      - name: Permanently consume R1 in repository before source requests
+        if: steps.cache_check.outputs.needs_restore == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const path = "research/phase8/PHASE8_SOURCE_CACHE_BOOTSTRAP_CONSUMED_R1.json";
+            const branch = "phase-08-developer";
+            try {
+              await github.rest.repos.getContent({owner, repo, path, ref: branch});
+              core.setFailed("R1 consumed marker already exists; source acquisition is forbidden.");
+              return;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const marker = {
+              schema_version: 1,
+              request_id: "PHASE8_SOURCE_CACHE_RESTORE_R1_2026-10-12",
+              status: "CONSUMED_BEFORE_SOURCE_PROVIDER_REQUEST",
+              workflow_run_id: context.runId,
+              workflow_commit: process.env.GITHUB_SHA,
+              tester_decision_path: "research/gates/PHASE8_SOURCE_CACHE_RESTORE_TESTER_DECISION_R1_2026-10-12.json",
+              scope: [
+                "data/cache/raw/phase3/nifty50_daily.csv",
+                "data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet"
+              ],
+              source_audit_authorized: false,
+              empirical_option_pnl_authorized: false,
+              holdout_access_authorized: false,
+              new_option_market_sources_authorized: false,
+              strategy_promotion_authorized: false
+            };
+            const content = Buffer.from(JSON.stringify(marker, null, 2) + "\n").toString("base64");
+            await github.rest.repos.createOrUpdateFileContents({
+              owner, repo, path, branch,
+              message: "Consume Phase 8 one-time frozen-source restore R1 before provider request",
+              content
+            });
+            core.info("Permanent R1 consumed marker committed before source-provider steps.");
 
       - name: Record the one-time attempt before contacting source providers
         if: steps.cache_check.outputs.needs_restore == 'true'
