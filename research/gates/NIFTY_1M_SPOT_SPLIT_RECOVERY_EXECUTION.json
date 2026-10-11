@@ -1,0 +1,16 @@
+{
+  "base_artifact_id": "11693866249",
+  "base_artifact_sha256": "aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216",
+  "created_at_utc": "2026-10-11T08:22:23.099855Z",
+  "github_run_id": "38124538291",
+  "live_option_requests_allowed": false,
+  "max_gapfill_requests": 34,
+  "max_retry_requests": 0,
+  "max_spot_requests": 34,
+  "reviewed_developer_commit": "daad5f22d08c912bbcfc0a7a616239f89574a48e",
+  "schema_version": 1,
+  "scope": "SPLIT_SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
+  "split_proposal_blob_sha": "77f40a95604777721fd701f4d7245bf43a8871f5",
+  "status": "SPENT_BEFORE_SOURCE_REQUEST",
+  "tester_decision_blob": "c2926f269f429ea7d4da26e7fc2d1b3858043f20"
+}
