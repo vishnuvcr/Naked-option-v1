@@ -134,7 +134,7 @@ class FeasibilityRunTests(unittest.TestCase):
                 "row_type_values": {"option":"OPTION","spot":"SPOT"}
             }
             source_manifest = {"feature_families":[
-                {"family":"SPOT_CLOSE","row_type":"SPOT","columns":["c"],"pit_proven":True,"join_validity_proven":True}
+                {"family":"SPOT_OHLCV","row_type":"SPOT","columns":["c"],"pit_proven":True,"join_validity_proven":True}
             ]}
             calendar_manifest = {"valid_sessions":["2026-01-01","2026-01-02","2026-01-05","2026-01-06"]}
             split_manifest = {"train_end_session":"2026-01-01","validation_end_session":"2026-01-02",
