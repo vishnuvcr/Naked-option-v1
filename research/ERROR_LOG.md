@@ -1373,3 +1373,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Correction: rewrote the text without nested template-literal delimiters; the subsequent README, research status and chat-log updates succeeded.
 - Impact: none on the research code, approved file hashes, R5 workflow snapshot, encrypted data, or empirical results.
 - Prevention: avoid nested backticks in tool-call template strings and verify that a failed helper call did not commit partial writes.
+
+
+## 2026-10-11 — Tester-result orchestration syntax error (no repository or research impact)
+- A tool orchestration payload for creating the R5 tester review JSON initially failed JavaScript parsing because a literal newline split a quoted JSON field.
+- Root cause: newline escaping error in the helper payload; the call failed before any GitHub mutation was submitted.
+- Correction: regenerated the entire payload with a valid single-line SHA field; tester report, machine-readable decision and tester status were then committed successfully.
+- Impact: no change to reviewed source/code/data or the R5 workflow. There were no partial writes from the failed call.
+- Prevention: keep JSON string fields on one logical line or construct the object as data before JSON.stringify; verify write receipts.
