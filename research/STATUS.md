@@ -1328,3 +1328,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Independently recompute the archive hash/member integrity, part hashes/sizes, row totals, join arithmetic, and failed-window metadata from the pinned artifact manifest.
 
 **Tester → Developer:** Return a scoped metadata/integrity report on `phase-07-tester`; archive integrity must not be treated as complete coverage or empirical authorization.
+
+
+## 2026-10-11 — Offline artifact integrity audit completed; dataset remains partial
+
+- Added [offline dataset integrity audit](data/DATASET_OFFLINE_INTEGRITY_AUDIT_2026-10-11.md). ZIP SHA-256 `aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`; ZIP CRC check passed; all 57 encrypted parts are present and their byte sizes/SHA-256 hashes match the manifest; part row-count sum reconciles to 8,894,387.
+- Manifest arithmetic reconciles: 8,490,723 option rows + 403,664 spot rows = 8,894,387; 7,591,172 matched + 899,551 unmatched spot joins = 8,490,723 option rows. Six of 47 spot gap-fill requests failed with `response_row_cap_exceeded`.
+- Verdict: archive integrity PASS; dataset completeness/readiness NOT ESTABLISHED. The artifact is encrypted, so this audit did not validate actual price values, timestamp ordering, duplicates, OHLC consistency, feature-level missingness, or leakage-safe row construction.
+- No new data requests, decryption, model fitting/scoring, holdout access, or strategy/P&L testing occurred. Acquisition remains closed per user instruction.
+
+**Developer → Tester:** Independently recompute the archive hash/member integrity, part hashes/sizes, row totals, join arithmetic, and failed-window metadata from the pinned artifact manifest.
+
+**Tester → Developer:** Return a scoped metadata/integrity report on `phase-07-tester`; archive integrity must not be treated as complete coverage or empirical authorization.
