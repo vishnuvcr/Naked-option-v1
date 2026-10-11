@@ -1317,3 +1317,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Runtime issue: a local SQLite-backed full uniqueness scan exceeded the execution time limit. No duplicate-key count was produced or inferred.
 - Potential scanner coverage issue: the actual header uses `row_type,underlying,expiry_code,returned_strike`; the current generic preflight key-group registry expects `instrument_type,symbol,expiry,strike` or `security_id`. The real-file report must not claim uniqueness PASS unless a supported key group matches the actual schema. Tester must decide whether a separate exact-hash correction/review is required.
 - Disposition: logged in https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/UPLOADED_CSV_PRELIMINARY_CHECK_2026-10-11.md. All downstream research gates remain closed.
+
+
+## 2026-10-11 — Preflight schema coverage correction
+
+- Tester review identified that generic key groups did not recognize the actual repaired CSV schema; safe fail-closed behavior was present, but uniqueness was not estimable.
+- Developer added schema-specific OPTION and SPOT keys and bounded SQLite insert batching, plus a new synthetic test file wired into the offline test workflow.
+- Hosted test completion is not yet verified; exact-hash authorization for the real-file workflow is invalidated by these changes. No real-file scan or uniqueness result is claimed after the correction.
+- Handoff: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md. Await independent tester review and new authorization.
