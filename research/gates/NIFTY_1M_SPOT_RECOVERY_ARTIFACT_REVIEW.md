@@ -82,3 +82,16 @@ The artifact is encrypted using a key derived from the repository's HF_TOKEN. Th
 **Tester → Developer:** Implement the manifest-specific no-retry behavior and fail-closed exact-SHA request gate; submit those code changes for a new review without making source calls.
 
 **Developer → Tester:** Review the executable code path, retry counter, exact proposal SHA binding, and request budget before any live workflow can become eligible.
+
+
+## Third review — exact-SHA validator and preservation guard
+
+- Exact developer snapshot reviewed: `d2176806aa6c5db08e0577ddc3daf08a9652f1a6`.
+- The split proposal now explicitly binds its base to partial artifact `11693866249` and requires preserving 8,490,723 option rows plus the 403,664 previously recovered spot rows; successful windows must not be refetched. Its 34 shards remain contiguous, disjoint, no longer than seven calendar days, capped at 4,000 rows / 8 MiB, and specify one attempt each.
+- The collector now honors a per-request `max_attempts` field; tests verify `max_attempts=1` makes one attempt and `max_attempts=2` permits one retry. The offline validator `scripts/validate_nifty_1m_spot_gapfill_split_proposal.py` checks the exact proposal shape and denies authorization unless the tester decision pins both exact SHAs, scope, and request/retry budgets. Tests cover stale SHA and missing-authorization denial. Pipeline run [38118437757](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118437757) passed, and exact-snapshot offline tester run [38118437808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118437808) passed the code gate.
+- **Decision: PASS WITH SCOPED RESTRICTIONS for offline proposal and authorization-validator code only.** No live request is authorized. Two execution blockers remain: (1) the validator is not yet integrated into a request-bearing workflow that spends a new one-use marker bound to the proposal blob; (2) the production collector still expects the original zero-spot artifact and is not yet able to use partial artifact `11693866249` as its base while preserving existing spot rows. Executing the 34-shard proposal with the old base would discard the 403,664 recovered spot rows, so it must not be run as-is.
+- The earlier data-completeness REQUEST_CHANGES remains in force until the six failed intervals are successfully recovered and the combined artifact is re-audited. No new source requests, model fitting/scoring, holdout access, or strategy tests are authorized.
+
+**Tester → Developer:** Implement partial-artifact ingestion/preservation and integrate the exact-SHA authorization validator into a separate fail-closed workflow. Keep it offline-only until the resulting exact snapshot receives a fresh explicit tester authorization.
+
+**Developer → Tester:** Review the new base-artifact preflight, option/spot row preservation, de-duplication and one-use marker path before any live request can be enabled.
