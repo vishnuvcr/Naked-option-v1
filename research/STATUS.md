@@ -124,3 +124,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester reviewed exact output artifact `11709261335` (SHA-256 `249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c`) and independently recomputed every panel digest.
 - Decision `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`: PASS WITH SCOPED RESTRICTIONS. Ten cells, 50,555 rows, all cells reproduced at absolute tolerance 1e-9.
 - No empirical P&L or 4,800-cell grid executed; no strategy is promoted. Before any option P&L, developer must version the Phase 8 spec to remove stale Run #654 wording and submit the no-refit runner for exact code/test review.
+
+
+## 2026-10-11 — Phase 8 R2 code-only review: REQUEST CHANGES
+
+- Tester reviewed developer snapshot `6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11`, hosted synthetic run [38163364534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163364534), and exact 15-file hash set.
+- Decision [PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R2_2026-10-11.json](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R2_2026-10-11.json) = **REQUEST_CHANGES**. The immutable source-hash correction and matching test are correct; however, the critical-data-gap summary has a missing-header truthiness bug which can label all expiry fields blank when only one required header is missing.
+- Developer submitted the per-field predicate correction and mixed-header/zero-row regression in commits `8511ba7` and `4d93085`. A fresh hosted synthetic gate is required before resubmission.
+- R1 remains consumed/disabled; this review is code-only and grants no new data access, option P&L, holdout, source request or strategy promotion.
