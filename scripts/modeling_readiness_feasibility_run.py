@@ -478,7 +478,11 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
         "validation_session_count": len(session_rows["validation"]), "session_status": split,
         "split_status": "PASS", "source_manifest_sha256": "", "calendar_manifest_sha256": "",
         "split_manifest_sha256": "", "cleanup_status": "PASS",
-        "gate_status": "PASS_WITH_RESTRICTIONS" if split != "PASS" or any(v["status"] != "CANDIDATE" for v in feature_results.values()) else "PASS",
+        "gate_status": "PASS_WITH_RESTRICTIONS" if (
+            split != "PASS" or count["unmatched_option"] > 0 or count["weekend_review"] > 0
+            or any(v["status"] != "CANDIDATE" for v in feature_results.values())
+            or any(v["status"] != "CANDIDATE" for v in target_results.values())
+        ) else "PASS",
     }
     return report
 
