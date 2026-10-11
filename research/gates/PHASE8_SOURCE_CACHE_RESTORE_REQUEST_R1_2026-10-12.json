@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "request_id": "PHASE8_SOURCE_CACHE_RESTORE_R1_2026-10-12",
+  "phase": "8",
+  "gate": "phase8-source-cache-bootstrap-r1",
+  "created_at": "2026-10-12",
+  "decision_requested": "APPROVE_ONE_TIME_FREE_SOURCE_CACHE_BOOTSTRAP",
+  "status": "PENDING_INDEPENDENT_TESTER_DECISION",
+  "requested_scope": "Restore only missing/mismatched raw spot-reference files required to validate the immutable Run #994 saved forecasts; accept bytes only if exact frozen SHA-256 values match.",
+  "reference_artifact": {
+    "run_id": 37957677656,
+    "artifact_id": 11638738288,
+    "artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "embedded_manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+    "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
+  },
+  "frozen_source_sha256": {
+    "daily_csv": {
+      "path": "data/cache/raw/phase3/nifty50_daily.csv",
+      "sha256": "5816b0e73f4bd1327e567249f366fbebb01a549bd539fd4743424fbefe70f5c1",
+      "role": "NIFTY spot daily reference for saved forecast label/source alignment",
+      "source": "Yahoo Finance NIFTY index history via existing Phase 3 acquisition script",
+      "period_utc": {
+        "start": "2020-01-01",
+        "end_exclusive": "2026-10-01"
+      }
+    },
+    "intraday_parquet": {
+      "path": "data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet",
+      "sha256": "6f6014d58cf0aa03920832b97730bc2f4287532b3c830700351d6828adfebc17",
+      "role": "NIFTY spot intraday reference for saved forecast source alignment",
+      "source": "Public HF dataset thetrademarkk/india-index-options-1m, file index/NIFTY.parquet, through existing Phase 3 acquisition script; existing NSE overlap checks are permitted only as part of this spot-reference restoration"
+    }
+  },
+  "recovery_evidence": {
+    "historical_phase3_artifact_run_id": 37578427116,
+    "historical_phase3_artifact_id": 11464120657,
+    "finding": "The artifact contains baseline/report summaries, not the two raw source files.",
+    "source_cache_export_run_id": 38165705217,
+    "source_cache_export_conclusion": "failure",
+    "cached_daily_file_matches_frozen_hash": true,
+    "cached_intraday_actual_sha256": "5f5c91b1c29db13ccaa6ffbb3a83a526a82bedf30092e9b9585384efcec5f6d2",
+    "cached_intraday_matches_frozen_hash": false,
+    "required_intraday_sha256": "6f6014d58cf0aa03920832b97730bc2f4287532b3c830700351d6828adfebc17"
+  },
+  "requested_operation": {
+    "use_existing_cache_first": true,
+    "verify_reference_manifest_before_source_pins": true,
+    "preserve_any_source_file_already_matching_frozen_hash": true,
+    "restore_only_missing_or_mismatched_files": true,
+    "strict_final_sha256_check": true,
+    "fail_closed_on_any_hash_mismatch": true,
+    "record_one_time_attempt_before_source_provider_requests": true,
+    "require_exact_current_code_blob_pins": true,
+    "cache_key": "phase8-phase3-source-Linux-3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "subsequent_runs_reuse_verified_cache": true
+  },
+  "authorization_requested": {
+    "source_cache_bootstrap_authorized": true,
+    "source_audit_authorized": false,
+    "empirical_option_pnl_authorized": false,
+    "holdout_access_authorized": false,
+    "new_option_market_sources_authorized": false,
+    "strategy_promotion_authorized": false,
+    "consumed_composite_preflight_r1_reusable": false
+  },
+  "workflow_incident": {
+    "run_id": 38165705151,
+    "status_at_recording": "in_progress",
+    "incident": "A commit adding the offline cache exporter triggered the broad Phase 3 push workflow, which performed daily and HF/NSE overlap acquisition before the workflow's path filter was narrowed. Outputs are excluded from the frozen Run #994 validation unless exact source hashes match.",
+    "guard_fix_commit": "f27d36f07badb4f98831d0bf199826b27454f6da"
+  },
+  "approval_conditions": [
+    "Tester must independently review current code blob SHAs and the exact workflow before approving.",
+    "No provider request before the authorization script verifies the tester decision and exact SHA pins.",
+    "The attempt marker must be uploaded before any source provider request; a prior R1 attempt blocks a repeat.",
+    "No option chains, options trades/quotes, contract-master data or unrelated symbols may be requested.",
+    "If restored file bytes fail the exact pinned SHA, do not accept or cache them; require a new tester decision for any retry.",
+    "The Run #994 artifact, prediction arrays, model fit, holdout and aggregate tolerance remain unchanged."
+  ]
+}
