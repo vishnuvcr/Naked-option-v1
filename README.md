@@ -1,3 +1,30 @@
+## Current research status — 2026-10-11 18:11 UTC
+
+**Phase 8 saved forecasts: reproducibility previously passed; option execution remains blocked by missing point-in-time contract data.**
+
+### Latest completed cached-data preflight
+
+- One-use run [38161788742](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161788742) successfully verified the identity of cached composite artifact 11698879857, validated all 61 encrypted parts, validated saved Run #994 forecast artifact 11638738288, committed a durable one-use marker before decrypting, and merged 8,999,865 rows in temporary runner storage.
+- The report's decoded CSV hash matched the frozen canonical SHA-256: `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`; 47 columns; OPTION=8,490,723; SPOT=509,142; zero row-width errors; 10 accepted forecast panels / 50,555 rows.
+- Report artifact [11710418667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161788742/artifacts/11710418667), ZIP SHA-256 `8f5f52a356aac05259c802cdae521ee0989565ccf403734bc00b4428f2f598da`. Cleanup passed. The overall run was marked failed due to a 63-character expected-hash typo in the assertion wrapper, not because the computed data hash differed.
+- Important data gap: `expiry_date`, `expiry_mapping_source`, and `time_to_expiry_years` are blank in all 8,999,865 rows. `lot_size` and `tick_size` columns are absent. No point-in-time contract master or historical bid/ask coverage is proven. Therefore all 4,800 configurations are still `INELIGIBLE`; no P&L was generated.
+
+### Current blockers and latest CI
+
+- The first assertion typo was fixed in [commit  f0ac7cb](https://github.com/vishnuvcr/Naked-option-v1/commit/f0ac7cb8c720326089c22c8ba54591ad542cf132); CI then caught a duplicate short hash in the synthetic test itself. That second typo was corrected at [commit 9c58e4d](https://github.com/vishnuvcr/Naked-option-v1/commit/9c58e4db3323ba46123caaeebe35e1ec35f1d274). The latest contract run [38162721421](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162721421) is running synthetic tests only; request R1 is closed and cannot be replayed.
+- A separate Phase 8 forecast reconstruction run [38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430) failed daily H=1 future-return recomputation for 64 entries with maximum absolute discrepancy `3.469446951953614e-18`. This is consistent with floating-point operation-order rounding, but the current check is red and requires an explicit tester-reviewed numerical tolerance policy. The saved Run #994 artifact has not been changed.
+- No option P&L, holdout access, new market source request, or strategy promotion is authorized or has occurred.
+
+### Links
+
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md)
+- [Phase 8 method spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/phase8/PHASE8_METHOD_SPEC.md) · [Consumed R1 marker](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/phase8/PHASE8_CACHED_COMPOSITE_PREFLIGHT_CONSUMED_R1.json) · [Implementation tester decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_R1.json)
+
+**Developer → Tester:** review the corrected hash/gap-report changes and separately investigate the daily H=1 floating-point discrepancy.  
+**Tester → Developer:** no new real-data read is allowed from consumed R1; any rerun needs a versioned request and exact-hash decision after the latest tests pass.
+
+---
+
 ## 2026-10-11 — Phase 8 status: cached-composite preflight in progress
 
 - **Forecast reproducibility is accepted.** Phase 7 Run #994's immutable row-level forecasts reproduced all 10 cells / 50,555 rows at (10^{-9}) tolerance in [Phase 8 validation run #38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076). This is a technical reproducibility result, not proof of a profitable predictor.
