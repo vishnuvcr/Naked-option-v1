@@ -1,3 +1,16 @@
+## 2026-10-11 — R6 corrections, hosted synthetic pass and R7 tester decision
+
+- Tester R6 requested independently computed split eligibility, per-split target counts/common validation origins, and pinned close-linkage evidence. Developer added those checks and expanded the sanitized report schema and synthetic tests.
+- Corrected multiple hosted failures by following job logs: fixture allowlist/auth environment, date type mismatch, two self-referential workflow guards, and close-linkage source-manifest fixture binding.
+- Exact reviewed snapshot `cb924f9edcea21f1fb91355fe5d75774d6fa5ca3`; hosted synthetic run [38153160558](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153160558) passed. Tester R7 approved synthetic/offline implementation only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_REVIEW_R7_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_DECISION_R7_2026-10-11.json).
+- PPR-4 still records no machine-readable holdout boundary. No dataset/holdout rows were read, no model fitted/scored, no sources requested, and no strategy/P&L or trading was run.
+- Next: bounded metadata-only search for cached boundary and close-linkage evidence artifacts; if absent, draft a prospective chronological split proposal for exact-hash tester review. Do not silently manufacture or infer the boundary.
+
+**Developer → Tester:** Review any new metadata artifact on exact hash; keep empirical execution closed.
+**Tester → Developer:** Approve only the explicit metadata discovery/proposal scope; no model or holdout scope is implied.
+
+
+
 ## 2026-10-11 — User continuation: feasibility-runner implementation gate
 
 - Re-read `RESEARCH_INSTRUCTIONS.md`, the automated agent-cycle protocol, current README/status/error/chat logs, the approved MR-0–MR-5 proposal/scope, the existing synthetic readiness runner/tests/schema/workflow, the PPR-4 holdout metadata audit, and the tester's design-only decision.
