@@ -355,3 +355,8 @@ The developer's one-use approval was consumed before the first request. [Guarded
 - Decision `PASS_WITH_SCOPED_RESTRICTIONS` authorizes one exact-lineage structural preflight only; decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c`.
 - Execution request was committed to the developer branch. The actual run/report is not yet verified through the available Actions interface; no data-audit outcome is accepted yet.
 - Modelling, holdout, new source requests and strategy/P&L remain closed.
+
+## 2026-10-11 — Developer revalidated exact-file authorization
+- Developer identified and corrected post-review hash drift before accepting any data-audit result.
+- The 11 reviewed implementation file hashes match the tester decision again. Request R2 commit: `6d75d26f0f30036595d3996f48602c6657a34b97`.
+- Actual run receipt/report still needs independent inspection. The implementation decision remains scoped; no data gate has been passed yet.
