@@ -350,3 +350,12 @@
 - Root cause: the test contract was not updated alongside the diagnostic-preserving shell correction.
 - Correction: require the new explicit comparison and mismatch diagnostic tokens; retain exact hash validation. This failed attempt did not reach artifact acquisition, source validation or any model/option execution.
 - Prevention: workflow tests should assert the safety invariant and failure diagnostics, not one implementation spelling that is intentionally changed to improve observability.
+
+
+## 2026-10-11 — Phase 8 test-only commit did not trigger Phase 8 workflow
+- Category: workflow path-filter / CI coverage
+- Commit: 78a3bce4561840a749df62cfe2ca36928d5fa240; run 38156532719.
+- Symptom: a commit updating the Phase 8 workflow-contract test and logs ran the generic protocol job, but Phase 8 was skipped because the Research Protocol caller path filter did not include the workflow-contract test, the saved-panel synthetic test or the production saved-panel validator.
+- Root cause: the Phase 8 detector pattern was incomplete relative to its registered tests and validator.
+- Correction: commit 82915b8 registers those three paths as Phase 8-triggering changes.
+- Prevention: keep workflow path filters synchronized with every executable test/validator in the gate; do not interpret generic protocol PASS as Phase 8 regression success.
