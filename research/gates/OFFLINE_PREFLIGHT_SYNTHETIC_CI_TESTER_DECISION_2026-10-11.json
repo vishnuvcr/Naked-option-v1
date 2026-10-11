@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-11",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "0e9b5f592f8004022576598936a7f24a8268caca",
+  "pull_request": 9,
+  "workflow_run_id": 38135712550,
+  "workflow_conclusion": "success",
+  "job": "offline-unit-tests",
+  "scope": "synthetic code gate only",
+  "independent_ai_review": "not available; no AI verdict inferred",
+  "real_file_preflight": "NOT_AUTHORIZED",
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "report": "research/gates/OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_REVIEW_2026-10-11.md",
+  "blockers": [
+    "Actual CSV.GZ not present in current runtime.",
+    "Structural preflight does not establish join/session/target/leakage correctness."
+  ]
+}
