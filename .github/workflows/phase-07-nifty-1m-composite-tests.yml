@@ -19,6 +19,7 @@ on:
       - ".github/workflows/phase-07-nifty-1m-composite-live.yml"
       - "requirements-composite.txt"
       - ".github/workflows/phase-07-nifty-1m-composite-tests.yml"
+      - ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
   workflow_dispatch:
 
 permissions:
