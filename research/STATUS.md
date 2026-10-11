@@ -1508,3 +1508,14 @@ Tester → Developer: Keep real-file preflight and all downstream research gates
 
 Developer → Tester: Review exact code/tests, verify successful synthetic CI on the final snapshot, and return a scoped decision.
 Tester → Developer: Keep real-file execution and all downstream gates closed until exact-snapshot review passes.
+
+
+## 2026-10-11 — Duplicate-key fail-closed correction and tester resubmission
+
+- Developer self-review found and corrected a logic defect where duplicate keys could be reported as PASS despite a nonzero count. The scanner now reports `PREFLIGHT_FAIL_DUPLICATE_KEYS` and the CLI exits nonzero; the test asserts this behavior.
+- Latest scanner commit: `6f11cc93f49e407c957ab843ea60311c41dba01f`; latest test commit: `f6284c458f408728a00f60673948d0fc35f5a417`.
+- Tester report/decision on `phase-07-tester`: [OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md) — REQUEST_CHANGES. No exact-snapshot CI receipt was verified; action pinning policy remains unresolved.
+- Gate state: real-file preflight NOT AUTHORIZED; fitting/scoring CLOSED; holdout CLOSED; new source requests CLOSED; strategy/P&L CLOSED. Actual CSV is not mounted in this execution environment.
+
+Developer → Tester: Re-review after successful CI and approved workflow security-policy resolution.
+Tester → Developer: Keep the real-file audit and all downstream gates closed until those blockers are resolved.
