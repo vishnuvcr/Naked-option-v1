@@ -337,3 +337,9 @@ The tester has approved the exact manifest and guarded workflow only. A one-use 
 - Execution request was submitted. No audit report has been independently inspected.
 **Tester → Developer:** Provide a verified run receipt and sanitized report.
 **Developer → Tester:** Keep modelling, holdout and strategy/P&L gates closed.
+
+### 2026-10-11 — Exact hash gate revalidation
+- Developer detected and corrected post-review file hash drift; all 11 approved blobs now match the recorded tester decision.
+- Request R2 committed at `6d75d26f0f30036595d3996f48602c6657a34b97`.
+**Tester → Developer:** Supply the completed audit run receipt and sanitized report.
+**Developer → Tester:** Keep modelling, holdout and strategy/P&L closed until receipt/report review is complete.
