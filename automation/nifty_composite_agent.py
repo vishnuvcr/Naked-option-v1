@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import os
 import pathlib
@@ -135,8 +136,32 @@ def compile_report(args: argparse.Namespace) -> int:
     offline = json.loads(args.offline.read_text(encoding="utf-8"))
     ai = json.loads(args.ai.read_text(encoding="utf-8"))
     deterministic_ok = offline.get("verdict") != "REQUEST_CHANGES"
-    ai_ok = ai.get("decision") == "PASS_WITH_SCOPED_RESTRICTIONS" and ai.get("review_status") == "COMPLETED"
-    decision = "PASS_WITH_SCOPED_RESTRICTIONS" if deterministic_ok and ai_ok else "REQUEST_CHANGES"
+    ai_completed = ai.get("review_status") == "COMPLETED"
+    ai_ok = ai.get("decision") == "PASS_WITH_SCOPED_RESTRICTIONS" and ai_completed
+    if deterministic_ok and (ai_ok or not ai_completed):
+        decision = "PASS_WITH_SCOPED_RESTRICTIONS"
+    else:
+        decision = "REQUEST_CHANGES"
+
+    blockers = [f for f in offline.get("findings", []) if f.get("severity") == "BLOCKER"]
+    known_gap_phrases = [
+        "missing-volume response", "empty-volume response", "misaligned volume array",
+        "invalid timestamp types", "separate OHLC misalignment",
+    ]
+    deterministic_test_gap = bool(blockers) and all(
+        f.get("code") == "MISSING_REGRESSION_CASE"
+        and any(phrase in str(f.get("message", "")) for phrase in known_gap_phrases)
+        for f in blockers
+    ) and all(
+        check.get("exit_code") == 0
+        for check in offline.get("offline_tests", {}).get("checks", [])
+    )
+    if deterministic_test_gap:
+        repair_mode = "DETERMINISTIC_TEST_GAP_FIX"
+    elif ai_completed and ai.get("decision") == "REQUEST_CHANGES":
+        repair_mode = "AI_DEVELOPER_PATCH"
+    else:
+        repair_mode = "NONE"
     lines = [
         "# Automated Independent Tester Report — NIFTY 1-Minute Composite", "",
         f"- Decision: {decision}",
@@ -161,20 +186,94 @@ def compile_report(args: argparse.Namespace) -> int:
         "This report applies only to the exact developer commit named above. PASS does not create or spend the separate "
         "one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain "
         "mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.", "",
+        "When AI inference is unavailable, any PASS is deterministic-only and scoped to this offline code gate; it is not an AI review or acquisition approval.", "",
         "Only action summaries and findings are retained; private model reasoning is not written to the repository.", "",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("\n".join(lines), encoding="utf-8")
     decision_obj = {
         "schema_version": 1, "decision": decision, "reviewed_developer_commit": args.reviewed_sha,
-        "attempt": args.attempt, "ai_reviewer_available": ai.get("review_status") == "COMPLETED",
-        "deterministic_pass": deterministic_ok,
-        "auto_repair_eligible": decision == "REQUEST_CHANGES" and ai.get("review_status") == "COMPLETED" and args.attempt < args.max_attempts,
+        "attempt": args.attempt, "ai_reviewer_available": ai_completed,
+        "deterministic_pass": deterministic_ok, "repair_mode": repair_mode,
+        "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode != "NONE" and args.attempt < args.max_attempts,
         "live_requests_authorized": False, "model_fitting_authorized": False, "holdout_access_authorized": False,
     }
     args.decision_output.write_text(json.dumps(decision_obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(decision_obj, sort_keys=True))
     return 0
+
+
+def deterministic_test_gap_patch(target: pathlib.Path) -> str | None:
+    """Add only the five pre-registered response-validation regression tests."""
+    relative = "scripts/test_nifty_1m_composite_dataset.py"
+    path = target / relative
+    if not path.is_file():
+        return None
+    original = path.read_text(encoding="utf-8")
+    methods = {
+        "test_spot_parser_rejects_missing_volume": '''    def test_spot_parser_rejects_missing_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1]}
+        with self.assertRaisesRegex(ValueError, "response_field_not_array_volume"):
+            collector.parse_spot_response(payload, request)
+
+''',
+        "test_spot_parser_rejects_empty_volume": '''    def test_spot_parser_rejects_empty_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": []}
+        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+            collector.parse_spot_response(payload, request)
+
+''',
+        "test_spot_parser_rejects_misaligned_volume": '''    def test_spot_parser_rejects_misaligned_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": [1, 2]}
+        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+            collector.parse_spot_response(payload, request)
+
+''',
+        "test_spot_parser_rejects_noninteger_timestamp": '''    def test_spot_parser_rejects_noninteger_timestamp(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        for invalid_timestamp in (True, str(ts), float(ts)):
+            payload = {
+                "timestamp": [invalid_timestamp], "open": [1], "high": [1],
+                "low": [1], "close": [1], "volume": [1]
+            }
+            with self.subTest(timestamp_type=type(invalid_timestamp).__name__):
+                with self.assertRaisesRegex(ValueError, "response_timestamp_not_integer_epoch"):
+                    collector.parse_spot_response(payload, request)
+
+''',
+        "test_spot_parser_rejects_each_misaligned_ohlc_array": '''    def test_spot_parser_rejects_each_misaligned_ohlc_array(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        for field in ("open", "high", "low", "close"):
+            payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": [1]}
+            payload[field] = []
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+                    collector.parse_spot_response(payload, request)
+
+''',
+    }
+    missing = [body for name, body in methods.items() if name not in original]
+    if not missing:
+        return None
+    anchor = "    def test_spot_parser_rejects_misaligned_arrays(self):"
+    if anchor not in original:
+        return None
+    updated = original.replace(anchor, "".join(missing) + anchor, 1)
+    diff = "".join(difflib.unified_diff(
+        original.splitlines(keepends=True), updated.splitlines(keepends=True),
+        fromfile="a/" + relative, tofile="b/" + relative, n=3
+    ))
+    if not diff:
+        return None
+    return "diff --git a/" + relative + " b/" + relative + "\n" + diff
 
 
 def extract_diff(value: str) -> str:
@@ -209,7 +308,20 @@ def generate_patch(args: argparse.Namespace) -> int:
         "Include standard unified diff headers with repository-relative paths."
     )
     model = os.environ.get("HF_DEVELOPER_MODEL", "Qwen/Qwen3-Coder-30B-A3B-Instruct:cheapest")
-    patch = extract_diff(call_hf(system, user, model, 7000))
+    try:
+        patch = extract_diff(call_hf(system, user, model, 7000))
+    except Exception as exc:
+        patch = deterministic_test_gap_patch(target)
+        if not patch:
+            raise RuntimeError(
+                "AI patch generation unavailable and findings have no safe deterministic repair: "
+                + type(exc).__name__
+            ) from None
+        print(json.dumps({
+            "patch_mode": "DETERMINISTIC_TEST_GAP_FIX",
+            "inference_unavailable": type(exc).__name__,
+            "note": "Only registered parser regression tests were added; parser/schema semantics were not changed."
+        }))
     changed = set()
     for line in patch.splitlines():
         if line.startswith("+++ b/"):
