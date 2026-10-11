@@ -1151,3 +1151,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Root cause: the Hugging Face token's inference request did not have usable inference credits/billing for this endpoint at runtime. The repository secret's existence does not imply inference entitlement.
 - Correction: added a fail-closed deterministic fallback restricted to the pre-registered missing parser regression tests. Unknown findings still require working AI inference or intervention. A deterministic-only PASS remains restricted to the offline code gate and does not authorize acquisition.
 - Prevention: report AI availability explicitly; never infer model approval from an HTTP failure; preserve bounded cycles and independent tester checks. Follow-up run [38111417286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111417286) is queued for verification.
+
+
+## 2026-10-11 — Automated review duplicate-trigger race
+- Category: research automation / workflow orchestration.
+- Component: `.github/workflows/phase-07-nifty-1m-composite-agent-cycle.yml` on `main`.
+- Symptom: multiple tester decision comments, including conflicting PASS/REQUEST_CHANGES messages, appeared for the same developer snapshot while controller commits were being pushed to `main`.
+- Root cause: the workflow listened to pushes on both `main` and `phase-07-developer`; edits to the controller, logs and reports on `main` retriggered the review loop and caused redundant runs.
+- Correction: push trigger restricted to `phase-07-developer`; manual dispatch remains available. Commit: [2eb7aea](https://github.com/vishnuvcr/Naked-option-v1/commit/2eb7aea8064efb63ec9051efe2ced76c700e3d89).
+- Prevention: do not infer approval from a comment alone; bind each tester report to an exact developer commit and read the tester-owned report/decision files. If AI inference is unavailable, retain only deterministic offline-gate scope and keep all live/scientific gates closed.
+- Impact: no market-data request, model fit, strategy test or holdout access was triggered by this workflow correction.
+
