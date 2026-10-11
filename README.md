@@ -1,3 +1,11 @@
+## 2026-10-11 — Feasibility proposal approved for design only; holdout boundary is blocked
+
+- [MR-0 to MR-5 feasibility proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_R5_2026-10-11.md) and [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_SCOPE_R5_2026-10-11.json) received tester approval for design only.
+- [Tester decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_TESTER_DECISION_R5_2026-10-11.json) does not authorize real-data execution.
+- Existing [PPR-4 holdout metadata audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json) records no machine-readable holdout boundary. MR-4 must fail closed until valid boundary metadata is found or separately approved.
+- Next: build and test the bounded metadata-only runner, then submit exact hashes to the tester. No model fitting/scoring, holdout observation access, new source requests or strategy/P&L.
+- See [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), and [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
+
 ## 2026-10-11 — Modeling-readiness synthetic implementation approved; empirical gate remains closed
 
 - Latest synthetic workflow [38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) passed.
