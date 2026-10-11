@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate diagnostic workflow YAML
-        run: ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml"); puts "PASS: unmatched timestamp diagnostic workflow YAML parses"'
+        run: ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml"); puts "PASS unmatched timestamp diagnostic workflow YAML parses"'
 
       - name: Validate exact patch run and its artifact
         id: preflight
