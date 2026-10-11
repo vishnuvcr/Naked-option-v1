@@ -128,5 +128,53 @@ class TestSpotGapfillMerge(unittest.TestCase):
         self.assertEqual(counters["spot_join_missing"], 1)
 
 
+
+
+class TestSpotGapfillByteBudget(unittest.TestCase):
+    def setUp(self):
+        self.raw = b"{malformed-json"
+        self.request = {
+            "request_id": "TEST-SPOT-BYTES",
+            "endpoint": "https://example.invalid/spot",
+            "body": {"symbol": "NIFTY"},
+            "max_response_bytes": 1024,
+            "window_start_inclusive": "2026-01-01",
+            "window_end_exclusive": "2026-01-02",
+        }
+        self.response = mock.Mock()
+        self.response.status = 200
+        self.response.headers = {"Content-Type": "application/json"}
+        self.response.read.return_value = self.raw
+        self.response.close.return_value = None
+        self.opener = mock.Mock()
+        self.opener.open.return_value = self.response
+        self.collector = gapfill.SpotGapFillCollector(
+            token="test-token",
+            key=b"x" * 32,
+            requests=[self.request],
+            ledger={"wire_attempts_new": 0, "retry_attempts_new": 0, "attempts_by_request_id": {}},
+        )
+        self.collector.pacer.wait = mock.Mock()
+        self.collector._record_attempt = mock.Mock()
+
+    def test_malformed_response_bytes_are_charged_before_json_validation(self):
+        with mock.patch.object(gapfill.urllib.request, "build_opener", return_value=self.opener), \
+             mock.patch.object(gapfill, "get_cached_payload", return_value=None), \
+             mock.patch.object(gapfill, "parse_json_numbers", side_effect=ValueError("bad_json")):
+            payload, status, digest, http_status, size = self.collector._get_payload(self.request)
+        self.assertIsNone(payload)
+        self.assertEqual(status, "FAILED_VALIDATION")
+        self.assertEqual(self.collector.downloaded_bytes, len(self.raw))
+        self.assertEqual(size, len(self.raw))
+
+    def test_aggregate_budget_exceeded_fails_before_payload_validation(self):
+        cap = 268_435_456
+        self.collector.downloaded_bytes = cap - len(self.raw) + 1
+        with mock.patch.object(gapfill.urllib.request, "build_opener", return_value=self.opener):
+            with self.assertRaisesRegex(ValueError, "spot_aggregate_byte_budget_exceeded"):
+                self.collector._http_fetch(self.request)
+        self.assertEqual(self.collector.downloaded_bytes, cap - len(self.raw) + 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
