@@ -73,6 +73,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
     width_errors = 0
     duplicate_keys = None
     incomplete_key_rows = 0
+    key_group_row_counts = Counter()
     key_cols = None
     db = None
     db_path = None
@@ -152,6 +153,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         incomplete_key_rows += 1
                     else:
                         group_number, candidate_values = selected_key
+                        key_group_row_counts[group_number] += 1
                         key = json.dumps([group_number, *candidate_values], separators=(",", ":"), ensure_ascii=False)
                         try:
                             db.execute("INSERT INTO keys_seen(k) VALUES (?)", (key,))
@@ -205,6 +207,13 @@ def run(path: Path, report_path: Path, expected_sha: str,
             "duplicate_key_fields": [[header[i] for i in column_indexes] for _group, column_indexes in key_cols] if key_cols else [],
             "duplicate_key_count": duplicate_keys,
             "incomplete_composite_key_rows": incomplete_key_rows,
+            "key_group_row_counts": {
+                str(group_number): {
+                    "fields": [header[i] for i in key_cols[group_number][1]],
+                    "rows_assigned": row_count,
+                }
+                for group_number, row_count in sorted(key_group_row_counts.items())
+            } if key_cols else {},
             "limitations": [
                 "This is structural preflight only, not modelling-readiness approval.",
                 "Unparseable timestamps and incomplete composite identifiers are reported but not repaired.",
