@@ -82,10 +82,12 @@ def test_manifest_cannot_redirect_a_pinned_source_path():
         data = json.loads(manifest.read_text(encoding="utf-8"))
         data["source_files"]["daily_csv"]["path"] = "../../outside.csv"
         manifest.write_text(json.dumps(data), encoding="utf-8")
-        result = verify_module.verify_cached_source_inputs(manifest, root, allow_missing=True)
-        assert result["status"] == "ERROR", result
-        assert result["network_accessed"] is False
-        assert "source path pin changed" in result["error"]
+        try:
+            verify_module.verify_cached_source_inputs(manifest, root, allow_missing=True)
+        except verify_module.SourceCacheError as exc:
+            assert "source path pin changed" in str(exc)
+        else:
+            raise AssertionError("source manifest path redirection was accepted")
 
 
 def test_missing_or_malformed_manifest_fails_closed():
