@@ -2,7 +2,7 @@
   "schema_version": 1,
   "gate": "phase8-cached-composite-preflight-r1",
   "request_id": "PHASE8_CACHED_COMPOSITE_PREFLIGHT_ONCE_R1_2026-10-11",
-  "requested": true,
+  "requested": false,
   "requested_scope": "metadata-only cached composite preflight",
   "source": {
     "run_id": 38131641336,
@@ -46,5 +46,5 @@
   "holdout_access_authorized": false,
   "new_market_source_requests_authorized": false,
   "strategy_promotion_authorized": false,
-  "note": "This request is deliberately disabled until the exact implementation/code blobs receive an implementation-level tester decision. Enabling this request permits only one metadata preflight; it does not authorize option P&L. Activated once after implementation tester decision acc806f94a3f60b3dd282b3b8c536c9891d1b5cf on 2026-10-11. This request authorizes only the single metadata-only preflight; all empirical P&L, holdout, new-source and strategy-promotion flags remain false. Pins refreshed on 2026-10-11 to tester recheck snapshot 7fb30a0a04eeba5aa65485e974ca35091fe035b6 after the contract test was made compatible with a reviewer-approved activation. All code blobs other than the preflight contract test are unchanged; all empirical flags remain false."
+  "note": "This request is deliberately disabled until the exact implementation/code blobs receive an implementation-level tester decision. Enabling this request permits only one metadata preflight; it does not authorize option P&L. Activated once after implementation tester decision acc806f94a3f60b3dd282b3b8c536c9891d1b5cf on 2026-10-11. This request authorizes only the single metadata-only preflight; all empirical P&L, holdout, new-source and strategy-promotion flags remain false. Pins refreshed on 2026-10-11 to tester recheck snapshot 7fb30a0a04eeba5aa65485e974ca35091fe035b6 after the contract test was made compatible with a reviewer-approved activation. All code blobs other than the preflight contract test are unchanged; all empirical flags remain false. R1 was consumed by run 38161788742: encrypted part checks and decryption/merge succeeded; canonical decoded CSV SHA/row/type counts and saved forecast hashes passed; report created; cleanup passed. The workflow returned failure solely due to a 63-character expected canonical SHA literal in the assertion wrapper, and its expiry_fields_missing summary also incorrectly measured absent header columns rather than blank option-row values. No replay of this request is allowed. Follow-up code/report corrections must use a new versioned request if another data pass is required."
 }
