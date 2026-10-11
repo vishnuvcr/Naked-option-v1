@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_R7",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_commit": "cb924f9edcea21f1fb91355fe5d75774d6fa5ca3",
+  "reviewed_blobs": {
+    "scripts/modeling_readiness_feasibility_run.py": "578f80335c23186eb97e0fd4c51df37af48558f9",
+    "tests/test_modeling_readiness_feasibility_run.py": "d9452814dcf8241c2fbe5e2683abed1a7e367477",
+    "research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json": "1bcecc1b2af9cfb95fcb8d440cd59c15ea0674fe",
+    ".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml": "c47fad18419fadeeb08d3d26a88789c3ba245786"
+  },
+  "ci": {
+    "run_id": 38153160558,
+    "conclusion": "success",
+    "tests_observed": 13,
+    "scope": "synthetic-only"
+  },
+  "allowed_scope": [
+    "synthetic tests",
+    "deterministic offline self-test",
+    "metadata-only discovery for cached boundary/provenance artifacts"
+  ],
+  "prohibited_scope": [
+    "real-data feasibility scan",
+    "model fitting",
+    "model tuning",
+    "prediction scoring",
+    "holdout observation access",
+    "new source requests",
+    "strategy P&L",
+    "trading"
+  ],
+  "remaining_blocker": "PPR-4 audit reports no machine-readable holdout boundary; source/close-linkage evidence artifacts have not been verified for an empirical run.",
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
