@@ -1,4 +1,5 @@
 import csv
+import gzip
 import hashlib
 import json
 import tempfile
@@ -42,6 +43,8 @@ class ProspectiveBoundaryTests(unittest.TestCase):
             self.assertEqual(result["holdout_start_session"], "2026-01-18")
             self.assertEqual(result["holdout_start_byte_offset"], raw.index(b"SPOT,1002040,2026-01-18"))
             self.assertEqual(result["dataset_sha256"], hashlib.sha256(raw).hexdigest())
+            self.assertEqual(result["source_container_sha256"], hashlib.sha256(raw).hexdigest())
+            self.assertFalse(result["source_container_compressed"])
             self.assertEqual(result["holdout_range_sha256"], hashlib.sha256(raw[result["holdout_start_byte_offset"]:]).hexdigest())
             self.assertFalse(result["value_fields_accessed"])
             self.assertFalse(result["holdout_values_decoded"])
@@ -49,6 +52,21 @@ class ProspectiveBoundaryTests(unittest.TestCase):
             for forbidden in ("DO_NOT_READ_CLOSE","DO_NOT_READ_QUOTE","DO_NOT_READ_FEATURE","DO_NOT_READ_LABEL"):
                 self.assertNotIn(forbidden, serialized)
             self.assertEqual(result["status"], "NOT_ESTIMABLE")
+
+
+    def test_gzip_scan_preserves_uncompressed_offsets_and_suffix_hash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            plain = Path(tmp)/"fixture.csv"
+            raw = make_fixture(plain)
+            compressed_path = Path(tmp)/"fixture.csv.gz"
+            compressed = gzip.compress(raw, mtime=0)
+            compressed_path.write_bytes(compressed)
+            result = scan_metadata_file(compressed_path, expected_columns=7, column_map=COLUMN_MAP, row_type_values=ROW_TYPES)
+            self.assertTrue(result["source_container_compressed"])
+            self.assertEqual(result["source_container_sha256"], hashlib.sha256(compressed).hexdigest())
+            self.assertEqual(result["dataset_sha256"], hashlib.sha256(raw).hexdigest())
+            self.assertEqual(result["holdout_range_sha256"], hashlib.sha256(raw[result["holdout_start_byte_offset"]:]).hexdigest())
+            self.assertEqual(result["holdout_start_byte_offset"], raw.index(b"SPOT,1002040,2026-01-18"))
 
     def test_bad_row_width_fails_with_sanitized_code(self):
         with tempfile.TemporaryDirectory() as tmp:
