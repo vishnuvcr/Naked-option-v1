@@ -1679,3 +1679,16 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Inspect the completed R5 report and cleanup receipt; verify canonical OPTION identity, distinct SPOT timestamp uniqueness, incomplete keys and exact decoded-content hash.
 **Tester → Developer:** Keep all downstream permissions closed until the completed report and separate data-readiness gate are reviewed.
+
+
+### 2026-10-11 — R5 completed, scoped tester result recorded
+- R5 run [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301) finished successfully. Synthetic suite and real-file audit job succeeded, artifact 11705154936 uploaded, and cleanup logged PASS.
+- Report line from hosted log: `PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS`; content SHA matched pinned uncompressed CSV; row count 8,999,865; 47 columns; timestamp parse errors 0; canonical duplicate checks PASS. Independently re-fetched tester-reviewed blobs: 17/17 hashes matched run snapshot `534f3cd5a4329b5e45fa38a1b507ebce6bcf027c`.
+- Tester-role result was committed to phase-07-tester as `REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md` and `REAL_FILE_PREFLIGHT_RESULT_TESTER_DECISION_R5_2026-10-11.json`: PASS WITH SCOPED RESTRICTIONS for structural preflight only, not modelling readiness.
+- Structural result: 8,490,723 OPTION + 509,142 SPOT; zero incomplete canonical key rows, zero duplicate canonical OPTION/SPOT keys, zero width errors and timestamp parse errors. The R4 4,148,431 count is invalid because the R4 key omitted canonical request identity fields.
+- Source coverage restrictions remain: 19,021 unmatched option rows / 421 timestamps; 24,847 weekend-review flagged rows; masked OHLCV; all expiry-date/TTE/Greek/rate/dividend fields blank in this dataset snapshot.
+- No fitting/scoring, holdout, new source pull, strategy/P&L, or trading operation occurred. Next work is the bounded readiness proposal; paper replication is itself still not authorized for empirical work.
+- The first attempt to author the tester report failed at tool-call parsing from a raw newline inside a JSON field. No repository write was issued by that failed call. The full payload was corrected and the subsequent tester report, decision and status commits succeeded.
+
+**Developer → Tester:** Review the exact readiness proposal and deterministic preflight tests.
+**Tester → Developer:** Keep all empirical permissions closed until readiness and paper-replication phase gates explicitly pass.
