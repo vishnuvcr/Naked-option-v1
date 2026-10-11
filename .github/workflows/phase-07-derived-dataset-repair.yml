@@ -100,8 +100,10 @@ jobs:
           import hashlib,json,os,pathlib,shutil
           root=pathlib.Path(os.environ["BUNDLE_DIR"])
           out=pathlib.Path(os.environ["INPUT_DIR"])
-          manifest_path=root/"dataset_manifest.json"
-          if not manifest_path.is_file(): raise SystemExit("source_manifest_missing")
+          manifests=list(root.rglob("dataset_manifest.json"))
+          if len(manifests)!=1: raise SystemExit("source_manifest_count_invalid")
+          manifest_path=manifests[0]
+          export_root=manifest_path.parent
           manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
           if manifest.get("dataset_id")!="NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL":
               raise SystemExit("source_dataset_id_mismatch")
@@ -113,7 +115,7 @@ jobs:
           expected={"rows_options":8490723,"rows_spot":509142,"spot_join_matched":8471702,"spot_join_missing":19021}
           for k,v in expected.items():
               if summary.get(k)!=v: raise SystemExit("source_summary_mismatch_"+k)
-          encrypted=root/"encrypted"
+          encrypted=export_root/"encrypted"
           if not encrypted.is_dir(): raise SystemExit("source_encrypted_directory_missing")
           names=set()
           total=0
