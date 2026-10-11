@@ -1117,3 +1117,9 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Correction in progress: commit `38643c71e718cf53a5e745652c590e35519e5174` adds bounded, sanitized parser-reason logging; commit `bae5586f140c1a33146183631670084cfeb7a690` adds regression coverage that rejects long/unsafe reason text. No new live requests have been made.
 - Next: amend final-status workflow to fetch/rebase/retry without force-push; run all offline regressions; obtain an exact-snapshot tester decision; only then authorize a bounded recovery request for missing spot shards. Preserve option cache and never repeat the 8,540 option requests unless the tester-approved recovery plan proves they are needed.
 - Prevention: do not interpret `unexpected_ValueError` as a diagnosis; require a specific safe reason code. Never force-push to resolve concurrent workflow commits. Keep model/holdout/strategy gates closed until artifact coverage is independently reviewed.
+
+
+## 2026-10-11 — Repair regression checkpoint
+- Workflow status-push repair: commit [5f2e13c](https://github.com/vishnuvcr/Naked-option-v1/commit/5f2e13c143dc463cac7f2ad11c93e8eee61448de) fetches and rebases the status-only commit onto the current developer branch before pushing; no force-push is used.
+- Offline composite pipeline tests passed on [run 38101761538](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38101761538).
+- The actual spot validation cause remains unresolved. Await independent review at [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7) before any live diagnostic/recovery request.
