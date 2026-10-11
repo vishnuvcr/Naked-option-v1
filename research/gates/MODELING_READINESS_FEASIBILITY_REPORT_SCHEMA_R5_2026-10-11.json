@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sanitized MR-0 to MR-5 Metadata Feasibility Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dataset_id", "dataset_sha256", "expected_rows", "expected_columns",
+    "prefix_rows_scanned", "option_rows_scanned", "spot_rows_scanned",
+    "invalid_ohlc_rows", "off_calendar_rows", "duplicate_spot_epoch_rows",
+    "unmatched_option_rows", "weekend_review_rows", "target_horizons",
+    "feature_families", "train_session_count", "validation_session_count",
+    "session_status", "split_status", "source_manifest_sha256",
+    "calendar_manifest_sha256", "split_manifest_sha256", "cleanup_status", "gate_status"
+  ],
+  "properties": {
+    "dataset_id": {"type":"string","enum":["NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1"]},
+    "dataset_sha256": {"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "expected_rows": {"type":"integer","minimum":8999865,"maximum":8999865},
+    "expected_columns": {"type":"integer","minimum":47,"maximum":47},
+    "prefix_rows_scanned": {"type":"integer","minimum":0,"maximum":8999865},
+    "option_rows_scanned": {"type":"integer","minimum":0,"maximum":8999865},
+    "spot_rows_scanned": {"type":"integer","minimum":0,"maximum":8999865},
+    "invalid_ohlc_rows": {"type":"integer","minimum":0},
+    "off_calendar_rows": {"type":"integer","minimum":0},
+    "duplicate_spot_epoch_rows": {"type":"integer","minimum":0},
+    "unmatched_option_rows": {"type":"integer","minimum":0},
+    "weekend_review_rows": {"type":"integer","minimum":0},
+    "target_horizons": {
+      "type":"object","additionalProperties":false,
+      "required":["1","2","3","5","10"],
+      "properties":{
+        "1":{"$ref":"#/$defs/target"},
+        "2":{"$ref":"#/$defs/target"},
+        "3":{"$ref":"#/$defs/target"},
+        "5":{"$ref":"#/$defs/target"},
+        "10":{"$ref":"#/$defs/target"}
+      }
+    },
+    "feature_families": {
+      "type":"object","additionalProperties":{"$ref":"#/$defs/feature_family"}
+    },
+    "train_session_count": {"type":"integer","minimum":0},
+    "validation_session_count": {"type":"integer","minimum":0},
+    "session_status": {"type":"string","enum":["PASS","PASS_WITH_EXCLUSIONS","NOT_ESTIMABLE","BLOCKED"]},
+    "split_status": {"type":"string","enum":["PASS","PASS_WITH_RESTRICTIONS","BLOCKED_HOLDOUT_PROOF","BLOCKED_LEAKAGE","NOT_ESTIMABLE"]},
+    "source_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
+    "calendar_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
+    "split_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
+    "block_reason": {"type":"string","enum":["BLOCKED_HOLDOUT_PROOF","BLOCKED_MISSING_PROVENANCE"]},
+    "cleanup_status": {"type":"string","enum":["PASS","FAIL","NOT_RUN"]},
+    "gate_status": {"type":"string","enum":["PASS","PASS_WITH_RESTRICTIONS","PASS_WITH_EXCLUSIONS","BLOCKED","NOT_ESTIMABLE"]}
+  },
+  "$defs": {
+    "target": {
+      "type":"object","additionalProperties":false,
+      "required":["status","eligible_origins","excluded_missing_endpoint","down_count","flat_count","up_count"],
+      "properties":{
+        "status":{"type":"string","enum":["CANDIDATE","NOT_ESTIMABLE","BLOCKED_HOLDOUT_PROOF"]},
+        "eligible_origins":{"type":"integer","minimum":0},
+        "excluded_missing_endpoint":{"type":"integer","minimum":0},
+        "down_count":{"type":"integer","minimum":0},
+        "flat_count":{"type":"integer","minimum":0},
+        "up_count":{"type":"integer","minimum":0}
+      }
+    },
+    "feature_family": {
+      "type":"object","additionalProperties":false,
+      "required":["status","nonblank_cells","possible_cells","coverage_rate"],
+      "properties":{
+        "status":{"type":"string","enum":["CANDIDATE","BLOCKED_DATA","NOT_ESTIMABLE","PASS_WITH_RESTRICTIONS"]},
+        "nonblank_cells":{"type":"integer","minimum":0},
+        "possible_cells":{"type":"integer","minimum":0},
+        "coverage_rate":{"type":"number","minimum":0,"maximum":1}
+      }
+    }
+  }
+}
