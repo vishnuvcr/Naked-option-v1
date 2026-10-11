@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "gate_id": "MODELING_READINESS_FEASIBILITY_RUN_R5",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "dataset": {
+    "id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+    "decoded_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "structural_run_id": 38147761301,
+    "expected_rows": 8999865,
+    "expected_columns": 47,
+    "option_rows": 8490723,
+    "spot_rows": 509142
+  },
+  "scope": "one bounded metadata-only MR-0 to MR-5 feasibility audit using frozen input and cached manifests only",
+  "gates": [
+    "MR-0 cached source/calendar inventory",
+    "MR-1 timestamp/session semantics",
+    "MR-2 target endpoint feasibility",
+    "MR-3 feature-family availability and PIT validity",
+    "MR-4 split/label purge/holdout exclusion proof",
+    "MR-5 tester acceptance"
+  ],
+  "horizons_sessions": [
+    1,
+    2,
+    3,
+    5,
+    10
+  ],
+  "flat_tolerance_abs_return": 1e-8,
+  "required_outputs": [
+    "input_hash_receipt",
+    "aggregate_counts",
+    "coverage_rates",
+    "allowlisted_statuses",
+    "exclusion_counts",
+    "schema_validation",
+    "cleanup_status"
+  ],
+  "forbidden_outputs": [
+    "plaintext_dataset",
+    "row_level_market_data",
+    "price_values",
+    "option_premiums",
+    "strike_values",
+    "row_timestamps",
+    "trade_records",
+    "holdout_observations",
+    "predictions",
+    "model_metrics"
+  ],
+  "permissions": {
+    "real_file_audit": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_observation_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "authorization_requires": [
+    "tester approves exact proposal and implementation hashes",
+    "runner verifies frozen dataset SHA-256",
+    "cached source/calendar provenance exists",
+    "metadata-only report passes Python sanitizer and JSON Schema validation",
+    "cleanup confirmed"
+  ]
+}
