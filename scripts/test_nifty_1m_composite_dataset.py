@@ -74,6 +74,38 @@ class TestEncryptedComposite(unittest.TestCase):
         with self.assertRaises(ValueError):
             collector.decrypt_bytes(cipher, other)
 
+    def test_spot_only_recovery_blocks_live_option_refetch_when_cache_is_missing(self):
+        request = option_request()
+        budget = {
+            "max_wire_requests": 8701, "max_retry_requests": 100,
+            "family_payload_bytes": {"NIFTY_ROLLING_OPTION_1M": 0},
+            "family_byte_limits": {"NIFTY_ROLLING_OPTION_1M": 8589934592},
+            "errors": [], "downloaded_bytes": 0, "request_attempts": 0, "retry_requests": 0,
+        }
+        ledger = {
+            "schema_version": 1, "total_wire_attempts": 8606, "total_retry_attempts": 5,
+            "request_attempts_by_id": {}, "permanent_failure_requests": {},
+            "permanent_failure_families": {}, "_last_saved": {
+                "total_wire_attempts": 8606, "total_retry_attempts": 5,
+                "request_attempts_by_id": {}, "permanent_failure_requests": {},
+                "permanent_failure_families": {},
+            }
+        }
+        try:
+            with mock.patch.object(collector, "get_cached_payload", return_value=None), \
+                 mock.patch.object(collector, "fetch_live", side_effect=AssertionError("live option fetch must never occur")):
+                payload, status, digest, http_status, byte_count = collector.request_payload(
+                    request, "test-dhan-token",
+                    collector.derive_key("hf_token_for_test_only_0123456789"),
+                    collector.RequestPacer(), {"wire_requests": 0, "retry_requests": 0},
+                    budget, {"failed": False}, ledger, allow_live=False
+                )
+            self.assertIsNone(payload)
+            self.assertEqual(status, "CACHE_REQUIRED_MISSING")
+            self.assertTrue(any(item["reason"] == "cache_required_missing_live_request_disabled" for item in budget["errors"]))
+        finally:
+            pass
+
     def test_invalid_cached_schema_is_refetched_for_the_same_approved_request(self):
         with tempfile.TemporaryDirectory() as tmp:
             old_cache, old_reports, old_ledger = collector.CACHE_ROOT, collector.REPORTS_ROOT, collector.ATTEMPT_LEDGER_PATH
