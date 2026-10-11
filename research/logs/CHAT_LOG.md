@@ -371,3 +371,11 @@ No scientific or protocol change was made during this checkpoint.
 - Preflight matrix SHA-256 `83a45d8c0692322f9cbf88523cb076fc97ff559a7fb089c681782a3f31477bd3`; all 4,800 configurations remain INELIGIBLE. The report showed all rows blank for expiry_date, expiry_mapping_source and time_to_expiry_years; lot_size and tick_size columns are absent. This is data readiness, not a negative/positive trading performance result.
 - Fixed the final assertion literal and the expiry-value completeness code. A rerun of the contract test caught the same short hash duplicated in its own assertion; correcting that second copy is the latest code patch. Any future real scan requires a versioned new request and exact-hash tester gate.
 - Separate forecast reconstruction check failed at daily H=1 on 64 future_return comparisons whose largest difference is 3.47e-18 due to floating-point rounding. This needs an explicit tester-reviewed near-equality policy, not silent suppression or a change to the stored Run #994 artifact.
+
+
+## 2026-10-11 — Conversation update: Phase 8 authorization regression
+
+- User-provided status was resumed autonomously; repository governance, README, research plan, status, error log, consumed marker and tester decision were checked before the correction.
+- Diagnosed run #38162721421: synthetic contract tests failed in `test_exact_snapshot_only` because the authorization script's canonical composite SHA literal omitted one `b`; request/manifest/fixture values agree on the frozen 64-character hash.
+- Developer correction committed as `be8b9c630a1061558fcf14a5bdb50a388f6e329b`; only the one incorrect identity literal was changed. R1 stays consumed and disabled; no dataset access or P&L is authorized by this work.
+- Next gate: tester reviews the corrected exact snapshot; hosted synthetic CI and the separate daily H=1 floating-point review remain pending. No strategy is promoted.
