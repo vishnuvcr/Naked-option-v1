@@ -225,7 +225,7 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
     required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
                       "wire_requests_reserved_for_spot", "8540", "61",
                       "EXPECTED_PRESERVED_OPTION_ROWS", "cached_option_rows",
-                      "8490723", "not invalid")
+                      "8_490_723", "not invalid")
     required_accounting = ("AUTHORIZED_NONPERSISTING_DIAGNOSTIC", "wire_delta", "request_scope_sha256",
                            "raw_response_persisted", "ALREADY_ACCOUNTED")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
