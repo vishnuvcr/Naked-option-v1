@@ -23,6 +23,13 @@ class ReadinessPrimitiveTests(unittest.TestCase):
         self.assertEqual(mapped["2026-01-02"][1], "2026-01-05")
         self.assertIsNone(mapped["2026-01-05"][2])
 
+    def test_generator_horizons_are_reused_for_each_session(self):
+        mapped = map_session_horizons(
+            ["2026-01-01", "2026-01-02", "2026-01-05"],
+            horizons=iter((1, 2)),
+        )
+        self.assertTrue(all(set(values) == {1, 2} for values in mapped.values()))
+
     def test_duplicate_or_unsorted_session_list_rejected(self):
         with self.assertRaises(ValueError):
             map_session_horizons(["2026-01-02","2026-01-02"])
