@@ -948,3 +948,11 @@ No successful synthetic CI receipt has been verified, and the actual CSV is not 
 
 Developer → Tester: Re-review after exact-snapshot synthetic CI is verified and the workflow action-pinning policy is resolved.
 Tester → Developer: Keep all empirical gates closed until those requirements pass.
+
+## 2026-10-11 — Phase 7 synthetic preflight gate passed; empirical gate remains closed
+
+- [Tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_REVIEW_2026-10-11.md): `PASS_WITH_SCOPED_RESTRICTIONS`, synthetic code gate only.
+- [Successful GitHub Actions run 38135712550](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38135712550) ran the action-pin policy guard, synthetic tests and absence-of-plaintext checks.
+- [PR #9](https://github.com/vishnuvcr/Naked-option-v1/pull/9) merged into `phase-07-developer` at `b295a5da96722a42865d36f40eeeca1eec31eab2`.
+- The actual CSV.GZ is not present in this execution runtime. No row-level preflight, model fitting/scoring, holdout evaluation or strategy/P&L testing was performed. These gates remain closed.
+- Next step is a separately reviewed design for a bounded real-file audit that runs only in an authorized environment and publishes metadata only, never plaintext rows.
