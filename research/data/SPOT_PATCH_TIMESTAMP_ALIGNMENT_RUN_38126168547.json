@@ -1,0 +1,34 @@
+{
+  "audit_type": "SPOT_PATCH_TIMESTAMP_ALIGNMENT_DIAGNOSTIC",
+  "exact_timestamp_intersection_with_new_patch": 0,
+  "failed_window_end_exclusive": "2021-11-15",
+  "failed_window_start_inclusive": "2021-11-08",
+  "holdout_accessed": false,
+  "model_fitting_or_scoring_performed": false,
+  "nearest_new_spot_minus_option_epoch_seconds": {},
+  "new_patch_distinct_timestamps": 2244,
+  "new_patch_rows_by_session_date": {
+    "2021-11-08": 374,
+    "2021-11-09": 374,
+    "2021-11-10": 374,
+    "2021-11-11": 374,
+    "2021-11-12": 374,
+    "2021-11-13": 374
+  },
+  "new_patch_rows_by_weekday": {
+    "Friday": 374,
+    "Monday": 374,
+    "Saturday": 374,
+    "Thursday": 374,
+    "Tuesday": 374,
+    "Wednesday": 374
+  },
+  "new_patch_spot_rows": 2244,
+  "patch_run_id": "38126168547",
+  "raw_market_values_emitted": false,
+  "schema_version": 1,
+  "strategy_or_pnl_tested": false,
+  "unmatched_option_distinct_timestamps_in_failed_window": 0,
+  "unmatched_option_rows_by_session_date": {},
+  "unmatched_option_rows_in_failed_window": 0
+}

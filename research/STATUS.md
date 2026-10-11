@@ -266,3 +266,13 @@ Run #994 remains `in_progress` on immutable source commit `b50be8cfa1ebe008a800e
 ## 2026-10-10 — Follow-up gate check
 
 The independent static review accepts developer commit 39e964d's P10 diagnostic correction for a future run only, but the correction-specific approval manifest has been restored to its last verified snapshot (reviewed commit ccb063fb...) because the newly updated hashes/report digest were not independently verified. The current corrected developer snapshot is therefore **not yet authorized for empirical execution** by the exact-snapshot validator. Do not launch a new run until report/manifest copies and all protected-file SHA-256 hashes validate byte-for-byte across both branches. Run #994's results and non-significant family tests remain unchanged; Phase 8 blocked.
+
+
+## Dhan patch post-run value audit - run 38126168547
+
+- Patch run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547
+- Sanitized report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json
+- Audit status: FAIL; semantic error occurrences: 714.
+- Option rows: n/a; spot rows: n/a; unmatched option rows: 19021.
+- Model fitting, holdout access, and strategy/P&L testing remain unauthorized.
+
