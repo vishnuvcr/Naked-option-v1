@@ -122,6 +122,33 @@ def test_cost_arithmetic():
     assert costs.total > costs.brokerage
 
 
+def test_costs_use_each_execution_date_for_dated_rates():
+    # Entry on 31 March uses the pre-change exchange/IPFT rate; exit on 1 April
+    # uses the new exchange/IPFT rate and the new 0.15% option-sale STT.
+    entry_date = date(2026, 3, 31)
+    exit_date = date(2026, 4, 1)
+    entry_premium, exit_premium, lots = 100.0, 80.0, 75
+    costs = compute_round_trip_costs(
+        entry_premium, exit_premium, lots, entry_date, "C1",
+        brokerage_status="BROKERAGE_FALLBACK", exit_trade_date=exit_date
+    )
+    cfg = load_cost_schedule()
+    entry_turnover = entry_premium * lots
+    exit_turnover = exit_premium * lots
+    expected_exchange = (
+        entry_turnover / 1e7 * 3503.0
+        + exit_turnover / 1e7 * 3552.0
+    )
+    expected_ipft = (
+        entry_turnover / 1e7 * 50.0
+        + exit_turnover / 1e7 * 0.01
+    )
+    assert abs(costs.exchange_transaction - expected_exchange) < 1e-12
+    assert abs(costs.ipft - expected_ipft) < 1e-12
+    assert abs(costs.stt - exit_turnover * 0.0015) < 1e-12
+    assert costs.brokerage == 40.0
+
+
 def test_expiry_timestamp_and_d0_selection():
     ex = expiry_timestamp("2026-10-02")
     assert ex == pd.Timestamp("2026-10-02 15:30", tz="Asia/Kolkata")

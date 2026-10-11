@@ -46,3 +46,10 @@ The next implementation must pass exact code review, synthetic tests and cached-
 
 **Developer → Tester:** review the exact addendum/engine/test commit, especially P10 boundary arithmetic, cost rules and preservation of data limitations.
 **Tester → Developer:** approve or request changes on the exact code/hash snapshot; keep empirical authorization disabled pending runner review and data-gate evidence.
+
+
+## Effective-dated lot-size rules discovered during implementation
+
+The official circulars confirm that lot size is cycle/expiry-specific, not a single date-only constant. For NIFTY weekly contracts, the last weekly expiry on the old lot was 19-Dec-2024 and the first revised-size weekly expiry was 02-Jan-2025; for monthlies the corresponding dates were 30-Jan-2025 and 27-Feb-2025 (NSE/FAOP/64672, https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf). The effective introduction date was shifted to 21-Nov-2024 due to the 20-Nov exchange holiday (NSE/FAOP/64990, https://nsearchives.nseindia.com/content/circulars/FAOP64990.pdf). NIFTY's 75-to-65 revision uses the last old weekly expiry 23-Dec-2025 and first revised weekly expiry 06-Jan-2026; monthly values are 30-Dec-2025 and 27-Jan-2026 respectively (NSE/FAOP/70616, https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf). See data/reference/nifty_lot_size_history.json. Unlisted/transition expiry dates remain unknown; the circular schedule is not a contract-master substitute.
+
+Statutory transaction rates may change between entry and exit. The cost engine now applies the appropriate dated exchange/IPFT rate to each side's premium turnover and uses exit-date STT for the exit side. Brokerage fallback remains ₹20 per executed order unless the effective tariff is independently verified.

@@ -461,15 +461,24 @@ def compute_round_trip_costs(
     brokerage_per_order: float | None = None,
     brokerage_status: str = "BROKERAGE_FALLBACK",
     schedule: Mapping | None = None,
+    exit_trade_date: date | pd.Timestamp | None = None,
 ) -> TradeCosts:
+    """Compute each side's dated taxes/charges at its own execution date.
+
+    trade_date is the entry date. exit_trade_date defaults to the entry date
+    for backwards compatibility with same-session trades. This matters when a
+    multi-session position crosses a statutory charge change.
+    """
     if scenario not in SCENARIOS:
         raise ValueError(f"unknown cost scenario {scenario}")
     if lot_size <= 0 or entry_premium < 0 or exit_premium < 0:
         raise ValueError("invalid premium or lot size")
     cfg = schedule or load_cost_schedule()
-    td = pd.Timestamp(trade_date).date()
-    ex = _rate_band(cfg, td, "exchange_transaction_charge")
-    stt = _rate_band(cfg, td, "rates")
+    entry_date = pd.Timestamp(trade_date).date()
+    exit_date = pd.Timestamp(exit_trade_date).date() if exit_trade_date is not None else entry_date
+    ex_entry = _rate_band(cfg, entry_date, "exchange_transaction_charge")
+    ex_exit = _rate_band(cfg, exit_date, "exchange_transaction_charge")
+    stt_exit = _rate_band(cfg, exit_date, "rates")
     if brokerage_per_order is None:
         brokerage_per_order = float(
             cfg["broker"]["current_fno_brokerage_rupees_per_executed_order"]
@@ -481,9 +490,15 @@ def compute_round_trip_costs(
     exit_turnover = float(exit_premium) * int(lot_size)
     premium_turnover = entry_turnover + exit_turnover
 
-    exchange = premium_turnover / 1e7 * float(ex["rupees_per_crore_premium_per_side"])
-    ipft = premium_turnover / 1e7 * float(ex["ipft_rupees_per_crore_per_side"])
-    stt_cost = exit_turnover * float(stt["stt_option_sale_rate"])
+    exchange = (
+        entry_turnover / 1e7 * float(ex_entry["rupees_per_crore_premium_per_side"])
+        + exit_turnover / 1e7 * float(ex_exit["rupees_per_crore_premium_per_side"])
+    )
+    ipft = (
+        entry_turnover / 1e7 * float(ex_entry["ipft_rupees_per_crore_per_side"])
+        + exit_turnover / 1e7 * float(ex_exit["ipft_rupees_per_crore_per_side"])
+    )
+    stt_cost = exit_turnover * float(stt_exit["stt_option_sale_rate"])
     sebi = premium_turnover * float(cfg["other"]["sebi_turnover_fee_rate"])
     stamp = entry_turnover * float(cfg["other"]["equity_option_stamp_duty_rate_buyer"])
     gst_base = brokerage + exchange + ipft + sebi

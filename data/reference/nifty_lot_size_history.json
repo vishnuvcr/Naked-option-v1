@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "underlying": "NIFTY",
+  "status": "official circular expiry-cycle rules; contract master still required for strict eligibility",
+  "caveat": "This schedule encodes exchange-circular transition expiries for weekly/monthly contract cycles. It is a screening fallback, not a substitute for the actual dated NSE contract-master snapshot. Unlisted transition expiries return lot_size=null and must not be guessed.",
+  "rules": {
+    "WEEK": [
+      {
+        "through_expiry": "2024-12-19",
+        "lot_size": 25,
+        "status": "CIRCULAR_VERIFIED_LAST_OLD_WEEKLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf"
+      },
+      {
+        "from_expiry": "2025-01-02",
+        "through_expiry": "2025-12-23",
+        "lot_size": 75,
+        "status": "CIRCULAR_VERIFIED_REVISED_WEEKLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf; https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf"
+      },
+      {
+        "from_expiry": "2026-01-06",
+        "through_expiry": null,
+        "lot_size": 65,
+        "status": "CIRCULAR_VERIFIED_FIRST_65_WEEKLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf"
+      }
+    ],
+    "MONTH": [
+      {
+        "through_expiry": "2025-01-30",
+        "lot_size": 25,
+        "status": "CIRCULAR_VERIFIED_LAST_OLD_MONTHLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf"
+      },
+      {
+        "from_expiry": "2025-02-27",
+        "through_expiry": "2025-12-30",
+        "lot_size": 75,
+        "status": "CIRCULAR_VERIFIED_REVISED_MONTHLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf; https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf"
+      },
+      {
+        "from_expiry": "2026-01-27",
+        "through_expiry": null,
+        "lot_size": 65,
+        "status": "CIRCULAR_VERIFIED_FIRST_65_MONTHLY",
+        "source": "https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "ref": "NSE/FAOP/64625 (2024-10-18)",
+      "url": "https://nsearchives.nseindia.com/content/circulars/FAOP64625.pdf",
+      "note": "NIFTY lot size revised from 25 to 75 for new index derivative contracts introduced from 2024-11-20; adjusted by circular 64672/64990."
+    },
+    {
+      "ref": "NSE/FAOP/64672 (2024-10-22)",
+      "url": "https://nsearchives.nseindia.com/content/circulars/FAOP64672.pdf",
+      "note": "NIFTY last old weekly expiry 2024-12-19; first revised weekly 2025-01-02; last old monthly 2025-01-30; first revised monthly 2025-02-27."
+    },
+    {
+      "ref": "NSE/FAOP/64990 (2024-11-08)",
+      "url": "https://nsearchives.nseindia.com/content/circulars/FAOP64990.pdf",
+      "note": "Effective trade date shifted to 2024-11-21 because of a trading holiday on 2024-11-20."
+    },
+    {
+      "ref": "NSE/FAOP/70616 (2025-10-03)",
+      "url": "https://nsearchives.nseindia.com/content/circulars/FAOP70616.pdf",
+      "note": "NIFTY lot size revised from 75 to 65 effective 2025-10-28 EOD; last old weekly expiry 2025-12-23 / first revised weekly 2026-01-06; last old monthly expiry 2025-12-30 / first revised monthly 2026-01-27."
+    },
+    {
+      "ref": "NSE Equity Derivatives Contract Specifications",
+      "url": "https://www.nseindia.com/static/products-services/equity-derivatives-contract-specifications",
+      "note": "Listed index-options premium price step is ₹0.05."
+    }
+  ]
+}
