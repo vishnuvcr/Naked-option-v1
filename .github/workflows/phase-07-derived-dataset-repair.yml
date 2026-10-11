@@ -1,0 +1,285 @@
+name: Phase 7 Derived Dataset Repair — Exact Artifact Only
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/phase-07-derived-dataset-repair.yml"
+      - "scripts/repair_nifty_1m_composite_values.py"
+      - "scripts/test_repair_nifty_1m_composite_values.py"
+      - "scripts/decrypt_nifty_1m_composite.py"
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: phase-07-derived-dataset-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SOURCE_PATCH_RUN_ID: "38126168547"
+      SOURCE_ARTIFACT_ID: "11696937921"
+      SOURCE_ARTIFACT_SHA256: "5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Validate workflow YAML
+        run: ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/phase-07-derived-dataset-repair.yml"); puts "PASS derived repair workflow YAML parses"'
+
+      - name: Verify exact source run and artifact
+        id: preflight
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_PATCH_RUN_ID")"
+          name="$(jq -r '.name // ""' <<< "$run_json")"
+          branch="$(jq -r '.head_branch // ""' <<< "$run_json")"
+          status="$(jq -r '.status // ""' <<< "$run_json")"
+          conclusion="$(jq -r '.conclusion // ""' <<< "$run_json")"
+          if [[ "$name" != "Phase 7 NIFTY Spot Failed-Window Patch — Exact-SHA Gate" ||
+                "$branch" != "phase-07-tester" || "$status" != "completed" || "$conclusion" != "success" ]]; then
+            echo "Refusing wrong, incomplete, failed, or non-tester source run."
+            exit 1
+          fi
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_PATCH_RUN_ID/artifacts?per_page=100")"
+          expected_name="nifty-1m-spot-failed-window-patch-$SOURCE_PATCH_RUN_ID"
+          matched="$(jq --arg n "$expected_name" --argjson id "$SOURCE_ARTIFACT_ID" '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$artifacts")"
+          [[ "$matched" == "1" ]] || { echo "Exact approved source artifact is absent."; exit 1; }
+          echo "audit_ready=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.preflight.outputs.audit_ready == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned crypto dependency
+        if: steps.preflight.outputs.audit_ready == 'true'
+        run: python -m pip install -r requirements-composite.txt
+
+      - name: Run repair regression tests before artifact access
+        if: steps.preflight.outputs.audit_ready == 'true'
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/decrypt_nifty_1m_composite.py scripts/repair_nifty_1m_composite_values.py scripts/test_repair_nifty_1m_composite_values.py
+          python scripts/test_repair_nifty_1m_composite_values.py
+
+      - name: Download exact encrypted artifact
+        id: download
+        if: steps.preflight.outputs.audit_ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-spot-failed-window-patch-38126168547
+          run-id: 38126168547
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/repair-bundle
+
+      - name: Verify source artifact hashes and prepare input
+        id: prepare
+        if: steps.download.outcome == 'success'
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/repair-bundle
+          INPUT_DIR: ${{ runner.temp }}/repair-input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path(os.environ["BUNDLE_DIR"])
+          out=pathlib.Path(os.environ["INPUT_DIR"])
+          manifest_path=root/"dataset_manifest.json"
+          if not manifest_path.is_file(): raise SystemExit("source_manifest_missing")
+          manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("dataset_id")!="NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL":
+              raise SystemExit("source_dataset_id_mismatch")
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
+              raise SystemExit("source_encrypted_only_marker_missing")
+          parts=manifest.get("parts")
+          if not isinstance(parts,list) or len(parts)!=61: raise SystemExit("source_part_count_mismatch")
+          summary=manifest.get("dataset_summary",{})
+          expected={"rows_options":8490723,"rows_spot":509142,"spot_join_matched":8471702,"spot_join_missing":19021}
+          for k,v in expected.items():
+              if summary.get(k)!=v: raise SystemExit("source_summary_mismatch_"+k)
+          encrypted=root/"encrypted"
+          if not encrypted.is_dir(): raise SystemExit("source_encrypted_directory_missing")
+          names=set()
+          total=0
+          for part in parts:
+              name=part.get("file","")
+              if not name or pathlib.Path(name).name!=name or not name.endswith(".csv.gz.enc"):
+                  raise SystemExit("unsafe_source_part_name")
+              names.add(name)
+              f=encrypted/name
+              if not f.is_file(): raise SystemExit("source_part_missing")
+              if f.stat().st_size!=int(part.get("encrypted_bytes",-1)): raise SystemExit("source_part_size_mismatch")
+              h=hashlib.sha256()
+              with f.open("rb") as stream:
+                  for block in iter(lambda:stream.read(1024*1024),b""): h.update(block)
+              if h.hexdigest()!=part.get("encrypted_sha256"): raise SystemExit("source_part_hash_mismatch")
+              total+=int(part.get("row_count",-1))
+          if {p.name for p in encrypted.glob("*.csv.gz.enc")}!=names: raise SystemExit("source_part_set_mismatch")
+          if total!=8999865: raise SystemExit("source_row_sum_mismatch")
+          out.mkdir(parents=True,exist_ok=True)
+          shutil.copyfile(manifest_path,out/"dataset_manifest.json")
+          for name in sorted(names): (out/name).symlink_to(encrypted/name)
+          print("PASS: exact encrypted source artifact verified.")
+          PY
+
+      - name: Decrypt source into ephemeral scratch
+        id: decrypt
+        if: steps.prepare.outcome == 'success'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/repair-input
+          PLAIN_DIR: ${{ runner.temp }}/repair-plain
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "Existing decryption secret unavailable."; exit 1; }
+          python scripts/decrypt_nifty_1m_composite.py --input-dir "$INPUT_DIR" --output-dir "$PLAIN_DIR"
+          cp "$INPUT_DIR/dataset_manifest.json" "$PLAIN_DIR/dataset_manifest.json"
+
+      - name: Repair into a separate encrypted derived dataset
+        id: repair
+        if: steps.decrypt.outcome == 'success'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/repair-plain
+          OUTPUT_DIR: ${{ runner.temp }}/repair-derived-encrypted
+          REPORT_JSON: ${{ github.workspace }}/research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$OUTPUT_DIR"
+          rm -f "$REPORT_JSON"
+          python scripts/repair_nifty_1m_composite_values.py --input-dir "$INPUT_DIR" --output-dir "$OUTPUT_DIR" --report-json "$REPORT_JSON"
+          python -m json.tool "$REPORT_JSON" >/dev/null
+          python - <<'PY'
+          import hashlib,json,os,pathlib
+          root=pathlib.Path(os.environ["OUTPUT_DIR"])
+          report_path=pathlib.Path(os.environ["REPORT_JSON"])
+          report=json.loads(report_path.read_text(encoding="utf-8"))
+          manifest_path=root/"dataset_manifest.json"
+          manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+          if report.get("status")!="DERIVED_REPAIR_COMPLETE": raise SystemExit("derived_report_status_invalid")
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True: raise SystemExit("derived_manifest_not_encrypted_only")
+          if len(manifest.get("parts",[]))!=61: raise SystemExit("derived_part_count_mismatch")
+          total=0
+          names=set()
+          for part in manifest["parts"]:
+              name=part.get("file","")
+              if not name or pathlib.Path(name).name!=name or not name.endswith(".csv.gz.enc"): raise SystemExit("derived_part_name_invalid")
+              names.add(name)
+              f=root/name
+              if not f.is_file(): raise SystemExit("derived_part_missing")
+              if f.stat().st_size!=int(part.get("encrypted_bytes",-1)): raise SystemExit("derived_part_size_mismatch")
+              h=hashlib.sha256()
+              with f.open("rb") as stream:
+                  for block in iter(lambda:stream.read(1024*1024),b""): h.update(block)
+              if h.hexdigest()!=part.get("encrypted_sha256"): raise SystemExit("derived_part_hash_mismatch")
+              total+=int(part.get("row_count",-1))
+          if {p.name for p in root.glob("*.csv.gz.enc")}!=names: raise SystemExit("derived_part_set_mismatch")
+          if total!=8999865 or total!=report["row_counts"]["rows_preserved"]: raise SystemExit("derived_row_count_mismatch")
+          if any(root.glob("*.csv.gz")): raise SystemExit("plaintext_part_in_derived_output")
+          manifest["derived_from"]["parent_artifact_run_id"]=38126168547
+          manifest["derived_from"]["parent_artifact_id"]=11696937921
+          manifest["derived_from"]["parent_artifact_sha256"]="5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b"
+          manifest_path.write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          safe_manifest={
+              "dataset_id":manifest["dataset_id"],
+              "parent_dataset_id":manifest["derived_from"]["parent_dataset_id"],
+              "parent_artifact_run_id":38126168547,
+              "parent_artifact_id":11696937921,
+              "parent_artifact_sha256":"5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b",
+              "part_count":len(manifest["parts"]),
+              "rows_preserved":total,
+              "encrypted_only":True,
+              "part_hashes":[{"file":p["file"],"row_count":p["row_count"],"encrypted_bytes":p["encrypted_bytes"],"encrypted_sha256":p["encrypted_sha256"],"plain_gzip_sha256":p["plain_gzip_sha256"]} for p in manifest["parts"]],
+              "repair_policy":manifest["derived_from"]["repair_policy"]
+          }
+          pathlib.Path("research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json").write_text(json.dumps(safe_manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          PY
+
+      - name: Upload encrypted derived dataset and sanitized report
+        if: steps.repair.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-derived-repaired-r2-38126168547
+          path: |
+            ${{ runner.temp }}/repair-derived-encrypted/
+            research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json
+            research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Remove plaintext and verify cleanup
+        if: always()
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/repair-bundle
+          INPUT_DIR: ${{ runner.temp }}/repair-input
+          PLAIN_DIR: ${{ runner.temp }}/repair-plain
+          OUTPUT_DIR: ${{ runner.temp }}/repair-derived-encrypted
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PLAIN_DIR" "$OUTPUT_DIR"
+          if find "${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
+            echo "Plaintext monthly files remain in runner temp."
+            exit 1
+          fi
+          echo "PASS: plaintext source and derived monthly files removed."
+
+      - name: Publish sanitized repair report and manifest
+        if: steps.repair.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,pathlib
+          report=json.loads(pathlib.Path("research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json").read_text(encoding="utf-8"))
+          counts=report["repair_counts"]
+          summary=[
+            "## Derived dataset repair — source artifact 11696937921",
+            "",
+            f"- Derived dataset: {report['derived_dataset_id']}.",
+            f"- Rows preserved: {report['row_counts']['rows_preserved']}; rows deleted: {report['row_counts']['rows_deleted']}.",
+            f"- Correction/masking counts: {json.dumps(counts,sort_keys=True)}.",
+            "- Invalid source values are masked, not fabricated; unmatched option timestamps remain unmatched.",
+            "- Original source artifact is immutable; derived output is encrypted and uploaded separately.",
+            "- No new data requests, model fitting, holdout access or strategy/P&L testing occurred.",
+            "- Sanitized repair report: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json",
+            "- Derived encrypted manifest: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
+          ]
+          for filename in ("README.md","research/STATUS.md"):
+            with pathlib.Path(filename).open("a",encoding="utf-8") as handle:
+              handle.write("\n\n"+"\n".join(summary)+"\n")
+          PY
+
+      - name: Commit sanitized report and manifest
+        if: steps.repair.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json README.md research/STATUS.md
+          if ! git diff --cached --quiet; then
+            git commit -m "research: publish derived data repair report"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+# Source artifact is immutable. Only encrypted derived data and sanitized aggregate metadata may be published.
