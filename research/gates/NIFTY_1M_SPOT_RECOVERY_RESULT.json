@@ -78,6 +78,11 @@
     "execution_workflow_integrated": false,
     "partial_artifact_ingestion_supported": false,
     "live_requests_authorized": false,
-    "status": "OFFLINE_PROPOSAL_PASS_EXECUTION_BLOCKED"
+    "status": "IMPLEMENTED_OFFLINE_EXECUTION_PATH_REVIEW_PENDING",
+    "latest_developer_checkpoint": "f4149720e40ed0025f7062ab047072a1766a924c",
+    "partial_artifact_preservation_implemented": true,
+    "exact_sha_workflow_integrated": true,
+    "latest_gate_run_id": "38118998725",
+    "latest_gate_outcome": "DENIED_NO_REQUESTS"
   }
 }
