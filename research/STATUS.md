@@ -1150,3 +1150,14 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 - Manifest row totals reconcile: 8,490,723 option rows, zero spot rows, 8,601 request IDs, 7,481 failed request/quality events. Month parts are discontinuous; status remains PARTIAL_GRID, not continuous five-year coverage.
 - Authenticated AES-GCM decryption not verified because collection-time HF_TOKEN is not accessible to this offline check. Ciphertext integrity is not plaintext/decryption verification.
 - Issue #7 still lacks an independent tester report. No new live request, model fitting/scoring, or holdout access occurred.
+
+
+## Automated tester–developer loop checkpoint — 2026-10-11
+
+- Added the main-branch coordinator workflow `.github/workflows/phase-07-nifty-1m-composite-agent-cycle.yml`, controller helper `automation/nifty_composite_agent.py`, and documentation `research/automation/PHASE7_AUTOMATED_AGENT_CYCLE.md`.
+- Added tester-owned independent harness `scripts/review_nifty_1m_composite_gate.py` and state file `research/gates/NIFTY_1M_COMPOSITE_AGENT_STATE.json` on `phase-07-tester`.
+- First hosted execution [38111301045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111301045) ended with failure because Hugging Face Inference Providers returned HTTP 402. No AI reviewer verdict was produced.
+- The deterministic tester found five missing response-validation regression cases: absent volume, empty volume, misaligned volume, invalid timestamp types, and separate OHLC array mismatches. Existing offline manifest and dataset tests passed on the reviewed snapshot.
+- Added a narrowly scoped deterministic fallback that only adds those pre-registered parser tests if the model endpoint is unavailable. It does not change parser schema behavior, request manifests, approval files, workflows that access Dhan, model fitting, or holdout rules.
+- Follow-up hosted validation is queued as run [38111417286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111417286). Its final conclusion is not yet known at this checkpoint.
+- **No new live market-data requests were made.** The prior one-use approval remains spent. No model fitting, prediction scoring, strategy/P&L evaluation, or holdout access is authorized by the automation report.
