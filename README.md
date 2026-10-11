@@ -1,5 +1,10 @@
 # NIFTY Naked-Option Direction Research
 
+## Spot-gap recovery — 2026-10-11
+
+The latest developer change [519be79](https://github.com/vishnuvcr/Naked-option-v1/commit/519be79eeb3feb6ec612b0ee656b43eca1d4a621) hardens the spot parser: timestamps and OHLC remain strictly aligned; absent/empty/misaligned volume stays blank and is quality-flagged, never zero-filled. The Actions cache-save key now uses the run ID so future recovery shards can be persisted under a new cache generation. Offline pipeline tests passed in [run 38113709721](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113709721). The independent developer–tester review is running against [snapshot df08547](https://github.com/vishnuvcr/Naked-option-v1/commit/df0854790fe53c9aed31addd1a947b653c1dc7a2). **No new Dhan request has been made; the dataset remains partial until the spot-recovery run succeeds and its joins are validated.**
+
+
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
 
