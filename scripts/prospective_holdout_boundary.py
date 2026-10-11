@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import gzip
 import hashlib
 import json
 import math
@@ -21,10 +22,24 @@ TRAIN_FRACTION = 0.70
 VALIDATION_END_FRACTION = 0.85
 
 
-def sha256_file(path: str | Path, start: int = 0) -> str:
+def sha256_file(path: str | Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
-        stream.seek(start)
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def sha256_uncompressed_suffix(path: str | Path, start: int, compressed: bool) -> str:
+    digest = hashlib.sha256()
+    opener = gzip.open if compressed else open
+    with opener(path, "rb") as stream:
+        remaining = start
+        while remaining:
+            block = stream.read(min(1024 * 1024, remaining))
+            if not block:
+                raise ValueError("HOLDOUT_OFFSET_OUT_OF_RANGE")
+            remaining -= len(block)
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
@@ -70,6 +85,9 @@ def scan_metadata_file(
 
     path = Path(path)
     whole_hash = hashlib.sha256()
+    container_hash = sha256_file(path)
+    with path.open("rb") as signature_stream:
+        compressed = signature_stream.read(2) == b"\\x1f\\x8b"
     row_count = 0
     row_type_counts = {"OPTION": 0, "SPOT": 0}
     sessions: list[str] = []
@@ -80,7 +98,8 @@ def scan_metadata_file(
     byte_offset = 0
     train_end_offset = validation_end_offset = holdout_start_offset = 0
 
-    with path.open("rb") as stream:
+    opener = gzip.open if compressed else open
+    with opener(path, "rb") as stream:
         while True:
             start = byte_offset
             raw = stream.readline()
@@ -182,12 +201,14 @@ def scan_metadata_file(
     common_validation = len(set.intersection(*validation_origin_sets)) if validation_origin_sets else 0
 
     # Hash the suffix in a streaming binary pass; never decode or materialize its rows.
-    holdout_hash = sha256_file(path, holdout_start_offset)
+    holdout_hash = sha256_uncompressed_suffix(path, holdout_start_offset, compressed)
     status = "PASS_WITH_RESTRICTIONS" if min_train >= 252 and common_validation >= 250 else "NOT_ESTIMABLE"
     return {
         "schema_version": 1,
         "gate_id": "PROSPECTIVE_HOLDOUT_BOUNDARY_R1",
         "dataset_sha256": whole_hash.hexdigest(),
+        "source_container_sha256": container_hash,
+        "source_container_compressed": compressed,
         "expected_columns": expected_columns,
         "row_count": row_count,
         "row_type_counts": row_type_counts,
