@@ -116,3 +116,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Independent tester gate `research/gates/PHASE6_RUN581_TESTER.md` = **PASS WITH SCOPED RESTRICTIONS**.
 - Technical validity is accepted; no Phase 6 method is promoted to a trading strategy.
 - Phase 7 ensemble/regime research is now authorized, subject to a fresh tester gate. Phase 8 option execution, costs, robustness and fresh-forward validation remain mandatory.
+
+
+## 2026-10-11 — Phase 8 Run #994 saved forecast gate passed
+
+- Developer commit `3fe13c49ed29e77b001485abe50b2d41dbb6c160`, hosted run [38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076) completed successfully.
+- Tester reviewed exact output artifact `11709261335` (SHA-256 `249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c`) and independently recomputed every panel digest.
+- Decision `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`: PASS WITH SCOPED RESTRICTIONS. Ten cells, 50,555 rows, all cells reproduced at absolute tolerance 1e-9.
+- No empirical P&L or 4,800-cell grid executed; no strategy is promoted. Before any option P&L, developer must version the Phase 8 spec to remove stale Run #654 wording and submit the no-refit runner for exact code/test review.
