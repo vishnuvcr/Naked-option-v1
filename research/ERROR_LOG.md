@@ -502,3 +502,11 @@
 - Defect: `missing_expiry_columns` is a list, and using that global list directly inside the `all(...)` generator made a single absent header truthy for every field. `expiry_fields_blank_for_all_option_rows` could then be true despite other required expiry columns being present and populated.
 - Correction: commit [8511ba7](https://github.com/vishnuvcr/Naked-option-v1/commit/8511ba7de2b198ce1e1e4925bebd0a9acb96a810) requires no missing expiry headers and all required blank counts at least equal to option-row count. Added mixed-missing-header and zero-row regressions in [4d93085](https://github.com/vishnuvcr/Naked-option-v1/commit/4d93085519675484570bb054cbedb1c2405708f0).
 - Required validation: fresh hosted synthetic tests and exact-snapshot tester review. This issue does not justify relaxing hash/integrity checks or enabling empirical execution. R1 remains consumed/disabled; no new data scan occurred.
+
+
+## 2026-10-11 — Phase 8 correction cycle passed after independent re-review
+
+- After the authorization SHA correction, hosted CI exposed a stale assertion that expected the same malformed literal. Fixed in [commit 6e1fe57](https://github.com/vishnuvcr/Naked-option-v1/commit/6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11).
+- Tester review then caught a separate mixed-header edge case in `summarize_critical_data_gaps()`. Fixed with a per-field predicate and no-missing-header condition in [commit 8511ba7](https://github.com/vishnuvcr/Naked-option-v1/commit/8511ba7de2b198ce1e1e4925bebd0a9acb96a810); mixed-header and zero-row regressions added in [commit 4d93085](https://github.com/vishnuvcr/Naked-option-v1/commit/4d93085519675484570bb054cbedb1c2405708f0).
+- Combined hosted synthetic run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all test gates. Tester reviewed exact snapshot pins and recorded [R3 PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json).
+- No real-data task ran: R1 is consumed/disabled and its metadata-only job was skipped. P&L/holdout/promotion remain false. The separate daily H=1 comparison anomaly remains unresolved.
