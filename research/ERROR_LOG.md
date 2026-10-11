@@ -88,3 +88,13 @@
 - Tester report [R1](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md) requests an exact-or-at-most-two-ULP float64 comparator for `future_return` only, plus actual max-ULP diagnostics and deterministic edge tests. Labels/timestamps, aggregate tolerance, source pins and artifact must remain unchanged.
 - Decision is REQUEST_CHANGES until hosted reconstruction demonstrates every observed row is within 2 ULP. If not, remain blocked and diagnose.
 - No option P&L, holdout, new-source request, artifact modification or strategy promotion authorized.
+
+
+## 2026-10-12 — Tester workflow YAML/report indentation defect
+
+- Category: tester workflow authoring/CI control.
+- Component: .github/workflows/phase8-greek-enrichment-tester.yml.
+- Symptom: initial tester workflow pushes produced failed workflow runs with zero jobs. Inspection showed a multiline Markdown report string outdented the YAML shell block.
+- Correction: workflow commit 26bcbaaf35696cb6ce3c424cda48075042d953c9 builds the report from a list of Python strings so every source line remains inside the YAML run-block. The request commit then triggered a properly named workflow.
+- Verification: isolated tester workflow run #38168820750 passed blob-pin validation, developer synthetic tests and 162 independent CE/PE formula cases; tester report and machine decision were committed successfully to phase-08-tester.
+- Impact: no source-data request was made during the invalid-workflow attempts.
