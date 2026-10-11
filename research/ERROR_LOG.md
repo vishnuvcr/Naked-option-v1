@@ -518,3 +518,11 @@
 - Tester R1 requested a narrowly scoped, strict maximum-two-ULP comparator for float64 `future_return` only. Labels and timestamps must remain exact; aggregate tolerance, source pins and the saved artifact are immutable.
 - Developer submitted `compare_float64_within_ulps` in [5f54ca2](https://github.com/vishnuvcr/Naked-option-v1/commit/5f54ca2a8c597369e145e4184446430cc9ec38fb), and tests in [6def41c](https://github.com/vishnuvcr/Naked-option-v1/commit/6def41c40fa3c6a041b831dc938493eaafcf6680). Hosted regression is pending. The observed 64 differences have not yet been demonstrated to all fall within the registered two-ULP ceiling; any value beyond it keeps validation blocked.
 - Do not alter or regenerate Run #994, do not increase the limit, and do not enter option P&L/holdout/promotion.
+
+
+## 2026-10-11 — H=1 exact-float validation failure under review
+
+- Evidence [run #38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430), job `114538420772`: daily H=1 source-derived `future_return` array had 64 non-bitwise-identical values; reported maximum absolute difference `3.469446951953614e-18`.
+- Tester R1 requested a narrowly scoped, strict maximum-two-ULP comparator for float64 `future_return` only. Labels/timestamps must remain exact; aggregate tolerance, source pins and the saved artifact are immutable.
+- Developer submitted `compare_float64_within_ulps` in [5f54ca2](https://github.com/vishnuvcr/Naked-option-v1/commit/5f54ca2a8c597369e145e4184446430cc9ec38fb), and tests in [6def41c](https://github.com/vishnuvcr/Naked-option-v1/commit/6def41c40fa3c6a041b831dc938493eaafcf6680). Hosted regression is pending. Actual mismatches have not yet been demonstrated to all fall within the registered two-ULP ceiling; any value beyond it keeps validation blocked.
+- Do not alter or regenerate Run #994, do not increase the limit, and do not enter option P&L/holdout/promotion.
