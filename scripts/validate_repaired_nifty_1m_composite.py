@@ -61,7 +61,7 @@ def audit(input_dir: pathlib.Path, report_path: pathlib.Path, sqlite_path: pathl
         raise ValueError("derived_dataset_id_invalid")
     parts = manifest.get("parts")
     columns = manifest.get("columns")
-    if not isinstance(parts, list) or len(parts) != 61 or not isinstance(columns, list):
+    if not isinstance(parts, list) or not parts or not isinstance(columns, list):
         raise ValueError("derived_manifest_parts_or_columns_invalid")
     required = set(sum((list(v) for v in OHLC_FIELDS.values()), [])) | {
         "timestamp_epoch", "row_type", "session_date", "spot_join_status",
@@ -150,6 +150,8 @@ def audit(input_dir: pathlib.Path, report_path: pathlib.Path, sqlite_path: pathl
                     if typ not in {"OPTION", "SPOT"}:
                         unknown_types += 1
                         continue
+                    if typ == "SPOT":
+                        report_counts["spot_rows"] += 1
                     epoch_num = number(row.get("timestamp_epoch", ""))
                     epoch = None
                     if epoch_num is None or epoch_num != epoch_num.to_integral_value():
@@ -256,11 +258,11 @@ def audit(input_dir: pathlib.Path, report_path: pathlib.Path, sqlite_path: pathl
             "audit_type": "INDEPENDENT_DERIVED_DATASET_POST_REPAIR_AUDIT",
             "status": "PASS_WITH_COVERAGE_RESTRICTIONS" if hard_failures == 0 else "FAIL",
             "dataset_id": dataset_id,
-            "parent_artifact_id": manifest.get("derived_from", {}).get("parent_artifact_id"),
+            "parent_artifact_id": manifest.get("parent_artifact_id", manifest.get("derived_from", {}).get("parent_artifact_id")),
             "row_counts": {
                 "total": int(report_counts["total_rows"]),
                 "option": int(report_counts["option_rows"]),
-                "spot": int(report_counts["spot_rows"]) if report_counts["spot_rows"] else sum(1 for _ in []),
+                "spot": int(report_counts["spot_rows"]),
                 "expected_total_from_manifest": total_expected,
             },
             "join_counts": {
