@@ -235,7 +235,10 @@ def repair_dataset(input_dir: pathlib.Path, output_dir: pathlib.Path, report_pat
                                             if not spot_ohlc_ok:
                                                 counts["joined_rows_masked_due_to_invalid_spot_ohlc"] += 1
                                                 append_flag(row, "REPAIR_JOINED_NIFTY_OHLC_MASKED_INVALID_SPOT")
-                                            if not valid_nonnegative(spot_volume):
+                                            if not spot_volume.strip():
+                                                counts["joined_rows_with_missing_spot_volume"] += 1
+                                                append_flag(row, "REPAIR_JOINED_NIFTY_VOLUME_MISSING_SPOT_SOURCE")
+                                            elif not valid_nonnegative(spot_volume):
                                                 counts["joined_rows_masked_due_to_invalid_spot_volume"] += 1
                                                 append_flag(row, "REPAIR_JOINED_NIFTY_VOLUME_MASKED_INVALID_SPOT")
                                             if any((row.get(f, "") or "") != before[f] for f in SPOT_FIELDS):
