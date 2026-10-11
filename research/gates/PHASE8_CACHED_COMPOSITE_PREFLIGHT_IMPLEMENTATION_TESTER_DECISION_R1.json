@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-cached-composite-preflight-implementation-r1",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "metadata-only cached composite preflight",
+  "developer_branch": "phase-08-developer",
+  "developer_snapshot_commit": "0bcb59f115bdf72474e5231076f31616242b66a9",
+  "hosted_contract_run_id": 38161419163,
+  "hosted_contract_run_conclusion": "success",
+  "approved_code_blob_shas": {
+    ".github/workflows/phase8-cached-composite-preflight.yml": "ebef271b4509842c971c03d9e090f6c9020a3019",
+    "scripts/run_phase8_long_option.py": "6904ce2c544fb24b25e42d2db138a5dc16efb9cd",
+    "scripts/test_phase8_long_option_runner.py": "aee6b809edd321a2e085c9b72778f53bc49fcdde",
+    "scripts/phase8_execution_engine.py": "53524cdd3df55de804f757939f99dc5e92c8b1c3",
+    "scripts/test_phase8_execution_engine.py": "02323a80417ddfec7265b0633d6fdd043fb10bc3",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "scripts/validate_phase8_cached_composite_bundle.py": "cb48b1f752770783b385a40ebd090d77dc5c5ef8",
+    "scripts/test_phase8_cached_composite_bundle.py": "edcfe6929b0e37f6b6c28f8a013b61f59857f945",
+    "scripts/authorize_phase8_cached_composite_preflight.py": "ef8df0d630877ba750ce695af3889ee86b72b228",
+    "scripts/test_phase8_cached_composite_preflight.py": "6d2a2f5e75f9ff71a72adbed9566ae9805aa98e4",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json": "dd8b83113d4b79429008024779107a776b1a0f12",
+    "research/phase8/PHASE8_METHOD_SPEC.md": "93c25a91663d9f9dcda4617e576b4fcb3d052234",
+    "data/reference/phase8_cost_schedule.json": "89ba6c098cd2ebf6d964a47c0760b6a198ba7e74",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca"
+  },
+  "source_identity": {
+    "run_id": 38131641336,
+    "commit": "5e769cd4b19887311213baf16eb81b97416322d7",
+    "artifact_id": 11698879857,
+    "name": "nifty-1m-derived-repaired-r2-38126168547",
+    "canonical_csv_sha256": "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204",
+    "rows": 8999865,
+    "columns": 47,
+    "encrypted_parts": 61
+  },
+  "forecast_identity": {
+    "run_id": 37957677656,
+    "commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+    "artifact_id": 11638738288,
+    "archive_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+    "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+    "panels": 10,
+    "rows": 50555
+  },
+  "no_new_market_source_requests": true,
+  "one_use_marker_required": true,
+  "marker_before_plaintext_decryption": true,
+  "cleanup_required": true,
+  "metadata_only_output": true,
+  "strict_fixed_contract_execution_authorized": false,
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_promotion_authorized": false,
+  "request_file_path": "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json",
+  "request_may_change_only": [
+    "requested: false -> true",
+    "approved_code_blob_shas: {} -> this exact approved_code_blob_shas dictionary"
+  ],
+  "caveats": [
+    "Run 38161419163 only exercised contract tests and default-disabled authorization; it did not touch the composite.",
+    "The accepted prediction artifact is a reproducibility result, not evidence of economic edge.",
+    "Expected 4,800 INELIGIBLE cells are a data-readiness result, not a P&L result.",
+    "Tester branch review is role-separated but not an external human/model instance."
+  ]
+}
