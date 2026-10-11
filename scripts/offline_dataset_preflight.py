@@ -136,7 +136,16 @@ def run(path: Path, report_path: Path, expected_sha: str,
                     # Select the first usable key schema per row. For example, spot rows
                     # may lack option expiry/strike/type but still have a security_id key.
                     selected_key = None
-                    for group_number, (_group_names, column_indexes) in enumerate(key_cols):
+                    for group_number, (group_names, column_indexes) in enumerate(key_cols):
+                        # On the repaired schema, OPTION and SPOT rows must use their
+                        # own key definition; an incomplete OPTION key must not fall
+                        # back to the shorter SPOT key.
+                        if rowtype_col is not None and header[rowtype_col].strip().lower() == "row_type":
+                            row_kind = row[rowtype_col].strip().upper()
+                            if row_kind == "OPTION" and "expiry_code" not in group_names:
+                                continue
+                            if row_kind == "SPOT" and tuple(group_names) != ("timestamp_epoch", "row_type", "underlying"):
+                                continue
                         candidate_values = []
                         complete = True
                         for column_index in column_indexes:
