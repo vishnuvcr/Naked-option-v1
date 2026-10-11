@@ -1,3 +1,16 @@
+## 2026-10-11 — MR-0 to MR-5 runner implementation submitted; tester REQUEST_CHANGES
+
+- Developer snapshot: `4c2b3e54697474739da97f517476f4f87ed98b09`.
+- Runner: [`modeling_readiness_feasibility_run.py`](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/modeling_readiness_feasibility_run.py); tests: [synthetic test suite](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/tests/test_modeling_readiness_feasibility_run.py); report schema: [schema](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json); workflow: [synthetic-only workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml).
+- Tester decision: **REQUEST_CHANGES**, [review report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_REVIEW_R5_2026-10-11.md), [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_DECISION_R5_2026-10-11.json).
+- Corrections requested: prove official-close linkage and timestamp semantics; validate train/validation label-endpoint purge plus 252/250 minimum origin counts; enforce one-use/replay protection; allowlist feature-family names; verify byte-boundary integrity; report cleanup truthfully.
+- Hosted synthetic CI conclusion could not be retrieved via the currently exposed Actions interface. Do not claim a pass. **No real-data run or model/holdout/strategy execution occurred.**
+- Attempts to patch the runner were blocked by the repository tool's safety checks. No patch was applied; the root cause is not established and is logged in `research/ERROR_LOG.md`. Do not bypass the control; retry only through an accepted scoped edit path.
+
+**Developer → Tester:** The current implementation decision remains REQUEST_CHANGES. Keep the empirical gate closed.
+**Tester → Developer:** Await a corrected exact-hash snapshot; no real-data execution until fresh PASS.
+
+
 ## 2026-10-11 — MR-0 to MR-5 feasibility proposal reviewed; implementation not yet authorized
 
 - Developer proposal and scope: [proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_R5_2026-10-11.md), [scope JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_SCOPE_R5_2026-10-11.json).
