@@ -1140,3 +1140,14 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Reconciliation: 8,490,723 option rows; zero spot rows; 7,481 request/quality failures; discontinuous month coverage; PARTIAL_GRID.
 - Limitation: authenticated decryption was not verified because collection-time HF_TOKEN is not available to the offline inspection. Do not conflate ciphertext hashes with decryption or dataset validity.
 - Disposition: no live request or model run. Await independent exact-snapshot review in issue #7.
+
+
+## 2026-10-11 — Automated tester/developer cycle first run
+- Category: automation/external dependency
+- Component: `automation/nifty_composite_agent.py` → Hugging Face Inference Providers
+- Run: [38111301045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111301045)
+- Symptom: the AI reviewer endpoint returned HTTP 402; no AI PASS/REQUEST_CHANGES verdict was produced. The tester report explicitly records `REVIEWER_UNAVAILABLE`.
+- Impact: no model-driven developer correction was attempted on that run; no market-data request, model fit, holdout access, or strategy test was started.
+- Root cause: the Hugging Face token's inference request did not have usable inference credits/billing for this endpoint at runtime. The repository secret's existence does not imply inference entitlement.
+- Correction: added a fail-closed deterministic fallback restricted to the pre-registered missing parser regression tests. Unknown findings still require working AI inference or intervention. A deterministic-only PASS remains restricted to the offline code gate and does not authorize acquisition.
+- Prevention: report AI availability explicitly; never infer model approval from an HTTP failure; preserve bounded cycles and independent tester checks. Follow-up run [38111417286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111417286) is queued for verification.
