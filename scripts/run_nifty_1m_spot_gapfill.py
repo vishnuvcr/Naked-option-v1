@@ -523,17 +523,31 @@ def _add_quality_flag(existing: str, flag: str) -> str:
     return "|".join(values)
 
 
-def _enriched_option_rows(path: pathlib.Path, spot_map: dict[int, dict[str, str]],
-                          counters: Counter) -> Iterable[dict[str, str]]:
+def _remove_quality_flag(existing: str, flag: str) -> str:
+    return "|".join(item for item in str(existing or "").split("|") if item and item != flag)
+
+
+def _enriched_option_rows(
+    path: pathlib.Path,
+    spot_map: dict[int, dict[str, str]],
+    counters: Counter,
+    preserve_existing_spot_rows: bool = False,
+) -> Iterable[dict[str, str]]:
     for row in _iter_gzip_rows(path):
+        if row.get("row_type") == "SPOT":
+            if preserve_existing_spot_rows:
+                yield row
+            continue
         if row.get("row_type") != "OPTION":
-            # Original artifact is expected to have zero standalone spot rows.
-            if row.get("row_type") == "SPOT":
-                continue
             raise ValueError("unknown_original_row_type")
         counters["rows_options"] += 1
         epoch = int(row["timestamp_epoch"])
         spot = spot_map.get(epoch)
+        if spot is None and preserve_existing_spot_rows and row.get("spot_join_status") == "EXACT_TIMESTAMP_MATCH":
+            if any(row.get(field, "") for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close")):
+                counters["spot_join_matched"] += 1
+                yield row
+                continue
         if spot is None:
             for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"):
                 row[field] = ""
@@ -544,6 +558,7 @@ def _enriched_option_rows(path: pathlib.Path, spot_map: dict[int, dict[str, str]
             for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"):
                 row[field] = spot.get(field, "")
             row["spot_join_status"] = "EXACT_TIMESTAMP_MATCH"
+            row["data_quality_flags"] = _remove_quality_flag(row.get("data_quality_flags", ""), "SPOT_JOIN_MISSING")
             counters["spot_join_matched"] += 1
             if "SPOT_VOLUME_MISSING_OR_MISALIGNED" in spot.get("data_quality_flags", ""):
                 row["data_quality_flags"] = _add_quality_flag(row.get("data_quality_flags", ""), "SPOT_VOLUME_MISSING_OR_MISALIGNED")
@@ -554,8 +569,12 @@ def _month_from_filename(path: pathlib.Path) -> str:
     return path.name.removeprefix("nifty_1m_composite_").removesuffix(".csv.gz")
 
 
-def merge_into_existing_dataset(base_parts: list[pathlib.Path], spot_dir: pathlib.Path,
-                                spot_map: dict[int, dict[str, str]]) -> tuple[dict[str, int], Counter]:
+def merge_into_existing_dataset(
+    base_parts: list[pathlib.Path],
+    spot_dir: pathlib.Path,
+    spot_map: dict[int, dict[str, str]],
+    preserve_existing_spot_rows: bool = False,
+) -> tuple[dict[str, int], Counter]:
     if PLAIN_ROOT.exists():
         shutil.rmtree(PLAIN_ROOT)
     PLAIN_ROOT.mkdir(parents=True, exist_ok=True)
@@ -573,7 +592,10 @@ def merge_into_existing_dataset(base_parts: list[pathlib.Path], spot_dir: pathli
         else:
             spot_rows = iter(())
         if option_path is not None:
-            option_rows = _enriched_option_rows(option_path, spot_map, counters)
+            option_rows = _enriched_option_rows(
+                option_path, spot_map, counters,
+                preserve_existing_spot_rows=preserve_existing_spot_rows,
+            )
         else:
             option_rows = iter(())
         merged = heapq.merge(option_rows, spot_rows, key=_row_key)
