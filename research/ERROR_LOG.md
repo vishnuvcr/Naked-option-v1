@@ -189,3 +189,8 @@ No live source request or approval manifest is authorized. Correct these issues,
 - **Independent test result:** the tester reconstructed all 61 30-day windows and checked all 8,601 unique request keys, 61 spot calls, 8,540 option calls, 140 option selectors per window, required endpoint/interval/caps, and every flag/code/relative-strike/call-put cell. No missing or duplicate cells were found.
 - **Decision:** [tester report](research/gates/PHASE7_PPR4_USER_DIRECTED_COMPOSITE_ACQUISITION_TESTER_REVIEW.md), PASS WITH SCOPED RESTRICTIONS for the exact manifest and acquisition workflow only. The Dhan external value cross-check remains waived. No source request occurred as part of the tester review or offline CI.
 - **Prevention:** every active request submanifest is reader-sized, explicitly pinned by Git blob SHA, and loaded via the root manifest; the one-use live approval rechecks the pins before making the first request.
+
+## 2026-10-11 — Phase 7 synthetic preflight gate
+- No execution failure on reviewed snapshot; all synthetic workflow steps passed.
+- Scope limitation: actual CSV.GZ not mounted, so no data-level claims or permissions are inferred.
+- Decision recorded at `research/gates/OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_DECISION_2026-10-11.json`.
