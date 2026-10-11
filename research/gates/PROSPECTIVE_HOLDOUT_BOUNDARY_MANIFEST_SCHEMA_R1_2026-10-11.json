@@ -4,7 +4,7 @@
   "type":"object",
   "additionalProperties":false,
   "required":[
-    "schema_version","gate_id","dataset_sha256","expected_columns","row_count","row_type_counts",
+    "schema_version","gate_id","dataset_sha256","source_container_sha256","source_container_compressed","expected_columns","row_count","row_type_counts",
     "session_count","train_session_count","validation_session_count","holdout_session_count",
     "train_end_session","validation_end_session","holdout_start_session",
     "train_end_byte_offset","validation_end_byte_offset","holdout_start_byte_offset",
@@ -15,6 +15,8 @@
     "schema_version":{"type":"integer","const":1},
     "gate_id":{"type":"string","const":"PROSPECTIVE_HOLDOUT_BOUNDARY_R1"},
     "dataset_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "source_container_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "source_container_compressed":{"type":"boolean"},
     "expected_columns":{"type":"integer","minimum":1},
     "row_count":{"type":"integer","minimum":1},
     "row_type_counts":{"type":"object","additionalProperties":false,"required":["OPTION","SPOT"],"properties":{"OPTION":{"type":"integer","minimum":0},"SPOT":{"type":"integer","minimum":0}}},
