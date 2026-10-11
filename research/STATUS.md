@@ -469,3 +469,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Latest preflight contract tests on the source snapshot passed encrypted-bundle tests, reviewer-gate tests, the 4,800-cell runner contract, existing cost-engine regressions and the synthetic runner self-test. Exact static manifest checks passed after the manifest was copied.
 - The latest hosted rerun after copying the original decryptor is still the implementation CI gate. Real composite preflight will remain skipped until the exact implementation tester decision and a separate request=true commit match all reviewed code hashes.
 - No new market-source requests, no decrypted data scan accepted yet, no option P&L, no holdout access, and no strategy promotion.
+
+
+## 2026-10-11 — One-use preflight request now uses the rechecked exact blob snapshot
+
+- The contract suite passed on run [38161662282](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161662282), including encrypted bundle checks, request-gate tests, 4,800-cell runner contract, cost arithmetic and marker-order tests. Its authorization gate failed closed because the request still pointed to the prior approved test blob.
+- Archived the prior decision and recorded an exact-snapshot tester recheck, then refreshed the request to the updated 15-file blob dictionary. No production logic or source data changed; current forecast and composite IDs/hashes remain pinned.
+- Current hosted attempt: [38161788742](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161788742) is re-running the synthetic suite; companion repository protocol run [38161789030](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161789030) is active. The cached-composite job is expected to run only after contract tests and exact authorizer pass.
+- No raw dataset scan/P&L has been accepted at this point. The one-use marker must be pushed before any decryption; empirical P&L, holdout and strategy promotion remain false.
