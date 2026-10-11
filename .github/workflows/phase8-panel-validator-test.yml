@@ -6,6 +6,10 @@ on:
     paths:
       - scripts/validate_phase7_reference_panels.py
       - scripts/test_phase8_reference_panels.py
+      - scripts/verify_phase8_cached_source_inputs.py
+      - scripts/test_phase8_cached_source_inputs.py
+      - scripts/authorize_phase8_source_cache_bootstrap.py
+      - scripts/test_phase8_source_cache_bootstrap.py
       - .github/workflows/phase8-panel-validator-test.yml
   workflow_dispatch:
 
@@ -26,3 +30,7 @@ jobs:
           pip install numpy pandas scikit-learn scipy pyarrow threadpoolctl
       - name: Validate saved-panel aggregation without model refit
         run: python scripts/test_phase8_reference_panels.py
+      - name: Verify frozen source cache fail-closed behavior (synthetic only)
+        run: python scripts/test_phase8_cached_source_inputs.py
+      - name: Verify exact tester approval gates bootstrap (synthetic only)
+        run: python scripts/test_phase8_source_cache_bootstrap.py
