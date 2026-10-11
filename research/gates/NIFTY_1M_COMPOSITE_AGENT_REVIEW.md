@@ -1,13 +1,13 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: PASS_WITH_SCOPED_RESTRICTIONS
-- Reviewed developer commit: a7b114afaae075ae8f913c1f9c6fa2c6f2e57a6b
-- Report time (UTC): 2026-10-11T05:35:04Z
-- Deterministic checks: PASS
+- Decision: REQUEST_CHANGES
+- Reviewed developer commit: 75931274ed1e286a30ec3c09ba42423de2f2323f
+- Report time (UTC): 2026-10-11T05:35:49Z
+- Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
 - Single-request diagnostic authorized: NO
-- Cache-preserving spot-only recovery authorized: YES — at most 61 spot requests; zero live option refetches
+- Cache-preserving spot-only recovery authorized: NO
 - General live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
@@ -24,13 +24,15 @@
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: invalid timestamp types.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: separate OHLC misalignment.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: sanitized parser-reason logging.
+- BLOCKER — OFFLINE_TEST_FAILED: Offline check python -m failed with exit code 1.
 
 ## Offline test summary
 
-- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py (exit 0)
+- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py scripts/account_nifty_1m_probe_attempt.py scripts/test_account_nifty_1m_probe_attempt.py (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_manifest (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_dataset (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 0)
+- FAIL: python -m unittest -v test_account_nifty_1m_probe_attempt (exit 1)
 
 ## Independent AI review
 
