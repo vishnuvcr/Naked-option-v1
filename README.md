@@ -1,3 +1,15 @@
+## 2026-10-11 — Gzip boundary scanner R2 passed synthetic review
+
+- Hosted synthetic run [38153849924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153849924) passed 6 tests and CLI guard. Tester decision: [R2 review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R2_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R2_2026-10-11.json).
+- Scanner handles gzip streams with uncompressed byte offsets/content hash and a separate container hash. Its CLI still exposes only synthetic self-test.
+- The dataset is an encrypted 61-part Actions artifact; existing workflows decrypt it only into ephemeral CSV.GZ. The next step is the durable one-use authorization adapter. **No cached artifact scan has occurred**; a separate exact-hash execution decision remains required.
+- See [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), [chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md), and [tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/STATUS.md).
+
+**Developer → Tester:** Submit the one-use adapter for exact-hash review.  
+**Tester → Developer:** Do not scan the cached artifact before separate authorization.
+
+
+
 ## 2026-10-11 — Next gate: one-use metadata scan adapter (design approved only)
 
 - Tester approved the [adapter proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md) and [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_SCOPE_R1_2026-10-11.json) for design only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
