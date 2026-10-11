@@ -1,0 +1,51 @@
+{
+  "audit_type": "DERIVED_DATASET_REPAIR_REPORT",
+  "changed_field_counts": {
+    "nifty_close": 394,
+    "nifty_high": 394,
+    "nifty_low": 394,
+    "nifty_open": 394,
+    "nifty_volume": 309,
+    "option_volume": 11
+  },
+  "derived_dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+  "encrypted_part_count": 61,
+  "holdout_accessed": false,
+  "live_source_requests_made": false,
+  "model_fitting_or_scoring_performed": false,
+  "parent_artifact_id": 11696937921,
+  "parent_artifact_run_id": 38126168547,
+  "parent_artifact_sha256": "5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b",
+  "parent_dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL",
+  "permission_conclusion": "NO_MODEL_AUTHORIZATION_FROM_REPAIR",
+  "plaintext_parts_emitted": false,
+  "policy": [
+    "Joined NIFTY OHLCV values are reconciled only from a standalone SPOT row at the exact same epoch.",
+    "Invalid standalone OHLC and negative/unparseable volume are masked to missing, never clamped or fabricated.",
+    "Unmatched option rows remain unmatched; no nearest-time join, timestamp shift or interpolation is applied.",
+    "Original source artifact and source rows are immutable; this is a separate encrypted derived dataset.",
+    "Modeling eligibility still requires a separate exact-snapshot tester decision."
+  ],
+  "raw_market_values_emitted": false,
+  "repair_counts": {
+    "joined_nifty_fields_reconciled": 1528,
+    "joined_rows_masked_due_to_invalid_spot_ohlc": 382,
+    "option_rows_with_invalid_volume_masked": 11,
+    "post_repair_row_invariants_checked": 8999865,
+    "rows_with_quality_flags_updated": 25550,
+    "spot_rows_with_invalid_ohlc_masked": 12,
+    "spot_rows_with_invalid_volume_masked": 309,
+    "unmatched_option_rows_preserved": 19021,
+    "weekend_session_rows_flagged": 24847
+  },
+  "row_counts": {
+    "option_rows": 8490723,
+    "rows_deleted": 0,
+    "rows_preserved": 8999865,
+    "spot_rows": 509142
+  },
+  "schema_version": 1,
+  "spot_lookup_counts": {},
+  "status": "DERIVED_REPAIR_COMPLETE",
+  "strategy_or_pnl_tested": false
+}
