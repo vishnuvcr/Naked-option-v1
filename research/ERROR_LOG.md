@@ -1196,3 +1196,9 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Next action:** submit a new exact-snapshot tester gate for 7 one-day calls from 2021-11-08 to 2021-11-15, max 500 rows/4 MiB, one attempt each, no retries, base artifact 11697215166. The previous 34-call approval is spent and cannot be reused. Live requests remain blocked until the new tester decision and workflow hash validate.
 - **Permissions:** option endpoints, order endpoints, model fitting/scoring, holdout access and strategy testing remain unauthorized.
 
+
+
+## 2026-10-11 — Offline test failure from a stale marker-path assumption
+- Run [38125662209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125662209) failed because `test_split_execution_fails_closed_without_spent_exact_sha_marker` expected FileNotFoundError, but the real R1 one-use marker had already been correctly committed, so the production code correctly raised a scope-mismatch ValueError.
+- This is a test isolation defect, not a new source/data failure. The test must mock `SPLIT_EXECUTION_MARKER` to a temporary non-existing path; it must not depend on a live one-use marker being absent.
+- Corrective edit prepared; rerun all offline tests before tester authorization. No R2 source request was made; R2 decision gate still closed.

@@ -1377,3 +1377,7 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Check the cleanup correction and require aggregate diagnosis of every invalid row; no silent dropping or rewriting.
 
 **Tester → Developer:** Verify exact-SHA rerun and cleanup evidence before any model-gate submission.
+
+
+## 2026-10-11 — Test harness correction after a spent production marker
+The first R2 offline suite run `38125662209` failed only in a pre-existing fail-closed test: the test assumed the R1 production marker file would be absent, but the live R1 run correctly committed a spent marker. Correct the test by patching the marker path to a temporary nonexistent file, so it tests missing-marker refusal independently of production state. No live R2 requests were made; R2 remains gated pending a clean suite and exact tester decision.

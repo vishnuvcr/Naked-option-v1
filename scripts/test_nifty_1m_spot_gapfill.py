@@ -229,7 +229,9 @@ class TestSpotGapfillMerge(unittest.TestCase):
             plain_dir=pathlib.Path("/tmp/not-a-real-plain-dir"),
             split_ledger=pathlib.Path("/tmp/not-a-real-ledger.json"),
         )
+        missing_marker = pathlib.Path("/tmp/no-such-spot-split-marker-for-test.json")
         with mock.patch.dict(os.environ, {"DHAN_ACCESS_TOKEN": "test-token", "HF_TOKEN": "test-token"}), \
+             mock.patch.object(gapfill, "SPLIT_EXECUTION_MARKER", missing_marker), \
              mock.patch.object(gapfill.urllib.request, "build_opener") as network:
             with self.assertRaises(FileNotFoundError):
                 gapfill.execute_split(args)

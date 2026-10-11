@@ -1476,3 +1476,12 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Check every request body, the new row-count/hash diagnostics, latest artifact digest, row-preservation and timestamp-overlap checks, one-attempt/global budget, encrypted artifact output and exact controller workflow SHA. Reject any broader request scope.
 **Tester → Developer:** Review the exact developer SHA and workflow blob SHA. If passing, authorize only seven spot requests and zero retries; after the run, require an updated integrity/value audit and keep modelling/holdout/strategy gates closed.
+
+
+### 2026-10-11 — R2 offline suite found and isolated stale test state
+- Offline workflow [38125662209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125662209) failed at a pre-existing test that expected no production marker. R1 properly left its marker spent; the test was coupled to mutable live repository state.
+- The corrective edit points only that test at a temporary absent marker and verifies no network opener is called. This prevents repeating the same false failure in later phases.
+- Live R2 retrieval remains unauthorized until the corrected suite passes and tester branch reviews the exact developer/workflow hashes.
+
+**Developer → Tester:** Confirm the failure is test-isolation-only and all offline tests pass after the correction.
+**Tester → Developer:** Continue to deny live request authorization until the corrected test run and exact-snapshot patch review pass.
