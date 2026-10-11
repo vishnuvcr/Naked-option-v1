@@ -240,7 +240,7 @@ jobs:
             "new_market_source_requests_authorized":False,
             "strategy_promotion_authorized":False
           }
-          pathlib.Path("research/phase8/PHASE8_CACHED_COMPOSITE_PREFLIGHT_CONSUMED_R1.json").write_text(json.dumps(marker,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+          pathlib.Path("research/phase8/PHASE8_CACHED_COMPOSITE_PREFLIGHT_CONSUMED_R1.json").write_text(json.dumps(marker,indent=2,sort_keys=True)+"\n",encoding="utf-8")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
