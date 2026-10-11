@@ -328,3 +328,12 @@ New errors must be appended, never overwritten.
 - **Observed:** the isolated tester branch has exact-SHA source-note and configuration crosswalk reports, and the repository protocol workflow passed. However, both developer and tester reports were authored in the same connected assistant session; the intended separate human/AI reviewer was unavailable (previous AI review returned HTTP 402).
 - **Impact:** scoped documentation PASS confirms source arithmetic/mapping consistency within this session but must not be misrepresented as independent external verification. It does not satisfy live data, model-fitting, holdout, or strategy approval gates.
 - **Disposition:** preserve this caveat in status and reports; require a genuine separate reviewer/exact-snapshot decision before opening any gated empirical work. Do not change authorization flags to compensate for the unavailable reviewer.
+
+
+## 2026-10-11 — Dataset quality diagnostic workflow defects
+
+- **Observed:** Latest artifact audit found 382 matched-NIFTY OHLC violation occurrences, 12 standalone SPOT OHLC violations, 309 negative NIFTY-volume occurrences, and 11 negative option-volume occurrences. These are occurrences, not necessarily unique bars.
+- **Workflow defects:** prior unmatched timestamp diagnostic wrote invalid JSON with trailing extra data; report publication failed. Fixed the JSON output newline. A separate dataset-value-audit cleanup step had a malformed heredoc terminator; fixed in developer branch using `printf` and explicit plaintext/SQLite cleanup checks.
+- **Correction:** Added a sanitized provenance diagnostic with distinct-epoch counts, session date, hashed source request identifiers, and row fingerprints that exclude market prices/volumes. It never mutates source rows or performs approximate joins.
+- **Verification:** synthetic test suite and protocol check passed at developer snapshot `0c502aa44274e841af263bd70791204144a36a78`; hosted latest-artifact provenance run is in progress. Do not call the operational gate passed until its report, cleanup, and publication steps complete.
+- **Disposition:** keep source artifact immutable; no new requests, model fitting/scoring, holdout access or strategy/P&L testing. Do not clamp negative volume or invent OHLC values. Repair only in a derived dataset with exact-source evidence or explicit missing/exclusion flags.
