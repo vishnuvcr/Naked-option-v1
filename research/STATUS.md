@@ -1495,3 +1495,16 @@ The automatic offline suite [38127450732](https://github.com/vishnuvcr/Naked-opt
 
 Developer → Tester: Review the corrected exact snapshot and successful synthetic CI run.
 Tester → Developer: Keep real-file preflight and all downstream research gates closed until resubmission passes.
+
+
+## 2026-10-11 — Offline preflight correction submitted; waiting for tester gate
+
+- Corrected the structural scanner's SQLite temporary-index cleanup and timestamp extrema parsing; added explicit parse-error counts and conservative handling for incomplete duplicate keys.
+- Expanded synthetic tests to cover gzip corruption/truncation, malformed row width, duplicate keys, absent/incomplete keys, timestamp parsing, nested report paths and cleanup after failure.
+- Implementation commit: `d7095ea89f697b4d0ba6df8b771cc38781295d09`; regression-test commit: `ca500c3b931c8e8204ec59f5b2baa57bb19170d7`; checkpoint log: [PREFLIGHT_IMPLEMENTATION_CHECKPOINT_2026-10-11.md](logs/PREFLIGHT_IMPLEMENTATION_CHECKPOINT_2026-10-11.md).
+- CI status: no verified run receipt recorded yet. Synthetic CI is expected to trigger from developer-branch changes; do not infer success from a commit.
+- Real CSV status: the 4.75 GB CSV is not mounted in this tool execution environment, so no real-file scan has been run here. Dataset facts remain repository-reported metadata until this gate executes against the actual file.
+- Permissions: real-file preflight NOT AUTHORIZED; fitting/scoring CLOSED; holdout CLOSED; new source requests CLOSED; strategy/P&L CLOSED.
+
+Developer → Tester: Review exact code/tests, verify successful synthetic CI on the final snapshot, and return a scoped decision.
+Tester → Developer: Keep real-file execution and all downstream gates closed until exact-snapshot review passes.
