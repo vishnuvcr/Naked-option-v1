@@ -1,0 +1,44 @@
+name: Prospective Holdout Boundary — Synthetic Gate
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/prospective_holdout_boundary.py"
+      - "tests/test_prospective_holdout_boundary.py"
+      - "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_MANIFEST_SCHEMA_R1_2026-10-11.json"
+      - ".github/workflows/prospective-holdout-boundary-synthetic.yml"
+  pull_request:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/prospective_holdout_boundary.py"
+      - "tests/test_prospective_holdout_boundary.py"
+      - "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_MANIFEST_SCHEMA_R1_2026-10-11.json"
+      - ".github/workflows/prospective-holdout-boundary-synthetic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run synthetic metadata-only regression tests
+        run: python -m unittest discover -s tests -p 'test_prospective_holdout_boundary.py' -v
+      - name: Verify CLI cannot open a real file
+        run: |
+          python scripts/prospective_holdout_boundary.py --self-test
+          python - <<'PY'
+          from pathlib import Path
+          source = Path("scripts/prospective_holdout_boundary.py").read_text()
+          assert "parser.add_argument(\"--dataset\"" not in source
+          assert "parser.add_argument(\"--input-manifest\"" not in source
+          assert "real-file CLI mode" in source
+          print("PASS: only synthetic self-test is available from CLI")
+          PY
