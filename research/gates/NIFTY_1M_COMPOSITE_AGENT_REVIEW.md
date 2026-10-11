@@ -1,11 +1,11 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: REQUEST_CHANGES
-- Reviewed developer commit: 3826cd61742a17abe27c82ecdfded62cc1ed2dac
-- Report time (UTC): 2026-10-11T04:26:03Z
-- Deterministic checks: REQUEST CHANGES
-- AI reviewer: REVIEWER_UNAVAILABLE / REQUEST_CHANGES
-- Automatic repair attempt: 1
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS
+- Reviewed developer commit: 07cd1b23b07661d83177e5d3bba7e4df79798247
+- Report time (UTC): 2026-10-11T04:27:29Z
+- Deterministic checks: PASS
+- AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
+- Automatic repair attempt: 2
 - Live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
@@ -14,11 +14,11 @@
 
 - INFO — SPOT_RESPONSE_FIELDS_REQUIRED: Spot parser requires timestamp, OHLC, and volume arrays, consistent with Dhan's documented response shape.
 - INFO — SANITIZED_DIAGNOSTIC_PRESENT: Unexpected validation errors retain a bounded reason token without logging payload bodies.
-- BLOCKER — MISSING_REGRESSION_CASE: Missing explicit regression coverage: missing-volume response.
-- BLOCKER — MISSING_REGRESSION_CASE: Missing explicit regression coverage: empty-volume response.
-- BLOCKER — MISSING_REGRESSION_CASE: Missing explicit regression coverage: misaligned volume array.
-- BLOCKER — MISSING_REGRESSION_CASE: Missing explicit regression coverage: invalid timestamp types.
-- BLOCKER — MISSING_REGRESSION_CASE: Missing explicit regression coverage: separate OHLC misalignment.
+- INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: missing-volume response.
+- INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: empty-volume response.
+- INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: misaligned volume array.
+- INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: invalid timestamp types.
+- INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: separate OHLC misalignment.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: sanitized parser-reason logging.
 
 ## Offline test summary
@@ -31,7 +31,7 @@
 
 AI reviewer unavailable; no independent AI verdict was produced.
 
-- BLOCKER — automation/nifty_composite_agent.py: RuntimeError: Hugging Face inference returned HTTP 402 Required: Restore HF Inference Provider access and rerun the workflow.
+- WARNING — automation/nifty_composite_agent.py: RuntimeError: Hugging Face inference returned HTTP 402 Required: Restore HF Inference Provider access and rerun the workflow.
 
 ## Gate scope
 
