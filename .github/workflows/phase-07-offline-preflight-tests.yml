@@ -1,5 +1,4 @@
 name: Phase 07 Offline Dataset Preflight Tests
-# Receipt publisher policy tests are included in this synthetic-only suite.
 on:
   push:
     branches: [phase-07-developer]
