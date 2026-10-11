@@ -1,0 +1,257 @@
+name: Offline NIFTY Dataset Value Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/dataset-value-audit.yml"
+      - "scripts/audit_nifty_1m_composite_values.py"
+      - "scripts/decrypt_nifty_1m_composite.py"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: offline-nifty-dataset-value-audit
+  cancel-in-progress: false
+
+jobs:
+  audit-existing-artifact:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Enforce fixed offline-only artifact scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          mkdir -p research/data
+          rm -f research/data/DATASET_VALUE_AUDIT_RESULT.json
+          echo "Source: immutable existing Actions artifact run 38116772719 / artifact 11693866249"
+          echo "Scope: decrypt and inspect only; no market-data endpoint calls."
+
+      - name: Download the existing encrypted artifact only
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-composite-spot-recovery-38116772719
+          run-id: 38116772719
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/dataset-bundle
+
+      - name: Verify immutable artifact metadata and prepare encrypted input
+        id: prepare
+        if: steps.download.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/dataset-bundle
+          INPUT_DIR: ${{ runner.temp }}/dataset-input
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, pathlib, shutil
+          root = pathlib.Path(os.environ["BUNDLE_DIR"])
+          out = pathlib.Path(os.environ["INPUT_DIR"])
+          manifest_path = root / "dataset_manifest.json"
+          if not manifest_path.is_file():
+              raise SystemExit("artifact_manifest_missing")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("dataset_id") != "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL":
+              raise SystemExit("artifact_dataset_id_mismatch")
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
+              raise SystemExit("artifact_plaintext_scope_marker_invalid")
+          parts = manifest.get("parts")
+          if not isinstance(parts, list) or len(parts) != 57:
+              raise SystemExit("artifact_part_count_mismatch")
+          summary = manifest.get("dataset_summary", {})
+          expected = {
+              "original_rows_options": 8490723,
+              "rows_options": 8490723,
+              "rows_spot": 403664,
+              "spot_join_matched": 7591172,
+              "spot_join_missing": 899551,
+              "gapfill_request_count_planned": 47,
+              "gapfill_request_count_succeeded": 41,
+              "gapfill_request_count_failed": 6,
+          }
+          for key, value in expected.items():
+              if summary.get(key) != value:
+                  raise SystemExit("artifact_summary_mismatch_" + key)
+          encrypted_root = root / "encrypted"
+          if not encrypted_root.is_dir():
+              raise SystemExit("artifact_encrypted_directory_missing")
+          manifest_names = set()
+          total_rows = 0
+          for part in parts:
+              name = part.get("file", "")
+              if not name or pathlib.Path(name).name != name or not name.endswith(".csv.gz.enc"):
+                  raise SystemExit("unsafe_manifest_part_name")
+              manifest_names.add(name)
+              source = encrypted_root / name
+              if not source.is_file():
+                  raise SystemExit("manifest_encrypted_part_missing")
+              if source.stat().st_size != int(part.get("encrypted_bytes", -1)):
+                  raise SystemExit("manifest_encrypted_part_size_mismatch")
+              digest = hashlib.sha256()
+              with source.open("rb") as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              if digest.hexdigest() != part.get("encrypted_sha256"):
+                  raise SystemExit("manifest_encrypted_part_hash_mismatch")
+              total_rows += int(part.get("row_count", -1))
+          actual_names = {p.name for p in encrypted_root.glob("*.csv.gz.enc") if p.is_file()}
+          if actual_names != manifest_names:
+              raise SystemExit("artifact_part_set_mismatch")
+          if total_rows != 8894387:
+              raise SystemExit("artifact_manifest_row_sum_mismatch")
+          out.mkdir(parents=True, exist_ok=True)
+          shutil.copyfile(manifest_path, out / "dataset_manifest.json")
+          for name in sorted(manifest_names):
+              (out / name).symlink_to(encrypted_root / name)
+          print("ARTIFACT_PREFLIGHT_PASS: 57 encrypted parts; manifest counts/hash/size checks pass.")
+          PY
+
+      - name: Decrypt monthly gzip parts using the existing secret
+        id: decrypt
+        if: steps.prepare.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/dataset-input
+          PLAIN_DIR: ${{ runner.temp }}/dataset-plain
+        run: |
+          set -euo pipefail
+          if [[ -z "$HF_TOKEN" ]]; then
+            echo "AUDIT_BLOCKED: existing decryption secret is unavailable."
+            exit 1
+          fi
+          python scripts/decrypt_nifty_1m_composite.py \
+            --input-dir "$INPUT_DIR" \
+            --output-dir "$PLAIN_DIR"
+          cp "$INPUT_DIR/dataset_manifest.json" "$PLAIN_DIR/dataset_manifest.json"
+          echo "DECRYPTION_PASS: authenticated monthly gzip checksums verified."
+
+      - name: Run row-level offline semantic checks
+        id: audit
+        if: steps.decrypt.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        env:
+          PLAIN_DIR: ${{ runner.temp }}/dataset-plain
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_RESULT.json
+          SQLITE_TEMP: ${{ runner.temp }}/dataset-audit-keys.sqlite
+        run: |
+          set +e
+          python scripts/audit_nifty_1m_composite_values.py \
+            --input-dir "$PLAIN_DIR" \
+            --output-json "$OUTPUT_JSON" \
+            --sqlite-temp "$SQLITE_TEMP"
+          rc=$?
+          echo "Semantic auditor exit code: $rc (details are in the sanitized report)."
+          exit "$rc"
+
+      - name: Write sanitized error state if preparation or decryption failed
+        if: always() && (steps.download.outcome != 'success' || steps.prepare.outcome != 'success' || steps.decrypt.outcome != 'success')
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("research/data/DATASET_VALUE_AUDIT_RESULT.json")
+          p.write_text(json.dumps({
+              "schema_version": 1,
+              "audit_type": "OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT",
+              "status": "AUDIT_PRECONDITION_FAILED",
+              "detail": "Existing artifact retrieval, integrity preflight, or authenticated decryption did not complete.",
+              "sensitive_market_values_in_report": False,
+              "plaintext_uploaded": False,
+              "live_source_requests_made": False,
+              "model_fitting_or_scoring_performed": False,
+              "holdout_accessed": False,
+              "strategy_or_pnl_tested": False,
+              "permission_conclusion": "NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Ensure a result exists and remove plaintext work files
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -s research/data/DATASET_VALUE_AUDIT_RESULT.json ]]; then
+            python - <<'PY'
+            import json, pathlib
+            pathlib.Path("research/data/DATASET_VALUE_AUDIT_RESULT.json").write_text(json.dumps({
+              "schema_version": 1,
+              "audit_type": "OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT",
+              "status": "AUDIT_ERROR",
+              "detail": "No valid sanitized audit result was produced.",
+              "sensitive_market_values_in_report": False,
+              "plaintext_uploaded": False,
+              "live_source_requests_made": False,
+              "permission_conclusion": "NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"
+            }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            PY
+          fi
+          rm -rf "${{ runner.temp }}/dataset-plain" "${{ runner.temp }}/dataset-input" "${{ runner.temp }}/dataset-bundle"
+          rm -f "${{ runner.temp }}/dataset-audit-keys.sqlite" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-journal" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-wal" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-shm"
+          if find "${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
+            echo "ERROR: plaintext monthly CSV.GZ remained in runner temp."
+            exit 1
+          fi
+          echo "Plaintext monthly parts and duplicate-check database removed."
+
+      - name: Commit only the sanitized aggregate result
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/DATASET_VALUE_AUDIT_RESULT.json
+          if git diff --cached --quiet; then
+            echo "Sanitized audit report unchanged."
+          else
+            git commit -m "Publish sanitized offline dataset value audit result"
+            git push origin HEAD:main
+          fi
+
+      - name: Enforce fail-closed final verdict
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          result = json.loads(pathlib.Path("research/data/DATASET_VALUE_AUDIT_RESULT.json").read_text(encoding="utf-8"))
+          status = result.get("status")
+          print("Final sanitized audit status:", status)
+          print("Model fitting, holdout access and strategy testing remain unauthorized.")
+          if status != "PASS_WITH_COVERAGE_RESTRICTIONS":
+              raise SystemExit(1)
+          PY
+
+      - name: Upload sanitized audit only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitized-nifty-value-audit-${{ github.run_id }}
+          path: research/data/DATASET_VALUE_AUDIT_RESULT.json
+          if-no-files-found: error
+          retention-days: 90
+
+# This workflow reads one existing encrypted artifact. It must not call market-data endpoints,
+# upload plaintext CSVs, fit models, read the holdout, or run strategy/P&L evaluations.
