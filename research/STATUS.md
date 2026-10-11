@@ -360,3 +360,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Created a versioned Phase 8 Run #994 amendment proposal. The implementation changes the Phase 8 workflow to consume the immutable panels (no predictor refit), validate source/code/panel hashes and exact metrics under the frozen 1e-9 tolerance, and keep empirical authorization false.
 - Previous Run #654 manifest is retained separately as R1; it is not overwritten. The active manifest is R2.
 - Current gate: hosted implementation/integration regression and tester review. No option P&L, no 4,800-cell strategy grid, no holdout access and no strategy promotion yet.
+
+
+## 2026-10-11 — R2 hosted validation attempt 1 failed at artifact transfer gate
+
+- Hosted run [38156211691](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156211691): protocol PASS; workflow contract, legacy fail-closed, synthetic saved-panel and execution-engine tests PASS; free-source option audit PASS.
+- Run #994 reference-artifact job failed at its archive acquisition/verification step. No real saved-panel validation or option P&L ran. The cause is not established because the initial shell step did not log the actual digest before failing.
+- Developer prepared a diagnostic-preserving curl/redirect patch; rerun must report and match the exact artifact, manifest and aggregate SHA-256 values. Empirical authorization remains false.

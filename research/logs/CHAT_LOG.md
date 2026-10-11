@@ -248,3 +248,11 @@ No scientific or protocol change was made during this checkpoint.
 - Confirmed that Phase 7 reference artifact 11638738288 is available from run 37957677656, source commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb. It contains ten saved panels (50,555 rows) and paired aggregate metrics. Its technical tester audit reports 3,098 checks passed, zero failed, but does not promote a predictor as a profitable method.
 - Archived the previous Phase 8 Run #654 manifest as R1 and changed the active Phase 8 manifest/workflow/tests to R2. The production workflow is being switched from model refitting to saved-panel consumption, with all exact hashes checked and empirical authorization left false. The change must pass hosted tests and review before option P&L may run.
 - Next after panel integration: complete the existing free-source/point-in-time option-data gate; if the data support it, run the preregistered CE/PE delta x DTE x exit x cost matrix using Paytm Money fees and conservative spreads/slippage. Report all failures and negative results.
+
+
+## 2026-10-11 — Phase 8 R2 first hosted integration attempt
+
+- Developer commit 55bd22dfb1b8d8e8caeb472fdef90d2bd18a711e triggered workflow run 38156211691.
+- Protocol validation, all four regression suites (including the synthetic saved-panel test), and the Phase 8 free-source audit passed. The run994 artifact fetch/verification job failed and downstream forecast-panel validation was skipped; no option P&L or empirical grid ran.
+- Exact source artifact SHA was independently verified by downloading artifact 11638738288 to the local workspace and recomputing the ZIP SHA-256. The workflow's shell step did not print its expected/actual values on failure, so root cause is still unknown.
+- Developer correction: change artifact download to explicit curl redirect handling and log the archive/manifest/aggregate digests before any fail-closed comparison. No hash/tolerance relaxations or scientific changes.

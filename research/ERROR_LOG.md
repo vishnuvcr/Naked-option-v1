@@ -332,3 +332,12 @@
 - Impact: the old replay path continued failing two small P07 H=60 Brier values at the frozen 1e-9 tolerance; that path could not be used to accept a forecast panel. This was a lineage mismatch, not proof that Run #654 metrics were scientifically wrong.
 - Correction: archive the Run #654 input as R1; point the active Phase 8 input at immutable Run #994 artifact 11638738288 (R2); verify the ZIP/manifest/aggregate hashes; consume saved predictions and never refit as a fallback.
 - Prevention: every future prediction reference requires explicit immutable artifact ID, exact commit, archive/manifest/aggregate hashes and tester acceptance. No tolerance relaxation and no option P&L until the new hosted panel integration and option-data gates pass.
+
+
+## 2026-10-11 — Phase 8 Run #994 artifact acquisition gate failed closed on first hosted attempt
+- Category: workflow / artifact transfer integrity gate
+- Run: 38156211691; developer commit 55bd22dfb1b8d8e8caeb472fdef90d2bd18a711e.
+- Observed: protocol checks, workflow-contract tests, legacy fail-closed tests, saved-panel synthetic regression, execution-engine regression and Phase 8 free-source audit all passed. The immutable-reference-artifact job then failed during its single download/verification step. Forecast validation and empirical jobs were skipped because their dependency failed.
+- Scope of accepted evidence: no real Run #994 panel validation was accepted in this attempt; no model was refit and no option P&L ran. The artifact remains independently downloadable; GitHub's artifact metadata reports SHA-256 3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9.
+- Diagnosis: not proven from the first log because shell hash assertions emitted no expected/actual values. Correction: use explicit redirect-following download with curl and print each actual digest/mismatch before failing. This is an observability/transfer correction, not a claim that the exact failure root cause is known.
+- Prevention: preserve fail-closed hash checks; do not skip, weaken or replace any digest check to get the workflow green.

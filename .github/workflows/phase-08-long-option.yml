@@ -104,10 +104,19 @@ jobs:
           mkdir -p data/cache/reference/phase7_run994
           zip="data/cache/reference/phase7_run994/phase7_reference.zip"
           if [ ! -s "$zip" ]; then
-            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" > "$zip"
+            curl --fail --location --silent --show-error --retry 2 --retry-all-errors \\
+              -H "Authorization: Bearer ${GH_TOKEN}" \\
+              -H "Accept: application/vnd.github+json" \\
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" \\
+              --output "$zip"
           fi
+          test -s "$zip"
           actual="$(sha256sum "$zip" | awk '{print $1}')"
-          test "$actual" = "$REFERENCE_ARTIFACT_SHA256"
+          echo "Downloaded Run #994 archive SHA-256: $actual"
+          if [ "$actual" != "$REFERENCE_ARTIFACT_SHA256" ]; then
+            echo "REFERENCE_ARCHIVE_HASH_MISMATCH expected=$REFERENCE_ARTIFACT_SHA256 actual=$actual"
+            exit 1
+          fi
           rm -rf data/cache/reference/phase7_run994/unpacked
           mkdir -p data/cache/reference/phase7_run994/unpacked
           unzip -q "$zip" -d data/cache/reference/phase7_run994/unpacked
@@ -116,8 +125,16 @@ jobs:
           test -s "$manifest" && test -s "$aggregate"
           manifest_actual="$(sha256sum "$manifest" | awk '{print $1}')"
           aggregate_actual="$(sha256sum "$aggregate" | awk '{print $1}')"
-          test "$manifest_actual" = "$REFERENCE_MANIFEST_SHA256"
-          test "$aggregate_actual" = "$REFERENCE_AGGREGATE_SHA256"
+          echo "Embedded manifest SHA-256: $manifest_actual"
+          echo "Paired aggregate SHA-256: $aggregate_actual"
+          if [ "$manifest_actual" != "$REFERENCE_MANIFEST_SHA256" ]; then
+            echo "REFERENCE_MANIFEST_HASH_MISMATCH expected=$REFERENCE_MANIFEST_SHA256 actual=$manifest_actual"
+            exit 1
+          fi
+          if [ "$aggregate_actual" != "$REFERENCE_AGGREGATE_SHA256" ]; then
+            echo "REFERENCE_AGGREGATE_HASH_MISMATCH expected=$REFERENCE_AGGREGATE_SHA256 actual=$aggregate_actual"
+            exit 1
+          fi
           python - <<'PY'
           import json, os
           m=json.load(open("data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"))
