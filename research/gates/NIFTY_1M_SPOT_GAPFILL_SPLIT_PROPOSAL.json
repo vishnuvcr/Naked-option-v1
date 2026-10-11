@@ -24,13 +24,14 @@
   "strategy_testing_authorized": false,
   "preserve_existing_option_rows": true,
   "do_not_overwrite_prior_artifact": true,
-  "rationale": "The six failed 39-calendar-day responses each exceeded the prior 12,000-row cap. Split their contiguous combined 234-day interval into seven-calendar-day-or-shorter shards and lower the per-response row cap to 4,000. This is a proposal only; current production collector/workflow is not authorized or configured to execute this proposal.",
+  "rationale": "The six failed 39-calendar-day responses each exceeded the prior 12,000-row cap. Split their contiguous combined 234-day interval into seven-calendar-day-or-shorter shards and lower the per-response row cap to 4,000. This is a proposal only; current production collector/workflow is not authorized or configured to execute this proposal. The execution implementation must use the latest partial encrypted artifact as its base and preserve its 403,664 existing spot rows; rebuilding from the original zero-spot artifact with only these 34 requests would silently discard previously recovered data.",
   "authorization_requirements": [
     "Add a dedicated validator and regression tests for this exact partial-window retry manifest.",
     "Implement and test one-attempt-per-request behavior before any source request; no hidden retries.",
     "Update the workflow gate to bind authorization to this proposal's exact SHA and the 34-request/34-wire budget.",
     "Obtain a fresh exact-snapshot tester decision; the previous one-use authorization is spent.",
-    "No option requests, model fitting, holdout access or strategy testing."
+    "No option requests, model fitting, holdout access or strategy testing.",
+    "Base the retry on artifact 11693866249 and preserve all 403,664 existing spot rows; never rebuild from the original zero-spot artifact with only the 34 failed-window shards."
   ],
   "requests": [
     {
@@ -713,5 +714,15 @@
         "toDate": "2022-06-01 15:30:00"
       }
     }
-  ]
+  ],
+  "base_partial_artifact": {
+    "run_id": "38116772719",
+    "artifact_id": "11693866249",
+    "artifact_sha256": "aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216",
+    "existing_option_rows": 8490723,
+    "existing_spot_rows": 403664
+  },
+  "preserve_existing_spot_rows": true,
+  "expected_existing_spot_rows": 403664,
+  "refetch_successful_windows": false
 }
