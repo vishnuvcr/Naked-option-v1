@@ -7,6 +7,25 @@ from pathlib import Path
 from typing import Any
 
 
+REQUIRED_REVIEWED_FILES = {
+    ".github/workflows/phase8-cached-composite-preflight.yml",
+    "scripts/run_phase8_long_option.py",
+    "scripts/test_phase8_long_option_runner.py",
+    "scripts/phase8_execution_engine.py",
+    "scripts/test_phase8_execution_engine.py",
+    "scripts/decrypt_nifty_1m_composite.py",
+    "scripts/validate_phase8_cached_composite_bundle.py",
+    "scripts/test_phase8_cached_composite_bundle.py",
+    "scripts/authorize_phase8_cached_composite_preflight.py",
+    "scripts/test_phase8_cached_composite_preflight.py",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json",
+    "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json",
+    "research/phase8/PHASE8_METHOD_SPEC.md",
+    "data/reference/phase8_cost_schedule.json",
+    "requirements-composite.txt",
+}
+
+
 def _current_blob_sha(path: str) -> str:
     result = subprocess.run(
         ["git", "rev-parse", f"HEAD:{path}"],
@@ -34,7 +53,9 @@ def evaluate_authorization(request: dict[str, Any], decision: dict[str, Any],
         raise ValueError("AUTH_BLOCKED: tester decision improperly enables holdout/promotion")
     reviewed = decision.get("approved_code_blob_shas")
     requested = request.get("approved_code_blob_shas")
-    if not isinstance(reviewed, dict) or not reviewed or requested != reviewed:
+    if not isinstance(reviewed, dict) or set(reviewed) != REQUIRED_REVIEWED_FILES:
+        raise ValueError("AUTH_BLOCKED: tester decision must pin every required code/spec/data-contract file")
+    if requested != reviewed:
         raise ValueError("AUTH_BLOCKED: request does not exactly copy reviewed blob hashes")
     if set(current_blob_shas) != set(reviewed):
         raise ValueError("AUTH_BLOCKED: current code pin set differs from tester-reviewed set")
