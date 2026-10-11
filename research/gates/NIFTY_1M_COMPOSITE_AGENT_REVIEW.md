@@ -1,9 +1,9 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: REQUEST_CHANGES
-- Reviewed developer commit: d04812ac92363805d6e99ab676c69bba01c58791
-- Report time (UTC): 2026-10-11T08:41:33Z
-- Deterministic checks: REQUEST CHANGES
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS
+- Reviewed developer commit: de4f066e6d9a6ab951ce35ea928f879ec727f83e
+- Report time (UTC): 2026-10-11T08:43:17Z
+- Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
 - Single-request diagnostic authorized: NO
@@ -24,7 +24,6 @@
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: invalid timestamp types.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: separate OHLC misalignment.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: sanitized parser-reason logging.
-- BLOCKER — OFFLINE_TEST_FAILED: Offline check python -m failed with exit code 1.
 
 ## Offline test summary
 
@@ -34,7 +33,7 @@
 - PASS: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 0)
 - PASS: python -m unittest -v test_account_nifty_1m_probe_attempt (exit 0)
 - PASS: python -m unittest -v test_audit_nifty_1m_composite_cache (exit 0)
-- FAIL: python -m unittest -v test_nifty_1m_spot_gapfill (exit 1)
+- PASS: python -m unittest -v test_nifty_1m_spot_gapfill (exit 0)
 
 ## Independent AI review
 
