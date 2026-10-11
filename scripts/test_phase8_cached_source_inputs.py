@@ -91,8 +91,6 @@ def test_manifest_cannot_redirect_a_pinned_source_path():
 def test_missing_or_malformed_manifest_fails_closed():
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp)
-        missing = verify_module.verify_cached_source_inputs(root / "missing.json", root)
-        assert missing["status"] if False else True  # Exception is the expected API for malformed input.
         try:
             verify_module.verify_cached_source_inputs(root / "missing.json", root)
         except verify_module.SourceCacheError:
