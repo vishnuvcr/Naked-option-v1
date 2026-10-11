@@ -28,7 +28,10 @@ FILES = [
     "scripts/test_audit_nifty_1m_composite_cache.py",
     "scripts/account_nifty_1m_probe_attempt.py",
     "scripts/test_account_nifty_1m_probe_attempt.py",
+    "scripts/run_nifty_1m_spot_gapfill.py",
+    "scripts/test_nifty_1m_spot_gapfill.py",
     "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
+    "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json",
     ".github/workflows/phase-07-nifty-1m-composite-live.yml",
     ".github/workflows/phase-07-nifty-1m-composite-tests.yml",
     ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml",
@@ -122,12 +125,14 @@ def run_offline_tests(root: pathlib.Path, findings: list[dict[str, str]]) -> dic
          "scripts/validate_nifty_1m_composite_approval.py", "scripts/run_nifty_1m_spot_diagnostic.py",
          "scripts/test_nifty_1m_spot_diagnostic.py", "scripts/audit_nifty_1m_composite_cache.py",
          "scripts/account_nifty_1m_probe_attempt.py", "scripts/test_account_nifty_1m_probe_attempt.py",
-         "scripts/test_audit_nifty_1m_composite_cache.py"],
+         "scripts/test_audit_nifty_1m_composite_cache.py", "scripts/run_nifty_1m_spot_gapfill.py",
+         "scripts/test_nifty_1m_spot_gapfill.py"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_manifest"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_dataset"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_spot_diagnostic"],
         ["python", "-m", "unittest", "-v", "test_account_nifty_1m_probe_attempt"],
         ["python", "-m", "unittest", "-v", "test_audit_nifty_1m_composite_cache"],
+        ["python", "-m", "unittest", "-v", "test_nifty_1m_spot_gapfill"],
     ]
     results = []
     for command in tests:
@@ -205,54 +210,135 @@ def check_diagnostic_scope(target: pathlib.Path, findings: list[dict[str, str]])
 
 
 def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str]]) -> dict[str, Any]:
-    """Review the no-option-refetch guard before a separate 61-spot recovery."""
+    """Review artifact-based preservation, bounded spot-only request grid and exact merge."""
     collector_path = target / "scripts/run_nifty_1m_composite_dataset.py"
-    audit_path = target / "scripts/audit_nifty_1m_composite_cache.py"
-    account_path = target / "scripts/account_nifty_1m_probe_attempt.py"
+    gapfill_path = target / "scripts/run_nifty_1m_spot_gapfill.py"
+    gapfill_test_path = target / "scripts/test_nifty_1m_spot_gapfill.py"
+    manifest_path = target / "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json"
     workflow_path = target / ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
     try:
         collector = collector_path.read_text(encoding="utf-8")
-        audit = audit_path.read_text(encoding="utf-8")
-        accounting = account_path.read_text(encoding="utf-8")
+        gapfill = gapfill_path.read_text(encoding="utf-8")
+        tests = gapfill_test_path.read_text(encoding="utf-8")
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         workflow = workflow_path.read_text(encoding="utf-8")
     except Exception:
-        add(findings, "BLOCKER", "SPOT_RECOVERY_GUARD_FILES_MISSING",
-            "Spot-only recovery requires the collector's cache-only option mode, an independent cache auditor and an automatic workflow.")
-        return {"status": "BLOCKED", "reason": "RECOVERY_GUARD_FILES_MISSING"}
-    required_collector = ("allow_live: bool = True", "allow_live=not spot_only_recovery",
-                          "--spot-only-recovery", "live_option_requests_enabled",
-                          "def _normalize_epoch_timestamp", "response_timestamp_not_integer_epoch")
-    required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
-                      "wire_requests_reserved_for_spot", "8540", "61",
-                      "EXPECTED_PRESERVED_OPTION_ROWS", "cached_option_rows",
-                      "8_490_723", "not invalid")
-    required_accounting = ("AUTHORIZED_NONPERSISTING_DIAGNOSTIC", "wire_delta", "request_scope_sha256",
-                           "raw_response_persisted", "ALREADY_ACCOUNTED")
-    required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
-                         "SPOT_ONLY_CACHE_PRESERVING_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
-                         "nifty1m-composite-", "account_nifty_1m_probe_attempt.py",
-                         "createWorkflowDispatch", 'ref: "phase-07-developer"',
-                         "github.ref == 'refs/heads/phase-07-developer'")
-    missing_collector = [marker for marker in required_collector if marker not in collector]
-    missing_audit = [marker for marker in required_audit if marker not in audit]
-    missing_accounting = [marker for marker in required_accounting if marker not in accounting]
-    missing_workflow = [marker for marker in required_workflow if marker not in workflow]
-    if missing_collector or missing_audit or missing_accounting or missing_workflow:
-        detail = (
-            "missing_collector=" + ",".join(missing_collector)
-            + ";missing_audit=" + ",".join(missing_audit)
-            + ";missing_accounting=" + ",".join(missing_accounting)
+        add(findings, "BLOCKER", "SPOT_GAPFILL_ARTIFACT_FILES_MISSING",
+            "Artifact-preserving gapfill requires its runner, independent tests, exact request manifest and automatic workflow.")
+        return {"status": "BLOCKED", "reason": "GAPFILL_FILES_MISSING"}
+
+    requests = manifest.get("requests", [])
+    history = manifest.get("dataset_scope", {})
+    expected_start = "2021-10-11"
+    expected_end = "2026-10-11"
+    current = expected_start
+    grid_errors = []
+    ids = set()
+    for request in requests:
+        start, end = request.get("window_start_inclusive"), request.get("window_end_exclusive")
+        body = request.get("body", {})
+        if start != current or not start or not end or end <= start:
+            grid_errors.append("windows_not_contiguous")
+            break
+        try:
+            import datetime as _dt
+            span = (_dt.date.fromisoformat(end) - _dt.date.fromisoformat(start)).days
+        except Exception:
+            grid_errors.append("window_dates_invalid")
+            break
+        if span > 39:
+            grid_errors.append("window_over_39_days")
+        if request.get("request_id") in ids:
+            grid_errors.append("duplicate_request_id")
+        ids.add(request.get("request_id"))
+        if (request.get("source_family") != "NIFTY_SPOT_1M"
+                or request.get("endpoint") != "https://api.dhan.co/v2/charts/intraday"
+                or request.get("method") != "POST"
+                or request.get("max_response_bytes") != 8_388_608
+                or request.get("max_rows") != 12_000
+                or body.get("interval") != "1"
+                or body.get("instrument") != "INDEX"
+                or body.get("exchangeSegment") != "IDX_I"
+                or body.get("securityId") != "13"
+                or body.get("oi") is not False):
+            grid_errors.append("request_scope_invalid")
+        current = end
+    if current != expected_end:
+        grid_errors.append("history_end_not_covered")
+    if (len(requests) != 47
+            or manifest.get("planned_unique_requests") != 47
+            or manifest.get("chunk_calendar_days") != 39
+            or history.get("history_start_inclusive") != expected_start
+            or history.get("history_end_exclusive") != expected_end
+            or manifest.get("live_option_requests_allowed") is not False
+            or manifest.get("preserve_existing_option_rows_expected") != 8_490_723):
+        grid_errors.append("manifest_scope_or_count_invalid")
+
+    required_gapfill = (
+        "def validate_gapfill_manifest", "def preflight", "def merge_into_existing_dataset",
+        "EXPECTED_OPTION_ROWS = 8_490_723", "source_artifact_encrypted_hashes_verified",
+        "run_nifty_1m_composite_dataset.py", "live_option_requests_allowed",
+        "SPOT_JOIN_MISSING", "EXACT_TIMESTAMP_MATCH", "spot_gapfill_status",
+        "encrypt_outputs", "shutil.rmtree(plain_dir",
+    )
+    # The gapfill implementation imports reusable collection utilities but sends only intraday
+    # spot requests itself. It must not call the rollingoption endpoint or write plaintext source
+    # response bodies as artifacts.
+    forbidden_gapfill = (
+        "https://api.dhan.co/v2/charts/rollingoption",
+        "open(path, 'wb')",
+        "print(raw",
+        "print(payload",
+    )
+    workflow_required = (
+        "download-artifact@v4", "nifty-1m-composite-encrypted-bundle",
+        "run-id: 38082385220", "NIFTY_1M_SPOT_GAPFILL_PREFLIGHT.json",
+        "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
+        "SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
+        "run_nifty_1m_spot_gapfill.py --execute",
+        "createWorkflowDispatch", 'ref: "phase-07-developer"',
+        "actions/cache/save@v4", "niftyspot-gapfill-",
+        "NIFTY_1M_SPOT_RECOVERY_RESULT.json",
+    )
+    missing_gapfill = [marker for marker in required_gapfill if marker not in gapfill]
+    missing_workflow = [marker for marker in workflow_required if marker not in workflow]
+    forbidden_found = [marker for marker in forbidden_gapfill if marker in gapfill]
+    if grid_errors or missing_gapfill or missing_workflow or forbidden_found:
+        add(findings, "BLOCKER", "SPOT_ARTIFACT_GAPFILL_GUARD_FAILED",
+            "The artifact-based gapfill fails its independent scope/merge/privacy contract. "
+            + "grid=" + ",".join(grid_errors)
+            + ";missing_runner_or_test=" + ",".join(missing_gapfill)
             + ";missing_workflow=" + ",".join(missing_workflow)
-        )
-        add(findings, "BLOCKER", "SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING",
-            "Recovery workflow must count the diagnostic wire attempt, prove all 8,540 option caches are valid and disable live option refetches before the one-use marker is spent. " + detail)
-        return {"status": "BLOCKED", "reason": "CACHE_ONLY_GUARD_MISSING",
-                "missing_collector": missing_collector, "missing_audit": missing_audit,
-                "missing_accounting": missing_accounting, "missing_workflow": missing_workflow}
-    result = {"status": "PASS", "spot_request_limit": 61, "option_cache_required": 8540,
-              "live_option_requests_allowed": False, "cache_audit_required": True}
-    add(findings, "INFO", "SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS",
-        "The separate recovery runner requires a valid cache for every option request and forbids live option refetches.")
+            + ";forbidden_runner_patterns=" + ",".join(forbidden_found))
+        return {
+            "status": "BLOCKED",
+            "grid_errors": grid_errors,
+            "missing_gapfill": missing_gapfill,
+            "missing_workflow": missing_workflow,
+            "forbidden_patterns": forbidden_found,
+        }
+
+    # No live option endpoint may be used anywhere in the new executable implementation.
+    if "test_option_rows_are_preserved" not in tests or "test_unmatched_option" not in tests:
+        add(findings, "BLOCKER", "SPOT_ARTIFACT_GAPFILL_REGRESSION_MISSING",
+            "Gapfill tests must verify exact preservation of old option rows and unmatched-option handling.")
+        return {"status": "BLOCKED", "reason": "MERGE_REGRESSION_MISSING"}
+
+    result = {
+        "status": "PASS",
+        "spot_request_limit": 61,
+        "gapfill_request_count": 47,
+        "gapfill_window_days_max": 39,
+        "existing_option_rows_required": 8_490_723,
+        "immutable_source_artifact_run_id": 38082385220,
+        "live_option_requests_allowed": False,
+        "model_fitting_authorized": False,
+        "holdout_access_authorized": False,
+        "cache_audit_required": False,
+        "artifact_hash_preflight_required": True,
+    }
+    add(findings, "INFO", "SPOT_ARTIFACT_PRESERVING_GAPFILL_SCOPE_PASS",
+        "The gapfill uses the immutable encrypted acquired dataset, validates the 8,490,723 option rows, requests only 47 Dhan spot shards, joins by exact timestamp and re-encrypts outputs; no live option refetch is enabled.")
     return result
 
 
