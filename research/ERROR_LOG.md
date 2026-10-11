@@ -404,3 +404,13 @@
 - The validator advanced to aggregate reconciliation and failed with concrete discrepancies: P05/P06 chronological-block array lengths differed, P10 abstention summary keys were missing and P10 metrics differed from the frozen aggregate. Source review isolated the cause: the validator used an older Phase 8 local abstention dictionary (P05/P06 only) and called block diagnostics without the frozen eligibility mask. Run #994's immutable Phase 7 source includes P10 abstention [0.45,0.55] and passes each candidate mask into block diagnostics.
 - Correction: derive abstention thresholds from the loaded immutable Phase 7 module and pass the exact eligible mask to the immutable block-diagnostic helper. Synthetic tests now emulate the Run #994 ABSTAIN map and mask-aware block-diagnostic signature.
 - Prevention: validator calculations must use the code/constants from the exact reference commit, not duplicated local constants or older branch copies. Keep tolerance 1e-9; no panel has been accepted and no option P&L ran.
+
+
+## 2026-10-11 — Phase 8 saved-panel R2 validation accepted after prior non-reproduced alignment anomaly
+
+- Category: gate resolution / reproducibility
+- Accepted exact run: 38157819076, developer commit 3fe13c49ed29e77b001485abe50b2d41dbb6c160, output artifact 11709261335.
+- The archive SHA-256, embedded source manifest/aggregate hashes and all ten saved panel hashes passed. All ten source-alignment, aggregate metric and panel checks passed within the frozen 1e-9 tolerance; total 50,555 rows.
+- Earlier run 38157166375 failed on exact daily H=1 future-return alignment. The issue did not recur on subsequent validation attempts, including the accepted run. The cause of the isolated failure is not established; keep it as an anomaly and do not characterize it as definitively fixed or harmless.
+- Disposition: tester accepted only the saved forecast reproducibility gate. No model selection or option P&L result arises from this gate. The option execution grid remains disabled.
+- Prevention: the active R2 manifest and workflow must stay pinned to Run #994, the exact source/code hashes and same immutable output. Any repeat mismatch blocks execution.
