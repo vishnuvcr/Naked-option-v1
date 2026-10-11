@@ -90,6 +90,7 @@ class DerivedDatasetRepairTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp) / "input"
             option = base_row("OPTION", "request-opt")
+            option["session_date"] = "2024-01-06"
             option["spot_join_status"] = "NO_EXACT_TIMESTAMP_SPOT_MATCH"
             for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"):
                 option[field] = ""
@@ -97,6 +98,7 @@ class DerivedDatasetRepairTests(unittest.TestCase):
             out = pathlib.Path(tmp) / "derived"
             report = repair.repair_dataset(root, out, pathlib.Path(tmp) / "report.json", SECRET)
             self.assertEqual(report["repair_counts"].get("unmatched_option_rows_preserved"), 1)
+            self.assertEqual(report["repair_counts"].get("weekend_session_rows_flagged"), 1)
             manifest = json.loads((out / "dataset_manifest.json").read_text(encoding="utf-8"))
             payload = decrypt_bytes((out / manifest["parts"][0]["file"]).read_bytes(), derive_key(SECRET))
             gz_path = pathlib.Path(tmp) / "check.csv.gz"
