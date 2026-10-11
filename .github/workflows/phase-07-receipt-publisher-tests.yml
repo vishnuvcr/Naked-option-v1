@@ -1,6 +1,14 @@
 name: Phase 07 Receipt Publisher Tests
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
+      - '.github/workflows/phase-07-receipt-publisher-tests.yml'
+      - 'scripts/publish_preflight_receipt.py'
+      - 'scripts/test_publish_preflight_receipt.py'
+      - 'scripts/test_receipt_workflow_policy.py'
   pull_request:
     branches: [main]
     paths:
