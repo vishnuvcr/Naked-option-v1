@@ -20,6 +20,8 @@ on:
       - "scripts/validate_nifty_1m_spot_failed_window_patch.py"
       - "scripts/run_nifty_1m_spot_failed_window_patch.py"
       - "scripts/test_nifty_1m_spot_failed_window_patch.py"
+      - "scripts/diagnose_nifty_1m_unmatched_spot_targets.py"
+      - "scripts/test_diagnose_nifty_1m_unmatched_spot_targets.py"
       - "research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json"
       - ".github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml"
       - "research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json"
@@ -83,6 +85,8 @@ jobs:
           scripts/validate_nifty_1m_spot_failed_window_patch.py
           scripts/run_nifty_1m_spot_failed_window_patch.py
           scripts/test_nifty_1m_spot_failed_window_patch.py
+          scripts/diagnose_nifty_1m_unmatched_spot_targets.py
+          scripts/test_diagnose_nifty_1m_unmatched_spot_targets.py
           scripts/test_audit_nifty_1m_composite_cache.py
           scripts/account_nifty_1m_probe_attempt.py
           scripts/test_account_nifty_1m_probe_attempt.py
@@ -99,6 +103,7 @@ jobs:
           python -m unittest -v test_audit_nifty_1m_composite_cache
           python -m unittest -v test_nifty_1m_spot_gapfill
           python -m unittest -v test_nifty_1m_spot_failed_window_patch
+          python -m unittest -v test_diagnose_nifty_1m_unmatched_spot_targets
           python -m unittest -v test_audit_nifty_1m_composite_values
       - name: Verify exact request grid
         run: python scripts/validate_nifty_1m_composite_manifest.py

@@ -1227,3 +1227,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - **Audit workflow failure:** [38126536143](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126536143) stopped at preflight due a literal backslash in expression interpolation. It did not decrypt/audit the artifact. This tool-configuration mistake was fixed by commit [18d6aa1](https://github.com/vishnuvcr/Naked-option-v1/commit/18d6aa13e3727be36092d1076803f20bae2c2ac5); audit run [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432) is now active.
 - **Do not repeat:** never equate valid HTTP responses with a successful join. Acceptance must include improved missing joins, timestamp/session validity, encrypted-part integrity and the full value audit. The R2 marker is spent; no new live request authorization is implied.
 
+
+
+## 2026-10-11 — R2 audit failure and no further live authorization
+- Post-run value audit [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432) successfully downloaded, hash-verified, decrypted and audited the encrypted patch artifact. The report was uploaded as artifact 11697887129 but was not committed by the action because `git push` was rejected as non-fast-forward.
+- Audit result: FAIL, 714 semantic error occurrences. Preserved 8,490,723 option rows and 509,142 spot rows; 19,021 unmatched; 382 matched NIFTY OHLC violations; 12 standalone spot OHLC violations; 309 negative NIFTY-volume occurrences; 11 negative option-volume occurrences. Duplicate composite keys and spot timestamps are zero.
+- R2 exact-timestamp diagnostic: only 2,244 patch spot timestamps, none intersects any unmatched option timestamp in the failed week; no unmatched option rows exist within that target week. R2 did not repair the join gap.
+- Tester branch records REQUEST CHANGES in `NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json`. R2 marker is spent; no further Dhan call or modelling permission.
+- New all-date distribution analyzer is prepared for offline analysis of the same encrypted artifact. It must pass offline regression tests before use; it must not mutate data or shift timestamps.

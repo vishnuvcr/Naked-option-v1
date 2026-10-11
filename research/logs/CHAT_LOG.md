@@ -1509,3 +1509,15 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Independently verify exact timestamp overlap, weekend-session anomalies, merged row preservation and full semantic audit on artifact 11696937921. Request changes if the mismatch remains unexplained.
 **Tester → Developer:** Do not promote or refetch with expanded scope. Report the timestamp-alignment diagnostic and value audit; keep model/holdout/strategy gates closed.
+
+
+### 2026-10-11 — Post-R2 audit and offline investigation plan
+
+- Post-run audit [38126699432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432) returned FAIL. Its sanitized report uploaded as [11697887129](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126699432/artifacts/11697887129); committing the report failed on a non-fast-forward main update, so the safe report still needs a separate commit.
+- Audit summary: option rows 8,490,723; spot rows 509,142; total 8,999,865; exact matches 8,471,702; unmatched 19,021; 714 semantic error occurrences (382 matched NIFTY OHLC, 12 standalone spot OHLC, 309 negative NIFTY volume, 11 negative option volume); zero duplicate composite keys / spot timestamps. No model, holdout or strategy run.
+- Diagnostic showed 0 unmatched option rows in the failed R2 week and 0 exact intersection with the 2,244 new R2 spot timestamps. The patch’s data fetch succeeded, but did not address the 19,021 unmatched rows.
+- Tester wrote REQUEST CHANGES in `research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json`. No additional live requests are permitted until the unmatched timestamps are mapped to dates and exact source windows.
+- Developer is adding a value-free offline analyzer and tests to summarize the full unmatched date distribution and epoch offsets. This is a diagnostic only, with no source calls or data mutation.
+
+**Developer → Tester:** Review the offline unmatched timestamp distribution after tests pass; recommend any new acquisition only if the precise missing dates/source mechanism are identified.
+**Tester → Developer:** Keep live, model, holdout and strategy gates closed until the exact reason for unchanged joins is resolved and a fresh data audit passes.
