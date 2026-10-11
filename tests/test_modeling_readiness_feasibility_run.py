@@ -141,7 +141,8 @@ class FeasibilityRunTests(unittest.TestCase):
             ]}
             calendar_manifest = {"valid_sessions":["2026-01-01","2026-01-02","2026-01-05","2026-01-06"]}
             split_manifest = {"train_end_session":"2026-01-01","validation_end_session":"2026-01-02",
-                              "holdout_start_session":"2026-01-06","pre_holdout_prefix_rows":6}
+                              "holdout_start_session":"2026-01-06","pre_holdout_prefix_rows":6,
+                              "train_eligible_origins":0,"common_validation_origins":0}
             report = _scan_prefix(path, len(prefix_bytes), split_manifest, input_manifest, source_manifest, calendar_manifest)
             self.assertEqual(report["prefix_rows_scanned"], 6)
             self.assertEqual(report["option_rows_scanned"], 3)
@@ -150,7 +151,11 @@ class FeasibilityRunTests(unittest.TestCase):
             self.assertEqual(report["feature_families"]["SPOT_OHLCV"]["coverage_rate"], 1.0)
             schema = json.loads(Path("research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json").read_text(encoding="utf-8"))
             report.update({"source_manifest_sha256":"a"*64,"calendar_manifest_sha256":"b"*64,"split_manifest_sha256":"c"*64})
-            self.assertEqual(sanitize_report(report, schema)["gate_status"], "PASS_WITH_RESTRICTIONS")
+            self.assertEqual(sanitize_report(report, schema)["gate_status"], "NOT_ESTIMABLE")
+            self.assertEqual(report["min_train_eligible_origins"], 0)
+            self.assertEqual(report["common_validation_origins"], 0)
+            self.assertEqual(report["target_horizons"]["1"]["train_eligible_origins"], 0)
+            self.assertEqual(report["target_horizons"]["1"]["validation_eligible_origins"], 0)
 
 
     def test_close_linkage_and_timestamp_semantics_fail_closed(self):
@@ -170,6 +175,11 @@ class FeasibilityRunTests(unittest.TestCase):
         input_manifest["timestamp_semantics"] = "BAR_END"
         self.assertEqual(validate_input_manifests(input_manifest,sources,calendar,split),(False,"CLOSE_LINKAGE_UNPROVEN"))
         input_manifest["official_close_linkage_proven"] = True
+        input_manifest["official_close_linkage_evidence"] = {
+            "source_family":"SPOT_OFFICIAL_CLOSE", "source_sha256":"a"*64,
+            "mapping_rule":"LAST_VALID_BAR_MATCHES_OFFICIAL_DAILY_CLOSE",
+            "validation_report_sha256":"b"*64, "independent_validation_passed":True
+        }
         self.assertEqual(validate_input_manifests(input_manifest,sources,calendar,split),(False,"BLOCKED_HOLDOUT_PROOF"))
 
     def test_split_requires_endpoint_purge_and_minimum_origins(self):
