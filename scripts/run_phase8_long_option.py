@@ -169,6 +169,43 @@ def validate_saved_forecasts(reference_root: Path) -> dict:
         "forecast_refitted": False,
     }
 
+def summarize_critical_data_gaps(
+    indexes: dict[str, int],
+    option_blank_counts: Counter[str] | dict[str, int],
+    option_rows: int,
+) -> dict:
+    """Report fixed-contract blockers, including blank values when columns exist."""
+    expiry_fields = ("expiry_date", "expiry_mapping_source", "time_to_expiry_years")
+    missing_expiry_columns = [field for field in expiry_fields if field not in indexes]
+    blank_expiry_option_rows = {
+        field: int(option_blank_counts.get(field, 0)) for field in expiry_fields
+    }
+    expiry_fields_missing = bool(
+        missing_expiry_columns or any(count > 0 for count in blank_expiry_option_rows.values())
+    )
+    expiry_fields_blank_for_all_option_rows = bool(option_rows) and all(
+        missing_expiry_columns or blank_expiry_option_rows.get(field, 0) >= option_rows
+        for field in expiry_fields
+    )
+    return {
+        "lot_size_column_missing": "lot_size" not in indexes,
+        "tick_size_column_missing": "tick_size" not in indexes,
+        "expiry_fields_missing": expiry_fields_missing,
+        "missing_expiry_columns": missing_expiry_columns,
+        "blank_expiry_option_row_counts": blank_expiry_option_rows,
+        "expiry_fields_blank_for_all_option_rows": expiry_fields_blank_for_all_option_rows,
+        "point_in_time_contract_master_present": False,
+        "historical_bid_ask_coverage_proven": False,
+        "strict_fixed_contract_execution_ready": False,
+        "reason": (
+            "The 47-column composite contains rolling-option observations, but expiry_date, "
+            "expiry_mapping_source and time_to_expiry_years must be populated per OPTION row. "
+            "A column's presence in the CSV header is not evidence that its values are present. "
+            "Full point-in-time contract master, lot-size/tick and quote history remains unproven."
+        ),
+    }
+
+
 def preflight_composite_csv_gz(path: Path) -> dict:
     if not path.is_file():
         raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: file missing: {path}")
@@ -190,6 +227,7 @@ def preflight_composite_csv_gz(path: Path) -> dict:
 
     row_types: Counter[str] = Counter()
     blanks: Counter[str] = Counter()
+    option_blanks: Counter[str] = Counter()
     width_errors = 0
     rows = 0
     with gzip.open(path, "rt", encoding="utf-8-sig", newline="") as stream:
@@ -210,14 +248,15 @@ def preflight_composite_csv_gz(path: Path) -> dict:
             for field in KEY_FEATURES:
                 if field in indexes and not row[indexes[field]].strip():
                     blanks[field] += 1
+                    if row_kind == "OPTION":
+                        option_blanks[field] += 1
     if rows != COMPOSITE_ROWS:
         raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: expected {COMPOSITE_ROWS} rows, got {rows}")
     if width_errors:
         raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: {width_errors} row-width errors")
     if dict(row_types) != ROW_COUNTS:
         raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: row-type counts differ: {dict(row_types)}")
-    missing_panel_contract_fields = [field for field in ("lot_size", "tick_size") if field not in indexes]
-    source_fields = [field for field in ("expiry_date", "expiry_mapping_source") if field not in indexes]
+    critical_data_gap = summarize_critical_data_gaps(indexes, option_blanks, row_types.get("OPTION", 0))
     return {
         "status": "PASS_STRUCTURAL_HASHES",
         "archive_sha256": archive_hash,
@@ -229,15 +268,8 @@ def preflight_composite_csv_gz(path: Path) -> dict:
         "rows_by_type": dict(row_types),
         "row_width_errors": width_errors,
         "blank_required_field_counts": dict(blanks),
-        "critical_data_gap": {
-            "lot_size_column_missing": "lot_size" not in indexes,
-            "tick_size_column_missing": "tick_size" not in indexes,
-            "expiry_fields_missing": bool(source_fields),
-            "point_in_time_contract_master_present": False,
-            "historical_bid_ask_coverage_proven": False,
-            "strict_fixed_contract_execution_ready": False,
-            "reason": "Composite includes rolling-option observations and derived expiry metadata; full PIT contract master/lot-size/tick/quote history still requires a separate gate.",
-        },
+        "blank_option_required_field_counts": dict(option_blanks),
+        "critical_data_gap": critical_data_gap,
         "empirical_option_execution_authorized": False,
     }
 

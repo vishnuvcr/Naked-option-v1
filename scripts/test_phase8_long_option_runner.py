@@ -58,6 +58,35 @@ def test_composite_preflight_fails_closed_on_nonmatching_cached_data():
             raise AssertionError("non-pinned composite must not be accepted")
 
 
+
+def test_expiry_value_gaps_are_detected_even_when_columns_exist():
+    indexes = {
+        "expiry_date": 0,
+        "expiry_mapping_source": 1,
+        "time_to_expiry_years": 2,
+        "option_type": 3,
+    }
+    all_blank = runner.summarize_critical_data_gaps(
+        indexes,
+        {"expiry_date": 5, "expiry_mapping_source": 5, "time_to_expiry_years": 5},
+        option_rows=5,
+    )
+    assert all_blank["expiry_fields_missing"] is True
+    assert all_blank["missing_expiry_columns"] == []
+    assert all_blank["expiry_fields_blank_for_all_option_rows"] is True
+    assert all_blank["blank_expiry_option_row_counts"] == {
+        "expiry_date": 5, "expiry_mapping_source": 5, "time_to_expiry_years": 5,
+    }
+    assert all_blank["lot_size_column_missing"] is True
+    assert all_blank["tick_size_column_missing"] is True
+    observed = runner.summarize_critical_data_gaps(
+        indexes,
+        {"expiry_date": 0, "expiry_mapping_source": 0, "time_to_expiry_years": 0},
+        option_rows=5,
+    )
+    assert observed["expiry_fields_missing"] is False
+    assert observed["expiry_fields_blank_for_all_option_rows"] is False
+
 def test_empirical_mode_fails_before_reading_option_data():
     with tempfile.TemporaryDirectory() as td:
         path = Path(td) / "no-data.csv.gz"
@@ -80,5 +109,6 @@ if __name__ == "__main__":
     test_self_test_is_synthetic_and_does_not_open_files()
     test_p10_abstention_boundaries_match_run994()
     test_composite_preflight_fails_closed_on_nonmatching_cached_data()
+    test_expiry_value_gaps_are_detected_even_when_columns_exist()
     test_empirical_mode_fails_before_reading_option_data()
     print("Phase 8 runner contract regression PASS")

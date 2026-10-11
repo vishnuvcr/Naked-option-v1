@@ -354,3 +354,11 @@ No scientific or protocol change was made during this checkpoint.
 - Run 38161662282 passed synthetic tests but correctly blocked at exact-code authorization because the test fixture blob had changed after the first review. No composite artifact was opened.
 - Archived the previous tester decision, rechecked the updated test blob, refreshed the active tester decision and copied its exact 15 code/spec/data-contract hashes into the activation request. The next hosted run should pass only if those hashes still match.
 - The marker step verifies no prior consumed marker, repeats exact-snapshot authorization and pushes a durable consumption marker before decrypting; any failure after marker commit consumes R1. No replay of R1 is allowed after consumption.
+
+
+## 2026-10-11 — R1 cached-composite preflight outcome and report correction
+- Run 38161788742 reached the real cached composite without new market-data requests. It verified all 61 encrypted part hashes and row totals, decrypted/merged in temporary storage, checked canonical CSV SHA `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`, 8,999,865 rows, 47 columns, row-type counts and the accepted forecast panels; its cleanup step passed.
+- The workflow overall failed only after report creation because the final assertion used a 63-character expected CSV hash. Corrected the hash literal, kept fail-closed checks unchanged.
+- The same report showed expiry_date, expiry_mapping_source and time_to_expiry_years blank in all 8,999,865 composite rows, but the critical-data-gap boolean was false because code only checked header existence. Corrected code to count blank expiry fields on OPTION rows and added synthetic tests.
+- Matrix SHA was `83a45d8c0692322f9cbf88523cb076fc97ff559a7fb089c681782a3f31477bd3`; 4,800/4,800 configuration rows are INELIGIBLE under strict fixed-contract execution. No option P&L was generated and no strategy conclusion follows from this preflight.
+- R1 consumed marker remains committed; request file has been reset to requested=false so it cannot replay. Cleanup verified success.

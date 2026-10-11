@@ -279,7 +279,7 @@ jobs:
           assert report["forecast_integrity"]["panel_count"] == 10
           assert report["forecast_integrity"]["panel_rows_total"] == 50555
           assert report["composite_preflight"]["status"] == "PASS_STRUCTURAL_HASHES"
-          assert report["composite_preflight"]["canonical_csv_sha256"] == "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204"
+          assert report["composite_preflight"]["canonical_csv_sha256"] == "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
           assert report["composite_preflight"]["data_rows"] == 8999865
           assert report["composite_preflight"]["columns"] == 47
           assert report["input_gate_matrix_rows"] == 4800
