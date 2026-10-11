@@ -1,3 +1,12 @@
+## 2026-10-11 — Cached composite format clarified; scanner integration must use encrypted artifact workflow
+
+- Metadata-only repository inventory found no plaintext composite file under `research/data`. The fixed dataset is stored as an encrypted GitHub Actions artifact with 61 monthly encrypted parts.
+- The existing [offline export workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/export-repaired-dataset-offline.yml) verifies encrypted part hashes and decrypts into ephemeral CSV.GZ; the [real-file preflight workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-real-file-preflight-audit.yml) also reuses the fixed artifact and deletes plaintext after checks.
+- Impact: the current prospective scanner function supports plain synthetic CSV files only. It cannot yet scan the actual CSV.GZ output. Do not point it at any file until gzip-stream support, authorization adapter, and exact-hash tester review are complete.
+- Disposition: reuse the existing fixed artifact; no new source requests or downloads. Add gzip-stream synthetic tests and preserve uncompressed byte offsets/content hash while never decoding holdout values beyond the metadata fields.
+
+
+
 ## 2026-10-11 — Prospective boundary scanner synthetic test failures corrected
 
 - Run [38153358621](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153358621): two test fixtures had incorrect expectations. The purported bad-width row actually had the expected width, and the invalid row-type test expected a width error. Corrected the fixture to omit a field and corrected the expected error code.
