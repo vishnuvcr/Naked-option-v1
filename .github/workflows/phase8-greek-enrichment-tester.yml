@@ -5,7 +5,7 @@ on:
     branches: [phase-08-tester]
     paths:
       - "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R1_2026-10-12.json"
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: write
