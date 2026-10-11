@@ -1,3 +1,18 @@
+## 2026-10-11 — MR-0 to MR-5 feasibility implementation: REQUEST_CHANGES
+
+- Developer implementation snapshot reviewed: [commit `4c2b3e5`](https://github.com/vishnuvcr/Naked-option-v1/commit/4c2b3e54697474739da97f517476f4f87ed98b09).
+- Implementation files: [bounded feasibility runner](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/modeling_readiness_feasibility_run.py), [synthetic tests](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/tests/test_modeling_readiness_feasibility_run.py), [sanitized report schema](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json), [synthetic-only/manual-dispatch workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml).
+- Tester decision: **REQUEST_CHANGES** — [review findings](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_REVIEW_R5_2026-10-11.md) · [machine-readable decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_DECISION_R5_2026-10-11.json).
+- Required corrections include official-close linkage and timestamp-semantics proof, train/validation label-endpoint purge and minimum-origin checks, one-use authorization replay protection, feature-family allowlisting, runtime byte-boundary validation, and truthful cleanup evidence.
+- Hosted synthetic Actions result is **NOT_VERIFIED** in this session; no CI pass is claimed. No real-data feasibility audit, model fitting/scoring, holdout access, new source request, strategy/P&L or trading occurred.
+- The current PPR-4 audit still finds no machine-readable holdout boundary. Even after code review passes, the empirical gate must remain blocked until valid boundary/provenance manifests and a fresh exact-snapshot execution decision are available.
+- See [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md), and [tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/STATUS.md).
+
+**Developer → Tester:** Keep execution closed pending a corrected exact-hash submission.  
+**Tester → Developer:** Re-review the corrected implementation; do not authorize real-data parsing from synthetic CI alone.
+
+
+
 ## 2026-10-11 — Feasibility proposal approved for design only; holdout boundary is blocked
 
 - [MR-0 to MR-5 feasibility proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_R5_2026-10-11.md) and [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_SCOPE_R5_2026-10-11.json) received tester approval for design only.
