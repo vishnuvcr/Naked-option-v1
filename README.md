@@ -1,3 +1,16 @@
+## 2026-10-11 — R2 runner/data gate underway
+
+- The accepted Phase 7 Run #994 saved forecasts are frozen as Phase 8 input: 10 panels, 50,555 rows, validated at the existing absolute (10^{-9}) tolerance on [hosted run 38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076). No model refitting is used as fallback.
+- Developer commit [111a3e3](https://github.com/vishnuvcr/Naked-option-v1/commit/111a3e3aa2e7656ef7acd27bd98f75d9e576d2f2) adds the fail-closed no-refit runner `scripts/run_phase8_long_option.py`, runner contract tests, and hosted Phase 8 CI wiring. The current gate matrix is 4,800 `INELIGIBLE` records until a point-in-time fixed-contract panel has approved expiry/lot/tick/source lineage. It is a readiness output, **not** P&L.
+- The existing composite must be reused by exact ID/hashes (artifact 11698879857, source run 38131641336; 8,999,865 rows in 61 encrypted monthly parts); this step does not request new market data. The current composite is not proof of complete historical bid/ask/contract-master data; Q1 stays non-quote-executable.
+- Empirical P&L, holdout access and strategy promotion remain disabled. The runner regression and pure synthetic self-test are being checked on [hosted run 38159700708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159700708).
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md) · [R2 spec addendum](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/phase8/PHASE8_RUN994_R2_SPEC_ADDENDUM.md) · [Runner](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/scripts/run_phase8_long_option.py) · [Tester R2 decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json).
+
+**Developer → Tester:** review exact runner/engine/manifest hashes after the hosted runner regression passes; empirical authorization stays false.
+**Tester → Developer:** independently verify the 4,800-cell completeness, P10 abstention, cached composite hashes and all data-quality blockers before approving any P&L.
+  
+---
+
 ## 2026-10-11 — Phase 8 forecast reproducibility gate PASS (R2)
 
 - Hosted [Run #38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076) completed successfully on developer commit `3fe13c49ed29e77b001485abe50b2d41dbb6c160`.
