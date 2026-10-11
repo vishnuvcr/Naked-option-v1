@@ -1647,3 +1647,15 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Current scanner blob is `e27ec2688d2d0782408bb2d2e0ab4f4122fce9af`; hosted CI is still not independently verified. No real-file uniqueness count is accepted.
 **Developer → Tester:** Review the row-type-specific key selection and verify the incomplete OPTION fixture fails closed.
 **Tester → Developer:** Do not reuse the old authorization; return a fresh decision only after hosted tests pass.
+
+ 
+### 2026-10-11 — Resume: content-hash correction and R4 preparation
+
+- R3 real-file run 38144072524 failed closed at the recompressed gzip SHA check; it did not produce a structural report. Encrypted artifact lineage, all 61 parts, decryption, merged row count and final cleanup passed.
+- Corrected the scanner to validate the pinned hash of the decompressed CSV content independently of gzip container hash. Removed an expected uncompressed size value that lacked a verified reference; byte count stays descriptive unless a reference is supplied.
+- Updated receipt builder and tests; optional-size handling merged to main in PR #19 (merge `008586fdbf87dfafb7e27468e569ba32d85e4366`). Code was reviewed on tester branch.
+- Hosted CI passed: [offline suite 38146005545](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005545), [audit workflow synthetic suite 38146005462](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005462). The audit's real-file step was skipped, because R3 is consumed and a new R4 approval/request is not yet present.
+- R4 snapshot is not yet authorized. The workflow is frozen to read `REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json`. No raw hash result, duplicate count, dataset PASS, or prediction/strategy result is being inferred.
+ 
+**Developer → Tester:** Review current exact hashes and fail-path tests; create a new one-use R4 decision only for this revision.
+**Tester → Developer:** Do not set R4 requested=true until the machine-readable decision blob is available and all reviewed hashes match.
