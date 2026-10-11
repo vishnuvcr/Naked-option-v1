@@ -207,10 +207,12 @@ jobs:
           INPUT_DIR: ${{ runner.temp }}/offline-audit-input
           PARTS_DIR: ${{ runner.temp }}/offline-audit-monthly
           MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          REPORT_PATH: ${{ runner.temp }}/offline_preflight_report.json
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PARTS_DIR" "$MERGED_PATH" "$MERGED_PATH.tmp" "$MERGED_PATH.sqlite.tmp"
+          rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PARTS_DIR" "$MERGED_PATH" "$MERGED_PATH.tmp" "$REPORT_PATH.sqlite.tmp"
+          find "$RUNNER_TEMP" -type f -name '*.sqlite.tmp' -delete
           if find "$RUNNER_TEMP" -type f \( -name '*.csv.gz' -o -name '*.csv' -o -name '*.csv.gz.tmp' -o -name '*.sqlite.tmp' \) -print -quit | grep -q .; then
             echo "ERROR: plaintext or temporary SQLite files remain in runner temp."
             exit 1
