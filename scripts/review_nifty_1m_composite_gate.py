@@ -212,17 +212,25 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
         return {"status": "BLOCKED", "reason": "RECOVERY_GUARD_FILES_MISSING"}
     required_collector = ("allow_live: bool = True", "allow_live=not spot_only_recovery",
                           "--spot-only-recovery", "live_option_requests_enabled")
-    required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made\": 0",
+    required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
                       "wire_requests_reserved_for_spot", "8540", "61")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
-                         "SPOT_ONLY_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
+                         "SPOT_ONLY_CACHE_PRESERVING_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
                          "nifty1m-composite-")
-    if (any(marker not in collector for marker in required_collector)
-            or any(marker not in audit for marker in required_audit)
-            or any(marker not in workflow for marker in required_workflow)):
+    missing_collector = [marker for marker in required_collector if marker not in collector]
+    missing_audit = [marker for marker in required_audit if marker not in audit]
+    missing_workflow = [marker for marker in required_workflow if marker not in workflow]
+    if missing_collector or missing_audit or missing_workflow:
+        detail = (
+            "missing_collector=" + ",".join(missing_collector)
+            + ";missing_audit=" + ",".join(missing_audit)
+            + ";missing_workflow=" + ",".join(missing_workflow)
+        )
         add(findings, "BLOCKER", "SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING",
-            "Recovery workflow must prove all 8,540 option caches are valid and disable every live option request before the one-use marker is spent.")
-        return {"status": "BLOCKED", "reason": "CACHE_ONLY_GUARD_MISSING"}
+            "Recovery workflow must prove all 8,540 option caches are valid and disable every live option refetch before the one-use marker is spent. " + detail)
+        return {"status": "BLOCKED", "reason": "CACHE_ONLY_GUARD_MISSING",
+                "missing_collector": missing_collector, "missing_audit": missing_audit,
+                "missing_workflow": missing_workflow}
     result = {"status": "PASS", "spot_request_limit": 61, "option_cache_required": 8540,
               "live_option_requests_allowed": False, "cache_audit_required": True}
     add(findings, "INFO", "SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS",
@@ -245,10 +253,10 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
             "bytes": len(raw),
         }
 
-    parser_path = target / FILES[0]
-    test_path = target / FILES[1]
-    approval_path = target / FILES[3]
-    workflow_path = target / FILES[4]
+    parser_path = target / "scripts/run_nifty_1m_composite_dataset.py"
+    test_path = target / "scripts/test_nifty_1m_composite_dataset.py"
+    approval_path = target / "scripts/validate_nifty_1m_composite_approval.py"
+    workflow_path = target / ".github/workflows/phase-07-nifty-1m-composite-live.yml"
     tests_source = test_path.read_text(encoding="utf-8") if test_path.is_file() else ""
     parser_source = parser_path.read_text(encoding="utf-8") if parser_path.is_file() else ""
     approval_source = approval_path.read_text(encoding="utf-8") if approval_path.is_file() else ""
