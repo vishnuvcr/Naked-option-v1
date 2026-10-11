@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-auth-hash-and-gap-summary-r2-code-review",
+  "reviewed_at": "2026-10-11",
+  "decision": "REQUEST_CHANGES",
+  "scope": "Code-only authorization identity and critical-data-gap reporting review; synthetic validation only",
+  "developer_branch": "phase-08-developer",
+  "developer_snapshot_commit": "6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11",
+  "contract_workflow_run_id": 38163364534,
+  "contract_tests_conclusion": "success",
+  "metadata_only_preflight_job": "skipped",
+  "reviewed_code_blob_shas": {
+    ".github/workflows/phase8-cached-composite-preflight.yml": "c267923cba97ed05936d9410b27329a9868b40ed",
+    "scripts/run_phase8_long_option.py": "32ec297ed23cb5742ce8cb34b13442ce3e367002",
+    "scripts/test_phase8_long_option_runner.py": "c31a08089880e9beda1f460a68c4ae6e6be6be12",
+    "scripts/phase8_execution_engine.py": "53524cdd3df55de804f757939f99dc5e92c8b1c3",
+    "scripts/test_phase8_execution_engine.py": "02323a80417ddfec7265b0633d6fdd043fb10bc3",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "scripts/validate_phase8_cached_composite_bundle.py": "cb48b1f752770783b385a40ebd090d77dc5c5ef8",
+    "scripts/test_phase8_cached_composite_bundle.py": "edcfe6929b0e37f6b6c28f8a013b61f59857f945",
+    "scripts/authorize_phase8_cached_composite_preflight.py": "fe1a5790067f9cd9e5c43d8f752f754a9bfa7c20",
+    "scripts/test_phase8_cached_composite_preflight.py": "a44aa4cb395d7405e689fbfea6c632c50c44b5a4",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json": "dd8b83113d4b79429008024779107a776b1a0f12",
+    "research/phase8/PHASE8_METHOD_SPEC.md": "93c25a91663d9f9dcda4617e576b4fcb3d052234",
+    "data/reference/phase8_cost_schedule.json": "89ba6c098cd2ebf6d964a47c0760b6a198ba7e74",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca"
+  },
+  "findings": [
+    {
+      "id": "T1",
+      "severity": "major",
+      "file": "scripts/run_phase8_long_option.py",
+      "function": "summarize_critical_data_gaps",
+      "summary": "Global missing_expiry_columns list truthiness is used as the per-field condition, so a single absent header can incorrectly mark all required expiry fields as blank for every option row."
+    }
+  ],
+  "required_actions": [
+    "Use a per-field missing-header predicate and require no missing expiry columns before reporting all expiry fields blank for every option row.",
+    "Add a mixed missing/present fixture plus zero-row fixture as needed.",
+    "Run hosted synthetic contract and runner regression tests on the corrected exact snapshot."
+  ],
+  "source_identity_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "new_market_source_requests_authorized": false,
+  "strategy_promotion_authorized": false,
+  "r1_request_reusable": false,
+  "notes": [
+    "R1 one-use marker was consumed in run 38161788742; this review cannot authorize a replay.",
+    "The authorization SHA typo and stale assertion are fixed in the reviewed snapshot, but a separate reporting-logic defect remains.",
+    "Daily H=1 floating-point mismatch run 38162517430 requires its own review."
+  ]
+}
