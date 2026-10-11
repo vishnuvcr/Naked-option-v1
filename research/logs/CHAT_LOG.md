@@ -297,3 +297,12 @@ No scientific or protocol change was made during this checkpoint.
 - Diagnostic run 38157508843 passed source labels/timestamps and archive/code/data lineage checks, then failed the metric comparison on P05/P06 block counts and P10 metrics.
 - Cause is identified in the consumer: the current Phase 8 branch carried an older local ABSTAIN dictionary and omitted the eligibility mask for per-block statistics; the archived Run #994 source correctly contains P10 [0.45,0.55] abstention and mask-aware block diagnostics.
 - The validator now obtains abstention rules from the exact source module loaded from Run #994's commit and passes each candidate's mask into the same module's block-diagnostic function. Tests use an explicit synthetic adapter matching that frozen contract. No model refit or tolerance relaxation.
+
+
+## 2026-10-11 — User continuation: Phase 8 forecast panel cleared
+
+- The existing Run #994 row-level forecast artifact was restored and validated; no data-discovery/source re-download was needed for the forecast reference.
+- Run 38157819076 at developer commit 3fe13c49ed29e77b001485abe50b2d41dbb6c160 completed successfully. Its validation artifact ID 11709261335 has ZIP SHA-256 249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c.
+- Independent review recomputed all ten Parquet SHA-256 values; output manifest is PASS, all_cells_reproduced=true, 10 cells and 50,555 rows at the unchanged 1e-9 tolerance.
+- Tester saved a scoped PASS in phase-08-tester. This means reproducibility is accepted, not that a prediction method is profitable.
+- Do next: correct the stale active Run #654 references via a versioned R2 spec addendum; then use the existing cached/encrypted 61-part repaired NIFTY composite (artifact 11698879857, canonical decoded SHA-256 cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204) and existing Phase 8 cost schedule/engine. Keep missing-point-in-time contract metadata flagged; do not collect the same dataset again or claim quote-executable results from OHLC proxies.
