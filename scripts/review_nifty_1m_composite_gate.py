@@ -277,7 +277,7 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
     required_gapfill = (
         "def validate_gapfill_manifest", "def preflight", "def merge_into_existing_dataset",
         "EXPECTED_OPTION_ROWS = 8_490_723", "source_artifact_encrypted_hashes_verified",
-        "run_nifty_1m_composite_dataset.py", "live_option_requests_allowed",
+        "run_nifty_1m_composite_dataset", "live_option_requests_allowed",
         "SPOT_JOIN_MISSING", "EXACT_TIMESTAMP_MATCH", "spot_gapfill_status",
         "encrypt_outputs", "shutil.rmtree(plain_dir",
     )
