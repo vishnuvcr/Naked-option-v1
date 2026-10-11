@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from publish_preflight_receipt import ALLOWED_REPORT_KEYS, build_receipt
+from publish_preflight_receipt import ALLOWED_LIMITATIONS, ALLOWED_REPORT_KEYS, build_receipt
 
 
 class PublishReceiptTests(unittest.TestCase):
@@ -26,7 +26,7 @@ class PublishReceiptTests(unittest.TestCase):
             "null_or_blank_counts_by_column": {}, "row_width_errors": 0,
             "duplicate_key_check": "PASS", "duplicate_key_fields": [],
             "duplicate_key_count": 0, "incomplete_composite_key_rows": 0,
-            "key_group_row_counts": {}, "limitations": ["metadata only"],
+            "key_group_row_counts": {}, "limitations": list(ALLOWED_LIMITATIONS)[:1],
         }
         value.update(updates)
         return value
