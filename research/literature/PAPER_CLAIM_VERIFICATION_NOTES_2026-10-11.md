@@ -73,3 +73,20 @@ These findings should feed paper-level fidelity and method mapping. They do **no
 **Developer → Tester:** Independently recompute the PCR condition coverage and the LSTM parameter sum from the rendered pages; verify each (R^2) claim/result locator and identify any overstatement in these notes.
 
 **Tester → Developer:** Return only source-specific corrections on `phase-07-tester`. Do not authorize data acquisition, fitting, holdout access or strategy tests from this literature audit.
+
+
+## 5. Shaha (SSRN), `ssrn-3323746.pdf` — CCI option strategy (strategy-only source)
+
+**Inspected pages:** PDF p. 9–10 (printed pp. 1444–1445); visually checked Tables II–V and the surrounding count/statistic discussion.  
+**PDF SHA-256:** `06791b5d34c59611249778cf67099f0741db27a5ec062c3ca548cf5006f76798`
+
+This paper is a historical option-trading strategy study, not a paper-native fitted NIFTY spot-direction forecaster. Its reported numbers are therefore not part of this project's prediction-model result set, and no CCI options P&L was run.
+
+The sample counts are internally inconsistent:
+- Table II (PDF p. 9) states 68 total trades, including 43 profitable and 25 loss-making trades. Those category counts sum to 68.
+- The prose immediately below Table II describes profitable trades as **42/68**, while retaining 25/68 losses; 42 + 25 = 67, conflicting with the table's 43 winners.
+- Table III (PDF p. 10) lists observed profitable/loss-making counts as 43 and 25, but its observed total row says **80**. The two category counts sum to 68, not 80. Its percentages 63.25% and 36.75% also correspond approximately to 43/68 and 25/68, not a denominator of 80.
+- Table III's (chi^2) statistic of 4.765 is consistent with counts 43 and 25 compared against expected counts 34 and 34: ((43-34)^2/34+(25-34)^2/34=4.7647\ldots). This arithmetic supports 68 as the intended tested total for that specific calculation, but it does not authorize silently correcting the published row from 80 to 68.
+- Table V then uses degrees of freedom 68 for a one-sample test, another sample-size choice that should be checked against the number of observations/test setup before any inferential result is repeated.
+
+Disposition: record the count/statistic inconsistencies as source limitations and do not reuse its reported strike rate, annual return or p-values as verified strategy evidence. Any future CCI strategy reproduction belongs to the separately gated options phase and requires its own data, exact rules, costs/slippage, trade-count reconciliation and independent strategy tester.
