@@ -452,7 +452,7 @@ jobs:
 
   intervention_after_limit:
     needs: [prepare, publish_tester_report, generate_patch, verify_patch]
-    if: always() && needs.publish_tester_report.outputs.auto_repair == 'true' && needs.verify_patch.result != 'success' && needs.prepare.outputs.attempt == '5'
+    if: always() && needs.publish_tester_report.outputs.decision == 'REQUEST_CHANGES' && needs.prepare.outputs.attempt == '5' && needs.verify_patch.result != 'success'
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -462,5 +462,5 @@ jobs:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: 7,
-              body: "Automation reached the maximum of five bounded tester/developer cycles without a patch passing both offline test suites. No patch was pushed. Live data, model fitting, strategy testing and holdout remain blocked. Review the attached reports and choose a documented alternative or close this gate."
+              body: "Automation reached the maximum of five bounded tester/developer cycles without an accepted exact-snapshot correction. No patch was pushed in this final review cycle. Live data, model fitting, strategy testing and holdout remain blocked. Review the attached reports and choose a documented alternative or close this gate."
             });
