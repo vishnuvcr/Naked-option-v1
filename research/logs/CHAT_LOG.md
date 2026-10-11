@@ -1418,3 +1418,15 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 **Developer → Tester:** Review the 68-versus-80 and 42-versus-43 count issue independently from the rendered source page.
 
 **Tester → Developer:** Return a scoped literature-only decision; preserve the current strategy gate.
+
+
+### 2026-10-11 — Source claim and configuration crosswalk completion
+
+- Added the frozen-row crosswalk supplement linking audited source issues to PPR-3 native-task rows and common configs. It does not amend the frozen matrix or activate any experiment.
+- Tester report on `phase-07-tester` was checked by the protocol workflow: run 38120239164 success. Developer supplement check run 38120221001 also succeeded.
+- Explicit limitation: both roles are in the same connected assistant session, so the scope pass is not an external independent review. Prior AI reviewer service failed with HTTP 402.
+- Split data recovery remains denied; no model fitting/scoring, holdout access, strategy test, or live query was made.
+
+**Developer → Tester:** Check the next method-level submission against the pinned task/config rows, retaining source fidelity vs adaptation distinctions.
+
+**Tester → Developer:** Continue only offline until a genuine independent exact-snapshot gate can be obtained.
