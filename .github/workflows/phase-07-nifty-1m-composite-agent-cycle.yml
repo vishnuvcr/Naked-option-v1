@@ -14,7 +14,7 @@ on:
         required: false
         default: false
   push:
-    branches: [main, phase-07-developer]
+    branches: [phase-07-developer]
     paths:
       - "scripts/run_nifty_1m_composite_dataset.py"
       - "scripts/test_nifty_1m_composite_dataset.py"
