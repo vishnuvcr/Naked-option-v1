@@ -303,3 +303,14 @@ New errors must be appended, never overwritten.
 - **Impact:** Closing acquisition does not make the dataset complete; any downstream analysis must disclose coverage limitations and test whether the remaining joined sample supports its specific target/task. Spot-dependent rows must not be silently imputed or represented as observed.
 - **Disposition:** No further live collection under the current plan. Run offline integrity/coverage assessment and submit evidence to the tester branch. No model fitting, holdout access, or strategy/P&L work until their separate gates pass.
 - **Status:** Open as a dataset limitation; no new request was made.
+
+
+## 2026-10-11 — Rendered PDF source-claim inconsistencies captured
+
+- **Category:** literature source fidelity / reported metric interpretation; not a project-run failure.
+- **Evidence artifact:** [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](../literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md), with local source PDF SHA-256 hashes and rendered page locators.
+- **Naik & Inamdar (IJCSE), PDF pp. 6–7:** declared PCR classes leave (0.9 < PCR \le 1) unassigned, while their table labels PCR=0.91 as neutral. Body results report LSTM 98% accuracy/99% precision and BERT 99%/99%; conclusion reports combined-model accuracy 99%/precision 100%, without a shared denominator/target contract sufficient to reconcile them. Preserve as ambiguous source claims.
+- **JRFM, PDF p. 17:** narrative reports 330,369 LSTM parameters, while the printed architecture table reports layer counts of 17,920 + 12,416 + 0 + 33 = 30,369 and “Total params: 30,369”. Store as source-internal arithmetic/reporting mismatch. Separately, backward feature selection is based on the full 3,986-row sample, creating leakage risk for causal evaluation.
+- **Bansal et al., PDF pp. 14–15:** table reports mean LSTM (R^2=-0.11), but prose calls (-0.11) “close to” (+1). This is a sign/interpretation mismatch; retain the numeric table and the negative result rather than repeating the high-accuracy claim unqualified.
+- **Cureus, PDF pp. 17–18 and 34:** results table includes very poor SVR generalization, e.g. test (R^2=-47.8984) (RMSE 6,079.98; MAE 6,019.04) in the 5-year row and test (R^2=-154.8147) (RMSE 12,296.97; MAE 12,255.35) in the 10-year row. Conclusion also discusses negative (R^2)/large errors for some models. These are source-reported negative results that must not be cherry-picked away, not evidence of a new project model failure.
+- **Disposition:** add source claim audit supplement, not a change to the frozen PPR-3 model/configuration matrix or its authorization. No live data queries, fitting, holdout reads or strategy runs occurred.
