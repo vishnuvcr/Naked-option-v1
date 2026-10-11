@@ -66,10 +66,13 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     request = json.loads(args.request.read_text(encoding="utf-8"))
-    decision = json.loads(args.decision.read_text(encoding="utf-8"))
     if request.get("requested") is not True:
-        result = evaluate_authorization(request, decision, {})
+        # No reviewer decision is needed to keep a default-disabled request skipped.
+        result = evaluate_authorization(request, {}, {})
     else:
+        if not args.decision.is_file():
+            raise SystemExit("AUTH_BLOCKED: implementation tester decision is absent")
+        decision = json.loads(args.decision.read_text(encoding="utf-8"))
         pins = request.get("approved_code_blob_shas", {})
         if not isinstance(pins, dict) or not pins:
             raise SystemExit("AUTH_BLOCKED: enabled request has no exact code pins")
