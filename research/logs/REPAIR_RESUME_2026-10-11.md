@@ -22,3 +22,15 @@
 **Developer → Tester:** Review the actual repair report, manifest lineage, row preservation, repair counts, encrypted output hashes and cleanup logs when available.
 
 **Tester → Developer:** Do not accept repair-code tests alone as proof that the production-derived dataset is ready for prediction.
+
+
+## Follow-up checkpoint — 2026-10-11
+- On resume, confirmed exact source artifact 11696937921 and pinned SHA-256 remain unchanged.
+- Active latest workflow: [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336). Its source checks, regression tests, dependency installation, encrypted-part verification and decryption completed successfully; the row-level repair step remained in progress.
+- An earlier successful run [38130635408](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130635408) uploaded artifact 11698138685. Its committed report lacks the current `post_repair_validation` field, so it is not considered final evidence.
+- Await exact latest run's sanitized report, derived manifest and artifact metadata; require 61 hash-verified encrypted parts, 8,999,865 preserved rows, independent post-repair validation and successful plaintext cleanup before tester review.
+- No model, holdout, strategy/P&L, or additional source requests are authorized by the existing scoped decision.
+
+**Developer → Tester:** Once the active run publishes its output, independently reconcile the output report/manifest/artifact ID and hashes, row counts, join/quality audit, and cleanup evidence. Reject stale output or any mismatch.
+
+**Tester → Developer:** Keep model/holdout/strategy gates closed until an exact-output reviewer decision is recorded.
