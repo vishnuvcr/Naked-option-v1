@@ -145,8 +145,16 @@ def run(path: Path, report_path: Path, expected_sha: str,
         if db is not None:
             db.commit()
 
+        duplicate_status = (
+            "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY" if not key_cols
+            else ("FAIL_DUPLICATE_KEYS_FOUND" if duplicate_keys else "PASS")
+        )
+        overall_status = (
+            "PREFLIGHT_FAIL_DUPLICATE_KEYS" if key_cols and duplicate_keys
+            else "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS"
+        )
         report = {
-            "status": "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS",
+            "status": overall_status,
             "file_name": path.name,
             "file_size_bytes": path.stat().st_size,
             "sha256": digest,
@@ -164,7 +172,7 @@ def run(path: Path, report_path: Path, expected_sha: str,
             },
             "null_or_blank_counts_by_column": dict(nulls),
             "row_width_errors": width_errors,
-            "duplicate_key_check": "PASS" if key_cols else "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY",
+            "duplicate_key_check": duplicate_status,
             "duplicate_key_fields": [header[i] for i in key_cols] if key_cols else [],
             "duplicate_key_count": duplicate_keys,
             "limitations": [
@@ -204,6 +212,8 @@ def main():
         print(json.dumps({key: report[key] for key in (
             "status", "sha256", "data_rows", "columns", "gzip_integrity",
             "duplicate_key_check", "timestamp_parse_errors")}, sort_keys=True))
+        if report["status"] != "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS":
+            sys.exit(2)
     except (OSError, EOFError, gzip.BadGzipFile, csv.Error, ValueError, sqlite3.Error) as exc:
         code = str(exc) if str(exc) else type(exc).__name__
         print(json.dumps({"status": "FAIL_CLOSED", "error_code": code}, sort_keys=True), file=sys.stderr)
