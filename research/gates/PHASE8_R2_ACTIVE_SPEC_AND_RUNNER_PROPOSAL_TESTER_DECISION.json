@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-r2-active-spec-and-runner-proposal",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "Proposal only; permits implementation and synthetic/metadata-only dry-run",
+  "proposal_commit": "dcf11f71ab8d464c1d3821c672f918ee23b72312",
+  "exact_snapshot_commit": "01f5fd01e5c9ab556d4036986718b8db3121f239",
+  "forecast_reference": {
+    "run_id": 37957677656,
+    "source_commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+    "artifact_id": 11638738288,
+    "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+    "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
+  },
+  "composite_reference": {
+    "run_id": 38131641336,
+    "artifact_id": 11698879857,
+    "gzip_sha256": "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5",
+    "canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "rows": 8999865,
+    "columns": 47,
+    "encrypted_parts": 61
+  },
+  "p10_abstention_required": true,
+  "specification_amendment_required": true,
+  "runner_code_review_required": true,
+  "synthetic_tests_required": true,
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_promotion_authorized": false,
+  "caveats": [
+    "Known composite coverage and metadata gaps must remain explicit.",
+    "OHLC/Q1 results are non-quote-executable.",
+    "Earlier daily H=1 source-alignment failure did not reproduce but remains logged.",
+    "Tester branch review is role-separated but not an external reviewer."
+  ]
+}
