@@ -509,20 +509,28 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
 
 
 def build_blocked_report(input_manifest: Mapping[str, Any], reason: str) -> dict[str, Any]:
-    """A metadata-only blocked report; no CSV path is opened."""
+    """Emit a metadata-only blocked/not-estimable report; no CSV path is opened."""
+    if reason == "BLOCKED_HOLDOUT_PROOF":
+        target_status, split_status, gate_status = "BLOCKED_HOLDOUT_PROOF", "BLOCKED_HOLDOUT_PROOF", "BLOCKED"
+    elif reason == "BLOCKED_LEAKAGE":
+        target_status, split_status, gate_status = "NOT_ESTIMABLE", "BLOCKED_LEAKAGE", "BLOCKED"
+    elif reason == "INCOMPLETE_NOT_PROMOTABLE":
+        target_status, split_status, gate_status = "NOT_ESTIMABLE", "NOT_ESTIMABLE", "NOT_ESTIMABLE"
+    else:
+        target_status, split_status, gate_status = "NOT_ESTIMABLE", "NOT_ESTIMABLE", "NOT_ESTIMABLE"
     return {
         "dataset_id": EXPECTED_DATASET_ID, "dataset_sha256": EXPECTED_DATASET_SHA256,
         "expected_rows": EXPECTED_ROWS, "expected_columns": EXPECTED_COLUMNS,
         "prefix_rows_scanned": 0, "option_rows_scanned": 0, "spot_rows_scanned": 0,
         "invalid_ohlc_rows": 0, "off_calendar_rows": 0, "duplicate_spot_epoch_rows": 0,
         "unmatched_option_rows": 0, "weekend_review_rows": 0,
-        "target_horizons": {str(h): {"status": "BLOCKED_HOLDOUT_PROOF", "eligible_origins": 0,
+        "target_horizons": {str(h): {"status": target_status, "eligible_origins": 0,
                           "excluded_missing_endpoint": 0, "down_count": 0, "flat_count": 0, "up_count": 0}
                             for h in HORIZONS},
         "feature_families": {}, "train_session_count": 0, "validation_session_count": 0,
-        "session_status": "NOT_ESTIMABLE", "split_status": "BLOCKED_HOLDOUT_PROOF",
+        "session_status": "NOT_ESTIMABLE", "split_status": split_status,
         "source_manifest_sha256": "", "calendar_manifest_sha256": "", "split_manifest_sha256": "",
-        "block_reason": reason, "cleanup_status": "NOT_RUN", "gate_status": "BLOCKED",
+        "block_reason": reason, "cleanup_status": "NOT_RUN", "gate_status": gate_status,
     }
 
 
