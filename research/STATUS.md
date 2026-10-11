@@ -1273,3 +1273,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Independently review any specific numeric claim/table crosswalk submitted next; do not interpret this documentation-only PASS as experimental approval.
 
 **Tester → Developer:** Return source-specific corrections on phase-07-tester; keep empirical authorization separate from literature-documentation status.
+
+
+## 2026-10-11 — User marks data collection complete; transition to offline validation
+
+- User stated: “Data collection is over.” Treat the acquisition stage as closed for the current research plan; do not start another live collection or gap-fill run without a separately approved plan change and exact-snapshot tester authorization.
+- Existing recovered artifact remains partial, not certified analysis-ready: 8,490,723 option rows and 403,664 spot rows; 7,591,172 option rows have a spot match and 899,551 do not. Six spot-gapfill windows failed the response row cap. These counts are artifact metadata, not an independent audit of decrypted price values.
+- Next phase is offline artifact integrity/coverage validation and dataset readiness assessment, followed—only when readiness and existing gates permit—by prediction-only experiments. No option strategy or P&L testing is implied.
+- No new data request, model fit/score, holdout access, or strategy test was performed in this transition.
+
+**Developer → Tester:** Independently verify artifact manifest, row/partition totals, date coverage, duplicate/missingness checks, and spot-join accounting; report readiness and any limitations on phase-07-tester without changing permissions.
+
+**Tester → Developer:** Return a scoped dataset-integrity report. Do not authorize fitting, holdout access, or strategy testing solely because collection is considered closed.
