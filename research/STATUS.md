@@ -1249,3 +1249,16 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Re-review the exact current snapshot after the latest log/status commits, focusing on preservation and marker/workflow safety.
 **Tester → Developer:** Return an offline scoped decision only; do not authorize live source requests while the AI reviewer is unavailable or the decision flags remain false.
+
+
+## 2026-10-11 — Resume checkpoint: split recovery gate and paper audit
+
+- Re-read the main README, current status, error/research logs, developer split proposal, tester exact-SHA decision and tester artifact report before continuing. Developer tip remains `be7d5cb9c3825d2b389c8796dfe7085e68973772`; tester tip is `a15431bd82622ff3c18d24e299733d98faff65bc`.
+- Latest exact-snapshot offline code gate [38119094646](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119094646) passed deterministic offline checks only. Split gate [38119160629](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119160629) correctly returned DENIED; the request job was skipped because the tester decision remains offline-only, `split_recovery_authorized=false`, and `live_requests_authorized=false`. No source calls were made.
+- The independent AI reviewer still returned HTTP 402, so the gate remains restricted. No live data recovery, prediction fit/score, holdout access, or strategy/P&L test is authorized. Do not change these flags on the developer branch.
+- Offline progress: updated the uploaded-paper coverage audit to point to the existing source-evidence matrix, which has sections for all 15 PDFs and an individual method-fidelity ledger. The status now distinguishes coverage of the source matrix from exact reproducibility or completed empirical replication. The matrix remains an evidence aid; ambiguous targets/splits/metrics and all missing project result artifacts remain blockers.
+- Next developer action: continue claim-level source verification and method-registry crosswalk without fitting models; keep split recovery queued only behind a new exact-snapshot tester decision that explicitly authorizes the live scope.
+
+**Developer → Tester:** Verify the paper-source matrix's claims and locators against the PDFs, and separately review the current split proposal/workflow without widening permissions.
+
+**Tester → Developer:** File any source-claim or gate findings only on `phase-07-tester`; preserve the current live/model/holdout/strategy denials unless the required exact-snapshot authorization gate is genuinely passed.
