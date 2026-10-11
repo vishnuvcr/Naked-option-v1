@@ -25,6 +25,7 @@ FILES = [
     "scripts/run_nifty_1m_spot_diagnostic.py",
     "scripts/test_nifty_1m_spot_diagnostic.py",
     "scripts/audit_nifty_1m_composite_cache.py",
+    "scripts/test_audit_nifty_1m_composite_cache.py",
     "scripts/account_nifty_1m_probe_attempt.py",
     "scripts/test_account_nifty_1m_probe_attempt.py",
     "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
@@ -120,11 +121,13 @@ def run_offline_tests(root: pathlib.Path, findings: list[dict[str, str]]) -> dic
          "scripts/test_nifty_1m_composite_dataset.py", "scripts/test_nifty_1m_composite_manifest.py",
          "scripts/validate_nifty_1m_composite_approval.py", "scripts/run_nifty_1m_spot_diagnostic.py",
          "scripts/test_nifty_1m_spot_diagnostic.py", "scripts/audit_nifty_1m_composite_cache.py",
-         "scripts/account_nifty_1m_probe_attempt.py", "scripts/test_account_nifty_1m_probe_attempt.py"],
+         "scripts/account_nifty_1m_probe_attempt.py", "scripts/test_account_nifty_1m_probe_attempt.py",
+         "scripts/test_audit_nifty_1m_composite_cache.py"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_manifest"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_dataset"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_spot_diagnostic"],
         ["python", "-m", "unittest", "-v", "test_account_nifty_1m_probe_attempt"],
+        ["python", "-m", "unittest", "-v", "test_audit_nifty_1m_composite_cache"],
     ]
     results = []
     for command in tests:
@@ -220,7 +223,9 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
                           "--spot-only-recovery", "live_option_requests_enabled",
                           "def _normalize_epoch_timestamp", "response_timestamp_not_integer_epoch")
     required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
-                      "wire_requests_reserved_for_spot", "8540", "61")
+                      "wire_requests_reserved_for_spot", "8540", "61",
+                      "EXPECTED_PRESERVED_OPTION_ROWS", "cached_option_rows",
+                      "8490723", "not invalid")
     required_accounting = ("AUTHORIZED_NONPERSISTING_DIAGNOSTIC", "wire_delta", "request_scope_sha256",
                            "raw_response_persisted", "ALREADY_ACCOUNTED")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
