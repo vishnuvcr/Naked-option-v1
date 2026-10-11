@@ -294,3 +294,12 @@ New errors must be appended, never overwritten.
 - **Impact:** reader could mistake a source-organization gap for no paper-specific extraction having been done, while also obscuring the more important distinction between a source matrix and an exact replication.
 - **Fix:** synchronized the audit to report the source-matrix coverage while explicitly retaining NOT VERIFIED AS REPLICATED status, ambiguous fields, and the missing result-artifact/tester-report requirement.
 - **Regression check:** matrix contains 15 paper sections plus the individual-method ledger; the documentation does not claim all methods/results are verified or tested.
+
+
+## 2026-10-11 — Data collection closed while recovered dataset remains partial
+
+- **Category:** dataset coverage limitation / phase transition.
+- **Observed:** User marked data collection complete, while the latest recorded artifact metadata still shows 899,551 option rows without a spot match and six failed spot-recovery windows.
+- **Impact:** Closing acquisition does not make the dataset complete; any downstream analysis must disclose coverage limitations and test whether the remaining joined sample supports its specific target/task. Spot-dependent rows must not be silently imputed or represented as observed.
+- **Disposition:** No further live collection under the current plan. Run offline integrity/coverage assessment and submit evidence to the tester branch. No model fitting, holdout access, or strategy/P&L work until their separate gates pass.
+- **Status:** Open as a dataset limitation; no new request was made.
