@@ -1,0 +1,16 @@
+{
+  "existing_option_rows_required": 8490723,
+  "gapfill_manifest_sha256": "cd2c39274cfd990abfb84af91e733259c44a22c8507b650e6bfe3d1090d20756",
+  "github_run_id": "38116772719",
+  "holdout_access_authorized": false,
+  "live_option_requests_allowed": false,
+  "max_gapfill_requests": 47,
+  "max_spot_requests": 61,
+  "model_fitting_authorized": false,
+  "reviewed_developer_commit": "d0b602bd86b6cf8785f3f3c033c0e897f93f3bfd",
+  "schema_version": 1,
+  "scope": "SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
+  "spent_at_utc": "2026-10-11T06:04:45Z",
+  "status": "SPENT_BEFORE_SOURCE_REQUEST",
+  "tester_decision_blob": "817af6b8b2db14c2ca22f80ea61b6e5279d4d01f"
+}
