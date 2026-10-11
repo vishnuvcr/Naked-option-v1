@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-11",
+  "gate": "REAL_FILE_PREFLIGHT_IMPLEMENTATION",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "8346d95f3ea81f01bb8e83db9fc9a4b4929dd1af",
+  "workflow_run_id": 38146005462,
+  "workflow_conclusion": "success",
+  "supporting_workflow_runs": [
+    {
+      "run_id": 38146005545,
+      "conclusion": "success",
+      "purpose": "Offline unit and receipt publisher synthetic suite on current file snapshot."
+    },
+    {
+      "run_id": 38146005462,
+      "conclusion": "success",
+      "purpose": "Audit workflow action pinning and synthetic authorization suite; real-file steps skipped because R3 request was spent and R4 was not yet requested."
+    },
+    {
+      "run_id": 38140046876,
+      "conclusion": "success",
+      "purpose": "Supplementary 10,000-row SQLite duplicate-count batch-boundary test; batching logic unchanged."
+    }
+  ],
+  "reviewed_files": {
+    ".github/workflows/phase-07-real-file-preflight-audit.yml": "bc8364dd8b5c8d988339a86f87b1ee1054bd895a",
+    ".github/workflows/phase-07-offline-preflight-tests.yml": "ad78b0f3fbf4f77e79dc95657df4fad731b67d7b",
+    "scripts/offline_dataset_preflight.py": "e6578efab385502ef057181f1e97a8d2e3a104d3",
+    "scripts/test_offline_dataset_preflight.py": "fa0428de6bce37890511b39c6fb54c3ad34a1ffb",
+    "scripts/test_offline_dataset_actual_schema.py": "0616d78261d6b4b8b2a655169e939203d06d2c69",
+    "scripts/validate_real_file_preflight_authorization.py": "2f8174c320188c79257ca1b14c683f509a66227e",
+    "scripts/test_validate_real_file_preflight_authorization.py": "c21fa939ba66d15ff2b5a4408e1384117bc80e80",
+    "scripts/check_workflow_action_pinning.py": "cc6ecc45fd78470d838debc19f5b835369acb1d3",
+    "scripts/test_workflow_action_pinning.py": "e414c5cea4d71586ad80f9b5b0b85cbd79a3dade",
+    "scripts/publish_preflight_receipt.py": "3f72a86f4261180cb578c84c1058e6ca5d963a66",
+    "scripts/test_publish_preflight_receipt.py": "8d972ac0478de1b393d6e5bbeb9e2f19c51832bc",
+    "scripts/test_receipt_workflow_policy.py": "47e624abe52fbcfbe9a53b90ded7df1f21f49e72",
+    ".github/workflows/phase-07-publish-preflight-receipt.yml": "2b7397fefa47b23ea0066a65da2246e3e0a2e97b",
+    ".github/workflows/phase-07-receipt-publisher-tests.yml": "3f6a7020ea1ed39414200c71a3488061563d144c",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8"
+  },
+  "real_file_preflight_execution_authorized": true,
+  "authorized_scope": "one exact-lineage, metadata-only structural preflight using the pinned uncompressed CSV SHA-256, with compressed gzip SHA reported separately",
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "report": "research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_REVIEW_R4_2026-10-11.md",
+  "supersedes_decision_blob_sha": "2919bd807ca3e1e2a4eab310022bd8dc9ef58359"
+}
