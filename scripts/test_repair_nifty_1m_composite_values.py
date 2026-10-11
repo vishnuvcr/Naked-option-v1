@@ -116,10 +116,9 @@ class DerivedDatasetRepairTests(unittest.TestCase):
     def test_workflows_install_crypto_and_find_nested_manifest(self):
         root = pathlib.Path(__file__).resolve().parents[1]
         repair_workflow = (root / ".github" / "workflows" / "phase-07-derived-dataset-repair.yml").read_text(encoding="utf-8")
-        diagnostic_workflow = (root / ".github" / "workflows" / "phase-07-unmatched-option-timestamp-diagnostic.yml").read_text(encoding="utf-8")
         self.assertIn('root.rglob("dataset_manifest.json")', repair_workflow)
         self.assertIn("source_manifest_count_invalid", repair_workflow)
-        self.assertIn("pip install -r requirements-composite.txt", diagnostic_workflow)
+        self.assertIn("pip install -r requirements-composite.txt", repair_workflow)
 
     def test_source_and_output_directories_must_be_disjoint(self):
         with tempfile.TemporaryDirectory() as tmp:
