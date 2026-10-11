@@ -203,3 +203,7 @@ No live source request or approval manifest is authorized. Correct these issues,
 ## 2026-10-11 — Real-file preflight implementation review
 - Two initial synthetic test attempts failed due to assertions in test fixtures; developer corrected them and exact run 38137514604 passed.
 - Tester authorized one exact-lineage structural audit only. The audit result has not been retrieved and independently accepted yet.
+
+## 2026-10-11 — Exact hash drift caught before audit acceptance
+- The developer branch had three post-review blob changes; the authorization helper would reject these as stale approval. No bypass was attempted.
+- Exact reviewed blobs were restored and all 11 required file hashes were rechecked. Wait for the R2 audit receipt before data-gate acceptance.
