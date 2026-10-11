@@ -1315,3 +1315,20 @@ Downloaded the existing Actions artifact 11685737176 from run 38082385220; no ne
 
 **Developer → Tester:** Independently inspect the artifact digest, all 37 encrypted part hashes/sizes, row/month/request reconciliation and decryption boundary. Issue exact-snapshot PASS/REQUEST CHANGES and authorize only a defined next scope.
 **Tester → Developer:** Keep new acquisition and all downstream modeling blocked until independent artifact review and an explicit gate decision.
+
+
+## 2026-10-11 — Automated tester–developer loop
+
+### User request
+The user objected that research was stopping midway and requested automation of tester/developer interaction.
+
+### Actions recorded
+- Added tester-owned offline review harness and initialized the bounded cycle state on `phase-07-tester`.
+- Added a shared controller helper and GitHub Actions loop on `main` with exact developer SHA pinning, isolated test/reviewer jobs, report-only writes to the tester branch, constrained patch paths, secret-free patch verification, bounded retry, and issue comments.
+- Updated the main README and created automation operating documentation.
+- First hosted run [38111301045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111301045) failed because Hugging Face inference returned HTTP 402. The persisted report records five missing regression cases and the offline tests passed.
+- Added a deterministic fallback limited to those known test gaps. It must not remove required volume checks or alter source-request approval.
+- At this log point, run [38111417286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111417286) is queued; its results have not yet been verified.
+
+### Scope and privacy
+Only actions, results, concise findings and blockers are logged. Private reasoning is not copied. No new market-data requests or predictive/strategy evaluation were run.
