@@ -1307,3 +1307,11 @@ No new live request was launched and no approval was spent. The one-use acquisit
 
 **Developer → Tester:** Review the exact source/workflow snapshot and provide PASS/REQUEST CHANGES with explicit request scope.
 **Tester → Developer:** Keep live acquisition and all downstream empirical work blocked until the exact-snapshot decision is recorded.
+
+
+### 2026-10-11 — User said “Ok proceed”: offline artifact integrity verification
+
+Downloaded the existing Actions artifact 11685737176 from run 38082385220; no new market-data requests were made. ZIP SHA-256 matched GitHub's artifact digest `b2d76cb1b5ee3dd9c0a9b479825386fb5e422299b4a32c60686a5fed7342398d`; ZIP integrity test passed. All 37 encrypted part files matched manifest hashes and sizes. Manifest row totals reconciled to 8,490,723 option rows and zero spot rows. Status is PARTIAL_GRID with 7,481 failed request/quality events; monthly parts are discontinuous, so this is not continuous five-year coverage. AES-GCM authenticated decryption was not verified because the collection-time HF_TOKEN is not accessible to this offline inspection. Issue #7 still has only developer comments; no independent tester report exists. No live request, model fitting, scoring, or holdout access was performed.
+
+**Developer → Tester:** Independently inspect the artifact digest, all 37 encrypted part hashes/sizes, row/month/request reconciliation and decryption boundary. Issue exact-snapshot PASS/REQUEST CHANGES and authorize only a defined next scope.
+**Tester → Developer:** Keep new acquisition and all downstream modeling blocked until independent artifact review and an explicit gate decision.
