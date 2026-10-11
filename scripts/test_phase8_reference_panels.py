@@ -276,7 +276,13 @@ def test_source_alignment_checks_daily_and_intraday_labels():
         "label_direction": y.to_numpy(dtype=float),
         "future_return": future.to_numpy(dtype=float),
     })
-    validator.verify_panel_source_alignment(daily_panel, "daily", 2, daily_source, pd.DataFrame())
+    daily_alignment = validator.verify_panel_source_alignment(
+        daily_panel, "daily", 2, daily_source, pd.DataFrame()
+    )
+    assert daily_alignment["label_direction_exact"] is True
+    assert daily_alignment["decision_timestamp_exact"] is True
+    assert daily_alignment["future_return"]["max_ulps_allowed"] == 2
+    assert daily_alignment["future_return"]["out_of_policy_count"] == 0
     bad_daily = daily_panel.copy()
     bad_daily.loc[0, "label_direction"] = 1.0 - bad_daily.loc[0, "label_direction"]
     try:
@@ -304,7 +310,12 @@ def test_source_alignment_checks_daily_and_intraday_labels():
         "label_direction": yi.iloc[idx].to_numpy(dtype=float),
         "future_return": fi.iloc[idx].to_numpy(dtype=float),
     })
-    validator.verify_panel_source_alignment(intra_panel, "intraday", 5, daily_source, intraday_source)
+    intra_alignment = validator.verify_panel_source_alignment(
+        intra_panel, "intraday", 5, daily_source, intraday_source
+    )
+    assert intra_alignment["label_direction_exact"] is True
+    assert intra_alignment["decision_timestamp_exact"] is True
+    assert intra_alignment["future_return"]["out_of_policy_count"] == 0
     bad_intra = intra_panel.copy()
     bad_intra.loc[0, "future_return"] += 0.01
     try:
@@ -375,7 +386,12 @@ def test_float64_source_alignment_ulp_policy():
     row = int(np.flatnonzero(np.isfinite(panel["future_return"].to_numpy()))[0])
     original = np.float64(panel.loc[row, "future_return"])
     panel.loc[row, "future_return"] = np.nextafter(original, np.inf)
-    validator.verify_panel_source_alignment(panel, "daily", 1, daily_source, pd.DataFrame())
+    one_ulp_alignment = validator.verify_panel_source_alignment(
+        panel, "daily", 1, daily_source, pd.DataFrame()
+    )
+    assert one_ulp_alignment["future_return"]["exact_mismatch_count"] == 1
+    assert one_ulp_alignment["future_return"]["accepted_within_ulps_count"] == 1
+    assert one_ulp_alignment["future_return"]["max_ulp_distance"] == 1
     panel.loc[row, "future_return"] = np.nextafter(
         np.nextafter(np.nextafter(original, np.inf), np.inf), np.inf
     )
