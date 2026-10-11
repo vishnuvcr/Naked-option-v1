@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8_GREEK_ENRICHMENT_R2",
+  "request_id": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12",
+  "created_at": "2026-10-12",
+  "developer_snapshot_sha": "5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6",
+  "supersedes_request": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R1_2026-10-12",
+  "approved_scope_requested": "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE",
+  "reviewed_blobs": {
+    "scripts/enrich_nifty_composite_greeks.py": "6b59dd53a0dc4b62d7e78f725ac76e907e8ac6dd",
+    "scripts/test_enrich_nifty_composite_greeks.py": "3c53e1757be84aef74697c912ae68fe1fc7ab108",
+    ".github/workflows/phase8-greek-enrichment.yml": "093fbc4f31bf449d70d8503ea687f2820d410a7b",
+    "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md": "77a2562ca738c55d98b587b8a58a333f89f515fe"
+  },
+  "prior_test_evidence": {
+    "run_id": 38169189321,
+    "developer_snapshot_sha": "1e9421b00b2b17d1dd2d714b8eb2ab59c5387d89",
+    "synthetic_test_step": "success",
+    "terminal_gate": "failed closed because no tester decision matched the exact developer snapshot",
+    "source_calls_made": false
+  },
+  "rationale_for_r2": [
+    "Pandas 3 timestamp dtype resolution may be seconds or nanoseconds; integer casting followed by division by 1e9 can silently misalign HF spot timestamps.",
+    "R2 uses explicit timezone-aware timestamp.timestamp() conversion for the HF spot timestamp and includes a seconds-resolution timezone-aware synthetic fixture.",
+    "The R1 hosted run is pinned to the earlier implementation and must not be accepted unless independently demonstrated to have adequate exact-join coverage."
+  ],
+  "tester_must_independently_verify": [
+    "exact four-file blob pins match the developer snapshot",
+    "rerun developer synthetic suite in isolated worktree",
+    "spot exact-time join when HF timestamps use seconds-resolution datetime dtype",
+    "field values are filled only on exact timestamp match and valid existing spot values are not overwritten",
+    "row preservation and output status behavior",
+    "independently implement Black-Scholes price/IV reference and test 162 CE/PE cases with IV inversion, Greek signs/bounds and finite-difference checks",
+    "timestamp +60s bar-close valuation and TTE conversion",
+    "workflow makes no external request until this exact R2 decision passes"
+  ],
+  "restrictions": {
+    "hf_public_spot_fetch_authorized_requested": true,
+    "hf_public_expiry_filelist_authorized_requested": true,
+    "dhan_api_requests_authorized": false,
+    "empirical_option_pnl_authorized": false,
+    "holdout_access_authorized": false,
+    "strategy_promotion_authorized": false,
+    "plaintext_upload_authorized": false,
+    "commercial_use_authorized": false,
+    "source_license": "CC-BY-NC-4.0; non-commercial research only",
+    "source_grid_status": "PARTIAL_GRID",
+    "completeness_claim": "Do not claim all exchange-listed NIFTY strikes/contracts are present."
+  },
+  "reviewer_instructions": {
+    "developer": "Do not change reviewed blobs during review; a changed snapshot needs a fresh R2 request and decision.",
+    "tester": "Record a PASS_WITH_SCOPED_RESTRICTIONS decision only for exact commit 5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6 after both test suites pass; otherwise REQUEST_CHANGES. Keep P&L, holdout, strategy promotion, Dhan calls and plaintext upload unauthorized."
+  }
+}
