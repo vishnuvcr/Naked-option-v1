@@ -6,6 +6,39 @@ The tester is the automated independent reviewer on `phase-07-tester`, not a per
 
 ## Dhan spot-recovery execution — 2026-10-11
 
+### R1 result: partial, not complete
+
+[Recovery run #38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291) completed at workflow level. Its [encrypted artifact 11697215166](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291/artifacts/11697215166) has ZIP SHA-256 `07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a`.
+
+- New spot rows retrieved: **103,234** (33 of 34 requests valid; 1 row-cap validation failure; 0 retries).
+- Preserved unchanged: **8,490,723 option rows** and **403,664 pre-existing spot rows**.
+- New total spot rows: **506,898**.
+- Exact timestamp joins: **8,471,702 matched**, **19,021 unmatched** (previously 899,551).
+- Failed span: 2021-11-08 inclusive through 2021-11-15 exclusive. Dhan returned HTTP 200, 255,574 bytes, but the response exceeded the prior 4,000-row cap. The former safe log did not preserve observed-row count or response hash; the new parser/logger fixes this.
+
+### R2 next gate: patch only the failed week
+
+Developer implementation and tests are in [commit d04812a](https://github.com/vishnuvcr/Naked-option-v1/commit/d04812ac92363805d6e99ab676c69bba01c58791). The narrow [patch proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json) defines only seven one-day NIFTY spot requests for the failed week, each limited to 500 rows / 4 MiB, one attempt per request and zero retries. It pins the newer encrypted base artifact above and rejects any timestamp overlap with existing spot rows.
+
+- [Patch runner](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/run_nifty_1m_spot_failed_window_patch.py)
+- [Proposal validator](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/validate_nifty_1m_spot_failed_window_patch.py)
+- [Patch regression tests](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/test_nifty_1m_spot_failed_window_patch.py)
+- [Exact-SHA patch workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml)
+
+At this README update, the automated offline tests and research-protocol checks are running. **R2 has not made any source request.** The prior R1 approval is spent; only a new tester decision that pins the current developer commit, proposal SHA and controller-workflow blob SHA can authorize the seven calls. No option request, fitting, holdout access, strategy testing or trading endpoint is authorized.
+
+The dataset remains **partial** until the new retrieval artifact is audited. The earlier value-level audit failed with 224 joined NIFTY OHLC violations, 9 standalone spot OHLC violations, 11 negative option-volume occurrences and 42 option-session dates without spot rows; those are not cleared by recovering spot bars. A fresh value audit on the updated artifact is still required.
+
+- [Research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md)
+- [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md)
+- [Conversation/action log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md)
+- [R1 result metadata](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_RESULT.json)
+- [R1 tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION_TESTER_REPORT.md)
+
+**Role caveat:** the tester branch is maintained separately, but no separately identified human reviewer is available in this connected session. The repository reports should not imply an external human audit.
+
+
+
 A fresh exact-snapshot tester decision has authorized a bounded retry of the six previously failed spot windows. The guarded GitHub Actions run is [38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291).
 
 - **Execution state at this README update:** exact-SHA gate passed; encrypted base artifact 11693866249 was downloaded and its SHA-256 verified; the one-use split marker was committed before the request stage. The spot-only collector is running. These are execution checkpoints, **not a claim that the data has been repaired**.
