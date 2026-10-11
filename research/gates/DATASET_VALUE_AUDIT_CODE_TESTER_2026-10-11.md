@@ -51,3 +51,23 @@ The first published workflow on `main` failed before any job started; its job li
 - Exact reviewed workflow blob SHA: `00436a389ee82fd9adde980bfef5515f1e420b49`.
 
 These corrections are code/test-only. The deployment on `main` still needs to be updated from the reviewed blob, and a successful hosted run must prove artifact download, authenticated decryption, semantic audit, and temporary plaintext cleanup before the research can claim value-level validation.
+
+
+## Runtime result — fixed artifact scan (2026-10-11)
+
+- Hosted run: [38122043916](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38122043916)
+- Artifact retrieval, encrypted hash/size preflight, authenticated decryption, and the row-level audit step completed successfully.
+- Sanitized report: [DATASET_VALUE_AUDIT_RESULT.json](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_RESULT.json), status **FAIL**.
+- Row totals reconcile: 8,490,723 option + 403,664 spot = 8,894,387. Monthly manifest counts reconcile. Observed join counts reconcile: 7,591,172 exact timestamp matches and 899,551 unmatched.
+- Findings: 224 invalid OHLC rows among option-joined NIFTY candles, 9 invalid standalone spot OHLC rows, and 11 negative option-volume values. Composite duplicate keys and duplicate spot timestamps were both zero. These are aggregate counts; the audit report contains no price values.
+- Coverage remains limited: partial historical option grid; six failed gap-fill requests; 899,551 unmatched option rows; 42 option-session dates with no spot rows in the assembled spot set. Greek fields/time-to-expiry are unpopulated across the option rows, so those features are not currently usable.
+- Workflow runtime cleanup step failed due to a shell heredoc delimiter syntax error, despite the code attempting to remove temporary plaintext. The step did run `rm -rf` on its designated temp directories before failing. The run does not provide a successful cleanup verification; fix and rerun cleanup before declaring the operational gate passed.
+- The semantic scan step itself completed with exit code 0, but its report correctly returned FAIL. The final workflow gate failed closed. No model fitting/scoring, holdout access or strategy test was performed.
+
+### Tester verdict update
+
+**FAIL — data quality and workflow cleanup gate not passed.** The current report supports a precise next task: diagnose the 233 OHLC violations and 11 negative-volume rows without publishing market prices, fix the cleanup shell block, add regression tests, and rerun against the same already-collected artifact. Do not fit prediction models until the issues are resolved and a separate exact-snapshot gate is approved.
+
+**Tester → Developer:** Fix the cleanup step and investigate the 244 price/volume findings with sanitized row IDs, dates, and violation categories; do not silently drop or rewrite source rows.
+
+**Developer → Tester:** Review the next exact code SHA, confirm cleanup in hosted logs, and validate any proposed exclusions/corrections before they enter the modelling dataset.
