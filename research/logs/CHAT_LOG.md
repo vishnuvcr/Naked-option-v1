@@ -421,3 +421,12 @@ No scientific or protocol change was made during this checkpoint.
 
 **Developer → Tester:** Review the exact reconstruction artifact and workflow guard fix.
 **Tester → Developer:** Keep current source-audit outputs out of accepted evidence; decide only on exact forecast reconstruction.
+
+## 2026-10-12 — Tester R3: source-cache recovery required
+
+- Independent tester reviewed the fail-closed exact-HEAD reconstruction attempts and recorded [R3 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R3_2026-10-12.json).
+- The frozen Run #994 artifact is available, but the daily source cache required for source alignment is absent. No full validation manifest exists for the exact latest code. The retry correctly skipped source acquisition, then failed on the same missing cache.
+- Next: locate a previously archived copy and verify the pinned hashes. If none exists, seek independent approval for one-time pinned historical-source restoration before acquiring anything. Keep P&L, holdout and strategy promotion blocked.
+
+**Developer → Tester:** Review any archived-source candidate by exact hash.
+**Tester → Developer:** Do not authorize unpinned source retrieval or close the gate without a full exact-HEAD report.
