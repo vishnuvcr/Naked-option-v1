@@ -21,15 +21,15 @@ EXPECTED_SHA256 = "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a
 EXPECTED_UNCOMPRESSED_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
 TIMESTAMP_NAMES = ("timestamp_epoch", "timestamp", "datetime", "date_time", "timestamp_ist")
 ROWTYPE_NAMES = ("row_type", "instrument_type", "record_type", "data_type")
-KEY_GROUPS = (
-    # Canonical OPTION request identity used by the dataset collector, auditor,
-    # and repaired-dataset validator. Do not substitute the returned strike for
-    # requested_relative_strike or omit the source request identity.
-    ("timestamp_epoch", "row_type", "source_request_id", "expiry_flag", "expiry_code",
-     "requested_relative_strike", "option_type"),
-    # SPOT epoch uniqueness is checked independently, mirroring the production validator.
-    ("timestamp_epoch",),
-    # Compatibility groups retained for older/synthetic schemas.
+# Canonical OPTION request identity mirrors _row_key in the collector and
+# ROW_KEY_FIELDS in the established audit/validator. SPOT timestamp uniqueness is
+# a separate identity, not a universal one-column fallback for every schema.
+OPTION_REQUEST_KEY = (
+    "timestamp_epoch", "row_type", "source_request_id", "expiry_flag",
+    "expiry_code", "requested_relative_strike", "option_type",
+)
+SPOT_EPOCH_KEY = ("timestamp_epoch",)
+LEGACY_KEY_GROUPS = (
     ("timestamp_epoch", "instrument_type", "symbol", "expiry", "strike", "option_type"),
     ("timestamp_epoch", "row_type", "symbol", "expiry", "strike", "option_type"),
     ("timestamp_epoch", "instrument_type", "security_id"),
@@ -128,9 +128,18 @@ def run(path: Path, report_path: Path, expected_sha: str,
             indexes = {name.strip().lower(): i for i, name in enumerate(header)}
             ts_col = next((indexes[n] for n in TIMESTAMP_NAMES if n in indexes), None)
             rowtype_col = next((indexes[n] for n in ROWTYPE_NAMES if n in indexes), None)
+            canonical_actual_schema = (
+                "row_type" in indexes
+                and all(name in indexes for name in OPTION_REQUEST_KEY)
+                and "underlying" in indexes
+            )
+            if canonical_actual_schema:
+                applicable_groups = (OPTION_REQUEST_KEY, SPOT_EPOCH_KEY)
+            else:
+                applicable_groups = LEGACY_KEY_GROUPS
             key_cols = [
                 (tuple(group), tuple(indexes[n] for n in group))
-                for group in KEY_GROUPS if all(n in indexes for n in group)
+                for group in applicable_groups if all(n in indexes for n in group)
             ] or None
             if key_cols:
                 # SQLite keeps the duplicate index on disk rather than retaining all rows in RAM.
@@ -170,11 +179,11 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         # On the repaired schema, OPTION and SPOT rows must use their
                         # own key definition; an incomplete OPTION key must not fall
                         # back to the shorter SPOT key.
-                        if rowtype_col is not None and header[rowtype_col].strip().lower() == "row_type":
+                        if canonical_actual_schema:
                             row_kind = row[rowtype_col].strip().upper()
-                            if row_kind == "OPTION" and "source_request_id" not in group_names:
+                            if row_kind == "OPTION" and tuple(group_names) != OPTION_REQUEST_KEY:
                                 continue
-                            if row_kind == "SPOT" and tuple(group_names) != ("timestamp_epoch",):
+                            if row_kind == "SPOT" and tuple(group_names) != SPOT_EPOCH_KEY:
                                 continue
                         candidate_values = []
                         complete = True
