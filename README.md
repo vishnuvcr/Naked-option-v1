@@ -1,15 +1,17 @@
 # NIFTY Naked-Option Direction Research
 
-## 2026-10-11 — Latest active gate: R5 canonical structural audit
+## 2026-10-11 — R5 canonical structural audit completed; data readiness still gated
 
-- **Workflow:** [Run 38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301).
-- The synthetic authorization/regression job passed. Exact tester approval, source run/artifact lineage, encrypted-part hashes and decrypt/merge completed successfully.
-- The real-file metadata-only scan is still in progress; report upload and plaintext/temp-index cleanup have not completed. There is **no accepted R5 duplicate count or data-readiness verdict yet**.
-- R5 checks the canonical seven-field OPTION request identity and separate SPOT timestamp uniqueness. R4's 4,148,431 duplicate count was rejected and must not be used.
-- Prediction fitting/scoring, holdout, new source requests and strategy/P&L remain closed pending the completed R5 report and separate data-readiness decision.
+- **Workflow:** [Run 38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301) — both synthetic and real-file jobs succeeded.
+- Exact tester approval, source run/artifact lineage, 61 encrypted-part hashes, decoded CSV hash and report/cleanup steps were verified; plaintext CSV and temporary SQLite files were removed.
+- Exact decoded-content SHA-256 matched: `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. Rows/columns: 8,999,865 / 47 = 8,490,723 OPTION + 509,142 SPOT. Row-width errors, timestamp parse errors, incomplete canonical keys and canonical duplicate keys: all zero.
+- The R5 tester verdict is **PASS WITH SCOPED RESTRICTIONS** for structural preflight only: [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md) · [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_DECISION_R5_2026-10-11.json) · [sanitized artifact 11705154936](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301/artifacts/11705154936).
+- R4's 4,148,431 duplicate count remains invalid and must not be reused. The compressed-container SHA differs, but the reviewed decompressed content SHA matches exactly and gzip integrity passed.
+- Model readiness remains **PENDING**: Greek, expiry-date/time-to-expiry, rate/dividend fields are blank; 19,021 option rows remain unmatched over 421 timestamps; 24,847 rows retain weekend-session review flags; masked OHLCV remains under scoped repair restrictions.
+- **No fitting/scoring, final holdout access, new source requests or strategy/P&L testing is authorized.** Next is a specific modeling-readiness proposal and separate tester review. The paper-replication target contract and PPR-3 protocol remain not authorized for empirical execution.
 
-**Developer → Tester:** Review the completed R5 output and cleanup evidence.
-**Tester → Developer:** Keep downstream gates closed until an evidence-backed data-readiness decision is recorded.
+**Tester → Developer:** Publish this result in status/logs and review a bounded, no-fitting readiness proposal.
+**Developer → Tester:** Keep model/holdout/source/strategy permissions closed until exact-snapshot gates are passed.
 
 
 ## One-time offline CSV export — complete
