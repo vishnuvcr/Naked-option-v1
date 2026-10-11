@@ -348,3 +348,10 @@ The developer's one-use approval was consumed before the first request. [Guarded
 - Decision `PASS_WITH_SCOPED_RESTRICTIONS` authorizes one exact-lineage structural preflight only; decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c`.
 - Execution request was committed to developer branch. Actual run/report is not yet verifiably accessible through the current Actions connector; no audit outcome accepted yet.
 - Modelling, holdout, source requests and strategy/P&L remain closed.
+
+
+## 2026-10-11 — Real-file preflight implementation decision
+- Exact developer PR head `7a430ba836e1169e9761298ca544f2fab3dc569e); synthetic Actions run 38137514604 passed.
+- Decision `PASS_WITH_SCOPED_RESTRICTIONS` authorizes one exact-lineage structural preflight only; decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c`.
+- Execution request was committed to the developer branch. The actual run/report is not yet verified through the available Actions interface; no data-audit outcome is accepted yet.
+- Modelling, holdout, new source requests and strategy/P&L remain closed.
