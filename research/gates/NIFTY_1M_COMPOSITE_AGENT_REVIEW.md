@@ -1,13 +1,13 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: REQUEST_CHANGES
-- Reviewed developer commit: a470afa28ca21a558e1c31175a47a5ff97907836
-- Report time (UTC): 2026-10-11T05:58:11Z
-- Deterministic checks: REQUEST CHANGES
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS
+- Reviewed developer commit: 4a5d7d2011dcfbef030ef2116af585f5b35f6e33
+- Report time (UTC): 2026-10-11T05:59:30Z
+- Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
 - Single-request diagnostic authorized: NO
-- Cache-preserving spot-only recovery authorized: NO
+- Cache-preserving spot-only recovery authorized: YES — at most 61 spot requests; zero live option refetches
 - General live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
@@ -17,7 +17,7 @@
 - INFO — SPOT_OHLC_STRICT_VOLUME_DEGRADED: Timestamp/OHLC arrays remain mandatory and aligned; unusable volume stays blank and is quality-flagged.
 - INFO — SANITIZED_DIAGNOSTIC_PRESENT: Unexpected validation errors retain a bounded reason token without logging payload bodies.
 - INFO — SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS: The one-request diagnostic scope is pinned to the frozen request manifest and writes only sanitized metadata.
-- BLOCKER — SPOT_ARTIFACT_GAPFILL_GUARD_FAILED: The artifact-based gapfill fails its independent scope/merge/privacy contract. grid=;missing_runner_or_test=run_nifty_1m_composite_dataset.py;missing_workflow=;forbidden_runner_patterns=
+- INFO — SPOT_ARTIFACT_PRESERVING_GAPFILL_SCOPE_PASS: The gapfill uses the immutable encrypted acquired dataset, validates the 8,490,723 option rows, requests only 47 Dhan spot shards, joins by exact timestamp and re-encrypts outputs; no live option refetch is enabled.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: missing-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: empty-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: misaligned volume array.
