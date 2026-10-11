@@ -185,7 +185,8 @@ jobs:
           set -euo pipefail
           test ! -e research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json
           python - <<'PY'
-          import datetime,json,os,pathlib
+          import datetime,hashlib,json,os,pathlib
+          manifest_sha=hashlib.sha256(pathlib.Path("research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json").read_bytes()).hexdigest()
           value={
             "schema_version":1,
             "status":"SPENT_BEFORE_SOURCE_REQUEST",
@@ -265,56 +266,34 @@ jobs:
           cache-dependency-path: developer/requirements-composite.txt
       - name: Install acquisition dependency
         run: python -m pip install -r developer/requirements-composite.txt
-      - name: Restore the previously acquired encrypted cache
+      - name: Download the immutable original encrypted option dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-composite-encrypted-bundle
+          run-id: 38082385220
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          path: developer/data/recovery/source-artifact
+      - name: Restore encrypted gapfill-only response cache
         uses: actions/cache/restore@v4
         with:
           path: |
             developer/data/cache/nifty_1m_composite/raw
-            developer/data/reports/nifty_1m_composite
-          key: nifty1m-composite-${{ github.run_id }}
-          # The original acquisition mistakenly saved under this literal placeholder key.
-          # Prefer it explicitly before generic prefixes, which may match a newer, tiny ledger-only cache.
+            developer/data/reports/nifty_spot_gapfill
+          key: niftyspot-gapfill-${{ github.run_id }}
           restore-keys: |
-            nifty1m-composite-__RUN_ID__
-            nifty1m-composite-
-      - name: Account the authorized non-persisting diagnostic wire attempt
-        working-directory: developer
-        run: python scripts/account_nifty_1m_probe_attempt.py
-      - name: Verify cached option rows reconstruct the existing dataset and 61 spot requests remain eligible
-        id: cache_audit
+            niftyspot-gapfill-
+      - name: Verify and decrypt the existing option artifact before spending recovery scope
         working-directory: developer
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        shell: bash
         run: |
-          set +e
-          python scripts/audit_nifty_1m_composite_cache.py | tee "$RUNNER_TEMP/spot-cache-audit.json"
-          audit_rc=$?
-          cp "$RUNNER_TEMP/spot-cache-audit.json" research/gates/NIFTY_1M_SPOT_CACHE_PREFLIGHT.json
-          python - "$RUNNER_TEMP/spot-cache-audit.json" <<'PY'
-          import json,sys
-          x=json.load(open(sys.argv[1],encoding="utf-8"))
-          required=(x.get("status")=="PASS"
-                    and x.get("cached_option_rows")==8490723
-                    and x.get("option_cache_valid",0)>0
-                    and x.get("option_cache_invalid")==0
-                    and x.get("source_requests_made")==0
-                    and x.get("live_option_requests_permitted") is False
-                    and x.get("wire_requests_reserved_for_spot")==61)
-          print("SPOT_RECOVERY_PREFLIGHT_PASS" if required else "SPOT_RECOVERY_PREFLIGHT_BLOCKED")
-          raise SystemExit(0 if required and audit_rc==0 else 1)
-          PY
-          audit_rc=$?
-          if [[ $audit_rc -ne 0 ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add research/gates/NIFTY_1M_SPOT_CACHE_PREFLIGHT.json
-            git commit -m "Record blocked NIFTY spot cache preflight without spending recovery scope"
-            git fetch origin phase-07-developer
-            git rebase FETCH_HEAD
-            git push origin HEAD:phase-07-developer
-            exit 1
-          fi
+          set -euo pipefail
+          python scripts/run_nifty_1m_spot_gapfill.py \
+            --preflight-only \
+            --source-dir data/recovery/source-artifact \
+            --plain-dir data/recovery/plain \
+            --preflight-output research/gates/NIFTY_1M_SPOT_GAPFILL_PREFLIGHT.json
       - name: Confirm live credentials before spending one-use recovery authorization
         env:
           DHAN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
@@ -336,8 +315,8 @@ jobs:
           value={
             "schema_version":1,
             "status":"SPENT_BEFORE_SOURCE_REQUEST",
-            "scope":"SPOT_ONLY_CACHE_PRESERVING_RECOVERY",
-            "max_spot_requests":61,
+            "scope":"SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
+            "max_spot_requests":61,\n            "max_gapfill_requests":47,\n            "gapfill_manifest_sha256":manifest_sha,
             "live_option_requests_allowed":False,
             "option_cache_required":8540,
             "reviewed_developer_commit":os.environ["REVIEW_SHA"],
@@ -363,7 +342,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          python scripts/run_nifty_1m_composite_dataset.py --spot-only-recovery
+          python scripts/run_nifty_1m_spot_gapfill.py --execute --reviewed-sha "$REVIEW_SHA" --source-dir data/recovery/source-artifact --plain-dir data/recovery/plain
           rc=$?
           echo "collector_exit_code=$rc" >> "$GITHUB_OUTPUT"
           if [[ $rc -ne 0 ]]; then echo "The spot-only collector exited non-zero; the sanitized summary will show partial/failure." ; fi
@@ -374,8 +353,8 @@ jobs:
         with:
           path: |
             developer/data/cache/nifty_1m_composite/raw
-            developer/data/reports/nifty_1m_composite
-          key: nifty1m-composite-${{ github.run_id }}
+            developer/data/reports/nifty_spot_gapfill
+          key: niftyspot-gapfill-${{ github.run_id }}
       - name: Create a market-value-free recovery result summary
         if: always()
         working-directory: developer
@@ -396,17 +375,19 @@ jobs:
           if coverage_path.is_file():
               try:
                   c=json.loads(coverage_path.read_text(encoding="utf-8"))
-                  status=str(c.get("status","PARTIAL_GRID"))
+                  status=str(c.get("spot_gapfill_status",c.get("summary",{}).get("spot_recovery_status",c.get("status","PARTIAL_GRID"))))
                   s=c.get("summary",{})
                   allowed=("request_count_processed","request_count_planned","wire_requests_this_run",
                            "wire_requests_cumulative","retry_requests_this_run","retry_requests_cumulative",
-                           "rows_spot","rows_options","spot_join_matched","spot_join_missing",
+                           "rows_spot","rows_options","original_rows_options","option_rows_preserved",
+                           "spot_rows_downloaded","spot_join_matched","spot_join_missing","spot_recovery_status",
+                           "gapfill_request_count_planned","gapfill_request_count_succeeded","gapfill_request_count_failed",
                            "failed_responses","cache_hits","fresh_responses","observed_trading_session_count")
                   summary={k:s.get(k) for k in allowed}
               except Exception:
                   status="FAILED_COVERAGE_REPORT_PARSE"
           result={
-              "schema_version":1,"result_type":"SPOT_ONLY_CACHE_PRESERVING_RECOVERY",
+              "schema_version":1,"result_type":"SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
               "status":status,"reviewed_developer_commit":os.environ["REVIEW_SHA"],
               "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
               "github_run_id":os.environ["RUN_ID"],
@@ -434,6 +415,12 @@ jobs:
           git fetch origin phase-07-developer
           git rebase FETCH_HEAD
           git push origin HEAD:phase-07-developer
+      - name: Remove plaintext artifact and scratch files
+        if: always()
+        shell: bash
+        run: |
+          rm -rf developer/data/recovery/plain developer/data/recovery/source-artifact \
+            developer/data/exports/nifty_1m_composite/plain developer/data/work/nifty_1m_spot_gapfill
       - name: Upload encrypted composite parts and safe metadata only
         if: always()
         uses: actions/upload-artifact@v4
