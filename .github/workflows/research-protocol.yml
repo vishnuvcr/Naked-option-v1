@@ -174,7 +174,7 @@ jobs:
               changed="$(git diff --name-only "${before}" "${GITHUB_SHA}" || true)"
               while IFS= read -r f; do
                 case "${f}" in
-                  scripts/reconstruct_phase7_predictions.py|scripts/test_phase8_reconstruction.py|scripts/test_phase8_workflow_contract.py|scripts/test_phase8_reference_panels.py|scripts/validate_phase7_reference_panels.py|scripts/validate_phase8_forecast_panel.py|scripts/audit_phase8_option_sources.py|scripts/phase8_execution_engine.py|scripts/test_phase8_execution_engine.py|data/reference/phase8_cost_schedule.json|research/phase8/*|research/gates/PHASE8_*|.github/workflows/phase-08-long-option.yml|.github/workflows/research-protocol.yml)
+                  scripts/reconstruct_phase7_predictions.py|scripts/test_phase8_reconstruction.py|scripts/test_phase8_workflow_contract.py|scripts/test_phase8_reference_panels.py|scripts/validate_phase7_reference_panels.py|scripts/validate_phase8_forecast_panel.py|scripts/audit_phase8_option_sources.py|scripts/phase8_execution_engine.py|scripts/test_phase8_execution_engine.py|scripts/run_phase8_long_option.py|scripts/test_phase8_long_option_runner.py|data/reference/phase8_cost_schedule.json|research/phase8/*|research/gates/PHASE8_*|.github/workflows/phase-08-long-option.yml|.github/workflows/research-protocol.yml)
                     run_phase8=true
                     ;;
                 esac

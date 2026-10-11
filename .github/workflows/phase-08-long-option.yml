@@ -84,6 +84,10 @@ jobs:
         run: python scripts/test_phase8_reference_panels.py
       - name: Execution-engine regression
         run: PYTHONPATH=scripts python scripts/test_phase8_execution_engine.py
+      - name: No-refit runner contract regression (synthetic only)
+        run: PYTHONPATH=scripts python scripts/test_phase8_long_option_runner.py
+      - name: No-refit runner pure self-test
+        run: python scripts/run_phase8_long_option.py --self-test
 
   artifact:
     name: phase8-run994-reference-artifact
