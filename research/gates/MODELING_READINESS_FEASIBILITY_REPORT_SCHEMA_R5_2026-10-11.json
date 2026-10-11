@@ -9,7 +9,7 @@
     "invalid_ohlc_rows", "off_calendar_rows", "duplicate_spot_epoch_rows",
     "unmatched_option_rows", "weekend_review_rows", "target_horizons",
     "feature_families", "train_session_count", "validation_session_count",
-    "session_status", "split_status", "source_manifest_sha256",
+    "min_train_eligible_origins", "common_validation_origins", "session_status", "split_status", "source_manifest_sha256",
     "calendar_manifest_sha256", "split_manifest_sha256", "cleanup_status", "gate_status"
   ],
   "properties": {
@@ -41,6 +41,8 @@
     },
     "train_session_count": {"type":"integer","minimum":0},
     "validation_session_count": {"type":"integer","minimum":0},
+    "min_train_eligible_origins": {"type":"integer","minimum":0},
+    "common_validation_origins": {"type":"integer","minimum":0},
     "session_status": {"type":"string","enum":["PASS","PASS_WITH_EXCLUSIONS","NOT_ESTIMABLE","BLOCKED"]},
     "split_status": {"type":"string","enum":["PASS","PASS_WITH_RESTRICTIONS","BLOCKED_HOLDOUT_PROOF","BLOCKED_LEAKAGE","NOT_ESTIMABLE"]},
     "source_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
@@ -53,14 +55,16 @@
   "$defs": {
     "target": {
       "type":"object","additionalProperties":false,
-      "required":["status","eligible_origins","excluded_missing_endpoint","down_count","flat_count","up_count"],
+      "required":["status","eligible_origins","excluded_missing_endpoint","down_count","flat_count","up_count","train_eligible_origins","validation_eligible_origins"],
       "properties":{
         "status":{"type":"string","enum":["CANDIDATE","NOT_ESTIMABLE","BLOCKED_HOLDOUT_PROOF"]},
         "eligible_origins":{"type":"integer","minimum":0},
         "excluded_missing_endpoint":{"type":"integer","minimum":0},
         "down_count":{"type":"integer","minimum":0},
         "flat_count":{"type":"integer","minimum":0},
-        "up_count":{"type":"integer","minimum":0}
+        "up_count":{"type":"integer","minimum":0},
+        "train_eligible_origins":{"type":"integer","minimum":0},
+        "validation_eligible_origins":{"type":"integer","minimum":0}
       }
     },
     "feature_family": {
