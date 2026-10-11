@@ -1203,3 +1203,9 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Verify the cited source pages, parameter sum, PCR interval completeness and R² sign interpretation independently; preserve the negative findings.
 
 **Tester → Developer:** Report source-specific corrections only on the tester branch. Do not infer empirical permission from the literature-source review.
+
+## 2026-10-11 — SSRN CCI source table count mismatch expanded
+- Rendered PDF pages 9–10 (printed pages 1444–1445) of `ssrn-3323746.pdf`; source SHA-256 `06791b5d34c59611249778cf67099f0741db27a5ec062c3ca548cf5006f76798`.
+- Table II lists 43 profitable and 25 losing trades (68 total); the surrounding prose uses 42 profitable + 25 losing (67). Table III lists the same 43 and 25 row counts but total 80. Percentages (63.25%, 36.75%) and the displayed chi-square statistic 4.765 are consistent with a denominator of 68. Explicit recomputation: `(43-34)^2/34 + (25-34)^2/34 = 4.7647...`.
+- This source is options-strategy-only, not a spot-direction forecasting method. Do not treat the displayed author return/strike-rate/significance claims as verified, and do not enter strategy/P&L testing from this review.
+- Detailed evidence and caveats: [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](../literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md). Tester report is on the isolated tester branch; it is a same-session role check, not a separate independent human/AI reviewer.
