@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-11",
+  "gate": "PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_R2",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_commit": "7037d6c2e220ad89f09852214a70ed402303fed5",
+  "reviewed_blobs": {
+    "scripts/prospective_holdout_boundary.py": "b75e5fd2417055d56b3c942fb17d2e83cebc3970",
+    "tests/test_prospective_holdout_boundary.py": "d641610f165de920297cf615dc4d6789c1345bae",
+    "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_MANIFEST_SCHEMA_R1_2026-10-11.json": "5210493dc732c783178a9a39ab5b1e3c50806ef1",
+    ".github/workflows/prospective-holdout-boundary-synthetic.yml": "c27cc77e910d7e3bd3b13ec9f4c1a179664481bc"
+  },
+  "ci": {
+    "run_id": 38153849924,
+    "conclusion": "success",
+    "tests_observed": 6,
+    "scope": "synthetic-only"
+  },
+  "permissions": {
+    "synthetic_tests": true,
+    "gzip_fixture_tests": true,
+    "cached_artifact_scan": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_value_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "next_step": "Implement the guarded one-use adapter with durable marker and exact hashes; submit exact snapshot for review before any cached artifact execution.",
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
