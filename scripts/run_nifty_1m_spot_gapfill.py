@@ -280,11 +280,11 @@ class SpotGapFillCollector:
             content_type = str(getattr(response, "headers", {}).get("Content-Type", ""))
             raw = response.read(int(request["max_response_bytes"]) + 1)
             if len(raw) > int(request["max_response_bytes"]):
-                raise ValueError("response_byte_cap_exceeded")
+                raise collector.SourceRequestError("response_byte_cap_exceeded", status)
             if not (200 <= status < 300):
                 raise collector.SourceRequestError("http_status_" + str(status), status)
             if "json" not in content_type.lower():
-                raise ValueError("unexpected_content_type")
+                raise collector.SourceRequestError("unexpected_content_type", status)
             return raw, status, content_type
         finally:
             try:
@@ -324,8 +324,13 @@ class SpotGapFillCollector:
                 try:
                     raw, status, content_type = self._http_fetch(request, is_retry=True)
                 except collector.SourceRequestError as retry_exc:
-                    self.errors.append(self._error_record(request, retry_exc.reason, retry_exc.http_status))
-                    return None, "FAILED_REQUEST", "", retry_exc.http_status, 0
+                    if retry_exc.http_status in (401, 403) or retry_exc.reason.startswith("dhan_api_auth_or_entitlement"):
+                        self.auth_failed = True
+                        reason = "dhan_auth_or_entitlement_failure"
+                    else:
+                        reason = retry_exc.reason
+                    self.errors.append(self._error_record(request, reason, retry_exc.http_status))
+                    return None, "DHAN_AUTH_FAILURE" if self.auth_failed else "FAILED_REQUEST", "", retry_exc.http_status, 0
             else:
                 self.errors.append(self._error_record(request, exc.reason, status_code))
                 return None, "FAILED_REQUEST", "", status_code, 0
