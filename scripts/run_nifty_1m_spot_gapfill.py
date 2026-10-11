@@ -308,6 +308,13 @@ class SpotGapFillCollector:
             self.retry_attempts_this_run += 1
         _save_ledger(self.ledger)
 
+    def _charge_downloaded_bytes(self, size: int) -> None:
+        if size < 0:
+            raise ValueError("spot_response_byte_count_invalid")
+        if self.downloaded_bytes + size > 268_435_456:
+            raise ValueError("spot_aggregate_byte_budget_exceeded")
+        self.downloaded_bytes += size
+
     def _http_fetch(self, request: dict[str, Any], is_retry: bool = False) -> tuple[bytes, int, str]:
         self.pacer.wait()
         self._record_attempt(request, is_retry)
@@ -333,6 +340,9 @@ class SpotGapFillCollector:
             status = int(getattr(response, "status", 0))
             content_type = str(getattr(response, "headers", {}).get("Content-Type", ""))
             raw = response.read(int(request["max_response_bytes"]) + 1)
+            # Charge every body read before size/content-type/JSON/schema validation.
+            # A malformed response must not bypass the aggregate transfer budget.
+            self._charge_downloaded_bytes(len(raw))
             if len(raw) > int(request["max_response_bytes"]):
                 raise collector.SourceRequestError("response_byte_cap_exceeded", status)
             if not (200 <= status < 300):
@@ -392,8 +402,6 @@ class SpotGapFillCollector:
             payload = parse_json_numbers(raw)
             _validate_request_payload(payload, request)
             rows, problems = parse_spot_response(payload, request)
-            if self.downloaded_bytes + len(raw) > 268_435_456:
-                raise ValueError("spot_aggregate_byte_budget_exceeded")
             digest = collector.sha256_bytes(raw)
             cached_meta = store_cached_payload(request, raw, self.key, status, len(rows), content_type)
             return payload, "FETCHED_AFTER_ONE_RETRY" if self.ledger["attempts_by_request_id"].get(request["request_id"], 0) > 1 else "FETCHED", cached_meta["response_sha256"], status, len(raw)
@@ -459,7 +467,6 @@ class SpotGapFillCollector:
                 self.rows_spot += len(rows)
                 self.cache_hits += int(cache_status == "CACHE_HIT")
                 self.fresh_responses += int(cache_status.startswith("FETCHED"))
-                self.downloaded_bytes += size
                 result["row_count"] = len(rows)
                 result["quality_flags"] = sorted(set(
                     flag for row in rows for flag in row.get("data_quality_flags", "").split("|") if flag
