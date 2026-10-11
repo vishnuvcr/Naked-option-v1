@@ -1471,3 +1471,15 @@ The automatic offline suite [38127450732](https://github.com/vishnuvcr/Naked-opt
 
 **Developer → Tester:** Final export gate is recorded; keep the data/model/holdout/strategy permissions unchanged.
 **Tester → Developer:** Confirm no plaintext/private-key material enters public repository history in subsequent changes.
+
+
+## 2026-10-11 — Prediction continuation gate after verified export
+
+- Developer proposal committed on `phase-07-developer`: [MODELLING_READINESS_AND_PREDICTION_CONTINUATION_PROPOSAL_2026-10-11.md](gates/MODELLING_READINESS_AND_PREDICTION_CONTINUATION_PROPOSAL_2026-10-11.md), commit `fb7d6b107ce601639af4ea8aeacc5b2547eb5834`.
+- Tester-role review on `phase-07-tester`: [MODELLING_READINESS_PROPOSAL_TESTER_REPORT_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELLING_READINESS_PROPOSAL_TESTER_REPORT_2026-10-11.md), decision **PASS WITH SCOPED RESTRICTIONS — proposal design only**. Same connected assistant session; not an external independent reviewer.
+- This is not permission to execute preflight or fit models. Next developer step: implement bounded, chunked offline preflight, with digest/gzip/schema/count checks, key/timestamp/quality audits, leakage sentinels, sanitized outputs, and offline regression fixtures. Submit exact-snapshot implementation to tester before running the preflight.
+- Data facts retained: 8,999,865 rows / 47 columns; 8,490,723 option rows; 509,142 spot rows; 8,471,702 exact matches; 19,021 unmatched rows across 421 timestamps; 24,847 weekend-session review flags. Do not approximate-join or fabricate values.
+- Phase state: export integrity PASS with scoped restrictions; proposal design PASS with scoped restrictions; local preflight NOT AUTHORIZED pending implementation review; fitting/scoring CLOSED; holdout CLOSED; strategy/P&L CLOSED; new source requests CLOSED.
+
+**Developer → Tester:** Review the exact-snapshot preflight code, tests and workflow before authorizing execution.
+**Tester → Developer:** Preserve the current restrictions; no model fitting, holdout access or strategy testing from this proposal-only decision.
