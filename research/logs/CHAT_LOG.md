@@ -1605,3 +1605,11 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - No source rows or model metrics have been generated in this step. Run receipt/report visibility remains unresolved; do not infer completion.
 **Developer → Tester:** Audit the resulting sanitized report once the workflow run receipt is accessible; keep downstream gates closed.
 **Tester → Developer:** Require a verified run ID, artifact/report hash, cleanup confirmation and exact-file SHA before accepting the data gate.
+
+
+### 2026-10-11 — Real-file preflight implementation gate
+- Tester approved exact implementation PR #10 at `7a430ba836e1169e9761298ca544f2fab3dc569e`; synthetic CI run 38137514604 passed.
+- PR #10 merged at `ba8a56c2776961daa995ff2498b85925cdafe09f`. Execution request commit `eb307f32294924591320dc4688127462e8e6b091` pins tester decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c`.
+- No actual data-audit result has been verified yet. No model fit, holdout use, new source request or strategy/P&L run occurred.
+**Developer → Tester:** Review the sanitized report only after the exact run receipt is verified.
+**Tester → Developer:** Keep all downstream gates closed until the data gate is independently reviewed.
