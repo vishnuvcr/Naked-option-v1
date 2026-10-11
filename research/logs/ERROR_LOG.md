@@ -277,3 +277,20 @@ New errors must be appended, never overwritten.
 
 | 2026-10-11 | 7 | Exact-SHA split gate initially rejected the proposal SHA field name | Tester decision stored the exact proposal blob as `proposal_blob_sha`, while the validator expected `split_proposal_blob_sha` | Validator now accepts either field name but still requires exact SHA equality, exact reviewed developer SHA, split scope, request limit and explicit live authorization; regression test added | Offline tests passed; latest gate denied because decision remains offline-only and live requests are false; request job skipped |
 | 2026-10-11 | 7 | Split retry execution required partial-artifact preservation and separate authorization marker | Existing runner expected zero spot rows and dropped standalone SPOT rows; using the original artifact would lose the 403,664 recovered spot rows | Added expected spot-row preflight, preservation-aware merge, per-request attempt ceilings, separate split ledger/result/marker, exact proposal blob check, and a fail-closed workflow that verifies the encrypted base artifact digest before any request | Offline pipeline passed; workflow gate verified and denied without live authorization; no source requests made |
+
+
+## 2026-10-11 — Split recovery gate denied; reviewer unavailable
+
+- **Category:** external review dependency / authorization gate.
+- **Observed:** exact-snapshot workflow [38119160629](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119160629) returned `DENIED`; `split-recovery` was skipped because the tester decision was scoped to offline code review and both `split_recovery_authorized` and `live_requests_authorized` were false. The available AI reviewer service returned HTTP 402, and the tester report notes that the review role is in the same connected assistant session rather than a separate human identity.
+- **Impact:** no split requests, model fitting/scoring, holdout access, or strategy/P&L testing are permitted. Gate denial is expected fail-closed behavior, not a successful data recovery.
+- **Disposition:** preserve the decision as written. Continue offline documentation and source-matrix work only; obtain a genuine independent reviewer/exact-snapshot authorization before any new live call. Do not edit tester decision flags from the developer branch.
+- **Regression evidence:** latest gate completed successfully at workflow level while request-bearing job remained skipped; no live calls are recorded.
+
+## 2026-10-11 — Paper coverage audit wording was stale relative to source matrix
+
+- **Category:** research-documentation consistency.
+- **Observed:** `UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md` still described the outstanding task as structured extraction of the remaining PDFs, although `PAPER_SOURCE_EVIDENCE_MATRIX.md` already contained 15 paper sections and an individual method-fidelity ledger.
+- **Impact:** reader could mistake a source-organization gap for no paper-specific extraction having been done, while also obscuring the more important distinction between a source matrix and an exact replication.
+- **Fix:** synchronized the audit to report the source-matrix coverage while explicitly retaining NOT VERIFIED AS REPLICATED status, ambiguous fields, and the missing result-artifact/tester-report requirement.
+- **Regression check:** matrix contains 15 paper sections plus the individual-method ledger; the documentation does not claim all methods/results are verified or tested.
