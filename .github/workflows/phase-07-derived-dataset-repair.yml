@@ -274,7 +274,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json README.md research/STATUS.md
+          git add research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json
           if ! git diff --cached --quiet; then
             git commit -m "research: publish derived data repair report"
             git pull --rebase origin main
