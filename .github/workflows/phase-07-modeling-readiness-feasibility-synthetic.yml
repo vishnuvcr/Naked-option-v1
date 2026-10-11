@@ -1,0 +1,58 @@
+name: Phase 7 Modeling Readiness Feasibility — Synthetic Gate
+
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/modeling_readiness_feasibility_run.py"
+      - "tests/test_modeling_readiness_feasibility_run.py"
+      - "research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json"
+      - ".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml"
+  pull_request:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/modeling_readiness_feasibility_run.py"
+      - "tests/test_modeling_readiness_feasibility_run.py"
+      - "research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json"
+      - ".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run synthetic regression tests only
+        run: python -m unittest discover -s tests -p 'test_modeling_readiness_feasibility_run.py' -v
+      - name: Check CLI has synthetic-only self test and no network API calls
+        run: |
+          python scripts/modeling_readiness_feasibility_run.py --self-test
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("scripts/modeling_readiness_feasibility_run.py").read_text()
+          forbidden = ("requests.get(", "requests.post(", "urllib.request", "httpx.", "urlopen(",
+                       "pandas.read_csv(", "model.fit(", "joblib.load(", "pickle.load(")
+          found = [item for item in forbidden if item in p]
+          assert not found, found
+          assert "BoundedReader" in p
+          assert "validate_execution_authorization" in p
+          print("PASS: no network/fitting/serialization loader calls found")
+          PY
+      - name: Confirm workflow has no secrets or real data paths
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path(".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml").read_text()
+          assert "workflow_dispatch:" in p
+          assert "HF_TOKEN" not in p and "secrets." not in p
+          assert "nifty_repaired_composite_2021-10_to_2026-10.csv" not in p
+          assert "run_model" not in p
+          print("PASS: synthetic workflow exposes no real-data/secret execution path")
+          PY
