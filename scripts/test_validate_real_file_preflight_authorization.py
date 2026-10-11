@@ -14,6 +14,7 @@ class AuthorizationValidationTests(unittest.TestCase):
         decision.write_text("{}", encoding="utf-8")
         request = {"requested": True, "tester_decision_blob_sha": blob_sha(decision)}
         approval = {
+            "gate": "REAL_FILE_PREFLIGHT_IMPLEMENTATION",
             "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
             "real_file_preflight_execution_authorized": True,
             "reviewed_files": {str(source): blob_sha(source)},
@@ -27,6 +28,14 @@ class AuthorizationValidationTests(unittest.TestCase):
             source, decision_path, request, approval = self.setup_case(Path(td))
             result = evaluate(approval, request, decision_path, [str(source)])
             self.assertTrue(result["authorized"], result)
+
+    def test_wrong_gate_fails_closed(self):
+        with tempfile.TemporaryDirectory() as td:
+            source, decision_path, request, approval = self.setup_case(Path(td))
+            approval["gate"] = "SYNTHETIC_PREFLIGHT"
+            decision_path.write_text(json.dumps(approval), encoding="utf-8")
+            request["tester_decision_blob_sha"] = blob_sha(decision_path)
+            self.assertFalse(evaluate(approval, request, decision_path, [str(source)])["authorized"])
 
     def test_missing_real_file_permission_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
