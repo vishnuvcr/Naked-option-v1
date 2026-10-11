@@ -91,3 +91,8 @@ A rendered-page claim audit was added in [PAPER_CLAIM_VERIFICATION_NOTES_2026-10
 **Developer → Tester:** Independently recheck the exact rendered page locators and arithmetic in the supplemental claim audit.
 
 **Tester → Developer:** Return source-specific corrections on the tester branch only; do not widen any live/model/holdout/strategy permissions.
+
+
+## Source-claim audit and frozen-method crosswalk — 2026-10-11
+
+The [rendered PDF claim audit](PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md) now documents precise source-page/arithmetic issues in five papers, with source hashes and caveats. The [PPR-3 configuration crosswalk supplement](PAPER_METHOD_CONFIG_CROSSWALK_SUPPLEMENT_2026-10-11.md) maps these findings to already frozen native-task/configuration rows without changing them. Tester reports: [claim arithmetic](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md) and [method/config traceability](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_METHOD_CONFIG_CROSSWALK_TESTER_2026-10-11.md). Repository protocol checks passed at [developer crosswalk run 38120221001](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120221001), [claim-review tester run 38120105425](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120105425), and [crosswalk tester run 38120239164](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120239164). These are scoped documentation/source checks in the same connected assistant session, not review by a separate human/AI identity. They do not validate all 15 papers or authorize empirical work.
