@@ -3,6 +3,19 @@
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
 
+## Automated developer ↔ independent tester loop — 2026-10-11
+
+The Phase 7 composite code gate now has an automated review-and-repair workflow. It pins the developer commit, runs an isolated offline tester, requests a separate reviewer verdict, writes the tester report to `phase-07-tester`, and—only if the reviewer and offline gates both permit it—proposes a narrowly scoped parser/test correction. Corrections must pass the offline regressions and tester harness before being committed to `phase-07-developer`; each new commit receives a fresh exact-snapshot review. The loop is bounded to five review cycles.
+
+- [Automation design, safeguards and operating instructions](research/automation/PHASE7_AUTOMATED_AGENT_CYCLE.md)
+- [GitHub Actions: automated tester–developer loop](.github/workflows/phase-07-nifty-1m-composite-agent-cycle.yml)
+- [Agent controller and constrained patch tooling](automation/nifty_composite_agent.py)
+- [Tester-owned independent offline harness](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/scripts/review_nifty_1m_composite_gate.py)
+- [Current issue / review queue](https://github.com/vishnuvcr/Naked-option-v1/issues/7)
+
+**Safety boundary:** this automation does not make live market-data requests or authorize model fitting, strategy/P&L runs or holdout access. The acquisition approval remains a separate gate. Hugging Face inference needs a token with Inference Providers permission and available credits; inference failures are fail-closed. The first hosted cycle is [Run 38111301045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111301045); do not treat this as fully operational until its report and workflow result have been inspected.
+
+
 ## User-directed Dhan acceptance and no-source-stop policy — 2026-10-11
 
 **Dhan output is accepted as provided under the user's explicit decision. No further Dhan-versus-NSE/third-party price-value cross-check is required.** The existing 2024-01-02 sample's raw response and cache remain immutable; the [user acceptance waiver](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/DHAN_SAMPLE_USER_ACCEPTANCE_WAIVER.json) records the decision and raw-response hash. The previously spent one-use approval remains spent and cannot authorize more requests.
