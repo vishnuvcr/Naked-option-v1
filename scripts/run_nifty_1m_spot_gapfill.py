@@ -1030,6 +1030,9 @@ def main() -> int:
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--preflight-output", type=pathlib.Path, default=PREFLIGHT_RESULT)
     parser.add_argument("--reviewed-sha", default="")
+    parser.add_argument("--split-proposal", type=pathlib.Path)
+    parser.add_argument("--proposal-blob-sha", default="")
+    parser.add_argument("--split-ledger", type=pathlib.Path, default=SPLIT_ATTEMPT_LEDGER)
     args = parser.parse_args()
     root = load_json(ROOT_MANIFEST)
     validate_gapfill_manifest(root)
@@ -1037,10 +1040,14 @@ def main() -> int:
     if args.preflight_only == args.execute:
         raise SystemExit("choose_exactly_one_of_preflight_only_or_execute")
     if args.preflight_only:
+        if args.split_proposal is not None:
+            raise SystemExit("split_proposal_cannot_use_original_preflight_mode")
         result = preflight(args.source_dir.resolve(), args.plain_dir.resolve(), hf_token)
         atomic_write(args.preflight_output, (json.dumps(result, sort_keys=True, indent=2) + "\n").encode("utf-8"))
         print(json.dumps(result, sort_keys=True))
         return 0 if result.get("status") == "PASS" else 1
+    if args.split_proposal is not None:
+        return execute_split(args)
     return execute(args)
 
 
