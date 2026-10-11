@@ -1,3 +1,10 @@
+## 2026-10-11 — Holdout boundary remains missing at proposal stage
+- Category: research gate / data governance.
+- Existing file: `research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json`, blob `6b236e60337b8ae6d1c108cfe7fbdcbe39cb1eda`, status `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`.
+- Impact: no machine-readable split/date/row-id/hash boundary was found in the recorded repository metadata inventory. Prior prose that says a holdout remained unopened is not sufficient proof of an exclusion boundary.
+- Disposition: MR-4 must return BLOCKED_HOLDOUT_PROOF unless a valid boundary manifest is located or a separately reviewed prospective boundary is established. No holdout values/labels were opened and no model fit was performed.
+
+
 ## 2026-10-11 — Modeling-readiness implementation R5 test failures and correction
 - Category: synthetic CI / test-snapshot sequencing.
 - Runs: [38149876496](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149876496), [38149891577](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149891577), and [38149898567](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149898567) failed while sequential commits were updating implementation and tests. The most recent inspected failure was the old test expecting `sanitize_report({"rows":100,"columns":47})` to succeed after the sanitizer had correctly begun enforcing the complete report schema.
