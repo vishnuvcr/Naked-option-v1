@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/offline_dataset_preflight.py'
       - 'scripts/test_offline_dataset_preflight.py'
+      - 'scripts/check_workflow_action_pinning.py'
+      - 'scripts/test_workflow_action_pinning.py'
       - '.github/workflows/phase-07-offline-preflight-tests.yml'
   pull_request:
     branches: [phase-07-developer]
@@ -20,12 +22,14 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
+      - name: Enforce immutable action pins and least-privilege policy
+        run: python scripts/check_workflow_action_pinning.py .github/workflows/phase-07-offline-preflight-tests.yml
       - name: Run deterministic synthetic fixtures only
         env:
           PYTHONPATH: scripts
-        run: python -m unittest -v scripts/test_offline_dataset_preflight.py
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_workflow_action_pinning.py
       - name: Ensure no real data or credentials are staged
         run: |
-          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv
-          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          test ! -e nifty_repaired_composite_2021-10_to-2026-10.csv
+          test ! -e nifty_repaired_composite_2021-10_to-2026-10.csv.gz
           test ! -e .env
