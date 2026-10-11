@@ -177,7 +177,7 @@ def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
     else: tt=tt.dt.tz_convert("Asia/Kolkata")
     # Source timestamps label 1-minute candles at their start; close premium is valued at bar end.
     tt=tt+pd.to_timedelta(60,unit="seconds")
-    tsec=tt.astype("int64").to_numpy(dtype=np.int64)/1e9
+    tsec=tt.map(lambda value: value.timestamp() if pd.notna(value) else np.nan).to_numpy(dtype=float)
     df["greek_valuation_offset_seconds"]=np.where(is_opt,60.0,np.nan)
     T=np.full(n,np.nan)
     for i,d in enumerate(exp):
