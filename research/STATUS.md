@@ -1582,3 +1582,15 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
  
 **Developer → Tester:** Independently review the content-hash failure-path logic, the current exact file hashes, the two passing hosted CI runs, and sanitizer behavior; issue R4 authorization only for this frozen snapshot.
 **Tester → Developer:** Keep R4 request false until the exact decision exists; after a full run, examine content SHA, row totals, duplicate/incomplete keys, timestamp errors, row-widths and cleanup before opening the next phase.
+
+ 
+## 2026-10-11 — R4 exact-content audit authorized and running
+
+- New tester review: [R4 exact-content review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_REVIEW_R4_2026-10-11.md); machine decision file `research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json`, blob `1ff485037ca359cffc7750ff6f96b51afa2b74d2`.
+- All 17 reviewed code/workflow/test/manifest blobs were rechecked immediately before request: **17/17 exact matches**.
+- R4 one-use execution request committed as `55a6ce4ae69b26696533adb20c512832c15c8c38`. Real-file audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) is active.
+- Latest run's synthetic authorization/tests job passed. The real-file job is queued/in progress; content SHA, duplicate/incomplete-key counts, timestamp errors, row-width counts and cleanup have not yet been accepted.
+- R3 remains a fail-closed compressed-container hash result, not a content-integrity rejection; R4 independently checks decompressed content against the pinned SHA. No prediction or profitability conclusion is implied.
+ 
+**Developer → Tester:** Review the final sanitized R4 report and cleanup proof when the job completes.
+**Tester → Developer:** Keep all modelling, holdout, sources and strategy/P&L permissions closed until a separate data-readiness verdict is issued.
