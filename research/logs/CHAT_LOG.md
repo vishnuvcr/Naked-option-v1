@@ -1598,3 +1598,10 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Real CSV.GZ is absent from current runtime. No real-file scan, model fit, holdout, new source request, or strategy/P&L work was performed.
 **Developer → Tester:** Review the next real-file audit proposal before any workflow receives the dataset.
 **Tester → Developer:** Keep the actual-file and all downstream gates closed until an exact-file authorization is issued.
+
+### 2026-10-11 — Real-file preflight implementation gate
+- Tester approved exact implementation snapshot `7a430ba836e1169e9761298ca544f2fab3dc569e` for one exact-lineage structural audit; synthetic CI run 38137514604 passed.
+- Merged PR #10 at `ba8a56c2776961daa995ff2498b85925cdafe09f`; submitted execution request commit `eb307f32294924591320dc4688127462e8e6b091` with tester decision blob pinned.
+- No source rows or model metrics have been generated in this step. Run receipt/report visibility remains unresolved; do not infer completion.
+**Developer → Tester:** Audit the resulting sanitized report once the workflow run receipt is accessible; keep downstream gates closed.
+**Tester → Developer:** Require a verified run ID, artifact/report hash, cleanup confirmation and exact-file SHA before accepting the data gate.
