@@ -1,12 +1,12 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: REQUEST_CHANGES
-- Reviewed developer commit: 3b4b889fe9a5b567a585e6ad7cfb5b172bb7de28
-- Report time (UTC): 2026-10-11T05:25:09Z
-- Deterministic checks: REQUEST CHANGES
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS
+- Reviewed developer commit: 948f780a46bc89941cbe979f66addb13665608e1
+- Report time (UTC): 2026-10-11T05:29:27Z
+- Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
-- Single-request diagnostic authorized: NO
+- Single-request diagnostic authorized: YES — exactly one frozen-manifest spot request
 - Cache-preserving spot-only recovery authorized: NO
 - General live requests authorized: NO
 - Model fitting authorized: NO
@@ -17,18 +17,13 @@
 - INFO — SPOT_OHLC_STRICT_VOLUME_DEGRADED: Timestamp/OHLC arrays remain mandatory and aligned; unusable volume stays blank and is quality-flagged.
 - INFO — SANITIZED_DIAGNOSTIC_PRESENT: Unexpected validation errors retain a bounded reason token without logging payload bodies.
 - INFO — SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS: The one-request diagnostic scope is pinned to the frozen request manifest and writes only sanitized metadata.
-- BLOCKER — SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING: Recovery workflow must prove all 8,540 option caches are valid and disable every live option request before the one-use marker is spent.
+- INFO — SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS: The separate recovery runner requires a valid cache for every option request and forbids live option refetches.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: missing-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: empty-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: misaligned volume array.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: invalid timestamp types.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: separate OHLC misalignment.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: sanitized parser-reason logging.
-- BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: tester approval validation.
-- BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: approval spent before network access.
-- BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: manual live-run confirmation.
-- BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: encrypted-only export.
-- BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: no force push.
 
 ## Offline test summary
 
