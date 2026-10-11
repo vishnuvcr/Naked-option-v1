@@ -1,10 +1,10 @@
 {
-  "schema_version": 1,
   "auto_repair_attempts": 0,
-  "last_reviewed_developer_commit": "",
-  "last_decision": "NOT_RUN",
+  "holdout_access_authorized": false,
   "last_ai_reviewer_available": false,
+  "last_decision": "REQUEST_CHANGES",
+  "last_reviewed_developer_commit": "cfb4f359ba2af769eb8f8fec36da04ec4e835530",
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
-  "holdout_access_authorized": false
+  "schema_version": 1
 }

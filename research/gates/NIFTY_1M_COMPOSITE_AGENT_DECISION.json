@@ -1,0 +1,12 @@
+{
+  "ai_reviewer_available": false,
+  "attempt": 1,
+  "auto_repair_eligible": false,
+  "decision": "REQUEST_CHANGES",
+  "deterministic_pass": false,
+  "holdout_access_authorized": false,
+  "live_requests_authorized": false,
+  "model_fitting_authorized": false,
+  "reviewed_developer_commit": "cfb4f359ba2af769eb8f8fec36da04ec4e835530",
+  "schema_version": 1
+}
