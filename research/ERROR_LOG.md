@@ -1266,3 +1266,12 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: that invocation alone did not establish a completed whole-file scan. It did not modify the source, gzip CSV, or exported rows.
 - Correction/verification: validated the final 999,865 rows in a separate adjacent segment with the C-engine CSV parser; the first segment's recorded progress had already parsed 8,000,000 rows without a schema error. Across the two consecutive segments all 8,999,865 data rows passed width validation (47 columns). Additionally, physical line count is exactly 8,999,866, gzip integrity passes, and the local CSV.GZ SHA-256 matches the hosted manifest.
 - Final output hashes and counts are recorded in the [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md). No market-data request, model, holdout, or strategy test occurred.
+
+
+## 2026-10-11 — Offline preflight reviewer findings addressed in code; CI still unverified
+- Fixed the prior cleanup defect: the SQLite duplicate index is now closed and unlinked in a `finally` path after success or failure.
+- Timestamp extrema are now based on numeric epoch or ISO parsing rather than lexical string ordering; nonblank parse failures are counted. This remains a generic parseability check, not session-calendar validation.
+- Expanded tests for corrupt/truncated gzip, malformed row widths, duplicate recognized composite keys, absent key schemas, incomplete keys, nested report paths, timestamp parse errors, and temp-index cleanup.
+- Implementation commit: `d7095ea89f697b4d0ba6df8b771cc38781295d09`; test commit: `ca500c3b931c8e8204ec59f5b2baa57bb19170d7`.
+- CI receipt has not been verified and the actual CSV is not mounted here. Do not treat code edits as a passing test or real-file audit. An attempt to pin workflow action revisions was blocked; workflow file was not changed.
+- No model, holdout, data-source or strategy execution occurred.
