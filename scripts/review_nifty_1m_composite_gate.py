@@ -225,7 +225,9 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
                            "raw_response_persisted", "ALREADY_ACCOUNTED")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
                          "SPOT_ONLY_CACHE_PRESERVING_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
-                         "nifty1m-composite-", "account_nifty_1m_probe_attempt.py")
+                         "nifty1m-composite-", "account_nifty_1m_probe_attempt.py",
+                         "createWorkflowDispatch", 'ref: "phase-07-developer"',
+                         "github.ref == 'refs/heads/phase-07-developer'")
     missing_collector = [marker for marker in required_collector if marker not in collector]
     missing_audit = [marker for marker in required_audit if marker not in audit]
     missing_accounting = [marker for marker in required_accounting if marker not in accounting]
