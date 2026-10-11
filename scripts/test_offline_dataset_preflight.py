@@ -87,7 +87,8 @@ class PreflightTests(unittest.TestCase):
             row = ["1700000000", "option", "NIFTY", "2026-10-29", "25000", "CE"] + ["x"] * 41
             path = self.make_file(td, [row, row], KEY_HEADER)
             report = run(path, Path(td) / "r.json", self.digest(path), 2, 47)
-            self.assertEqual(report["duplicate_key_check"], "PASS")
+            self.assertEqual(report["duplicate_key_check"], "FAIL_DUPLICATE_KEYS_FOUND")
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
             self.assertEqual(report["duplicate_key_count"], 1)
 
     def test_missing_recognized_key_fields_is_not_estimable_not_pass(self):
