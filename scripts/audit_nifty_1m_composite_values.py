@@ -98,7 +98,7 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
     if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
         raise ValueError("manifest_bundle_scope_marker_invalid")
     expected_cols = set(columns)
-    missing_cols = sorted(set(FEATURE_FIELDS) | set(ROW_KEY_FIELDS) - expected_cols)
+    missing_cols = sorted((set(FEATURE_FIELDS) | set(ROW_KEY_FIELDS)) - expected_cols)
     if missing_cols:
         raise ValueError("manifest_required_columns_missing")
 
