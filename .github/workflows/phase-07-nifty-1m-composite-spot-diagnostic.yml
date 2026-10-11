@@ -61,10 +61,10 @@ jobs:
           fi
           decision_blob="$(git rev-parse origin/phase-07-tester:research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json)"
           review_sha="$(python - "$RUNNER_TEMP/tester-decision.json" <<'PY'
-import json,sys
-print(json.load(open(sys.argv[1],encoding="utf-8")).get("reviewed_developer_commit",""))
-PY
-)"
+          import json,sys
+          print(json.load(open(sys.argv[1],encoding="utf-8")).get("reviewed_developer_commit",""))
+          PY
+          )"
           if [[ -z "$review_sha" ]]; then
             echo "Tester decision has no exact reviewed SHA; no action launched."
             echo "mode=NONE" >> "$GITHUB_OUTPUT"
