@@ -677,3 +677,18 @@ Research ledgers: [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/
 ## Latest continuation checkpoint — 2026-10-11
 
 The existing encrypted artifact from [workflow run 38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220) was downloaded and checked offline. ZIP SHA-256 matched GitHub's digest, ZIP integrity passed, and all 37 encrypted data-part hashes and sizes matched the manifest. The manifest reconciles to 8,490,723 option rows and zero spot rows, with 7,481 failed request/quality events and discontinuous monthly coverage. Dataset status remains `PARTIAL_GRID`; it is not ready for prediction modeling. Authenticated decryption was not verified because the collection-time encryption secret was not available to this offline inspection. No new live request or model run was performed. Independent tester review remains pending in [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7). See [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), and [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
+
+
+## Automated tester–developer loop — 2026-10-11
+
+The Phase 7 NIFTY composite gate has a bounded GitHub Actions developer→tester→developer cycle. It pins an exact developer commit, runs the independent tester harness in a separate checkout, publishes the tester report only on `phase-07-tester`, and limits automatic source patches to the collector and its regression tests. A patch must pass secret-free offline verification and a fresh tester review before it can be pushed. The loop is capped at five cycles and has a manual **Run workflow** control.
+
+- [Automation workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-nifty-1m-composite-agent-cycle.yml)
+- [Automation controller](https://github.com/vishnuvcr/Naked-option-v1/blob/main/automation/nifty_composite_agent.py)
+- [Current tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md)
+- [Review issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7)
+
+Current decision is **PASS WITH SCOPED RESTRICTIONS for offline code checks only**. Hugging Face inference returned HTTP 402, so the AI reviewer did not produce a verdict. The five known parser regression tests are now present, and volume remains required. The automation's deterministic pass is not acquisition approval: the previous one-use approval is spent, the historical composite remains partial (8,490,723 option rows; zero spot rows), and live requests, model fitting, strategy evaluation and holdout access remain blocked.
+
+A duplicate-trigger issue was fixed by restricting automatic push triggers to `phase-07-developer`; controller/report commits on `main` no longer retrigger redundant review runs. The automation is bounded, not infinite; unresolved issues after five cycles require a logged intervention decision.
+
