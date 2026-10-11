@@ -345,3 +345,11 @@ New errors must be appended, never overwritten.
 - **Correction:** Updated the regression assertions to the current exact artifact name and run ID; corrected the preflight log from 57 to 61 parts.
 - **Verification:** Follow-up run `38129976608` passed the offline pipeline suite; the final log-only update is being rechecked at the latest SHA.
 - **Impact:** No data collection, decryption, source-row modification, model fitting, holdout access or strategy testing resulted from the failed test.
+
+
+## 2026-10-11 — First promoted repair workflows failed closed on preconditions
+
+- **Derived repair run:** [38130301540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130301540) failed because the downloaded artifact preserves a nested export directory, while the new workflow assumed `dataset_manifest.json` sat at the bundle root. Fixed preflight to locate exactly one manifest recursively and anchor encrypted-part validation to that manifest's parent directory.
+- **Unmatched diagnostic rerun:** [38130301476](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130301476) failed because the promoted workflow omitted installation of the pinned cryptography dependency. Added `pip install -r requirements-composite.txt` before the decryptor.
+- **Cleanup:** both failed runs completed their cleanup steps successfully; no plaintext monthly gzip files remained in runner temp.
+- **Disposition:** no source rows were changed and no market-data request was made. New regression assertions cover nested manifest discovery and dependency installation. Re-run only after exact-snapshot tester review.
