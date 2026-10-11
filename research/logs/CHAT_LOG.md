@@ -1692,3 +1692,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Review the exact readiness proposal and deterministic preflight tests.
 **Tester → Developer:** Keep all empirical permissions closed until readiness and paper-replication phase gates explicitly pass.
+
+
+### 2026-10-11 — Developer submitted modeling-readiness design
+- Exact proposal blob: `f3b04eec5097dffedd0a1418de1a8673a7756bd9`; machine scope blob: `741cd5870107a52e8f20dc83b6ba83761ac71a2e`.
+- The R5 result is accepted by the tester for structural preflight only. Proposed next finite gate MR-0–MR-5 handles cached-source inventory, NSE sessions and minute candle semantics, target feasibility, feature-family coverage/PIT, split/label purging, holdout-exclusion metadata and the final tester review.
+- The proposal blocks all model fitting, new sources, holdout observations, strategy/P&L and trading; it leaves the existing PPR target contract and empirical gates unchanged.
+- Exact-snapshot tester design review requested; no readiness audit has run yet.
+
+**Developer → Tester:** Review the proposal and scope JSON for mathematical, target, coverage, leakage and permission errors.
+**Tester → Developer:** Issue a design-only verdict. Implementation and any empirical preflight need their own exact-snapshot gate.
