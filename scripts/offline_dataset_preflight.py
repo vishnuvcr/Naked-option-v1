@@ -19,7 +19,6 @@ EXPECTED_ROWS = 8_999_865
 EXPECTED_COLUMNS = 47
 EXPECTED_SHA256 = "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5"
 EXPECTED_UNCOMPRESSED_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
-EXPECTED_UNCOMPRESSED_BYTES = 4_747_892_392
 TIMESTAMP_NAMES = ("timestamp_epoch", "timestamp", "datetime", "date_time", "timestamp_ist")
 ROWTYPE_NAMES = ("row_type", "instrument_type", "record_type", "data_type")
 KEY_GROUPS = (
@@ -327,7 +326,8 @@ def main():
     parser.add_argument("--expected-sha256", default=EXPECTED_SHA256,
                         help="reference SHA-256 of the previously exported gzip container")
     parser.add_argument("--expected-uncompressed-sha256", default=EXPECTED_UNCOMPRESSED_SHA256)
-    parser.add_argument("--expected-uncompressed-bytes", type=int, default=EXPECTED_UNCOMPRESSED_BYTES)
+    parser.add_argument("--expected-uncompressed-bytes", type=int, default=0,
+                        help="optional reference byte count; omit when no independently verified reference is available")
     parser.add_argument("--expected-rows", type=int, default=EXPECTED_ROWS)
     parser.add_argument("--expected-columns", type=int, default=EXPECTED_COLUMNS)
     args = parser.parse_args()
