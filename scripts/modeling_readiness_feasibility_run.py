@@ -147,11 +147,6 @@ def validate_input_manifests(
         raise ValueError("INPUT_COLUMN_MAP_COLLISION")
     if input_manifest.get("row_type_values") != {"option": "OPTION", "spot": "SPOT"}:
         raise ValueError("INPUT_ROW_TYPE_MAP_UNSUPPORTED")
-    if input_manifest.get("timestamp_semantics") not in {"BAR_START", "BAR_END"}:
-        return False, "CANDLE_SEMANTICS_UNPROVEN"
-    if input_manifest.get("official_close_linkage_proven") is not True:
-        return False, "CLOSE_LINKAGE_UNPROVEN"
-
     if source_manifest.get("cache_only") is not True:
         raise ValueError("SOURCE_MANIFEST_NOT_CACHE_ONLY")
     vintages = source_manifest.get("source_vintages")
@@ -169,6 +164,11 @@ def validate_input_manifests(
     parsed_sessions = [_iso_date(x) for x in sessions]
     if parsed_sessions != sorted(set(parsed_sessions)):
         raise ValueError("NSE_CALENDAR_NOT_UNIQUE_SORTED")
+
+    if input_manifest.get("timestamp_semantics") not in {"BAR_START", "BAR_END"}:
+        return False, "CANDLE_SEMANTICS_UNPROVEN"
+    if input_manifest.get("official_close_linkage_proven") is not True:
+        return False, "CLOSE_LINKAGE_UNPROVEN"
 
     if split_manifest.get("holdout_boundary_found") is not True:
         return False, "BLOCKED_HOLDOUT_PROOF"
