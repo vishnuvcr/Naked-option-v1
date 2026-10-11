@@ -136,6 +136,7 @@ class TestSpotGapfillByteBudget(unittest.TestCase):
         self.request = {
             "request_id": "TEST-SPOT-BYTES",
             "endpoint": "https://example.invalid/spot",
+            "method": "POST",
             "body": {"symbol": "NIFTY"},
             "max_response_bytes": 1024,
             "window_start_inclusive": "2026-01-01",
