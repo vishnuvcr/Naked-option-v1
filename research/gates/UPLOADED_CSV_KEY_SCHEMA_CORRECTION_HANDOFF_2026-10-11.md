@@ -20,3 +20,10 @@ Hosted synthetic CI completion is not yet verified. The real-file audit has not 
 
 **Developer → Tester:** Independently review the code, exact hashes, batching duplicate logic and hosted test result.
 **Tester → Developer:** Issue a fresh exact-hash decision only after synthetic CI passes; do not reuse the previous authorization.
+
+
+## Canonical-key follow-up
+
+- Canonicalized `returned_strike` through finite numeric formatting and normalized row type, option type, instrument type, underlying, and symbol case in candidate composite keys. This avoids treating common numeric/case variants of the same option contract as different keys.
+- Current scanner blob on the developer branch: `4893d8e93b2141802d2f343604d3e5f77c42366b`.
+- Actual-schema canonicalization fixtures are now part of `scripts/test_offline_dataset_actual_schema.py`. New hosted synthetic evidence is still required for the exact updated snapshot; do not reuse earlier real-file authorization.
