@@ -387,3 +387,11 @@ No scientific or protocol change was made during this checkpoint.
 - Tester independently reviewed exact developer snapshot `6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11`, then issued REQUEST CHANGES in [R2 tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R2_2026-10-11.md). Reason: one missing expiry column could set the all-fields-blank flag even when remaining headers had nonblank values.
 - Developer corrected the predicate in commit `8511ba7de2b198ce1e1e4925bebd0a9acb96a810` and added mixed-header / zero-row regressions in commit `4d93085519675484570bb054cbedb1c2405708f0`.
 - Next gate is fresh hosted synthetic CI plus exact code-only tester review. No scan/P&L/holdout/source request/promotion has been started; the original one-use R1 marker remains effective. Daily H=1 floating-point mismatch remains separate.
+
+
+## 2026-10-11 — Phase 8 hash and gap-report fixes completed; tester R3 passed
+
+- The authorization blocker was caused by a one-character typo in the hard-coded canonical composite SHA. Corrected in `be8b9c6`; hosted CI then found the same stale literal in a static test assertion, corrected in `6e1fe57`.
+- Tester R2 requested changes to the critical data-gap summary because one missing expiry header could make the summary state that all expiry fields were blank. Developer corrected the per-field logic in `8511ba7` and added missing-header / empty-row regressions in `4d93085`.
+- Hosted run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all synthetic contract gates. Tester reviewed the exact 15 blob hashes and issued [R3 PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json).
+- R1 remains consumed/disabled. No new data was opened in this cycle and no empirical P&L, holdout, source request or strategy promotion occurred. Expiry/contract/bid-ask eligibility and the separate daily H=1 precision issue remain open.
