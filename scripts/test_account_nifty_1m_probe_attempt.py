@@ -90,7 +90,7 @@ class TestDiagnosticAttemptAccounting(unittest.TestCase):
             old_plan_path = account.PLAN_PATH
             account.PLAN_PATH = plan_path
             try:
-                with self.assertRaisesRegex(ValueError, "attempt_ledger_event_schema_mismatch"):
+                with self.assertRaisesRegex(ValueError, "attempt_ledger_corrupt_fail_closed"):
                     account.account_probe_attempt(marker_path, result_path, ledger_path, "b" * 64)
                 self.assertEqual(ledger_path.read_text(), "{corrupt}\n")
             finally:
