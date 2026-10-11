@@ -125,7 +125,7 @@ jobs:
           shutil.copyfile(manifest_path, out / "dataset_manifest.json")
           for name in sorted(manifest_names):
               (out / name).symlink_to(encrypted_root / name)
-          print("ARTIFACT_PREFLIGHT_PASS: 57 encrypted parts; manifest counts/hash/size checks pass.")
+          print("ARTIFACT_PREFLIGHT_PASS: 61 encrypted parts; manifest counts/hash/size checks pass.")
           PY
 
       - name: Decrypt monthly gzip parts using the existing secret
