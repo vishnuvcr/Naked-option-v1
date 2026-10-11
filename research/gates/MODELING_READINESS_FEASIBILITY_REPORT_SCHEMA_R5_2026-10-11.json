@@ -46,7 +46,7 @@
     "source_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
     "calendar_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
     "split_manifest_sha256": {"type":"string","pattern":"^$|^[a-f0-9]{64}$"},
-    "block_reason": {"type":"string","enum":["BLOCKED_HOLDOUT_PROOF","BLOCKED_MISSING_PROVENANCE"]},
+    "block_reason": {"type":"string","enum":["BLOCKED_HOLDOUT_PROOF","BLOCKED_MISSING_PROVENANCE","BLOCKED_LEAKAGE","CANDLE_SEMANTICS_UNPROVEN","CLOSE_LINKAGE_UNPROVEN","INCOMPLETE_NOT_PROMOTABLE"]},
     "cleanup_status": {"type":"string","enum":["PASS","FAIL","NOT_RUN"]},
     "gate_status": {"type":"string","enum":["PASS","PASS_WITH_RESTRICTIONS","PASS_WITH_EXCLUSIONS","BLOCKED","NOT_ESTIMABLE"]}
   },
