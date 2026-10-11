@@ -493,3 +493,12 @@
 - Correction: developer commit [be8b9c6](https://github.com/vishnuvcr/Naked-option-v1/commit/be8b9c630a1061558fcf14a5bdb50a388f6e329b) changes only the malformed canonical SHA literal to the verified value. No validation condition was weakened.
 - Safety: request R1 is already consumed and disabled; do not replay it. No new data fetch/decryption, holdout access, option P&L or strategy promotion occurred in run #38162721421. Any future real-data operation would require a new versioned request and exact-hash tester decision.
 - Next: independently review the exact developer snapshot and confirm all synthetic authorization tests pass. Then handle the separate daily H=1 floating-point comparison policy as its own reviewer-gated correction.
+
+
+## 2026-10-11 — Tester found mixed-header logical defect in data-gap reporting
+
+- Category: data-quality summary logic / missing-field diagnostic.
+- Review submission: [R2 tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R2_2026-10-11.md), decision **REQUEST CHANGES**. The current synthetic workflow [38163364534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163364534) passed, but its fixtures did not cover a partially absent expiry header.
+- Defect: `missing_expiry_columns` is a list, and using that global list directly inside the `all(...)` generator made a single absent header truthy for every field. `expiry_fields_blank_for_all_option_rows` could then be true despite other required expiry columns being present and populated.
+- Correction: commit [8511ba7](https://github.com/vishnuvcr/Naked-option-v1/commit/8511ba7de2b198ce1e1e4925bebd0a9acb96a810) requires no missing expiry headers and all required blank counts at least equal to option-row count. Added mixed-missing-header and zero-row regressions in [4d93085](https://github.com/vishnuvcr/Naked-option-v1/commit/4d93085519675484570bb054cbedb1c2405708f0).
+- Required validation: fresh hosted synthetic tests and exact-snapshot tester review. This issue does not justify relaxing hash/integrity checks or enabling empirical execution. R1 remains consumed/disabled; no new data scan occurred.
