@@ -1548,3 +1548,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Tester report and decision were committed to `phase-07-tester`: `DERIVED_DATASET_REPAIR_OUTPUT_TESTER_REPORT_RUN_38131641336.md` and `DERIVED_DATASET_REPAIR_OUTPUT_TESTER_DECISION_RUN_38131641336.json`; verdict is `PASS_WITH_SCOPED_RESTRICTIONS` for the repair gate only.
 - Residual restrictions: 19,021 unmatched options and 24,847 weekend-session review flags remain; 12 spot OHLC rows, 309 spot-volume values and 11 option-volume values were masked. No source rows were deleted, no fresh requests were made, and no model/holdout/strategy tests were run.
 - Next action: separate modelling-readiness proposal/tester gate before any fitting.
+
+
+### 2026-10-11 — Start one-time encrypted offline export
+- User requested a decrypted CSV for offline storage.
+- Reviewed repository protocol, current repair report/manifest, and the existing manifest-verified decrypt/merge utility. The verified source is derived artifact 11698879857 from successful run 38131641336.
+- Submitted workflow `.github/workflows/export-repaired-dataset-offline.yml` and one-time public key on `phase-07-developer`. Exact snapshot `24da8b1a7ff13b1caed6d9ac4b1e49efbe4ba464`, workflow blob `4dd600188bf82370746c3a7bd869a375802bd8f9`, key blob `1c975e2af52e97a1612f231fcf6fe6e67669277e`; protocol check 38132975473 passed.
+- Tester report/decision: `research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_2026-10-11.md` and `OFFLINE_CSV_EXPORT_TESTER_DECISION_2026-10-11.json`, scoped to encrypted offline export only.
+- Promoted the exact files to main. Export run 38133038676 was created and queued. The workflow creates one merged CSV.GZ, verifies 8,999,865 rows, encrypts it to a one-time public key, uploads ciphertext-only for one day, then cleans runner plaintext.
+- At this checkpoint, no plaintext CSV has yet been produced in the chat workspace; the final file link must wait for workflow completion and local checksum/row validation. The private key remains only in the current local workspace and must be removed after use.
+- No new market-data requests, model/holdout/strategy runs or source edits occurred.
