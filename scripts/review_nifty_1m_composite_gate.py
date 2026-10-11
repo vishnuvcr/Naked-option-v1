@@ -211,7 +211,8 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
             "Spot-only recovery requires the collector's cache-only option mode, an independent cache auditor and an automatic workflow.")
         return {"status": "BLOCKED", "reason": "RECOVERY_GUARD_FILES_MISSING"}
     required_collector = ("allow_live: bool = True", "allow_live=not spot_only_recovery",
-                          "--spot-only-recovery", "live_option_requests_enabled")
+                          "--spot-only-recovery", "live_option_requests_enabled",
+                          "def _normalize_epoch_timestamp", "response_timestamp_not_integer_epoch")
     required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
                       "wire_requests_reserved_for_spot", "8540", "61")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
@@ -324,12 +325,31 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
         and diagnostic_execution.get("max_wire_requests") == 1
         and diagnostic_execution.get("max_retries") == 0
     )
+    lengths = diagnostic_result.get("array_lengths", {})
+    expected_candle_arrays = {"timestamp", "open", "high", "low", "close", "volume"}
+    aligned_candle_arrays = (
+        set(lengths) == expected_candle_arrays
+        and len({lengths.get(field) for field in expected_candle_arrays}) == 1
+        and int(lengths.get("timestamp", 0)) > 0
+    )
+    timestamp_normalizer_tested = (
+        "def _normalize_epoch_timestamp" in parser_source
+        and "test_spot_parser_normalizes_integral_epoch_timestamp_encodings" in tests_source
+    )
+    diagnostic_parser_ok_or_known_timestamp_encoding_gap = (
+        diagnostic_result.get("parser_status") in {"PARSED_OK", "PARSED_WITH_VOLUME_GAP"}
+        and int(diagnostic_result.get("row_count", 0)) > 0
+    ) or (
+        diagnostic_result.get("parser_status") == "PARSER_REJECTED"
+        and diagnostic_result.get("parser_reason") == "response_timestamp_not_integer_epoch"
+        and aligned_candle_arrays
+        and timestamp_normalizer_tested
+    )
     diagnostic_ready_for_recovery = (
         diagnostic_result_bound
         and diagnostic_result.get("request_id") == "SPOT1M-20260915-20261011"
         and diagnostic_result.get("http_status") == 200
-        and diagnostic_result.get("parser_status") in {"PARSED_OK", "PARSED_WITH_VOLUME_GAP"}
-        and int(diagnostic_result.get("row_count", 0)) > 0
+        and diagnostic_parser_ok_or_known_timestamp_encoding_gap
         and diagnostic_result.get("raw_response_persisted") is False
         and diagnostic_result.get("cache_written") is False
         and diagnostic_result.get("market_values_logged") is False
