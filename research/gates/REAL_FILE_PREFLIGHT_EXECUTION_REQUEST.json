@@ -1,9 +1,9 @@
 {
   "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R3",
-  "requested": true,
+  "requested": false,
   "tester_decision_blob_sha": "2919bd807ca3e1e2a4eab310022bd8dc9ef58359",
   "reviewed_developer_sha": "current triggering commit; reviewer authorization binds all runtime file blobs below",
   "scope": "single exact-lineage real-file structural preflight; sanitized metadata only; no modelling",
   "reviewed_file_hashes_verified_at_request": true,
-  "note": "R3 supersedes R2. Bound to the versioned schema-fix tester decision; all 12 approved runtime file hashes independently rechecked immediately before request. Do not proceed if any required hash differs."
+  "note": "R3 single-use authorization consumed by run 38144072524; failed closed at compressed SHA comparison. Marked spent to prevent accidental repeat; the content-hash correction requires a new tester decision and R4 request."
 }
