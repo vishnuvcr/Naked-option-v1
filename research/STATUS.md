@@ -1,3 +1,17 @@
+## 2026-10-11 — Prospective boundary implementation R1 passed synthetic gate only
+
+- Design proposal and scope were tester-approved for design only: [proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_R1_2026-10-11.md), [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_SCOPE_R1_2026-10-11.json).
+- Implementation snapshot: [commit `8a69c50`](https://github.com/vishnuvcr/Naked-option-v1/commit/8a69c5004bfa6f45efb69adb596ea1db122398f1).
+- Hosted synthetic workflow [run 38153402133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153402133) passed 5 tests and CLI guard.
+- Tester decision: **PASS_WITH_SCOPED_RESTRICTIONS — synthetic only**: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R1_2026-10-11.md), [decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R1_2026-10-11.json).
+- Scanner computes prospective 70/15/15 boundaries and metadata-only purge counts on a stream, with no real-file CLI path. Synthetic fixture correctly returns NOT_ESTIMABLE against the fixed 252/250 thresholds.
+- **No scan of the cached composite has occurred.** Separate exact-hash execution authorization is required. Official NSE calendar, close-linkage provenance, and label availability remain separate readiness gates. Existing PPR-4 audit still reports no machine-readable boundary.
+- Next: prepare a tightly scoped execution authorization proposal for metadata-only scanning of the cached file; submit it to tester before any invocation. The authorization must prohibit use of price/quote/feature/label values and model/P&L work.
+
+**Developer → Tester:** Review a separate exact-hash execution request before any real-file scan.  
+**Tester → Developer:** Keep real-file scanning disabled until that request is explicitly approved.
+
+
 ## 2026-10-11 — MR-0 to MR-5 implementation R7 approved for synthetic scope only
 
 - Developer snapshot: [`cb924f9`](https://github.com/vishnuvcr/Naked-option-v1/commit/cb924f9edcea21f1fb91355fe5d75774d6fa5ca3).
