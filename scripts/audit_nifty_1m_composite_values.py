@@ -353,8 +353,8 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
         ]
         # Duplicate counters are held separately for clarity; the database enforces the
         # collector's composite key across all month parts.
-        critical_counts = {k: int(invalid[k]) for k in structural_keys if invalid[k]}
-        critical_counts["duplicate_option_row_keys"] = duplicate_option_keys
+        critical_counts = {k: int(v) for k, v in invalid.items() if int(v) > 0}
+        critical_counts["duplicate_composite_row_keys"] = duplicate_option_keys
         critical_counts["duplicate_spot_timestamps"] = duplicate_spot_epochs
         semantic_error_count = sum(critical_counts.values())
         report: dict[str, Any] = {
