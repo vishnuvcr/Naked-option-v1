@@ -452,10 +452,10 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
     for horizon in HORIZONS:
         down = flat = up = excluded = 0
         for i, session in enumerate(sessions):
-            if session >= holdout_start or i + horizon >= len(sessions):
+            if _iso_date(session) >= holdout_start or i + horizon >= len(sessions):
                 continue
             endpoint = sessions[i + horizon]
-            if endpoint >= holdout_start:
+            if _iso_date(endpoint) >= holdout_start:
                 continue
             start_price = close_by_session.get(session)
             end_price = close_by_session.get(endpoint)
