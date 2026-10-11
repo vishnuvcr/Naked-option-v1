@@ -374,3 +374,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Hosted run [38156394432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156394432) passed protocol validation and the free-source audit but failed immediately in the workflow-contract regression.
 - Root cause is identified: the contract test still expected the prior equality-test shell spelling, while the workflow now intentionally prints actual digests via explicit if/exit branches.
 - The test fixture is being updated to match the actual fail-closed implementation. The artifact job was skipped; no panel/P&L result accepted.
+
+
+## 2026-10-11 — Phase 8 test-trigger coverage corrected
+
+- Hosted run 38156532719 ran generic protocol checks but skipped Phase 8; the path filter had missed test-only changes.
+- Commit 82915b8 adds the workflow-contract test, saved-panel synthetic test and saved-panel validator to the Phase 8 detector allowlist. The next workflow run must execute the Phase 8 regression and artifact-validation jobs.
