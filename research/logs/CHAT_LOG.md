@@ -1,3 +1,15 @@
+## 2026-10-11 — Adapter proposal approved; encrypted artifact format identified
+
+- Tester approved the one-use metadata scan adapter proposal for design only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
+- Found the cached repaired composite is encrypted in a 61-part GitHub Actions artifact, not checked in as plaintext. Existing fixed-artifact workflows verify part hashes, decrypt to ephemeral CSV.GZ, and clean up. No fresh market data was requested.
+- This changes the next implementation detail: the scanner must stream-decompress the existing CSV.GZ, compute the canonical content hash and offsets on the uncompressed byte stream, and hash the holdout suffix without decoding its values. Synthetic CI must continue to use fixtures only.
+- No real-file scan, model fit/scoring, holdout-value access, strategy/P&L or trading occurred.
+
+**Developer → Tester:** Review gzip support and one-use adapter hashes before any cached-file execution.  
+**Tester → Developer:** Keep execution closed until the implementation review and separate execution decision pass.
+
+
+
 ## 2026-10-11 — Prospective boundary gate design and synthetic implementation
 
 - PPR-4 still had no machine-readable boundary. Created a separate design-only proposal for a deterministic 70/15/15 chronological split, metadata-only session/offset scan, endpoint purge, streaming byte-range hash, and sanitized manifest.
