@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_IMPLEMENTATION_R5",
+  "verdict": "REQUEST_CHANGES",
+  "reviewed_developer_commit": "cd01d1d9be96c12c8748364cb14a4d5247a9cdd2",
+  "reviewed_blobs": {
+    "scripts/modeling_readiness_preflight.py": "f973ad103a6313f8eb010be29f02162b97472043",
+    "tests/test_modeling_readiness_preflight.py": "32fa066070d4d9ba24e2d9cc541295a760c1957f",
+    "research/gates/MODELING_READINESS_REPORT_SCHEMA_R5_2026-10-11.json": "119d5ac524a2833cbb484a62855e80818a8214e6",
+    ".github/workflows/phase-07-modeling-readiness-synthetic.yml": "bbe5fff39b7bf6e496338d81516581dcb24d36fb"
+  },
+  "workflow_run": {
+    "id": 38149491353,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149491353",
+    "conclusion": "success"
+  },
+  "findings": [
+    "unconstrained nested report schema and no schema enforcement",
+    "one-shot horizon iterable consumed after first session",
+    "negative metadata counts not rejected fail-closed",
+    "invalid direction-label tolerance not rejected"
+  ],
+  "permissions": {
+    "real_file_audit": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_observation_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "required_next_step": "developer correct findings, add regression tests, pass synthetic CI, submit exact hashes for fresh review"
+}
