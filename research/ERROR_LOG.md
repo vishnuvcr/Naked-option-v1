@@ -71,3 +71,11 @@
 - Finding: using the list `missing_expiry_columns` as a truth-value within each iteration of `all(...)` makes a single absent header look as though every required expiry field was blank across all option rows. This breaks the output field's semantics and could misstate data diagnostics.
 - Reported in [R2 tester report](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R2_2026-10-11.md); decision **REQUEST_CHANGES**. The developer has since changed the predicate and added mixed-header/zero-row tests; new hosted validation is pending.
 - No P&L, holdout, new-source request or strategy promotion is covered by this code-only review.
+
+
+## 2026-10-11 — Phase 8 data-gap summary correction retested and accepted with restrictions
+
+- Developer fixed the global missing-header truthiness flaw identified in the R2 review. The all-blank flag now requires option rows > 0, all expiry headers present and every required expiry field blank in every option row.
+- Mixed-header and zero-row regression fixtures were added. Hosted run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all contract and synthetic tests; the real-data job was skipped.
+- Exact-pinned R3 decision: [tester report](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R3_2026-10-11.md), [machine decision](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json), PASS WITH SCOPED RESTRICTIONS.
+- No empirical P&L or source scan was authorized. The R1 request is consumed/disabled; expiry/lot/tick/bid-ask limitations and the separate daily H=1 precision anomaly remain unresolved.
