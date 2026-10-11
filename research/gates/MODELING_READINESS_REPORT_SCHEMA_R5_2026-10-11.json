@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sanitized Modeling Readiness Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dataset_sha256",
+    "rows",
+    "columns",
+    "option_rows",
+    "spot_rows",
+    "row_width_errors",
+    "timestamp_parse_errors",
+    "incomplete_keys",
+    "duplicate_keys",
+    "session_status",
+    "target_statuses",
+    "feature_family_statuses",
+    "split_status",
+    "exclusion_counts",
+    "origin_manifest_sha256",
+    "cleanup_status",
+    "gate_status"
+  ],
+  "properties": {
+    "dataset_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "columns": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "option_rows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "spot_rows": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "row_width_errors": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp_parse_errors": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "incomplete_keys": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "duplicate_keys": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "session_status": {
+      "type": "string"
+    },
+    "target_statuses": {
+      "type": "object"
+    },
+    "feature_family_statuses": {
+      "type": "object"
+    },
+    "split_status": {
+      "type": "string"
+    },
+    "exclusion_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "origin_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "cleanup_status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ]
+    },
+    "gate_status": {
+      "enum": [
+        "PASS",
+        "PASS_WITH_RESTRICTIONS",
+        "BLOCKED",
+        "NOT_ESTIMABLE"
+      ]
+    }
+  }
+}
