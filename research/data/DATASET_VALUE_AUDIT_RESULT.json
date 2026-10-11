@@ -393,12 +393,14 @@
   "readiness_conclusion": "STRUCTURAL_CHECKS_FAIL; DO NOT FIT UNTIL FINDINGS ARE EXPLAINED AND TESTER-REVIEWED",
   "row_integrity": {
     "critical_findings": {
-      "duplicate_option_row_keys": 0,
+      "duplicate_composite_row_keys": 0,
       "duplicate_spot_timestamps": 0,
       "matched_nifty_ohlc_invalid": 224,
+      "observed_session_count_mismatch": 1,
+      "option_volume_negative": 11,
       "spot_ohlc_invalid": 9
     },
-    "semantic_error_count": 233,
+    "semantic_error_count": 245,
     "timestamp_and_schema_findings": {}
   },
   "rows": {
