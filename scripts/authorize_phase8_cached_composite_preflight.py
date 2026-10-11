@@ -50,7 +50,7 @@ def evaluate_authorization(request: dict[str, Any], decision: dict[str, Any],
         "commit": "5e769cd4b19887311213baf16eb81b97416322d7",
         "artifact_id": 11698879857,
         "name": "nifty-1m-derived-repaired-r2-38126168547",
-        "canonical_csv_sha256": "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204",
+        "canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
         "rows": 8999865, "columns": 47, "encrypted_parts": 61,
     }
     expected_forecast = {
