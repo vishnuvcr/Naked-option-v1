@@ -206,10 +206,22 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertIn("SPOT_VOLUME_MISSING_OR_MISALIGNED", rows[0]["data_quality_flags"])
         self.assertIn("spot_volume_missing_or_misaligned", problems)
 
+    def test_spot_parser_normalizes_integral_epoch_timestamp_encodings(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        for encoded_timestamp in (float(ts), Decimal(str(ts) + ".0"), str(ts)):
+            payload = {
+                "timestamp": [encoded_timestamp], "open": [1], "high": [2],
+                "low": [0.5], "close": [1.5], "volume": [100]
+            }
+            with self.subTest(timestamp_type=type(encoded_timestamp).__name__):
+                rows, _ = collector.parse_spot_response(payload, request)
+                self.assertEqual(int(rows[0]["timestamp_epoch"]), ts)
+
     def test_spot_parser_rejects_noninteger_timestamp(self):
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
-        for invalid_timestamp in (True, str(ts), float(ts)):
+        for invalid_timestamp in (True, str(ts) + "x", float(ts) + 0.5, Decimal("NaN")):
             payload = {
                 "timestamp": [invalid_timestamp], "open": [1], "high": [1],
                 "low": [1], "close": [1], "volume": [1]
