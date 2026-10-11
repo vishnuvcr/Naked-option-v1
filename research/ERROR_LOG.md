@@ -1241,3 +1241,12 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Run [38127450732](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127450732) failed only at `test_date_distribution_exact_overlap_and_nearest_offsets`: actual `timestamps_marked_missing_but_present_in_existing_spot_rows.distinct_timestamps=2`, expected 1.
 - Fixture placed SPOT rows at BASE_EPOCH and BASE_EPOCH+120, while OPTION rows marked missing included both those epochs. The analyzer count of 2 is correct; the test expectation was wrong.
 - Corrective action: update the assertion to 2 and rerun offline tests. No live source requests, model fitting, holdout access or strategy work occurred.
+
+
+## 2026-10-11 — Earlier derived-repair report is not the final validated output
+- Category: research acceptance / stale artifact report
+- Component: Phase 7 derived dataset repair report and hosted workflow.
+- Symptom: prior successful run [38130635408](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130635408) published encrypted artifact 11698138685, but the currently committed report lacks the `post_repair_validation` block emitted by the newly integrated implementation.
+- Impact: the older “DERIVED_REPAIR_COMPLETE” label alone does not satisfy the current acceptance gate. It must not authorize dataset promotion or modelling.
+- Disposition: exact source artifact remains pinned and immutable; rerun [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) is executing the updated path. At this log update, repair itself is still in progress; no current-run output/cleanup result is claimed.
+- Required verification: confirm 8,999,865 preserved rows across 61 parts, manifest and encrypted hashes, independent post-repair audit summary, cleanup proof, then obtain tester review of this exact output. Model fitting, holdout access, source/API requests, and strategy/P&L testing remain closed.
