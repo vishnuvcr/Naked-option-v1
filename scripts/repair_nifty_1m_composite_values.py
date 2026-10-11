@@ -23,7 +23,8 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from decrypt_nifty_1m_composite import AAD, MAGIC, derive_key
+from decrypt_nifty_1m_composite import AAD, MAGIC, decrypt_bytes, derive_key
+from validate_repaired_nifty_1m_composite import audit as audit_repaired_dataset
 
 OHLC_FIELDS = ("open", "high", "low", "close")
 SPOT_FIELDS = tuple("nifty_" + f for f in OHLC_FIELDS) + ("nifty_volume",)
@@ -339,10 +340,38 @@ def repair_dataset(input_dir: pathlib.Path, output_dir: pathlib.Path, report_pat
     (output_dir / "dataset_manifest.json").write_text(
         json.dumps(derived_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+    # Independent post-repair audit: decrypt each output part only into a temporary
+    # directory, verify its gzip digest, validate row invariants, then delete all plaintext.
+    with tempfile.TemporaryDirectory(prefix="derived-postrepair-audit-") as scratch:
+        audit_dir = pathlib.Path(scratch)
+        (audit_dir / "dataset_manifest.json").write_text(
+            json.dumps(derived_manifest, sort_keys=True), encoding="utf-8"
+        )
+        for part in output_parts:
+            encrypted_path = output_dir / str(part["file"])
+            plaintext = decrypt_bytes(encrypted_path.read_bytes(), key)
+            if sha256_bytes(plaintext) != part.get("plain_gzip_sha256"):
+                raise ValueError("post_repair_plain_gzip_hash_mismatch")
+            (audit_dir / str(part["file"]).removesuffix(".enc")).write_bytes(plaintext)
+        validation = audit_repaired_dataset(
+            audit_dir,
+            audit_dir / "post-repair-validation.json",
+            audit_dir / "post-repair-keys.sqlite",
+        )
+        if validation.get("status") != "PASS_WITH_COVERAGE_RESTRICTIONS":
+            raise ValueError("post_repair_independent_validation_failed")
+        post_repair_validation = {
+            "status": validation["status"],
+            "row_counts": validation["row_counts"],
+            "join_counts": validation["join_counts"],
+            "quality_counts": validation["quality_counts"],
+            "sensitive_values_emitted": False,
+        }
+
     report = {
         "schema_version": 1,
         "audit_type": "DERIVED_DATASET_REPAIR_REPORT",
-        "status": "DERIVED_REPAIR_COMPLETE",
+        "status": "DERIVED_REPAIR_COMPLETE" if post_repair_validation["status"] == "PASS_WITH_COVERAGE_RESTRICTIONS" else "DERIVED_REPAIR_VALIDATION_FAILED",
         "parent_dataset_id": manifest.get("dataset_id"),
         "derived_dataset_id": derived_manifest["dataset_id"],
         "row_counts": {
@@ -352,6 +381,7 @@ def repair_dataset(input_dir: pathlib.Path, output_dir: pathlib.Path, report_pat
             "spot_rows": int(manifest.get("dataset_summary", {}).get("rows_spot", -1)),
         },
         "repair_counts": dict(sorted(counts.items())),
+        "post_repair_validation": post_repair_validation,
         "changed_field_counts": dict(sorted(changed_fields.items())),
         "spot_lookup_counts": dict(sorted(lookup_counts.items())),
         "encrypted_part_count": len(output_parts),
