@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-11",
+  "gate": "REAL_FILE_PREFLIGHT_RECEIPT_PUBLISHER",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "5d2c0c8fbd66ea0d348943c79f55eb95b4088d5b",
+  "reviewed_files": {
+    ".github/workflows/phase-07-publish-preflight-receipt.yml": "2b7397fefa47b23ea0066a65da2246e3e0a2e97b",
+    ".github/workflows/phase-07-receipt-publisher-tests.yml": "3f6a7020ea1ed39414200c71a3488061563d144c",
+    "scripts/publish_preflight_receipt.py": "c3b8e174d2eff67799600171882600222dd7876c",
+    "scripts/test_publish_preflight_receipt.py": "62663269184cbc0efa656443c71ef707046f73ce",
+    "scripts/test_receipt_workflow_policy.py": "47e624abe52fbcfbe9a53b90ded7df1f21f49e72"
+  },
+  "scope": "publish only sanitized per-run receipt JSON",
+  "dedicated_ci_verified": false,
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "report": "research/gates/REAL_FILE_PREFLIGHT_RECEIPT_PUBLISHER_TESTER_REVIEW_2026-10-11.md"
+}
