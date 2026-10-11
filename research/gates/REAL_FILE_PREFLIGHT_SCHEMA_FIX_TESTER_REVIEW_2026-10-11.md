@@ -8,9 +8,9 @@ Hosted synthetic test run: [38140375493](https://github.com/vishnuvcr/Naked-opti
 Supplemental earlier batch-boundary test run: [38140046876](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38140046876) — **success**; its explicit 10,000-row batch-boundary fixture was on the prior scanner blob, before only key-value normalization was expanded.
 
 ## Decision
-**PASS WITH SCOPED RESTRICTIONS — authorize one exact-lineage, metadata-only structural audit.**
+**CODE REVIEW PASS WITH SCOPED RESTRICTIONS; EXECUTION NOT YET AUTHORIZED.**
 
-This approves running the full scanner once on the encrypted-derived dataset artifact lineage already pinned by the workflow. It does **not** claim the data passed, and does not authorize model fitting/scoring, holdout access, new market-data requests, strategy testing, or P&L work.
+The implementation is suitable for a single exact-lineage, metadata-only structural audit, subject to a fresh machine-readable tester decision. Updating the machine-readable authorization file was blocked by the repository tool's safety controls in this turn. The prior decision remains stale for the current scanner hash, so the real-file workflow must not be run or treated as authorized. This review does **not** claim the data passed, and it does not authorize model fitting/scoring, holdout access, new market-data requests, strategy testing, or P&L work.
 
 ## Independent review findings
 - The actual data header uses `timestamp_epoch,row_type,underlying,expiry_code,returned_strike,option_type`; the revised scanner recognizes separate OPTION and SPOT key groups.
@@ -48,5 +48,5 @@ This approves running the full scanner once on the encrypted-derived dataset art
 4. Verify cleanup confirmation from the hosted job logs. A success exit alone is not sufficient.
 5. Preserve any non-pass result as a research result. Do not fit models or open holdout/strategy gates until a separate downstream decision has been issued.
 
-**Tester → Developer:** Issue the R3 execution request bound to the new decision blob and exact file hashes. After the run, submit the sanitized report/receipt and cleanup evidence for a separate data-readiness review.
-**Developer → Tester:** Keep all modelling, holdout, source-request and strategy/P&L permissions closed; accept no result until the exact run receipt and report are independently audited.
+**Tester → Developer:** Keep the data workflow untriggered until the machine-readable decision can be updated through an allowed repository action. Then submit an R3 request bound to that decision and these exact hashes; after a run, submit the receipt/report and cleanup evidence for a separate data-readiness review.
+**Developer → Tester:** Preserve the successful synthetic test evidence, record the authorization-write blocker, and keep modelling, holdout, source requests and strategy/P&L closed.
