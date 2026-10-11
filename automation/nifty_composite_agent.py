@@ -19,8 +19,13 @@ REVIEW_FILES = [
     "scripts/test_nifty_1m_composite_dataset.py",
     "scripts/validate_nifty_1m_composite_manifest.py",
     "scripts/validate_nifty_1m_composite_approval.py",
+    "scripts/run_nifty_1m_spot_diagnostic.py",
+    "scripts/test_nifty_1m_spot_diagnostic.py",
+    "scripts/audit_nifty_1m_composite_cache.py",
+    "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
     ".github/workflows/phase-07-nifty-1m-composite-live.yml",
     ".github/workflows/phase-07-nifty-1m-composite-tests.yml",
+    ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml",
 ]
 PATCH_ALLOWED = {
     "scripts/run_nifty_1m_composite_dataset.py",
@@ -149,6 +154,26 @@ def compile_report(args: argparse.Namespace) -> int:
         decision = "REQUEST_CHANGES"
 
     blockers = [f for f in offline.get("findings", []) if f.get("severity") == "BLOCKER"]
+    diagnostic_scope = offline.get("diagnostic_scope_review", {})
+    recovery_scope = offline.get("spot_recovery_scope_review", {})
+    deterministic_probe_scope_ok = (
+        diagnostic_scope.get("status") == "PASS"
+        and offline.get("diagnostic_probe_authorized") is True
+    )
+    deterministic_recovery_scope_ok = (
+        recovery_scope.get("status") == "PASS"
+        and offline.get("spot_recovery_authorized") is True
+    )
+    # These booleans authorize only the exact scope independently checked by
+    # the tester harness. They never turn the general live-request permission on.
+    diagnostic_probe_authorized = bool(
+        deterministic_ok and decision == "PASS_WITH_SCOPED_RESTRICTIONS"
+        and (ai_ok or not ai_completed) and deterministic_probe_scope_ok
+    )
+    spot_recovery_authorized = bool(
+        deterministic_ok and decision == "PASS_WITH_SCOPED_RESTRICTIONS"
+        and (ai_ok or not ai_completed) and deterministic_recovery_scope_ok
+    )
     known_gap_phrases = [
         "missing-volume response", "empty-volume response", "misaligned volume array",
         "invalid timestamp types", "separate OHLC misalignment",
@@ -181,7 +206,9 @@ def compile_report(args: argparse.Namespace) -> int:
         f"- Deterministic checks: {'PASS' if deterministic_ok else 'REQUEST CHANGES'}",
         f"- AI reviewer: {ai.get('review_status', 'UNKNOWN')} / {(ai.get('decision', 'UNKNOWN') if ai_completed else 'NO_VERDICT')}",
         f"- Automatic repair attempt: {args.attempt}",
-        "- Live requests authorized: NO", "- Model fitting authorized: NO", "- Holdout access authorized: NO", "",
+        f"- Single-request diagnostic authorized: {'YES — exactly one frozen-manifest spot request' if diagnostic_probe_authorized else 'NO'}",
+        f"- Cache-preserving spot-only recovery authorized: {'YES — at most 61 spot requests; zero live option refetches' if spot_recovery_authorized else 'NO'}",
+        "- General live requests authorized: NO", "- Model fitting authorized: NO", "- Holdout access authorized: NO", "",
         "## Deterministic findings", "",
     ]
     for finding in offline.get("findings", []) or [{"severity": "INFO", "code": "NONE", "message": "No deterministic findings."}]:
@@ -194,10 +221,8 @@ def compile_report(args: argparse.Namespace) -> int:
         lines.append(f"- {finding.get('severity', 'UNSPECIFIED')} — {finding.get('file', '')}: {finding.get('finding', '')} Required: {finding.get('required_fix', '')}")
     lines += [
         "", "## Gate scope", "",
-        "This report applies only to the exact developer commit named above. PASS does not create or spend the separate "
-        "one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain "
-        "mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.", "",
-        "When AI inference is unavailable, a passing deterministic suite is a scoped offline code-gate PASS only; it is not a full AI review, acquisition approval, or scientific result. No live request, model fitting, strategy test or holdout access is authorized.", "",
+        "This report applies only to the exact developer commit named above. Any enabled action is bounded to the separate scope booleans in the machine-readable decision: one non-persisting spot diagnostic, or a later cache-verified spot-only recovery with zero live option refetches. The general live-request permission remains false. No modeling, strategy tests or holdout use is authorized.", "",
+        "When AI inference is unavailable, a passing deterministic suite is not an AI verdict. A limited action may proceed only when the tester's deterministic scope check explicitly passes the exact request plan, runner, tests, and workflow. No broader permission is inferred.", "",
         "Only action summaries and findings are retained; private model reasoning is not written to the repository.", "",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -209,6 +234,11 @@ def compile_report(args: argparse.Namespace) -> int:
         "deterministic_pass": deterministic_ok, "repair_mode": repair_mode,
         "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode in {"DETERMINISTIC_TEST_GAP_FIX", "AI_DEVELOPER_PATCH"} and args.attempt < args.max_attempts,
         "live_requests_authorized": False, "model_fitting_authorized": False, "holdout_access_authorized": False,
+        "diagnostic_probe_authorized": diagnostic_probe_authorized,
+        "spot_recovery_authorized": spot_recovery_authorized,
+        "diagnostic_request_id": diagnostic_scope.get("request_id") if diagnostic_probe_authorized else None,
+        "spot_recovery_request_limit": 61 if spot_recovery_authorized else 0,
+        "live_option_requests_allowed": False,
     }
     args.decision_output.write_text(json.dumps(decision_obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(decision_obj, sort_keys=True))
