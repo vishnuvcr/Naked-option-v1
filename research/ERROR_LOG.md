@@ -1275,3 +1275,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Implementation commit: `d7095ea89f697b4d0ba6df8b771cc38781295d09`; test commit: `ca500c3b931c8e8204ec59f5b2baa57bb19170d7`.
 - CI receipt has not been verified and the actual CSV is not mounted here. Do not treat code edits as a passing test or real-file audit. An attempt to pin workflow action revisions was blocked; workflow file was not changed.
 - No model, holdout, data-source or strategy execution occurred.
+
+
+## 2026-10-11 — Duplicate-key verdict logic corrected during developer self-review
+- Found a logical defect in the first correction: the report could label the duplicate-key check `PASS` even when its duplicate count was nonzero.
+- Corrected the scanner so duplicate keys set `duplicate_key_check=FAIL_DUPLICATE_KEYS_FOUND`, overall status `PREFLIGHT_FAIL_DUPLICATE_KEYS`, and a nonzero CLI exit. Updated the regression assertion.
+- Latest scanner commit: `6f11cc93f49e407c957ab843ea60311c41dba01f`; latest test commit: `f6284c458f408728a00f60673948d0fc35f5a417`.
+- Tester exact-snapshot report: `OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md`, verdict REQUEST_CHANGES because CI evidence is not verified and action pinning remains unresolved.
+- This was a code-level logic issue found before any real-file execution. No data changed; no model/holdout/strategy or source call occurred.
