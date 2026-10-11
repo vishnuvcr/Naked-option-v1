@@ -1539,3 +1539,12 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Earlier successful repair run 38130635408 uploaded artifact 11698138685, but its committed report lacks the new post-repair validation summary and is not a substitute for the rerun's exact output review.
 - No fresh market-data request, model fitting/scoring, holdout access, or strategy/P&L test was made or authorized in this continuation.
 - No private reasoning is stored; this is a concise action/result log.
+
+
+### 2026-10-11 — Repair output completed and tester-reviewed
+- Current repair run [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) completed successfully; all 18 workflow steps succeeded.
+- Output artifact 11698879857 was uploaded encrypted-only. The report and manifest link back to source artifact 11696937921 and preserve all 8,999,865 rows across 61 parts.
+- Embedded post-repair audit: `PASS_WITH_COVERAGE_RESTRICTIONS`; matched=8,471,702; unmatched=19,021; exact-join field mismatches=0; invalid nonblank OHLC/volume=0; duplicate keys/spot epochs=0; cleanup passed.
+- Tester report and decision were committed to `phase-07-tester`: `DERIVED_DATASET_REPAIR_OUTPUT_TESTER_REPORT_RUN_38131641336.md` and `DERIVED_DATASET_REPAIR_OUTPUT_TESTER_DECISION_RUN_38131641336.json`; verdict is `PASS_WITH_SCOPED_RESTRICTIONS` for the repair gate only.
+- Residual restrictions: 19,021 unmatched options and 24,847 weekend-session review flags remain; 12 spot OHLC rows, 309 spot-volume values and 11 option-volume values were masked. No source rows were deleted, no fresh requests were made, and no model/holdout/strategy tests were run.
+- Next action: separate modelling-readiness proposal/tester gate before any fitting.
