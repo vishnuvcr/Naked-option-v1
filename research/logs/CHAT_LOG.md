@@ -1579,3 +1579,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Verify the exact implementation/test snapshot and synthetic CI receipt; scrutinize temp cleanup and timestamp parsing.
 **Tester → Developer:** Keep real-file preflight and all downstream gates closed until the exact-snapshot review passes.
+
+
+### 2026-10-11 — Duplicate-key fail-closed correction and tester gate
+- Developer self-review caught that the duplicate detector could return a PASS label even when it counted duplicate keys. Corrected the report status and CLI exit code, and changed the synthetic assertion to expect fail-closed behavior.
+- Latest scanner commit `6f11cc93f49e407c957ab843ea60311c41dba01f`; latest test commit `f6284c458f408728a00f60673948d0fc35f5a417`.
+- Tester report/decision on `phase-07-tester`: REQUEST_CHANGES because a successful exact-snapshot CI receipt is not verified and action pinning remains unresolved.
+- Updated developer status/error logs and submitted the tester report. Actual CSV remains unavailable in this tool runtime; no real-file preflight or empirical modelling was performed.
+
+**Developer → Tester:** Verify the exact scanner/test snapshot after a successful synthetic CI run and workflow-policy resolution.
+**Tester → Developer:** Keep real-file preflight, fitting, holdout, source-request and strategy gates closed until the exact-snapshot gate passes.
