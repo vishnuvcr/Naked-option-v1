@@ -1,8 +1,8 @@
 # Tester Report — Rendered Uploaded-Paper Claim Checks
 
 - Review date: 2026-10-11 UTC.
-- Reviewed developer commit: `c4ecb0047a2acdd0bc008106bd1e4c1fd347f3a4`.
-- Claim-audit note blob SHA: `766134e809d141a6142d931074b9ee52f0ca2e8b`.
+- Reviewed developer commit: `c11d402decaa6550285c34bb87092b37be701e29`.
+- Claim-audit note blob SHA: `712b577fb36a169cfc63490d37060b42c6775f6b`.
 - Source coverage audit blob SHA: `f1cd07f41a1314ea0580ac1a32fa3f3106168edf`.
 - Role limitation: the source pages and arithmetic were checked in the tester role in the same connected assistant session. This is not a separate human reviewer or independent AI reviewer; it must not be presented as such.
 
