@@ -510,3 +510,11 @@
 - Tester review then caught a separate mixed-header edge case in `summarize_critical_data_gaps()`. Fixed with a per-field predicate and no-missing-header condition in [commit 8511ba7](https://github.com/vishnuvcr/Naked-option-v1/commit/8511ba7de2b198ce1e1e4925bebd0a9acb96a810); mixed-header and zero-row regressions added in [commit 4d93085](https://github.com/vishnuvcr/Naked-option-v1/commit/4d93085519675484570bb054cbedb1c2405708f0).
 - Combined hosted synthetic run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all test gates. Tester reviewed exact snapshot pins and recorded [R3 PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json).
 - No real-data task ran: R1 is consumed/disabled and its metadata-only job was skipped. P&L/holdout/promotion remain false. The separate daily H=1 comparison anomaly remains unresolved.
+
+
+## 2026-10-11 — H=1 exact-float validation failure under review
+
+- Evidence [run #38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430), job `114538420772`: daily H=1 source-derived `future_return` array had 64 non-bitwise-identical values; reported max absolute difference `3.469446951953614e-18`.
+- Tester R1 requested a narrowly scoped, strict maximum-two-ULP comparator for float64 `future_return` only. Labels and timestamps must remain exact; aggregate tolerance, source pins and the saved artifact are immutable.
+- Developer submitted `compare_float64_within_ulps` in [5f54ca2](https://github.com/vishnuvcr/Naked-option-v1/commit/5f54ca2a8c597369e145e4184446430cc9ec38fb), and tests in [6def41c](https://github.com/vishnuvcr/Naked-option-v1/commit/6def41c40fa3c6a041b831dc938493eaafcf6680). Hosted regression is pending. The observed 64 differences have not yet been demonstrated to all fall within the registered two-ULP ceiling; any value beyond it keeps validation blocked.
+- Do not alter or regenerate Run #994, do not increase the limit, and do not enter option P&L/holdout/promotion.
