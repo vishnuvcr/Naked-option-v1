@@ -1,0 +1,55 @@
+{
+  "approved_scope": "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE",
+  "commercial_use_authorized": false,
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "developer_snapshot_sha": "467a08195bb5031bf73eb01fc86f2129f9776227",
+  "developer_suite_exit_code": "0",
+  "dhan_api_requests_authorized": false,
+  "empirical_option_pnl_authorized": false,
+  "findings": [],
+  "gate": "PHASE8_GREEK_ENRICHMENT_R1",
+  "hf_public_expiry_filelist_authorized": true,
+  "hf_public_spot_fetch_authorized": true,
+  "holdout_access_authorized": false,
+  "independent_suite_exit_code": "0",
+  "independent_test_summary": {
+    "checks": [
+      "IV inversion for CE and PE across spot/moneyness/tenor/volatility grid",
+      "delta bounds and signs",
+      "positive gamma and vega, negative theta under r=q=0",
+      "call/put rho signs",
+      "finite-difference delta/gamma and vega-per-1%-unit comparisons",
+      "invalid option price rejection"
+    ],
+    "independent_reference": "Black-Scholes closed-form implementation using math.erf; not copied from developer module",
+    "scope_exclusions": [
+      "no source-data request",
+      "no token access",
+      "no historical P&L",
+      "no holdout",
+      "no strategy promotion"
+    ],
+    "status": "PASS",
+    "synthetic_contract_cases": 162,
+    "test_kind": "independent_formula_and_finite_difference_audit"
+  },
+  "limitations": [
+    "This gate only covers HF public expiry-filelist plus exact-timestamp NIFTY spot enrichment of the cached partial grid.",
+    "It does not establish complete exchange-listed strike coverage or official point-in-time expiry master validation.",
+    "Greeks are model estimates with zero-rate and zero-dividend proxies and IV inversion/labelled fallback, not historical vendor-observed Greeks.",
+    "The HF source licence is CC-BY-NC-4.0; non-commercial research only.",
+    "No Dhan request, option P&L, holdout, strategy promotion or plaintext artifact publication is permitted."
+  ],
+  "pin_check_status": "PASS",
+  "plaintext_upload_authorized": false,
+  "reviewed_at_utc": "2026-10-11T19:38:01.924362+00:00",
+  "reviewed_blobs": {
+    ".github/workflows/phase8-greek-enrichment.yml": "b852d17a21130bd1bdc3159f461d3af721bc8265",
+    "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R1_2026-10-12.md": "1b0489ca1a1cac311147965c09ae7fb9ae7b8060",
+    "scripts/enrich_nifty_composite_greeks.py": "91f6de784f083f5de677237493f791d1b36fd330",
+    "scripts/test_enrich_nifty_composite_greeks.py": "5a5cf67787706ebae060b91f795e96854b8e1b39"
+  },
+  "schema_version": 1,
+  "strategy_promotion_authorized": false,
+  "tester_workflow_run_id": "38168820750"
+}
