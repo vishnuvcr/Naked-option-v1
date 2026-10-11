@@ -1039,3 +1039,11 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
  
 **Developer → Tester:** Review the frozen content-hash snapshot and decide on R4 authorization.
 **Tester → Developer:** Keep R4 request false until hashes match; independently inspect the completed data report before opening predictions.
+
+ 
+## 2026-10-11 — R4 exact-content audit launched
+
+- R3 failed closed before structural scanning because the recompressed gzip-container SHA differed. The correction validates the complete decompressed CSV SHA-256 separately; the unverified expected byte-count reference was removed.
+- New independent R4 decision: [tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_REVIEW_R4_2026-10-11.md) and [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json). All 17 reviewed file blob hashes were rechecked before request and matched exactly.
+- R4 request commit: [55a6ce4](https://github.com/vishnuvcr/Naked-option-v1/commit/55a6ce4ae69b26696533adb20c512832c15c8c38). Audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502): synthetic authorization/test stage passed; full real-file scan is queued/running. No data-readiness verdict yet.
+- The receipt publisher correction allowing an unknown reference byte count when decoded SHA is verified merged via [PR #19](https://github.com/vishnuvcr/Naked-option-v1/pull/19). All prediction, holdout, new source-data and strategy/P&L work remains closed pending separate report review.
