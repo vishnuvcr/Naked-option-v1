@@ -1562,3 +1562,9 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 - Current exact blobs: scanner `e3c7017200beb6efe4be8edd3add74d841dadb7a`; new tests `12fec21c9374792b273f9b8167aa42545674497a`; workflow `2e3feaf8cd0edd39283d9ee675c9c52e4b75aaa8`.
 - Handoff: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md. Hosted synthetic CI completion is not verified. The previous real-file exact-hash authorization is invalid for the changed blobs and must not be reused.
 - No uniqueness count/data-readiness PASS is claimed; model, holdout, source requests and strategy/P&L remain CLOSED pending fresh tester review and a newly authorized scan.
+
+
+### Follow-up correction — row-type-specific key selection
+
+- Static review caught a subtle issue before accepting tests: an incomplete OPTION row could otherwise fall back to the shorter SPOT key group. Added row-type-specific group selection so OPTION and SPOT keys remain distinct and incomplete option identifiers are flagged.
+- Current scanner blob: `e27ec2688d2d0782408bb2d2e0ab4f4122fce9af`. New synthetic test includes an incomplete OPTION case. Hosted CI is still not verified; old exact-hash authorization remains invalid.
