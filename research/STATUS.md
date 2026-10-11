@@ -1536,3 +1536,11 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 - Tester report: [implementation review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_REVIEW_2026-10-11.md). Decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c` authorizes one exact-lineage structural audit only.
 - PR #10 merged at `ba8a56c2776961daa995ff2498b85925cdafe09f`. Execution request commit: `eb307f32294924591320dc4688127462e8e6b091`.
 - Actual audit run/report is not yet verified through the available Actions interface. No data-audit outcome is claimed. Model fitting/scoring, holdout, new source requests and strategy/P&L remain closed.
+
+## 2026-10-11 — Exact-hash authorization restored and request reissued
+
+- A later edit to the synthetic test workflow and action-pinning tests changed three tester-reviewed file blobs. The real-file authorization guard would correctly have failed closed; this was identified before accepting any audit result.
+- Restored the workflow and two helper files to the exact tester-reviewed blob SHAs. Rechecked all 11 reviewed files; **11/11 hashes match** the tester decision.
+- Reissued request `REAL_FILE_PREFLIGHT_2026-10-11_R2` in commit `6d75d26f0f30036595d3996f48602c6657a34b97` to trigger a run on the exact request commit.
+- The run receipt and sanitized report are not yet verifiably retrievable through the available Actions interface. Data audit status remains pending; no empirical result is claimed.
+- The receipt publisher was merged to main in PR #11; dedicated hosted test-run evidence remains unverified. No model fitting/scoring, holdout access, new data-source requests or strategy/P&L is authorized.
