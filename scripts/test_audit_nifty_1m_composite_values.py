@@ -118,6 +118,8 @@ class DatasetValueAuditTests(unittest.TestCase):
             self.assertEqual(report["status"], "PASS_WITH_COVERAGE_RESTRICTIONS")
             self.assertEqual(report["rows"], {"total": 2, "option": 1, "spot": 1})
             self.assertEqual(report["row_integrity"]["semantic_error_count"], 0)
+            self.assertEqual(report["timestamps"]["first_observed_session_date"], "2024-01-02")
+            self.assertEqual(report["monthly_coverage"]["2024-01"]["total_rows"], 2)
             self.assertNotIn("21000", (root / "safe-report.json").read_text(encoding="utf-8"))
 
     def test_invalid_option_ohlc_fails_closed(self):
@@ -139,6 +141,16 @@ class DatasetValueAuditTests(unittest.TestCase):
             report = self.run_audit(root)
             self.assertEqual(report["status"], "FAIL")
             self.assertGreater(report["row_integrity"]["critical_findings"].get("session_date_mismatch", 0), 0)
+
+    def test_subsecond_timestamp_mismatch_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            option = base_row("OPTION", "request-opt")
+            option["timestamp_utc"] = "2024-01-02T04:00:00.500000Z"
+            write_fixture(root, [option], [base_row("SPOT", "request-spot")])
+            report = self.run_audit(root)
+            self.assertEqual(report["status"], "FAIL")
+            self.assertGreater(report["row_integrity"]["critical_findings"].get("timestamp_utc_value_mismatch", 0), 0)
 
     def test_duplicate_collector_composite_key_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
