@@ -249,7 +249,7 @@ def main():
     st=pd.to_datetime(spot["timestamp"],errors="coerce",utc=True)
     sessions=set(st.dropna().dt.tz_convert("Asia/Kolkata").dt.date.tolist())
     paths=[x.strip() for x in a.expiry_file_list.read_text().splitlines() if x.strip()]
-    date_tokens=re.findall(r"\\d{4}-\\d{2}-\\d{2}",manifest.get("dataset_id",""))
+    date_tokens=[x for x in manifest.get("dataset_id","").split("_") if len(x)==10 and x[4]=="-" and x[7]=="-"]
     if not date_tokens: raise ValueError("source dataset id has no declared end date")
     dataset_end=date.fromisoformat(date_tokens[-1])
     calendar_horizon=max(max(sessions),dataset_end)
