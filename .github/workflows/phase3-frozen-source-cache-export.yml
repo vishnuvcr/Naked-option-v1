@@ -1,0 +1,105 @@
+name: Phase 3 Frozen Source Cache Export
+
+on:
+  push:
+    branches: [phase-03-developer]
+    paths:
+      - .github/workflows/phase3-frozen-source-cache-export.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  export-frozen-source-cache:
+    name: Export already-cached pinned Phase 7 inputs (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore existing Phase 3 source cache only
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/raw/phase3
+          key: phase3-data-${{ hashFiles('scripts/acquire_nifty_daily_history.py', 'scripts/discover_hf_intraday.py', 'scripts/acquire_hf_intraday_sample.py', 'scripts/run_phase3_daily_baselines.py', 'scripts/run_phase3_intraday_baselines.py') }}
+          restore-keys: |
+            phase3-data-
+
+      - name: Download immutable Run #994 reference manifest (GitHub artifact only)
+        uses: actions/download-artifact@v4
+        with:
+          name: phase7-ensemble-reference
+          run-id: 37957677656
+          repository: vishnuvcr/Naked-option-v1
+          github-token: ${{ github.token }}
+          path: data/cache/reference/phase7_run994/unpacked
+
+      - name: Validate cached source hashes and stage exact inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import shutil
+          import sys
+          from pathlib import Path
+
+          root = Path.cwd()
+          manifest_path = root / "data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          if not manifest_path.is_file():
+              raise SystemExit(f"FROZEN_MANIFEST_MISSING: {manifest_path}")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          source_files = manifest.get("source_files", {})
+          expected_paths = {
+              "daily_csv": "data/cache/raw/phase3/nifty50_daily.csv",
+              "intraday_parquet": "data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet",
+          }
+          report = {
+              "schema_version": 1,
+              "status": "PASS",
+              "network_market_data_requested": False,
+              "reference_run": 37957677656,
+              "reference_artifact_id": 11638738288,
+              "source_files": [],
+          }
+          for name, rel in expected_paths.items():
+              record = source_files.get(name)
+              if not isinstance(record, dict) or record.get("path") != rel:
+                  raise SystemExit(f"FROZEN_SOURCE_MANIFEST_MISMATCH: {name}")
+              path = root / rel
+              if not path.is_file():
+                  raise SystemExit(f"SOURCE_CACHE_MISS: {rel}; no source acquisition attempted")
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              expected = record.get("sha256")
+              if digest != expected:
+                  raise SystemExit(f"SOURCE_CACHE_HASH_MISMATCH: {rel} expected={expected} actual={digest}")
+              report["source_files"].append({
+                  "name": name, "path": rel, "sha256": digest, "size_bytes": path.stat().st_size
+              })
+
+          report_path = root / "data/reports/phase3_frozen_source_cache_export.json"
+          report_path.parent.mkdir(parents=True, exist_ok=True)
+          report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+          staging = root / "data/reports/phase3-cache-export/staging"
+          for rel in expected_paths.values():
+              destination = staging / rel
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(root / rel, destination)
+          manifest_dest = staging / "data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          manifest_dest.parent.mkdir(parents=True, exist_ok=True)
+          shutil.copy2(manifest_path, manifest_dest)
+          shutil.copy2(report_path, staging / "data/reports/phase3_frozen_source_cache_export.json")
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload verified frozen inputs (no acquisition)
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-frozen-source-cache-${{ github.run_id }}
+          path: data/reports/phase3-cache-export/staging
+          if-no-files-found: error
+          retention-days: 90
