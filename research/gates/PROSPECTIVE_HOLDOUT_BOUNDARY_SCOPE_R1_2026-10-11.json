@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "gate_id": "PROSPECTIVE_HOLDOUT_BOUNDARY_R1",
+  "date": "2026-10-11",
+  "verdict_requested": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_input_dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+  "reviewed_input_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "scope": "design-only proposal for prospective chronological split boundary generation",
+  "proposed_session_allocation": {
+    "train": 0.7,
+    "validation": 0.15,
+    "holdout": 0.15,
+    "allocation_basis": "unique ordered NSE sessions"
+  },
+  "metadata_fields_allowed": [
+    "row_type",
+    "timestamp_epoch",
+    "session_date",
+    "record_byte_offset",
+    "row_length"
+  ],
+  "prohibited_fields": [
+    "spot_open",
+    "spot_high",
+    "spot_low",
+    "spot_close",
+    "option_bid",
+    "option_ask",
+    "option_last",
+    "open_interest",
+    "greeks",
+    "feature_values",
+    "target_labels",
+    "holdout_outcomes"
+  ],
+  "outputs_allowed": [
+    "dataset_sha256",
+    "scanner_blob_sha",
+    "input_manifest_sha256",
+    "train_end_session",
+    "validation_end_session",
+    "holdout_start_session",
+    "train_end_byte_offset",
+    "validation_end_byte_offset",
+    "holdout_start_byte_offset",
+    "row_counts",
+    "row_type_counts",
+    "session_counts",
+    "purge_counts",
+    "holdout_range_sha256",
+    "status"
+  ],
+  "outputs_prohibited": [
+    "raw_csv_rows",
+    "price_values",
+    "option_quote_values",
+    "feature_values",
+    "target_labels",
+    "holdout_returns",
+    "model_metrics",
+    "strategy_pnl"
+  ],
+  "thresholds": {
+    "minimum_train_eligible_origins": 252,
+    "minimum_common_validation_origins": 250
+  },
+  "permissions": {
+    "implementation": false,
+    "cached_dataset_scan": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_value_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "next_step": "Tester review proposal and scope only; implementation must be submitted as a separate exact-hash snapshot."
+}
