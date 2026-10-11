@@ -1,5 +1,5 @@
 {
-  "auto_repair_attempts": 1,
+  "auto_repair_attempts": 2,
   "holdout_access_authorized": false,
   "last_ai_reviewer_available": false,
   "last_decision": "REQUEST_CHANGES",

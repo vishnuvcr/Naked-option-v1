@@ -1,6 +1,6 @@
 {
   "ai_reviewer_available": false,
-  "attempt": 1,
+  "attempt": 2,
   "auto_repair_eligible": true,
   "decision": "REQUEST_CHANGES",
   "deterministic_pass": false,
