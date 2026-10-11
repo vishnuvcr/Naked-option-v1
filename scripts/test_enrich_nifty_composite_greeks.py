@@ -39,16 +39,21 @@ def main():
         td=Path(td); spotpath=td/"spot.parquet"; spotpath.write_text("synthetic placeholder")
         ts=pd.Timestamp("2026-07-28 09:15:00",tz="Asia/Kolkata")
         spot=pd.DataFrame({"timestamp":[ts],"open":[25000.],"high":[25001.],"low":[24999.],"close":[25000.],"volume":[1]})
+        # Simulate Parquet files that preserve second-resolution timezone-aware timestamps.
+        spot["timestamp"] = spot["timestamp"].astype(pd.DatetimeTZDtype(unit="s", tz="Asia/Kolkata"))
         bar_close=ts+pd.Timedelta(seconds=60)
         tte=(pd.Timestamp("2026-07-28 15:30:00",tz="Asia/Kolkata")-bar_close).total_seconds()/(365*86400)
         cp=bs(25000,25000,tte,.22,True); pp=bs(25000,25000,tte,.22,False)
         rows=[]
         for typ,price in (("CE",cp),("PE",pp)):
-            rows.append({"timestamp_epoch":int(ts.timestamp()),"timestamp_ist":ts.isoformat(),"session_date":"2026-07-28","row_type":"OPTION","expiry_flag":"WEEK","expiry_code":0,"option_type":typ,"returned_strike":25000,"option_close":price,"implied_volatility":np.nan,"nifty_close":25000,"spot_join_status":"MATCHED","data_quality_flags":""})
+            rows.append({"timestamp_epoch":int(ts.timestamp()),"timestamp_ist":ts.isoformat(),"session_date":"2026-07-28","row_type":"OPTION","expiry_flag":"WEEK","expiry_code":0,"option_type":typ,"returned_strike":25000,"option_close":price,"implied_volatility":np.nan,"nifty_close":(np.nan if typ=="PE" else 25000),"spot_join_status":"MATCHED","data_quality_flags":""})
         rows.append({"timestamp_epoch":int(ts.timestamp()),"timestamp_ist":ts.isoformat(),"session_date":"2026-07-28","row_type":"SPOT","expiry_flag":"","expiry_code":np.nan,"option_type":"","returned_strike":np.nan,"option_close":np.nan,"implied_volatility":np.nan,"nifty_close":25000,"spot_join_status":"SPOT","data_quality_flags":""})
         with patch.object(m.pd,"read_parquet",return_value=spot):
             out,report=m.enrich_frame(pd.DataFrame(rows),allx,monthly,sources,spotpath,sessions)
         assert len(out)==3 and report["greek_rows_with_delta"]==2,report
+        assert report["spot_merge"]["spot_exact_timestamp_matches"] == 3, report["spot_merge"]
+        assert report["spot_merge"]["spot_field_values_filled"] > 0, report["spot_merge"]
+        assert float(out.loc[1,"nifty_close"]) == 25000.0, out.loc[1,"nifty_close"]
         assert out.loc[0,"greek_status"]=="GREEKS_ESTIMATED_FROM_INVERTED_IV",out.loc[0,"greek_status"]
         assert out.loc[0,"delta"]>0 and out.loc[1,"delta"]<0
         assert abs(float(out.loc[0,"time_to_expiry_years"])-tte)<1e-12, (out.loc[0,"time_to_expiry_years"],tte,out.loc[0,"expiry_date"],out.loc[0,"timestamp_ist"],out.loc[0,"greek_valuation_offset_seconds"])
