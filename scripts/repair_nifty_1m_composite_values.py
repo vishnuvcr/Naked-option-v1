@@ -168,6 +168,14 @@ def repair_dataset(input_dir: pathlib.Path, output_dir: pathlib.Path, report_pat
                                 typ = row.get("row_type", "")
                                 epoch = row_epoch(row)
                                 flags_before = row.get("data_quality_flags", "") or ""
+                                session_text = row.get("session_date", "") or ""
+                                try:
+                                    session_weekday = dt.date.fromisoformat(session_text).weekday()
+                                except ValueError:
+                                    session_weekday = -1
+                                if session_weekday >= 5:
+                                    append_flag(row, "REPAIR_WEEKEND_SESSION_REVIEW_REQUIRED")
+                                    counts["weekend_session_rows_flagged"] += 1
 
                                 if typ == "SPOT":
                                     if not valid_ohlc(row, "nifty_"):
