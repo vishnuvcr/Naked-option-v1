@@ -446,3 +446,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The current matrix is a **data-gate report, not a P&L result**: 4,800 configurations are retained as `INELIGIBLE` until a point-in-time fixed-contract/expiry/lot/tick/quote-quality panel and its manifest pass a separate gate. The known composite cannot be silently treated as full exchange contract-master/quote history.
 - Workflow commit `111a3e3aa2e7656ef7acd27bd98f75d9e576d2f2` wires runner unit tests and pure self-test into Phase 8 CI. Hosted validation run [38159700708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159700708) is in progress.
 - Empirical P&L and the 4,800-cell grid remain disabled. Next: obtain hosted results, correct any regression defects, then submit the exact runner/hash snapshot to the tester before a cached-composite-only preflight job. No new source discovery/request is part of this step.
+
+
+## 2026-10-11 — Composite preflight uses canonical content hash, not gzip-header bytes
+
+- Runner self-tests and all registered grid checks passed in the initial hosted Phase 8 regression. Before real composite preflight, the implementation was aligned to the repository's established offline preflight rule: gzip metadata may vary during re-merge, but decoded CSV SHA-256, counts and schema must match exactly.
+- The runner now records the archive hash comparison for provenance and fails only if the canonical decoded CSV digest, row count, schema or row-type counts mismatch. No tolerance or data-quality threshold changed. No composite values or P&L have been processed yet.

@@ -433,3 +433,10 @@
 - Scope: pins saved Run #994 panel/manifest/aggregate hashes, defines the registered 4,800-cell matrix, supports a pure synthetic self-test and a stream-checked preflight for the exact cached composite.
 - Fail-closed behavior: current configuration matrix remains 4,800 `INELIGIBLE` rows until an independently approved point-in-time fixed-contract panel exists. The runner does not claim that the current rolling-option composite provides historical bid/ask or full official expiry/lot/tick history.
 - No market-data network requests, real option P&L, holdout access, or strategy promotion occurred in this implementation step. Hosted regression is tracked by run 38159700708.
+
+
+## 2026-10-11 — Preventive gzip-container hash handling correction in new runner
+- Category: cache reproducibility / compressed-container metadata
+- Reviewed against the existing `scripts/offline_dataset_preflight.py` contract, which explicitly notes that gzip creation timestamps can alter the compressed hash when identical monthly gzip parts are re-merged; it separately enforces the canonical uncompressed CSV hash.
+- Correction: the Phase 8 runner records whether the compressed gzip hash matches the pinned value but accepts a re-merged gzip only when the **canonical decoded CSV SHA-256** exactly matches `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`, row/column counts match, and the expected OPTION/SPOT counts match. A non-matching decoded content hash still fails closed.
+- This fix was made before any composite data was opened by the runner; it is a compatibility correction, not a waiver of content integrity. No P&L was generated.

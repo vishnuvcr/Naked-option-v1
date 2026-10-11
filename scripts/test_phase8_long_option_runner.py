@@ -53,7 +53,7 @@ def test_composite_preflight_fails_closed_on_nonmatching_cached_data():
         try:
             runner.preflight_composite_csv_gz(path)
         except ValueError as exc:
-            assert "compressed SHA-256 mismatch" in str(exc)
+            assert "canonical CSV SHA-256 mismatch" in str(exc)
         else:
             raise AssertionError("non-pinned composite must not be accepted")
 

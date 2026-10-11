@@ -324,3 +324,10 @@ No scientific or protocol change was made during this checkpoint.
 - The runner explicitly records all 4,800 parent configurations as INELIGIBLE while strict fixed-contract point-in-time metadata is missing/unapproved. This is a gate result, not an option strategy result. It emits no empirical P&L.
 - Added runner regression tests and wired them plus the pure self-test into the Phase 8 CI caller; exact code snapshot commit `111a3e3aa2e7656ef7acd27bd98f75d9e576d2f2`.
 - Hosted run 38159700708 is the first Phase 8 workflow to exercise the new runner tests. Next: review all job outcomes/logs, fix failures, then submit the exact runner snapshot to phase-08-tester before the cached composite preflight.
+
+
+## 2026-10-11 — Align R2 runner compressed-content verification with existing offline protocol
+
+- After hosted runner test/self-test pass, reviewed the preflight against `offline_dataset_preflight.py`. The existing offline audit deliberately separates gzip container hash from decoded CSV content hash because gzip metadata can vary after monthly parts are merged.
+- Adjusted Phase 8 preflight to record compressed hash match but make the exact canonical decoded CSV digest and row/column/row-type counts the acceptance conditions. Updated the synthetic negative test to ensure wrong decoded content still fails.
+- This is not a bypass: the encrypted monthly manifest/part hashes remain mandatory in the upcoming composite materialization job, and no data/P&L was opened by this correction.
