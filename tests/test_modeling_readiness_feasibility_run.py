@@ -23,6 +23,11 @@ class FeasibilityRunTests(unittest.TestCase):
                            "quality_flags": "q", "join_status": "j"},
             "row_type_values": {"option": "OPTION", "spot": "SPOT"},
             "timestamp_semantics": "BAR_END", "official_close_linkage_proven": True,
+            "official_close_linkage_evidence": {
+                "source_family":"SPOT_OFFICIAL_CLOSE", "source_sha256":"a"*64,
+                "mapping_rule":"LAST_VALID_BAR_MATCHES_OFFICIAL_DAILY_CLOSE",
+                "validation_report_sha256":"b"*64, "independent_validation_passed":True
+            },
         }
         sources = {"dataset_sha256": EXPECTED_DATASET_SHA256, "cache_only": True,
                    "source_vintages": [{"family": "SPOT_OHLCV", "pit_proven": True}]}
@@ -142,7 +147,10 @@ class FeasibilityRunTests(unittest.TestCase):
             calendar_manifest = {"valid_sessions":["2026-01-01","2026-01-02","2026-01-05","2026-01-06"]}
             split_manifest = {"train_end_session":"2026-01-01","validation_end_session":"2026-01-02",
                               "holdout_start_session":"2026-01-06","pre_holdout_prefix_rows":6,
-                              "train_eligible_origins":0,"common_validation_origins":0}
+                              "train_eligible_origins":1,"common_validation_origins":0}
+            with self.assertRaisesRegex(ValueError, "SPLIT_ORIGIN_COUNT_MISMATCH"):
+                _scan_prefix(path, len(prefix_bytes), split_manifest, input_manifest, source_manifest, calendar_manifest)
+            split_manifest["train_eligible_origins"] = 0
             report = _scan_prefix(path, len(prefix_bytes), split_manifest, input_manifest, source_manifest, calendar_manifest)
             self.assertEqual(report["prefix_rows_scanned"], 6)
             self.assertEqual(report["option_rows_scanned"], 3)
@@ -190,6 +198,11 @@ class FeasibilityRunTests(unittest.TestCase):
                            "low":"f","close":"g","volume":"h","quality_flags":"i","join_status":"j"},
             "row_type_values": {"option":"OPTION","spot":"SPOT"},
             "timestamp_semantics":"BAR_END","official_close_linkage_proven":True,
+            "official_close_linkage_evidence": {
+                "source_family":"SPOT_OFFICIAL_CLOSE","source_sha256":"a"*64,
+                "mapping_rule":"LAST_VALID_BAR_MATCHES_OFFICIAL_DAILY_CLOSE",
+                "validation_report_sha256":"b"*64,"independent_validation_passed":True
+            },
         }
         sources = {"dataset_sha256":EXPECTED_DATASET_SHA256,"cache_only":True,
                    "source_vintages":[{"family":"SPOT_OHLCV","pit_proven":True}]}
