@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "gate_id": "MODELING_READINESS_R5",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "dataset": {
+    "id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+    "decoded_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "structural_run_id": 38147761301,
+    "structural_tester_report": "research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md",
+    "expected_data_rows": 8999865,
+    "expected_columns": 47,
+    "expected_row_type_counts": {
+      "OPTION": 8490723,
+      "SPOT": 509142
+    }
+  },
+  "intent": "deterministic metadata/session/target/feature/split feasibility only; no model fit, scoring, tuning, holdout observation read, or new source request",
+  "allowed_next_scope_if_tester_approved": "one exact-lineage metadata-only feasibility audit, sanitized report only",
+  "permissions": {
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "final_holdout_observations": false,
+    "new_source_requests": false,
+    "options_strategy_or_pnl": false,
+    "trading_endpoint": false,
+    "plaintext_dataset_artifacts": false
+  },
+  "gates": [
+    {
+      "id": "MR-0",
+      "name": "existing cached source/calendar inventory",
+      "status": "PROPOSED",
+      "pass_requires": [
+        "exact data identity",
+        "cache/source vintage provenance",
+        "available session-calendar evidence"
+      ],
+      "failure_states": [
+        "BLOCKED_MISSING_PROVENANCE"
+      ]
+    },
+    {
+      "id": "MR-1",
+      "name": "standalone SPOT session and timestamp audit",
+      "status": "PROPOSED",
+      "pass_requires": [
+        "timestamp/candle convention established",
+        "NSE session membership checked",
+        "weekend flags reconciled",
+        "per-session bars and gaps reported"
+      ],
+      "failure_states": [
+        "PASS_WITH_EXCLUSIONS",
+        "NOT_ESTIMABLE"
+      ]
+    },
+    {
+      "id": "MR-2",
+      "name": "target endpoint feasibility",
+      "status": "PROPOSED",
+      "horizons_sessions": [
+        1,
+        2,
+        3,
+        5,
+        10
+      ],
+      "pass_requires": [
+        "official close linkage or task marked NOT_ESTIMABLE",
+        "valid OHLC",
+        "exact NSE-session horizon indexing",
+        "label coverage and missing endpoints quantified"
+      ],
+      "failure_states": [
+        "PASS_WITH_RESTRICTIONS",
+        "NOT_ESTIMABLE"
+      ]
+    },
+    {
+      "id": "MR-3",
+      "name": "feature-family availability/PIT assessment",
+      "status": "PROPOSED",
+      "feature_families": [
+        "spot_ohlcv",
+        "option_ohlc_iv_oi_volume",
+        "expiry_tte",
+        "greeks_rates_dividends",
+        "fii_dii",
+        "vix_pcr",
+        "global_markets_gold",
+        "news_social_sentiment",
+        "corporate_actions_constituents"
+      ],
+      "pass_requires": [
+        "nonblank/valid counts",
+        "publication/availability timestamp evidence",
+        "exact join and missingness diagnostics",
+        "explicit eligible/blocked status per family"
+      ],
+      "failure_states": [
+        "BLOCKED_DATA",
+        "NOT_ESTIMABLE"
+      ]
+    },
+    {
+      "id": "MR-4",
+      "name": "split/label leakage/holdout feasibility",
+      "status": "PROPOSED",
+      "pass_requires": [
+        "holdout-exclusion metadata hash verified without reading observations",
+        "training label endpoints strictly earlier than decisions",
+        "chronological origin hashes",
+        "label purging",
+        "at least 252 train origins and 250 common validation origins"
+      ],
+      "failure_states": [
+        "BLOCKED_HOLDOUT_PROOF",
+        "INCOMPLETE_NOT_PROMOTABLE",
+        "NOT_ESTIMABLE"
+      ]
+    },
+    {
+      "id": "MR-5",
+      "name": "isolated tester result review",
+      "status": "PROPOSED",
+      "pass_requires": [
+        "exact hashes",
+        "sanitized report",
+        "artifact integrity",
+        "cleanup receipt",
+        "per-target/per-feature terminal statuses"
+      ],
+      "failure_states": [
+        "REQUEST_CHANGES",
+        "PASS_WITH_SCOPED_RESTRICTIONS"
+      ]
+    }
+  ],
+  "no_imputation": [
+    "target prices",
+    "option prices",
+    "underlying joins",
+    "spot volume",
+    "Greek values",
+    "expiry/TTE",
+    "rates",
+    "dividend yields"
+  ],
+  "target_contract": {
+    "current_status": "PROPOSED_NOT_AUTHORIZED",
+    "contract_path": "research/phase7/PPR_TARGET_INFERENCE_CONTRACT.json",
+    "decision_timezone": "Asia/Kolkata",
+    "calendar": "official NSE session calendar; no weekday-only substitute",
+    "horizons_sessions": [
+      1,
+      2,
+      3,
+      5,
+      10
+    ],
+    "direction_classes": [
+      "DOWN",
+      "FLAT",
+      "UP"
+    ],
+    "neutral_tolerance_abs_return": 1e-8,
+    "requirements": [
+      "validate minute timestamp start/end semantics",
+      "validate official-close mapping from existing authorized cache",
+      "no interpolation/nearest-time matching",
+      "horizon indexing by eligible NSE sessions"
+    ]
+  },
+  "known_restrictions": {
+    "unmatched_option_rows": 19021,
+    "unmatched_option_timestamps": 421,
+    "weekend_session_review_flagged_rows": 24847,
+    "joined_option_rows_masked_for_invalid_spot_ohlc": 382,
+    "standalone_spot_ohlc_rows_masked": 12,
+    "spot_volume_values_masked": 309,
+    "option_volume_values_masked": 11,
+    "fully_blank_all_rows": [
+      "expiry_date",
+      "expiry_mapping_source",
+      "time_to_expiry_years",
+      "greek_assumption",
+      "delta",
+      "gamma",
+      "theta_per_day",
+      "vega_per_1pct_iv",
+      "rho_per_1pct_rate",
+      "risk_free_rate_decimal",
+      "risk_free_rate_source",
+      "dividend_yield_decimal",
+      "dividend_yield_source"
+    ]
+  },
+  "synthetic_tests_required": [
+    "session and special-session membership",
+    "ambiguous candle timestamp semantics fail closed",
+    "SPOT session-key duplicates/missing keys",
+    "OHLC checks and missing-volume propagation",
+    "weekend-flag special-session distinction",
+    "NSE-session horizon mapping for 1/2/3/5/10",
+    "label sign and fixed FLAT tolerance",
+    "chronological split and horizon-specific purging",
+    "missing holdout manifest blocks readiness",
+    "unavailable publication timestamps block PIT feature families",
+    "blank expiry/Greek/rate/dividend inputs remain blocked",
+    "common-origin count and incomplete candidate fail closed",
+    "sanitized metadata-only artifact and cleanup"
+  ],
+  "hard_boundary": {
+    "empirical_execution_authorized": false,
+    "fitting_authorized": false,
+    "holdout_access_authorized": false,
+    "new_source_requests_authorized": false,
+    "strategy_pnl_authorized": false,
+    "next_phase_authorized": "tester-review-required"
+  }
+}
