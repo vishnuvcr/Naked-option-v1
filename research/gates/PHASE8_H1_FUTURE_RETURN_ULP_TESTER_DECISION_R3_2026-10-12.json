@@ -1,0 +1,37 @@
+{
+  "phase": "8",
+  "gate": "H1 future_return ULP source-alignment validation",
+  "review": "R3",
+  "date": "2026-10-12",
+  "decision": "REQUEST_CHANGES",
+  "developer_code_test_head": "da33a40f4f52e51807ca0fb7882e7920021c47a1",
+  "cache_only_reconstruction_run": {
+    "id": 38165151602,
+    "head": "d012713dae811dba0ad919f2a6a0edb5821f0ff8",
+    "conclusion": "failure",
+    "reason": "required frozen daily source cache absent; fail-closed before validation"
+  },
+  "guarded_retry_run": {
+    "id": 38165231846,
+    "head": "a3c3e4c04f094f92aff61b5615f64ff74e0eafb5",
+    "conclusion": "failure",
+    "reason": "same missing frozen source cache; source-audit job correctly skipped"
+  },
+  "prior_full_reconstruction": {
+    "id": 38164524835,
+    "head": "21dd39b6819dcc1ecae67307633fe4621e168c58",
+    "conclusion": "success",
+    "daily_h1_mismatch_count": 64,
+    "max_abs_diff": 3.469446951953614e-18,
+    "max_ulp_distance": 1,
+    "out_of_policy_count": 0
+  },
+  "required_action": "Locate already archived frozen source inputs and verify pinned hashes; if absent, submit a separate request for one-time pinned historical-source restoration. No acquisition before review.",
+  "restrictions": [
+    "no option P&L",
+    "no holdout access",
+    "no strategy promotion",
+    "no unpinned source acquisition"
+  ],
+  "r1_preflight_authorization": "consumed_disabled"
+}
