@@ -956,3 +956,10 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - [PR #9](https://github.com/vishnuvcr/Naked-option-v1/pull/9) merged into `phase-07-developer` at `b295a5da96722a42865d36f40eeeca1eec31eab2`.
 - The actual CSV.GZ is not present in this execution runtime. No row-level preflight, model fitting/scoring, holdout evaluation or strategy/P&L testing was performed. These gates remain closed.
 - Next step is a separately reviewed design for a bounded real-file audit that runs only in an authorized environment and publishes metadata only, never plaintext rows.
+
+## 2026-10-11 — Exact-file preflight implementation submitted under tester gate
+
+- [Proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/REAL_FILE_PREFLIGHT_PROPOSAL_2026-10-11.md) and [tester proposal review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_PROPOSAL_TESTER_REVIEW_2026-10-11.md).
+- [Implementation review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_REVIEW_2026-10-11.md) approved one exact-lineage structural scan only after synthetic CI run [38137514604](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38137514604) passed.
+- [PR #10](https://github.com/vishnuvcr/Naked-option-v1/pull/10) merged into the developer branch. Execution request [commit](https://github.com/vishnuvcr/Naked-option-v1/commit/eb307f32294924591320dc4688127462e8e6b091) pins the tester decision blob.
+- The actual audit run/report is **not yet verifiably visible through the available connector**. No data audit result is claimed. Model fitting, holdout access and strategy/P&L remain closed until the sanitized report is independently checked.
