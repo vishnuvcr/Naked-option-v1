@@ -1365,3 +1365,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
  
 **Developer → Tester:** Verify the R5 duplicate count against canonical identity and coverage concerns after report upload.
 **Tester → Developer:** Do not promote the dataset or open modelling from the R4 result; require the R5 report and a separate data-readiness ruling.
+
+
+## 2026-10-11 — Resume orchestration syntax error (no research-data impact)
+- A repository status-update helper call initially failed to parse because Markdown backticks were embedded unescaped inside a JavaScript template literal.
+- Root cause: malformed orchestration string, before any GitHub write was issued.
+- Correction: rewrote the text without nested template-literal delimiters; the subsequent README, research status and chat-log updates succeeded.
+- Impact: none on the research code, approved file hashes, R5 workflow snapshot, encrypted data, or empirical results.
+- Prevention: avoid nested backticks in tool-call template strings and verify that a failed helper call did not commit partial writes.
