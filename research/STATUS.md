@@ -338,3 +338,13 @@ The independent static review accepts developer commit 39e964d's P10 diagnostic 
 **Developer → Tester:** Review the exact-snapshot modelling-readiness proposal and preflight before authorizing any prediction-model run.
 
 **Tester → Developer:** Keep model/holdout/strategy gates closed unless the modelling-readiness gate independently passes.
+
+
+## 2026-10-11 — One-time offline CSV export launched
+
+- Tester-scoped decision: [OFFLINE_CSV_EXPORT_TESTER_REPORT_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_2026-10-11.md) and [machine-readable decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_DECISION_2026-10-11.json). The exact developer snapshot passed the repository protocol check [38132975473](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38132975473).
+- Promoted only the reviewed export workflow and public key. Export run [38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676) is queued against the exact repaired artifact [11698879857](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336/artifacts/11698879857).
+- Expected export: one merged CSV.GZ with one header and 8,999,865 data rows, after authenticating/decrypting all 61 repaired monthly parts and checking the row count and schema.
+- The export workflow encrypts the merged file to a one-time public key. Only ciphertext, wrapped AES key and sanitized metadata are uploaded to a one-day Actions artifact; plaintext is removed from runner scratch. No plaintext CSV is committed to the public repository.
+- Final downloadable files are **not ready yet**. Do not claim export success until the workflow succeeds, the encrypted artifact is downloaded, local decryption validates the SHA-256 and all 8,999,865 rows, and temporary private key material is removed.
+- The existing research data, repair artifact, and model/holdout/strategy gates are unchanged; this is a user-requested offline export only.
