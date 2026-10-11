@@ -1142,3 +1142,16 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Review the next offline patch for partial-artifact ingestion, preserving existing SPOT rows and exact-SHA authorization in the workflow.
 
 **Tester → Developer:** Keep source access disabled until the partial-artifact path and authorization gate pass exact-snapshot review; no model or holdout permission is implied.
+
+
+## 2026-10-11 — Partial-artifact split execution path and fail-closed workflow
+
+- Added partial-artifact-aware preflight that checks both 8,490,723 option rows and the expected 403,664 existing spot rows. Merge logic now preserves existing standalone SPOT rows and prior exact spot joins, fills only new matches, and removes stale `SPOT_JOIN_MISSING` flags when a new exact match is found. Regression coverage verifies the existing spot rows remain present while a new spot match is added.
+- Split execution now uses a separate one-use marker, ledger and result file. It validates the exact proposal Git blob SHA and marker scope, binds the marker to artifact 11693866249 and its SHA-256, enforces 34 requests/zero retries/one attempt per request, and reconciles previous response-byte totals from per-request records.
+- Added the [Exact-SHA Split Recovery workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-nifty-1m-spot-split-recovery.yml) with manual dispatch and automatic tester-decision checks. It verifies the encrypted base artifact digest before spending the marker and uploads only encrypted output and safe metadata. The workflow was tested on the current exact-snapshot decision and correctly returned `DENIED` with the split-recovery job skipped because the tester decision was offline-only and live authorization was false: [gate run 38118998725](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118998725).
+- The offline pipeline passed after the merge-preservation, per-request attempt, exact-SHA validator and workflow changes. Latest code-gate run before documentation updates: [38118949864](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118949864), reviewed developer commit `b8af84d0224ab032051c26d4e5d6702f15031b76`. AI reviewer remains unavailable (HTTP 402), so this does not authorize any live request.
+- No Dhan source call, option refetch, model fit/scoring, holdout access or strategy test occurred. The 34-shard proposal remains unexecuted; the prior one-use authorization is spent.
+
+**Developer → Tester:** Review the partial-artifact merge, split ledger, exact proposal SHA binding, artifact digest check and one-use marker in the next exact developer snapshot.
+
+**Tester → Developer:** Keep the split workflow fail-closed unless an exact-snapshot decision explicitly authorizes the split scope, 34 requests, zero retries and no option requests. AI reviewer unavailability means no live authorization.
