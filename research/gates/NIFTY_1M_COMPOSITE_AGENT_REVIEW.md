@@ -1,8 +1,8 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: REQUEST_CHANGES
-- Reviewed developer commit: f75d2bb5b60619d44e97e47986662719d15858e6
-- Report time (UTC): 2026-10-11T05:56:26Z
+- Reviewed developer commit: 409c40c41eee980cc9ead4cf8cb6958842514676
+- Report time (UTC): 2026-10-11T05:57:13Z
 - Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
@@ -17,7 +17,7 @@
 - INFO — SPOT_OHLC_STRICT_VOLUME_DEGRADED: Timestamp/OHLC arrays remain mandatory and aligned; unusable volume stays blank and is quality-flagged.
 - INFO — SANITIZED_DIAGNOSTIC_PRESENT: Unexpected validation errors retain a bounded reason token without logging payload bodies.
 - INFO — SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS: The one-request diagnostic scope is pinned to the frozen request manifest and writes only sanitized metadata.
-- BLOCKER — SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING: Recovery workflow must count the diagnostic wire attempt, prove all 8,540 option caches are valid and disable live option refetches before the one-use marker is spent. missing_collector=;missing_audit=;missing_accounting=;missing_workflow=audit_nifty_1m_composite_cache.py,SPOT_ONLY_CACHE_PRESERVING_RECOVERY,run_nifty_1m_composite_dataset.py --spot-only-recovery,nifty1m-composite-,account_nifty_1m_probe_attempt.py
+- BLOCKER — SPOT_ARTIFACT_GAPFILL_GUARD_FAILED: The artifact-based gapfill fails its independent scope/merge/privacy contract. grid=;missing_runner_or_test=run_nifty_1m_composite_dataset.py;missing_workflow=;forbidden_runner_patterns=
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: missing-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: empty-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: misaligned volume array.
@@ -27,12 +27,13 @@
 
 ## Offline test summary
 
-- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py scripts/account_nifty_1m_probe_attempt.py scripts/test_account_nifty_1m_probe_attempt.py scripts/test_audit_nifty_1m_composite_cache.py (exit 0)
+- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py scripts/account_nifty_1m_probe_attempt.py scripts/test_account_nifty_1m_probe_attempt.py scripts/test_audit_nifty_1m_composite_cache.py scripts/run_nifty_1m_spot_gapfill.py scripts/test_nifty_1m_spot_gapfill.py (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_manifest (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_dataset (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 0)
 - PASS: python -m unittest -v test_account_nifty_1m_probe_attempt (exit 0)
 - PASS: python -m unittest -v test_audit_nifty_1m_composite_cache (exit 0)
+- PASS: python -m unittest -v test_nifty_1m_spot_gapfill (exit 0)
 
 ## Independent AI review
 
