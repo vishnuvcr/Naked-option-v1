@@ -271,8 +271,17 @@ The independent static review accepts developer commit 39e964d's P10 diagnostic 
 ## Dhan patch post-run value audit - run 38126168547
 
 - Patch run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547
-- Sanitized report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json
+- Sanitized report: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json
 - Audit status: FAIL; semantic error occurrences: 714.
 - Option rows: n/a; spot rows: n/a; unmatched option rows: 19021.
 - Model fitting, holdout access, and strategy/P&L testing remain unauthorized.
 
+
+
+## Post-R2 value audit and next offline gate — 2026-10-11
+
+- Audit [38126839141](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126839141) completed encrypted artifact hash/manifest checks, decryption, timestamp diagnostics and semantic scan. The pipeline ended with audit status FAIL (the final acceptance gate correctly rejected the dataset).
+- [Sanitized value audit](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json): options=8,490,723; spot=509,142; total=8,999,865; exact matches=8,471,702; unmatched=19,021; semantic errors=714. Critical counts: 382 invalid matched NIFTY OHLC occurrences, 12 standalone spot OHLC occurrences, 309 negative NIFTY-volume occurrences, 11 negative option-volume occurrences. Duplicate composite keys and spot timestamps=0.
+- [R2 window diagnostic](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json): 2,244 new R2 spot timestamps; exact overlap with unmatched option timestamps=0; unmatched option rows in failed week=0. This explains why the patch did not increase join matches.
+- The [tester post-run decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json) is REQUEST CHANGES. No further source calls or modelling are authorized.
+- All-date offline mapping workflow added: [.github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml). It analyzes the same encrypted R2 artifact for unmatched timestamps by date, existing-spot intersections and nearest signed offsets only; no prices are emitted or changed. A report will be published under `research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json`.

@@ -20,3 +20,12 @@ This file is the main-branch entry point for recorded errors and corrections. En
 ## Current distinction
 
 A GitHub Actions protocol/validator failure is an engineering or governance failure, not a trading-performance result. A successful protocol gate likewise does not validate a strategy. Phase 7 Run #994 remains the only current empirical target until its model execution, schema validation, artifact upload and separate independent tester audit all complete.
+
+
+## 2026-10-11 — R2 audit and all-date offline diagnostic activation
+- Audit run [38126839141](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126839141) published the sanitized report after the earlier non-fast-forward failure. Its final job was marked failure because the audit status is **FAIL**, not because artifact verification/decryption failed.
+- Dataset status: 8,490,723 option rows; 509,142 spot rows; 8,471,702 exact matches; 19,021 unmatched; 714 semantic error occurrences; duplicate option keys and spot epochs=0. Keep `PARTIAL_GRID` and all modelling gates closed.
+- R2 window diagnostic is committed: [report](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json). It found zero unmatched options in the patched week and zero intersection between new R2 spot timestamps and the unmatched-option set.
+- A previous push of the sanitized reports failed on non-fast-forward, and generated README/status links with local runner paths. Both errors were logged; a later rerun committed the result, and the link path was corrected.
+- New offline mapping code is validated by the passing full offline suite [38127552962](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127552962). The standalone map workflow is being added; it reads only encrypted artifact 11696937921, emits date/count/offset aggregates, and makes no live request.
+- Tester post-run decision is REQUEST CHANGES; the R2 marker is spent. No additional Dhan requests, models, holdout or strategy testing are authorized.

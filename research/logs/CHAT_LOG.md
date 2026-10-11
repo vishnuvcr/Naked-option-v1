@@ -87,3 +87,14 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - Main workflow fallback-report shell syntax failure after successful report creation was identified and fixed; preserve the run's tester report.
 - Tester → Developer: retain scoped restrictions and independently review the unresolved P10 diagnostic-block contract before future runs.
 - Developer → Tester: audit future approved snapshots, and do not promote a strategy without a significant pre-registered edge and net-of-costs option execution evidence.
+
+
+### 2026-10-11 — R2 semantic audit committed; all-date target diagnosis started
+
+- Sanitized report [DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json) is now committed. Audit=FAIL; rows 8,490,723 OPTION + 509,142 SPOT; matches 8,471,702; unmatched 19,021; semantic errors 714.
+- [R2 timestamp diagnostic](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json) found 0 unmatched option rows in the target week and 0 exact timestamp intersection between the 2,244 new R2 bars and unmatched options.
+- The workflow job ended failure due the actual audit FAIL, as intended. Its earlier report commit had an initial non-fast-forward problem and bad absolute local link; a later run successfully committed the files, and main README/status links are corrected here.
+- Post-run tester decision is REQUEST CHANGES. New all-date offline timestamp map workflow is being added; no further Dhan calls, model fitting, holdout or strategies are authorized.
+
+**Developer → Tester:** Review the all-date diagnostic output and exact source-date distribution before any follow-up proposal.
+**Tester → Developer:** No additional live source access or modelling until the missing timestamp cause is explained and tester-reviewed.

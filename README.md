@@ -809,14 +809,28 @@ No prediction fitting/scoring, holdout access, or strategy/P&L tests are authori
 
 The first deployment of the offline value-audit workflow failed before any job started because the artifact-download step header had been omitted during insertion of the preflight self-test. That failed run did not download or decrypt the artifact. The developer workflow has been corrected and the exact updated snapshot passed the complete offline suite at [run 38121967789](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967789) and protocol checks at [run 38121967994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967994). The current tester-role code review is [DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md); as documented there, it is a same-session scoped review, not independent external validation.
 
-The corrected workflow is being redeployed from the exact reviewed blob. Actual value-level validation remains pending until the hosted workflow downloads the existing artifact, authenticates decryption, writes the sanitized report, removes plaintext temporary files, and completes with a verified result. Collection remains closed; no prediction model, holdout, or strategy test has run.
+The post-run value audit completed on the encrypted R2 artifact. See [audit run 38126839141](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126839141), [sanitized audit report](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json), and [timestamp diagnostic](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json). The audit is **FAIL**: 8,490,723 option rows, 509,142 spot rows, 19,021 unmatched option rows and 714 semantic error occurrences. R2 added 2,244 spot rows but the exact join count did not improve. No prediction model, holdout or strategy test is authorized.
 
 
 ## Latest Dhan patch value audit - run 38126168547
 
 - Patch run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547
-- Sanitized report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json
-- Audit status: FAIL; semantic error occurrences: 714.
-- Option rows: n/a; spot rows: n/a; unmatched option rows: 19021.
+- Sanitized report: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json
+- Audit status: **FAIL**; semantic error occurrences: **714**.
+- Option rows: **8,490,723**; spot rows: **509,142**; exact spot matches: **8,471,702**; unmatched option rows: **19,021**.
 - Model fitting, holdout access, and strategy/P&L testing remain unauthorized.
 
+
+
+## Next step: all-date unmatched-option timestamp map
+
+The R2 failed-week patch is complete, but it did **not** repair the missing spot joins. Offline timestamp checking found **zero unmatched option rows** in 8–15 November 2021 and zero exact-epoch intersections between the 2,244 new R2 bars and the remaining unmatched options. A fresh exact-date map is now being run against the same encrypted artifact; it will group all 19,021 unmatched option rows by session date, count distinct timestamps, check exact overlap with existing spot bars, and report nearest signed epoch offsets for diagnosis only.
+
+- [Offline diagnostic workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml)
+- [Audited R2 dataset report](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_38126168547.json)
+- [R2 window-alignment report](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json)
+- [Post-run tester decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json)
+- [Developer offline analyzer](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/scripts/diagnose_nifty_1m_unmatched_spot_targets.py)
+- [Latest passing offline test suite](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127552962)
+
+No additional Dhan requests are authorized by the post-run tester decision. No option API, model fitting/scoring, holdout access or strategy/P&L test is permitted. The new timestamp diagnostic uses no source calls, emits no prices, and does not modify source data.
