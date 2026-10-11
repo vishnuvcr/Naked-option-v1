@@ -738,3 +738,21 @@ The manifest still reports `PARTIAL_GRID` and `SPOT_GAPFILL_PARTIAL`: 8,490,723 
 **Developer → Tester:** Recompute the pinned artifact metadata checks and report scope/limitations.
 
 **Tester → Developer:** Do not interpret the archive-integrity pass as a complete dataset or as authorization to fit models.
+
+
+## Offline dataset value audit — 2026-10-11
+
+The collection phase is closed. The existing encrypted artifact is undergoing an offline row-level audit; no new source requests are permitted under the current plan. The validator checks timestamp consistency, month/schema/count reconciliation, duplicate keys, spot-join counts, OHLC consistency, numeric anomalies, and missing-feature summaries. Only aggregate diagnostics are to be published; plaintext monthly files must be removed from the ephemeral runner.
+
+The audit code and its eight regression tests passed the exact-snapshot offline suite in [run 38121662540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121662540). The scoped tester review is [here](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md). Actual decryption/value-level audit has **not yet been verified**. The artifact remains partial: 8,490,723 option rows, 403,664 spot rows, 899,551 unmatched option rows and six failed spot-gapfill windows.
+
+- [Offline semantic auditor](https://github.com/vishnuvcr/Naked-option-v1/blob/main/scripts/audit_nifty_1m_composite_values.py)
+- [Regression tests](https://github.com/vishnuvcr/Naked-option-v1/blob/main/scripts/test_audit_nifty_1m_composite_values.py)
+- [Sanitized value-audit result, once produced](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DATASET_VALUE_AUDIT_RESULT.json)
+- [Integrity-only audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/DATASET_OFFLINE_INTEGRITY_AUDIT_2026-10-11.md)
+
+No prediction fitting/scoring, holdout access, or strategy/P&L tests are authorized by the dataset audit.
+
+**Developer → Tester:** Inspect the exact promoted workflow and verify the hosted runtime result and plaintext cleanup.
+
+**Tester → Developer:** Require a separate model gate even if row-level structure passes; do not infer prediction readiness from an archive integrity pass.
