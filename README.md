@@ -846,6 +846,17 @@ No additional Dhan requests are authorized by the post-run tester decision. No o
 - R2 spot rows on weekend-dated session labels: 2613. All rows remain unmodified.
 - Value anomaly occurrence categories: {"MATCHED_NIFTY_OHLC:HIGH_BELOW_CLOSE": 112, "MATCHED_NIFTY_OHLC:HIGH_BELOW_OPEN": 108, "MATCHED_NIFTY_OHLC:LOW_ABOVE_CLOSE": 112, "MATCHED_NIFTY_OHLC:LOW_ABOVE_OPEN": 50, "OPTION_VOLUME:NEGATIVE_VOLUME": 11, "SPOT_OHLC:HIGH_BELOW_CLOSE": 5, "SPOT_OHLC:HIGH_BELOW_OPEN": 2, "SPOT_OHLC:LOW_ABOVE_CLOSE": 4, "SPOT_OHLC:LOW_ABOVE_OPEN": 1, "SPOT_VOLUME:NEGATIVE_VOLUME": 309}.
 - Distinct joined-NIFTY OHLC violation epochs: 7; standalone spot OHLC violation epochs: 12.
-- Timestamp report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json
-- Value anomaly report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_38126168547.json
+- Timestamp report: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json
+- Value anomaly report: https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_38126168547.json
 - No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run.
+
+
+## Data anomaly provenance results — 2026-10-11
+
+- [Sanitized provenance report](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_38126168547.json) completed against the fixed encrypted R2 artifact. It emitted no market prices or volumes and did not modify source rows.
+- 382 joined-NIFTY OHLC violation occurrences reduce to **7 distinct timestamps**. These are repeated occurrences across option contracts, not 382 separate underlying bars.
+- The 12 standalone spot OHLC violation occurrences correspond to **12 distinct spot timestamps**.
+- The 309 negative spot-volume occurrences correspond to **309 distinct timestamps**. The 11 negative option-volume occurrences affect **10 distinct timestamps**.
+- The report found zero duplicate spot timestamps, zero invalid session-date rows, and no exact-epoch mismatches between joined NIFTY values and standalone spot rows.
+- The all-date map still has **19,021 unmatched option rows across 421 timestamps**. None of those timestamps exists in the current spot row set; 196 timestamps have a nearest same-day spot bar within 60 seconds and 296 within 300 seconds. These offsets are diagnostic only and are not used for joins.
+- Repair policy: reconcile matched NIFTY OHLCV only to the standalone spot row at the identical epoch; mask invalid OHLC/volume as missing; preserve unmatched rows as unmatched. No new collection or modeling is authorized.
