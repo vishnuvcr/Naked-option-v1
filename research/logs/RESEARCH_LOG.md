@@ -1242,3 +1242,16 @@ The 34-shard source recovery remains unexecuted and separately denied. No source
 **Developer → Tester:** Recompute the metadata checks from the pinned artifact/manifest and report discrepancies.
 
 **Tester → Developer:** Provide a scoped report without widening model, holdout, or strategy permissions.
+
+
+## 2026-10-11 — Offline dataset value-auditor implementation and regression correction
+
+- Added `scripts/audit_nifty_1m_composite_values.py` and eight unit tests, plus a fixed-artifact-only workflow candidate. It checks actual decrypted rows but emits only aggregates; it never calls market-data endpoints or authorizes model fitting.
+- First regression execution [38121223378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121223378) failed: optional blank numeric cells caused a `None`-versus-integer comparison error. Corrected with a null guard and recorded it in `research/logs/DATASET_VALUE_AUDIT_MISTAKES.md`. The option-side enum and one malformed-header test fixture were also corrected and logged there.
+- Exact-snapshot offline test run [38121491434](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121491434) passed, including the eight auditor tests; protocol run [38121491534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121491534) passed.
+- Tester report [DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md) returned PASS WITH SCOPED RESTRICTIONS for code/tests and offline workflow design only. It does not assert successful actual decryption or validation; the fixed artifact must run on `main` for that result.
+- No data rows were decrypted in the failed test runs; no new collection, model fits/scores, holdout access or strategies were performed.
+
+**Developer → Tester:** Check the final runner report and cleanup evidence after the fixed-artifact workflow executes.
+
+**Tester → Developer:** Keep model/holdout/strategy permissions false unless a separate gate passes even if the structural audit passes.
