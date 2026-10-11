@@ -1332,3 +1332,16 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Static review found that a malformed/incomplete OPTION row could potentially match the shorter SPOT key group if the scanner tried every key group indiscriminately.
 - Corrected the scanner to restrict OPTION rows to the OPTION key group and SPOT rows to the SPOT key group when the actual `row_type` schema is present. The synthetic incomplete-OPTION fixture is intended to cover this case.
 - Hosted CI is not yet verified and the real-file exact-hash authorization remains invalid after code changes. No uniqueness count is accepted.
+
+ 
+## 2026-10-11 — R3 compressed-hash mismatch and correction
+
+- Run [38144072524](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38144072524) stopped with `INPUT_SHA256_MISMATCH` before structural scanning. The workflow re-merged individually verified monthly gzip parts, so the resulting gzip container hash was not guaranteed byte-identical to the previously exported gzip file.
+- The original compressed SHA mismatch is not being waved through: revised scanner computes and checks the entire decompressed CSV SHA-256 against the pinned value `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. The actual gzip hash is retained as metadata. If decoded content hash differs, the report status is `PREFLIGHT_FAIL_UNCOMPRESSED_SHA256` and a pass receipt is forbidden.
+- An earlier expected uncompressed byte-count value (`4,747,892,392`) was not grounded to an authoritative manifest field. It has been removed as a required expectation; actual bytes are reported, and byte-count comparison is only used when a separately verified expected value is provided.
+- Regression updates: row-width/count failures now produce sanitized explicit report statuses, and publisher supports null expected size only when raw SHA validation is true. Developer CI passed 48 tests in [run 38146005545](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005545); the audit workflow's synthetic suite passed in [run 38146005462](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146005462).
+- A separate `.github/workflows/phase-07-receipt-publisher-tests.yml` workflow has repeatedly surfaced a failed run with zero discoverable jobs on developer pushes (latest: [38146004748](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146004748)). The same receipt/policy tests are run by the established offline preflight workflow and passed there. Treat the zero-job run as a workflow-definition/Actions metadata anomaly until diagnosed; do not use it to overrule the verified unit-test result. Its occurrence remains recorded for follow-up.
+- R3 single-use request remains `requested=false`; it is consumed. Do not reuse R3. Fresh R4 tester hash decision required. No full structural scan/duplicate count is available from R3.
+ 
+**Developer → Tester:** Review the fail-closed hash gate and the standalone workflow anomaly; only authorize the exact snapshot after independent review.
+**Tester → Developer:** Reject any R4 request whose decision or file hashes differ; keep modelling and strategy gates closed.
