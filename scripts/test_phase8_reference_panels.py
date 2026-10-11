@@ -139,7 +139,21 @@ def test_full_artifact_directory_validation():
             source_intra.write_bytes(b"synthetic-intraday-source")
             validator.ROOT = root
             validator.verify_code_hashes = lambda manifest: None
-            validator.verify_panel_source_alignment = lambda frame, layer, horizon, daily, intraday: None
+            validator.verify_panel_source_alignment = lambda frame, layer, horizon, daily, intraday: {
+                "layer": layer,
+                "horizon": int(horizon),
+                "label_direction_exact": True,
+                "decision_timestamp_exact": True,
+                "future_return": {
+                    "max_ulps_allowed": 2,
+                    "exact_mismatch_count": 0,
+                    "accepted_within_ulps_count": 0,
+                    "out_of_policy_count": 0,
+                    "max_abs_diff": None,
+                    "max_ulp_distance": None,
+                    "first_non_exact_pairs": [],
+                },
+            }
             validator.load_reference_phase7_module = lambda commit: p7
             validator.p7 = p7
             p7.p6.load_daily = lambda: pd.DataFrame()
@@ -243,6 +257,8 @@ def test_full_artifact_directory_validation():
             assert result["total_cells"] == 10
             assert result["all_cells_reproduced"] is True
             assert len(result["prediction_files"]) == 10
+            assert result["cells"][0]["source_alignment"]["future_return"]["max_ulps_allowed"] == 2
+            assert result["cells"][0]["source_alignment"]["future_return"]["out_of_policy_count"] == 0
             assert len(list(output.glob("phase7_predictions_*.parquet"))) == 10
             phase8_panel_validator.ROOT = root
             phase8_panel_validator.REPORT = output
