@@ -33,6 +33,9 @@ from run_nifty_1m_composite_dataset import (
     load_json, parse_json_numbers, parse_spot_response, request_scope_hash,
     remove_invalid_cache, store_cached_payload, utc_now, _validate_request_payload,
 )
+# Reuse only the existing parser, schema, encryption and request-budget helpers from
+# scripts/run_nifty_1m_composite_dataset.py. This runner itself makes intraday
+# spot requests only; it never invokes the rolling-option endpoint.
 import run_nifty_1m_composite_dataset as collector
 import decrypt_nifty_1m_composite as decryptor
 
