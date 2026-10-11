@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/phase-07-real-file-preflight-audit.yml'
       - 'scripts/offline_dataset_preflight.py'
+      - 'scripts/test_offline_dataset_actual_schema.py'
       - 'scripts/validate_real_file_preflight_authorization.py'
       - 'scripts/test_validate_real_file_preflight_authorization.py'
       - 'scripts/check_workflow_action_pinning.py'
