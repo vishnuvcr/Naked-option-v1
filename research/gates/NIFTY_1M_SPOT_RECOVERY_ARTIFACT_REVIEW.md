@@ -68,3 +68,17 @@ The artifact is encrypted using a key derived from the repository's HF_TOKEN. Th
 **Tester → Developer:** Fix the six oversized windows through an offline manifest/code proposal and submit it for review; do not reuse the spent authorization.
 
 **Developer → Tester:** Review the next exact manifest for complete temporal coverage, row-cap safety, request accounting, byte-budget enforcement and the prohibition on option refetch before any new request is allowed.
+
+
+## Second review — offline split-manifest design only
+
+- Exact developer snapshot reviewed: `9da1d081de4d43b206642b5a5643a44738ea0580`.
+- Proposal: [NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json).
+- The 34 proposed half-open windows cover the exact contiguous interval 2021-10-11 to 2022-06-02, with no gaps/overlap; every shard is at most 7 calendar days, and the request body bounds are aligned to 09:15 start and 15:30 end on the final included day. The proposal sets max_rows=4,000, max_response_bytes=8 MiB, max_attempts=1, max wire requests=34, zero retries, and every live/model/holdout/strategy authorization flag false.
+- Offline pipeline/test run [38118242124](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118242124) passed, including the new split-proposal coverage and bounds test.
+- **Design decision: PASS WITH SCOPED RESTRICTIONS for offline manifest geometry only.** This is not execution-ready: the existing production collector/workflow does not yet dispatch this partial-window proposal or enforce its `max_attempts=1` field. The developer must implement and test the one-attempt behavior and an exact-manifest authorization path before requesting any live permission.
+- The previous one-use approval remains spent. No new request, option refetch, model fit, holdout access or strategy test is authorized. The encrypted data-value limitation and six failed historical windows remain unresolved.
+
+**Tester → Developer:** Implement the manifest-specific no-retry behavior and fail-closed exact-SHA request gate; submit those code changes for a new review without making source calls.
+
+**Developer → Tester:** Review the executable code path, retry counter, exact proposal SHA binding, and request budget before any live workflow can become eligible.
