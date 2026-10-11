@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_R5",
+  "verdict": "REQUEST_CHANGES",
+  "reviewed_developer_commit": "4c2b3e54697474739da97f517476f4f87ed98b09",
+  "reviewed_blobs": {
+    "scripts/modeling_readiness_feasibility_run.py": "fa163ad6bc4ca050169511ed669f43b414fabf97",
+    "tests/test_modeling_readiness_feasibility_run.py": "10d99e36a4a0ace47b809332788105d818e7eed8",
+    "research/gates/MODELING_READINESS_FEASIBILITY_REPORT_SCHEMA_R5_2026-10-11.json": "211af15fe2b8579c48464b43171fbacf61e880b9",
+    ".github/workflows/phase-07-modeling-readiness-feasibility-synthetic.yml": "d7df79c6fd159708d8a58119bca8e0062d0546fe"
+  },
+  "ci_verification": {
+    "verified": false,
+    "run_id": null,
+    "reason": "Hosted run ID and job-step logs could not be retrieved through the Actions interface available in this session; do not claim CI pass."
+  },
+  "blocking_findings": [
+    {
+      "id": "F01",
+      "severity": "BLOCKER",
+      "finding": "No explicit candle timestamp semantics / official-close linkage proof before target labels."
+    },
+    {
+      "id": "F02",
+      "severity": "BLOCKER",
+      "finding": "No runtime verification of training and validation label-endpoint purge; minimum eligible training/common-validation counts not enforced."
+    },
+    {
+      "id": "F03",
+      "severity": "BLOCKER",
+      "finding": "one_use is not enforced by an exact workflow run/attempt binding or durable consumed marker."
+    },
+    {
+      "id": "F04",
+      "severity": "BLOCKER",
+      "finding": "Feature-family output keys are supplied by a manifest and are not restricted to a fixed allowlist."
+    },
+    {
+      "id": "F05",
+      "severity": "MAJOR",
+      "finding": "The holdout byte boundary is accepted from manifest claims without checking range/newline record boundary."
+    },
+    {
+      "id": "F06",
+      "severity": "MAJOR",
+      "finding": "Blocked report asserts cleanup_status=PASS without cleanup evidence."
+    },
+    {
+      "id": "F07",
+      "severity": "MAJOR",
+      "finding": "Hosted synthetic workflow result is not verifiably inspected yet."
+    }
+  ],
+  "allowed_scope": "Static/synthetic implementation review only; no real-data feasibility execution.",
+  "permissions": {
+    "real_file_audit": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_observation_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "next_step": "Developer corrects findings F01-F06, inspects hosted synthetic CI, and resubmits exact hashes for fresh review.",
+  "reviewer_independence": "Tester branch review was produced within the same connected assistant session; it is role-isolated from developer commits but is not an external human or separately hosted AI review."
+}
