@@ -1214,3 +1214,15 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - New independent R4 decision: [tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_REVIEW_R4_2026-10-11.md) and [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json). All 17 reviewed file blob hashes were rechecked before request and matched exactly.
 - R4 request commit: [55a6ce4](https://github.com/vishnuvcr/Naked-option-v1/commit/55a6ce4ae69b26696533adb20c512832c15c8c38). Audit run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502): synthetic authorization/test stage passed; full real-file scan is queued/running. No data-readiness verdict yet.
 - The receipt publisher correction allowing an unknown reference byte count when decoded SHA is verified merged via [PR #19](https://github.com/vishnuvcr/Naked-option-v1/pull/19). All prediction, holdout, new source-data and strategy/P&L work remains closed pending separate report review.
+
+## 2026-10-12 — Current Phase 8 forecast-validation status
+
+- Latest developer HEAD `da33a40f4f52e51807ca0fb7882e7920021c47a1` passed [saved-panel validator regression #38164567189](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567189) and [Research Protocol Check #38164567374](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567374).
+- Independent tester R2 is recorded as [REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R2_2026-10-12.json), only because the full reconstruction evidence predates the final diagnostics-persistence commit. The earlier reconstruction found 64 daily H=1 differences, all 1 ULP (max absolute difference 3.469446951953614e-18), with zero out-of-policy mismatches; that result must be reproduced on the exact current HEAD.
+- Next: rerun full reconstruction from the immutable cached Run #994 artifact, with no fresh market-data acquisition; confirm diagnostics are persisted and labels/timestamps remain exact. Do not modify the frozen artifact or the 1e-9 aggregate tolerance.
+- Option P&L, holdout access, fresh source requests and strategy promotion remain blocked. The consumed R1 preflight authorization remains disabled.
+
+[Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Developer error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Conversation/decision log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md)
+
+**Developer → Tester:** Review the exact-HEAD reconstruction artifact.
+**Tester → Developer:** Keep the hold limited to the exact-HEAD evidence gap.
