@@ -1,3 +1,21 @@
+## 2026-10-11 — Feasibility-runner correction blocked by repository safety control
+
+- Category: repository tooling / research gate.
+- Component: `scripts/modeling_readiness_feasibility_run.py` on `phase-07-developer`.
+- Symptom: two attempts to update the implementation were blocked by the connector's safety checks before a commit was created.
+- Root cause: **not established**; do not infer that GitHub rejected the change or that a permission was revoked.
+- Impact: none to market data, artifacts, or models. The current code remains unchanged at the reviewed snapshot and has tester verdict REQUEST_CHANGES.
+- Disposition: do not bypass the control through alternate write paths. Continue only through an accepted edit mechanism; empirical execution remains prohibited.
+
+## 2026-10-11 — Feasibility synthetic workflow result not verifiably retrieved
+
+- Category: CI evidence / tooling visibility.
+- Symptom: the repository interface available in this session exposed job/artifact retrieval by known run ID but no run-list API; the latest feasibility workflow run ID/conclusion could not be verified.
+- Impact: hosted CI is **NOT_VERIFIED**, not PASS and not FAIL. No empirical execution is authorized.
+- Disposition: tester decision records the visibility limitation. Resolve by using the accepted Actions workflow result interface; do not fabricate run identifiers or claim CI success.
+
+
+
 ## 2026-10-11 — Holdout boundary remains missing at proposal stage
 - Category: research gate / data governance.
 - Existing file: `research/phase7/PPR4_HOLDOUT_METADATA_AUDIT.json`, blob `6b236e60337b8ae6d1c108cfe7fbdcbe39cb1eda`, status `BLOCKED_GATE_NO_MACHINE_READABLE_BOUNDARY_FOUND`.
