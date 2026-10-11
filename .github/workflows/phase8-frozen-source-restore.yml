@@ -73,7 +73,15 @@ jobs:
           echo "embedded_manifest_sha256=$actual"
           test "$actual" = "$REFERENCE_MANIFEST_SHA256"
 
-      - name: Restore only the artifact-specific source cache
+      - name: Restore existing Phase 3 cache as candidate inputs only
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/raw/phase3
+          key: phase3-data-${{ hashFiles('scripts/acquire_nifty_daily_history.py', 'scripts/discover_hf_intraday.py', 'scripts/acquire_hf_intraday_sample.py', 'scripts/run_phase3_daily_baselines.py', 'scripts/run_phase3_intraday_baselines.py') }}
+          restore-keys: |
+            phase3-data-
+
+      - name: Restore the immutable artifact-specific source cache
         id: restore_source_cache
         uses: actions/cache/restore@v4
         with:
@@ -82,29 +90,43 @@ jobs:
             data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet
           key: phase8-phase3-source-Linux-${{ env.REFERENCE_ARTIFACT_SHA256 }}
 
-      - name: Verify current frozen source files offline
+      - name: Verify and classify current frozen source inputs offline
         id: cache_check
         shell: bash
         run: |
-          set -u
+          set +e
           manifest="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
           report="data/reports/phase8/source_cache_verification.json"
           python scripts/verify_phase8_cached_source_inputs.py --manifest "$manifest" --root "$GITHUB_WORKSPACE" --allow-missing --output "$report"
           rc=$?
-          status="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$report")"
-          echo "status=$status"
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          if [ "$status" = "PASS" ]; then
-            exit 0
-          fi
-          if [ "$status" = "MISSING" ] && [ "$rc" = "0" ]; then
-            exit 0
-          fi
-          echo "SOURCE_CACHE_FAIL_CLOSED status=$status exit=$rc"
-          exit 2
+          set -e
+          python - "$report" "$GITHUB_OUTPUT" "$rc" <<'PY'
+          import json, sys
+          report_path, output_path, rc = sys.argv[1], sys.argv[2], int(sys.argv[3])
+          result = json.load(open(report_path, encoding="utf-8"))
+          status = result["status"]
+          if status not in {"PASS", "MISSING", "HASH_MISMATCH"}:
+              raise SystemExit(f"SOURCE_CACHE_FAIL_CLOSED status={status} exit={rc}")
+          matched = {item["name"]: item["matches"] for item in result.get("checked", [])}
+          missing = {item["name"] for item in result.get("missing", [])}
+          needed = {
+              "daily_csv": ("daily_csv" in missing or matched.get("daily_csv") is False),
+              "intraday_parquet": ("intraday_parquet" in missing or matched.get("intraday_parquet") is False),
+          }
+          if status == "PASS" and any(needed.values()):
+              raise SystemExit("SOURCE_CACHE_INCONSISTENT: PASS with file requiring restore")
+          with open(output_path, "a", encoding="utf-8") as out:
+              out.write(f"status={status}\n")
+              out.write(f"need_daily={'true' if needed['daily_csv'] else 'false'}\n")
+              out.write(f"need_intraday={'true' if needed['intraday_parquet'] else 'false'}\n")
+              out.write(f"needs_restore={'true' if any(needed.values()) else 'false'}\n")
+          print(json.dumps({"status":status, "needed":needed, "network_accessed":False}, sort_keys=True))
+          if status == "HASH_MISMATCH" and rc != 2:
+              raise SystemExit(f"expected hash mismatch exit 2; got {rc}")
+          PY
 
       - name: Deny a second R1 restore attempt
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -127,11 +149,11 @@ jobs:
             core.info("No prior R1 attempt marker found.");
 
       - name: Fetch independent tester branch
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         run: git fetch --no-tags origin phase-08-tester:refs/remotes/origin/phase-08-tester
 
       - name: Authorize exact reviewed snapshot and frozen input hashes
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         run: |
           python scripts/authorize_phase8_source_cache_bootstrap.py \
             --tester-ref origin/phase-08-tester \
@@ -139,7 +161,7 @@ jobs:
             --output data/reports/phase8/source_cache_bootstrap_authorization.json
 
       - name: Record the one-time attempt before contacting source providers
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         run: |
           python - <<'PY'
           import json, os
@@ -162,7 +184,7 @@ jobs:
           PY
 
       - name: Publish immutable attempt marker before source restoration
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: phase8-source-cache-bootstrap-attempt-R1
@@ -171,15 +193,15 @@ jobs:
           retention-days: 90
 
       - name: Restore frozen NIFTY daily source candidate
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.need_daily == 'true'
         run: python scripts/acquire_nifty_daily_history.py
 
       - name: Restore frozen HF intraday reference candidate
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.need_intraday == 'true'
         run: python scripts/acquire_hf_intraday_sample.py
 
       - name: Strictly verify both source files against immutable Run #994 manifest
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         run: |
           python scripts/verify_phase8_cached_source_inputs.py \
             --manifest data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json \
@@ -187,7 +209,7 @@ jobs:
             --output data/reports/phase8/source_cache_verification.json
 
       - name: Save the verified artifact-specific source cache
-        if: steps.cache_check.outputs.status == 'MISSING'
+        if: steps.cache_check.outputs.needs_restore == 'true'
         uses: actions/cache/save@v4
         with:
           path: |
