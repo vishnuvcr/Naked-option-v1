@@ -1303,3 +1303,16 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 - Table II count is 43 winners + 25 losers = 68, while prose states 42/68 winners + 25/68 losers; Table III repeats row counts 43 and 25 but prints total 80. Its chi-square 4.765 recomputes for 43/25 against 34/34 using total 68, not 80. These are source-reporting inconsistencies; no corrections were silently made.
 - The CCI paper remains strategy-only and outside the current prediction-only empirical universe. No options P&L, market request or modeling was run.
 - Tester report [PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md) pins the exact source-note blob; protocol checks run 38120105425 is in progress at this checkpoint.
+
+
+## 2026-10-11 — Source claim review and config traceability gate completed
+
+- Rendered source audit: [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md), PDF SHA-pinned notes across IJCSE, JRFM, Bansal et al., Cureus, and SSRN CCI. Concrete checks cover PCR decision-rule gaps, LSTM parameter-count arithmetic (30,369 vs 330,369), negative (R^2) sign interpretation, negative SVR results, and 68-vs-80 CCI trade totals / chi-square arithmetic.
+- Added [PAPER_METHOD_CONFIG_CROSSWALK_SUPPLEMENT_2026-10-11.md](literature/PAPER_METHOD_CONFIG_CROSSWALK_SUPPLEMENT_2026-10-11.md), which maps the findings to the frozen native-task rows and common-config IDs without altering the matrix/manifest.
+- Tester scope reports: [claim check](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md) and [crosswalk traceability](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_METHOD_CONFIG_CROSSWALK_TESTER_2026-10-11.md). The tester repository protocol run [38120239164](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120239164) completed successfully; the developer source-crosswalk run [38120221001](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120221001) passed.
+- Role qualification: source arithmetic and the file mappings were reviewed in the tester role in the same connected assistant session; there is still no separate reviewer identity, with the AI reviewer service previously returning HTTP 402. This is not a truly independent external validation.
+- Empirical gate remains unchanged: split recovery denied, no new data requests, no model fitting/scoring, no holdout access and no strategy/P&L test. All findings here are literature-source evidence, not project performance.
+
+**Developer → Tester:** Verify any future changes to source/method links against exact pinned rows; do not alter permissions from this documentation PASS.
+
+**Tester → Developer:** Keep any source-specific corrections on the tester branch and retain all live/model/holdout/strategy denials.
