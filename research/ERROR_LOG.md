@@ -79,3 +79,12 @@
 - Mixed-header and zero-row regression fixtures were added. Hosted run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all contract and synthetic tests; the real-data job was skipped.
 - Exact-pinned R3 decision: [tester report](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R3_2026-10-11.md), [machine decision](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json), PASS WITH SCOPED RESTRICTIONS.
 - No empirical P&L or source scan was authorized. The R1 request is consumed/disabled; expiry/lot/tick/bid-ask limitations and the separate daily H=1 precision anomaly remain unresolved.
+
+
+## 2026-10-11 — Tester opened separate H1 future-return floating-point gate
+
+- Run [38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430), job `114538420772`, failed source alignment on daily H=1: 64 values differ under exact `np.array_equal`; maximum absolute difference `3.469446951953614e-18`.
+- Immutable source/forecast hash checks passed beforehand; daily label formula and historical source code match. The observed scale is consistent with floating-point rounding but that alone does not prove every value lies within a narrow bound.
+- Tester report [R1](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md) requests an exact-or-at-most-two-ULP float64 comparator for `future_return` only, plus actual max-ULP diagnostics and deterministic edge tests. Labels/timestamps, aggregate tolerance, source pins and artifact must remain unchanged.
+- Decision is REQUEST_CHANGES until hosted reconstruction demonstrates every observed row is within 2 ULP. If not, remain blocked and diagnose.
+- No option P&L, holdout, new-source request, artifact modification or strategy promotion authorized.
