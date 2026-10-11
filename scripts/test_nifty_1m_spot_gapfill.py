@@ -9,6 +9,9 @@ import pathlib
 import sys
 import tempfile
 import unittest
+import os
+import hashlib
+import argparse
 from collections import Counter
 from unittest import mock
 
@@ -212,6 +215,25 @@ class TestSpotGapfillMerge(unittest.TestCase):
         self.assertEqual(counters["spot_join_matched"], 1)
         self.assertEqual(counters["spot_join_missing"], 0)
         self.assertEqual(rows_by_month["2026-10"], 3)
+
+    def test_split_execution_fails_closed_without_spent_exact_sha_marker(self):
+        proposal_path = split_validator.DEFAULT_PROPOSAL
+        raw = proposal_path.read_bytes()
+        blob_sha = hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
+        args = argparse.Namespace(
+            split_proposal=proposal_path,
+            proposal_blob_sha=blob_sha,
+            reviewed_sha="b" * 40,
+            source_dir=pathlib.Path("/tmp/not-a-real-artifact"),
+            plain_dir=pathlib.Path("/tmp/not-a-real-plain-dir"),
+            split_ledger=pathlib.Path("/tmp/not-a-real-ledger.json"),
+        )
+        with mock.patch.dict(os.environ, {"DHAN_ACCESS_TOKEN": "test-token", "HF_TOKEN": "test-token"}), \
+             mock.patch.object(gapfill.urllib.request, "build_opener") as network:
+            with self.assertRaises(FileNotFoundError):
+                gapfill.execute_split(args)
+        network.assert_not_called()
+
 
     def test_partial_base_preserves_existing_spot_rows_and_fills_only_new_matches(self):
         epoch = int(dt.datetime.fromisoformat("2026-10-01T09:15:00+05:30").timestamp())
