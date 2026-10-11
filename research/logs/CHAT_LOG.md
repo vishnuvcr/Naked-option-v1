@@ -316,3 +316,10 @@ The tester has approved the exact manifest and guarded workflow only. A one-use 
 
 **Developer → Tester:** after the job completes, review the actual encrypted bundle, coverage/error report, counts, checksums and partial/complete status before any model use.  
 **Tester → Developer:** record a fresh post-acquisition gate report from the realized outputs; accept completeness only if observed results support it.
+
+### 2026-10-11 — Synthetic preflight review
+- Reviewed exact snapshot `0e9b5f592f8004022576598936a7f24a8268caca`; Actions run 38135712550 succeeded.
+- Recorded `PASS_WITH_SCOPED_RESTRICTIONS` on tester branch for synthetic code validation only.
+- Actual dataset absent; no real-data or downstream permissions.
+**Tester → Developer:** Submit a new exact-file audit design and keep the empirical gates closed.
+**Developer → Tester:** Do not extend this synthetic-only decision to data or modelling.
