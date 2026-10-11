@@ -201,9 +201,9 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                         ts_ist = _parse_iso(row.get("timestamp_ist", ""))
                         if int(ts_utc.astimezone(UTC).timestamp()) != epoch:
                             invalid["timestamp_utc_epoch_mismatch"] += 1
-                        if abs((ts_utc.astimezone(UTC) - utc_from_epoch).total_seconds()) > 1:
+                        if abs((ts_utc.astimezone(UTC) - utc_from_epoch).total_seconds()) > 0.000001:
                             invalid["timestamp_utc_value_mismatch"] += 1
-                        if abs((ts_ist.astimezone(IST) - ist_from_epoch).total_seconds()) > 1:
+                        if abs((ts_ist.astimezone(IST) - ist_from_epoch).total_seconds()) > 0.000001:
                             invalid["timestamp_ist_value_mismatch"] += 1
                         if row.get("session_date", "") != ist_from_epoch.date().isoformat():
                             invalid["session_date_mismatch"] += 1
@@ -233,8 +233,10 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                                 )
                                 if applicable:
                                     missing[typ.lower() + ":" + field] += 1
-                            elif value is not None and value < 0 and field in {"option_volume", "open_interest", "nifty_volume", "time_to_expiry_years"}:
+                            elif value is not None and value < 0 and field in {"option_volume", "open_interest", "nifty_volume", "time_to_expiry_years", "implied_volatility"}:
                                 invalid[field + "_negative"] += 1
+                            elif value is not None and value <= 0 and field in {"returned_strike", "rolling_spot"}:
+                                invalid[field + "_nonpositive"] += 1
                         except ValueError as exc:
                             invalid[field + "_" + str(exc)] += 1
 
@@ -378,11 +380,24 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
             },
             "timestamps": {
                 "unique_session_dates": len(session_dates),
+                "first_observed_session_date": min(session_dates) if session_dates else None,
+                "last_observed_session_date": max(session_dates) if session_dates else None,
                 "option_session_dates": len(option_sessions),
                 "spot_session_dates": len(spot_sessions),
                 "option_sessions_without_any_spot_row": len(no_spot_sessions),
+                "option_sessions_without_spot_date_sample": no_spot_sessions[:25],
+                "option_sessions_without_spot_date_sample_truncated": max(0, len(no_spot_sessions) - 25),
                 "manifest_observed_session_count": expected_session_count,
                 "epoch_range_present": timestamp_epoch_min is not None and timestamp_epoch_max is not None,
+            },
+            "monthly_coverage": {
+                month: {
+                    "total_rows": int(actual_month_rows[month]),
+                    "option_rows": int(actual_month_types.get(month, Counter()).get("OPTION", 0)),
+                    "spot_rows": int(actual_month_types.get(month, Counter()).get("SPOT", 0)),
+                    "manifest_rows": int(manifest_parts["nifty_1m_composite_" + month + ".csv.gz.enc"].get("row_count", -1)),
+                }
+                for month in sorted(actual_month_rows)
             },
             "spot_join": {
                 "join_status_counts": dict(sorted(join_status_counts.items())),
