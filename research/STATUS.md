@@ -1554,3 +1554,11 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 - The actual header uses timestamp_epoch/row_type/underlying/expiry_code/returned_strike/option_type, while the generic preflight duplicate-key groups look for instrument_type/symbol/expiry/strike/security_id. This must be independently assessed; do not treat a non-estimable uniqueness check as PASS.
 - A full local SQLite uniqueness scan exceeded the execution time limit; duplicate-key count remains UNKNOWN. Preliminary report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/UPLOADED_CSV_PRELIMINARY_CHECK_2026-10-11.md.
 - This supplemental local check is not a substitute for the exact authorized Actions audit receipt and is not modelling-readiness approval. Modelling/scoring, holdout, new source requests and strategy/P&L remain CLOSED pending tester review and the next approved gate.
+
+
+## 2026-10-11 — CSV key-schema correction submitted for tester review
+
+- Following tester REQUEST CHANGES, added actual OPTION/SPOT key groups and batched SQLite inserts in `scripts/offline_dataset_preflight.py`; added actual-schema regression tests and wired them into the offline synthetic workflow.
+- Current exact blobs: scanner `e3c7017200beb6efe4be8edd3add74d841dadb7a`; new tests `12fec21c9374792b273f9b8167aa42545674497a`; workflow `2e3feaf8cd0edd39283d9ee675c9c52e4b75aaa8`.
+- Handoff: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/UPLOADED_CSV_KEY_SCHEMA_CORRECTION_HANDOFF_2026-10-11.md. Hosted synthetic CI completion is not verified. The previous real-file exact-hash authorization is invalid for the changed blobs and must not be reused.
+- No uniqueness count/data-readiness PASS is claimed; model, holdout, source requests and strategy/P&L remain CLOSED pending fresh tester review and a newly authorized scan.
