@@ -1275,3 +1275,15 @@ Create a composite CSV of minute-level NIFTY spot and historical options data, i
 
 Developer → Tester: After run completion, independently audit the realized encrypted artifact and coverage/error report before authorizing prediction experiments.
 Tester → Developer: Keep empirical prediction/holdout/strategy use blocked until that exact artifact snapshot has a separate written tester decision.
+
+
+## 2026-10-11 — Composite acquisition repair checkpoint
+
+- Rechecked GitHub Actions run [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220). It completed with failure: 8,601 requests processed, 7,481 failed response/validation records, 8,490,723 option rows, zero spot rows.
+- Encrypted artifact [nifty-1m-composite-encrypted-bundle](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220/artifacts/11685737176) exists (214,850,953 bytes; 40 files). It is partial and not approved for prediction use.
+- All spot failures were collapsed to `unexpected_ValueError`, so the actual validation failure remains unconfirmed. The final status commit also failed on a non-fast-forward push. No force-push will be used.
+- Added bounded sanitized reason logging and a regression test in developer commits `38643c7` and `bae5586`. Opened [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7) requesting independent tester review and a minimal recovery scope.
+- No additional network request or approval reuse occurred; no model, holdout, or strategy work was performed. Next: fix workflow concurrency, run offline regressions, then wait for exact-snapshot tester PASS before spot recovery.
+
+**Developer → Tester:** Review the exact developer commits, diagnostic safety, tests, workflow repair, and proposed minimal recovery.
+**Tester → Developer:** Keep live recovery and prediction work blocked until the cause is identified and exact scope independently approved.
