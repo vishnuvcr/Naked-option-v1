@@ -828,6 +828,7 @@ def execute_split(args: argparse.Namespace) -> int:
             or marker.get("max_gapfill_requests") != 34
             or marker.get("max_retry_requests") != 0
             or marker.get("base_artifact_id") != "11693866249"
+            or marker.get("base_artifact_sha256") != "aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216"
             or marker.get("live_option_requests_allowed") is not False
             or marker.get("tester_decision_blob") is None):
         raise ValueError("split_execution_marker_missing_or_scope_mismatch")
