@@ -1435,7 +1435,7 @@ def main() -> int:
                 or marker.get("max_spot_requests") != 61
                 or marker.get("live_option_requests_allowed") is not False
                 or marker.get("reviewed_developer_commit") is None
-                or marker.get("tester_decision_commit") is None):
+                or marker.get("tester_decision_blob") is None):
             print("BLOCKED: exact one-use spot-only recovery marker missing or invalid; no requests made.")
             return 4
     from validate_nifty_1m_composite_manifest import validate as validate_manifest
