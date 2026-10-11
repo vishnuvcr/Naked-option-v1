@@ -6,12 +6,6 @@ on:
     paths:
       - "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R1_2026-10-12.json"
   workflow_dispatch:
-    inputs:
-      developer_snapshot_sha:
-        description: "Exact developer commit SHA in the tester request; leave blank to use request SHA"
-        type: string
-        required: false
-        default: ""
 
 permissions:
   contents: write
@@ -37,8 +31,6 @@ jobs:
 
       - name: Validate requested developer snapshot and exact blob hashes
         id: pins
-        env:
-          DISPATCH_SHA: ${{ inputs.developer_snapshot_sha }}
         shell: bash
         run: |
           set +e
@@ -46,7 +38,7 @@ jobs:
           import json, os, pathlib, subprocess
           request_path="research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R1_2026-10-12.json"
           req=json.loads(pathlib.Path(request_path).read_text())
-          sha=os.environ.get("DISPATCH_SHA","").strip() or req["developer_snapshot_sha"]
+          sha=req["developer_snapshot_sha"]
           errors=[]
           if sha != req.get("developer_snapshot_sha"):
               errors.append("dispatch snapshot differs from approved request snapshot")
