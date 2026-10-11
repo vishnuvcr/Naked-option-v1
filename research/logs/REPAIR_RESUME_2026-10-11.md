@@ -34,3 +34,11 @@
 **Developer → Tester:** Once the active run publishes its output, independently reconcile the output report/manifest/artifact ID and hashes, row counts, join/quality audit, and cleanup evidence. Reject stale output or any mismatch.
 
 **Tester → Developer:** Keep model/holdout/strategy gates closed until an exact-output reviewer decision is recorded.
+
+
+## Completion checkpoint — derived dataset repair (2026-10-11)
+- Exact repair run [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) succeeded end-to-end.
+- Output artifact [11698879857](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336/artifacts/11698879857) contains the encrypted derived dataset and sanitized metadata. All 61 part hashes and row counts passed runner-side verification; post-repair audit passed with coverage restrictions; plaintext cleanup and report publication passed.
+- Preserved 8,999,865 rows; 8,471,702 exact matches, 19,021 unmatched option rows, 0 exact-join field mismatches, 0 residual nonblank invalid OHLC/volume, 0 duplicate keys/spot epochs, and 24,847 weekend-session flags retained for review.
+- Tester role recorded `PASS_WITH_SCOPED_RESTRICTIONS` for this output gate only. Exact report/decision are on `phase-07-tester`.
+- No prediction models, holdout access or strategies were run. Modeling readiness remains a separate gated phase.
