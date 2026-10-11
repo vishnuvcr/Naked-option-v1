@@ -233,7 +233,7 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                                 )
                                 if applicable:
                                     missing[typ.lower() + ":" + field] += 1
-                            elif value < 0 and field in {"option_volume", "open_interest", "nifty_volume", "time_to_expiry_years"}:
+                            elif value is not None and value < 0 and field in {"option_volume", "open_interest", "nifty_volume", "time_to_expiry_years"}:
                                 invalid[field + "_negative"] += 1
                         except ValueError as exc:
                             invalid[field + "_" + str(exc)] += 1
