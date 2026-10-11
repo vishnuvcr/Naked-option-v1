@@ -1,3 +1,18 @@
+## 2026-10-11 — Phase 8 status: cached-composite preflight in progress
+
+- **Forecast reproducibility is accepted.** Phase 7 Run #994's immutable row-level forecasts reproduced all 10 cells / 50,555 rows at (10^{-9}) tolerance in [Phase 8 validation run #38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076). This is a technical reproducibility result, not proof of a profitable predictor.
+- **The existing data is being reused, not rediscovered.** The cached composite is source run 38131641336, artifact 11698879857, with 61 encrypted monthly parts; its canonical decoded SHA-256 is `cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204`, 8,999,865 rows, 47 columns (8,490,723 OPTION + 509,142 SPOT).
+- **Current one-use run:** [38161788742](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161788742). The exact code/hash tester gate and all synthetic contract tests passed. The 61-part encrypted integrity check passed; the durable one-use marker [is committed](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/phase8/PHASE8_CACHED_COMPOSITE_PREFLIGHT_CONSUMED_R1.json) before decryption. The temporary merge succeeded and the streaming composite preflight is still running at the time of this README update.
+- The preflight is **metadata-only**: no prediction model fitting, no option P&L, no holdout access, no new market-source requests, no strategy promotion. The registered 4,800-cell grid remains blocked from empirical execution until point-in-time contract requirements are resolved.
+- Strict contract limitations remain: no explicit lot-size/tick-size columns in the 47-column composite, no full dated contract-master snapshot, and no historical bid/ask coverage. The repository has a dated NIFTY lot-size screening reference `data/reference/nifty_lot_size_history.json`, but that is expressly not a substitute for actual contract-master snapshots.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md) · [Phase 8 method spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/phase8/PHASE8_METHOD_SPEC.md) · [Tester decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_R1.json).
+
+**Developer → Tester:** independently inspect the metadata-only run's final report, exact canonical hash/row/type counts, eligibility matrix digest and cleanup evidence.
+
+**Tester → Developer:** do not promote a trading strategy from a preflight result; if strict eligibility remains blocked, submit the existing-spec Q1 OHLC/proxy track as a separate, explicitly non-quote-executable, costed test gate.
+
+---
+
 ## 2026-10-11 — R2 runner/data gate underway
 
 - The accepted Phase 7 Run #994 saved forecasts are frozen as Phase 8 input: 10 panels, 50,555 rows, validated at the existing absolute (10^{-9}) tolerance on [hosted run 38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076). No model refitting is used as fallback.
