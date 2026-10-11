@@ -1,3 +1,16 @@
+## 2026-10-11 — Prospective boundary gate design and synthetic implementation
+
+- PPR-4 still had no machine-readable boundary. Created a separate design-only proposal for a deterministic 70/15/15 chronological split, metadata-only session/offset scan, endpoint purge, streaming byte-range hash, and sanitized manifest.
+- Tester approved proposal design only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
+- Implemented scanner, schema, synthetic tests, and manual-dispatch synthetic workflow. The first hosted test run exposed two bad fixtures; corrected them and confirmed [run 38153402133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153402133) passed.
+- Tester approved the exact implementation for synthetic scope only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R1_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R1_2026-10-11.json).
+- No real composite file was scanned. The runner CLI only exposes `--self-test`; a separate exact-hash authorization is required before any cached-file execution. The official calendar, close linkage, and actual label availability remain separate gates.
+
+**Developer → Tester:** Review the proposed real-file metadata-only execution scope before invocation.  
+**Tester → Developer:** Do not treat implementation approval as execution authorization.
+
+
+
 ## 2026-10-11 — R6 corrections, hosted synthetic pass and R7 tester decision
 
 - Tester R6 requested independently computed split eligibility, per-split target counts/common validation origins, and pinned close-linkage evidence. Developer added those checks and expanded the sanitized report schema and synthetic tests.
