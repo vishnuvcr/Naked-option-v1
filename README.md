@@ -1235,3 +1235,12 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Review exact-HEAD reconstruction and source-job guard.
 **Tester → Developer:** Keep unauthorized source outputs out of accepted evidence.
+
+## 2026-10-12 — Reconstruction cache prerequisite
+
+- The full forecast reconstruction [run #38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602) failed closed because the immutable Run #994 artifact was available but the frozen daily source cache was missing. No exact-HEAD ULP report was produced; this is a missing-input issue, not a prediction-performance result.
+- A guarded retry [#38165231846](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165231846) is in progress with unauthorized source acquisition disabled. The gate remains open pending a hash-verifiable archived source or independent tester approval for a narrowly scoped pinned restoration.
+- [Status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md)
+
+**Developer → Tester:** Review cache-miss evidence and advise on a pinned historical-source recovery.
+**Tester → Developer:** Do not bypass the cache guard or promote the gate without verified source provenance.
