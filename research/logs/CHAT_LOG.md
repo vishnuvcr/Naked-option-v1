@@ -1,3 +1,14 @@
+## 2026-10-11 — Modeling-readiness implementation review and correction
+
+- Tester first returned REQUEST_CHANGES for the synthetic readiness primitives: unconstrained nested report schema, generator horizon exhaustion, negative metadata counts, and invalid tolerance inputs.
+- Developer fixed those issues and expanded regression tests. Intermediate CI runs failed because the test suite still contained an assertion for the former permissive sanitizer; the test was corrected.
+- Final synthetic workflow [38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) succeeded. Tester recorded PASS_WITH_SCOPED_RESTRICTIONS for the exact approved blobs on the tester branch.
+- No real-data feasibility audit, model fitting/scoring, holdout observation access, new source requests, strategy/P&L, or trading occurred. Next step is only to draft a bounded MR-0 to MR-5 feasibility-run proposal for independent tester-role review.
+
+Developer → Tester: Review exact hashes and data/holdout isolation of the next proposal.
+Tester → Developer: Do not execute the real-data audit until a separate written decision authorizes it.
+
+
 # Research Conversation / Decision Log
 
 ## 2026-10-07
