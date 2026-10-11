@@ -1,3 +1,16 @@
+## 2026-10-12 — Phase 8 Greek-enrichment R1 (in progress)
+
+- The exact developer snapshot [467a08195bb5031bf73eb01fc86f2129f9776227](https://github.com/vishnuvcr/Naked-option-v1/commit/467a08195bb5031bf73eb01fc86f2129f9776227) passed the developer synthetic suite and the independent tester's 162-case CE/PE formula/finite-difference audit. The tester issued [PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R1_2026-10-12.json).
+- Pinned run [#38168504700 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38168504700) verified the cached input archive SHA-256 and fetched the public Hugging Face NIFTY 1-minute spot file plus dated expiry-partition listing. It is currently processing and re-encrypting the 61 monthly chunks; no final output counts or artifact are accepted until the row/hash/encryption validation and upload pass.
+- Source composite is 8,999,865 rows (8,490,723 OPTION; 509,142 SPOT) for 2021-10-11 through 2026-10-10, but the underlying research grid is PARTIAL_GRID, not every listed exchange contract. Greeks are European Black–Scholes estimates, using IV inversion where valid, labelled provider-IV fallback, a clearly tagged expiry-calendar proxy and r=0/q=0 proxies. HF source license is CC-BY-NC-4.0, non-commercial research only.
+- No Dhan API request, empirical option P&L, holdout access or strategy promotion is authorized in this gate. Historical official contract-master coverage, lot/tick history and executable historical bid/ask remain separate blockers.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md) · [Tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R1_2026-10-12.md).
+
+**Developer → Tester:** inspect terminal artifact row counts, Greek-status coverage, SHA-256 hashes and encryption/row-preservation checks before accepting delivery.  
+**Tester → Developer:** keep any output restricted until final validation passes; preserve partial-grid, proxy and non-commercial-use limitations.
+
+---
+
 ## Current research status — 2026-10-11 (after hosted run #38163678060)
 
 **Phase 8 code/hash/data-gap diagnostic tests passed with scoped tester approval. Historical option P&L remains blocked; no naked-option buying strategy is validated.**
