@@ -1,0 +1,195 @@
+name: Phase 8 Greek Enrichment (Tester Gated)
+
+on:
+  push:
+    branches: [phase-08-developer]
+    paths:
+      - "scripts/enrich_nifty_composite_greeks.py"
+      - "scripts/test_enrich_nifty_composite_greeks.py"
+      - ".github/workflows/phase8-greek-enrichment.yml"
+      - "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R1_2026-10-12.md"
+  workflow_dispatch:
+    inputs:
+      run_enrichment:
+        description: "Run encrypted Greek enrichment after exact-snapshot tester approval"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  enrich:
+    name: Verify, test, and enrich cached NIFTY 1-minute data
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout exact developer snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install processing and test dependencies
+        run: python -m pip install --upgrade pandas numpy scipy pyarrow cryptography huggingface_hub
+
+      - name: Run synthetic-only math, expiry and row-integrity tests
+        run: python scripts/test_enrich_nifty_composite_greeks.py
+
+      - name: Fetch independent tester decision
+        run: git fetch --no-tags origin phase-08-tester:refs/remotes/origin/phase-08-tester
+
+      - name: Enforce exact-snapshot tester authorization before any data request
+        env:
+          DEVELOPER_SNAPSHOT_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          path = "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R1_2026-10-12.json"
+          try:
+              raw = subprocess.check_output(["git", "show", "origin/phase-08-tester:" + path], text=True)
+          except subprocess.CalledProcessError:
+              raise SystemExit("TESTER_GATE_BLOCKED: no R1 decision on phase-08-tester; no market-data request made")
+          d = json.loads(raw)
+          if d.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
+              raise SystemExit("TESTER_GATE_BLOCKED: decision is not PASS_WITH_SCOPED_RESTRICTIONS")
+          if d.get("developer_snapshot_sha") != os.environ["DEVELOPER_SNAPSHOT_SHA"]:
+              raise SystemExit("TESTER_GATE_BLOCKED: tester reviewed a different developer snapshot SHA")
+          if d.get("approved_scope") != "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE":
+              raise SystemExit("TESTER_GATE_BLOCKED: approved scope mismatch")
+          required = {
+              "hf_public_spot_fetch_authorized": True,
+              "hf_public_expiry_filelist_authorized": True,
+              "dhan_api_requests_authorized": False,
+              "empirical_option_pnl_authorized": False,
+              "holdout_access_authorized": False,
+              "strategy_promotion_authorized": False,
+              "plaintext_upload_authorized": False,
+              "commercial_use_authorized": False,
+          }
+          for key, expected in required.items():
+              if d.get(key) is not expected:
+                  raise SystemExit(f"TESTER_GATE_BLOCKED: {key} must equal {expected}")
+          for path, expected_sha in d.get("reviewed_blobs", {}).items():
+              actual = subprocess.check_output(["git", "rev-parse", f"{os.environ['DEVELOPER_SNAPSHOT_SHA']}:{path}"], text=True).strip()
+              if actual != expected_sha:
+                  raise SystemExit("TESTER_GATE_BLOCKED: reviewed blob SHA mismatch for " + path)
+          must_review = {
+              "scripts/enrich_nifty_composite_greeks.py",
+              "scripts/test_enrich_nifty_composite_greeks.py",
+              ".github/workflows/phase8-greek-enrichment.yml",
+              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R1_2026-10-12.md",
+          }
+          if set(d.get("reviewed_blobs", {})) != must_review:
+              raise SystemExit("TESTER_GATE_BLOCKED: reviewed_blobs does not equal the required file set")
+          print("TESTER_GATE_PASS scope=HF public expiry metadata + exact-timestamp spot enrichment; no Dhan API, P&L, holdout, promotion or plaintext upload")
+          PY
+
+      - name: Download the immutable cached composite artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP_DIR/nifty-source-artifact"
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11698879857/zip"
+          curl --fail --location --silent --show-error --retry 3 --retry-all-errors \
+            -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "$url" -o "$RUNNER_TEMP_DIR/nifty-source-artifact/source.zip"
+          printf '%s  %s\n' "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b" "$RUNNER_TEMP_DIR/nifty-source-artifact/source.zip" | sha256sum --check -
+          unzip -q "$RUNNER_TEMP_DIR/nifty-source-artifact/source.zip" -d "$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked"
+          test -s "$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked/_temp/repair-derived-encrypted/dataset_manifest.json"
+          echo "INPUT_DIR=$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked/_temp/repair-derived-encrypted" >> "$GITHUB_ENV"
+
+      - name: Fetch HF expiry-partition metadata and NIFTY 1-minute spot bars
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "HF_TOKEN secret unavailable; refusing to decrypt/enrich."; exit 1; }
+          mkdir -p "$RUNNER_TEMP_DIR/hf-nifty"
+          python - <<'PY'
+          import os, pathlib, json
+          from huggingface_hub import HfApi, hf_hub_download
+          token=os.environ["HF_TOKEN"]
+          repo="thetrademarkk/india-index-options-1m"
+          api=HfApi(token=token)
+          try:
+              info=api.repo_info(repo_id=repo, repo_type="dataset")
+              revision=info.sha
+              files=api.list_repo_files(repo_id=repo, repo_type="dataset", revision=revision)
+          except Exception as e:
+              print("HF authenticated metadata attempt failed; trying public read only: "+type(e).__name__)
+              api=HfApi()
+              info=api.repo_info(repo_id=repo, repo_type="dataset")
+              revision=info.sha
+              files=api.list_repo_files(repo_id=repo, repo_type="dataset", revision=revision)
+          expiry=[p for p in files if p.startswith("options/NIFTY/") and p.endswith(".parquet") and len(p.rsplit("/",1)[-1])==len("YYYY-MM-DD.parquet") and p.rsplit("/",1)[-1][:4].isdigit()]
+          if not expiry: raise SystemExit("HF NIFTY expiry partition listing returned no files")
+          root=pathlib.Path(os.environ["RUNNER_TEMP_DIR"])/"hf-nifty"
+          root.mkdir(parents=True,exist_ok=True)
+          (root/"expiry_files.txt").write_text("\n".join(sorted(expiry))+"\n")
+          spot=hf_hub_download(repo_id=repo,filename="index/NIFTY.parquet",repo_type="dataset",revision=revision,token=token,local_dir=str(root/"snapshot"))
+          meta={"repo_id":repo,"revision":revision,"expiry_partition_count":len(expiry),"latest_expiry_path":max(expiry),"spot_file_relative_path":"index/NIFTY.parquet","license":"CC-BY-NC-4.0","non_commercial_research_only":True}
+          (root/"source_metadata.json").write_text(json.dumps(meta,indent=2,sort_keys=True))
+          with open(os.environ["GITHUB_ENV"],"a") as f:
+              f.write(f"EXPIRY_FILE_LIST={root/'expiry_files.txt'}\nHF_SPOT_PARQUET={spot}\nHF_SOURCE_METADATA={root/'source_metadata.json'}\n")
+          print(json.dumps(meta,sort_keys=True))
+          PY
+
+      - name: Enrich and re-encrypt all cached monthly parts
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          test -d "$INPUT_DIR"
+          python scripts/enrich_nifty_composite_greeks.py \
+            --input-dir "$INPUT_DIR" \
+            --output-dir "$RUNNER_TEMP_DIR/nifty-1m-greeks-enriched-r1" \
+            --coverage-report "$RUNNER_TEMP_DIR/greek-enrichment-coverage.json" \
+            --expiry-file-list "$EXPIRY_FILE_LIST" \
+            --hf-spot-parquet "$HF_SPOT_PARQUET"
+
+      - name: Validate encrypted output, row count, hashes and no-plaintext rule
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP_DIR"])
+          out=root/"nifty-1m-greeks-enriched-r1"
+          m=json.loads((out/"dataset_manifest.json").read_text())
+          c=json.loads((root/"greek-enrichment-coverage.json").read_text())
+          assert m["download_bundle_contains_encrypted_data_only"] is True
+          assert m["do_not_upload_plaintext_or_publish_in_public_repository"] is True
+          assert m["rows_preserved"]==8999865==c["rows_preserved"]
+          assert len(m["parts"])==61==len(list(out.glob("*.csv.gz.enc")))
+          assert not list(out.glob("*.csv.gz")), "Plaintext monthly CSV.GZ must not be uploaded"
+          assert not (out/".plain").exists(), "Temporary plaintext directory must be removed"
+          for part in m["parts"]:
+              p=out/part["file"]
+              assert p.is_file() and hashlib.sha256(p.read_bytes()).hexdigest()==part["encrypted_sha256"]
+          assert "CC-BY-NC-4.0" in m["source_license"]
+          print(json.dumps({"status":c["status"],"rows_preserved":c["rows_preserved"],"parts":len(m["parts"]),"greek_rows_with_delta":c["greek_rows_with_delta"],"option_rows_missing_spot":c["option_rows_missing_spot"],"option_rows_unmapped_expiry":c["option_rows_unmapped_expiry"]},sort_keys=True))
+          PY
+
+      - name: Upload encrypted dataset bundle and coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-greeks-enriched-r1
+          path: |
+            ${{ runner.temp }}/nifty-1m-greeks-enriched-r1/
+            ${{ runner.temp }}/greek-enrichment-coverage.json
+            ${{ runner.temp }}/hf-nifty/source_metadata.json
+          if-no-files-found: warn
+          retention-days: 90
