@@ -263,3 +263,9 @@ No scientific or protocol change was made during this checkpoint.
 - Run 38156394432 failed at the workflow-contract regression before the artifact job executed. It expected the old `test actual == expected` shell expression, while the diagnostic patch used explicit mismatch branches.
 - Correct the fixture to assert the new explicit comparisons and mismatch log strings. This is a test-only correction; the SHA values, manifest, thresholds and research protocol remain unchanged.
 - Next attempt must get beyond regression and provide the actual artifact/manifest/aggregate digests in logs, or identify and record the precise failed gate. No option P&L job is enabled.
+
+
+## 2026-10-11 — Correct skipped Phase 8 path filter
+
+- Commit 78a3bce updated the workflow contract test, but run 38156532719 did not enter Phase 8 because the caller path filter omitted that test and the saved-panel validator/test.
+- Logged as a workflow coverage defect. Updated .github/workflows/research-protocol.yml to trigger Phase 8 when any of those files changes, preventing test code from changing without the gate running.
