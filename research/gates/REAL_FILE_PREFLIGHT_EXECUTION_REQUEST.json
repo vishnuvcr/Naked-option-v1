@@ -1,9 +1,9 @@
 {
-  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R3",
-  "requested": false,
-  "tester_decision_blob_sha": "2919bd807ca3e1e2a4eab310022bd8dc9ef58359",
-  "reviewed_developer_sha": "current triggering commit; reviewer authorization binds all runtime file blobs below",
-  "scope": "single exact-lineage real-file structural preflight; sanitized metadata only; no modelling",
+  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R4",
+  "requested": true,
+  "tester_decision_blob_sha": "1ff485037ca359cffc7750ff6f96b51afa2b74d2",
+  "reviewed_developer_sha": "current triggering commit; authorization binds all 17 exact runtime and publisher file blobs listed in the tester decision",
+  "scope": "single exact-lineage structural preflight; validate uncompressed CSV content SHA; sanitized metadata report only; no modelling",
   "reviewed_file_hashes_verified_at_request": true,
-  "note": "R3 single-use authorization consumed by run 38144072524; failed closed at compressed SHA comparison. Marked spent to prevent accidental repeat; the content-hash correction requires a new tester decision and R4 request."
+  "note": "R4 is a fresh single-use request following R3's compressed-container SHA mismatch. All 17 file blob hashes were independently rechecked 17/17 against the new tester decision immediately before this request. Do not proceed on any mismatch. Uncompressed expected byte count is deliberately omitted because no independently verified reference value exists."
 }
