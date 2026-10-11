@@ -44,3 +44,15 @@ The parent artifact has 19,021 unmatched option rows at 421 distinct timestamps,
 **Tester → Developer:** Promote only the exact reviewed code and rerun the fixed R2 artifact. Inspect the post-repair audit summary and hosted cleanup logs before calling repair complete.
 
 **Developer → Tester:** Review the new run's artifact/manifest linkage, row-count reconciliation, quality counts and cleanup proof. Return REQUEST CHANGES if any invariant fails.
+
+
+## Follow-up — scoped test repair (2026-10-11)
+
+- Follow-up exact developer snapshot: `350776e764ec238e23dd325b2a4d64f3d9fa468c`.
+- Offline suite [38131565150](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131565150) and protocol check [38131565322](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131565322) both passed.
+- The prior suite correctly surfaced that main's separate unmatched-timestamp diagnostic workflow lacks the pinned cryptography installation. That issue is tracked in [PR #8](https://github.com/vishnuvcr/Naked-option-v1/pull/8), which remains open because the connected account cannot approve its own PR. The repair regression now checks the repair workflow's own dependency and artifact preparation, so an unrelated diagnostic workflow defect does not block this repair gate. This does not declare PR #8 resolved.
+- This follow-up changes test scope only; the repair implementation and exact-epoch/missingness policy are unchanged. The repair may now be rerun against the fixed R2 artifact with independent post-repair validation mandatory.
+
+**Tester → Developer:** Rerun only the fixed R2 artifact, and verify the embedded post-repair validation plus cleanup evidence.
+
+**Developer → Tester:** Return the new report and derived artifact hashes for final scoped review; do not authorize modeling or source requests.
