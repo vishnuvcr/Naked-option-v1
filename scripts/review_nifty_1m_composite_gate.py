@@ -189,6 +189,7 @@ def check_diagnostic_scope(target: pathlib.Path, findings: list[dict[str, str]])
             "Diagnostic runner/workflow is missing one-request, no-persistence or exact tester-decision guards.")
         return {"status": "BLOCKED", "reason": "SAFEGUARD_MISSING"}
     result = {"status": "PASS", "request_id": plan["request_id"],
+              "request_scope_sha256": request_scope_digest(matches[0]),
               "max_wire_requests": 1, "max_retries": 0, "persist_raw_response": False,
               "write_response_cache": False, "export_market_rows": False}
     add(findings, "INFO", "SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS",
