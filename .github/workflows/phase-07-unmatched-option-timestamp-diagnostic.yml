@@ -238,7 +238,7 @@ jobs:
             f"- R2 spot rows on weekend-dated session labels: {spots['weekend_spot_rows']}. All rows remain unmodified.",
             f"- Value anomaly occurrence categories: {json.dumps(issue_counts,sort_keys=True)}.",
             f"- Distinct joined-NIFTY OHLC violation epochs: {values['distinct_timestamp_diagnostics']['matched_option_epochs_with_invalid_joined_nifty_ohlc']}; standalone spot OHLC violation epochs: {values['distinct_timestamp_diagnostics']['standalone_spot_epochs_with_ohlc_violations']}.",
-            f"- Timestamp report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}",
+            f"- Timestamp report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.relative_to(pathlib.Path.cwd()).as_posix()}",
             f"- Value anomaly report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{v.as_posix()}",
             "- No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run."
           ]
