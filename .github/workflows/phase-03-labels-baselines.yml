@@ -7,6 +7,21 @@ on:
       - developer
       - phase-03-tester
       - tester
+    # Do not rerun data acquisition for unrelated workflow/log/cache-export commits.
+    # The Phase 3 pipeline is intentionally restricted to research/code inputs.
+    paths:
+      - scripts/acquire_nifty_daily_history.py
+      - scripts/discover_hf_intraday.py
+      - scripts/acquire_hf_intraday_sample.py
+      - scripts/run_phase3_daily_baselines.py
+      - scripts/run_phase3_intraday_baselines.py
+      - scripts/validate_phase3_protocol.py
+      - scripts/test_phase3_calendar_pit.py
+      - scripts/validate_phase3_result_schema.py
+      - scripts/persist_phase3_results.py
+      - research/phase2/**
+      - research/phase3/**
+      - research/gates/PHASE3_*
   pull_request:
     branches:
       - developer
