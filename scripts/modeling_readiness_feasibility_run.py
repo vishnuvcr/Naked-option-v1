@@ -147,6 +147,10 @@ def validate_input_manifests(
         raise ValueError("INPUT_COLUMN_MAP_COLLISION")
     if input_manifest.get("row_type_values") != {"option": "OPTION", "spot": "SPOT"}:
         raise ValueError("INPUT_ROW_TYPE_MAP_UNSUPPORTED")
+    if input_manifest.get("timestamp_semantics") not in {"BAR_START", "BAR_END"}:
+        return False, "CANDLE_SEMANTICS_UNPROVEN"
+    if input_manifest.get("official_close_linkage_proven") is not True:
+        return False, "CLOSE_LINKAGE_UNPROVEN"
 
     if source_manifest.get("cache_only") is not True:
         raise ValueError("SOURCE_MANIFEST_NOT_CACHE_ONLY")
@@ -174,6 +178,16 @@ def validate_input_manifests(
         raise ValueError("HOLDOUT_ACCESS_HISTORY_NOT_CLEAN")
     if split_manifest.get("holdout_excluded_from_feature_fit") is not True or split_manifest.get("holdout_excluded_from_label_selection") is not True:
         return False, "BLOCKED_HOLDOUT_PROOF"
+    if split_manifest.get("train_label_endpoint_purge_verified") is not True or split_manifest.get("validation_label_endpoint_purge_verified") is not True:
+        return False, "BLOCKED_LEAKAGE"
+    if split_manifest.get("train_eligible_origins") != split_manifest.get("train_eligible_origins_verified"):
+        return False, "BLOCKED_LEAKAGE"
+    if split_manifest.get("validation_eligible_origins") != split_manifest.get("validation_eligible_origins_verified"):
+        return False, "BLOCKED_LEAKAGE"
+    if not _nonnegative_int(split_manifest.get("train_eligible_origins")) or not _nonnegative_int(split_manifest.get("common_validation_origins")):
+        return False, "BLOCKED_LEAKAGE"
+    if split_manifest["train_eligible_origins"] < 252 or split_manifest["common_validation_origins"] < 250:
+        return False, "INCOMPLETE_NOT_PROMOTABLE"
     offsets = [split_manifest.get(k) for k in ("train_end_byte_offset", "validation_end_byte_offset", "holdout_start_byte_offset")]
     if any(not _nonnegative_int(x) for x in offsets) or not (0 < offsets[0] <= offsets[1] < offsets[2]):
         raise ValueError("SPLIT_BYTE_OFFSETS_INVALID")
@@ -324,7 +338,7 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
         raise ValueError("FEATURE_FAMILY_MANIFEST_INVALID")
     seen_families: set[str] = set()
     for spec in feature_specs:
-        if not isinstance(spec, dict) or not isinstance(spec.get("family"), str) or not spec["family"] or spec["family"] in seen_families:
+        if not isinstance(spec, dict) or spec.get("family") not in ALLOWED_FEATURE_FAMILIES or spec["family"] in seen_families:
             raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
         if spec.get("row_type") not in {"OPTION", "SPOT", "ALL"} or not isinstance(spec.get("columns"), list) or not spec["columns"]:
             raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
@@ -344,6 +358,12 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
     holdout_start = _iso_date(manifest["holdout_start_session"])
     session_rows = {"train": set(), "validation": set()}
     train_endpoints_purged = 0
+    if type(byte_limit) is not int or byte_limit <= 0 or byte_limit > Path(dataset_path).stat().st_size:
+        raise ValueError("HOLDOUT_OFFSET_OUT_OF_RANGE")
+    with Path(dataset_path).open("rb") as boundary_check:
+        boundary_check.seek(byte_limit - 1)
+        if boundary_check.read(1) != b"\n":
+            raise ValueError("HOLDOUT_OFFSET_NOT_RECORD_BOUNDARY")
 
     with Path(dataset_path).open("rb") as source:
         bounded = io.BufferedReader(BoundedReader(source, byte_limit))
@@ -502,7 +522,7 @@ def build_blocked_report(input_manifest: Mapping[str, Any], reason: str) -> dict
         "feature_families": {}, "train_session_count": 0, "validation_session_count": 0,
         "session_status": "NOT_ESTIMABLE", "split_status": "BLOCKED_HOLDOUT_PROOF",
         "source_manifest_sha256": "", "calendar_manifest_sha256": "", "split_manifest_sha256": "",
-        "block_reason": reason, "cleanup_status": "PASS", "gate_status": "BLOCKED",
+        "block_reason": reason, "cleanup_status": "NOT_RUN", "gate_status": "BLOCKED",
     }
 
 
