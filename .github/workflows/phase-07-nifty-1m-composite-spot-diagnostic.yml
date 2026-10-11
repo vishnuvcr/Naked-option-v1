@@ -311,14 +311,18 @@ jobs:
           set -euo pipefail
           test ! -e research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json
           python - <<'PY'
-          import datetime,json,os,pathlib
+          import datetime,hashlib,json,os,pathlib
+          manifest_path=pathlib.Path("research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json")
+          manifest_sha=hashlib.sha256(manifest_path.read_bytes()).hexdigest()
           value={
             "schema_version":1,
             "status":"SPENT_BEFORE_SOURCE_REQUEST",
             "scope":"SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
-            "max_spot_requests":61,\n            "max_gapfill_requests":47,\n            "gapfill_manifest_sha256":manifest_sha,
+            "max_spot_requests":61,
+            "max_gapfill_requests":47,
+            "gapfill_manifest_sha256":manifest_sha,
             "live_option_requests_allowed":False,
-            "option_cache_required":8540,
+            "existing_option_rows_required":8490723,
             "reviewed_developer_commit":os.environ["REVIEW_SHA"],
             "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
             "github_run_id":os.environ["RUN_ID"],
@@ -339,6 +343,7 @@ jobs:
         env:
           DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
         shell: bash
         run: |
           set +e
