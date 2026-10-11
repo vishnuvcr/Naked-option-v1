@@ -87,6 +87,24 @@ def test_expiry_value_gaps_are_detected_even_when_columns_exist():
     assert observed["expiry_fields_missing"] is False
     assert observed["expiry_fields_blank_for_all_option_rows"] is False
 
+    # Missing headers must not cause populated fields to be described as blank.
+    mixed = runner.summarize_critical_data_gaps(
+        {"expiry_mapping_source": 1, "time_to_expiry_years": 2},
+        {"expiry_mapping_source": 0, "time_to_expiry_years": 0},
+        option_rows=5,
+    )
+    assert mixed["expiry_fields_missing"] is True
+    assert mixed["missing_expiry_columns"] == ["expiry_date"]
+    assert mixed["blank_expiry_option_row_counts"] == {
+        "expiry_date": 0,
+        "expiry_mapping_source": 0,
+        "time_to_expiry_years": 0,
+    }
+    assert mixed["expiry_fields_blank_for_all_option_rows"] is False
+
+    empty = runner.summarize_critical_data_gaps(indexes, {}, option_rows=0)
+    assert empty["expiry_fields_blank_for_all_option_rows"] is False
+
 def test_empirical_mode_fails_before_reading_option_data():
     with tempfile.TemporaryDirectory() as td:
         path = Path(td) / "no-data.csv.gz"
