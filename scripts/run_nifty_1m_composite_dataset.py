@@ -971,6 +971,14 @@ def _payload_row_count(payload: dict[str, Any], request: dict[str, Any]) -> int:
     return len(ts) if isinstance(ts, list) else 0
 
 
+def _safe_exception_reason(exc: Exception) -> str:
+    """Expose only bounded parser reason tokens; never log response bodies or credentials."""
+    reason = str(exc)
+    if reason and len(reason) <= 120 and all(ch.isalnum() or ch in "_-:." for ch in reason):
+        return reason
+    return type(exc).__name__
+
+
 def _error_record(request: dict[str, Any], reason: str, status: int | None) -> dict[str, Any]:
     return {
         "request_id": request.get("request_id", ""),
@@ -1094,7 +1102,7 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         budget["retry_requests"] = wire_budget["retry_requests"]
         return None, "FAILED_REQUEST", "", exc.http_status or 0, 0
     except Exception as exc:
-        budget["errors"].append(_error_record(request, "unexpected_" + type(exc).__name__, None))
+        budget["errors"].append(_error_record(request, "unexpected_" + type(exc).__name__ + ":" + _safe_exception_reason(exc), None))
         return None, "FAILED_VALIDATION", "", 0, 0
 
 
@@ -1182,7 +1190,7 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
                 budget["errors"].append(_error_record(spot_request, "provider_duplicate_timestamps_preserved_and_flagged", status_code))
         except Exception as exc:
             result["status"] = "FAILED_SCHEMA"
-            result["reason"] = "spot_parse_error_" + type(exc).__name__
+            result["reason"] = "spot_parse_error_" + type(exc).__name__ + ":" + _safe_exception_reason(exc)
             budget["failed_responses"] += 1
             session_calendar_complete = False
             budget["errors"].append(_error_record(spot_request, result["reason"], status_code))
