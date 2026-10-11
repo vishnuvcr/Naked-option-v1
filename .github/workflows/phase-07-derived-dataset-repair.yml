@@ -172,6 +172,10 @@ jobs:
           root=pathlib.Path(os.environ["OUTPUT_DIR"])
           report_path=pathlib.Path(os.environ["REPORT_JSON"])
           report=json.loads(report_path.read_text(encoding="utf-8"))
+          report["parent_artifact_run_id"]=38126168547
+          report["parent_artifact_id"]=11696937921
+          report["parent_artifact_sha256"]="5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b"
+          report_path.write_text(json.dumps(report,indent=2,sort_keys=True)+"\n",encoding="utf-8")
           manifest_path=root/"dataset_manifest.json"
           manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
           if report.get("status")!="DERIVED_REPAIR_COMPLETE": raise SystemExit("derived_report_status_invalid")
