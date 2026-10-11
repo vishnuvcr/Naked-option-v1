@@ -1634,3 +1634,15 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 
 **Developer → Tester:** Review the bounded data/model-readiness proposal with tests before any modeling gate can open.
 **Tester → Developer:** Do not begin fitting/scoring, inspect final holdout labels, issue new data requests or test strategies based only on this structural pass.
+
+
+## 2026-10-11 — Modeling-readiness proposal submitted for tester review
+
+- Developer artifacts: [MODELING_READINESS_PROPOSAL_R5_2026-10-11.md](gates/MODELING_READINESS_PROPOSAL_R5_2026-10-11.md), blob `f3b04eec5097dffedd0a1418de1a8673a7756bd9`; [machine-readable scope](gates/MODELING_READINESS_SCOPE_R5_2026-10-11.json), blob `741cd5870107a52e8f20dc83b6ba83761ac71a2e`.
+- Design scope is a finite MR-0–MR-5 feasibility gate: cached source/calendar inventory, session and candle timing audit, target endpoint feasibility, per-feature PIT/coverage disposition, split/label purge/holdout metadata feasibility, and tester decision.
+- No new source requests, model fitting/tuning/scoring, final holdout observation access, strategy/P&L or trading action is allowed by the proposal. It does not override the paper-replication contract, which remains PROPOSED_NOT_AUTHORIZED.
+- Strict rules: use standalone SPOT rows for index targets; do not assume final minute bar is the official close without provenance; do not impute missing values or nearest-join; expiry/TTE/Greek/rate/dividend features remain BLOCKED_DATA on current snapshot; missing holdout-exclusion proof yields BLOCKED_HOLDOUT_PROOF.
+- Tester review is pending. Do not implement/execute the real-data feasibility audit until the proposal/scope and next scope are reviewed on the isolated tester branch.
+
+**Developer → Tester:** Check target definitions, NSE session handling, option/feature eligibility, PIT rules, leakage/purge, holdout boundary and fail-closed statuses against the exact proposal/scope blobs.
+**Tester → Developer:** Return a scoped design decision only; do not authorize fitting or empirical paper replication.
