@@ -1483,3 +1483,15 @@ The automatic offline suite [38127450732](https://github.com/vishnuvcr/Naked-opt
 
 **Developer → Tester:** Review the exact-snapshot preflight code, tests and workflow before authorizing execution.
 **Tester → Developer:** Preserve the current restrictions; no model fitting, holdout access or strategy testing from this proposal-only decision.
+
+
+## 2026-10-11 — Offline preflight implementation submitted for review
+
+- Added `scripts/offline_dataset_preflight.py`, synthetic tests, and `.github/workflows/phase-07-offline-preflight-tests.yml` on `phase-07-developer`. The workflow only runs synthetic fixtures; it does not download or access the real 4.75 GB CSV.
+- Latest code commit: `c866ba5f5e125f693c5353f5c9f70d0d94514078`.
+- Tester report on `phase-07-tester`: [OFFLINE_PREFLIGHT_TESTER_REVIEW_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_TESTER_REVIEW_2026-10-11.md), commit `6736b2b3d9abec87ebc17ac9da38ac43a263b51d`. Decision: REQUEST CHANGES; no verified CI receipt for the latest snapshot and no real-file execution.
+- Required corrections: expand failure/duplicate-key fixtures, guarantee temporary database cleanup, add timestamp/session/quality checks where schema semantics are known, and submit successful synthetic CI receipt.
+- Phase status: implementation in review; actual preflight NOT AUTHORIZED; model fitting/scoring CLOSED; holdout CLOSED; new source requests CLOSED; strategy/P&L CLOSED.
+
+Developer → Tester: Review the corrected exact snapshot and successful synthetic CI run.
+Tester → Developer: Keep real-file preflight and all downstream research gates closed until resubmission passes.
