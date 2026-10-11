@@ -183,6 +183,10 @@ jobs:
           if report.get("status")!="DERIVED_REPAIR_COMPLETE": raise SystemExit("derived_report_status_invalid")
           if manifest.get("download_bundle_contains_encrypted_data_only") is not True: raise SystemExit("derived_manifest_not_encrypted_only")
           if len(manifest.get("parts",[]))!=61: raise SystemExit("derived_part_count_mismatch")
+          manifest["parent_artifact_run_id"]=38126168547
+          manifest["parent_artifact_id"]=11696937921
+          manifest["parent_artifact_sha256"]="5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b"
+          manifest_path.write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
           total=0
           names=set()
           for part in manifest["parts"]:
