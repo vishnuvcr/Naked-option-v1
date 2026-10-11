@@ -26,6 +26,7 @@ on:
       - ".github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml"
       - "research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json"
       - ".github/workflows/phase-07-nifty-1m-spot-split-recovery.yml"
+      - ".github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml"
       - "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json"
       - "scripts/test_audit_nifty_1m_composite_cache.py"
       - "scripts/audit_nifty_1m_composite_values.py"
@@ -66,7 +67,7 @@ jobs:
         run: python -m pip install -r requirements-composite.txt
       - name: Validate scoped diagnostic workflow YAML syntax
         run: |
-          ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"); YAML.parse_file(".github/workflows/phase-07-nifty-1m-spot-split-recovery.yml"); YAML.parse_file(".github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml"); YAML.parse_file(".github/workflows/dataset-value-audit.yml"); puts "PASS: diagnostic, both recovery workflows, and offline dataset audit workflow YAML parse"'
+          ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"); YAML.parse_file(".github/workflows/phase-07-nifty-1m-spot-split-recovery.yml"); YAML.parse_file(".github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml"); YAML.parse_file(".github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml"); YAML.parse_file(".github/workflows/dataset-value-audit.yml"); puts "PASS: diagnostic, both recovery workflows, the offline dataset audit, and unmatched timestamp map workflows YAML parse"'
       - name: Compile collector, decryptor and validators
         run: >-
           python -m py_compile
