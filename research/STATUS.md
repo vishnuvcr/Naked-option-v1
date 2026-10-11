@@ -335,3 +335,10 @@ The developer's one-use approval was consumed before the first request. [Guarded
 **Tester → Developer:** Keep public repository and Action artifacts free of plaintext CSV and private keys; no further export action required.
 
 **Developer → Tester:** Preserve the output hashes and residual coverage restrictions; keep research gates unchanged.
+
+## 2026-10-11 — Phase 7 synthetic preflight code gate
+
+- Exact developer snapshot `0e9b5f592f8004022576598936a7f24a8268caca` passed Actions run [38135712550](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38135712550).
+- Decision `PASS_WITH_SCOPED_RESTRICTIONS`: synthetic code/test/workflow only.
+- Real-file preflight NOT AUTHORIZED; modelling, holdout, source requests and strategy/P&L CLOSED.
+- The reviewed dataset was not present in the tester runtime. A new exact-file gate is required.
