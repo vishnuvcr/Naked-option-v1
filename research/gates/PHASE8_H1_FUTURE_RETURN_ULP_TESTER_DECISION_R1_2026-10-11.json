@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-h1-future-return-ulp-alignment-r1",
+  "reviewed_at": "2026-10-11",
+  "decision": "REQUEST_CHANGES",
+  "scope": "Source-derived future_return array alignment only; unchanged Run #994 reference artifact; no option execution or holdout permission",
+  "evidence": {
+    "run_id": 38162517430,
+    "failed_job_id": 114538420772,
+    "artifact_id": 11710103232,
+    "layer": "daily",
+    "horizon": 1,
+    "exact_mismatch_count": 64,
+    "maximum_absolute_difference": 3.469446951953614e-18,
+    "sample_mismatch": {
+      "actual": 0.006094646255253335,
+      "expected": 0.006094646255253336,
+      "absolute_difference": 8.673617379884035e-19
+    },
+    "check": "scripts/validate_phase7_reference_panels.py::verify_panel_source_alignment",
+    "current_comparison": "np.array_equal(future_actual, future_expected, equal_nan=True)",
+    "frozen_reference_artifact_id": 11638738288,
+    "frozen_reference_artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "aggregate_reconstruction_tolerance_abs": 1e-9
+  },
+  "proposed_policy": {
+    "field": "future_return",
+    "dtype": "IEEE-754 float64",
+    "max_ulps": 2,
+    "exact_equal_values_allowed": true,
+    "paired_nan_allowed": true,
+    "identical_infinities_allowed": true,
+    "nonfinite_mismatch_rejected": true,
+    "shape_mismatch_rejected": true,
+    "labels_remain_exact": true,
+    "timestamps_remain_exact": true,
+    "aggregate_metric_tolerance_unchanged": true,
+    "saved_artifact_values_unchanged": true,
+    "accept_only_after_observed_all_rows_within_limit": true
+  },
+  "required_actions": [
+    "Implement an exact-or-at-most-two-ULP comparator that reports mismatch count, max absolute error and max ULP distance.",
+    "Add tests for 1, 2 and 3 ULPs, paired NaN, NaN-versus-number, identical infinities, infinity-versus-finite, and a semantic/sign change.",
+    "Run hosted validation against unchanged Run #994 artifact and source pins.",
+    "Keep the gate blocked if any observed pair exceeds two ULPs."
+  ],
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "new_market_source_requests_authorized": false,
+  "strategy_promotion_authorized": false,
+  "saved_reference_artifact_modification_authorized": false
+}
