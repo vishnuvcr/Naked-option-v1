@@ -17,6 +17,8 @@
 3. **Bansal et al. R² interpretation — confirmed.** Table II reports LSTM average R² = −0.11, while the next-page prose calls −0.11 “close” to +1. The wording is mathematically inconsistent. The data do show LSTM as the least-negative average among the listed models, which is distinct from establishing strong predictive skill.
 4. **Cureus SVR metrics — confirmed in the rendered table.** Visible rows include 5-year SVR test R² −47.8984 / RMSE 6,079.98 / MAE 6,019.04 and 10-year SVR test R² −154.8147 / RMSE 12,296.97 / MAE 12,255.35. These must be preserved as negative author-reported results, not converted into a generic model accuracy score.
 
+5. **SSRN CCI trade-count arithmetic — confirmed.** Table II reports 43 profitable and 25 losing trades, total 68; its explanatory prose separately says 42/68 profitable and 25/68 losing (sum 67). Table III again lists observed categories 43 and 25 but prints the total as 80. The displayed \u03c7\u00b2 = 4.765 is consistent with (43−34)²/34 + (25−34)²/34 = 4.7647… using a total of 68, not 80. The note correctly flags all three source counts rather than silently repairing the table. This is a strategy-only source and grants no P&L permission.
+
 ## Data/method boundaries
 
 - Source page checks are literature-audit evidence only; no project model was fitted or scored.
