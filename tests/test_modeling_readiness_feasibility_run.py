@@ -3,6 +3,7 @@ import hashlib
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from scripts.modeling_readiness_feasibility_run import (
@@ -79,8 +80,10 @@ class FeasibilityRunTests(unittest.TestCase):
                                "strategy_pnl":False, "trading":False},
                 "reviewed_blobs": {}, "decoded_dataset_sha256": EXPECTED_DATASET_SHA256,
                 "max_dataset_rows": EXPECTED_ROWS, "max_dataset_columns": EXPECTED_COLUMNS, "input_sha256": {}}
-        with self.assertRaisesRegex(ValueError, "AUTH_DOWNSTREAM_PERMISSION_NOT_CLOSED"):
-            validate_execution_authorization(auth, paths)
+        auth["authorized_workflow_run_id"] = "12345"
+        with mock.patch.dict("os.environ", {"GITHUB_RUN_ID": "12345", "GITHUB_RUN_ATTEMPT": "1"}):
+            with self.assertRaisesRegex(ValueError, "AUTH_DOWNSTREAM_PERMISSION_NOT_CLOSED"):
+                validate_execution_authorization(auth, paths)
 
     def test_report_schema_subset_rejects_unknown_properties_and_bad_hash(self):
         schema = {"type":"object", "additionalProperties":False, "required":["dataset_sha256","count"],
