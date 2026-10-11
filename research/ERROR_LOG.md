@@ -1,3 +1,12 @@
+## 2026-10-11 — Gzip detection regression corrected
+
+- Run [38153813598](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153813598) failed because the gzip magic-byte literal was escaped twice, so a compressed synthetic fixture was treated as plain CSV.
+- Corrected detection to compare the first two bytes against `bytes((31, 139))`.
+- Verification: [run 38153849924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153849924) passed all 6 synthetic tests and the CLI guard.
+- No cached artifact or real market values were accessed.
+
+
+
 ## 2026-10-11 — Cached composite format clarified; scanner integration must use encrypted artifact workflow
 
 - Metadata-only repository inventory found no plaintext composite file under `research/data`. The fixed dataset is stored as an encrypted GitHub Actions artifact with 61 monthly encrypted parts.
