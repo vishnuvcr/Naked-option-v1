@@ -894,3 +894,17 @@ No additional Dhan requests are authorized by the post-run tester decision. No o
 - The report found zero duplicate spot timestamps, zero invalid session-date rows, and no exact-epoch mismatches between joined NIFTY values and standalone spot rows.
 - The all-date map still has **19,021 unmatched option rows across 421 timestamps**. None of those timestamps exists in the current spot row set; 196 timestamps have a nearest same-day spot bar within 60 seconds and 296 within 300 seconds. These offsets are diagnostic only and are not used for joins.
 - Repair policy: reconcile matched NIFTY OHLCV only to the standalone spot row at the identical epoch; mask invalid OHLC/volume as missing; preserve unmatched rows as unmatched. No new collection or modeling is authorized.
+
+
+## 2026-10-11 — Prediction research resumed after offline export
+
+The verified offline export is available in the user's workspace; it is not stored as plaintext in GitHub. Export verification is **not** modelling-readiness approval. The next bounded step is a local, chunked data preflight, followed by a reviewed target/split contract. Model fitting, holdout access, new data requests, and option strategy/P&L tests remain closed.
+
+- [Modelling-readiness and prediction continuation proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELLING_READINESS_AND_PREDICTION_CONTINUATION_PROPOSAL_2026-10-11.md)
+- [Tester report — PASS WITH SCOPED RESTRICTIONS, proposal design only](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELLING_READINESS_PROPOSAL_TESTER_REPORT_2026-10-11.md)
+- [Offline export and dataset limitations](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/STATUS.md)
+
+Current permissions: export/integrity PASS with scoped restrictions; proposal design PASS with scoped restrictions; local preflight NOT YET AUTHORIZED; fitting/scoring CLOSED; untouched holdout CLOSED; strategy/P&L CLOSED. Tester-role review is from the same connected assistant session, not an external independent reviewer.
+
+**Developer → Tester:** Review the next exact-snapshot offline preflight implementation before execution.
+**Tester → Developer:** Keep fitting, holdout, new-source, and strategy permissions closed until separately approved.
