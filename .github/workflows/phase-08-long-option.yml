@@ -82,6 +82,10 @@ jobs:
         run: python scripts/test_phase8_reconstruction.py
       - name: Saved forecast-panel regression (synthetic only)
         run: python scripts/test_phase8_reference_panels.py
+      - name: Frozen source-cache regression (synthetic only)
+        run: python scripts/test_phase8_cached_source_inputs.py
+      - name: Source-bootstrap authorization regression (synthetic only)
+        run: python scripts/test_phase8_source_cache_bootstrap.py
       - name: Execution-engine regression
         run: PYTHONPATH=scripts python scripts/test_phase8_execution_engine.py
       - name: No-refit runner contract regression (synthetic only)
