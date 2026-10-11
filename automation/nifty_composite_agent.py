@@ -229,7 +229,7 @@ def compile_report(args: argparse.Namespace) -> int:
     args.output.write_text("\n".join(lines), encoding="utf-8")
     decision_obj = {
         "schema_version": 1, "decision": decision, "reviewed_developer_commit": args.reviewed_sha,
-        "decision_scope": "OFFLINE_CODE_GATE_ONLY" if not ai_completed else "OFFLINE_CODE_GATE_WITH_AI_REVIEW",
+        "decision_scope": ("SPOT_ONLY_RECOVERY" if spot_recovery_authorized else "ONE_REQUEST_DIAGNOSTIC_ONLY" if diagnostic_probe_authorized else "OFFLINE_CODE_GATE_WITH_AI_REVIEW" if ai_completed else "OFFLINE_CODE_GATE_ONLY"),
         "attempt": args.attempt, "ai_reviewer_available": ai_completed,
         "deterministic_pass": deterministic_ok, "repair_mode": repair_mode,
         "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode in {"DETERMINISTIC_TEST_GAP_FIX", "AI_DEVELOPER_PATCH"} and args.attempt < args.max_attempts,
