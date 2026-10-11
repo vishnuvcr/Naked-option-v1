@@ -1544,3 +1544,13 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 - Reissued request `REAL_FILE_PREFLIGHT_2026-10-11_R2` in commit `6d75d26f0f30036595d3996f48602c6657a34b97` to trigger a run on the exact request commit.
 - The run receipt and sanitized report are not yet verifiably retrievable through the available Actions interface. Data audit status remains pending; no empirical result is claimed.
 - The receipt publisher was merged to main in PR #11; dedicated hosted test-run evidence remains unverified. No model fitting/scoring, holdout access, new data-source requests or strategy/P&L is authorized.
+
+
+## 2026-10-11 — User-uploaded CSV preliminary structural check
+
+- The user supplied the exact expected CSV.GZ in the conversation workspace. SHA-256 verified as `f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5`, matching the pinned export hash; file size 230,858,600 bytes and gzip integrity passed.
+- Full streaming width scan reached EOF: 8,999,865 data rows, 47 columns, zero row-width mismatches.
+- Full streaming header-key/row-type scan reached EOF: 8,490,723 OPTION rows and 509,142 SPOT rows; zero blank timestamp_epoch, zero blank underlying, zero OPTION rows missing expiry_code/returned_strike/option_type, and zero SPOT rows missing underlying.
+- The actual header uses timestamp_epoch/row_type/underlying/expiry_code/returned_strike/option_type, while the generic preflight duplicate-key groups look for instrument_type/symbol/expiry/strike/security_id. This must be independently assessed; do not treat a non-estimable uniqueness check as PASS.
+- A full local SQLite uniqueness scan exceeded the execution time limit; duplicate-key count remains UNKNOWN. Preliminary report: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/UPLOADED_CSV_PRELIMINARY_CHECK_2026-10-11.md.
+- This supplemental local check is not a substitute for the exact authorized Actions audit receipt and is not modelling-readiness approval. Modelling/scoring, holdout, new source requests and strategy/P&L remain CLOSED pending tester review and the next approved gate.
