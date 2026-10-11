@@ -1568,3 +1568,14 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - The first single-invocation local validator timed out before its final summary. This was logged; validation was completed through two consecutive chunks plus exact file hashes, gzip integrity and physical line counts. The temporary RSA private key and intermediary export packages/scripts were removed.
 - Final local manifest: `nifty_repaired_composite_offline_manifest.json`, SHA-256 `ac9736c6c757c9624dc9ddbf8acf1e016faa44dd0e37d76a0a7b340ce3fe6254`.
 - No plaintext dataset was committed to the public repository or uploaded as an Action artifact. No market data requests, prediction fits, holdout access or strategies were run.
+
+
+### 2026-10-11 — User said “Ok”; preflight implementation corrections
+- Re-read main README, the modelling-readiness proposal, developer status/error logs and tester's prior REQUEST CHANGES report before proceeding.
+- Updated the bounded-memory scanner to clean up its SQLite duplicate index on failure, parse numeric/ISO timestamps instead of reporting lexical extrema, count parse errors, and avoid treating incomplete keys as unique.
+- Added regression cases for corrupt/truncated gzip, malformed row widths, duplicate composite keys, absent/incomplete keys, nested report directories, timestamp parsing and cleanup. Commits: `d7095ea89f697b4d0ba6df8b771cc38781295d09` and `ca500c3b931c8e8204ec59f5b2baa57bb19170d7`.
+- Added a checkpoint log and updated the error log/status. No successful CI receipt is verified yet; no real-file scan was possible because the CSV is not mounted in this execution environment.
+- No market-data calls, row edits, fitting/scoring, holdout reads, or strategy/P&L tests occurred.
+
+**Developer → Tester:** Verify the exact implementation/test snapshot and synthetic CI receipt; scrutinize temp cleanup and timestamp parsing.
+**Tester → Developer:** Keep real-file preflight and all downstream gates closed until the exact-snapshot review passes.
