@@ -159,8 +159,8 @@ jobs:
           test -d "$INPUT_DIR"
           python scripts/enrich_nifty_composite_greeks.py \
             --input-dir "$INPUT_DIR" \
-            --output-dir "$RUNNER_TEMP_DIR/nifty-1m-greeks-enriched-r1" \
-            --coverage-report "$RUNNER_TEMP_DIR/greek-enrichment-coverage.json" \
+            --output-dir "$RUNNER_TEMP_DIR/nifty-1m-greeks-enriched-r2" \
+            --coverage-report "$RUNNER_TEMP_DIR/greek-enrichment-coverage-r2.json" \
             --expiry-file-list "$EXPIRY_FILE_LIST" \
             --hf-spot-parquet "$HF_SPOT_PARQUET"
 
@@ -171,9 +171,9 @@ jobs:
           python - <<'PY'
           import hashlib, json, os, pathlib
           root=pathlib.Path(os.environ["RUNNER_TEMP_DIR"])
-          out=root/"nifty-1m-greeks-enriched-r1"
+          out=root/"nifty-1m-greeks-enriched-r2"
           m=json.loads((out/"dataset_manifest.json").read_text())
-          c=json.loads((root/"greek-enrichment-coverage.json").read_text())
+          c=json.loads((root/"greek-enrichment-coverage-r2.json").read_text())
           assert m["download_bundle_contains_encrypted_data_only"] is True
           assert m["do_not_upload_plaintext_or_publish_in_public_repository"] is True
           assert m["rows_preserved"]==8999865==c["rows_preserved"]
@@ -191,10 +191,10 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nifty-1m-greeks-enriched-r1
+          name: nifty-1m-greeks-enriched-r2
           path: |
-            ${{ runner.temp }}/nifty-1m-greeks-enriched-r1/
-            ${{ runner.temp }}/greek-enrichment-coverage.json
+            ${{ runner.temp }}/nifty-1m-greeks-enriched-r2/
+            ${{ runner.temp }}/greek-enrichment-coverage-r2.json
             ${{ runner.temp }}/hf-nifty/source_metadata.json
           if-no-files-found: warn
           retention-days: 90
