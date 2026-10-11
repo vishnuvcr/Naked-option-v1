@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-cached-composite-preflight-r1",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "proposal only; permits implementation and synthetic tests, then exact-snapshot code review and one metadata-only preflight",
+  "developer_proposal_commit": "1abaa7cd92bbbc7c89294e7b63c0067e2b615b13",
+  "proposal_blob_sha": "7a6a2d557a04861fa8203d5083c981ebbff20b0f",
+  "scope_blob_sha": "3b4c06faf439c436c2e555a41e6c8676ca6e1f68",
+  "forecast_artifact_id": 11638738288,
+  "forecast_archive_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+  "forecast_panels": 10,
+  "forecast_rows": 50555,
+  "forecast_validation_run": 38157819076,
+  "composite_source_run_id": 38131641336,
+  "composite_artifact_id": 11698879857,
+  "composite_canonical_csv_sha256": "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204",
+  "composite_rows": 8999865,
+  "composite_columns": 47,
+  "encrypted_monthly_parts": 61,
+  "option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "new_market_source_requests_authorized": false,
+  "strategy_promotion_authorized": false,
+  "required_next_gate": "exact workflow/runner/decrypt/hash/cleanup code review plus hosted synthetic CI before one cached-composite metadata preflight",
+  "caveats": [
+    "Preflight is data-readiness evidence only; no model/strategy performance can be inferred.",
+    "Strict contract execution is expected to remain blocked by missing point-in-time contract master, lot-size/tick-size columns and full bid/ask history.",
+    "Role-separated tester branch is not an external reviewer instance."
+  ]
+}
