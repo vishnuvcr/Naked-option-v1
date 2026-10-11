@@ -1142,3 +1142,11 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Review exact snapshot `269ce879e2587d0b3473fdc1aac91acc95da05ff` (or pin exact code blob SHAs), report PASS/REQUEST CHANGES, and specify the allowed diagnostic scope.
 **Tester → Developer:** Do not execute live acquisition, modelling, holdout access, or strategy work without a fresh exact-snapshot PASS.
+
+
+## 2026-10-11 — Offline artifact verification
+- Downloaded existing artifact 11685737176 from run 38082385220; no new market-data requests.
+- ZIP SHA-256 matched GitHub digest; ZIP test passed. All 37 encrypted part hashes and byte sizes matched the manifest.
+- Manifest row totals reconcile: 8,490,723 option rows, zero spot rows, 8,601 request IDs, 7,481 failed request/quality events. Month parts are discontinuous; status remains PARTIAL_GRID, not continuous five-year coverage.
+- Authenticated AES-GCM decryption not verified because collection-time HF_TOKEN is not accessible to this offline check. Ciphertext integrity is not plaintext/decryption verification.
+- Issue #7 still lacks an independent tester report. No new live request, model fitting/scoring, or holdout access occurred.
