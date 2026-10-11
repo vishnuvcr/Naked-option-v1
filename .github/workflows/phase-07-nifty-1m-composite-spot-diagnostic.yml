@@ -1,0 +1,377 @@
+name: Phase 7 NIFTY Composite — Automatic Diagnostic and Spot Recovery
+
+on:
+  workflow_run:
+    workflows: ["Phase 7 NIFTY Composite — Automated Tester Developer Loop"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      developer_sha:
+        description: "Exact developer SHA to continue; empty means current developer tip."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+concurrency:
+  group: nifty-composite-scoped-continuation
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'phase-07-developer') ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+      review_sha: ${{ steps.scope.outputs.review_sha }}
+      tester_decision_blob: ${{ steps.scope.outputs.tester_decision_blob }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - id: scope
+        name: Read exact-snapshot tester decision and choose the next scoped action
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REVIEW_SHA: ${{ github.event.workflow_run.head_sha }}
+          INPUT_REVIEW_SHA: ${{ inputs.developer_sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin +refs/heads/phase-07-developer:refs/remotes/origin/phase-07-developer +refs/heads/phase-07-tester:refs/remotes/origin/phase-07-tester
+          current_sha="$(git rev-parse origin/phase-07-developer)"
+          review_sha="$EVENT_REVIEW_SHA"
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            review_sha="$INPUT_REVIEW_SHA"
+            [[ -n "$review_sha" ]] || review_sha="$current_sha"
+          fi
+          if [[ "$current_sha" != "$review_sha" ]]; then
+            echo "Stale tester snapshot; no action launched. A new exact-snapshot review will decide the current tip."
+            echo "mode=NONE" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git show origin/phase-07-tester:research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json > "$RUNNER_TEMP/tester-decision.json"; then
+            echo "Tester decision file is absent; no action launched."
+            echo "mode=NONE" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          decision_blob="$(git rev-parse origin/phase-07-tester:research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json)"
+          python - "$RUNNER_TEMP/tester-decision.json" "$review_sha" <<'PY'
+          import json, sys
+          d=json.load(open(sys.argv[1], encoding="utf-8"))
+          if d.get("reviewed_developer_commit") != sys.argv[2]:
+              raise SystemExit("Tester decision SHA does not match reviewed developer snapshot")
+          if d.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
+              raise SystemExit("Tester did not pass this exact snapshot")
+          if d.get("live_requests_authorized") is not False or d.get("model_fitting_authorized") is not False or d.get("holdout_access_authorized") is not False:
+              raise SystemExit("Tester decision violates global scope guard")
+          PY
+          mode="NONE"
+          if [[ -n "$(git ls-tree origin/phase-07-developer research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json)" ]]; then
+            mode="NONE"
+          elif python - "$RUNNER_TEMP/tester-decision.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          raise SystemExit(0 if d.get("spot_recovery_authorized") is True and d.get("spot_recovery_request_limit")==61 and d.get("live_option_requests_allowed") is False else 1)
+          PY
+          then
+            mode="SPOT_RECOVERY"
+          elif [[ -z "$(git ls-tree origin/phase-07-developer research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json)" ]] && python - "$RUNNER_TEMP/tester-decision.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          raise SystemExit(0 if d.get("diagnostic_probe_authorized") is True and d.get("diagnostic_request_id")=="SPOT1M-20260915-20261011" else 1)
+          PY
+          then
+            mode="DIAGNOSTIC"
+          fi
+          echo "review_sha=$review_sha" >> "$GITHUB_OUTPUT"
+          echo "tester_decision_blob=$decision_blob" >> "$GITHUB_OUTPUT"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Exact-snapshot automatic next action: $mode for $review_sha"
+      - name: Report no eligible action
+        if: steps.scope.outputs.mode == 'NONE'
+        run: echo "No new scoped action is authorized by the current exact-snapshot tester decision."
+
+  spot-diagnostic:
+    needs: gate
+    if: needs.gate.outputs.mode == 'DIAGNOSTIC'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Confirm Dhan credential before spending diagnostic authorization
+        env:
+          DHAN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          [[ "$DHAN_CONFIGURED" == "true" ]] || { echo "Dhan credential unavailable; authorization not spent."; exit 1; }
+      - name: Spend the one-request tester authorization before network access
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          TESTER_DECISION_BLOB: ${{ needs.gate.outputs.tester_decision_blob }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test ! -e research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json
+          python - <<'PY'
+          import datetime,json,os,pathlib
+          value={
+            "schema_version":1,
+            "status":"SPENT_BEFORE_SOURCE_REQUEST",
+            "scope":"ONE_NONPERSISTING_SPOT_SCHEMA_DIAGNOSTIC",
+            "request_id":"SPOT1M-20260915-20261011",
+            "max_wire_requests":1,
+            "max_retries":0,
+            "reviewed_developer_commit":os.environ["REVIEW_SHA"],
+            "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
+            "github_run_id":os.environ["RUN_ID"],
+            "live_option_requests_allowed":False,
+            "model_fitting_authorized":False,
+            "holdout_access_authorized":False,
+            "spent_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds").replace("+00:00","Z")
+          }
+          pathlib.Path("research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json").write_text(json.dumps(value,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json
+          git commit -m "Spend tester-authorized one-request NIFTY spot diagnostic"
+          git push origin HEAD:phase-07-developer
+      - name: Execute exactly one diagnostic request and save sanitized metadata only
+        working-directory: developer
+        env:
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+        run: |
+          set -euo pipefail
+          python scripts/run_nifty_1m_spot_diagnostic.py --reviewed-sha "$REVIEW_SHA" --output research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_RESULT.json
+      - name: Commit sanitized diagnostic result to developer branch
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_RESULT.json
+          git commit -m "Record sanitized NIFTY spot diagnostic result for $REVIEW_SHA"
+          git fetch origin phase-07-developer
+          git rebase FETCH_HEAD
+          git push origin HEAD:phase-07-developer
+      - name: Mirror scoped result to Issue 7 without requiring a reply
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: 7,
+              body: "Automated tester-authorized one-request Dhan spot diagnostic completed or failed. The response body is never published; only sanitized schema metadata is recorded. The developer-branch result will automatically trigger the tester review. No user reply is requested."
+            });
+
+  spot-recovery:
+    needs: gate
+    if: needs.gate.outputs.mode == 'SPOT_RECOVERY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: write
+      actions: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: developer/requirements-composite.txt
+      - name: Install acquisition dependency
+        run: python -m pip install -r developer/requirements-composite.txt
+      - name: Restore the previously acquired encrypted cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            developer/data/cache/nifty_1m_composite/raw
+            developer/data/reports/nifty_1m_composite
+          key: nifty1m-composite-${{ github.run_id }}
+          restore-keys: |
+            nifty1m-composite-
+      - name: Verify all 8,540 option responses are cached and 61 spot requests remain eligible
+        id: cache_audit
+        working-directory: developer
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/audit_nifty_1m_composite_cache.py | tee "$RUNNER_TEMP/spot-cache-audit.json"
+          python - "$RUNNER_TEMP/spot-cache-audit.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1],encoding="utf-8"))
+          if x.get("status")!="PASS" or x.get("option_cache_valid")!=8540 or x.get("source_requests_made")!=0 or x.get("live_option_requests_permitted") is not False:
+              raise SystemExit("Spot recovery blocked: encrypted option cache not fully verified.")
+          PY
+      - name: Confirm live credentials before spending one-use recovery authorization
+        env:
+          DHAN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
+          HF_CONFIGURED: ${{ secrets.HF_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          [[ "$DHAN_CONFIGURED" == "true" && "$HF_CONFIGURED" == "true" ]] || { echo "Required secrets unavailable; recovery authorization not spent."; exit 1; }
+      - name: Spend exact tester-authorized spot recovery before source requests
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          TESTER_DECISION_BLOB: ${{ needs.gate.outputs.tester_decision_blob }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test ! -e research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json
+          python - <<'PY'
+          import datetime,json,os,pathlib
+          value={
+            "schema_version":1,
+            "status":"SPENT_BEFORE_SOURCE_REQUEST",
+            "scope":"SPOT_ONLY_CACHE_PRESERVING_RECOVERY",
+            "max_spot_requests":61,
+            "live_option_requests_allowed":False,
+            "option_cache_required":8540,
+            "reviewed_developer_commit":os.environ["REVIEW_SHA"],
+            "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
+            "github_run_id":os.environ["RUN_ID"],
+            "model_fitting_authorized":False,
+            "holdout_access_authorized":False,
+            "spent_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds").replace("+00:00","Z")
+          }
+          pathlib.Path("research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json").write_text(json.dumps(value,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json
+          git commit -m "Spend exact tester authorization for cache-preserving NIFTY spot recovery"
+          git push origin HEAD:phase-07-developer
+      - name: Fetch only the missing spot windows and rebuild merged encrypted monthly parts
+        id: acquire
+        working-directory: developer
+        env:
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        shell: bash
+        run: |
+          set +e
+          python scripts/run_nifty_1m_composite_dataset.py --spot-only-recovery
+          rc=$?
+          echo "collector_exit_code=$rc" >> "$GITHUB_OUTPUT"
+          if [[ $rc -ne 0 ]]; then echo "The spot-only collector exited non-zero; the sanitized summary will show partial/failure." ; fi
+          exit 0
+      - name: Persist encrypted response cache and progress metadata
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            developer/data/cache/nifty_1m_composite/raw
+            developer/data/reports/nifty_1m_composite
+          key: nifty1m-composite-${{ github.run_id }}
+      - name: Create a market-value-free recovery result summary
+        if: always()
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          TESTER_DECISION_BLOB: ${{ needs.gate.outputs.tester_decision_blob }}
+          RUN_ID: ${{ github.run_id }}
+          COLLECTOR_EXIT_CODE: ${{ steps.acquire.outputs.collector_exit_code }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime,json,os,pathlib
+          root=pathlib.Path(".")
+          coverage_path=root/"data/exports/nifty_1m_composite/coverage_and_errors.json"
+          summary={}
+          status="FAILED_NO_COVERAGE_REPORT"
+          if coverage_path.is_file():
+              try:
+                  c=json.loads(coverage_path.read_text(encoding="utf-8"))
+                  status=str(c.get("status","PARTIAL_GRID"))
+                  s=c.get("summary",{})
+                  allowed=("request_count_processed","request_count_planned","wire_requests_this_run",
+                           "wire_requests_cumulative","retry_requests_this_run","retry_requests_cumulative",
+                           "rows_spot","rows_options","spot_join_matched","spot_join_missing",
+                           "failed_responses","cache_hits","fresh_responses","observed_trading_session_count")
+                  summary={k:s.get(k) for k in allowed}
+              except Exception:
+                  status="FAILED_COVERAGE_REPORT_PARSE"
+          result={
+              "schema_version":1,"result_type":"SPOT_ONLY_CACHE_PRESERVING_RECOVERY",
+              "status":status,"reviewed_developer_commit":os.environ["REVIEW_SHA"],
+              "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
+              "github_run_id":os.environ["RUN_ID"],
+              "collector_exit_code":os.environ.get("COLLECTOR_EXIT_CODE",""),
+              "summary":summary,"live_option_requests_allowed":False,
+              "raw_market_values_committed":False,"encrypted_bundle_artifact_expected":True,
+              "completed_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds").replace("+00:00","Z")
+          }
+          pathlib.Path("research/gates/NIFTY_1M_SPOT_RECOVERY_RESULT.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          marker_path=root/"research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
+          if marker_path.is_file():
+              marker=json.loads(marker_path.read_text(encoding="utf-8"))
+              marker["finished_at_utc"]=result["completed_at_utc"]
+              marker["result_status"]=status
+              marker["result_summary"]=summary
+              marker_path.write_text(json.dumps(marker,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_RECOVERY_RESULT.json research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json
+          git commit -m "Record cache-preserving NIFTY spot recovery result"
+          git fetch origin phase-07-developer
+          git rebase FETCH_HEAD
+          git push origin HEAD:phase-07-developer
+      - name: Upload encrypted composite parts and safe metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-composite-spot-recovery-${{ github.run_id }}
+          path: |
+            developer/data/exports/nifty_1m_composite/encrypted/*.csv.gz.enc
+            developer/data/exports/nifty_1m_composite/dataset_manifest.json
+            developer/data/exports/nifty_1m_composite/coverage_and_errors.json
+            developer/data/exports/nifty_1m_composite/README.md
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Mirror outcome to Issue 7 without requiring a reply
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: 7,
+              body: "Automated tester-authorized cache-preserving spot recovery workflow finished or was blocked. The result is recorded in the developer branch, and it will automatically trigger another independent tester review. No user reply is requested."
+            });
