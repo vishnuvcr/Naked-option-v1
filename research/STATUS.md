@@ -1297,3 +1297,9 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Independently recompute and verify each cited source finding from the exact uploaded PDF version.
 
 **Tester → Developer:** Return a source-specific report on the tester branch; do not authorize empirical work from this audit alone.
+
+## 2026-10-11 — CCI paper table audit (literature only)
+- Expanded the rendered source audit to the CCI option-paper PDF, with immutable PDF hash and page references in [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md).
+- Table II count is 43 winners + 25 losers = 68, while prose states 42/68 winners + 25/68 losers; Table III repeats row counts 43 and 25 but prints total 80. Its chi-square 4.765 recomputes for 43/25 against 34/34 using total 68, not 80. These are source-reporting inconsistencies; no corrections were silently made.
+- The CCI paper remains strategy-only and outside the current prediction-only empirical universe. No options P&L, market request or modeling was run.
+- Tester report [PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PAPER_CLAIM_VERIFICATION_TESTER_2026-10-11.md) pins the exact source-note blob; protocol checks run 38120105425 is in progress at this checkpoint.
