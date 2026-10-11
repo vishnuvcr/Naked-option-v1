@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import getpass
 import hashlib
 import json
 import os
@@ -230,10 +231,26 @@ def main() -> int:
     parser.add_argument("--work-dir", required=True, type=pathlib.Path)
     parser.add_argument("--export-dir", required=True, type=pathlib.Path)
     args = parser.parse_args()
+    bundle_dir = args.bundle_dir.resolve()
+    work_dir = args.work_dir.resolve()
+    export_dir = args.export_dir.resolve()
+    def overlaps(left: pathlib.Path, right: pathlib.Path) -> bool:
+        return left == right or left in right.parents or right in left.parents
+    if overlaps(bundle_dir, work_dir) or overlaps(bundle_dir, export_dir) or overlaps(work_dir, export_dir):
+        raise ValueError("bundle_work_and_export_directories_must_be_disjoint")
+    if work_dir.exists():
+        raise ValueError("work_directory_must_not_exist; choose a new temporary path")
+    if any((export_dir / name).exists() for name in (
+        "nifty_1m_composite_repaired.csv", "EXPORT_MANIFEST.json", "README_OFFLINE.txt"
+    )):
+        raise ValueError("export_output_already_exists; choose a fresh export directory")
     secret = os.environ.get("HF_TOKEN", "")
     if not secret:
-        raise ValueError("HF_TOKEN_environment_variable_required")
-    report = export(args.bundle_dir, args.work_dir, args.export_dir, secret)
+        secret = getpass.getpass("Enter the same HF_TOKEN used for collection (input hidden): ")
+    try:
+        report = export(bundle_dir, work_dir, export_dir, secret)
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
     print(json.dumps({
         "export_status": report["export_status"],
         "output_file": report["output_file"],
