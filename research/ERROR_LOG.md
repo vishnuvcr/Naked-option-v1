@@ -534,3 +534,11 @@
 - Impact: cannot yet assert that the final per-panel ULP diagnostics are persisted in a full exact-HEAD reconstruction artifact. This is not evidence of a numerical-policy violation.
 - Required correction: run full reconstruction against the immutable cached Run #994 artifact on exact current HEAD; verify all source-derived `future_return` differences are <=2 ULP and labels/timestamps remain exact.
 - Guardrails: no fresh market-data fetch, no saved artifact regeneration/rounding, no tolerance change, no option P&L or holdout access. R1 authorization remains consumed/disabled.
+
+## 2026-10-12 — Source-audit job ran during forecast-only validation
+- Category: workflow authorization / unintended side effect
+- Component: `.github/workflows/phase-08-long-option.yml`, `sources` job
+- Symptom: forecast-only workflow run [#38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602) ran the free-source audit and acquired official sample archives plus a secondary Hugging Face sample even though `empirical_authorized=false`.
+- Impact: no option P&L/holdout run was authorized, but source acquisition was outside the narrow tester request for cache-only reconstruction. Source-audit outputs are not promoted or used as accepted trading evidence in this gate.
+- Correction: developer commit [a3c3e4c](https://github.com/vishnuvcr/Naked-option-v1/commit/a3c3e4c04f094f92aff61b5615f64ff74e0eafb5) adds a job-level condition so source acquisition runs only when empirical Phase 8 is explicitly authorized. The reconstruction step itself is cache-only at [commit d012713](https://github.com/vishnuvcr/Naked-option-v1/commit/d012713dae811dba0ad919f2a6a0edb5821f0ff8).
+- Prevention: inspect all jobs in a workflow—not only the target reconstruction job—before triggering a forecast-only run. Tester review is required before using any source-audit outputs for research conclusions.
