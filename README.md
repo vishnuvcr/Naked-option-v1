@@ -1,3 +1,16 @@
+## 2026-10-11 — Phase 8 forecast reproducibility gate PASS (R2)
+
+- Hosted [Run #38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076) completed successfully on developer commit `3fe13c49ed29e77b001485abe50b2d41dbb6c160`.
+- All 10 saved prediction panels / 50,555 rows passed exact source, metric, and hash checks at (10^{-9}) tolerance. Output artifact [11709261335](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076/artifacts/11709261335) SHA-256: `249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c`. The no-refit rule is preserved.
+- Tester gate: [R2 saved forecast report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_REPORT.md) — PASS WITH SCOPED RESTRICTIONS for reproducibility only.
+- Not yet a trading result: empirical option P&L and the 4,800-cell grid were skipped. Next steps are a versioned clarification of the stale Run #654 wording, then exact review and testing of the no-refit option runner using the already-cached composite, historical contract limitations and Paytm Money cost model.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md).
+
+**Developer → Tester:** verify the R2 manifest/forecast artifact remains pinned while the specification addendum and no-refit runner are reviewed.  
+**Tester → Developer:** do not launch empirical option P&L until the addendum, full runner tests, cached-data gate and explicit empirical authorization all pass.
+
+---
+
 ## 2026-10-11 — Phase 8 moved to the audited saved forecast panels (R2)
 
 - The Phase 7 reference artifact is already available: [run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656), artifact ID 11638738288. It contains all 10 saved prediction panels (50,555 rows) and the paired aggregate JSON. The independent Phase 7 audit reports 3,098 checks passed and zero failed; it does **not** promote a model or strategy.
