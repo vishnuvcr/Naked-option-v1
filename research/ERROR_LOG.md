@@ -207,3 +207,11 @@ No live source request or approval manifest is authorized. Correct these issues,
 ## 2026-10-11 — Exact hash drift caught before audit acceptance
 - The developer branch had three post-review blob changes; the authorization helper would reject these as stale approval. No bypass was attempted.
 - Exact reviewed blobs were restored and all 11 required file hashes were rechecked. Wait for the R2 audit receipt before data-gate acceptance.
+
+
+## 2026-10-11 — Machine-readable tester authorization update blocked
+
+- Category: repository gate / authorization-control blocker.
+- The current code review concluded PASS WITH SCOPED RESTRICTIONS for implementation quality after hosted synthetic run 38140375493 passed; the real-file scan is not yet authorized.
+- Attempt to update the machine-readable decision file with the corrected exact-hash review was rejected by repository tool safety controls. The old decision blob remains current and no R3 execution request was issued.
+- Disposition: do not bypass the exact-hash validator, edit another control path to simulate approval, or treat the markdown review as machine authorization. All data/model/holdout/strategy gates remain closed until the decision is recorded through an allowed action.
