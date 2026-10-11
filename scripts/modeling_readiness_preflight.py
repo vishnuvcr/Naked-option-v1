@@ -30,6 +30,8 @@ def direction_label(start: float, end: float, tolerance: float = FLAT_TOLERANCE_
     """Return DOWN/FLAT/UP using signed simple return and frozen absolute tolerance."""
     if not (math.isfinite(start) and math.isfinite(end)) or start <= 0 or end <= 0:
         raise ValueError("prices must be finite and positive")
+    if not math.isfinite(tolerance) or tolerance < 0:
+        raise ValueError("tolerance must be finite and nonnegative")
     ret = (end - start) / start
     if abs(ret) <= tolerance:
         return "FLAT"
@@ -41,12 +43,15 @@ def map_session_horizons(sessions: Sequence[str], horizons: Iterable[int] = HORI
         raise ValueError("session list contains duplicate session keys")
     if list(sessions) != sorted(sessions):
         raise ValueError("session list must be chronologically sorted ISO dates")
+    requested_horizons = tuple(horizons)
+    if not requested_horizons or any(type(h) is not int or h not in HORIZONS for h in requested_horizons):
+        raise ValueError("horizons must be a non-empty sequence of supported integer horizons")
+    if len(set(requested_horizons)) != len(requested_horizons):
+        raise ValueError("horizons must not contain duplicates")
     out: dict[str, dict[int, str | None]] = {}
     for i, session in enumerate(sessions):
         out[session] = {}
-        for h in horizons:
-            if h not in HORIZONS:
-                raise ValueError(f"unsupported horizon: {h}")
+        for h in requested_horizons:
             out[session][h] = sessions[i+h] if i+h < len(sessions) else None
     return out
 
@@ -78,6 +83,8 @@ def classify_feature_family(*, nonblank_count: int, total_count: int, point_in_t
 
 def validate_split(*, train_origins: int, common_validation_origins: int,
                    label_endpoints_before_validation: bool, holdout_manifest_verified: bool) -> GateResult:
+    if train_origins < 0 or common_validation_origins < 0:
+        return GateResult("MR-4", "BLOCKED_INVALID_COUNTS", ("NEGATIVE_ORIGIN_COUNTS",))
     if not holdout_manifest_verified:
         return GateResult("MR-4", "BLOCKED_HOLDOUT_PROOF", ("HOLDOUT_EXCLUSION_METADATA_UNVERIFIED",))
     if not label_endpoints_before_validation:
@@ -90,6 +97,8 @@ def validate_split(*, train_origins: int, common_validation_origins: int,
 
 def validate_session_metadata(*, calendar_provenance: bool, candle_semantics: str,
                               unresolved_session_flags: int, spot_duplicate_keys: int) -> GateResult:
+    if unresolved_session_flags < 0 or spot_duplicate_keys < 0:
+        return GateResult("MR-1", "BLOCKED_INVALID_COUNTS", ("NEGATIVE_SESSION_COUNTS",))
     if not calendar_provenance:
         return GateResult("MR-1", "NOT_ESTIMABLE", ("AUTHORIZED_NSE_CALENDAR_PROVENANCE_MISSING",))
     if candle_semantics not in {"BAR_START", "BAR_END"}:
@@ -103,15 +112,59 @@ def validate_session_metadata(*, calendar_provenance: bool, candle_semantics: st
     return GateResult("MR-1", "PASS")
 
 def sanitize_report(report: Mapping[str, Any]) -> dict[str, Any]:
-    """Allowlist metadata fields only; reject row-level values and unexpected keys."""
-    allowed={"dataset_sha256","rows","columns","option_rows","spot_rows","row_width_errors",
-             "timestamp_parse_errors","incomplete_keys","duplicate_keys","session_status",
-             "target_statuses","feature_family_statuses","split_status","exclusion_counts",
-             "origin_manifest_sha256","cleanup_status","gate_status"}
-    extra=set(report)-allowed
-    if extra:
-        raise ValueError("report contains disallowed fields: "+",".join(sorted(extra)))
+    """Validate a metadata-only report; nested status maps cannot carry arbitrary payloads."""
+    required = {
+        "dataset_sha256", "rows", "columns", "option_rows", "spot_rows",
+        "row_width_errors", "timestamp_parse_errors", "incomplete_keys", "duplicate_keys",
+        "session_status", "target_statuses", "feature_family_statuses", "split_status",
+        "exclusion_counts", "origin_manifest_sha256", "cleanup_status", "gate_status",
+    }
+    if set(report) != required:
+        missing, extra = sorted(required - set(report)), sorted(set(report) - required)
+        raise ValueError(f"report keys mismatch; missing={missing}; extra={extra}")
+    for key in ("dataset_sha256", "origin_manifest_sha256"):
+        value = report[key]
+        if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+            raise ValueError(f"{key} must be a lowercase SHA-256 hex digest")
+    count_keys = ("rows", "columns", "option_rows", "spot_rows", "row_width_errors",
+                  "timestamp_parse_errors", "incomplete_keys", "duplicate_keys")
+    for key in count_keys:
+        if type(report[key]) is not int or report[key] < 0:
+            raise ValueError(f"{key} must be a nonnegative integer")
+    if report["option_rows"] + report["spot_rows"] != report["rows"]:
+        raise ValueError("row-type counts must sum to total rows")
+    allowed_statuses = {"PASS", "PASS_WITH_RESTRICTIONS", "PASS_WITH_EXCLUSIONS",
+                        "CANDIDATE", "BLOCKED", "BLOCKED_DATA", "BLOCKED_HOLDOUT_PROOF",
+                        "BLOCKED_LEAKAGE", "BLOCKED_INVALID_COUNTS", "NOT_ESTIMABLE",
+                        "INCOMPLETE_NOT_PROMOTABLE", "NOT_RUN"}
+    for key in ("session_status", "split_status"):
+        if not isinstance(report[key], str) or report[key] not in allowed_statuses:
+            raise ValueError(f"{key} is not an allowed status")
+    for key in ("target_statuses", "feature_family_statuses"):
+        value = report[key]
+        if not isinstance(value, dict) or any(
+            not isinstance(name, str) or not name or not isinstance(status, str) or status not in allowed_statuses
+            for name, status in value.items()
+        ):
+            raise ValueError(f"{key} must map names to allowlisted status strings only")
+    exclusions = report["exclusion_counts"]
+    if not isinstance(exclusions, dict) or any(
+        not isinstance(name, str) or not name or type(count) is not int or count < 0
+        for name, count in exclusions.items()
+    ):
+        raise ValueError("exclusion_counts must map names to nonnegative integer counts")
+    if report["cleanup_status"] not in {"PASS", "FAIL", "NOT_RUN"}:
+        raise ValueError("cleanup_status is not allowed")
+    if report["gate_status"] not in {"PASS", "PASS_WITH_RESTRICTIONS", "BLOCKED", "NOT_ESTIMABLE"}:
+        raise ValueError("gate_status is not allowed")
     return dict(report)
+
+def _raises_value_error(callable_) -> bool:
+    try:
+        callable_()
+    except ValueError:
+        return True
+    return False
 
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
@@ -130,6 +183,9 @@ def main() -> int:
         "blank_feature_blocked": classify_feature_family(nonblank_count=0,total_count=100,point_in_time_proven=True).status=="BLOCKED_DATA",
         "ambiguous_candle_fail_closed": validate_session_metadata(calendar_provenance=True,candle_semantics="UNKNOWN",unresolved_session_flags=0,spot_duplicate_keys=0).status=="NOT_ESTIMABLE",
         "no_market_io_default": True,
+        "negative_session_counts_block": validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=-1,spot_duplicate_keys=0).status=="BLOCKED_INVALID_COUNTS",
+        "negative_tolerance_rejected": _raises_value_error(lambda: direction_label(100,100,tolerance=-1.0)),
+        "generator_horizons_reused": all(set(v)=={1,2} for v in map_session_horizons(["2026-01-01","2026-01-02","2026-01-05"], horizons=iter((1,2))).values()),
     }
     print(json.dumps({"suite":"modeling-readiness-primitives-v1","checks":checks,
                       "passed":sum(checks.values()),"total":len(checks),
