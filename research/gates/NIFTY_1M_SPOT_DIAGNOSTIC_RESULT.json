@@ -1,0 +1,45 @@
+{
+  "api_error_code": null,
+  "array_lengths": {
+    "close": 6749,
+    "high": 6749,
+    "low": 6749,
+    "open": 6749,
+    "timestamp": 6749,
+    "volume": 6749
+  },
+  "cache_written": false,
+  "content_type": "application/json",
+  "developer_reviewed_sha": "5f89f86c6492aa1241678e6190c1e412ed85d4a0",
+  "executed_at_utc": "2026-10-11T05:31:19Z",
+  "field_types": {
+    "close": "list",
+    "high": "list",
+    "low": "list",
+    "open": "list",
+    "timestamp": "list",
+    "volume": "list"
+  },
+  "http_status": 200,
+  "market_values_logged": false,
+  "parser_reason": "response_timestamp_not_integer_epoch",
+  "parser_status": "PARSER_REJECTED",
+  "plan_id": "NIFTY_1M_SPOT_DIAGNOSTIC_2026-10-11_V1",
+  "quality_flag_counts": {},
+  "raw_response_persisted": false,
+  "request_id": "SPOT1M-20260915-20261011",
+  "request_scope_sha256": "325b0970fd4c37515290b910edfcc1351dbec637f236c6405c5ff86ce5bce7b4",
+  "response_bytes": 377317,
+  "retries": 0,
+  "row_count": 0,
+  "schema_version": 1,
+  "top_level_keys": [
+    "close",
+    "high",
+    "low",
+    "open",
+    "timestamp",
+    "volume"
+  ],
+  "wire_requests": 1
+}
