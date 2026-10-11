@@ -1,0 +1,265 @@
+name: Phase 8 Cached Composite Metadata Preflight
+
+on:
+  push:
+    branches: [phase-08-developer]
+    paths:
+      - ".github/workflows/phase8-cached-composite-preflight.yml"
+      - "scripts/run_phase8_long_option.py"
+      - "scripts/test_phase8_long_option_runner.py"
+      - "scripts/phase8_execution_engine.py"
+      - "scripts/test_phase8_execution_engine.py"
+      - "scripts/decrypt_nifty_1m_composite.py"
+      - "scripts/validate_phase8_cached_composite_bundle.py"
+      - "scripts/test_phase8_cached_composite_bundle.py"
+      - "scripts/authorize_phase8_cached_composite_preflight.py"
+      - "scripts/test_phase8_cached_composite_preflight.py"
+      - "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
+      - "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json"
+      - "research/phase8/PHASE8_METHOD_SPEC.md"
+      - "data/reference/phase8_cost_schedule.json"
+      - "requirements-composite.txt"
+      - "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase8-cached-composite-preflight
+  cancel-in-progress: false
+
+env:
+  SOURCE_EXPORT_RUN_ID: "38131641336"
+  SOURCE_EXPORT_HEAD_SHA: "5e769cd4b19887311213baf16eb81b97416322d7"
+  SOURCE_EXPORT_ARTIFACT_ID: "11698879857"
+  SOURCE_EXPORT_ARTIFACT_NAME: "nifty-1m-derived-repaired-r2-38126168547"
+  FORECAST_REFERENCE_RUN_ID: "37957677656"
+  FORECAST_REFERENCE_COMMIT: "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb"
+  FORECAST_REFERENCE_ARTIFACT_ID: "11638738288"
+  FORECAST_REFERENCE_ARTIFACT_NAME: "phase7-ensemble-reference"
+  FORECAST_REFERENCE_ARCHIVE_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+  FORECAST_REFERENCE_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
+  FORECAST_REFERENCE_AGGREGATE_SHA256: "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
+  COMPOSITE_CANONICAL_SHA256: "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
+
+jobs:
+  contract-tests:
+    name: phase8-cached-preflight-contract-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas pyarrow scikit-learn
+          pip install -r requirements-composite.txt
+      - name: Verify exact encrypted bundle integrity tests
+        run: python scripts/test_phase8_cached_composite_bundle.py
+      - name: Verify exact reviewer authorization contract tests
+        run: python scripts/test_phase8_cached_composite_preflight.py
+      - name: Verify 4,800-cell runner contract
+        run: python scripts/test_phase8_long_option_runner.py
+      - name: Verify existing execution-engine costs and arithmetic
+        run: PYTHONPATH=scripts python scripts/test_phase8_execution_engine.py
+      - name: Run synthetic-only runner self-test
+        run: python scripts/run_phase8_long_option.py --self-test
+      - name: Check critical file blobs against the implementation-review manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json)" = "66683afe7c498a6b52d7863a0da0c4f7a47734c8"
+          test "$(git rev-parse HEAD:research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json)" = "dd8b83113d4b79429008024779107a776b1a0f12"
+          echo "PASS static dataset and R2 forecast manifest Git blob pins"
+
+  authorize:
+    name: phase8-cached-preflight-exact-tester-gate
+    needs: contract-tests
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.gate.outputs.authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-08-tester
+          path: tester-review
+          persist-credentials: false
+      - name: Check default-disabled execution request against exact tester-reviewed code hashes
+        id: gate
+        run: |
+          set -euo pipefail
+          python scripts/authorize_phase8_cached_composite_preflight.py \
+            --request research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json \
+            --decision tester-review/research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_R1.json \
+            --output "$RUNNER_TEMP/phase8-preflight-authorization.json"
+          cat "$RUNNER_TEMP/phase8-preflight-authorization.json"
+          authorized="$(python -c 'import json,sys; print("true" if json.load(open(sys.argv[1])).get("authorized") is True else "false")' "$RUNNER_TEMP/phase8-preflight-authorization.json")"
+          echo "authorized=$authorized" >> "$GITHUB_OUTPUT"
+          if [[ "$authorized" != "true" ]]; then
+            echo "Cached composite will NOT be opened: request is disabled or no exact-snapshot tester approval exists."
+          fi
+
+  cached-composite-preflight:
+    name: phase8-cached-composite-metadata-only-preflight
+    needs: [contract-tests, authorize]
+    if: ${{ needs.authorize.outputs.authorized == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.16"
+      - name: Install only pinned cryptography and scientific preflight dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-composite.txt numpy pandas pyarrow scikit-learn
+      - name: Verify exact source repair run and both immutable artifact identities
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_EXPORT_RUN_ID}")"
+          [[ "$(jq -r '.name // ""' <<< "$source_run")" == "Phase 7 Derived Dataset Repair — Exact Artifact Only" ]] || { echo "SOURCE_RUN_NAME_MISMATCH"; exit 1; }
+          [[ "$(jq -r '.head_sha // ""' <<< "$source_run")" == "$SOURCE_EXPORT_HEAD_SHA" ]] || { echo "SOURCE_RUN_COMMIT_MISMATCH"; exit 1; }
+          [[ "$(jq -r '.status // ""' <<< "$source_run")" == "completed" && "$(jq -r '.conclusion // ""' <<< "$source_run")" == "success" ]] || { echo "SOURCE_RUN_NOT_SUCCESSFUL"; exit 1; }
+          source_artifacts="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_EXPORT_RUN_ID}/artifacts?per_page=100")"
+          source_count="$(jq --arg n "$SOURCE_EXPORT_ARTIFACT_NAME" --argjson id "$SOURCE_EXPORT_ARTIFACT_ID" '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$source_artifacts")"
+          [[ "$source_count" == "1" ]] || { echo "EXACT_COMPOSITE_ARTIFACT_MISSING_OR_EXPIRED"; exit 1; }
+          forecast_run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${FORECAST_REFERENCE_RUN_ID}")"
+          [[ "$(jq -r '.head_sha // ""' <<< "$forecast_run")" == "$FORECAST_REFERENCE_COMMIT" ]] || { echo "FORECAST_REFERENCE_COMMIT_MISMATCH"; exit 1; }
+          [[ "$(jq -r '.status // ""' <<< "$forecast_run")" == "completed" && "$(jq -r '.conclusion // ""' <<< "$forecast_run")" == "success" ]] || { echo "FORECAST_REFERENCE_RUN_NOT_SUCCESSFUL"; exit 1; }
+          forecast_artifacts="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${FORECAST_REFERENCE_RUN_ID}/artifacts?per_page=100")"
+          forecast_count="$(jq --arg n "$FORECAST_REFERENCE_ARTIFACT_NAME" --argjson id "$FORECAST_REFERENCE_ARTIFACT_ID" '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$forecast_artifacts")"
+          [[ "$forecast_count" == "1" ]] || { echo "EXACT_FORECAST_ARTIFACT_MISSING_OR_EXPIRED"; exit 1; }
+          echo "PASS immutable source-run and artifact ID/name checks"
+      - name: Download the existing encrypted composite only
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-derived-repaired-r2-38126168547
+          run-id: 38131641336
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/phase8-composite-bundle
+      - name: Validate all encrypted part names, sizes, hashes, lineage and row totals before decryption
+        run: |
+          set -euo pipefail
+          python scripts/validate_phase8_cached_composite_bundle.py \
+            --bundle-dir "$RUNNER_TEMP/phase8-composite-bundle" \
+            --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json \
+            --output "$RUNNER_TEMP/phase8-preflight-report/encrypted_bundle_integrity.json"
+      - name: Download exact accepted Run #994 saved forecast panels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/phase8-forecast-reference.zip"
+          curl --fail --location --silent --show-error --retry 2 --retry-all-errors -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FORECAST_REFERENCE_ARTIFACT_ID}/zip" --output "$archive"
+          actual="$(sha256sum "$archive" | awk '{print $1}')"
+          if [[ "$actual" != "$FORECAST_REFERENCE_ARCHIVE_SHA256" ]]; then
+            echo "FORECAST_ARCHIVE_SHA256_MISMATCH expected=$FORECAST_REFERENCE_ARCHIVE_SHA256 actual=$actual"
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/phase8-forecast-reference"
+          unzip -q "$archive" -d "$RUNNER_TEMP/phase8-forecast-reference"
+          manifest="$RUNNER_TEMP/phase8-forecast-reference/phase7_reference/phase7_reference_manifest.json"
+          aggregate="$RUNNER_TEMP/phase8-forecast-reference/phase7_ensemble_results.json"
+          [[ -s "$manifest" && -s "$aggregate" ]] || { echo "FORECAST_REFERENCE_FILES_MISSING"; exit 1; }
+          manifest_actual="$(sha256sum "$manifest" | awk '{print $1}')"
+          aggregate_actual="$(sha256sum "$aggregate" | awk '{print $1}')"
+          [[ "$manifest_actual" == "$FORECAST_REFERENCE_MANIFEST_SHA256" ]] || { echo "FORECAST_MANIFEST_SHA256_MISMATCH expected=$FORECAST_REFERENCE_MANIFEST_SHA256 actual=$manifest_actual"; exit 1; }
+          [[ "$aggregate_actual" == "$FORECAST_REFERENCE_AGGREGATE_SHA256" ]] || { echo "FORECAST_AGGREGATE_SHA256_MISMATCH expected=$FORECAST_REFERENCE_AGGREGATE_SHA256 actual=$aggregate_actual"; exit 1; }
+          echo "PASS accepted Run #994 archive, manifest and aggregate hashes"
+      - name: Decrypt and merge in runner temporary storage only
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "HF_TOKEN secret missing; refusing decryption"; exit 1; }
+          input_dir="$(find "$RUNNER_TEMP/phase8-composite-bundle" -type f -name dataset_manifest.json -print -quit | xargs -r dirname)"
+          test -n "$input_dir" && test -f "$input_dir/dataset_manifest.json"
+          python scripts/decrypt_nifty_1m_composite.py \
+            --input-dir "$input_dir" \
+            --output-dir "$RUNNER_TEMP/phase8-composite-monthly" \
+            --merge-output "$RUNNER_TEMP/nifty_repaired_composite_2021-10_to_2026-10.csv.gz"
+          echo "PASS encrypted parts decrypted and merged under RUNNER_TEMP; secret value was not emitted"
+      - name: Run the no-refit data preflight; do not generate P&L
+        run: |
+          set -euo pipefail
+          python scripts/run_phase8_long_option.py \
+            --mode preflight \
+            --forecast-root "$RUNNER_TEMP/phase8-forecast-reference" \
+            --composite-csv-gz "$RUNNER_TEMP/nifty_repaired_composite_2021-10_to_2026-10.csv.gz" \
+            --output-dir "$RUNNER_TEMP/phase8-preflight-report"
+          python - <<'PY'
+          import json, pathlib
+          path=pathlib.Path(__import__("os").environ["RUNNER_TEMP"])/"phase8-preflight-report/phase8_runner_preflight.json"
+          report=json.loads(path.read_text(encoding="utf-8"))
+          assert report["status"] == "FORECAST_PASS_OPTION_DATA_GATE_BLOCKED"
+          assert report["forecast_integrity"]["status"] == "PASS"
+          assert report["forecast_integrity"]["panel_count"] == 10
+          assert report["forecast_integrity"]["panel_rows_total"] == 50555
+          assert report["composite_preflight"]["status"] == "PASS_STRUCTURAL_HASHES"
+          assert report["composite_preflight"]["canonical_csv_sha256"] == "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204"
+          assert report["composite_preflight"]["data_rows"] == 8999865
+          assert report["composite_preflight"]["columns"] == 47
+          assert report["input_gate_matrix_rows"] == 4800
+          assert report["input_gate_matrix_status_counts"] == {"INELIGIBLE": 4800}
+          assert report["strict_fixed_contract_execution_ready"] is False
+          assert report["empirical_option_execution_authorized"] is False
+          assert report["empirical_pnl_generated"] is False
+          assert report["strategy_promotion_authorized"] is False
+          print(json.dumps({"status":"PASS_METADATA_PREFLIGHT_ONLY","forecast_panels":10,"forecast_rows":50555,"composite_rows":8999865,"columns":47,"configurations_ineligible":4800,"pnl_generated":False}))
+          PY
+      - name: Upload metadata-only evidence (never market rows or decrypted data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-cached-composite-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/phase8-preflight-report/
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Remove encrypted and plaintext data from runner temporary storage
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in \
+            "$RUNNER_TEMP/phase8-composite-bundle" \
+            "$RUNNER_TEMP/phase8-composite-monthly" \
+            "$RUNNER_TEMP/nifty_repaired_composite_2021-10_to_2026-10.csv.gz" \
+            "$RUNNER_TEMP/phase8-forecast-reference.zip" \
+            "$RUNNER_TEMP/phase8-forecast-reference" \
+            "$RUNNER_TEMP/phase8-preflight-report"; do
+            rm -rf "$path"
+          done
+          for path in \
+            "$RUNNER_TEMP/phase8-composite-bundle" \
+            "$RUNNER_TEMP/phase8-composite-monthly" \
+            "$RUNNER_TEMP/nifty_repaired_composite_2021-10_to_2026-10.csv.gz" \
+            "$RUNNER_TEMP/phase8-forecast-reference.zip" \
+            "$RUNNER_TEMP/phase8-forecast-reference" \
+            "$RUNNER_TEMP/phase8-preflight-report"; do
+            test ! -e "$path" || { echo "CLEANUP_FAILED"; exit 1; }
+          done
+          echo "PASS temporary encrypted/plaintext/forecast/report paths removed"
