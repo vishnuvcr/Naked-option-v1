@@ -341,3 +341,12 @@
 - Scope of accepted evidence: no real Run #994 panel validation was accepted in this attempt; no model was refit and no option P&L ran. The artifact remains independently downloadable; GitHub's artifact metadata reports SHA-256 3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9.
 - Diagnosis: not proven from the first log because shell hash assertions emitted no expected/actual values. Correction: use explicit redirect-following download with curl and print each actual digest/mismatch before failing. This is an observability/transfer correction, not a claim that the exact failure root cause is known.
 - Prevention: preserve fail-closed hash checks; do not skip, weaken or replace any digest check to get the workflow green.
+
+
+## 2026-10-11 — Phase 8 artifact-transfer diagnostic regression fixture mismatch
+- Category: test fixture / workflow contract
+- Run: 38156394432; developer commit 6699fe11a1cd302acd859dd17c709faeb5431d88.
+- Symptom: the new workflow-contract regression failed because it still required the old exact shell string `test "$actual" = "$REFERENCE_ARTIFACT_SHA256"`, while the corrected workflow now uses an explicit if/exit branch to print the expected and actual digests before failing closed.
+- Root cause: the test contract was not updated alongside the diagnostic-preserving shell correction.
+- Correction: require the new explicit comparison and mismatch diagnostic tokens; retain exact hash validation. This failed attempt did not reach artifact acquisition, source validation or any model/option execution.
+- Prevention: workflow tests should assert the safety invariant and failure diagnostics, not one implementation spelling that is intentionally changed to improve observability.

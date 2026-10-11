@@ -256,3 +256,10 @@ No scientific or protocol change was made during this checkpoint.
 - Protocol validation, all four regression suites (including the synthetic saved-panel test), and the Phase 8 free-source audit passed. The run994 artifact fetch/verification job failed and downstream forecast-panel validation was skipped; no option P&L or empirical grid ran.
 - Exact source artifact SHA was independently verified by downloading artifact 11638738288 to the local workspace and recomputing the ZIP SHA-256. The workflow's shell step did not print its expected/actual values on failure, so root cause is still unknown.
 - Developer correction: change artifact download to explicit curl redirect handling and log the archive/manifest/aggregate digests before any fail-closed comparison. No hash/tolerance relaxations or scientific changes.
+
+
+## 2026-10-11 — Fix the workflow-contract fixture after artifact-transfer instrumentation
+
+- Run 38156394432 failed at the workflow-contract regression before the artifact job executed. It expected the old `test actual == expected` shell expression, while the diagnostic patch used explicit mismatch branches.
+- Correct the fixture to assert the new explicit comparisons and mismatch log strings. This is a test-only correction; the SHA values, manifest, thresholds and research protocol remain unchanged.
+- Next attempt must get beyond regression and provide the actual artifact/manifest/aggregate digests in logs, or identify and record the precise failed gate. No option P&L job is enabled.

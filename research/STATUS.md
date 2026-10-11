@@ -367,3 +367,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Hosted run [38156211691](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156211691): protocol PASS; workflow contract, legacy fail-closed, synthetic saved-panel and execution-engine tests PASS; free-source option audit PASS.
 - Run #994 reference-artifact job failed at its archive acquisition/verification step. No real saved-panel validation or option P&L ran. The cause is not established because the initial shell step did not log the actual digest before failing.
 - Developer prepared a diagnostic-preserving curl/redirect patch; rerun must report and match the exact artifact, manifest and aggregate SHA-256 values. Empirical authorization remains false.
+
+
+## 2026-10-11 — R2 hosted validation attempt 2: regression fixture mismatch
+
+- Hosted run [38156394432](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156394432) passed protocol validation and the free-source audit but failed immediately in the workflow-contract regression.
+- Root cause is identified: the contract test still expected the prior equality-test shell spelling, while the workflow now intentionally prints actual digests via explicit if/exit branches.
+- The test fixture is being updated to match the actual fail-closed implementation. The artifact job was skipped; no panel/P&L result accepted.
