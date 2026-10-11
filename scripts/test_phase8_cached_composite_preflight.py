@@ -9,11 +9,7 @@ import authorize_phase8_cached_composite_preflight as auth
 
 
 def _fixtures():
-    pins = {
-        "scripts/run_phase8_long_option.py": "1" * 40,
-        "scripts/decrypt_nifty_1m_composite.py": "2" * 40,
-        ".github/workflows/phase8-cached-composite-preflight.yml": "3" * 40,
-    }
+    pins = {path: f"{index:040x}"[-40:] for index, path in enumerate(sorted(auth.REQUIRED_REVIEWED_FILES), 1)}
     decision = {
         "schema_version": 1,
         "gate": "phase8-cached-composite-preflight-implementation-r1",
