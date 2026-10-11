@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from publish_preflight_receipt import ALLOWED_REPORT_KEYS, build_receipt
+from publish_preflight_receipt import ALLOWED_LIMITATIONS, ALLOWED_REPORT_KEYS, build_receipt
 
 
 class PublishReceiptTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class PublishReceiptTests(unittest.TestCase):
     def report(self, **updates):
         value = {
             "status": "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS",
-            "file_name": "dataset.csv.gz", "file_size_bytes": 123,
+            "file_name": "nifty_repaired_composite_2021-10_to_2026-10.csv.gz", "file_size_bytes": 123,
             "sha256": "b" * 64, "gzip_integrity": "PASS",
             "data_rows": 8999865, "columns": 47, "column_names": ["timestamp_epoch"],
             "recognized_timestamp_column": "timestamp_epoch",
@@ -26,7 +26,7 @@ class PublishReceiptTests(unittest.TestCase):
             "null_or_blank_counts_by_column": {}, "row_width_errors": 0,
             "duplicate_key_check": "PASS", "duplicate_key_fields": [],
             "duplicate_key_count": 0, "incomplete_composite_key_rows": 0,
-            "key_group_row_counts": {}, "limitations": ["metadata only"],
+            "key_group_row_counts": {}, "limitations": list(ALLOWED_LIMITATIONS)[:1],
         }
         value.update(updates)
         return value
@@ -42,7 +42,7 @@ class PublishReceiptTests(unittest.TestCase):
             path = Path(td) / "report.json"
             path.write_text(json.dumps(self.report()), encoding="utf-8")
             receipt = build_receipt(self.metadata(), path)
-            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT")
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS")
             self.assertTrue(receipt["report_available"])
             self.assertEqual(receipt["report"]["sha256"], "b" * 64)
 
@@ -59,6 +59,21 @@ class PublishReceiptTests(unittest.TestCase):
             path.write_text(json.dumps(self.report(data_rows=10)), encoding="utf-8")
             receipt = build_receipt(self.metadata(), path)
             self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_WITH_EXPECTATION_MISMATCH")
+
+    def test_raw_value_hidden_in_allowed_text_field_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            value = self.report(limitations=["raw option price: 123.45"])
+            path.write_text(json.dumps(value), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "REPORT_LIMITATIONS_INVALID"):
+                build_receipt(self.metadata(), path)
+
+    def test_invalid_hash_or_count_types_are_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            path.write_text(json.dumps(self.report(sha256="not-a-hash")), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "REPORT_SHA256_INVALID"):
+                build_receipt(self.metadata(), path)
 
     def test_report_without_required_metadata_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
