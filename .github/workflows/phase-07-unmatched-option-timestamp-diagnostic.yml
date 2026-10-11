@@ -69,6 +69,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install pinned encryption dependency
+        if: steps.preflight.outputs.audit_ready == 'true'
+        run: python -m pip install -r requirements-composite.txt
+
       - name: Run offline diagnostic unit tests
         if: steps.preflight.outputs.audit_ready == 'true'
         run: |
