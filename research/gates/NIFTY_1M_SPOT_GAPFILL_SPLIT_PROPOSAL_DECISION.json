@@ -39,5 +39,6 @@
   "split_recovery_authorized": false,
   "split_recovery_request_limit": 34,
   "split_recovery_retry_limit": 0,
-  "ai_reviewer_available": false
+  "ai_reviewer_available": false,
+  "last_checked_at_utc": "2026-10-11T06:42:10Z"
 }
