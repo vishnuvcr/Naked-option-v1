@@ -31,6 +31,7 @@ def run(path: Path, report_path: Path, expected_sha: str, expected_rows: int, ex
     if expected_sha and digest != expected_sha:
         raise ValueError("INPUT_SHA256_MISMATCH")
     # gzip CRC/trailer is verified by consuming the complete stream.
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     counts = Counter()
     nulls = Counter()
     timestamp_min = timestamp_max = None
@@ -115,7 +116,6 @@ def run(path: Path, report_path: Path, expected_sha: str, expected_rows: int, ex
             "No market row values are emitted in this report."
         ]
     }
-    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return report
 
