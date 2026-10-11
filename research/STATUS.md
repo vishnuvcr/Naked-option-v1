@@ -539,3 +539,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester specification: [R1 report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md) requires exact equality or at most 2 IEEE-754 float64 ULPs for `future_return` only, with observed max-ULP diagnostics. Aggregate tolerance `1e-9`, saved Run #994 values and source pins must not change.
 - Developer changes are in [commit 5f54ca2](https://github.com/vishnuvcr/Naked-option-v1/commit/5f54ca2a8c597369e145e4184446430cc9ec38fb) and tests in [commit 6def41c](https://github.com/vishnuvcr/Naked-option-v1/commit/6def41c40fa3c6a041b831dc938493eaafcf6680). CI is pending in [validator regression #38164332000](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164332000) and [#38164349776](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164349776).
 - Acceptance remains blocked until the hosted regression verifies 1/2 ULP accept, 3 ULP and non-finite/sign mismatches reject, and validation against the unchanged Run #994 artifact demonstrates all actual discrepancies are within two ULPs. No option P&L, holdout, new-source request or strategy promotion.
+
+## 2026-10-12 — H=1 ULP tester review R2
+
+- Independent tester reviewed developer HEAD `da33a40f4f52e51807ca0fb7882e7920021c47a1`; current validator regression [#38164567189](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567189) and protocol check [#38164567374](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567374) both passed.
+- Tester decision: [R2 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R2_2026-10-12.json). The code/test gate is sound, but the full saved-Run-#994 reconstruction was performed on older HEAD `21dd39b6819dcc1ecae67307633fe4621e168c58`, not the exact current HEAD where diagnostics persistence was added.
+- Next action: run reconstruction against the immutable cached Run #994 artifact on exact HEAD `da33a40f4f52e51807ca0fb7882e7920021c47a1`; verify persisted per-panel ULP diagnostics and exact labels/timestamps. Do not fetch fresh market data or change the saved artifact or aggregate tolerance.
+- No option P&L, holdout, fresh data request, or strategy promotion is authorized. R1 one-use preflight authorization remains consumed/disabled.
+
+**Developer → Tester:** Review the exact-HEAD reconstruction manifest when available.
+**Tester → Developer:** Keep only this evidence gap open; current regression checks already pass.
