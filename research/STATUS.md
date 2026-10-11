@@ -402,3 +402,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 - Hosted run [38157041722](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157041722) passed protocol and the workflow-contract test but failed the legacy reconstruction regression because one expected archive SHA was not updated with R2.
 - Updated that last assertion to match the verified 64-character artifact digest. This run generated no real panel-validation or option-P&L result.
+
+
+## 2026-10-11 — Phase 8 R2 reaches source-alignment check; diagnosing daily H=1 return mismatch
+
+- Run [38157166375](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157166375): protocol PASS, workflow and execution-engine regressions PASS, free-source audit PASS, archive/embedded manifest/aggregate hashes PASS.
+- The real saved-panel validator then failed at exact source-derived future-return comparison for daily H=1; the panel label array and timestamps passed first.
+- Added diagnostic-only mismatch count/max absolute difference/examples to error output. Exact equality remains in place; no tolerance was changed and no panel was accepted yet. The option grid remains disabled.

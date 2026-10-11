@@ -284,6 +284,8 @@ def test_source_alignment_checks_daily_and_intraday_labels():
         validator.verify_panel_source_alignment(bad_intra, "intraday", 5, daily_source, intraday_source)
     except SystemExit as exc:
         assert "source-derived future-return mismatch" in str(exc)
+        assert "mismatch_count=1" in str(exc)
+        assert "max_abs_diff=0.01" in str(exc)
     else:
         raise AssertionError("mutated intraday future return was not rejected")
 

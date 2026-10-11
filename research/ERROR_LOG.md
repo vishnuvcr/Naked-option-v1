@@ -386,3 +386,12 @@
 - Root cause: the first checksum-correction commit updated active manifest/workflow/test-contract/proposal but omitted the legacy reconstruction test's manifest assertion.
 - Correction: update the remaining assertion to the exact 64-character Run #994 archive SHA-256; keep the same exact hash in active manifest and workflow.
 - Impact: artifact and forecast-panel jobs were skipped. No saved panel was accepted and no option P&L ran.
+
+
+## 2026-10-11 — Run #994 source-alignment failure diagnostic added
+- Category: provenance/float comparison diagnosis
+- Run: 38157166375; developer commit c643be14c613da594c485648a9be37a558ecdfd0.
+- Observed: ZIP, embedded manifest and aggregate hashes passed; all regression tests and free-source audit passed; saved-panel validator failed at daily H=1 with a source-derived future-return mismatch. Labels and timestamps passed.
+- Current interpretation: the validator uses exact float equality. The magnitude and positions are not yet known from the first report, so no claim is made yet that this is merely floating-point drift.
+- Correction: add a diagnostic-only error formatter reporting mismatched count, maximum absolute difference and up to five row/value examples. Keep the exact comparison and fail-closed behavior unchanged. Add a regression assertion that a deliberate 0.01 future-return mutation is reported with its magnitude.
+- Next decision depends on reported deltas. Do not loosen source alignment or run option P&L before the mismatch is understood and resolved under the frozen protocol.

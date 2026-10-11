@@ -286,3 +286,8 @@ No scientific or protocol change was made during this checkpoint.
 
 ## 2026-10-11 — Final stale hash assertion in legacy regression
 - R2 attempt 5: the contract test passed but `test_manifest_is_json` retained the malformed earlier digest. Correct that specific expected value and preserve exact hash checks. This is test evidence only; no option P&L executed.
+
+
+## 2026-10-11 — Diagnose saved forecast future-return alignment
+- Run 38157166375 is the first attempt that passed archive integrity and reached real saved-panel validation. The daily H=1 future-return check failed exactly; labels and decision timestamps had passed.
+- No tolerance adjustment is made without knowing the mismatch magnitudes/positions. Added diagnostics to report count/max absolute delta/sample rows, while retaining exact equality and fail-closed behavior. Synthetic regression asserts that a deliberate 0.01 change is surfaced.

@@ -80,6 +80,27 @@ def blocks_from_panel(frame: pd.DataFrame):
 
 
 
+def _numeric_mismatch_diagnostic(actual: np.ndarray, expected: np.ndarray) -> str:
+    """Describe exact float mismatches without changing the fail-closed comparison."""
+    a = np.asarray(actual, dtype=float)
+    e = np.asarray(expected, dtype=float)
+    if a.shape != e.shape:
+        return f"shape_actual={a.shape} shape_expected={e.shape}"
+    equal = (a == e) | (np.isnan(a) & np.isnan(e))
+    mismatch_idx = np.flatnonzero(~equal)
+    finite_idx = mismatch_idx[np.isfinite(a[mismatch_idx]) & np.isfinite(e[mismatch_idx])]
+    max_abs = float(np.max(np.abs(a[finite_idx] - e[finite_idx]))) if len(finite_idx) else None
+    samples = []
+    for i in mismatch_idx[:5]:
+        samples.append({
+            "row": int(i),
+            "actual": float(a[i]) if np.isfinite(a[i]) else str(a[i]),
+            "expected": float(e[i]) if np.isfinite(e[i]) else str(e[i]),
+            "abs_diff": float(abs(a[i] - e[i])) if np.isfinite(a[i]) and np.isfinite(e[i]) else None,
+        })
+    return f"mismatch_count={len(mismatch_idx)} max_abs_diff={max_abs!r} first_mismatches={json.dumps(samples, separators=(',', ':'))}"
+
+
 def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
                                   daily_source: pd.DataFrame, intraday_source: pd.DataFrame) -> None:
     if layer == "daily":
@@ -105,10 +126,18 @@ def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
     future_expected = np.asarray(future_expected, dtype=float)
     if len(frame) != len(y_expected) or len(frame) != len(future_expected):
         raise SystemExit(f"ARTIFACT_ERROR: source-derived row count mismatch for {layer} H={horizon}")
-    if not np.array_equal(frame["label_direction"].to_numpy(dtype=float), y_expected, equal_nan=True):
-        raise SystemExit(f"ARTIFACT_ERROR: source-derived label mismatch for {layer} H={horizon}")
-    if not np.array_equal(frame["future_return"].to_numpy(dtype=float), future_expected, equal_nan=True):
-        raise SystemExit(f"ARTIFACT_ERROR: source-derived future-return mismatch for {layer} H={horizon}")
+    y_actual = frame["label_direction"].to_numpy(dtype=float)
+    if not np.array_equal(y_actual, y_expected, equal_nan=True):
+        raise SystemExit(
+            f"ARTIFACT_ERROR: source-derived label mismatch for {layer} H={horizon}; "
+            + _numeric_mismatch_diagnostic(y_actual, y_expected)
+        )
+    future_actual = frame["future_return"].to_numpy(dtype=float)
+    if not np.array_equal(future_actual, future_expected, equal_nan=True):
+        raise SystemExit(
+            f"ARTIFACT_ERROR: source-derived future-return mismatch for {layer} H={horizon}; "
+            + _numeric_mismatch_diagnostic(future_actual, future_expected)
+        )
 
     actual_times = pd.DatetimeIndex(pd.to_datetime(frame["decision_timestamp"], utc=(layer == "intraday"), errors="raise"))
     expected_times = pd.DatetimeIndex(pd.to_datetime(expected_times, utc=(layer == "intraday"), errors="raise"))
