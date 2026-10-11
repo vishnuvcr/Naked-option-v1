@@ -77,7 +77,7 @@ def merge_spot(df,spot_source):
     spot=spot_source.copy() if isinstance(spot_source,pd.DataFrame) else pd.read_parquet(spot_source)
     if "timestamp" not in spot.columns: raise ValueError("HF spot parquet lacks timestamp")
     ts=pd.to_datetime(spot["timestamp"],errors="coerce",utc=True)
-    spot["_epoch_sec"]=(ts.astype("int64")//1_000_000_000).where(ts.notna(),np.nan)
+    spot["_epoch_sec"]=ts.map(lambda value: value.timestamp() if pd.notna(value) else np.nan)
     rename={}
     for target,candidates in {"nifty_open":["open","Open"],"nifty_high":["high","High"],"nifty_low":["low","Low"],"nifty_close":["close","Close"],"nifty_volume":["volume","Volume"]}.items():
         for c in candidates:
