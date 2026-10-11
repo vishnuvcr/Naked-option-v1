@@ -527,6 +527,8 @@ def execute(args: argparse.Namespace) -> int:
             or marker.get("scope") != "SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL"
             or marker.get("reviewed_developer_commit") != args.reviewed_sha
             or marker.get("max_spot_requests") != 61
+            or marker.get("max_gapfill_requests") != 47
+            or marker.get("gapfill_manifest_sha256") != collector.sha256_bytes(GAPFILL_MANIFEST.read_bytes())
             or marker.get("live_option_requests_allowed") is not False
             or marker.get("tester_decision_blob") is None):
         raise ValueError("gapfill_execution_marker_missing_or_scope_mismatch")
