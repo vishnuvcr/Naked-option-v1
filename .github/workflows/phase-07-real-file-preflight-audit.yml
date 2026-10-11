@@ -86,6 +86,7 @@ jobs:
             --request research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json \
             --reviewed-files \
               .github/workflows/phase-07-real-file-preflight-audit.yml \
+              .github/workflows/phase-07-offline-preflight-tests.yml \
               scripts/offline_dataset_preflight.py \
               scripts/test_offline_dataset_preflight.py \
               scripts/validate_real_file_preflight_authorization.py \
