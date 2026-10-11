@@ -33,6 +33,7 @@ from run_nifty_1m_composite_dataset import (
     load_json, parse_json_numbers, parse_spot_response, request_scope_hash,
     remove_invalid_cache, store_cached_payload, utc_now, _validate_request_payload,
 )
+import run_nifty_1m_composite_dataset as collector
 import decrypt_nifty_1m_composite as decryptor
 
 ROOT_MANIFEST = ROOT / "research/gates/NIFTY_1M_COMPOSITE_REQUEST_MANIFEST.json"
@@ -221,6 +222,7 @@ class SpotGapFillCollector:
         self.fresh_responses = 0
         self.downloaded_bytes = 0
         self.retry_attempts_this_run = 0
+        self.auth_failed = False
 
     def _append_spot_row(self, row: dict[str, Any]) -> None:
         month = row.get("timestamp_ist", "")[:7]
@@ -291,6 +293,9 @@ class SpotGapFillCollector:
                 pass
 
     def _get_payload(self, request: dict[str, Any]) -> tuple[dict[str, Any] | None, str, str, int | None, int]:
+        if self.auth_failed:
+            self.errors.append(self._error_record(request, "skipped_after_dhan_auth_or_entitlement_failure", None))
+            return None, "SKIPPED_AUTH_FAILURE", "", None, 0
         cached = get_cached_payload(request, self.key)
         if cached is not None:
             raw, meta = cached
@@ -309,6 +314,10 @@ class SpotGapFillCollector:
             raw, status, content_type = self._http_fetch(request, is_retry=previous_attempts > 0)
         except collector.SourceRequestError as exc:
             status_code = exc.http_status
+            if status_code in (401, 403) or exc.reason.startswith("dhan_api_auth_or_entitlement"):
+                self.auth_failed = True
+                self.errors.append(self._error_record(request, "dhan_auth_or_entitlement_failure", status_code))
+                return None, "DHAN_AUTH_FAILURE", "", status_code, 0
             retryable = (status_code == 429 or (status_code is not None and 500 <= status_code <= 599)
                          or exc.reason.startswith("transport_error_"))
             if retryable and previous_attempts < 1:
@@ -324,10 +333,16 @@ class SpotGapFillCollector:
             payload = parse_json_numbers(raw)
             _validate_request_payload(payload, request)
             rows, problems = parse_spot_response(payload, request)
+            if self.downloaded_bytes + len(raw) > 268_435_456:
+                raise ValueError("spot_aggregate_byte_budget_exceeded")
             digest = collector.sha256_bytes(raw)
             cached_meta = store_cached_payload(request, raw, self.key, status, len(rows), content_type)
             return payload, "FETCHED_AFTER_ONE_RETRY" if self.ledger["attempts_by_request_id"].get(request["request_id"], 0) > 1 else "FETCHED", cached_meta["response_sha256"], status, len(raw)
         except Exception as exc:
+            if isinstance(exc, collector.SourceRequestError) and exc.reason.startswith("dhan_api_auth_or_entitlement"):
+                self.auth_failed = True
+                self.errors.append(self._error_record(request, "dhan_auth_or_entitlement_failure", exc.http_status))
+                return None, "DHAN_AUTH_FAILURE", "", exc.http_status, len(raw)
             self.errors.append(self._error_record(request, _safe_exception_reason(exc), status))
             return None, "FAILED_VALIDATION", "", status, len(raw)
 
