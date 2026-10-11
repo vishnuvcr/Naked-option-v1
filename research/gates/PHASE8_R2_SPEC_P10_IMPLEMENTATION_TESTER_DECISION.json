@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-r2-spec-p10-implementation",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "Active R2 source alignment and P10 abstention code/test only; does not authorize option P&L",
+  "developer_commit": "e8f8f5df8d70db401c8a604405c9fe6f611a2c04",
+  "workflow_run_id": 38158813453,
+  "workflow_conclusion": "success",
+  "forecast_reference_run_id": 37957677656,
+  "forecast_reference_commit": "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb",
+  "forecast_artifact_id": 11638738288,
+  "forecasts_validated": true,
+  "panel_count": 10,
+  "prediction_rows": 50555,
+  "tolerance_abs": 1e-9,
+  "p10_abstention": "[0.45, 0.55] inclusive",
+  "p05_abstention": "[0.45, 0.55] inclusive",
+  "p06_abstention": "[0.40, 0.60] inclusive",
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_promotion_authorized": false,
+  "required_next_gate": "no-refit Phase 8 runner code review and synthetic CI, followed by separate real-data quality and empirical authorization gates",
+  "caveats": [
+    "The option runner is not present in the reviewed snapshot.",
+    "The cached composite has explicit coverage and metadata limits; strict data-quality and proxy-only outcomes must be distinguished.",
+    "Q1/OHLC rows are non-quote-executable.",
+    "Historical NIFTY lot size is effective-dated and contract-specific; do not hardcode a constant.",
+    "Earlier daily H=1 source alignment failure did not recur on accepted run; cause remains unproven.",
+    "Tester branch is role-separated, not an external human/model."
+  ]
+}
