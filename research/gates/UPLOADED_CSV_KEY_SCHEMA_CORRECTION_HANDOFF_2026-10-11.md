@@ -12,7 +12,7 @@ The prior tester review requested schema-specific keys. Developer changes on `ph
 - Updated the offline synthetic workflow to execute the new test.
 
 Exact current blobs:
-- Scanner: `e3c7017200beb6efe4be8edd3add74d841dadb7a`
+- Scanner: `e27ec2688d2d0782408bb2d2e0ab4f4122fce9af`
 - New tests: `12fec21c9374792b273f9b8167aa42545674497a`
 - Test workflow: `2e3feaf8cd0edd39283d9ee675c9c52e4b75aaa8`
 
