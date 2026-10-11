@@ -1255,3 +1255,15 @@ The 34-shard source recovery remains unexecuted and separately denied. No source
 **Developer → Tester:** Check the final runner report and cleanup evidence after the fixed-artifact workflow executes.
 
 **Tester → Developer:** Keep model/holdout/strategy permissions false unless a separate gate passes even if the structural audit passes.
+
+
+## 2026-10-11 — Fixed-artifact row-level semantic audit running
+
+- The corrected fixed-artifact workflow was deployed from the exact developer workflow blob `00436a389ee82fd9adde980bfef5515f1e420b49` after the missing download-step header was corrected and regression-tested.
+- Hosted workflow [38122043916](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38122043916) has successfully completed the pre-artifact regression/self-test, downloaded the existing encrypted bundle, verified the 57-part manifest and encrypted hash/size contract, and completed authenticated decryption using the existing secret.
+- At this log checkpoint the row-level semantic scan is still executing; no audit verdict or prediction result is available yet. Only the sanitized aggregate JSON is intended for persistence; plaintext parts and the temporary duplicate-key database are scheduled for deletion before the workflow exits.
+- No new market-data requests, model fitting/scoring, holdout access or strategy/P&L tests were performed. Collection remains closed. Model/holdout/strategy permission remains separate from the data audit.
+
+**Developer → Tester:** Inspect the sanitized report, its exact workflow run, and cleanup step when the action completes.
+
+**Tester → Developer:** Do not accept an archive/integrity-only pass as model readiness; return a scoped value-level data-quality verdict.
