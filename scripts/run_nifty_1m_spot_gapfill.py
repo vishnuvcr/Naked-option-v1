@@ -208,33 +208,41 @@ def _normalize_artifact_layout(source_dir: pathlib.Path) -> pathlib.Path:
     return view
 
 
-def preflight(source_dir: pathlib.Path, plain_dir: pathlib.Path, hf_token: str) -> dict[str, Any]:
+def preflight(
+    source_dir: pathlib.Path,
+    plain_dir: pathlib.Path,
+    hf_token: str,
+    expected_spot_rows: int = 0,
+    expected_artifact_run_id: int = 38082385220,
+) -> dict[str, Any]:
     if not hf_token:
         raise ValueError("HF_TOKEN_NOT_CONFIGURED")
     source_dir = _normalize_artifact_layout(source_dir)
     source_manifest = decryptor.read_manifest(source_dir)
     if (source_manifest.get("download_bundle_contains_encrypted_data_only") is not True
-            or source_manifest.get("source_row_count_options") != EXPECTED_OPTION_ROWS):
-        raise ValueError("original_artifact_manifest_scope_or_row_count_mismatch")
+            or source_manifest.get("source_row_count_options") != EXPECTED_OPTION_ROWS
+            or int(source_manifest.get("source_row_count_spot", -1)) != expected_spot_rows):
+        raise ValueError("base_artifact_manifest_scope_or_row_count_mismatch")
     key = derive_key(hf_token)
     parts = decryptor.decrypt_dataset(source_dir, plain_dir, key, overwrite=True)
     actual_options, actual_spot, rows_by_month = _count_rows(parts)
     if actual_options != EXPECTED_OPTION_ROWS:
-        raise ValueError("original_artifact_option_row_count_mismatch")
-    if actual_spot != 0:
-        raise ValueError("original_artifact_spot_row_count_not_expected_zero")
+        raise ValueError("base_artifact_option_row_count_mismatch")
+    if actual_spot != expected_spot_rows:
+        raise ValueError("base_artifact_spot_row_count_mismatch")
     coverage_path = source_dir / "coverage_and_errors.json"
     source_coverage = _load_object(coverage_path)
     source_summary = source_coverage.get("summary", {})
-    if int(source_summary.get("rows_options", -1)) != EXPECTED_OPTION_ROWS or int(source_summary.get("rows_spot", -1)) != 0:
-        raise ValueError("original_coverage_summary_mismatch")
+    if (int(source_summary.get("rows_options", -1)) != EXPECTED_OPTION_ROWS
+            or int(source_summary.get("rows_spot", -1)) != expected_spot_rows):
+        raise ValueError("base_coverage_summary_mismatch")
     return {
         "schema_version": 1,
         "status": "PASS",
-        "original_artifact_run_id": 38082385220,
+        "base_artifact_run_id": expected_artifact_run_id,
         "encrypted_parts_verified": len(parts),
         "option_rows_verified": actual_options,
-        "spot_rows_in_original": actual_spot,
+        "spot_rows_in_base": actual_spot,
         "monthly_parts_with_options": len(rows_by_month),
         "raw_market_values_logged": False,
         "plaintext_uploaded": False,
