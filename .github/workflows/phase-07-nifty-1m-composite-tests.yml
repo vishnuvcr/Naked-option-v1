@@ -14,6 +14,8 @@ on:
       - "scripts/run_nifty_1m_spot_diagnostic.py"
       - "scripts/test_nifty_1m_spot_diagnostic.py"
       - "scripts/audit_nifty_1m_composite_cache.py"
+      - "scripts/account_nifty_1m_probe_attempt.py"
+      - "scripts/test_account_nifty_1m_probe_attempt.py"
       - "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json"
       - "scripts/validate_nifty_1m_composite_approval.py"
       - ".github/workflows/phase-07-nifty-1m-composite-live.yml"
@@ -60,6 +62,8 @@ jobs:
           scripts/run_nifty_1m_spot_diagnostic.py
           scripts/test_nifty_1m_spot_diagnostic.py
           scripts/audit_nifty_1m_composite_cache.py
+          scripts/account_nifty_1m_probe_attempt.py
+          scripts/test_account_nifty_1m_probe_attempt.py
       - name: Run offline manifest and data-pipeline tests
         working-directory: scripts
         run: |
@@ -67,6 +71,7 @@ jobs:
           python -m unittest -v test_nifty_1m_composite_manifest
           python -m unittest -v test_nifty_1m_composite_dataset
           python -m unittest -v test_nifty_1m_spot_diagnostic
+          python -m unittest -v test_account_nifty_1m_probe_attempt
       - name: Verify exact request grid
         run: python scripts/validate_nifty_1m_composite_manifest.py
       - name: Validate acquisition approval helper offline
