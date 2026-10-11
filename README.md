@@ -1,3 +1,15 @@
+## 2026-10-11 — Next gate: one-use metadata scan adapter (design approved only)
+
+- Tester approved the [adapter proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_R1_2026-10-11.md) and [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_SCOPE_R1_2026-10-11.json) for design only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
+- The repaired dataset is a fixed encrypted 61-part GitHub Actions artifact, not a plaintext CSV tracked in the repo. The implementation must reuse the existing [offline export workflow](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/.github/workflows/export-repaired-dataset-offline.yml) and support gzip streaming/uncompressed byte offsets.
+- Next: implement the guarded adapter and synthetic replay/race tests, then obtain exact-hash tester implementation review. A separate execution decision is still required before any cached-file scan.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) · [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md) · [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md) · [tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/STATUS.md).
+
+**Developer → Tester:** Submit the guarded adapter for exact-hash review.  
+**Tester → Developer:** Do not execute against the cached artifact before separate authorization.
+
+
+
 ## 2026-10-11 — Prospective boundary gate: synthetic pass only
 
 - Feasibility implementation R7 passed hosted synthetic CI [38153160558](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153160558). Tester review: [R7](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_REVIEW_R7_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_IMPLEMENTATION_TESTER_DECISION_R7_2026-10-11.json).
