@@ -399,7 +399,14 @@ jobs:
           REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
         run: |
           set -euo pipefail
-          if [[ "$(git rev-parse HEAD)" != "$REVIEW_SHA" ]]; then echo "Developer branch moved; refusing stale patch."; exit 1; fi
+          current="$(git rev-parse HEAD)"
+          if [[ "$current" != "$REVIEW_SHA" ]]; then
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+            echo "current_sha=$current" >> "$GITHUB_OUTPUT"
+            echo "Developer branch moved; refusing stale patch and requesting a new exact-snapshot review."
+            exit 0
+          fi
+          echo "stale=false" >> "$GITHUB_OUTPUT"
           git apply --check patch/agent-patch.diff
           git apply patch/agent-patch.diff
           changed="$(git diff --name-only)"
@@ -416,6 +423,7 @@ jobs:
           git push origin HEAD:phase-07-developer
           echo "new_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Dispatch fresh review of exact new commit
+        if: steps.push.outputs.stale != 'true'
         uses: actions/github-script@v7
         env:
           NEW_SHA: ${{ steps.push.outputs.new_sha }}
@@ -427,6 +435,20 @@ jobs:
               workflow_id: "phase-07-nifty-1m-composite-agent-cycle.yml",
               ref: "main",
               inputs: { developer_sha: process.env.NEW_SHA, reset_cycle: "false" }
+            });
+      - name: Re-review current developer tip after stale-patch refusal
+        if: steps.push.outputs.stale == 'true'
+        uses: actions/github-script@v7
+        env:
+          CURRENT_SHA: ${{ steps.push.outputs.current_sha }}
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "phase-07-nifty-1m-composite-agent-cycle.yml",
+              ref: "main",
+              inputs: { developer_sha: process.env.CURRENT_SHA, reset_cycle: "false" }
             });
 
   retry_repair_cycle:
