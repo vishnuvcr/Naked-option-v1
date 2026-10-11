@@ -1,0 +1,13 @@
+{
+  "receipt_status": "NO_SANITIZED_REPORT",
+  "report": null,
+  "report_available": false,
+  "schema_version": 1,
+  "source_conclusion": "success",
+  "source_created_at": "2026-10-11T13:34:44Z",
+  "source_head_branch": "phase-07-developer",
+  "source_head_sha": "0cfdbdafd468723c473b806b11c9bada0933432c",
+  "source_status": "completed",
+  "source_workflow_name": "Phase 07 Exact-File Offline Preflight Audit",
+  "source_workflow_run_id": 38143735343
+}
