@@ -10,6 +10,10 @@ class ReadinessPrimitiveTests(unittest.TestCase):
         self.assertEqual(direction_label(100, 100), "FLAT")
         self.assertEqual(direction_label(100, 101), "UP")
         self.assertEqual(direction_label(100, 100*(1+1e-8)), "FLAT")
+        with self.assertRaises(ValueError):
+            direction_label(100, 100, tolerance=-1.0)
+        with self.assertRaises(ValueError):
+            direction_label(100, 100, tolerance=float("inf"))
 
     def test_bad_prices_fail_closed(self):
         with self.assertRaises(ValueError):
@@ -51,12 +55,14 @@ class ReadinessPrimitiveTests(unittest.TestCase):
         self.assertEqual(validate_split(train_origins=300,common_validation_origins=300,label_endpoints_before_validation=False,holdout_manifest_verified=True).status,"BLOCKED_LEAKAGE")
         self.assertEqual(validate_split(train_origins=251,common_validation_origins=250,label_endpoints_before_validation=True,holdout_manifest_verified=True).status,"INCOMPLETE_NOT_PROMOTABLE")
         self.assertEqual(validate_split(train_origins=252,common_validation_origins=250,label_endpoints_before_validation=True,holdout_manifest_verified=True).status,"PASS")
+        self.assertEqual(validate_split(train_origins=-1,common_validation_origins=250,label_endpoints_before_validation=True,holdout_manifest_verified=True).status,"BLOCKED_INVALID_COUNTS")
 
     def test_session_provenance_and_ambiguity(self):
         self.assertEqual(validate_session_metadata(calendar_provenance=False,candle_semantics="BAR_END",unresolved_session_flags=0,spot_duplicate_keys=0).status,"NOT_ESTIMABLE")
         self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="UNKNOWN",unresolved_session_flags=0,spot_duplicate_keys=0).status,"NOT_ESTIMABLE")
         self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=2,spot_duplicate_keys=0).status,"PASS_WITH_EXCLUSIONS")
         self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=0,spot_duplicate_keys=1).status,"BLOCKED")
+        self.assertEqual(validate_session_metadata(calendar_provenance=True,candle_semantics="BAR_END",unresolved_session_flags=-1,spot_duplicate_keys=0).status,"BLOCKED_INVALID_COUNTS")
 
     def test_report_allowlist_prevents_row_level_output(self):
         self.assertEqual(sanitize_report({"rows":100,"columns":47})["rows"],100)
