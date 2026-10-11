@@ -25,6 +25,8 @@ FILES = [
     "scripts/run_nifty_1m_spot_diagnostic.py",
     "scripts/test_nifty_1m_spot_diagnostic.py",
     "scripts/audit_nifty_1m_composite_cache.py",
+    "scripts/account_nifty_1m_probe_attempt.py",
+    "scripts/test_account_nifty_1m_probe_attempt.py",
     "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
     ".github/workflows/phase-07-nifty-1m-composite-live.yml",
     ".github/workflows/phase-07-nifty-1m-composite-tests.yml",
@@ -117,10 +119,12 @@ def run_offline_tests(root: pathlib.Path, findings: list[dict[str, str]]) -> dic
          "scripts/decrypt_nifty_1m_composite.py", "scripts/validate_nifty_1m_composite_manifest.py",
          "scripts/test_nifty_1m_composite_dataset.py", "scripts/test_nifty_1m_composite_manifest.py",
          "scripts/validate_nifty_1m_composite_approval.py", "scripts/run_nifty_1m_spot_diagnostic.py",
-         "scripts/test_nifty_1m_spot_diagnostic.py", "scripts/audit_nifty_1m_composite_cache.py"],
+         "scripts/test_nifty_1m_spot_diagnostic.py", "scripts/audit_nifty_1m_composite_cache.py",
+         "scripts/account_nifty_1m_probe_attempt.py", "scripts/test_account_nifty_1m_probe_attempt.py"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_manifest"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_dataset"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_spot_diagnostic"],
+        ["python", "-m", "unittest", "-v", "test_account_nifty_1m_probe_attempt"],
     ]
     results = []
     for command in tests:
@@ -201,10 +205,12 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
     """Review the no-option-refetch guard before a separate 61-spot recovery."""
     collector_path = target / "scripts/run_nifty_1m_composite_dataset.py"
     audit_path = target / "scripts/audit_nifty_1m_composite_cache.py"
+    account_path = target / "scripts/account_nifty_1m_probe_attempt.py"
     workflow_path = target / ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
     try:
         collector = collector_path.read_text(encoding="utf-8")
         audit = audit_path.read_text(encoding="utf-8")
+        accounting = account_path.read_text(encoding="utf-8")
         workflow = workflow_path.read_text(encoding="utf-8")
     except Exception:
         add(findings, "BLOCKER", "SPOT_RECOVERY_GUARD_FILES_MISSING",
@@ -215,23 +221,27 @@ def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str
                           "def _normalize_epoch_timestamp", "response_timestamp_not_integer_epoch")
     required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made",
                       "wire_requests_reserved_for_spot", "8540", "61")
+    required_accounting = ("AUTHORIZED_NONPERSISTING_DIAGNOSTIC", "wire_delta", "request_scope_sha256",
+                           "raw_response_persisted", "ALREADY_ACCOUNTED")
     required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
                          "SPOT_ONLY_CACHE_PRESERVING_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
-                         "nifty1m-composite-")
+                         "nifty1m-composite-", "account_nifty_1m_probe_attempt.py")
     missing_collector = [marker for marker in required_collector if marker not in collector]
     missing_audit = [marker for marker in required_audit if marker not in audit]
+    missing_accounting = [marker for marker in required_accounting if marker not in accounting]
     missing_workflow = [marker for marker in required_workflow if marker not in workflow]
-    if missing_collector or missing_audit or missing_workflow:
+    if missing_collector or missing_audit or missing_accounting or missing_workflow:
         detail = (
             "missing_collector=" + ",".join(missing_collector)
             + ";missing_audit=" + ",".join(missing_audit)
+            + ";missing_accounting=" + ",".join(missing_accounting)
             + ";missing_workflow=" + ",".join(missing_workflow)
         )
         add(findings, "BLOCKER", "SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING",
-            "Recovery workflow must prove all 8,540 option caches are valid and disable every live option refetch before the one-use marker is spent. " + detail)
+            "Recovery workflow must count the diagnostic wire attempt, prove all 8,540 option caches are valid and disable live option refetches before the one-use marker is spent. " + detail)
         return {"status": "BLOCKED", "reason": "CACHE_ONLY_GUARD_MISSING",
                 "missing_collector": missing_collector, "missing_audit": missing_audit,
-                "missing_workflow": missing_workflow}
+                "missing_accounting": missing_accounting, "missing_workflow": missing_workflow}
     result = {"status": "PASS", "spot_request_limit": 61, "option_cache_required": 8540,
               "live_option_requests_allowed": False, "cache_audit_required": True}
     add(findings, "INFO", "SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS",
