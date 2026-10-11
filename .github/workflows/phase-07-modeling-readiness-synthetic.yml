@@ -1,0 +1,39 @@
+name: Phase 7 modeling-readiness synthetic checks
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - 'scripts/modeling_readiness_preflight.py'
+      - 'tests/test_modeling_readiness_preflight.py'
+      - 'research/gates/MODELING_READINESS_REPORT_SCHEMA_R5_2026-10-11.json'
+      - '.github/workflows/phase-07-modeling-readiness-synthetic.yml'
+  pull_request:
+    branches: [phase-07-developer]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run offline unittest suite
+        run: python -m unittest tests.test_modeling_readiness_preflight -v
+      - name: Run built-in deterministic self-test
+        run: python scripts/modeling_readiness_preflight.py --self-test
+      - name: Ensure no real-data execution interface
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('scripts/modeling_readiness_preflight.py').read_text()
+          assert '--self-test' in source
+          assert 'real-data execution is not implemented' in source
+          assert 'requests.get(' not in source
+          assert 'read_csv(' not in source
+          assert 'fit(' not in source
+          print('PASS: synthetic-only boundary')
+          PY
