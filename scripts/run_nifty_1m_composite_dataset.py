@@ -1045,7 +1045,8 @@ def _validate_spot_for_map(rows: list[dict[str, Any]]) -> tuple[dict[int, dict[s
 
 def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: RequestPacer,
                     wire_budget: dict[str, int], budget: dict[str, Any],
-                    auth_state: dict[str, bool], attempt_ledger: dict[str, Any]) -> tuple[dict[str, Any] | None, str, str, int, int]:
+                    auth_state: dict[str, bool], attempt_ledger: dict[str, Any],
+                    allow_live: bool = True) -> tuple[dict[str, Any] | None, str, str, int, int]:
     cached = get_cached_payload(request, key)
     family = request["source_family"]
     if cached:
@@ -1066,6 +1067,9 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         except Exception as exc:
             remove_invalid_cache(request)
             budget["errors"].append(_error_record(request, "cached_payload_invalid_refetch:" + type(exc).__name__, None))
+    if not allow_live:
+        budget["errors"].append(_error_record(request, "cache_required_missing_live_request_disabled", None))
+        return None, "CACHE_REQUIRED_MISSING", "", 0, 0
     if auth_state.get("failed") or family in attempt_ledger.get("permanent_failure_families", {}):
         budget["errors"].append(_error_record(request, "Dhan source halted after authentication/entitlement failure", None))
         return None, "SKIPPED_AUTH_FAILURE", "", 0, 0
@@ -1124,7 +1128,8 @@ def request_payload(request: dict[str, Any], token: str, key: bytes, pacer: Requ
         return None, "FAILED_VALIDATION", "", 0, 0
 
 
-def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str, key: bytes) -> dict[str, Any]:
+def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str, key: bytes,
+                spot_only_recovery: bool = False) -> dict[str, Any]:
     if ENCRYPTED_ROOT.exists():
         shutil.rmtree(ENCRYPTED_ROOT)
     if PLAIN_ROOT.exists():
@@ -1173,7 +1178,8 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
             continue
 
         payload, cache_status, digest, status_code, size = request_payload(
-            spot_request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger
+            spot_request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger,
+            allow_live=True
         )
         result = {
             "request_id": spot_request["request_id"], "source_family": spot_request["source_family"],
@@ -1247,7 +1253,8 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
             if request["source_family"] == "NIFTY_SPOT_1M":
                 continue
             payload, cache_status, digest, status_code, size = request_payload(
-                request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger
+                request, token, key, pacer, wire_budget, budget, auth_state, attempt_ledger,
+                allow_live=not spot_only_recovery
             )
             result = {
                 "request_id": request["request_id"], "source_family": request["source_family"],
@@ -1352,6 +1359,8 @@ def collect_run(root: dict[str, Any], requests: list[dict[str, Any]], token: str
         "greek_iv_unit_convention": "Heuristic v1: provider IV > 3 interpreted as percentage points and divided by 100; >0 through 3 interpreted as fractional; null otherwise. Dhan docs do not define IV numeric units.",
         "spot_join_policy": "Exact timestamp key only; rolling option spot and joined NIFTY spot OHLCV remain separate and are not reconciled.",
         "holdout_values_opened": False, "model_fitting_authorized": False, "final_holdout_access_authorized": False,
+        "spot_only_recovery_mode": bool(spot_only_recovery),
+        "live_option_requests_enabled": not spot_only_recovery,
     }
 
 
@@ -1412,7 +1421,22 @@ See dataset_manifest.json and coverage_and_errors.json for completeness, request
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Acquire the approved NIFTY one-minute composite.")
+    parser.add_argument("--spot-only-recovery", action="store_true",
+                        help="Fetch only missing spot windows; all rolling-option responses must already exist in the verified encrypted cache.")
+    args = parser.parse_args()
     root = load_json(ROOT_MANIFEST)
+    if args.spot_only_recovery:
+        marker_path = ROOT / "research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
+        marker = load_json(marker_path) if marker_path.is_file() else {}
+        if (marker.get("status") != "SPENT_BEFORE_SOURCE_REQUEST"
+                or marker.get("scope") != "SPOT_ONLY_CACHE_PRESERVING_RECOVERY"
+                or marker.get("max_spot_requests") != 61
+                or marker.get("live_option_requests_allowed") is not False
+                or marker.get("reviewed_developer_commit") is None
+                or marker.get("tester_decision_commit") is None):
+            print("BLOCKED: exact one-use spot-only recovery marker missing or invalid; no requests made.")
+            return 4
     from validate_nifty_1m_composite_manifest import validate as validate_manifest
     failures = validate_manifest()
     if failures:
@@ -1429,7 +1453,7 @@ def main() -> int:
         print("BLOCKED: HF_TOKEN is needed to encrypt/cache downloaded market data; no requests made.")
         return 3
     key = derive_key(hf_token)
-    result = collect_run(root, requests, token, key)
+    result = collect_run(root, requests, token, key, spot_only_recovery=args.spot_only_recovery)
     EXPORT_ROOT.mkdir(parents=True, exist_ok=True)
     encrypt_outputs(key, result)
     for error in result.get("errors", [])[:50]:
