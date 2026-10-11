@@ -21,6 +21,8 @@ on:
       - ".github/workflows/phase-07-nifty-1m-spot-split-recovery.yml"
       - "research/gates/NIFTY_1M_SPOT_GAPFILL_MANIFEST.json"
       - "scripts/test_audit_nifty_1m_composite_cache.py"
+      - "scripts/audit_nifty_1m_composite_values.py"
+      - "scripts/test_audit_nifty_1m_composite_values.py"
       - "scripts/account_nifty_1m_probe_attempt.py"
       - "scripts/test_account_nifty_1m_probe_attempt.py"
       - "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json"
@@ -75,6 +77,8 @@ jobs:
           scripts/test_audit_nifty_1m_composite_cache.py
           scripts/account_nifty_1m_probe_attempt.py
           scripts/test_account_nifty_1m_probe_attempt.py
+          scripts/audit_nifty_1m_composite_values.py
+          scripts/test_audit_nifty_1m_composite_values.py
       - name: Run offline manifest and data-pipeline tests
         working-directory: scripts
         run: |
@@ -85,6 +89,7 @@ jobs:
           python -m unittest -v test_account_nifty_1m_probe_attempt
           python -m unittest -v test_audit_nifty_1m_composite_cache
           python -m unittest -v test_nifty_1m_spot_gapfill
+          python -m unittest -v test_audit_nifty_1m_composite_values
       - name: Verify exact request grid
         run: python scripts/validate_nifty_1m_composite_manifest.py
       - name: Validate acquisition approval helper offline
