@@ -185,6 +185,10 @@ def validate_input_manifests(
             or not _sha(evidence.get("validation_report_sha256"))
             or evidence.get("independent_validation_passed") is not True):
         return False, "CLOSE_LINKAGE_UNPROVEN"
+    # The pinned source manifest must repeat the exact evidence record; a standalone
+    # boolean or an unbound hash string is not accepted as proof.
+    if source_manifest.get("official_close_linkage_evidence") != evidence:
+        return False, "CLOSE_LINKAGE_UNPROVEN"
 
     if split_manifest.get("holdout_boundary_found") is not True:
         return False, "BLOCKED_HOLDOUT_PROOF"
