@@ -10,6 +10,7 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import repair_nifty_1m_composite_values as repair
+import validate_repaired_nifty_1m_composite as repaired_validator
 from decrypt_nifty_1m_composite import decrypt_bytes, derive_key
 from test_audit_nifty_1m_composite_values import COLUMNS, base_row, write_fixture
 
