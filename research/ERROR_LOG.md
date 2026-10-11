@@ -542,3 +542,11 @@
 - Impact: no option P&L/holdout run was authorized, but source acquisition was outside the narrow tester request for cache-only reconstruction. Source-audit outputs are not promoted or used as accepted trading evidence in this gate.
 - Correction: developer commit [a3c3e4c](https://github.com/vishnuvcr/Naked-option-v1/commit/a3c3e4c04f094f92aff61b5615f64ff74e0eafb5) adds a job-level condition so source acquisition runs only when empirical Phase 8 is explicitly authorized. The reconstruction step itself is cache-only at [commit d012713](https://github.com/vishnuvcr/Naked-option-v1/commit/d012713dae811dba0ad919f2a6a0edb5821f0ff8).
 - Prevention: inspect all jobs in a workflow—not only the target reconstruction job—before triggering a forecast-only run. Tester review is required before using any source-audit outputs for research conclusions.
+
+## 2026-10-12 — Cache-only reconstruction blocked by missing cached source files
+- Category: reproducibility / missing cached input
+- Component: Phase 8 forecast reconstruction source lineage inputs
+- Hosted run: [#38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602), commit `d012713dae811dba0ad919f2a6a0edb5821f0ff8`.
+- Symptom: immutable Run #994 artifact restored successfully, but the source-data cache was not found; `data/cache/raw/phase3/nifty50_daily.csv` was absent. The new cache-only guard failed closed before source-alignment validation and no reconstruction report was produced.
+- Impact: exact-HEAD full reconstruction remains unverified. This is not a model result or evidence of a ULP-policy failure.
+- Next action: do not bypass the cache guard or fetch sources without independent tester authorization. Locate a previously archived, hash-verifiable copy of the frozen source inputs or submit a narrowly scoped tester request for a one-time pinned historical-source restoration. Preserve the Run #994 artifact and all tolerances.
