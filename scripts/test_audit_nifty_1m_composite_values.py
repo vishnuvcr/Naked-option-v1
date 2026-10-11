@@ -184,8 +184,8 @@ class DatasetValueAuditTests(unittest.TestCase):
     def test_workflow_is_pinned_offline_only_and_cleans_plaintext(self):
         root = pathlib.Path(__file__).resolve().parents[1]
         workflow = (root / ".github" / "workflows" / "dataset-value-audit.yml").read_text(encoding="utf-8")
-        self.assertIn("run-id: 38116772719", workflow)
-        self.assertIn("nifty-1m-composite-spot-recovery-38116772719", workflow)
+        self.assertIn("run-id: 38126168547", workflow)
+        self.assertIn("nifty-1m-spot-failed-window-patch-38126168547", workflow)
         self.assertIn("HF_TOKEN:", workflow)
         self.assertIn("rm -rf", workflow)
         self.assertIn("research/data/DATASET_VALUE_AUDIT_RESULT.json", workflow)
