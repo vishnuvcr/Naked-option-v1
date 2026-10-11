@@ -26,6 +26,46 @@
     "Original source artifact and source rows are immutable; this is a separate encrypted derived dataset.",
     "Modeling eligibility still requires a separate exact-snapshot tester decision."
   ],
+  "post_repair_validation": {
+    "join_counts": {
+      "exact_join_field_mismatches": 0,
+      "exact_join_rows_missing_source_epoch": 0,
+      "expected_matched_from_manifest": 8471702,
+      "expected_unmatched_from_manifest": 19021,
+      "matched_option_rows": 8471702,
+      "unmatched_epochs_also_in_spot_set": 0,
+      "unmatched_option_rows": 19021,
+      "unmatched_rows_with_underlying_values": 0
+    },
+    "quality_counts": {
+      "all_missing_ohlc_rows": {
+        "option_volume_missing": 11,
+        "spot_ohlc_all_missing": 12,
+        "spot_volume_missing": 309
+      },
+      "duplicate_composite_keys": 0,
+      "duplicate_spot_epochs": 0,
+      "invalid_session_dates": 0,
+      "invalid_timestamps": 0,
+      "manifest_reconciliation_findings": {},
+      "monthly_row_count_mismatches": 0,
+      "negative_nonblank_volumes": 0,
+      "nonblank_invalid_ohlc_rows": 0,
+      "nonfinite_nonblank_volumes": 0,
+      "partial_ohlc_missing_rows": 0,
+      "unknown_join_statuses": 0,
+      "unknown_row_types": 0,
+      "weekend_session_rows_flagged": 24847
+    },
+    "row_counts": {
+      "expected_total_from_manifest": 8999865,
+      "option": 8490723,
+      "spot": 509142,
+      "total": 8999865
+    },
+    "sensitive_values_emitted": false,
+    "status": "PASS_WITH_COVERAGE_RESTRICTIONS"
+  },
   "raw_market_values_emitted": false,
   "repair_counts": {
     "joined_nifty_fields_reconciled": 1528,
