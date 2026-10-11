@@ -113,6 +113,7 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
     row_type_counts: Counter[str] = Counter()
     join_status_counts: Counter[str] = Counter()
     flag_counts: Counter[str] = Counter()
+    spot_volume_flagged_rows = 0
     actual_month_rows: Counter[str] = Counter()
     actual_month_types: dict[str, Counter[str]] = {}
     session_dates: set[str] = set()
@@ -220,9 +221,15 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                         try:
                             value = _decimal(row.get(field, ""))
                             decimals[field] = value
-                            if value is None:
-                                if field in FEATURE_FIELDS:
-                                    missing[field] += 1
+                            if value is None and field in FEATURE_FIELDS:
+                                applicable = (
+                                    typ == "OPTION"
+                                    or (typ == "SPOT" and field in {
+                                        "nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"
+                                    })
+                                )
+                                if applicable:
+                                    missing[typ.lower() + ":" + field] += 1
                             elif value < 0 and field in {"option_volume", "open_interest", "nifty_volume", "time_to_expiry_years"}:
                                 invalid[field + "_negative"] += 1
                         except ValueError as exc:
@@ -262,6 +269,8 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                         counts["spot_rows"] += 1
                         _check_ohlc(row, ("nifty_open", "nifty_high", "nifty_low", "nifty_close"),
                                     "spot_ohlc_invalid", invalid, missing)
+                        if "SPOT_VOLUME_MISSING_OR_MISALIGNED" in row.get("data_quality_flags", ""):
+                            spot_volume_flagged_rows += 1
                         if not row.get("timestamp_utc", "").strip() or not row.get("session_date", "").strip():
                             invalid["spot_timestamp_fields_missing"] += 1
                         if epoch is not None:
@@ -319,6 +328,9 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
         if expected_missing >= 0 and expected_missing != actual_missing:
             invalid["spot_join_missing_manifest_mismatch"] += 1
         no_spot_sessions = sorted(option_sessions - spot_sessions)
+        expected_session_count = expected_summary.get("observed_trading_session_count")
+        if expected_session_count is not None and len(session_dates) != int(expected_session_count):
+            invalid["observed_session_count_mismatch"] += 1
         unexpected_join_statuses = {
             k: v for k, v in join_status_counts.items()
             if k not in {"EXACT_TIMESTAMP_MATCH", "NO_EXACT_TIMESTAMP_SPOT_MATCH"}
@@ -344,7 +356,6 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
         critical_counts["duplicate_option_row_keys"] = duplicate_option_keys
         critical_counts["duplicate_spot_timestamps"] = duplicate_spot_epochs
         semantic_error_count = sum(critical_counts.values())
-        expected_session_count = expected_summary.get("observed_trading_session_count")
         report: dict[str, Any] = {
             "schema_version": 1,
             "audit_type": "OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT",
@@ -407,6 +418,7 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                 "manifest_spot_recovery": expected_summary.get("spot_recovery_status"),
                 "manifest_gapfill_failed_requests": expected_summary.get("gapfill_request_count_failed"),
                 "manifest_gapfill_planned_requests": expected_summary.get("gapfill_request_count_planned"),
+                "spot_rows_with_missing_or_misaligned_volume_flag": int(spot_volume_flagged_rows),
                 "unmatched_option_rows": int(actual_missing),
                 "option_sessions_without_spot_rows": len(no_spot_sessions),
             },
