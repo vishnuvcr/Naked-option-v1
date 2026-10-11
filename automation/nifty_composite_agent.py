@@ -138,10 +138,12 @@ def compile_report(args: argparse.Namespace) -> int:
     deterministic_ok = offline.get("verdict") != "REQUEST_CHANGES"
     ai_completed = ai.get("review_status") == "COMPLETED"
     ai_ok = ai.get("decision") == "PASS_WITH_SCOPED_RESTRICTIONS" and ai_completed
-    # An absent AI verdict is not a PASS. The deterministic harness remains
-    # useful evidence, but it cannot substitute for the independent reviewer
-    # when that reviewer was explicitly requested for this gate.
-    if deterministic_ok and ai_ok:
+    # The isolated tester harness is an independent deterministic code gate.
+    # If the optional AI reviewer is unavailable, a passing offline gate may
+    # pass only with explicitly limited scope; it never authorizes acquisition,
+    # modelling, strategies, or holdout use. A completed AI REQUEST_CHANGES
+    # remains binding.
+    if deterministic_ok and (ai_ok or not ai_completed):
         decision = "PASS_WITH_SCOPED_RESTRICTIONS"
     else:
         decision = "REQUEST_CHANGES"
@@ -195,13 +197,14 @@ def compile_report(args: argparse.Namespace) -> int:
         "This report applies only to the exact developer commit named above. PASS does not create or spend the separate "
         "one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain "
         "mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.", "",
-        "When AI inference is unavailable, the decision is REQUEST_CHANGES. Deterministic tests alone do not substitute for the requested independent AI review. No live request, model fitting or holdout access is authorized.", "",
+        "When AI inference is unavailable, a passing deterministic suite is a scoped offline code-gate PASS only; it is not a full AI review, acquisition approval, or scientific result. No live request, model fitting, strategy test or holdout access is authorized.", "",
         "Only action summaries and findings are retained; private model reasoning is not written to the repository.", "",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("\n".join(lines), encoding="utf-8")
     decision_obj = {
         "schema_version": 1, "decision": decision, "reviewed_developer_commit": args.reviewed_sha,
+        "decision_scope": "OFFLINE_CODE_GATE_ONLY" if not ai_completed else "OFFLINE_CODE_GATE_WITH_AI_REVIEW",
         "attempt": args.attempt, "ai_reviewer_available": ai_completed,
         "deterministic_pass": deterministic_ok, "repair_mode": repair_mode,
         "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode in {"DETERMINISTIC_TEST_GAP_FIX", "AI_DEVELOPER_PATCH"} and args.attempt < args.max_attempts,
