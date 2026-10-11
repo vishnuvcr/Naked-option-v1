@@ -138,7 +138,10 @@ def compile_report(args: argparse.Namespace) -> int:
     deterministic_ok = offline.get("verdict") != "REQUEST_CHANGES"
     ai_completed = ai.get("review_status") == "COMPLETED"
     ai_ok = ai.get("decision") == "PASS_WITH_SCOPED_RESTRICTIONS" and ai_completed
-    if deterministic_ok and (ai_ok or not ai_completed):
+    # An absent AI verdict is not a PASS. The deterministic harness remains
+    # useful evidence, but it cannot substitute for the independent reviewer
+    # when that reviewer was explicitly requested for this gate.
+    if deterministic_ok and ai_ok:
         decision = "PASS_WITH_SCOPED_RESTRICTIONS"
     else:
         decision = "REQUEST_CHANGES"
@@ -158,7 +161,13 @@ def compile_report(args: argparse.Namespace) -> int:
     )
     if deterministic_test_gap:
         repair_mode = "DETERMINISTIC_TEST_GAP_FIX"
-    elif ai_completed and ai.get("decision") == "REQUEST_CHANGES":
+    elif not ai_completed:
+        # Do not loop on the same billing/provider outage by repeatedly
+        # requesting patches that cannot be reviewed. Publish REQUEST_CHANGES,
+        # keep all sensitive work blocked, and require the reviewer provider
+        # to be restored before a new AI repair cycle.
+        repair_mode = "REVIEWER_UNAVAILABLE"
+    elif ai.get("decision") == "REQUEST_CHANGES":
         repair_mode = "AI_DEVELOPER_PATCH"
     else:
         repair_mode = "NONE"
@@ -186,7 +195,7 @@ def compile_report(args: argparse.Namespace) -> int:
         "This report applies only to the exact developer commit named above. PASS does not create or spend the separate "
         "one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain "
         "mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.", "",
-        "When AI inference is unavailable, any PASS is deterministic-only and scoped to this offline code gate; it is not an AI review or acquisition approval.", "",
+        "When AI inference is unavailable, the decision is REQUEST_CHANGES. Deterministic tests alone do not substitute for the requested independent AI review. No live request, model fitting or holdout access is authorized.", "",
         "Only action summaries and findings are retained; private model reasoning is not written to the repository.", "",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -195,7 +204,7 @@ def compile_report(args: argparse.Namespace) -> int:
         "schema_version": 1, "decision": decision, "reviewed_developer_commit": args.reviewed_sha,
         "attempt": args.attempt, "ai_reviewer_available": ai_completed,
         "deterministic_pass": deterministic_ok, "repair_mode": repair_mode,
-        "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode != "NONE" and args.attempt < args.max_attempts,
+        "auto_repair_eligible": decision == "REQUEST_CHANGES" and repair_mode in {"DETERMINISTIC_TEST_GAP_FIX", "AI_DEVELOPER_PATCH"} and args.attempt < args.max_attempts,
         "live_requests_authorized": False, "model_fitting_authorized": False, "holdout_access_authorized": False,
     }
     args.decision_output.write_text(json.dumps(decision_obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
