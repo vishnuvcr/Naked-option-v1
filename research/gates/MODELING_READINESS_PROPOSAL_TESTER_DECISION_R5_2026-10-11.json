@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-11",
+  "gate": "MODELING_READINESS_DESIGN",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_artifacts": {
+    "proposal_path": "research/gates/MODELING_READINESS_PROPOSAL_R5_2026-10-11.md",
+    "proposal_blob_sha": "f3b04eec5097dffedd0a1418de1a8673a7756bd9",
+    "scope_path": "research/gates/MODELING_READINESS_SCOPE_R5_2026-10-11.json",
+    "scope_blob_sha": "741cd5870107a52e8f20dc83b6ba83761ac71a2e",
+    "target_contract_blob_sha": "049f5d3529ff5e82b3798fdb8e27bad10c413d80",
+    "paper_replication_spec_blob_sha": "7ecff1be9aa2d6c2c8d5abbf89457113e382b1e3"
+  },
+  "allowed_scope": "implement deterministic metadata-only readiness scanner/report schema and synthetic offline tests on phase-07-developer; no real-data execution",
+  "disallowed_scope": {
+    "real_file_audit": false,
+    "new_source_requests": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "final_holdout_observations": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "required_next_gate": "exact-snapshot tester review of implementation/test/workflow blobs before one-use real-file readiness execution",
+  "upstream_ppr_empirical_gate_open": false,
+  "reviewer_independence": "same connected assistant session; not separate human or external AI reviewer",
+  "report_path": "research/gates/MODELING_READINESS_PROPOSAL_TESTER_REVIEW_R5_2026-10-11.md",
+  "report_blob_sha": "174c2dc6f517dad6e423c50f7fb535c003f50fb5"
+}
