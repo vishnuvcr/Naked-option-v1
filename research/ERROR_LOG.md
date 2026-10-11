@@ -1202,3 +1202,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Run [38125662209](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125662209) failed because `test_split_execution_fails_closed_without_spent_exact_sha_marker` expected FileNotFoundError, but the real R1 one-use marker had already been correctly committed, so the production code correctly raised a scope-mismatch ValueError.
 - This is a test isolation defect, not a new source/data failure. The test must mock `SPLIT_EXECUTION_MARKER` to a temporary non-existing path; it must not depend on a live one-use marker being absent.
 - Corrective edit prepared; rerun all offline tests before tester authorization. No R2 source request was made; R2 decision gate still closed.
+
+
+## 2026-10-11 — Stale generic auto-recovery decision failed closed (no source calls)
+- Workflow run [38125709072](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125709072) failed its gate with `Tester did not pass this exact snapshot`: the older generic recovery decision was not bound to the newly updated developer SHA. This is a governance rejection, not an API or data issue.
+- Follow-on `spot-diagnostic` and `spot-recovery` jobs were skipped. No source request was made by this workflow.
+- The dedicated R2 patch gate [38125708986](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125708986) also skipped the patch job because `NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json` was absent at that time. This is intentional fail-closed behavior; it did not trigger live calls.
+- Corrected offline test run [38125766065](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766065) passed after isolating the pre-existing spent-marker test to a nonexistent temporary marker path. Research Protocol Check [38125766215](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766215) also passed. No R2 requests were made.
+- Continue only through a fresh exact-snapshot tester decision for the separate seven-request patch; do not reuse generic or R1 authorization.

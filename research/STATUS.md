@@ -1381,3 +1381,12 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 ## 2026-10-11 — Test harness correction after a spent production marker
 The first R2 offline suite run `38125662209` failed only in a pre-existing fail-closed test: the test assumed the R1 production marker file would be absent, but the live R1 run correctly committed a spent marker. Correct the test by patching the marker path to a temporary nonexistent file, so it tests missing-marker refusal independently of production state. No live R2 requests were made; R2 remains gated pending a clean suite and exact tester decision.
+
+
+## R2 offline verification and automatic-gate state — 2026-10-11
+
+- Corrected offline test run [38125766065](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766065) passed on developer snapshot `de4f066e6d9a6ab951ce35ea928f879ec727f83e`: YAML checks, compile checks, all existing offline suites, new patch validation/tests, request-grid validation, and approval-helper self-test passed.
+- Research Protocol Check [38125766215](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766215) passed on the same snapshot.
+- Failed exact-snapshot auto recovery [38125709072](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125709072) was safely rejected because the old tester decision did not pass the exact current snapshot. Both source-request jobs were skipped; this introduced zero additional Dhan requests.
+- New dedicated patch gate [38125708986](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125708986) passed its gate but skipped live execution because the new R2 tester decision had not yet been published. This is expected fail-closed behavior; R2 made zero source requests at that checkpoint.
+- Developer next action: final tester review must bind the final post-log developer commit, proposal blob `8f24ee75490d4e8f9e9759b569d9a4d4e10e0c19` and workflow blob `4b7c20d9272d512cdd00e36a78a1d658e2f835c2`. The live execution scope remains seven one-day spot calls, 500 rows / 4 MiB each, one attempt, zero retries, on artifact 11697215166 only. No option/model/holdout/strategy permissions.

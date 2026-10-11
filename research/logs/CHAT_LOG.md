@@ -1485,3 +1485,11 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Confirm the failure is test-isolation-only and all offline tests pass after the correction.
 **Tester → Developer:** Continue to deny live request authorization until the corrected test run and exact-snapshot patch review pass.
+
+
+### 2026-10-11 — Corrected test success and stale generic gate rejection
+
+- Corrected offline suite [38125766065](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766065) passed on exact developer snapshot `de4f066e6d9a6ab951ce35ea928f879ec727f83e`; protocol check [38125766215](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766215) passed too.
+- Generic auto-recovery run [38125709072](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125709072) rejected a stale tester decision because it did not bind the exact current developer snapshot. It skipped both source-request jobs, so no additional Dhan calls occurred.
+- Dedicated R2 patch workflow [38125708986](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125708986) passed its exact-SHA gate but skipped patch execution because the new patch decision was not yet present. No R2 calls occurred.
+- Next reviewer decision must bind the final developer SHA, proposal SHA `8f24ee75490d4e8f9e9759b569d9a4d4e10e0c19`, and controller workflow blob SHA `4b7c20d9272d512cdd00e36a78a1d658e2f835c2`.
