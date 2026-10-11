@@ -1,3 +1,17 @@
+## 2026-10-11 — User continuation: feasibility-runner implementation gate
+
+- Re-read `RESEARCH_INSTRUCTIONS.md`, the automated agent-cycle protocol, current README/status/error/chat logs, the approved MR-0–MR-5 proposal/scope, the existing synthetic readiness runner/tests/schema/workflow, the PPR-4 holdout metadata audit, and the tester's design-only decision.
+- Implemented a bounded metadata-only feasibility runner, synthetic tests, a sanitized aggregate-report schema, and a synthetic-only Actions workflow with a manual dispatch button. Real mode requires explicit authorization and exact input/code hashes; no data was opened by this turn.
+- Developer snapshot reviewed by tester role: `4c2b3e54697474739da97f517476f4f87ed98b09`. Tester returned REQUEST_CHANGES with findings F01–F06, including close-linkage proof, label purge/minimum-origin validation, one-use replay controls, feature-family allowlisting, boundary checks and truthful cleanup status.
+- The hosted synthetic workflow result could not be verified through the available run-list interface. It is NOT_VERIFIED.
+- Attempted implementation corrections were blocked by a repository safety check; no correction commit was created. This tooling blocker was logged. No bypass was attempted.
+- No real-data feasibility run, fitting/scoring, holdout observation access, source request, strategy/P&L or trading occurred.
+
+**Developer → Tester:** Keep all empirical permissions closed until the listed findings are corrected and a fresh exact-hash decision passes.
+**Tester → Developer:** Review the next immutable snapshot independently within the tester branch; never authorize execution from synthetic test status alone.
+
+
+
 ## 2026-10-11 — Feasibility proposal reviewed
 
 - Developer submitted the bounded MR-0 to MR-5 feasibility proposal and scope for the frozen R5 composite.
