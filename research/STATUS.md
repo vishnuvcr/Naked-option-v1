@@ -10,12 +10,12 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **SAVED FORECAST INPUT R2 PINNED — HOSTED INTEGRATION PENDING** | audited Run #994 panel artifact pinned; option P&L and 4,800-cell grid remain blocked |
+| Phase 8 Long-option execution | **BLOCKED — AUTHORIZATION HASH FIX COMMITTED; TESTER/CI PENDING** | R1 one-use preflight consumed; synthetic authorization correction awaiting exact-snapshot review; option P&L remains blocked by contract metadata gaps |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-08
+Last updated: 2026-10-11
 
 ## Phase 5 current state
 
@@ -498,3 +498,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Fixed the expected hash literal and corrected the gap-summary logic so it evaluates OPTION-row field values rather than header presence; a new synthetic regression covers fully blank versus populated expiry values. Current hosted contract run [38162597140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162597140) then caught the same short hash in a second test fixture; that assertion is now being corrected. Since R1 is closed, current reruns are synthetic/contract tests only.
 - Separate triggered forecast reconstruction run [38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430) failed on daily H=1 future-return reproducibility at 64 values with maximum absolute difference `3.469446951953614e-18` (floating-point rounding only; much smaller than 1e-9). This is logged for tester review; do not bypass it by loosening or deleting the check. Accepted Run #994 artifact itself remains unchanged.
 - No P&L, holdout access, new source request or strategy promotion. Next gate is exact-hash tester review of the hash/assertion and data-gap reporting fixes plus a precise, pre-registered floating-point comparison policy for the unrelated daily H=1 reconstruction check.
+
+
+## 2026-10-11 — Phase 8 authorization regression isolated and corrected in developer code
+
+- Latest contract test run [38162721421](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162721421) failed in the synthetic positive authorization case `test_exact_snapshot_only`, before the authorization job or metadata-only preflight ran.
+- Root cause: `scripts/authorize_phase8_cached_composite_preflight.py` carried a one-character typo in the frozen composite SHA literal (`...0727b82...`) while the verified request, composite manifest and regression fixture pinned `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`.
+- Narrow correction committed on `phase-08-developer`: [be8b9c6](https://github.com/vishnuvcr/Naked-option-v1/commit/be8b9c630a1061558fcf14a5bdb50a388f6e329b). Only the authorization constant changed; scientific method and data pins were not relaxed.
+- R1 remains consumed and `requested=false`; no cached artifact was re-read, no market-source request was made, and empirical P&L / holdout / promotion flags remain false.
+- Acceptance is pending fresh synthetic CI and exact-snapshot tester review. The separate daily H=1 future-return recomputation discrepancy (64 rows; maximum absolute difference (3.469446951953614e-18)) remains a separate unresolved gate requiring tester-approved floating-point comparison policy.
