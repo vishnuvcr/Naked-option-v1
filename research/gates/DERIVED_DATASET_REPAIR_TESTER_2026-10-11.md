@@ -1,9 +1,9 @@
 # Tester Report — Derived Dataset Repair Pipeline
 
 - Review date: 2026-10-11 UTC
-- Exact developer commit reviewed: `362b6ac4ff4c556def94282a19038c71cbc6a2a0`
-- Offline pipeline suite: [38130054709](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130054709) — success
-- Protocol check: [38130054774](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130054774) — success
+- Exact developer commit reviewed: `4441afaead213b19eec156cc8eba554dfb5bbcb0`
+- Offline pipeline suite: [38130180603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180603) — success
+- Protocol check: [38130180863](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180863) — pending at report update
 - Reviewer independence caveat: this tester-role review is in the same connected assistant session, not a separate human or independent AI reviewer.
 
 ## Exact files reviewed
@@ -33,7 +33,7 @@
 - The all-date provenance workflow [38129159707](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129159707) completed successfully, including plaintext cleanup and report publication.
 - Provenance counts: 382 joined NIFTY OHLC violations occur at 7 distinct epochs; 12 standalone spot OHLC violations at 12 epochs; 309 negative spot-volume occurrences at 309 epochs; 11 negative option-volume occurrences at 10 epochs. Joined values match the standalone spot row at exact epochs. These findings support exact-source reconciliation and explicit masking, not arbitrary value invention.
 - Unmatched coverage: 19,021 option rows across 421 timestamps; no timestamp exists in the standalone spot set. Nearest-bar distances are diagnostics only and are not used to fill rows.
-- The derived workflow now verifies all encrypted part hashes and row totals, uploads only the encrypted derived bundle and sanitized metadata, checks for any remaining plaintext gzip scratch files, and gates publication on successful upload and cleanup.
+- The derived workflow now verifies all encrypted part hashes and row totals, uploads only the encrypted derived bundle and sanitized metadata, checks for any remaining plaintext gzip scratch files (including temporary derived gzip names), and gates publication on successful upload and cleanup. It no longer writes README/STATUS from the concurrent repair workflow; those files will be updated after the output report is reviewed.
 
 ## Verdict
 
