@@ -55,7 +55,10 @@ def account_probe_attempt(marker_path: pathlib.Path = MARKER_PATH,
         for line_number, line in enumerate(ledger_path.read_text(encoding="utf-8").splitlines(), start=1):
             if not line.strip():
                 continue
-            event = json.loads(line)
+            try:
+                event = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                raise ValueError("attempt_ledger_corrupt_fail_closed") from None
             if not isinstance(event, dict) or event.get("schema_version") != 1:
                 raise ValueError("attempt_ledger_event_schema_mismatch")
             existing_events.append(event)
