@@ -10,6 +10,11 @@ on:
       - 'scripts/test_workflow_action_pinning.py'
       - 'scripts/validate_real_file_preflight_authorization.py'
       - 'scripts/test_validate_real_file_preflight_authorization.py'
+      - 'scripts/publish_preflight_receipt.py'
+      - 'scripts/test_publish_preflight_receipt.py'
+      - 'scripts/test_receipt_workflow_policy.py'
+      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
+      - '.github/workflows/phase-07-receipt-publisher-tests.yml'
       - '.github/workflows/phase-07-real-file-preflight-audit.yml'
       - '.github/workflows/phase-07-offline-preflight-tests.yml'
   pull_request:
@@ -31,7 +36,7 @@ jobs:
       - name: Run deterministic synthetic fixtures only
         env:
           PYTHONPATH: scripts
-        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_offline_dataset_actual_schema.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_offline_dataset_actual_schema.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py scripts/test_publish_preflight_receipt.py scripts/test_receipt_workflow_policy.py
       - name: Ensure no real data or credentials are staged
         run: |
           test ! -e nifty_repaired_composite_2021-10_to-2026-10.csv
