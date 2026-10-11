@@ -370,7 +370,9 @@ class SpotGapFillCollector:
             except Exception:
                 remove_invalid_cache(request)
         previous_attempts = int(self.ledger["attempts_by_request_id"].get(request["request_id"], 0))
-        maximum_attempts = 2
+        maximum_attempts = int(request.get("max_attempts", 2))
+        if maximum_attempts not in (1, 2):
+            raise ValueError("gapfill_max_attempts_invalid")
         retry_allowed = previous_attempts < maximum_attempts
         if not retry_allowed:
             return None, "FAILED_REQUEST", "", None, 0
@@ -384,7 +386,7 @@ class SpotGapFillCollector:
                 return None, "DHAN_AUTH_FAILURE", "", status_code, 0
             retryable = (status_code == 429 or (status_code is not None and 500 <= status_code <= 599)
                          or exc.reason.startswith("transport_error_"))
-            if retryable and previous_attempts < 1:
+            if retryable and previous_attempts + 1 < maximum_attempts:
                 try:
                     raw, status, content_type = self._http_fetch(request, is_retry=True)
                 except collector.SourceRequestError as retry_exc:
