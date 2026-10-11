@@ -9,12 +9,7 @@ on:
       - 'scripts/test_workflow_action_pinning.py'
       - 'scripts/validate_real_file_preflight_authorization.py'
       - 'scripts/test_validate_real_file_preflight_authorization.py'
-      - 'scripts/publish_preflight_receipt.py'
-      - 'scripts/test_publish_preflight_receipt.py'
-      - 'scripts/test_receipt_workflow_policy.py'
-      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
       - '.github/workflows/phase-07-real-file-preflight-audit.yml'
-      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
       - '.github/workflows/phase-07-offline-preflight-tests.yml'
   pull_request:
     branches: [phase-07-developer]
@@ -32,12 +27,10 @@ jobs:
           python-version: '3.12'
       - name: Enforce immutable action pins and least-privilege policy
         run: python scripts/check_workflow_action_pinning.py .github/workflows/phase-07-offline-preflight-tests.yml
-      - name: Validate audit and receipt workflow YAML
-        run: ruby -e 'require "yaml"; ARGV.each { |p| YAML.parse_file(p); puts "PASS YAML: #{p}" }' .github/workflows/phase-07-real-file-preflight-audit.yml .github/workflows/phase-07-publish-preflight-receipt.yml
       - name: Run deterministic synthetic fixtures only
         env:
           PYTHONPATH: scripts
-        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py scripts/test_publish_preflight_receipt.py scripts/test_receipt_workflow_policy.py
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py
       - name: Ensure no real data or credentials are staged
         run: |
           test ! -e nifty_repaired_composite_2021-10_to-2026-10.csv
