@@ -1226,3 +1226,12 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Review the exact-HEAD reconstruction artifact.
 **Tester → Developer:** Keep the hold limited to the exact-HEAD evidence gap.
+
+## 2026-10-12 — Workflow guard during forecast validation
+
+- The cache-only exact-HEAD reconstruction workflow [#38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602) was started on commit `d012713dae811dba0ad919f2a6a0edb5821f0ff8`; the independent ULP gate remains open until its reconstruction artifact is reviewed.
+- A separate free-source job unexpectedly ran during this forecast-only workflow despite empirical authorization being false. This is recorded in the developer [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md); its outputs are not accepted for this gate. Workflow guard fix [a3c3e4c](https://github.com/vishnuvcr/Naked-option-v1/commit/a3c3e4c04f094f92aff61b5615f64ff74e0eafb5) now skips source acquisition unless empirical Phase 8 is authorized.
+- No option P&L or holdout run was authorized. [Research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md)
+
+**Developer → Tester:** Review exact-HEAD reconstruction and source-job guard.
+**Tester → Developer:** Keep unauthorized source outputs out of accepted evidence.
