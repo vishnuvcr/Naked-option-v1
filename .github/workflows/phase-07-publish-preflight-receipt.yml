@@ -1,0 +1,139 @@
+name: Phase 07 Publish Sanitized Preflight Receipt
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
+      - 'scripts/publish_preflight_receipt.py'
+  workflow_run:
+    workflows: ["Phase 07 Exact-File Offline Preflight Audit"]
+    types: [completed]
+    branches: [phase-07-developer]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Optional exact audit workflow run ID to recover a receipt."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: phase-07-publish-preflight-receipt
+  cancel-in-progress: false
+
+jobs:
+  publish-sanitized-receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: phase-07-developer
+          path: developer-snapshot
+          persist-credentials: false
+      - name: Select exact completed audit run
+        id: select
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          MANUAL_RUN_ID: ${{ inputs.source_run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_id=""
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            run_id="$EVENT_RUN_ID"
+          elif [[ -n "$MANUAL_RUN_ID" ]]; then
+            run_id="$MANUAL_RUN_ID"
+          else
+            request_commit="$(gh api "repos/$GITHUB_REPOSITORY/commits?path=research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json&sha=phase-07-developer&per_page=1" | jq -r '.[0].sha // ""')"
+            if [[ -n "$request_commit" ]]; then
+              gh api "repos/$GITHUB_REPOSITORY/actions/workflows/phase-07-real-file-preflight-audit.yml/runs?branch=phase-07-developer&per_page=100" > "$RUNNER_TEMP/run-list.json"
+              run_id="$(python - "$RUNNER_TEMP/run-list.json" "$request_commit" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          matches=[r for r in data.get("workflow_runs",[]) if r.get("head_sha")==sys.argv[2] and r.get("status")=="completed"]
+          matches.sort(key=lambda r:r.get("created_at",""))
+          print(matches[-1].get("id","") if matches else "")
+          PY
+          )"
+            fi
+          fi
+          if [[ -z "$run_id" ]]; then
+            echo "No completed audit run found for the current exact execution request; waiting for workflow_run completion event."
+            echo "run_id=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [[ "$run_id" =~ ^[0-9]+$ ]] || { echo "invalid_audit_run_id"; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" > "$RUNNER_TEMP/audit-run.json"
+          python - "$RUNNER_TEMP/audit-run.json" "$run_id" <<'PY'
+          import json,sys
+          run=json.load(open(sys.argv[1],encoding="utf-8"))
+          if int(run.get("id",-1))!=int(sys.argv[2]): raise SystemExit("audit_run_id_mismatch")
+          if run.get("name")!="Phase 07 Exact-File Offline Preflight Audit": raise SystemExit("audit_workflow_name_mismatch")
+          if run.get("head_branch")!="phase-07-developer": raise SystemExit("audit_branch_mismatch")
+          if run.get("status")!="completed": raise SystemExit("audit_run_not_completed")
+          print("PASS exact audit run selected")
+          PY
+          artifact_name="phase07-offline-preflight-metadata-$run_id"
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100")"
+          found="$(jq --arg n "$artifact_name" '[.artifacts[] | select(.name==$n and .expired==false and .size_in_bytes>0)] | length' <<< "$artifacts")"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=$artifact_name" >> "$GITHUB_OUTPUT"
+          echo "artifact_found=$([[ "$found" == "1" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Download sanitized metadata report
+        if: steps.select.outputs.run_id != '' && steps.select.outputs.artifact_found == 'true'
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: ${{ steps.select.outputs.artifact_name }}
+          run-id: ${{ steps.select.outputs.run_id }}
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/preflight-report
+      - name: Build metadata-only receipt
+        if: steps.select.outputs.run_id != ''
+        env:
+          RUN_METADATA: ${{ runner.temp }}/audit-run.json
+          REPORT_DIR: ${{ runner.temp }}/preflight-report
+          RECEIPT_PATH: ${{ runner.temp }}/REAL_FILE_PREFLIGHT_RECEIPT.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          report_path=""
+          if [[ -d "$REPORT_DIR" ]]; then
+            report_path="$(find "$REPORT_DIR" -type f -name '*.json' -print -quit)"
+          fi
+          if [[ -n "$report_path" ]]; then
+            python scripts/publish_preflight_receipt.py --run-metadata "$RUN_METADATA" --report "$report_path" --output "$RECEIPT_PATH"
+          else
+            python scripts/publish_preflight_receipt.py --run-metadata "$RUN_METADATA" --output "$RECEIPT_PATH"
+          fi
+      - name: Publish receipt to developer branch
+        if: steps.select.outputs.run_id != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ steps.select.outputs.run_id }}
+          RECEIPT_PATH: ${{ runner.temp }}/REAL_FILE_PREFLIGHT_RECEIPT.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo_path="research/data/preflight/REAL_FILE_PREFLIGHT_RECEIPT_RUN_${RUN_ID}.json"
+          encoded="$(base64 -w0 "$RECEIPT_PATH")"
+          existing_sha=""
+          if existing="$(gh api "repos/$GITHUB_REPOSITORY/contents/$repo_path?ref=phase-07-developer" 2>/dev/null)"; then
+            existing_sha="$(jq -r '.sha // ""' <<< "$existing")"
+          fi
+          args=(--method PUT "repos/$GITHUB_REPOSITORY/contents/$repo_path" -f message="Record sanitized preflight receipt for run $RUN_ID" -f content="$encoded" -f branch=phase-07-developer)
+          if [[ -n "$existing_sha" ]]; then args+=(-f sha="$existing_sha"); fi
+          gh api "${args[@]}" > "$RUNNER_TEMP/publish-result.json"
+          echo "PASS sanitized receipt published to $repo_path"
