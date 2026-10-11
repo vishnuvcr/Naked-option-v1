@@ -23,6 +23,7 @@ on:
       - "scripts/run_nifty_1m_spot_diagnostic.py"
       - "scripts/test_nifty_1m_spot_diagnostic.py"
       - "scripts/audit_nifty_1m_composite_cache.py"
+      - ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
       - "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json"
       - "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_RESULT.json"
       - "research/gates/NIFTY_1M_SPOT_RECOVERY_RESULT.json"
