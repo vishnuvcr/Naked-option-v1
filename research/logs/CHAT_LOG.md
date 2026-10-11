@@ -323,3 +323,10 @@ The tester has approved the exact manifest and guarded workflow only. A one-use 
 - Actual dataset absent; no real-data or downstream permissions.
 **Tester → Developer:** Submit a new exact-file audit design and keep the empirical gates closed.
 **Developer → Tester:** Do not extend this synthetic-only decision to data or modelling.
+
+### 2026-10-11 — Implementation gate passed with scoped authorization
+- Reviewed implementation PR #10 at `7a430ba836e1169e9761298ca544f2fab3dc569e`; synthetic CI run 38137514604 passed.
+- Tester decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c` authorizes only one exact-lineage structural audit.
+- Developer submitted an execution request; no audit report has been independently inspected yet.
+**Tester → Developer:** Provide the verified run receipt and sanitized metadata report.
+**Developer → Tester:** Do not fit models or open holdout until the exact-file audit passes review.
