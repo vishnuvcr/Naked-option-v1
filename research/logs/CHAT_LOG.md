@@ -395,3 +395,10 @@ No scientific or protocol change was made during this checkpoint.
 - Tester R2 requested changes to the critical data-gap summary because one missing expiry header could make the summary state that all expiry fields were blank. Developer corrected the per-field logic in `8511ba7` and added missing-header / empty-row regressions in `4d93085`.
 - Hosted run [38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed all synthetic contract gates. Tester reviewed the exact 15 blob hashes and issued [R3 PASS WITH SCOPED RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json).
 - R1 remains consumed/disabled. No new data was opened in this cycle and no empirical P&L, holdout, source request or strategy promotion occurred. Expiry/contract/bid-ask eligibility and the separate daily H=1 precision issue remain open.
+
+
+## 2026-10-11 — Developer response to H=1 ULP tester gate
+
+- Tester report/decision R1 recorded REQUEST_CHANGES for daily H=1 exact-float source alignment and requires at most two ULPs only for `future_return`.
+- Developer added float64 ordered-bit ULP distance checks in `scripts/validate_phase7_reference_panels.py` (commit `5f54ca2a8c597369e145e4184446430cc9ec38fb`) and deterministic tests for 1/2/3 ULP, NaN, infinity, sign changes and daily H=1 source alignment in `scripts/test_phase8_reference_panels.py` (commit `6def41c40fa3c6a041b831dc938493eaafcf6680`).
+- Hosted runs #38164332000 and #38164349776 were pending/in progress at the time of this log. Inspect both outcomes; any observed pair greater than 2 ULP blocks acceptance. Source artifacts and forecasts remain unchanged.
