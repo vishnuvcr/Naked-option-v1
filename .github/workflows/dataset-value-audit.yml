@@ -5,7 +5,6 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/dataset-value-audit.yml"
       - "scripts/audit_nifty_1m_composite_values.py"
       - "scripts/decrypt_nifty_1m_composite.py"
 
@@ -225,6 +224,7 @@ jobs:
             echo "Sanitized audit report unchanged."
           else
             git commit -m "Publish sanitized offline dataset value audit result"
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
 
