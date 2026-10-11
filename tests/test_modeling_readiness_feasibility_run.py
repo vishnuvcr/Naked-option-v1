@@ -180,8 +180,14 @@ class FeasibilityRunTests(unittest.TestCase):
                            "low":"f","close":"g","volume":"h","quality_flags":"i","join_status":"j"},
             "row_type_values": {"option":"OPTION","spot":"SPOT"},
         }
+        linkage_evidence = {
+            "source_family":"SPOT_OFFICIAL_CLOSE", "source_sha256":"a"*64,
+            "mapping_rule":"LAST_VALID_BAR_MATCHES_OFFICIAL_DAILY_CLOSE",
+            "validation_report_sha256":"b"*64, "independent_validation_passed":True
+        }
         sources = {"dataset_sha256": EXPECTED_DATASET_SHA256, "cache_only":True,
-                   "source_vintages":[{"family":"SPOT_OHLCV","pit_proven":True}]}
+                   "source_vintages":[{"family":"SPOT_OHLCV","pit_proven":True}],
+                   "official_close_linkage_evidence":linkage_evidence}
         calendar = {"dataset_sha256":EXPECTED_DATASET_SHA256,"exchange":"NSE","calendar_source":"fixture",
                     "valid_sessions":["2026-01-01","2026-01-02"]}
         split = {"dataset_sha256":EXPECTED_DATASET_SHA256,"holdout_boundary_found":False}
