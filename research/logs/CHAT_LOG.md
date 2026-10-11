@@ -315,3 +315,12 @@ No scientific or protocol change was made during this checkpoint.
 - Source consistency check found Phase 8 trade mapping omitted P10's [0.45,0.55] abstention band. Engine and tests now cover P10 just like the accepted Run #994 source, with both boundaries abstaining.
 - The registered 4,800-cell universe, costs, forecasts, labels, horizons and holdout are unchanged. Empirical option P&L remains false/disabled.
 - Next: run hosted regression, submit the exact code/manifest snapshot to tester, then implement and test the full no-refit runner against the existing cached dataset.
+
+
+## 2026-10-11 — Continue after R2 saved-forecast tester pass
+
+- Verified latest branch/tester gates and the R2 active-spec approval before work. Existing versioned `PHASE8_RUN994_R2_SPEC_ADDENDUM.md` and P10 abstention fix were already committed by prior gate progression; no duplicate addendum was created.
+- Added no-refit runner `scripts/run_phase8_long_option.py`. `--self-test` is pure synthetic and never opens market data; preflight verifies the accepted Run #994 manifest/aggregate/every panel and can hash-check the pinned existing composite with row/type counts.
+- The runner explicitly records all 4,800 parent configurations as INELIGIBLE while strict fixed-contract point-in-time metadata is missing/unapproved. This is a gate result, not an option strategy result. It emits no empirical P&L.
+- Added runner regression tests and wired them plus the pure self-test into the Phase 8 CI caller; exact code snapshot commit `111a3e3aa2e7656ef7acd27bd98f75d9e576d2f2`.
+- Hosted run 38159700708 is the first Phase 8 workflow to exercise the new runner tests. Next: review all job outcomes/logs, fix failures, then submit the exact runner snapshot to phase-08-tester before the cached composite preflight.

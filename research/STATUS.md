@@ -436,3 +436,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Corrected direction_from_probability: P10 now uses its frozen [0.45, 0.55] abstention interval from the exact Run #994 source, in addition to P05/P06 bands. Added tests for both exact boundaries and inside/outside the band.
 - No Phase 7 prediction, label, horizon, cost, 4,800-grid, holdout or promotion rule changed. Empirical option P&L remains disabled.
 - Next: hosted regressions, then tester review of the exact implementation snapshot; build no-refit runner and synthetic dry-run only before any empirical authorization.
+
+
+## 2026-10-11 — Phase 8 no-refit runner preflight added
+
+- Accepted forecast input remains Run #994/R2: 10 saved panels / 50,555 rows, all reconciled by hosted run 38157819076 at absolute tolerance 1e-9. No Phase 7 model refitting.
+- Implemented `scripts/run_phase8_long_option.py` and `scripts/test_phase8_long_option_runner.py`. Default mode is forecast/data preflight; `--self-test` is synthetic-only and does not read market data.
+- Runner pins the Run #994 manifest/aggregate/panel hashes, asserts the exact 100 forecast cells and 4,800 parent configurations (19,200 four-scenario summaries), and can stream-check the exact cached composite gzip and decoded-CSV hashes/row counts.
+- The current matrix is a **data-gate report, not a P&L result**: 4,800 configurations are retained as `INELIGIBLE` until a point-in-time fixed-contract/expiry/lot/tick/quote-quality panel and its manifest pass a separate gate. The known composite cannot be silently treated as full exchange contract-master/quote history.
+- Workflow commit `111a3e3aa2e7656ef7acd27bd98f75d9e576d2f2` wires runner unit tests and pure self-test into Phase 8 CI. Hosted validation run [38159700708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159700708) is in progress.
+- Empirical P&L and the 4,800-cell grid remain disabled. Next: obtain hosted results, correct any regression defects, then submit the exact runner/hash snapshot to the tester before a cached-composite-only preflight job. No new source discovery/request is part of this step.
