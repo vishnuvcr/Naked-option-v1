@@ -1250,3 +1250,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: the older “DERIVED_REPAIR_COMPLETE” label alone does not satisfy the current acceptance gate. It must not authorize dataset promotion or modelling.
 - Disposition: exact source artifact remains pinned and immutable; rerun [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) is executing the updated path. At this log update, repair itself is still in progress; no current-run output/cleanup result is claimed.
 - Required verification: confirm 8,999,865 preserved rows across 61 parts, manifest and encrypted hashes, independent post-repair audit summary, cleanup proof, then obtain tester review of this exact output. Model fitting, holdout access, source/API requests, and strategy/P&L testing remain closed.
+
+
+## 2026-10-11 — Derived repair report freshness blocker resolved for current output
+- The earlier committed repair report predated the integrated `post_repair_validation` field and was not accepted as final.
+- Rerun [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) generated and published report/manifest versions that include the post-repair audit summary and are bound to source artifact 11696937921.
+- Verification: 8,999,865 rows preserved, 61 encrypted parts reconciled, post-repair status `PASS_WITH_COVERAGE_RESTRICTIONS`, all zero-tolerance invalid-value/join/schema counters equal zero, all job steps succeeded, and cleanup logged `PASS: all plaintext gzip files removed.`
+- The older result is retained as history but superseded for acceptance by this exact-run output. No data source calls or model/holdout/strategy work occurred.
+- Residual reporting limitation is explicitly recorded in the tester report: no second direct download/re-hash of the output artifact binary was possible via the connector. Runner-side per-part hashes/sizes were checked before upload.
