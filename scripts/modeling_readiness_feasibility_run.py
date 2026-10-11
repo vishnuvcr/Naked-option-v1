@@ -223,8 +223,21 @@ def _valid_ohlc(row: Mapping[str, str], cmap: Mapping[str, str]) -> bool:
     return hi >= max(op, cl) and lo <= min(op, cl) and hi >= lo
 
 
-def _report_schema_subset_validate(instance: Any, schema: Mapping[str, Any], path: str = "$") -> None:
+def _report_schema_subset_validate(instance: Any, schema: Mapping[str, Any], path: str = "$",
+                                   root_schema: Mapping[str, Any] | None = None) -> None:
     """Strict local validator for the schema keywords used in this fixed report schema."""
+    if root_schema is None:
+        root_schema = schema
+    if "$ref" in schema:
+        reference = schema["$ref"]
+        if not isinstance(reference, str) or not reference.startswith("#/$defs/"):
+            raise ValueError(f"REPORT_SCHEMA_REF_UNSUPPORTED:{path}")
+        ref_name = reference.split("/")[-1]
+        definitions = root_schema.get("$defs")
+        if not isinstance(definitions, dict) or ref_name not in definitions:
+            raise ValueError(f"REPORT_SCHEMA_REF_MISSING:{path}")
+        _report_schema_subset_validate(instance, definitions[ref_name], path, root_schema)
+        return
     expected_type = schema.get("type")
     type_ok = {
         "object": lambda x: isinstance(x, dict),
@@ -254,12 +267,12 @@ def _report_schema_subset_validate(instance: Any, schema: Mapping[str, Any], pat
             raise ValueError(f"REPORT_SCHEMA_EXTRA_PROPERTY:{path}")
         for key, value in instance.items():
             if key in properties:
-                _report_schema_subset_validate(value, properties[key], f"{path}.{key}")
+                _report_schema_subset_validate(value, properties[key], f"{path}.{key}", root_schema)
             elif isinstance(schema.get("additionalProperties"), dict):
-                _report_schema_subset_validate(value, schema["additionalProperties"], f"{path}.{key}")
+                _report_schema_subset_validate(value, schema["additionalProperties"], f"{path}.{key}", root_schema)
     if isinstance(instance, list) and isinstance(schema.get("items"), dict):
         for index, value in enumerate(instance):
-            _report_schema_subset_validate(value, schema["items"], f"{path}[{index}]")
+            _report_schema_subset_validate(value, schema["items"], f"{path}[{index}]", root_schema)
 
 
 def sanitize_report(report: Mapping[str, Any], schema: Mapping[str, Any]) -> dict[str, Any]:
@@ -268,8 +281,24 @@ def sanitize_report(report: Mapping[str, Any], schema: Mapping[str, Any]) -> dic
     _report_schema_subset_validate(dict(report), schema)
     if report.get("dataset_sha256") != EXPECTED_DATASET_SHA256:
         raise ValueError("REPORT_DATASET_HASH_MISMATCH")
-    if report.get("gate_status") not in {"BLOCKED", "NOT_ESTIMABLE", "PASS_WITH_RESTRICTIONS", "PASS_WITH_EXCLUSIONS"}:
+    if report.get("gate_status") not in {"BLOCKED", "NOT_ESTIMABLE", "PASS", "PASS_WITH_RESTRICTIONS", "PASS_WITH_EXCLUSIONS"}:
         raise ValueError("REPORT_GATE_STATUS_INVALID")
+    if report.get("prefix_rows_scanned") != report.get("option_rows_scanned", 0) + report.get("spot_rows_scanned", 0):
+        raise ValueError("REPORT_ROW_TYPE_TOTAL_MISMATCH")
+    if report.get("prefix_rows_scanned", 0) > report.get("expected_rows", -1):
+        raise ValueError("REPORT_PREFIX_EXCEEDS_DATASET")
+    targets = report.get("target_horizons", {})
+    for horizon, values in targets.items():
+        if values.get("eligible_origins") != values.get("down_count", 0) + values.get("flat_count", 0) + values.get("up_count", 0):
+            raise ValueError("REPORT_TARGET_COUNTS_MISMATCH")
+    for family, values in report.get("feature_families", {}).items():
+        possible = values.get("possible_cells", 0)
+        nonblank = values.get("nonblank_cells", 0)
+        if nonblank > possible:
+            raise ValueError("REPORT_FEATURE_COUNTS_MISMATCH")
+        expected_rate = nonblank / possible if possible else 0.0
+        if abs(values.get("coverage_rate", -1) - expected_rate) > 1e-12:
+            raise ValueError("REPORT_COVERAGE_RATE_MISMATCH")
     return dict(report)
 
 
@@ -292,9 +321,22 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
     feature_specs = source_manifest.get("feature_families", [])
     if not isinstance(feature_specs, list):
         raise ValueError("FEATURE_FAMILY_MANIFEST_INVALID")
+    seen_families: set[str] = set()
+    for spec in feature_specs:
+        if not isinstance(spec, dict) or not isinstance(spec.get("family"), str) or not spec["family"] or spec["family"] in seen_families:
+            raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
+        if spec.get("row_type") not in {"OPTION", "SPOT", "ALL"} or not isinstance(spec.get("columns"), list) or not spec["columns"]:
+            raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
+        if any(not isinstance(col, str) or not col for col in spec["columns"]) or len(set(spec["columns"])) != len(spec["columns"]):
+            raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
+        if type(spec.get("pit_proven")) is not bool or type(spec.get("join_validity_proven")) is not bool:
+            raise ValueError("FEATURE_FAMILY_EVIDENCE_INVALID")
+        seen_families.add(spec["family"])
     feature_rows: dict[str, int] = {}
+    feature_type_counts: dict[str, int] = {"OPTION": 0, "SPOT": 0}
     spot_by_session: dict[str, tuple[int, float]] = {}
     seen_spot_epochs: set[int] = set()
+    last_timestamp = -1
     valid_sessions = set()
     train_end = _iso_date(manifest["train_end_session"])
     validation_end = _iso_date(manifest["validation_end_session"])
@@ -329,12 +371,16 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
                 raise ValueError("PREHOLDOUT_PREFIX_CROSSES_BOUNDARY")
             if session_date not in calendar:
                 count["off_calendar"] += 1
-            if parsed_date.weekday() >= 5 and "WEEKEND_SESSION" in row[cmap["quality_flags"]]:
+            if "WEEKEND_SESSION" in row[cmap["quality_flags"]]:
                 count["weekend_review"] += 1
             try:
                 timestamp = int(row[cmap["timestamp_epoch"]])
             except (TypeError, ValueError):
                 raise ValueError("TIMESTAMP_PARSE_INVALID")
+            if timestamp < last_timestamp:
+                raise ValueError("PREHOLDOUT_TIMESTAMP_ORDER_INVALID")
+            last_timestamp = timestamp
+            feature_type_counts[row_type] += 1
             if row_type == row_values["spot"]:
                 count["spot"] += 1
                 if timestamp in seen_spot_epochs:
@@ -353,13 +399,12 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
                 if row[cmap["join_status"]].upper() == "UNMATCHED":
                     count["unmatched_option"] += 1
             for spec in feature_specs:
-                if not isinstance(spec, dict) or not isinstance(spec.get("family"), str) or not isinstance(spec.get("columns"), list):
-                    raise ValueError("FEATURE_FAMILY_SPEC_INVALID")
                 family = spec["family"]
-                feature_rows.setdefault(family, 0)
-                feature_rows[family] += 1
+                if spec["row_type"] not in {"ALL", row_type}:
+                    continue
+                feature_rows[family] = feature_rows.get(family, 0) + 1
                 for col in spec["columns"]:
-                    if not isinstance(col, str) or col not in header:
+                    if col not in header:
                         raise ValueError("FEATURE_COLUMN_NOT_IN_HEADER")
                     key = family + "::" + col
                     nonblank[key] = nonblank.get(key, 0) + int(bool(row[col].strip()))
@@ -405,8 +450,8 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
         family = spec["family"]
         columns = spec["columns"]
         values = sum(nonblank.get(family + "::" + col, 0) for col in columns)
-        denom = max(count["rows"] * len(columns), 1)
-        coverage = values / denom
+        denom = feature_rows.get(family, 0) * len(columns)
+        coverage = values / denom if denom else 0.0
         if values == 0:
             status = "BLOCKED_DATA"
         elif spec.get("pit_proven") is not True:
@@ -470,6 +515,8 @@ def execute(args: argparse.Namespace) -> dict[str, Any]:
         "source_manifest": args.source_manifest, "calendar_manifest": args.calendar_manifest,
         "split_manifest": args.split_manifest,
     }
+    if auth["input_sha256"].get("dataset") != EXPECTED_DATASET_SHA256:
+        raise ValueError("AUTH_DATASET_HASH_MISMATCH")
     for label, path in path_labels.items():
         _hash_receipt(path, auth["input_sha256"][label])
 
