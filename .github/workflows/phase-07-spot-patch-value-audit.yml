@@ -249,7 +249,7 @@ jobs:
           }
           out = pathlib.Path("research/data") / ("SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_" + os.environ["TARGET_RUN_ID"] + ".json")
           out.parent.mkdir(parents=True, exist_ok=True)
-          out.write_text(json.dumps(report, sort_keys=True, indent=2) + "\\n", encoding="utf-8")
+          out.write_text(json.dumps(report, sort_keys=True, indent=2) + "\n", encoding="utf-8")
           print(json.dumps({k:v for k,v in report.items() if k not in {"new_patch_rows_by_session_date","new_patch_rows_by_weekday","unmatched_option_rows_by_session_date","nearest_new_spot_minus_option_epoch_seconds"}}, sort_keys=True))
           PY
 
