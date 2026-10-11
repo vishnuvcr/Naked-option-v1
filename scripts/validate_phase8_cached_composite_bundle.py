@@ -10,6 +10,8 @@ EXPECTED_DATASET_ID = "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-1
 EXPECTED_PARENT_ARTIFACT_ID = 11696937921
 EXPECTED_PARENT_RUN_ID = 38126168547
 EXPECTED_PARENT_ARTIFACT_SHA256 = "5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b"
+EXPECTED_PART_COUNT = 61
+EXPECTED_TOTAL_ROWS = 8_999_865
 
 
 def sha256_file(path: Path) -> str:
@@ -69,6 +71,8 @@ def validate_bundle(bundle_dir: Path, reference_manifest_path: Path) -> dict[str
     expected_parts = reference.get("part_hashes")
     actual_parts = bundle_manifest.get("parts")
     expected_count = int(reference.get("part_count", -1))
+    if expected_count != EXPECTED_PART_COUNT:
+        raise ValueError("BUNDLE_BLOCKED: reference part count is not the pinned 61")
     if not isinstance(expected_parts, list) or not isinstance(actual_parts, list):
         raise ValueError("BUNDLE_BLOCKED: part records missing")
     if expected_count <= 0 or len(expected_parts) != expected_count or len(actual_parts) != expected_count:
@@ -113,7 +117,7 @@ def validate_bundle(bundle_dir: Path, reference_manifest_path: Path) -> dict[str
         verified_bytes += expected_bytes
         verified_parts.append({"file": name, "rows": rows, "encrypted_bytes": expected_bytes, "sha256": digest})
 
-    if expected_total_rows != 8_999_865:
+    if expected_total_rows != EXPECTED_TOTAL_ROWS:
         raise ValueError(f"BUNDLE_BLOCKED: pinned part row sum mismatch: {expected_total_rows}")
     if len(list(bundle_manifest_path.parent.glob("*.csv.gz.enc"))) != expected_count:
         raise ValueError("BUNDLE_BLOCKED: encrypted payload count does not match manifest")
