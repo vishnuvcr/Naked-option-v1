@@ -132,3 +132,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Decision [PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R2_2026-10-11.json](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R2_2026-10-11.json) = **REQUEST_CHANGES**. The immutable source-hash correction and matching test are correct; however, the critical-data-gap summary has a missing-header truthiness bug which can label all expiry fields blank when only one required header is missing.
 - Developer submitted the per-field predicate correction and mixed-header/zero-row regression in commits `8511ba7` and `4d93085`. A fresh hosted synthetic gate is required before resubmission.
 - R1 remains consumed/disabled; this review is code-only and grants no new data access, option P&L, holdout, source request or strategy promotion.
+
+
+## 2026-10-11 — Phase 8 R2 code-only review: REQUEST CHANGES
+
+- Reviewed developer snapshot `6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11` and hosted synthetic run [38163364534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163364534).
+- Decision [R2 tester JSON](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R2_2026-10-11.json) is REQUEST_CHANGES. The canonical composite SHA correction is right, but the data-gap summary uses a global missing-header list as a per-field boolean, potentially marking all expiry fields blank when only one column is absent.
+- Developer submitted a predicate fix and mixed-header/zero-row regressions in commits `8511ba7` and `4d93085`. Fresh hosted synthetic validation is required before re-review.
+- This is a code-only review. R1 remains consumed/disabled; no P&L, holdout, source request or strategy promotion is authorized.
