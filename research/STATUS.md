@@ -1114,3 +1114,17 @@ Run [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3808
 At this check, GitHub reports zero run artifacts. Therefore the composite dataset is **not yet available**, actual observation coverage has not been assessed, and no prediction experiment or holdout operation is authorized. Do not spend another approval, restart or duplicate the active request grid. Once the run completes, inspect its coverage/error metadata and encrypted artifact, then submit that exact realized snapshot to the isolated tester before model use.
 
 Developer → Tester: Review actual request coverage, empty responses, missing timestamps/spot joins, source lineage, row/byte totals, checksums and artifact integrity once the run has completed; keep prediction experiments blocked until that artifact-level review.
+
+
+## NIFTY composite acquisition outcome and repair gate — 2026-10-11
+
+Run [38082385220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220) is **completed with failure**, not still running. The encrypted artifact [nifty-1m-composite-encrypted-bundle](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38082385220/artifacts/11685737176) exists (214,850,953 bytes; 40 files; 90-day retention).
+
+Realized run log summary: 8,601 of 8,601 request IDs processed; 7,481 failed response/validation records; 8,490,723 option rows; **0 spot rows**. Therefore this artifact is partial and is not eligible for prediction fitting/scoring or holdout use. The spot parser failure is not yet diagnosed because the logger emitted only `unexpected_ValueError`, without the underlying safe reason. Final status sealing also encountered a non-fast-forward push rejection after the developer branch advanced; artifact upload itself succeeded.
+
+Developer repair checkpoint: sanitized bounded exception-reason logging and its regression test are committed on `phase-07-developer` (commits [38643c7](https://github.com/vishnuvcr/Naked-option-v1/commit/38643c71e718cf53a5e745652c590e35519e5174) and [bae5586](https://github.com/vishnuvcr/Naked-option-v1/commit/bae5586f140c1a33146183631670084cfeb7a690)). Tester review/recovery request: [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7). No live requests were issued after the failed run. The original one-use approval remains spent.
+
+Next gate: fix the workflow's status commit concurrency without force-push, run offline regressions, and obtain a new exact-snapshot tester PASS for a bounded spot-only recovery before making network requests. Keep prediction/model/holdout/option-P&L execution blocked until a realized artifact has passed independent coverage and integrity review. Reuse verified cached option responses wherever possible; do not blindly repeat the full request grid.
+
+**Developer → Tester:** Independently review the parser diagnostic patch, test coverage, and safe status-commit repair; identify the actual spot schema failure and authorize only the exact minimal recovery request grid if all checks pass.
+**Tester → Developer:** Keep all live requests, model fitting/scoring, holdout access, and strategy P&L blocked until a new exact-snapshot PASS is recorded.
