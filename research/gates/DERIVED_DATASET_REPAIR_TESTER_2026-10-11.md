@@ -1,9 +1,9 @@
 # Tester Report — Derived Dataset Repair Pipeline
 
 - Review date: 2026-10-11 UTC
-- Exact developer commit reviewed: `4441afaead213b19eec156cc8eba554dfb5bbcb0`
-- Offline pipeline suite: [38130180603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180603) — success
-- Protocol check: [38130180863](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180863) — success
+- Exact developer commit reviewed: `04871aa3a90a053e776ef1b7643ec5e27829fb16`
+- Offline pipeline suite: [38130443347](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130443347) — success
+- Protocol check: [38130443500](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130443500) — success
 - Reviewer independence caveat: this tester-role review is in the same connected assistant session, not a separate human or independent AI reviewer.
 
 ## Exact files reviewed
@@ -11,7 +11,7 @@
 | File | Blob SHA |
 |---|---|
 | `scripts/repair_nifty_1m_composite_values.py` | `5c45126a90b85f661aa908ac311481b0eb27e41c` |
-| `scripts/test_repair_nifty_1m_composite_values.py` | `d1a4a535380f5cebbd90f4c25754a8748cc7fb7e` |
+| `scripts/test_repair_nifty_1m_composite_values.py` | `edbb2e573b807a7a69f06c6c6e85958e96dd9adc` |
 | `.github/workflows/phase-07-nifty-1m-composite-tests.yml` | `43219ac101bd8965a7cd55441b5820ba11a6e7d0` |
 
 ## Review findings
@@ -34,6 +34,8 @@
 - Provenance counts: 382 joined NIFTY OHLC violations occur at 7 distinct epochs; 12 standalone spot OHLC violations at 12 epochs; 309 negative spot-volume occurrences at 309 epochs; 11 negative option-volume occurrences at 10 epochs. Joined values match the standalone spot row at exact epochs. These findings support exact-source reconciliation and explicit masking, not arbitrary value invention.
 - Unmatched coverage: 19,021 option rows across 421 timestamps; no timestamp exists in the standalone spot set. Nearest-bar distances are diagnostics only and are not used to fill rows.
 - The derived workflow now verifies all encrypted part hashes and row totals, uploads only the encrypted derived bundle and sanitized metadata, checks for any remaining plaintext gzip scratch files (including temporary derived gzip names), and gates publication on successful upload and cleanup. It no longer writes README/STATUS from the concurrent repair workflow; those files will be updated after the output report is reviewed.
+
+- **First hosted attempt findings and fixes:** repair run [38130301540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130301540) failed closed because the downloaded artifact had a nested export directory; preflight now finds exactly one manifest recursively. Diagnostic run [38130301476](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130301476) failed because the promoted workflow omitted installation of the pinned crypto dependency; that installation is restored. Both runs' cleanup steps succeeded. New tests assert nested-manifest discovery and dependency installation.
 
 ## Verdict
 
