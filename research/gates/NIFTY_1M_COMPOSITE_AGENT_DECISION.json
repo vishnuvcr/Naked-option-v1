@@ -2,9 +2,9 @@
   "ai_reviewer_available": false,
   "attempt": 1,
   "auto_repair_eligible": false,
-  "decision": "REQUEST_CHANGES",
-  "decision_scope": "OFFLINE_CODE_GATE_ONLY",
-  "deterministic_pass": false,
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "decision_scope": "SPOT_ONLY_RECOVERY",
+  "deterministic_pass": true,
   "diagnostic_probe_authorized": false,
   "diagnostic_request_id": null,
   "holdout_access_authorized": false,
@@ -12,8 +12,8 @@
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "repair_mode": "REVIEWER_UNAVAILABLE",
-  "reviewed_developer_commit": "8fc6c7648c50fbc23f7183dc14ced56c5cd9e724",
+  "reviewed_developer_commit": "1be668f79b4242f3a5d4541b1428b27dfdee20f1",
   "schema_version": 1,
-  "spot_recovery_authorized": false,
-  "spot_recovery_request_limit": 0
+  "spot_recovery_authorized": true,
+  "spot_recovery_request_limit": 61
 }
