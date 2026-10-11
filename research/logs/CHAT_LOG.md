@@ -136,3 +136,10 @@ No scientific or protocol change was made during this checkpoint.
 - The exact canonical source SHA and its regression assertion now agree. The mixed missing-header data-gap bug is fixed and tested, including the empty-row behavior.
 - New independent report and decision are recorded at `research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R3_2026-10-11.md` and `research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json`: PASS WITH SCOPED RESTRICTIONS for the exact code-only snapshot.
 - This is not permission to reopen consumed R1 or compute option P&L; contract-data gaps and the separate daily H=1 numerical anomaly remain open.
+
+
+## 2026-10-11 — Tester role: separate H1 future-return precision review opened
+
+- Reviewed failed source-alignment evidence from run #38162517430 and exact immutable source identifiers. It reports 64 daily H=1 `future_return` mismatches with maximum absolute error (3.469446951953614e-18).
+- Tester report and machine decision R1 require a dedicated exact-or-at-most-two-ULP float64 comparator for `future_return` only. It must emit ULP diagnostics and reject any observed value beyond the bound. Labels/timestamps remain exact, aggregate tolerance and immutable artifact remain unchanged.
+- Developer must add deterministic 1/2/3 ULP and NaN/infinity/sign tests, rerun the hosted reconstruction and resubmit exact hashes. Decision currently REQUEST_CHANGES; no P&L/holdout/source request/promotion is opened.
