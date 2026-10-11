@@ -417,3 +417,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Panel source labels/timestamps passed. The prior daily future-return mismatch did not reproduce in this run; its cause remains unproven.
 - Metric reconciliation then exposed validator drift: P10's frozen [0.45,0.55] abstention band was omitted, and P05/P06 chronological block summaries were recomputed without their eligibility masks. The validator now uses abstention bands from the exact loaded Run #994 source module and applies the same mask to chronological diagnostics.
 - Next: rerun synthetic and real validation. The 1e-9 comparison remains unchanged; no option P&L or strategy promotion.
+
+
+## 2026-10-11 — Phase 8 Run #994 saved-forecast gate passed
+
+- Exact developer commit: `3fe13c49ed29e77b001485abe50b2d41dbb6c160`.
+- Hosted run [38157819076](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076) completed successfully: protocol PASS, workflow/execution/saved-panel regressions PASS, free-source option sample audit PASS, immutable Run #994 artifact integrity PASS, forecast reconstruction PASS.
+- Output artifact [11709261335](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38157819076/artifacts/11709261335), ZIP SHA-256 `249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c`. Independent review recomputed its hash and every panel Parquet hash.
+- Result: 10/10 forecast cells reproduced, 50,555 rows, `all_cells_reproduced=true`, absolute metric tolerance 1e-9. No Phase 7 model refitting used as fallback.
+- Tester report/decision are on `phase-08-tester`: `PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_REPORT.md` and `PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`; decision PASS WITH SCOPED RESTRICTIONS for forecast reproducibility only.
+- No empirical option P&L ran. The 4,800-cell grid remains disabled. Next: version a Phase 8 spec addendum that retires stale Run #654 active-input wording while preserving the old R1 lineage, then implement/test the no-refit option runner with the already-cached composite. Do not seek the same data again.
