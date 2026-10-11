@@ -194,3 +194,8 @@ No live source request or approval manifest is authorized. Correct these issues,
 - No execution failure on reviewed snapshot; all synthetic workflow steps passed.
 - Scope limitation: actual CSV.GZ not mounted, so no data-level claims or permissions are inferred.
 - Decision recorded at `research/gates/OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_DECISION_2026-10-11.json`.
+
+## 2026-10-11 — Real-file preflight implementation review
+- Initial synthetic CI submissions failed due to two test-fixture assertions, not scanner or workflow execution. Developer corrected both and exact run 38137514604 passed.
+- Tester authorized the exact-file structural audit only, with exact reviewed file hashes and source lineage.
+- No real-file result has been independently retrieved or accepted yet; no scientific or trading result inferred.
