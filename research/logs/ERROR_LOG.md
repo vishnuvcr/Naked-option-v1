@@ -255,3 +255,13 @@ New errors must be appended, never overwritten.
 - Exact-snapshot retry [run 38077081310](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38077081310) passed on commit `bfbd43a46d9daefeb90e28531f94db2d84ec00ec`. This validates metadata and pin consistency only.
 - A small report-count inconsistency remains in the audit prose (one sentence still says 32 while the canonical register has 34); it does not alter source acceptance or gate state and should be corrected before the next frozen snapshot.
 - No source data requests, dataset/model downloads, modeling-panel acceptance, feature/label generation, model fitting or holdout access occurred.
+
+
+## 2026-10-11 — Phase 7 spot recovery: live log visibility and cumulative byte-budget review
+
+- **Category:** workflow observability / potential request-budget enforcement defect.
+- **Workflow:** [Run 38116772719](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719), exact reviewed code commit `d0b602bd86b6cf8785f3f3c033c0e897f93f3bfd`.
+- **Observed infrastructure issue:** GitHub reports the recovery job as `in_progress` and exposes its step states, but the connected job-log endpoint returns HTTP 404 `BlobNotFound` while the acquisition step is still running. No source payload, request count, or coverage value is inferred from missing logs. Re-check the job steps and uploaded summary after the run completes.
+- **Potential code issue (static review; not yet reproduced as a runtime failure):** in `scripts/run_nifty_1m_spot_gapfill.py`, the aggregate `downloaded_bytes` counter advances in `collect()` only after a payload passes validation/parsing, while the 256 MiB aggregate check is reached after parsing in `_get_payload()`. A malformed response that fails before that check may not count against the aggregate byte cap. The per-response 8 MiB cap and global wire/retry budget remain separately enforced by the current plan. Do not describe this as an observed over-budget run without artifact evidence.
+- **Impact/disposition:** recovery run remains active and is not to be duplicated or patched in flight. Once it completes, preserve its actual success/partial/failure outcome and request-budget counters. Submit this potential aggregate-byte accounting bypass to the next exact-snapshot tester review; correct it and add a regression before any future request-bearing workflow.
+- **Preventive action:** independent tester must verify that every received response's byte length is charged to the aggregate budget before any JSON/schema validation branch can return or raise.
