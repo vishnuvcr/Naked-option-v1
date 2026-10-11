@@ -1161,3 +1161,13 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 - Added a narrowly scoped deterministic fallback that only adds those pre-registered parser tests if the model endpoint is unavailable. It does not change parser schema behavior, request manifests, approval files, workflows that access Dhan, model fitting, or holdout rules.
 - Follow-up hosted validation is queued as run [38111417286](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38111417286). Its final conclusion is not yet known at this checkpoint.
 - **No new live market-data requests were made.** The prior one-use approval remains spent. No model fitting, prediction scoring, strategy/P&L evaluation, or holdout access is authorized by the automation report.
+
+
+## 2026-10-11 — Automated tester/developer loop resumed
+
+- The tester-owned harness now confirms the five pre-registered parser regression cases are present: absent volume, empty volume, misaligned volume, invalid timestamp types, and separate OHLC misalignment. It also checks bounded sanitized exception logging. The current parser still requires volume; no schema behavior was relaxed.
+- The current developer code snapshot matches tester report commit `07cd1b23b07661d83177e5d3bba7e4df79798247` for the reviewed collector, tests and live workflow blobs. The report is **PASS WITH SCOPED RESTRICTIONS for the offline code gate only** because Hugging Face inference returned HTTP 402 and no AI reviewer verdict was produced.
+- Live requests, model fitting, strategy evaluation and holdout access remain **NOT AUTHORIZED**. The existing one-use acquisition approval remains spent. The encrypted dataset remains partial with 8,490,723 option rows and zero spot rows; actual cause of the spot failures is still unconfirmed.
+- Automation fix: the controller workflow's push trigger now listens only to `phase-07-developer`, not `main`. Controller/report commits on `main` had triggered redundant review runs and conflicting issue comments. Change commit: [2eb7aea](https://github.com/vishnuvcr/Naked-option-v1/commit/2eb7aea8064efb63ec9051efe2ced76c700e3d89). Manual `workflow_dispatch` remains available; developer pushes still start the automated cycle.
+- The bounded loop is configured for up to five correction/re-review cycles. If AI inference is unavailable, the deterministic harness can only grant a restricted offline code-gate pass; it cannot approve live acquisition or scientific results. The latest report is [on the tester branch](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md); [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7) records the decision.
+
