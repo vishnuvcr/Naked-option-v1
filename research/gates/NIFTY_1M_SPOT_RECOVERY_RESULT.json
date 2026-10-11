@@ -32,5 +32,17 @@
     "wire_requests_cumulative": 8654,
     "wire_requests_this_run": 47
   },
-  "tester_decision_blob": "817af6b8b2db14c2ca22f80ea61b6e5279d4d01f"
+  "tester_decision_blob": "817af6b8b2db14c2ca22f80ea61b6e5279d4d01f",
+  "post_recovery_tester_review": {
+    "status": "PENDING_AUTOMATED_EXACT_SNAPSHOT_REVIEW",
+    "requested_at_utc": "2026-10-11T06:20:00Z",
+    "reason": "Recovery run completed with SPOT_GAPFILL_PARTIAL; independently verify realized artifact, failed shards, request accounting, join coverage, and aggregate byte-budget accounting before any next phase.",
+    "restrictions": [
+      "no new live source requests",
+      "no option refetch",
+      "no model fitting",
+      "no holdout access",
+      "prediction-only research"
+    ]
+  }
 }
