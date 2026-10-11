@@ -1529,3 +1529,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Verify the corrected unit test and full offline suite on the new developer snapshot.
 **Tester → Developer:** Do not run the all-date diagnostic or propose new data retrieval until the suite passes and the report explains exact overlaps by date.
+
+
+### 2026-10-11 — Resume derived-dataset repair
+- User asked to resume the dataset-repair work.
+- Checked repository instructions, main README/status/error logs, developer repair log, tester decision/report, workflow code, repair/validation implementation, and current Actions state.
+- Exact source artifact remains run 38126168547 / artifact 11696937921 (SHA-256 pinned in the workflow). The active rerun is 38131641336.
+- Gate state at this checkpoint: preflight, offline tests, dependency install, source hashes and decryption passed; repair step remains in progress. No post-repair conclusion is claimed.
+- Earlier successful repair run 38130635408 uploaded artifact 11698138685, but its committed report lacks the new post-repair validation summary and is not a substitute for the rerun's exact output review.
+- No fresh market-data request, model fitting/scoring, holdout access, or strategy/P&L test was made or authorized in this continuation.
+- No private reasoning is stored; this is a concise action/result log.
