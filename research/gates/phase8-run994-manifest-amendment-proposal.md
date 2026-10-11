@@ -13,7 +13,7 @@ Amend the active Phase 8 input to use the newer immutable Phase 7 Run #994 artif
 - Phase 7 workflow run ID: `37957677656` (run number 994).
 - Developer source commit: `b50be8cfa1ebe008a800e65a53f9c0fb2581aecb`.
 - GitHub Actions artifact ID: `11638738288`; name: `phase7-ensemble-reference`.
-- Downloaded archive SHA-256: `3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9`.
+- Downloaded archive SHA-256: `3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9`.
 - Embedded manifest SHA-256: `f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091`.
 - Paired aggregate JSON SHA-256: `96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39`.
 - Phase 7 tester report: [PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_RUN_37957677656_EMPIRICAL_TESTER.md).

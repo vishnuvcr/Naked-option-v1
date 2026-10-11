@@ -356,7 +356,7 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 ## 2026-10-11 — Phase 8 Run #994 saved-forecast input pinned
 
 - Phase 7 Run #994 (37957677656) completed successfully at developer commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb; immutable artifact 11638738288 contains all ten saved probability panels plus the paired aggregate JSON.
-- The artifact was downloaded and its ZIP SHA-256 (3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9), embedded manifest SHA-256, aggregate SHA-256, all ten panel hashes, row counts and total 50,555 rows were checked locally. The Phase 7 tester report records 3,098 checks passed and zero failed; it does not promote a predictor as a profitable method.
+- The artifact was downloaded and its ZIP SHA-256 (3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9), embedded manifest SHA-256, aggregate SHA-256, all ten panel hashes, row counts and total 50,555 rows were checked locally. The Phase 7 tester report records 3,098 checks passed and zero failed; it does not promote a predictor as a profitable method.
 - Created a versioned Phase 8 Run #994 amendment proposal. The implementation changes the Phase 8 workflow to consume the immutable panels (no predictor refit), validate source/code/panel hashes and exact metrics under the frozen 1e-9 tolerance, and keep empirical authorization false.
 - Previous Run #654 manifest is retained separately as R1; it is not overwritten. The active manifest is R2.
 - Current gate: hosted implementation/integration regression and tester review. No option P&L, no 4,800-cell strategy grid, no holdout access and no strategy promotion yet.
@@ -388,3 +388,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Job log isolated the defect: the curl command in the YAML contained literal doubled backslashes before line breaks, so the shell did not continue the command and curl rejected the following malformed argument as a bad hostname.
 - Fix: put the authenticated, redirect-following artifact download on one shell line; preserve archive, embedded-manifest and aggregate SHA-256 checks. Regression now verifies the exact single-line command and disallows escaped multiline continuations.
 - No real forecast-panel validation or option P&L ran in attempt 3. This run is failure evidence only.
+
+
+## 2026-10-11 — R2 download fixed; checksum constant corrected
+
+- Hosted run [38156879393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38156879393) passed protocol, Phase 8 regression and free-source audit. The one-line curl download now succeeds and reports the downloaded digest.
+- The integrity check then correctly rejected a typo in the frozen R2 artifact SHA: the copied value had 65 characters, while the downloaded ZIP's actual SHA-256 is 64 characters.
+- Corrected the archive digest consistently in the R2 manifest, workflow, workflow-contract test and proposal. No hash gate was relaxed. Rerun needed to verify exact ZIP/embedded-manifest/aggregate digests, then validate all saved forecast panels.
+- Forecast-panel validation and option P&L remain unexecuted by this run; empirical authorization is false.

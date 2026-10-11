@@ -275,3 +275,10 @@ No scientific or protocol change was made during this checkpoint.
 - Run 38156623933 logs expose that the download command used literal doubled backslashes, causing shell continuation failure and curl's bad-hostname error.
 - Correct the workflow to invoke curl on a single shell line. Keep the exact artifact ZIP, embedded manifest and aggregate hashes pinned; do not relax any guard.
 - The next run must pass artifact integrity before source-aligned saved-panel validation can begin. No model refitting, option P&L or empirical grid until the full gate passes.
+
+
+## 2026-10-11 — R2 archive hash copy typo isolated
+
+- Run 38156879393 passed Phase 8 regression and the free-source audit. The corrected single-line authenticated curl command downloaded the Run #994 artifact.
+- The archive hash check failed closed because the configured SHA had an accidental extra character (65 characters versus the actual 64-character digest in the run log).
+- Updated the exact digest across active manifest, workflow, test contract and proposal; recorded this as an implementation mistake in the error log. No integrity checks were weakened and no panels/P&L were executed in this run.

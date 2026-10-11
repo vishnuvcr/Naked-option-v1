@@ -7,7 +7,7 @@
   "phase7_source_blob_sha": "4a6a6e75ec67be2c0e22194fc54977f09bb6f426",
   "artifact_name": "phase7-ensemble-reference",
   "artifact_id": 11638738288,
-  "artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9",
+  "artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
   "embedded_manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
   "aggregate_result_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
   "reconstruction_tolerance_abs": 1e-9,

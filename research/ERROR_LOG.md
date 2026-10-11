@@ -338,7 +338,7 @@
 - Category: workflow / artifact transfer integrity gate
 - Run: 38156211691; developer commit 55bd22dfb1b8d8e8caeb472fdef90d2bd18a711e.
 - Observed: protocol checks, workflow-contract tests, legacy fail-closed tests, saved-panel synthetic regression, execution-engine regression and Phase 8 free-source audit all passed. The immutable-reference-artifact job then failed during its single download/verification step. Forecast validation and empirical jobs were skipped because their dependency failed.
-- Scope of accepted evidence: no real Run #994 panel validation was accepted in this attempt; no model was refit and no option P&L ran. The artifact remains independently downloadable; GitHub's artifact metadata reports SHA-256 3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9.
+- Scope of accepted evidence: no real Run #994 panel validation was accepted in this attempt; no model was refit and no option P&L ran. The artifact remains independently downloadable; GitHub's artifact metadata reports SHA-256 3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9.
 - Diagnosis: not proven from the first log because shell hash assertions emitted no expected/actual values. Correction: use explicit redirect-following download with curl and print each actual digest/mismatch before failing. This is an observability/transfer correction, not a claim that the exact failure root cause is known.
 - Prevention: preserve fail-closed hash checks; do not skip, weaken or replace any digest check to get the workflow green.
 
@@ -368,3 +368,12 @@
 - Root cause: the YAML run block contained literal double backslashes at line ends; shell line continuation therefore failed and the following curl arguments were parsed as a malformed separate command.
 - Correction: replace the multiline curl invocation with a single explicit authenticated `curl --fail --location` line; preserve fail-closed archive/manifest/aggregate hash checks. Add regression coverage for the exact line and forbid escaped multiline continuations.
 - Scope: this is an engineering fix only. Forecast validation was skipped; no option P&L was run and no prediction/strategy result is accepted from this attempt.
+
+
+## 2026-10-11 — R2 artifact checksum constant contained an extra character
+- Category: integrity gate / copied hash constant
+- Run: 38156879393; developer commit 201ca5746e7f6ef236fc922a362fbe6d33994621.
+- Symptom: the authenticated download succeeded, but the 65-character configured archive SHA-256 differed from the actual 64-character SHA-256 printed by the workflow. Hash comparison correctly failed closed.
+- Root cause: one extra `c` was introduced into the copied archive digest in the Phase 8 R2 manifest/workflow/test/proposal; this is not a source-data or archive corruption event.
+- Correction: replace the malformed 65-character value with the actual 64-character artifact SHA-256 `3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9`, consistently across the active manifest, workflow, test contract, proposal and status.
+- Prevention: validate hash length = 64 and require exact agreement between the Actions artifact metadata, downloaded ZIP and frozen manifest before opening panel content. Do not weaken or bypass hash comparisons.

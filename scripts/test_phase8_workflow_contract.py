@@ -15,7 +15,7 @@ def main():
     require(text, "permissions:")
     require(text, "actions: read")
     require(text, 'REFERENCE_ARTIFACT_ID: "11638738288"')
-    require(text, 'REFERENCE_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9')
+    require(text, 'REFERENCE_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9')
     require(text, 'REFERENCE_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091')
     require(text, 'REFERENCE_AGGREGATE_SHA256: "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39')
     require(text, 'REFERENCE_COMMIT: "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb')
