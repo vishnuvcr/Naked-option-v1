@@ -49,7 +49,7 @@ def base_row(row_type: str, request_id: str) -> dict[str, str]:
     if row_type == "OPTION":
         row.update({
             "expiry_flag": "0", "expiry_code": "0", "requested_relative_strike": "ATM",
-            "returned_strike": "21000", "option_type": "CE",
+            "returned_strike": "21000", "option_type": "CALL",
             "option_open": "100", "option_high": "102", "option_low": "99", "option_close": "101",
             "option_volume": "500", "open_interest": "1000", "implied_volatility": "0.2",
             "rolling_spot": "21000", "nifty_open": "20999", "nifty_high": "21005",
@@ -72,10 +72,11 @@ def write_fixture(root: pathlib.Path, option_rows: list[dict[str, str]], spot_ro
     output = root / filename
     rows = option_rows + spot_rows
     with gzip.open(output, "wt", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=(COLUMNS[:-1] if bad_header else COLUMNS))
+        fields = COLUMNS[:-1] if bad_header else COLUMNS
+        writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         for row in rows:
-            writer.writerow(row)
+            writer.writerow({k: v for k, v in row.items() if k in fields})
     n = len(rows) + (1 if tamper_row_count else 0)
     manifest = {
         "schema_version": 1,
