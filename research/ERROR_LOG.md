@@ -54,3 +54,12 @@
 ## 2026-10-08 — Phase 6 Run #581
 - No execution error occurred. Protocol, regression, empirical suite, schema validation and artifact upload all passed.
 - The independent tester nevertheless recorded a scientific caution: raw maxima across 140 executed cells are not treated as discoveries because multiple-comparison and downstream trading gates remain outstanding.
+
+
+## 2026-10-11 — Run #994 saved-panel R2 audit disposition
+
+- Category: gate disposition / reproducibility
+- Exact run: 38157819076; developer commit: 3fe13c49ed29e77b001485abe50b2d41dbb6c160.
+- Outcome: hosted protocol, regression, free-source audit, artifact integrity and real saved-panel metric validation all passed. Ten panel hashes recomputed correctly and all 50,555 rows were present.
+- Earlier daily H=1 future-return source-alignment failure did not recur in the accepted run; preserve it as a non-reproduced anomaly, not as proof of either data failure or a harmless issue.
+- Tester decision: PASS WITH SCOPED RESTRICTIONS for reproducibility only; empirical option execution, holdout access and strategy promotion remain unauthorized.
