@@ -63,3 +63,11 @@
 - Outcome: hosted protocol, regression, free-source audit, artifact integrity and real saved-panel metric validation all passed. Ten panel hashes recomputed correctly and all 50,555 rows were present.
 - Earlier daily H=1 future-return source-alignment failure did not recur in the accepted run; preserve it as a non-reproduced anomaly, not as proof of either data failure or a harmless issue.
 - Tester decision: PASS WITH SCOPED RESTRICTIONS for reproducibility only; empirical option execution, holdout access and strategy promotion remain unauthorized.
+
+
+## 2026-10-11 — Tester R2 request-changes finding: mixed expiry metadata
+
+- Reviewed exact developer snapshot `6e1fe57ce0e1e21e82c676cf8bf2fcbb3561df11` and hosted run [38163364534](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163364534), whose synthetic jobs passed while the data job remained skipped.
+- Finding: using the list `missing_expiry_columns` as a truth-value within each iteration of `all(...)` makes a single absent header look as though every required expiry field was blank across all option rows. This breaks the output field's semantics and could misstate data diagnostics.
+- Reported in [R2 tester report](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R2_2026-10-11.md); decision **REQUEST_CHANGES**. The developer has since changed the predicate and added mixed-header/zero-row tests; new hosted validation is pending.
+- No P&L, holdout, new-source request or strategy promotion is covered by this code-only review.
