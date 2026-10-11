@@ -25,8 +25,8 @@ class PublishReceiptTests(unittest.TestCase):
             "expected_uncompressed_sha256": "c" * 64,
             "uncompressed_sha256_matches_expected": True,
             "uncompressed_size_bytes": 4747892392,
-            "expected_uncompressed_size_bytes": 4747892392,
-            "uncompressed_size_matches_expected": True,
+            "expected_uncompressed_size_bytes": None,
+            "uncompressed_size_matches_expected": None,
             "data_rows": 8999865, "columns": 47, "column_names": ["timestamp_epoch"],
             "recognized_timestamp_column": "timestamp_epoch",
             "timestamp_epoch_min": 1, "timestamp_epoch_max": 2,
@@ -62,6 +62,19 @@ class PublishReceiptTests(unittest.TestCase):
             receipt = build_receipt(self.metadata(), path)
             self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS_CONTENT_HASH_VERIFIED")
             self.assertTrue(receipt["report"]["uncompressed_sha256_matches_expected"])
+
+    def test_unknown_reference_byte_count_does_not_block_verified_content_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            report = self.report(
+                compressed_sha256_matches_expected=False,
+                expected_uncompressed_size_bytes=None,
+                uncompressed_size_matches_expected=None,
+                uncompressed_sha256_matches_expected=True,
+            )
+            path.write_text(json.dumps(report), encoding="utf-8")
+            receipt = build_receipt(self.metadata(), path)
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS_CONTENT_HASH_VERIFIED")
 
     def test_content_hash_mismatch_never_receives_pass_receipt(self):
         with tempfile.TemporaryDirectory() as td:
