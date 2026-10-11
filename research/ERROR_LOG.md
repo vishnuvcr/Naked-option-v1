@@ -199,3 +199,7 @@ No live source request or approval manifest is authorized. Correct these issues,
 - Initial synthetic CI submissions failed due to two test-fixture assertions, not scanner or workflow execution. Developer corrected both and exact run 38137514604 passed.
 - Tester authorized the exact-file structural audit only, with exact reviewed file hashes and source lineage.
 - No real-file result has been independently retrieved or accepted yet; no scientific or trading result inferred.
+
+## 2026-10-11 — Real-file preflight implementation review
+- Two initial synthetic test attempts failed due to assertions in test fixtures; developer corrected them and exact run 38137514604 passed.
+- Tester authorized one exact-lineage structural audit only. The audit result has not been retrieved and independently accepted yet.
