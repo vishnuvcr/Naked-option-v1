@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-11",
+  "developer_scanner_commit": "6f11cc93f49e407c957ab843ea60311c41dba01f",
+  "developer_test_commit": "f6284c458f408728a00f60673948d0fc35f5a417",
+  "verdict": "REQUEST_CHANGES",
+  "review_scope": "source inspection only; same connected assistant session, not external independent review",
+  "ci_verified": false,
+  "real_dataset_available": false,
+  "permissions": {
+    "synthetic_ci": "NOT_VERIFIED",
+    "real_file_preflight": "NOT_AUTHORIZED",
+    "model_fitting_scoring": "CLOSED",
+    "holdout": "CLOSED",
+    "new_source_requests": "CLOSED",
+    "strategy_pnl": "CLOSED"
+  },
+  "required_next": [
+    "Verify a successful synthetic Actions run tied to the exact final code/test/workflow snapshot.",
+    "Resolve action pinning policy using an approved repository mechanism.",
+    "Do not run real-file audit until exact-snapshot gate passes and the CSV is available to the runner."
+  ],
+  "report": "research/gates/OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md"
+}
