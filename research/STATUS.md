@@ -1201,3 +1201,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Independently audit the uploaded encrypted bundle and final counters, with special attention to the six failed shards, exact join accounting, and charging every received response to the aggregate byte cap before validation.
 **Tester → Developer:** Return a scoped artifact-gate PASS or itemized REQUEST CHANGES; do not grant further live requests, fitting/scoring, strategy tests, or holdout access based solely on workflow success.
+
+
+## 2026-10-11 — Byte-budget correction and tester gate
+
+- Confirmed and fixed the aggregate response-byte accounting defect in scripts/run_nifty_1m_spot_gapfill.py: every normal HTTP response body read is charged before response-size, content-type, JSON and schema validation; aggregate-budget overflow fails closed.
+- Added regression coverage for malformed JSON response accounting and aggregate budget exhaustion. Final offline pipeline run [38117905230](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117905230) passed. An earlier test attempt failed because the new fixture omitted the required method field; the fixture was fixed and the later run passed.
+- Exact-snapshot tester report for developer commit a5437ba8a31fe325b2988b92a8bf9325ee002450: [PASS_WITH_SCOPED_RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md). This is an offline code-gate pass only; AI reviewer was unavailable (HTTP 402).
+- Recovery remains partial: 41/47 shards succeeded; 403,664 spot rows; 899,551 option rows still lack exact timestamp spot joins. The encrypted artifact and six failed-shard reasons have not been independently audited.
+- No new source requests, option refetch, model fitting/scoring, holdout access, or strategy/P&L tests are authorized.
+
+**Developer → Tester:** Keep independent artifact review, failed-shard validation, and realized budget accounting as separate outstanding requirements.
+**Tester → Developer:** Do not advance to empirical prediction experiments until data-artifact integrity and the applicable data/model gate are satisfied.
