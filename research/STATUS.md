@@ -558,3 +558,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** Verify the exact-HEAD reconstruction and check the new source-job authorization guard.
 **Tester → Developer:** Do not accept the accidentally triggered source-audit output as research evidence; review only the saved-panel reconstruction for this gate.
+
+## 2026-10-12 — Exact-HEAD reconstruction blocked by absent source cache
+
+- Full reconstruction [run #38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602) restored the immutable Run #994 artifact but failed closed because the historical daily source cache was absent. No full validation manifest was produced; no ULP diagnostics are accepted from this run.
+- A second guarded run [#38165231846](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165231846) is executing on the source-job guard commit; it is expected to skip option-source acquisition and will encounter the same missing source-cache prerequisite unless the cache exists.
+- Do not bypass cache-only protection or fetch historical sources until the tester reviews a narrow recovery request. Current validator regression and protocol checks pass; the full reconstruction gate remains open.
+
+**Developer → Tester:** Review the cache-miss evidence and advise whether a one-time pinned historical-source restore is acceptable.
+**Tester → Developer:** Keep the gate open and empirical P&L/holdout closed until source provenance is restored and verified.
