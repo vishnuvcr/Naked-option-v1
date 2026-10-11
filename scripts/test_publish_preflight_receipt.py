@@ -80,6 +80,15 @@ class PublishReceiptTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "REPORT_REQUIRED_METADATA_MISSING"):
                 build_receipt(self.metadata(), path)
 
+    def test_structural_fail_statuses_are_preserved_as_nonpass_receipts(self):
+        for status in ("PREFLIGHT_FAIL_ROW_WIDTH", "PREFLIGHT_FAIL_ROW_COUNT",
+                       "PREFLIGHT_FAIL_UNCOMPRESSED_SHA256", "PREFLIGHT_FAIL_UNCOMPRESSED_SIZE"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "report.json"
+                path.write_text(json.dumps(self.report(status=status)), encoding="utf-8")
+                receipt = build_receipt(self.metadata(), path)
+                self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_NONPASS")
+
     def test_unexpected_raw_field_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "report.json"
