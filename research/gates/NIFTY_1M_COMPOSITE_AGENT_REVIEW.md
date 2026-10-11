@@ -1,8 +1,8 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: REQUEST_CHANGES
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS
 - Reviewed developer commit: 07cd1b23b07661d83177e5d3bba7e4df79798247
-- Report time (UTC): 2026-10-11T04:33:16Z
+- Report time (UTC): 2026-10-11T04:35:11Z
 - Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
@@ -37,6 +37,6 @@ AI reviewer unavailable; no independent AI verdict was produced.
 
 This report applies only to the exact developer commit named above. PASS does not create or spend the separate one-use acquisition approval; the acquisition workflow, request manifest, approval file, and scope checks remain mandatory. This report cannot authorize source requests, modelling, strategy tests, or holdout access.
 
-When AI inference is unavailable, the decision is REQUEST_CHANGES. Deterministic tests alone do not substitute for the requested independent AI review. No live request, model fitting or holdout access is authorized.
+When AI inference is unavailable, a passing deterministic suite is a scoped offline code-gate PASS only; it is not a full AI review, acquisition approval, or scientific result. No live request, model fitting, strategy test or holdout access is authorized.
 
 Only action summaries and findings are retained; private model reasoning is not written to the repository.
