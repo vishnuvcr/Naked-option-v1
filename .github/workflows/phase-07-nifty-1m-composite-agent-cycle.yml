@@ -1,0 +1,466 @@
+name: Phase 7 NIFTY Composite — Automated Tester Developer Loop
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer_sha:
+        description: "Exact developer commit to review; blank/stale means latest phase-07-developer tip."
+        type: string
+        required: false
+        default: ""
+      reset_cycle:
+        description: "Reset the bounded automatic-repair counter for a fresh cycle."
+        type: boolean
+        required: false
+        default: false
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - "scripts/run_nifty_1m_composite_dataset.py"
+      - "scripts/test_nifty_1m_composite_dataset.py"
+      - "scripts/validate_nifty_1m_composite_manifest.py"
+      - "scripts/validate_nifty_1m_composite_approval.py"
+      - ".github/workflows/phase-07-nifty-1m-composite-live.yml"
+      - ".github/workflows/phase-07-nifty-1m-composite-tests.yml"
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+concurrency:
+  group: phase-07-nifty-composite-agent-cycle
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      review_sha: ${{ steps.meta.outputs.review_sha }}
+      attempt: ${{ steps.meta.outputs.attempt }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - id: meta
+        shell: bash
+        env:
+          REQUESTED_SHA: ${{ inputs.developer_sha }}
+          RESET_REQUESTED: ${{ inputs.reset_cycle }}
+          EVENT_NAME: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-07-developer phase-07-tester
+          branch_sha="$(git rev-parse origin/phase-07-developer)"
+          if [[ -n "$REQUESTED_SHA" && "$REQUESTED_SHA" == "$branch_sha" ]]; then review_sha="$REQUESTED_SHA"; else review_sha="$branch_sha"; fi
+          state_json="$(git show origin/phase-07-tester:research/gates/NIFTY_1M_COMPOSITE_AGENT_STATE.json 2>/dev/null || printf '{}')"
+          old_attempts="$(printf '%s' "$state_json" | python -c 'import json,sys; d=json.load(sys.stdin); print(int(d.get("auto_repair_attempts",0)))' 2>/dev/null || printf '0')"
+          if [[ "$RESET_REQUESTED" == "true" || ( "$EVENT_NAME" == "push" && "$ACTOR" != "github-actions[bot]" ) ]]; then old_attempts=0; fi
+          attempt=$((old_attempts + 1))
+          if (( attempt > 5 )); then attempt=5; fi
+          echo "review_sha=$review_sha" >> "$GITHUB_OUTPUT"
+          echo "attempt=$attempt" >> "$GITHUB_OUTPUT"
+          echo "Reviewing exact developer SHA: $review_sha (bounded cycle $attempt/5)"
+
+  offline_tester:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install offline test dependencies
+        run: python -m pip install -r developer/requirements-composite.txt
+      - name: Run isolated deterministic tester harness
+        shell: bash
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          set +e
+          python tester/scripts/review_nifty_1m_composite_gate.py --target developer --reviewed-sha "$REVIEW_SHA" --output "$RUNNER_TEMP/offline-review.json"
+          rc=$?
+          if [[ ! -s "$RUNNER_TEMP/offline-review.json" ]]; then
+            printf '{"verdict":"REQUEST_CHANGES","findings":[{"severity":"BLOCKER","code":"REVIEW_HARNESS_FAILED","message":"Tester harness failed before report creation."}],"offline_tests":{"passed":false,"checks":[]}}' > "$RUNNER_TEMP/offline-review.json"
+          fi
+          echo "Tester harness exit=$rc; finding set saved for gate decision."
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nifty-composite-offline-review
+          path: ${{ runner.temp }}/offline-review.json
+          if-no-files-found: error
+          retention-days: 30
+
+  ai_tester:
+    needs: [prepare, offline_tester]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.review_sha }}
+          path: developer
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: nifty-composite-offline-review
+          path: review-input
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Provide fail-closed fallback
+        shell: bash
+        run: |
+          if [[ ! -s review-input/offline-review.json ]]; then
+            mkdir -p review-input
+            printf '{"verdict":"REQUEST_CHANGES","findings":[{"severity":"BLOCKER","code":"OFFLINE_REVIEW_UNAVAILABLE","message":"Offline tester report missing."}],"offline_tests":{"passed":false,"checks":[]}}' > review-input/offline-review.json
+          fi
+      - name: Independent AI tester review using HF Inference Providers
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REVIEW_MODEL: openai/gpt-oss-120b:cheapest
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          python controller/automation/nifty_composite_agent.py ai-review --target developer --offline review-input/offline-review.json --reviewed-sha "$REVIEW_SHA" --output "$RUNNER_TEMP/ai-review.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nifty-composite-ai-review
+          path: ${{ runner.temp }}/ai-review.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  publish_tester_report:
+    needs: [prepare, offline_tester, ai_tester]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+    outputs:
+      decision: ${{ steps.compile.outputs.decision }}
+      auto_repair: ${{ steps.compile.outputs.auto_repair }}
+      attempt: ${{ steps.compile.outputs.attempt }}
+      ai_available: ${{ steps.compile.outputs.ai_available }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: nifty-composite-offline-review
+          path: reports
+      - uses: actions/download-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: nifty-composite-ai-review
+          path: reports
+      - name: Compile fail-closed decision
+        id: compile
+        shell: bash
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+          ATTEMPT: ${{ needs.prepare.outputs.attempt }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          if [[ ! -s reports/offline-review.json ]]; then
+            printf '{"verdict":"REQUEST_CHANGES","findings":[{"severity":"BLOCKER","code":"OFFLINE_REVIEW_UNAVAILABLE","message":"Offline report missing."}],"offline_tests":{"passed":false,"checks":[]}}' > reports/offline-review.json
+          fi
+          if [[ ! -s reports/ai-review.json ]]; then
+            printf '{"decision":"REQUEST_CHANGES","review_status":"REVIEWER_UNAVAILABLE","summary":"AI reviewer artifact missing; no PASS inferred.","findings":[{"severity":"BLOCKER","file":"workflow","finding":"AI tester did not create a report.","required_fix":"Inspect workflow and restore Inference Providers access."}]}' > reports/ai-review.json
+          fi
+          python controller/automation/nifty_composite_agent.py compile-report --offline reports/offline-review.json --ai reports/ai-review.json --reviewed-sha "$REVIEW_SHA" --attempt "$ATTEMPT" --max-attempts 5 --output reports/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md --decision-output reports/decision.json
+          decision="$(python -c 'import json; print(json.load(open("reports/decision.json"))["decision"])')"
+          auto_repair="$(python -c 'import json; print(str(json.load(open("reports/decision.json"))["auto_repair_eligible"]).lower())')"
+          ai_available="$(python -c 'import json; print(str(json.load(open("reports/decision.json"))["ai_reviewer_available"]).lower())')"
+          python - <<'PY'
+          import json, pathlib
+          d=json.loads(pathlib.Path("reports/decision.json").read_text())
+          path=pathlib.Path("tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_STATE.json")
+          try: old=json.loads(path.read_text())
+          except Exception: old={}
+          if d["decision"] == "PASS_WITH_SCOPED_RESTRICTIONS": count=0
+          elif d["auto_repair_eligible"]: count=int(d["attempt"])
+          elif int(d["attempt"]) >= 5: count=5
+          else: count=int(old.get("auto_repair_attempts",0))
+          state={"schema_version":1,"auto_repair_attempts":count,"last_reviewed_developer_commit":d["reviewed_developer_commit"],"last_decision":d["decision"],"last_ai_reviewer_available":d["ai_reviewer_available"],"live_requests_authorized":False,"model_fitting_authorized":False,"holdout_access_authorized":False}
+          path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(state,indent=2,sort_keys=True)+"\n")
+          PY
+          echo "decision=$decision" >> "$GITHUB_OUTPUT"
+          echo "auto_repair=$auto_repair" >> "$GITHUB_OUTPUT"
+          echo "ai_available=$ai_available" >> "$GITHUB_OUTPUT"
+          echo "attempt=$ATTEMPT" >> "$GITHUB_OUTPUT"
+      - name: Commit report only to tester branch
+        shell: bash
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          set -euo pipefail
+          git -C tester config user.name "github-actions[bot]"
+          git -C tester config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp reports/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md
+          cp reports/decision.json tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json
+          git -C tester add research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json research/gates/NIFTY_1M_COMPOSITE_AGENT_STATE.json
+          git -C tester commit -m "Record tester report for $REVIEW_SHA" || echo "Tester report files unchanged."
+          git -C tester push origin HEAD:phase-07-tester
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nifty-composite-tester-report-package
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Post decision to issue 7
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+          DECISION: ${{ steps.compile.outputs.decision }}
+          ATTEMPT: ${{ steps.compile.outputs.attempt }}
+          AI_AVAILABLE: ${{ steps.compile.outputs.ai_available }}
+        with:
+          script: |
+            const body = "## Automated independent tester review\n\n" +
+              "Decision: **" + (process.env.DECISION || "REQUEST_CHANGES") + "**\n" +
+              "Developer snapshot: " + process.env.REVIEW_SHA + "\n" +
+              "Repair cycle: " + (process.env.ATTEMPT || "unknown") + " / 5\n" +
+              "AI reviewer available: " + (process.env.AI_AVAILABLE || "false") + "\n\n" +
+              "Exact report: https://github.com/" + context.repo.owner + "/" + context.repo.repo +
+              "/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md\n\n" +
+              "Live requests, modelling and holdout access remain NOT AUTHORIZED by this report.";
+            await github.rest.issues.createComment({owner:context.repo.owner, repo:context.repo.repo, issue_number:7, body});
+      - name: Stop closed if AI inference unavailable
+        if: steps.compile.outputs.ai_available != 'true'
+        run: |
+          echo "AI tester unavailable; no auto-repair or live access is authorized. Check HF_TOKEN Inference Providers permission and credits."
+          exit 1
+
+  generate_patch:
+    needs: [prepare, publish_tester_report]
+    if: needs.publish_tester_report.outputs.auto_repair == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.review_sha }}
+          path: developer
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: nifty-composite-tester-report-package
+          path: reports
+      - name: Generate limited patch based on tester findings
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_DEVELOPER_MODEL: Qwen/Qwen3-Coder-30B-A3B-Instruct:cheapest
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          python controller/automation/nifty_composite_agent.py patch --target developer --report reports/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md --reviewed-sha "$REVIEW_SHA" --output "$RUNNER_TEMP/agent-patch.diff"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-composite-agent-patch
+          path: ${{ runner.temp }}/agent-patch.diff
+          if-no-files-found: error
+          retention-days: 14
+
+  verify_patch:
+    needs: [prepare, publish_tester_report, generate_patch]
+    if: always() && needs.generate_patch.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r developer/requirements-composite.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: nifty-composite-agent-patch
+          path: patch
+      - name: Verify patch in isolated, secret-free environment and retest
+        id: verify
+        shell: bash
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          set +e
+          python controller/automation/nifty_composite_agent.py verify-patch --target developer --patch patch/agent-patch.diff --output "$RUNNER_TEMP/verification.json"
+          rc=$?
+          if [[ $rc -eq 0 ]]; then
+            python tester/scripts/review_nifty_1m_composite_gate.py --target developer --reviewed-sha "$REVIEW_SHA" --output "$RUNNER_TEMP/tester-after-patch.json"
+            rc=$?
+          fi
+          if [[ ! -s "$RUNNER_TEMP/verification.json" ]]; then printf '{"passed":false,"checks":[]}' > "$RUNNER_TEMP/verification.json"; fi
+          echo "verify_exit_code=$rc"
+          echo "verify_passed=$([[ $rc -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          exit "$rc"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nifty-composite-verification
+          path: |
+            ${{ runner.temp }}/verification.json
+            ${{ runner.temp }}/tester-after-patch.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish_developer_fix:
+    needs: [prepare, publish_tester_report, verify_patch]
+    if: always() && needs.publish_tester_report.outputs.auto_repair == 'true' && needs.verify_patch.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: nifty-composite-agent-patch
+          path: patch
+      - name: Push only tested source and test corrections
+        id: push
+        shell: bash
+        env:
+          REVIEW_SHA: ${{ needs.prepare.outputs.review_sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$(git rev-parse HEAD)" != "$REVIEW_SHA" ]]; then echo "Developer branch moved; refusing stale patch."; exit 1; fi
+          git apply --check patch/agent-patch.diff
+          git apply patch/agent-patch.diff
+          changed="$(git diff --name-only)"
+          while IFS= read -r f; do
+            case "$f" in
+              scripts/run_nifty_1m_composite_dataset.py|scripts/test_nifty_1m_composite_dataset.py) ;;
+              *) echo "Refusing forbidden path: $f"; exit 1 ;;
+            esac
+          done <<< "$changed"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/run_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_dataset.py
+          git commit -m "Auto-correct NIFTY composite tester findings"
+          git push origin HEAD:phase-07-developer
+          echo "new_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Dispatch fresh review of exact new commit
+        uses: actions/github-script@v7
+        env:
+          NEW_SHA: ${{ steps.push.outputs.new_sha }}
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "phase-07-nifty-1m-composite-agent-cycle.yml",
+              ref: "main",
+              inputs: { developer_sha: process.env.NEW_SHA, reset_cycle: "false" }
+            });
+
+  retry_repair_cycle:
+    needs: [prepare, publish_tester_report, generate_patch, verify_patch]
+    if: always() && needs.publish_tester_report.outputs.auto_repair == 'true' && needs.verify_patch.result != 'success' && needs.prepare.outputs.attempt != '5'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: 7,
+              body: "The automated developer patch did not pass offline tests plus the isolated tester harness. No patch was pushed and no live access was granted. The bounded next repair/review cycle is being dispatched."
+            });
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "phase-07-nifty-1m-composite-agent-cycle.yml",
+              ref: "main",
+              inputs: { developer_sha: "", reset_cycle: "false" }
+            });
+
+  intervention_after_limit:
+    needs: [prepare, publish_tester_report, generate_patch, verify_patch]
+    if: always() && needs.publish_tester_report.outputs.auto_repair == 'true' && needs.verify_patch.result != 'success' && needs.prepare.outputs.attempt == '5'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: 7,
+              body: "Automation reached the maximum of five bounded tester/developer cycles without a patch passing both offline test suites. No patch was pushed. Live data, model fitting, strategy testing and holdout remain blocked. Review the attached reports and choose a documented alternative or close this gate."
+            });
