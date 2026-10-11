@@ -96,7 +96,7 @@ def merge_spot(df,spot_source):
     for c in ("nifty_open","nifty_high","nifty_low","nifty_close","nifty_volume"):
         src=joined[c].to_numpy(dtype=float,na_value=np.nan) if c in joined.columns else np.full(len(df),np.nan)
         if c not in df.columns: df[c]=np.nan
-        old=pd.to_numeric(df[c],errors="coerce").to_numpy(dtype=float,na_value=np.nan)
+        old=pd.to_numeric(df[c],errors="coerce").to_numpy(dtype=float,na_value=np.nan).copy()
         # Fill absent values only; never overwrite a valid original source value.
         need=(~np.isfinite(old))&np.isfinite(src)
         fills+=int(need.sum()); fill_rows|=need; old[need]=src[need]; df[c]=old
@@ -200,12 +200,13 @@ def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
     for k,v in gs.items(): df[k]=v
     df["greek_model"]="BLACK_SCHOLES_EUROPEAN_ZERO_RATE_ZERO_DIVIDEND_PROXY"
     status=np.full(n,"NOT_OPTION_ROW",dtype=object)
-    weekend=np.array([d is None or d not in sessions for d in dates])&is_opt
-    # Leave the Greek fields null for rows whose timestamp date is not in observed NIFTY sessions.
+    flag_text=df["data_quality_flags"].fillna("").astype(str).str.upper()
+    weekend=is_opt & flag_text.str.contains("WEEKEND|NON_TRADING_SESSION",regex=True).to_numpy()
+    # Honor explicit source QA flags; do not infer missing trading sessions from a spot file that may end earlier.
     for col in ("greek_implied_volatility","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate"):
         a=pd.to_numeric(df[col],errors="coerce").to_numpy(dtype=float,na_value=np.nan); a[weekend]=np.nan; df[col]=a
     for i in np.flatnonzero(is_opt):
-        if weekend[i]: status[i]="SESSION_NOT_IN_OBSERVED_TRADING_CALENDAR"
+        if weekend[i]: status[i]="SOURCE_FLAGGED_NON_TRADING_SESSION"
         elif not known[i]: status[i]="OPTION_TYPE_UNKNOWN"
         elif exp[i] is None: status[i]="EXPIRY_UNMAPPED:"+str(src[i])
         elif not np.isfinite(S[i]) or S[i]<=0: status[i]="SPOT_MISSING_OR_INVALID"
@@ -248,7 +249,11 @@ def main():
     st=pd.to_datetime(spot["timestamp"],errors="coerce",utc=True)
     sessions=set(st.dropna().dt.tz_convert("Asia/Kolkata").dt.date.tolist())
     paths=[x.strip() for x in a.expiry_file_list.read_text().splitlines() if x.strip()]
-    dates,monthly,sources,last_source=make_expiry_calendar(paths,sessions,max(sessions))
+    date_tokens=re.findall(r"\\d{4}-\\d{2}-\\d{2}",manifest.get("dataset_id",""))
+    if not date_tokens: raise ValueError("source dataset id has no declared end date")
+    dataset_end=date.fromisoformat(date_tokens[-1])
+    calendar_horizon=max(max(sessions),dataset_end)
+    dates,monthly,sources,last_source=make_expiry_calendar(paths,sessions,calendar_horizon)
     a.output_dir.mkdir(parents=True,exist_ok=True); total=0
     coverage={"schema_version":1,"status":"COMPLETE_WITH_COVERAGE_RESTRICTIONS","source_dataset_id":manifest.get("dataset_id"),"source_status":manifest.get("status"),"source_option_rows":int(manifest.get("source_row_count_options",0)),"source_spot_rows":int(manifest.get("source_row_count_spot",0)),"source_total_rows":int(manifest.get("rows_preserved",0)),"source_artifact_id":11698879857,"source_run_id":38131641336,"source_artifact_sha256":"40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b","calculated_at_utc":datetime.utcnow().isoformat()+"Z","source_attribution":"https://huggingface.co/datasets/thetrademarkk/india-index-options-1m","source_license":"CC-BY-NC-4.0: non-commercial research only","expiry_partition_count":sum(1 for x in paths if expiry_from_path(x)),"latest_hf_expiry_date":last_source.isoformat(),"expiry_mapping_method":"HF expiry-partition file-list proxy through latest listed date; weekly Tuesday-rule proxy after that; not an official point-in-time contract master","greek_method":"European Black-Scholes Greeks; solve IV from minute option close when arbitrage-bounded and numerically solvable; fallback to source IV with documented heuristic; zero-rate/zero-dividend proxy; not historical vendor Greeks","data_limitations":["The underlying Dhan request grid is PARTIAL_GRID and does not cover every exchange-listed strike/contract.","The HF dataset itself documents partial option coverage for sparse/illiquid/far strikes.","Expiry mapping for relative expiry codes is inferred from a public expiry partition list, not reconciled against point-in-time official Dhan contract-master snapshots.","Historical risk-free rates and dividend yields are unavailable; r=q=0 proxies are explicit.","Rows with missing/invalid spot, expiry, IV, option type or session keep Greek values missing and are reported."],"parts":[],"row_count_by_month":{},"rows_preserved":0,"greek_rows_with_delta":0,"option_rows_missing_spot":0,"option_rows_unmapped_expiry":0,"spot_field_values_filled":0,"greek_status_counts":{},"expiry_mapping_source_counts":{},"iv_source_counts":{}}
     (a.output_dir/".plain").mkdir(exist_ok=True)
@@ -267,6 +272,8 @@ def main():
         if len(source_plain)!=61: raise ValueError("expected 61 monthly CSV.GZ parts after decrypt")
         for pth in source_plain:
             df=pd.read_csv(pth,compression="gzip",low_memory=False)
+            source_part=by_name.get(pth.name+".enc")
+            if source_part is None or len(df)!=int(source_part["row_count"]): raise ValueError("source monthly row-count mismatch: "+pth.name)
             out,rep=enrich_frame(df,dates,monthly,sources,spot,sessions)
             gz=a.output_dir/pth.name
             out.to_csv(gz,index=False,compression={"method":"gzip","compresslevel":6,"mtime":0})
@@ -274,8 +281,10 @@ def main():
             ep=a.output_dir/encname; ep.write_bytes(enc); gz.unlink()
             coverage["parts"].append({"file":encname,"encrypted_bytes":len(enc),"encrypted_sha256":hashlib.sha256(enc).hexdigest(),"plain_gzip_sha256":hashlib.sha256(plain).hexdigest(),"row_count":int(len(out)),"encryption":"AES-256-GCM per-file nonce; key derived via scrypt from HF_TOKEN"})
             total+=len(out); coverage["rows_preserved"]+=len(out); coverage["row_count_by_month"][pth.name.removeprefix("nifty_1m_composite_").removesuffix(".csv.gz")]=len(out)
-            for k in ("greek_rows_with_delta","option_rows_missing_spot","option_rows_unmapped_expiry","spot_field_values_filled"):
-                coverage[k]+=int(rep.get(k,0) if k=="spot_field_values_filled" else rep.get(k,0) if k in ("option_rows_missing_spot","option_rows_unmapped_expiry") else rep.get(k,0))
+            coverage["greek_rows_with_delta"]+=int(rep.get("greek_rows_with_delta",0))
+            coverage["option_rows_missing_spot"]+=int(rep.get("option_rows_missing_spot",0))
+            coverage["option_rows_unmapped_expiry"]+=int(rep.get("option_rows_unmapped_expiry",0))
+            coverage["spot_field_values_filled"]+=int(rep.get("spot_merge",{}).get("spot_field_values_filled",0))
             for grp in ("greek_status_counts","expiry_mapping_source_counts","iv_source_counts"):
                 for k,v in rep.get(grp,{}).items(): coverage[grp][k]=coverage[grp].get(k,0)+int(v)
         shutil.rmtree(a.output_dir/".plain",ignore_errors=True)
