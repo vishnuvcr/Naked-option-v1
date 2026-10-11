@@ -12,7 +12,7 @@
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "repair_mode": "REVIEWER_UNAVAILABLE",
-  "reviewed_developer_commit": "1ca94be13e619bd4da14d455c4ab1d782f376bd1",
+  "reviewed_developer_commit": "fbce62966c32e3f45e35020e833d6eaee3ab2808",
   "schema_version": 1,
   "spot_recovery_authorized": false,
   "spot_recovery_request_limit": 0
