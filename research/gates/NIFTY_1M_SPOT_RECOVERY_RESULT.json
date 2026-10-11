@@ -60,5 +60,24 @@
     "archive_hash_matches_github_digest": true,
     "encrypted_parts_verified": 57,
     "encrypted_market_values_decrypted": false
+  },
+  "split_retry_proposal": {
+    "proposal_blob_sha": "77f40a95604777721fd701f4d7245bf43a8871f5",
+    "tester_decision_blob_sha": "111d5815c76c47ca5478b5e11a715b55053874d3",
+    "tester_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+    "decision_scope": "OFFLINE_SPLIT_MANIFEST_AND_AUTH_VALIDATOR_ONLY",
+    "exact_snapshot_reviewed": "d2176806aa6c5db08e0577ddc3daf08a9652f1a6",
+    "requests_planned": 34,
+    "max_calendar_days_per_shard": 7,
+    "max_rows_per_response": 4000,
+    "max_response_bytes": 8388608,
+    "max_attempts_per_request": 1,
+    "max_retry_requests": 0,
+    "preserves_existing_spot_rows": 403664,
+    "base_artifact_id": "11693866249",
+    "execution_workflow_integrated": false,
+    "partial_artifact_ingestion_supported": false,
+    "live_requests_authorized": false,
+    "status": "OFFLINE_PROPOSAL_PASS_EXECUTION_BLOCKED"
   }
 }
