@@ -549,3 +549,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** Review the exact-HEAD reconstruction manifest when available.
 **Tester → Developer:** Keep only this evidence gap open; current regression checks already pass.
+
+## 2026-10-12 — Forecast-only rerun and source-job guard
+
+- Cache-only reconstruction guard was added in commit [d012713](https://github.com/vishnuvcr/Naked-option-v1/commit/d012713dae811dba0ad919f2a6a0edb5821f0ff8).
+- Review of the workflow showed the separate free-source job still ran when empirical authorization was false. This unintended acquisition was logged; the outputs are not accepted as evidence for the current gate. Developer added an explicit authorization condition in [commit a3c3e4c](https://github.com/vishnuvcr/Naked-option-v1/commit/a3c3e4c04f094f92aff61b5615f64ff74e0eafb5) so future forecast-only runs skip source acquisition.
+- Current exact-HEAD reconstruction workflow run [#38165151602](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38165151602) is in progress; inspect its reconstruction artifact and ULP diagnostics before closing the tester gate. No P&L or holdout work is authorized.
+
+**Developer → Tester:** Verify the exact-HEAD reconstruction and check the new source-job authorization guard.
+**Tester → Developer:** Do not accept the accidentally triggered source-audit output as research evidence; review only the saved-panel reconstruction for this gate.
