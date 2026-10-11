@@ -1,8 +1,8 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS
-- Reviewed developer commit: 29c3abbf86175733934fd25da7a3dadd16276212
-- Report time (UTC): 2026-10-11T06:38:24Z
+- Reviewed developer commit: 413596f934709bf04ea51063f68450a4fc61aa61
+- Report time (UTC): 2026-10-11T06:39:07Z
 - Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
