@@ -1,13 +1,13 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS
-- Reviewed developer commit: d0b602bd86b6cf8785f3f3c033c0e897f93f3bfd
-- Report time (UTC): 2026-10-11T06:02:24Z
+- Reviewed developer commit: 3527d11b61ca1958f43ddd0adef3608a94e94ed6
+- Report time (UTC): 2026-10-11T06:19:59Z
 - Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
 - Single-request diagnostic authorized: NO
-- Cache-preserving spot-only recovery authorized: YES — at most 61 spot requests; zero live option refetches
+- Cache-preserving spot-only recovery authorized: NO
 - General live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
