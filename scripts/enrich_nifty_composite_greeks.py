@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Row-preserving Greek enrichment for the encrypted NIFTY 1-minute composite."""
 from __future__ import annotations
-import argparse, csv, gzip, hashlib, json, math, os, pathlib, re, shutil, sys
+import argparse, bisect, csv, gzip, hashlib, json, math, os, pathlib, re, shutil, sys
 from datetime import date, datetime, time, timedelta
 import numpy as np
 import pandas as pd
@@ -149,9 +149,9 @@ def greeks(S,K,T,sigma,is_call):
 
 def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
     df,spot_report=merge_spot(df,spot_source); n=len(df)
-    fields=("expiry_date","expiry_mapping_source","time_to_expiry_years","risk_free_rate_decimal","risk_free_rate_source","dividend_yield_decimal","dividend_yield_source","greek_assumption","greek_implied_volatility","greek_iv_source","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate","greek_model","greek_status")
+    fields=("expiry_date","expiry_mapping_source","time_to_expiry_years","greek_valuation_offset_seconds","risk_free_rate_decimal","risk_free_rate_source","dividend_yield_decimal","dividend_yield_source","greek_assumption","greek_implied_volatility","greek_iv_source","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate","greek_model","greek_status")
     for c in fields:
-        if c not in df.columns: df[c]=np.nan if c in {"time_to_expiry_years","risk_free_rate_decimal","dividend_yield_decimal","greek_implied_volatility","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate"} else ""
+        if c not in df.columns: df[c]=np.nan if c in {"time_to_expiry_years","greek_valuation_offset_seconds","risk_free_rate_decimal","dividend_yield_decimal","greek_implied_volatility","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate"} else ""
     if "data_quality_flags" not in df.columns: df["data_quality_flags"]=""
     df["data_quality_flags"]=df["data_quality_flags"].fillna("").astype(str)
     is_opt=df.get("row_type",pd.Series(["OPTION"]*n)).astype(str).str.upper().eq("OPTION").to_numpy()
@@ -167,15 +167,18 @@ def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
         else: src[i]="EXPIRY_FLAG_UNKNOWN"; continue
         if not np.isfinite(codes[i]) or not float(codes[i]).is_integer() or int(codes[i]) not in (0,1,2):
             src[i]="EXPIRY_CODE_INVALID"; continue
-        future=[d for d in cal if d>=sd]; ci=int(codes[i])
-        if len(future)<=ci: src[i]="EXPIRY_CALENDAR_EXHAUSTED"; continue
-        exp[i]=future[ci]; src[i]=expiry_sources.get(exp[i].isoformat(),"EXPIRY_CALENDAR_PROXY")
+        ci=int(codes[i]); pos=bisect.bisect_left(cal,sd); target=pos+ci
+        if target>=len(cal): src[i]="EXPIRY_CALENDAR_EXHAUSTED"; continue
+        exp[i]=cal[target]; src[i]=expiry_sources.get(exp[i].isoformat(),"EXPIRY_CALENDAR_PROXY")
     df["expiry_date"]=[x.isoformat() if x else "" for x in exp]; df["expiry_mapping_source"]=src
     tcol="timestamp_ist" if "timestamp_ist" in df.columns else "timestamp_utc"
     tt=pd.to_datetime(df[tcol],errors="coerce")
     if getattr(tt.dt,"tz",None) is None: tt=tt.dt.tz_localize("Asia/Kolkata",ambiguous="NaT",nonexistent="NaT")
     else: tt=tt.dt.tz_convert("Asia/Kolkata")
+    # Source timestamps label 1-minute candles at their start; close premium is valued at bar end.
+    tt=tt+pd.to_timedelta(60,unit="seconds")
     tsec=tt.astype("int64").to_numpy(dtype=np.int64)/1e9
+    df["greek_valuation_offset_seconds"]=np.where(is_opt,60.0,np.nan)
     T=np.full(n,np.nan)
     for i,d in enumerate(exp):
         if d is None: continue
@@ -184,7 +187,7 @@ def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
         if np.isfinite(remaining) and remaining>0: T[i]=remaining
     df["time_to_expiry_years"]=T; df["risk_free_rate_decimal"]=0.0; df["risk_free_rate_source"]="EXPLICIT_ZERO_RATE_PROXY_NOT_HISTORICAL_RATE"
     df["dividend_yield_decimal"]=0.0; df["dividend_yield_source"]="EXPLICIT_ZERO_DIVIDEND_PROXY_NOT_HISTORICAL_YIELD"
-    df["greek_assumption"]="European Black-Scholes; source timestamp/strike/spot and expiry proxy; r=0,q=0; estimated, not historical vendor Greeks"
+    df["greek_assumption"]="European Black-Scholes; source minute timestamp assumed candle start; close premium valued at timestamp+60 seconds; expiry proxy; r=0,q=0; estimated, not historical vendor Greeks"
     S=num(df,"nifty_close"); roll=num(df,"rolling_spot"); use_roll=(~np.isfinite(S)|(S<=0))&np.isfinite(roll)&(roll>0); S=np.where(np.isfinite(S)&(S>0),S,roll)
     df.loc[use_roll,"spot_valuation_source"]="EXISTING_COMPOSITE_ROLLING_SPOT_FALLBACK"
     K=num(df,"returned_strike"); P=num(df,"option_close")
