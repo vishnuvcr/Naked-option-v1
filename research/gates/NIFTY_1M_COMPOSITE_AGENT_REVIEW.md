@@ -1,8 +1,8 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS
-- Reviewed developer commit: 22709b6b6f9b5013606c5c4ca3143bddace4ca6b
-- Report time (UTC): 2026-10-11T05:43:57Z
+- Reviewed developer commit: 9b4ec897c859c1f0f774d10b9eeda8ba16a18a17
+- Report time (UTC): 2026-10-11T05:44:45Z
 - Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
@@ -27,11 +27,12 @@
 
 ## Offline test summary
 
-- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py scripts/account_nifty_1m_probe_attempt.py scripts/test_account_nifty_1m_probe_attempt.py (exit 0)
+- PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py scripts/account_nifty_1m_probe_attempt.py scripts/test_account_nifty_1m_probe_attempt.py scripts/test_audit_nifty_1m_composite_cache.py (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_manifest (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_dataset (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 0)
 - PASS: python -m unittest -v test_account_nifty_1m_probe_attempt (exit 0)
+- PASS: python -m unittest -v test_audit_nifty_1m_composite_cache (exit 0)
 
 ## Independent AI review
 
