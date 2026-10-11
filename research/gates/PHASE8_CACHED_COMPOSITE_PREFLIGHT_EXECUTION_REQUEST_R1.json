@@ -35,7 +35,7 @@
     "scripts/validate_phase8_cached_composite_bundle.py": "cb48b1f752770783b385a40ebd090d77dc5c5ef8",
     "scripts/test_phase8_cached_composite_bundle.py": "edcfe6929b0e37f6b6c28f8a013b61f59857f945",
     "scripts/authorize_phase8_cached_composite_preflight.py": "ef8df0d630877ba750ce695af3889ee86b72b228",
-    "scripts/test_phase8_cached_composite_preflight.py": "6d2a2f5e75f9ff71a72adbed9566ae9805aa98e4",
+    "scripts/test_phase8_cached_composite_preflight.py": "c5955cfeff54493537976a10c8c83088fb702dec",
     "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
     "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json": "dd8b83113d4b79429008024779107a776b1a0f12",
     "research/phase8/PHASE8_METHOD_SPEC.md": "93c25a91663d9f9dcda4617e576b4fcb3d052234",
@@ -46,5 +46,5 @@
   "holdout_access_authorized": false,
   "new_market_source_requests_authorized": false,
   "strategy_promotion_authorized": false,
-  "note": "This request is deliberately disabled until the exact implementation/code blobs receive an implementation-level tester decision. Enabling this request permits only one metadata preflight; it does not authorize option P&L. Activated once after implementation tester decision acc806f94a3f60b3dd282b3b8c536c9891d1b5cf on 2026-10-11. This request authorizes only the single metadata-only preflight; all empirical P&L, holdout, new-source and strategy-promotion flags remain false."
+  "note": "This request is deliberately disabled until the exact implementation/code blobs receive an implementation-level tester decision. Enabling this request permits only one metadata preflight; it does not authorize option P&L. Activated once after implementation tester decision acc806f94a3f60b3dd282b3b8c536c9891d1b5cf on 2026-10-11. This request authorizes only the single metadata-only preflight; all empirical P&L, holdout, new-source and strategy-promotion flags remain false. Pins refreshed on 2026-10-11 to tester recheck snapshot 7fb30a0a04eeba5aa65485e974ca35091fe035b6 after the contract test was made compatible with a reviewer-approved activation. All code blobs other than the preflight contract test are unchanged; all empirical flags remain false."
 }
