@@ -153,6 +153,9 @@ jobs:
   sources:
     name: phase8-free-source-audit
     needs: protocol
+    # Source acquisition is not part of a forecast-only reconstruction; run it
+    # only after the independent tester has authorized empirical Phase 8 work.
+    if: ${{ inputs.empirical_authorized == true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
