@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "decision_scope": "FAILED_WINDOW_PATCH_EXECUTION",
+  "reviewed_developer_commit": "41b4b6d167560448d1496fe90609b9f613acc9dc",
+  "patch_proposal_blob_sha": "8f24ee75490d4e8f9e9759b569d9a4d4e10e0c19",
+  "reviewed_workflow_blob_sha": "4b7c20d9272d512cdd00e36a78a1d658e2f835c2",
+  "spot_failed_window_patch_authorized": true,
+  "live_requests_authorized": true,
+  "patch_request_limit": 7,
+  "patch_retry_limit": 0,
+  "live_option_requests_allowed": false,
+  "model_fitting_authorized": false,
+  "holdout_access_authorized": false,
+  "strategy_testing_authorized": false,
+  "decision_date": "2026-10-11",
+  "report_path": "research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_TESTER_REPORT.md",
+  "report_sha256": ""
+}
