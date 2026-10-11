@@ -1,0 +1,14 @@
+{
+  "collector_exit_code": "",
+  "completed_at_utc": "2026-10-11T05:45:24Z",
+  "encrypted_bundle_artifact_expected": true,
+  "github_run_id": "38115796620",
+  "live_option_requests_allowed": false,
+  "raw_market_values_committed": false,
+  "result_type": "SPOT_ONLY_CACHE_PRESERVING_RECOVERY",
+  "reviewed_developer_commit": "9b4ec897c859c1f0f774d10b9eeda8ba16a18a17",
+  "schema_version": 1,
+  "status": "FAILED_NO_COVERAGE_REPORT",
+  "summary": {},
+  "tester_decision_blob": "34eeb143d801b126b4fbf82ce7322b6ef1e09536"
+}
