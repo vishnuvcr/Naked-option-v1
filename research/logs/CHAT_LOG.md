@@ -1669,3 +1669,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
  
 **Developer → Tester:** Inspect report plus cleanup after R4 completes.
 **Tester → Developer:** No model, holdout or strategy/P&L work until actual report passes independent data-readiness review.
+
+
+### 2026-10-11 — Resume checkpoint: R5 structural scan running
+- On resume, read the main README, RESEARCH_INSTRUCTIONS.md, developer research/STATUS.md, research/ERROR_LOG.md and research/logs/CHAT_LOG.md, plus the R5 tester report/decision and exact workflow.
+- Verified R5 tester decision blob cdc253e72058030c144d91da78400b6299b104e3 and one-use request REAL_FILE_PREFLIGHT_2026-10-11_R5 are bound into the workflow. The hosted synthetic suite passed.
+- Run [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301): source artifact lineage and 61 encrypted-part hashes passed; decrypt/merge completed; “Run metadata-only structural preflight” remains in progress. No report artifact is exposed yet; upload and cleanup are pending.
+- No modelling, holdout read, fresh source pull, strategy/P&L test, or data-readiness approval was performed during this checkpoint.
+
+**Developer → Tester:** Inspect the completed R5 report and cleanup receipt; verify canonical OPTION identity, distinct SPOT timestamp uniqueness, incomplete keys and exact decoded-content hash.
+**Tester → Developer:** Keep all downstream permissions closed until the completed report and separate data-readiness gate are reviewed.
