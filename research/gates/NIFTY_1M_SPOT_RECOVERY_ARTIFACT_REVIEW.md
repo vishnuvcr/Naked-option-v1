@@ -1,0 +1,70 @@
+# Tester Artifact Audit — Phase 7 NIFTY Spot Recovery
+
+- Audit time (UTC): 2026-10-11
+- Artifact: [Run #37 artifact 11693866249](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719/artifacts/11693866249)
+- Downloaded archive SHA-256: `aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`
+- GitHub artifact digest: `sha256:aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`
+- Scope: encrypted bundle and safe metadata only; no plaintext market prices were decrypted or inspected.
+- Role caveat: this artifact inspection was performed in the tester role within the same connected assistant session. It is not a separate human identity or separate independent AI reviewer.
+
+## Decision
+
+**REQUEST CHANGES for the data-completeness gate.** Metadata integrity checks passed, but the output is a partial dataset and cannot be treated as a complete five-year one-minute panel. No additional requests, fitting/scoring, strategy testing or holdout access are authorized by this report.
+
+## Checks that passed
+
+1. The downloaded ZIP SHA-256 exactly matches GitHub's published artifact digest.
+2. The archive contains 57 encrypted monthly data parts; all 57 are present in `dataset_manifest.json`, and every part's byte size and SHA-256 matches its manifest entry. No extra encrypted part was found.
+3. Encrypted monthly part row counts sum to 8,894,387, matching the manifest's monthly row-count sum and 8,490,723 option rows + 403,664 spot rows.
+4. The coverage metadata marks `plain_rows_uploaded=false`, `raw_response_persisted_unencrypted=false`, `source_artifact_encrypted_hashes_verified=true`, and reports the preserved option-row count as 8,490,723.
+5. The 8,648 request-result records reconcile with 8,601 original planned requests plus 47 spot-gapfill requests. The reported cumulative wire count is 8,654; the additional six attempts are consistent with five cumulative retries and one earlier diagnostic attempt.
+6. The exact-timestamp join summary is internally additive at the option-row level: 7,591,172 matched + 899,551 missing = 8,490,723 option rows.
+
+## Blocking findings
+
+### A1 — Six gapfill windows failed the row cap
+
+All six failures returned HTTP 200 but were recorded as `FAILED_VALIDATION` with reason `response_row_cap_exceeded`. The request manifest's per-response `max_rows` is 12,000.
+
+| Request ID | Window start | Window end (exclusive) | Response bytes | Failure reason |
+|---|---|---|---:|---|
+| GAPSPOT1M-20211011-20211119 | 2021-10-11 | 2021-11-19 | 1,212,513 | response_row_cap_exceeded |
+| GAPSPOT1M-20211119-20211228 | 2021-11-19 | 2021-12-28 | 1,037,908 | response_row_cap_exceeded |
+| GAPSPOT1M-20211228-20220205 | 2021-12-28 | 2022-02-05 | 1,152,214 | response_row_cap_exceeded |
+| GAPSPOT1M-20220205-20220316 | 2022-02-05 | 2022-03-16 | 1,019,278 | response_row_cap_exceeded |
+| GAPSPOT1M-20220316-20220424 | 2022-03-16 | 2022-04-24 | 1,046,896 | response_row_cap_exceeded |
+| GAPSPOT1M-20220424-20220602 | 2022-04-24 | 2022-06-02 | 1,048,378 | response_row_cap_exceeded |
+
+The six failed windows cover the contiguous initial period 2021-10-11 through 2022-06-02. Together they contain 6,517,187 response bytes. The metadata does not preserve response hashes for these failed payloads, and exact row counts above the 12,000 cap are not recorded.
+
+### A2 — Historical byte counter underreported failed response bodies
+
+- Manifest `downloaded_bytes`: 21,731,367 bytes, equal to the 41 successful gapfill responses.
+- Sum of `response_bytes` across all 47 gapfill request results: 28,248,554 bytes.
+- Difference: 6,517,187 bytes, exactly the six failed-validation response bodies above.
+
+This confirms the prior counter-accounting defect in the realized artifact. It does **not** prove that the 256 MiB aggregate cap was exceeded: the sum of these 47 recorded response-body lengths is 28,248,554 bytes, below the cap. The developer has since moved byte charging before payload validation and added regression tests; the updated offline pipeline run [38117905230](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117905230) passed.
+
+### A3 — Encrypted data values were not independently inspected
+
+The artifact is encrypted using a key derived from the repository's HF_TOKEN. This audit verified archive/part hashes and metadata arithmetic but did not decrypt the monthly CSVs. Therefore the row-preservation claim is supported by the run's manifest and workflow validation, not by an independent value-level re-read in this audit.
+
+## Required developer action
+
+1. Keep the current artifact immutable; do not overwrite or reinterpret the partial run.
+2. Prepare a new, offline-only spot request manifest that splits the six failed calendar windows into smaller disjoint shards that stay safely below the 12,000-row cap. Validate complete coverage, no overlap/gaps, request IDs, per-shard date bounds and total request budget.
+3. Add tests proving every response body is charged before payload parsing and that row-cap failures are surfaced with bounded metadata and no raw payload.
+4. Submit the new exact manifest, budget plan and code snapshot for a fresh tester gate. The already-spent one-use authorization cannot be reused; no live request may occur until a new explicit exact-snapshot authorization exists.
+5. After any future authorized run, reconcile request bytes from per-request records, including failed responses, and independently verify the new encrypted artifact's hashes and row arithmetic.
+
+## Gate restrictions
+
+- `live_requests_authorized=false`
+- `model_fitting_authorized=false`
+- `holdout_access_authorized=false`
+- `strategy_testing_authorized=false`
+- `live_option_requests_allowed=false`
+
+**Tester → Developer:** Fix the six oversized windows through an offline manifest/code proposal and submit it for review; do not reuse the spent authorization.
+
+**Developer → Tester:** Review the next exact manifest for complete temporal coverage, row-cap safety, request accounting, byte-budget enforcement and the prohibition on option refetch before any new request is allowed.
