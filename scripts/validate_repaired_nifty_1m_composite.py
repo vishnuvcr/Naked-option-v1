@@ -37,9 +37,12 @@ def number(value: str | None) -> Decimal | None:
 
 
 def ohlc_state(row: dict[str, str], fields: tuple[str, ...]) -> str:
-    vals = [number(row.get(field, "")) for field in fields]
-    if all(v is None for v in vals):
+    raw = [str(row.get(field, "") or "").strip() for field in fields]
+    vals = [number(value) for value in raw]
+    if all(not value for value in raw):
         return "ALL_MISSING"
+    if any(value and parsed is None for value, parsed in zip(raw, vals)):
+        return "INVALID"
     if any(v is None for v in vals):
         return "PARTIAL_MISSING"
     op, hi, lo, cl = vals
