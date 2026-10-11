@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-11",
+  "gate": "REAL_FILE_PREFLIGHT_IMPLEMENTATION",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "387ef2e7eb0df72e6e5bf1651908e3b9a4d8c7ce",
+  "workflow_run_id": 38147564314,
+  "workflow_conclusion": "success",
+  "supporting_workflow_runs": [
+    {
+      "run_id": 38147564246,
+      "conclusion": "success",
+      "purpose": "Current offline preflight suite with canonical OPTION request-key and separate SPOT epoch tests; 50 tests passed."
+    },
+    {
+      "run_id": 38147564314,
+      "conclusion": "success",
+      "purpose": "Exact-file workflow's synthetic authorization and pinning suite passed; real-file job correctly skipped while R4 was spent."
+    }
+  ],
+  "reviewed_files": {
+    ".github/workflows/phase-07-real-file-preflight-audit.yml": "351a1f9df2907573a90995cf0aa604f38e903ce2",
+    ".github/workflows/phase-07-offline-preflight-tests.yml": "ad78b0f3fbf4f77e79dc95657df4fad731b67d7b",
+    "scripts/offline_dataset_preflight.py": "6d62b226c2ab6d75c74a8c1cd49e635c06ee739c",
+    "scripts/test_offline_dataset_preflight.py": "fa0428de6bce37890511b39c6fb54c3ad34a1ffb",
+    "scripts/test_offline_dataset_actual_schema.py": "f4cf2945b3371497596f9408eb7e7f0e4fde71e1",
+    "scripts/validate_real_file_preflight_authorization.py": "2f8174c320188c79257ca1b14c683f509a66227e",
+    "scripts/test_validate_real_file_preflight_authorization.py": "c21fa939ba66d15ff2b5a4408e1384117bc80e80",
+    "scripts/check_workflow_action_pinning.py": "cc6ecc45fd78470d838debc19f5b835369acb1d3",
+    "scripts/test_workflow_action_pinning.py": "e414c5cea4d71586ad80f9b5b0b85cbd79a3dade",
+    "scripts/publish_preflight_receipt.py": "3f72a86f4261180cb578c84c1058e6ca5d963a66",
+    "scripts/test_publish_preflight_receipt.py": "8d972ac0478de1b393d6e5bbeb9e2f19c51832bc",
+    "scripts/test_receipt_workflow_policy.py": "47e624abe52fbcfbe9a53b90ded7df1f21f49e72",
+    ".github/workflows/phase-07-publish-preflight-receipt.yml": "2b7397fefa47b23ea0066a65da2246e3e0a2e97b",
+    ".github/workflows/phase-07-receipt-publisher-tests.yml": "3f6a7020ea1ed39414200c71a3488061563d144c",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8"
+  },
+  "real_file_preflight_execution_authorized": true,
+  "authorized_scope": "one exact-lineage structural preflight using official canonical OPTION request identity and separate SPOT epoch uniqueness; verify decoded CSV content SHA; sanitized report only",
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "report": "research/gates/REAL_FILE_PREFLIGHT_CANONICAL_KEY_TESTER_REVIEW_R5_2026-10-11.md",
+  "supersedes_decision_blob_sha": "1ff485037ca359cffc7750ff6f96b51afa2b74d2",
+  "explicit_note": "R4 raw decoded content SHA matched. The R4 duplicate count is not accepted because its key definition differed from the canonical repo row identity; R5 re-audits using the official identity."
+}
