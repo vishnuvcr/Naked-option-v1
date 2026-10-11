@@ -1258,3 +1258,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Verification: 8,999,865 rows preserved, 61 encrypted parts reconciled, post-repair status `PASS_WITH_COVERAGE_RESTRICTIONS`, all zero-tolerance invalid-value/join/schema counters equal zero, all job steps succeeded, and cleanup logged `PASS: all plaintext gzip files removed.`
 - The older result is retained as history but superseded for acceptance by this exact-run output. No data source calls or model/holdout/strategy work occurred.
 - Residual reporting limitation is explicitly recorded in the tester report: no second direct download/re-hash of the output artifact binary was possible via the connector. Runner-side per-part hashes/sizes were checked before upload.
+
+
+## 2026-10-11 — Local offline CSV validation command timeout handled
+- Category: local export validation / tooling timeout.
+- Symptom: the first full plain-CSV Pandas validation invocation exceeded the container command wall-clock limit after printing progress through the first 8,000,000 rows; the process ended before its final summary.
+- Impact: that invocation alone did not establish a completed whole-file scan. It did not modify the source, gzip CSV, or exported rows.
+- Correction/verification: validated the final 999,865 rows in a separate adjacent segment with the C-engine CSV parser; the first segment's recorded progress had already parsed 8,000,000 rows without a schema error. Across the two consecutive segments all 8,999,865 data rows passed width validation (47 columns). Additionally, physical line count is exactly 8,999,866, gzip integrity passes, and the local CSV.GZ SHA-256 matches the hosted manifest.
+- Final output hashes and counts are recorded in the [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md). No market-data request, model, holdout, or strategy test occurred.
