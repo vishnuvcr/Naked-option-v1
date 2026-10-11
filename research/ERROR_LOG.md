@@ -1123,3 +1123,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Workflow status-push repair: commit [5f2e13c](https://github.com/vishnuvcr/Naked-option-v1/commit/5f2e13c143dc463cac7f2ad11c93e8eee61448de) fetches and rebases the status-only commit onto the current developer branch before pushing; no force-push is used.
 - Offline composite pipeline tests passed on [run 38101761538](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38101761538).
 - The actual spot validation cause remains unresolved. Await independent review at [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7) before any live diagnostic/recovery request.
+
+
+## 2026-10-11 — Resume attempt blocked at independent tester gate
+- Category: research governance / pending review
+- Component: Phase 7 composite spot parser diagnostic and guarded live acquisition
+- Symptom: issue #7 still has only the developer's two review-request comments; no independent tester report is recorded.
+- Verified state: offline tests pass at run 38101761538; prior live acquisition produced 8,490,723 option rows and zero spot rows; all 61 spot requests logged `unexpected_ValueError`.
+- Impact: no accepted spot data; no new prediction result. Re-running live acquisition before review risks spending a new approval without knowing the parser cause.
+- Disposition: no network request started; no approval reused or spent. Missing-volume remains an unconfirmed hypothesis.
+- Prevention: require tester report bound to exact developer snapshot `269ce879e2587d0b3473fdc1aac91acc95da05ff` or exact protected code blob SHAs before any new request.
