@@ -1209,3 +1209,12 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 - Table II lists 43 profitable and 25 losing trades (68 total); the surrounding prose uses 42 profitable + 25 losing (67). Table III lists the same 43 and 25 row counts but total 80. Percentages (63.25%, 36.75%) and the displayed chi-square statistic 4.765 are consistent with a denominator of 68. Explicit recomputation: `(43-34)^2/34 + (25-34)^2/34 = 4.7647...`.
 - This source is options-strategy-only, not a spot-direction forecasting method. Do not treat the displayed author return/strike-rate/significance claims as verified, and do not enter strategy/P&L testing from this review.
 - Detailed evidence and caveats: [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](../literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md). Tester report is on the isolated tester branch; it is a same-session role check, not a separate independent human/AI reviewer.
+
+
+## 2026-10-11 — Source-claim/configuration crosswalk gate result
+
+The developer added a separate claim-to-configuration supplement referencing the existing pinned PPR-3 files and native-task IDs (P01 NT001–NT005; P05 NT032–NT044; P07 NT047–NT052 and C009/C010; P14 NT076–NT079 with R062/R063; P15 NT080/NT081 and C023). No frozen matrix, candidate cells, registry, model settings or authorization fields were changed.
+
+The tester source-claim report and crosswalk-traceability report were committed on `phase-07-tester`. Repository protocol check for crosswalk tester report [38120239164](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120239164) passed; the related developer crosswalk protocol run [38120221001](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38120221001) also passed. Verdict is scoped to literature arithmetic/traceability, with the important caveat that the same connected assistant session occupies both roles; no external separate reviewer was available.
+
+The 34-shard source recovery remains unexecuted and separately denied. No source call, model fit/score, holdout access, or option P&L activity was performed during this step.
