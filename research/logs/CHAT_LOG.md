@@ -120,3 +120,11 @@ No scientific or protocol change was made during this checkpoint.
 - Tester found no arithmetic/schema inconsistency in executed cells. Apparent performance elevations are treated as research leads only, not validated strategies.
 - Tester gate `research/gates/PHASE6_RUN581_TESTER.md` = PASS WITH SCOPED RESTRICTIONS.
 - Developer may archive the gate and proceed to Phase 7 ensemble/regime research; Phase 8 option economics and later robustness/fresh-forward gates remain mandatory.
+
+
+## 2026-10-11 — Tester acceptance of Phase 8 R2 saved forecast panels
+
+- Reviewed exact developer commit 3fe13c49ed29e77b001485abe50b2d41dbb6c160 and hosted run 38157819076.
+- Downloaded output artifact ID 11709261335 and independently checked its ZIP digest and all ten Parquet hashes. Manifest reports PASS, 10/10 cells reproduced, 50,555 rows, exact source/run/commit identity and tolerance 1e-9.
+- Tester report/decision saved at `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_REPORT.md` and `research/gates/PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`.
+- This clears only the forecast reproducibility gate. The next required step is a versioned method-spec clarification for R2 plus exact review of the no-refit option execution runner; no empirical P&L was authorized.
