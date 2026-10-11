@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-11",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_proposal_blob_sha": "a007d5bea5ddf0ff804cbb381eedbd47296296db",
+  "scope": "design and implementation planning only",
+  "implementation_authorized": true,
+  "real_dataset_execution_authorized": false,
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "required_next": "Implement isolated audit workflow and synthetic tests; resubmit exact hashes for tester review before execution.",
+  "report": "research/gates/REAL_FILE_PREFLIGHT_PROPOSAL_TESTER_REVIEW_2026-10-11.md"
+}
