@@ -141,3 +141,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Hosted [run #38163678060](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38163678060) passed the exact synthetic contract suite for developer-tested commit `4d93085519675484570bb054cbedb1c2405708f0`. The metadata-only cached-data job was skipped because R1 remains disabled and consumed.
 - New decision [R3 tester report](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_REVIEW_R3_2026-10-11.md) and [machine decision](research/gates/PHASE8_AUTH_HASH_AND_GAP_SUMMARY_TESTER_DECISION_R3_2026-10-11.json): **PASS WITH SCOPED RESTRICTIONS** for the exact code/test snapshot only.
 - No real-data scan, option P&L, holdout access, new-source request or strategy promotion was authorized. Expiry metadata, lot/tick history and executable bid/ask gaps still block execution. The independent daily H=1 numerical-comparison anomaly remains open.
+
+
+## 2026-10-11 — New tester gate: daily H=1 future-return ULP mismatch
+
+- Independent review of [run #38162517430](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162517430) found 64 exact-float mismatches in the daily H=1 source-derived `future_return` comparison; reported max absolute difference is `3.469446951953614e-18`.
+- Report: [PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_REVIEW_R1_2026-10-11.md). Decision: **REQUEST_CHANGES**; machine gate [JSON](research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R1_2026-10-11.json).
+- Requested correction: bounded 2-ULP exact-or-near-equality for source-derived float64 `future_return` only, with ULP diagnostics and synthetic tests for 1/2/3 ULP cases and non-finite/sign errors. Preserve exact label/timestamp checks, metric aggregate tolerance, source pins and immutable Run #994 artifact. Hosted evidence must prove all observed mismatches are within 2 ULP; otherwise remain blocked.
+- This is not strategy evidence and grants no option P&L, holdout access, source-data request or strategy promotion.
