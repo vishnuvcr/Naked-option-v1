@@ -1225,3 +1225,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Review the split-manifest proposal and enforce the exact row, request and byte budgets.
 **Tester → Developer:** Return REQUEST CHANGES or a scoped PASS for the offline manifest only; do not authorize source requests or model fitting without a fresh, separate gate.
+
+
+## 2026-10-11 — Split proposal reviewed; execution still blocked
+
+- Offline proposal: 34 shards, each at most 7 calendar days, 4,000 rows and 8 MiB; one attempt per shard and 34 maximum wire requests. It covers 2021-10-11 to 2022-06-02 with no gaps/overlap.
+- The proposal is bound to partial artifact 11693866249 and requires preserving 8,490,723 option rows and 403,664 existing spot rows. No successful shard is to be refetched.
+- The collector honors max_attempts and the new exact-SHA authorization validator plus regression tests passed in [offline run 38118437757](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118437757). Tester decision is PASS_WITH_SCOPED_RESTRICTIONS for offline proposal/validator code only.
+- **Not executable yet:** exact-SHA validation is not integrated into a request-bearing workflow, and the current collector's preflight/merge path expects zero spot rows. It must be changed to use the partial artifact as base without losing the 403,664 existing SPOT rows. No source request may run until these blockers and a fresh authorization are reviewed.
+- Research remains prediction-only. Model fitting/scoring, holdout access, option refetch and strategy/P&L testing remain unauthorized.
+
+**Developer → Tester:** Review partial-artifact preservation and workflow binding when submitted.
+**Tester → Developer:** Do not execute the proposal or proceed to empirical prediction runs until the exact snapshot passes the applicable gate.
