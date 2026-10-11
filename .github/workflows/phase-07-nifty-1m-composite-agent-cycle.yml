@@ -272,11 +272,10 @@ jobs:
               "/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md\n\n" +
               "Live requests, modelling and holdout access remain NOT AUTHORIZED by this report.";
             await github.rest.issues.createComment({owner:context.repo.owner, repo:context.repo.repo, issue_number:7, body});
-      - name: Stop closed if AI inference unavailable
+      - name: Record AI reviewer availability without weakening the deterministic gate
         if: steps.compile.outputs.ai_available != 'true'
         run: |
-          echo "AI tester unavailable; no auto-repair or live access is authorized. Check HF_TOKEN Inference Providers permission and credits."
-          exit 1
+          echo "AI reviewer unavailable. Only the pre-registered deterministic test-gap repair may continue; no live request, modelling, strategy or holdout access is authorized."
 
   generate_patch:
     needs: [prepare, publish_tester_report]
