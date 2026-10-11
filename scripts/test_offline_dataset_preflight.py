@@ -54,6 +54,41 @@ class PreflightTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "INPUT_SHA256_MISMATCH"):
                 run(path, Path(td) / "r.json", "0" * 64, 1, 47)
 
+    def test_compressed_hash_may_differ_when_exact_uncompressed_content_hash_matches(self):
+        with tempfile.TemporaryDirectory() as td:
+            row = ["1700000000", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41
+            path = self.make_file(td, [row], KEY_HEADER)
+            with gzip.open(path, "rb") as stream:
+                payload = stream.read()
+            content_sha = hashlib.sha256(payload).hexdigest()
+            report = run(
+                path, Path(td) / "r.json", "0" * 64, 1, 47,
+                expected_uncompressed_sha=content_sha,
+                expected_uncompressed_bytes=len(payload),
+            )
+            self.assertFalse(report["compressed_sha256_matches_expected"])
+            self.assertTrue(report["uncompressed_sha256_matches_expected"])
+            self.assertTrue(report["uncompressed_size_matches_expected"])
+            self.assertEqual(report["status"], "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS")
+            self.assertEqual(report["uncompressed_sha256"], content_sha)
+
+    def test_uncompressed_content_hash_mismatch_is_a_reported_fail(self):
+        with tempfile.TemporaryDirectory() as td:
+            row = ["1700000000", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41
+            path = self.make_file(td, [row], KEY_HEADER)
+            report_path = Path(td) / "r.json"
+            raw_sha = self.digest(path)
+            report = run(
+                path, report_path, raw_sha, 1, 47,
+                expected_uncompressed_sha="0" * 64,
+                expected_uncompressed_bytes=1,
+            )
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_UNCOMPRESSED_SHA256")
+            self.assertFalse(report["uncompressed_sha256_matches_expected"])
+            self.assertFalse(report["uncompressed_size_matches_expected"])
+            self.assertTrue(report_path.is_file())
+            self.assertFalse(Path(str(report_path) + ".sqlite.tmp").exists())
+
     def test_row_count_mismatch_fails_closed_and_cleans_sqlite(self):
         with tempfile.TemporaryDirectory() as td:
             path = self.make_file(td, [["1", "spot", "NIFTY", "NA", "0", "SPOT"] + [""] * 41], KEY_HEADER)
