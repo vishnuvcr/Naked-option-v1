@@ -144,6 +144,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add research/gates/NIFTY_1M_COMPOSITE_APPROVAL.json
           git commit -m "Record NIFTY 1m composite acquisition disposition"
+          # This job checks out a detached SHA. Other research checkpoints may
+          # advance the developer branch while acquisition runs, so rebase the
+          # status-only commit onto the current branch tip before pushing.
+          # Never force-push; a genuine conflict must fail visibly for review.
+          git fetch origin phase-07-developer
+          git rebase FETCH_HEAD
           git push origin HEAD:phase-07-developer
 
       - name: Upload encrypted offline dataset bundle and metadata only
