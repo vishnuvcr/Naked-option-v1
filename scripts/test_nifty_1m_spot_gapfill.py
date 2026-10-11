@@ -15,6 +15,7 @@ from unittest import mock
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import run_nifty_1m_composite_dataset as collector
 import run_nifty_1m_spot_gapfill as gapfill
+import validate_nifty_1m_spot_gapfill_split_proposal as split_validator
 
 
 def sample_row(row_type: str, epoch: int, request_id: str) -> dict[str, str]:
@@ -105,6 +106,61 @@ class TestSpotGapfillSplitProposal(unittest.TestCase):
                  dt.date.fromisoformat(r["window_start_inclusive"])).days for r in requests),
             234,
         )
+
+
+class TestSplitProposalAuthorization(unittest.TestCase):
+    def setUp(self):
+        self.proposal = split_validator.load_json(split_validator.DEFAULT_PROPOSAL)
+
+    def test_proposal_validator_passes_without_authorizing_requests(self):
+        self.assertEqual(split_validator.validate_proposal(self.proposal), [])
+        self.assertFalse(self.proposal["live_requests_authorized"])
+
+    def test_missing_or_stale_tester_authorization_fails_closed(self):
+        decision = {
+            "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+            "decision_scope": "OFFLINE_SPLIT_MANIFEST_DESIGN_ONLY",
+            "reviewed_developer_commit": "b" * 40,
+            "split_proposal_blob_sha": "a" * 40,
+            "split_recovery_authorized": False,
+            "live_requests_authorized": False,
+            "split_recovery_request_limit": 34,
+            "split_recovery_retry_limit": 0,
+            "live_option_requests_allowed": False,
+            "model_fitting_authorized": False,
+            "holdout_access_authorized": False,
+            "strategy_testing_authorized": False,
+        }
+        errors = split_validator.validate_exact_authorization(
+            self.proposal, "a" * 40, "b" * 40, decision
+        )
+        self.assertIn("tester_scope_not_split_recovery_execution", errors)
+        self.assertIn("split_recovery_not_authorized", errors)
+        self.assertIn("live_requests_not_authorized", errors)
+
+    def test_exact_authorization_requires_both_exact_shas_and_all_scope_guards(self):
+        decision = {
+            "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+            "decision_scope": "SPLIT_RECOVERY_EXECUTION",
+            "reviewed_developer_commit": "b" * 40,
+            "split_proposal_blob_sha": "a" * 40,
+            "split_recovery_authorized": True,
+            "live_requests_authorized": True,
+            "split_recovery_request_limit": 34,
+            "split_recovery_retry_limit": 0,
+            "live_option_requests_allowed": False,
+            "model_fitting_authorized": False,
+            "holdout_access_authorized": False,
+            "strategy_testing_authorized": False,
+        }
+        errors = split_validator.validate_exact_authorization(
+            self.proposal, "a" * 40, "b" * 40, decision
+        )
+        self.assertEqual(errors, [])
+        stale = split_validator.validate_exact_authorization(
+            self.proposal, "c" * 40, "b" * 40, decision
+        )
+        self.assertIn("tester_proposal_blob_sha_mismatch", stale)
 
 
 class TestSpotGapfillMerge(unittest.TestCase):
