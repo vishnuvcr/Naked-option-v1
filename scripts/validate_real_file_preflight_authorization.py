@@ -13,6 +13,8 @@ def blob_sha(path):
 
 def evaluate(decision, request, decision_path, reviewed_paths):
     failures = []
+    if decision.get("gate") != "REAL_FILE_PREFLIGHT_IMPLEMENTATION":
+        failures.append("WRONG_TESTER_GATE")
     if decision.get("verdict") != "PASS_WITH_SCOPED_RESTRICTIONS":
         failures.append("TESTER_VERDICT_NOT_PASS")
     if decision.get("real_file_preflight_execution_authorized") is not True:
