@@ -1283,3 +1283,10 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Latest scanner commit: `6f11cc93f49e407c957ab843ea60311c41dba01f`; latest test commit: `f6284c458f408728a00f60673948d0fc35f5a417`.
 - Tester exact-snapshot report: `OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md`, verdict REQUEST_CHANGES because CI evidence is not verified and action pinning remains unresolved.
 - This was a code-level logic issue found before any real-file execution. No data changed; no model/holdout/strategy or source call occurred.
+
+## 2026-10-11 — Synthetic CI submission and scoped tester pass
+- Symptom: earlier gate lacked verified CI evidence and mutable action references.
+- Correction: pinned the two workflow actions to reviewed official full commit SHAs, added an allowlist guard and regression tests, and ran synthetic-only Actions.
+- Verification: run 38135712550 completed successfully for reviewed developer PR head 0e9b5f592f8004022576598936a7f24a8268caca. Tester decision PASS_WITH_SCOPED_RESTRICTIONS.
+- Additional review hardening: incomplete/absent composite key schema and timestamp parse errors produce explicit review states. Tests cover spot fallback to security_id and canonicalization of numeric epoch values.
+- Limitation: no real data file was available in the runtime; no row-level dataset scan was performed. The structural preflight does not validate market semantics or modelling readiness.
