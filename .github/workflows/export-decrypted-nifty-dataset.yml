@@ -1,0 +1,188 @@
+name: Export Decrypted NIFTY CSV for Offline Storage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/export-decrypted-nifty-dataset.yml"
+      - "scripts/export_decrypted_nifty_1m_csv.py"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: offline-decrypted-nifty-csv-export
+  cancel-in-progress: false
+
+jobs:
+  export-decrypted-csv:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      ACCEPTED_REPAIR_RUN_ID: "38131641336"
+      ACCEPTED_REPAIR_HEAD_SHA: "5e769cd4b19887311213baf16eb81b97416322d7"
+      DERIVED_ARTIFACT_ID: "11698879857"
+      DERIVED_ARTIFACT_NAME: "nifty-1m-derived-repaired-r2-38126168547"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Verify exact accepted repair run and artifact
+        id: preflight
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ACCEPTED_REPAIR_RUN_ID")"
+          if [[ "$(jq -r '.head_branch // ""' <<< "$run_json")" != "main" ||
+                "$(jq -r '.head_sha // ""' <<< "$run_json")" != "$ACCEPTED_REPAIR_HEAD_SHA" ||
+                "$(jq -r '.status // ""' <<< "$run_json")" != "completed" ||
+                "$(jq -r '.conclusion // ""' <<< "$run_json")" != "success" ]]; then
+            echo "Refusing wrong, incomplete, or failed repair run."
+            exit 1
+          fi
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ACCEPTED_REPAIR_RUN_ID/artifacts?per_page=100")"
+          matched="$(jq --arg n "$DERIVED_ARTIFACT_NAME" --argjson id "$DERIVED_ARTIFACT_ID" \
+            '[.artifacts[] | select(.id == $id and .name == $n and .expired == false and .size_in_bytes > 0)] | length' \
+            <<< "$artifacts")"
+          [[ "$matched" == "1" ]] || { echo "Exact accepted derived artifact is unavailable."; exit 1; }
+          echo "export_ready=true" >> "${GITHUB_OUTPUT}"
+          echo "PASS: exact reviewed derived artifact is available."
+
+      - uses: actions/setup-python@v5
+        if: steps.preflight.outputs.export_ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-composite.txt
+
+      - name: Install pinned decryption dependency
+        if: steps.preflight.outputs.export_ready == 'true'
+        run: python -m pip install -r requirements-composite.txt
+
+      - name: Run offline exporter regressions
+        if: steps.preflight.outputs.export_ready == 'true'
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/decrypt_nifty_1m_composite.py scripts/export_decrypted_nifty_1m_csv.py scripts/test_export_decrypted_nifty_1m_csv.py
+          python -m unittest -v scripts/test_export_decrypted_nifty_1m_csv.py
+
+      - name: Download the exact encrypted derived artifact
+        if: steps.preflight.outputs.export_ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-derived-repaired-r2-38126168547
+          run-id: 38131641336
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/decrypted-export-bundle
+
+      - name: Decrypt, verify and merge to a single CSV
+        id: export
+        if: steps.preflight.outputs.export_ready == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          BUNDLE_DIR: ${{ runner.temp }}/decrypted-export-bundle
+          WORK_DIR: ${{ runner.temp }}/decrypted-export-work
+          EXPORT_DIR: ${{ runner.temp }}/decrypted-export-output
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$HF_TOKEN" || { echo "Existing decryption secret unavailable."; exit 1; }
+          rm -rf "$WORK_DIR" "$EXPORT_DIR"
+          mkdir -p "$EXPORT_DIR"
+          python scripts/export_decrypted_nifty_1m_csv.py \
+            --bundle-dir "$BUNDLE_DIR" \
+            --work-dir "$WORK_DIR" \
+            --export-dir "$EXPORT_DIR"
+
+      - name: Remove encrypted bundle and decrypted scratch parts
+        id: cleanup
+        if: always()
+        env:
+          BUNDLE_DIR: ${{ runner.temp }}/decrypted-export-bundle
+          WORK_DIR: ${{ runner.temp }}/decrypted-export-work
+          EXPORT_DIR: ${{ runner.temp }}/decrypted-export-output
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$BUNDLE_DIR" "$WORK_DIR"
+          remaining="$(find "$RUNNER_TEMP" -type f \( -name '*.csv' -o -name '*.csv.gz' \) ! -path "$EXPORT_DIR/*" -print -quit || true)"
+          if [[ -n "$remaining" ]]; then
+            echo "Plaintext CSV scratch file remains outside the designated export directory."
+            exit 1
+          fi
+          echo "PASS: encrypted download and decrypted monthly scratch parts removed."
+
+      - name: Verify standalone export and manifest
+        id: validate_export
+        if: steps.export.outcome == 'success' && steps.cleanup.outcome == 'success'
+        env:
+          EXPORT_DIR: ${{ runner.temp }}/decrypted-export-output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,pathlib
+          root=pathlib.Path(os.environ["EXPORT_DIR"])
+          csv_path=root/"nifty_1m_composite_repaired.csv"
+          report_path=root/"EXPORT_MANIFEST.json"
+          readme_path=root/"README_OFFLINE.txt"
+          if not csv_path.is_file() or csv_path.stat().st_size <= 0: raise SystemExit("export_csv_missing")
+          if not report_path.is_file() or not readme_path.is_file(): raise SystemExit("export_metadata_missing")
+          report=json.loads(report_path.read_text(encoding="utf-8"))
+          if report.get("export_status")!="PASS": raise SystemExit("export_status_invalid")
+          if report.get("data_rows")!=8999865: raise SystemExit("export_total_row_count_mismatch")
+          if report.get("rows_by_type")!={"OPTION":8490723,"SPOT":509142}: raise SystemExit("export_row_type_count_mismatch")
+          if report.get("derived_artifact_id")!=11698879857: raise SystemExit("export_artifact_lineage_mismatch")
+          if report.get("output_bytes")!=csv_path.stat().st_size: raise SystemExit("export_byte_count_mismatch")
+          h=hashlib.sha256()
+          with csv_path.open("rb") as stream:
+              for block in iter(lambda:stream.read(1024*1024),b""): h.update(block)
+          if report.get("output_sha256")!=h.hexdigest(): raise SystemExit("export_csv_sha256_mismatch")
+          print(json.dumps({
+            "status":"PASS",
+            "data_rows":report["data_rows"],
+            "rows_by_type":report["rows_by_type"],
+            "columns":report["csv_columns"],
+            "output_bytes":report["output_bytes"],
+            "output_sha256":report["output_sha256"]
+          },sort_keys=True))
+          PY
+          echo "export_valid=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload offline plaintext CSV bundle
+        id: upload
+        if: steps.validate_export.outputs.export_valid == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-composite-repaired-plain-csv-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/decrypted-export-output/nifty_1m_composite_repaired.csv
+            ${{ runner.temp }}/decrypted-export-output/EXPORT_MANIFEST.json
+            ${{ runner.temp }}/decrypted-export-output/README_OFFLINE.txt
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 90
+
+      - name: Remove local plaintext after artifact upload
+        if: always()
+        env:
+          EXPORT_DIR: ${{ runner.temp }}/decrypted-export-output
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$EXPORT_DIR"
+          remaining="$(find "$RUNNER_TEMP" -type f \( -name '*.csv' -o -name '*.csv.gz' \) -print -quit || true)"
+          if [[ -n "$remaining" ]]; then
+            echo "Plaintext CSV remains in runner temp after export."
+            exit 1
+          fi
+          echo "PASS: local plaintext export removed after upload."
