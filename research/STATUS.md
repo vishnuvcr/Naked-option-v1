@@ -1,3 +1,15 @@
+## 2026-10-11 — Modeling-readiness implementation corrected; synthetic gate approved
+
+- Latest synthetic-only CI [run 38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) passed on developer commit [c1114a8](https://github.com/vishnuvcr/Naked-option-v1/commit/c1114a84aa87b60f27b1414fa8607f738731e158).
+- Tester review is **PASS_WITH_SCOPED_RESTRICTIONS — synthetic implementation only**: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_IMPLEMENTATION_TESTER_REVIEW_R5_CORRECTED_2026-10-11.md) and [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_IMPLEMENTATION_TESTER_DECISION_R5_CORRECTED_2026-10-11.json).
+- Corrections include constrained nested report statuses and strict report sanitizer, one-shot horizon iterable handling, rejection of negative metadata counts, and rejection of invalid label tolerances. Added regression coverage.
+- Intermediate CI failures on sequential commits were inspected and logged; they reflected stale tests against the newly tightened sanitizer. The final exact snapshot passed.
+- **Still not authorized:** real-data MR-0 to MR-5 feasibility execution, fitting/tuning/scoring, final holdout observation access, new source requests, strategy/P&L, or trading. The next bounded task is a detailed MR-0 to MR-5 empirical-run proposal with exact input/output boundaries, then a separate tester decision. No result or model performance is claimed.
+
+Developer → Tester: Review the proposed exact-snapshot MR-0 to MR-5 feasibility run before any real-data execution.
+Tester → Developer: Keep all empirical and downstream gates closed until written exact-hash authorization.
+
+
 ## Latest Dhan spot recovery outcome and next gate — 2026-10-11
 
 - **R1 run:** [38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291) completed successfully at the workflow level; data status remains `SPOT_GAPFILL_PARTIAL`.
