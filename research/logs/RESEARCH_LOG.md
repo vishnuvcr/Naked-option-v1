@@ -1100,3 +1100,17 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 
 **Developer → Tester:** Independently audit the uploaded encrypted bundle and final counters, with special attention to the six failed shards, exact join accounting, and charging every received response to the aggregate byte cap before validation.
 **Tester → Developer:** Return a scoped artifact-gate PASS or itemized REQUEST CHANGES; do not grant further live requests, fitting/scoring, strategy tests, or holdout access based solely on workflow success.
+
+
+## 2026-10-11 — Spot byte-budget fix and exact-snapshot tester checkpoint
+
+- Static code review confirmed a real accounting flaw: response bytes were charged only after successful parsing in collect(), so malformed JSON/schema responses could bypass the 256 MiB aggregate counter. The developer correction moves byte charging into _http_fetch() immediately after the body read and before per-response size/content-type and payload validation. Aggregate-budget overflow raises immediately and is not swallowed by validation handling.
+- Regression tests added: malformed JSON must still increase downloaded_bytes; a response that would exceed the aggregate cap must fail closed before parsing.
+- Initial regression run [38117875024](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117875024) failed because the test fixture omitted the required request method field. The fixture was corrected; final offline pipeline run [38117905230](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117905230) passed.
+- Exact-snapshot tester cycle [38117905217](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38117905217) reviewed developer commit a5437ba8a31fe325b2988b92a8bf9325ee002450. Decision: PASS_WITH_SCOPED_RESTRICTIONS, deterministic checks passed, AI reviewer unavailable (Hugging Face inference HTTP 402). Scope is offline code gate only; no diagnostic, new spot recovery, live requests, model fitting or holdout access authorized.
+- This tester report did not independently inspect/decrypt the 229 MB recovery artifact, validate the six failed shard reasons, or certify the realized aggregate bytes/request counters. Those remain an explicit artifact/data gate; the already-spent one-use authorization cannot be reused.
+- No model fitting/scoring, strategy/P&L testing, holdout access or new market-data request occurred.
+
+**Developer → Tester:** Independently audit the immutable encrypted artifact/manifest and realized request, byte, row, and join counters when a properly authorized artifact-review mechanism is available; keep the current no-live-request/no-model gate.
+
+**Tester → Developer:** Treat a5437ba as an offline code-gate pass only. Do not promote recovery to complete or authorize data acquisition/model fitting without a separate artifact-level review.
