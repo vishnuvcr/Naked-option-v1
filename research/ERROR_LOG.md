@@ -1,3 +1,15 @@
+## 2026-10-11 — MR feasibility synthetic CI failures corrected (R7)
+
+- Run [38152782473](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38152782473): synthetic tests exposed an invalid feature-family fixture and an authorization test that did not bind the expected Actions run/attempt. Fixed the fixture allowlist and test environment.
+- Run [38152819066](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38152819066): synthetic tests exposed a date/string comparison in target horizon eligibility and repeated the auth-fixture failure. Fixed date normalization and auth test setup.
+- Run [38152886220](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38152886220): workflow guard failed because it searched for a dataset filename that was itself embedded in the guard. Rewrote the check to avoid the self-match.
+- Run [38152920477](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38152920477): workflow guard falsely matched `run_model` inside the runner filename. Removed the invalid filename substring assertion.
+- Run [38153151050](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153151050): new close-linkage evidence contract exposed incomplete synthetic source-manifest fixtures. Updated fixtures to bind the same evidence record in both pinned manifests.
+- Verification: [run 38153160558](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153160558) passed the full 13-test synthetic suite, self-test and workflow guard. No real data was opened.
+- A separate receipt-publisher workflow also reported failure on several commits (latest observed [38153159649](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153159649)); the available job-list endpoint returned zero jobs, so root cause and impact are **not established**. It is not represented as a feasibility-suite failure or as fixed.
+
+
+
 ## 2026-10-11 — Feasibility-runner correction blocked by repository safety control
 
 - Category: repository tooling / research gate.
