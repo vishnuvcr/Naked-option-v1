@@ -1,0 +1,15 @@
+{
+  "github_run_id": "38115037808",
+  "holdout_access_authorized": false,
+  "live_option_requests_allowed": false,
+  "max_retries": 0,
+  "max_wire_requests": 1,
+  "model_fitting_authorized": false,
+  "request_id": "SPOT1M-20260915-20261011",
+  "reviewed_developer_commit": "5f89f86c6492aa1241678e6190c1e412ed85d4a0",
+  "schema_version": 1,
+  "scope": "ONE_NONPERSISTING_SPOT_SCHEMA_DIAGNOSTIC",
+  "spent_at_utc": "2026-10-11T05:31:17Z",
+  "status": "SPENT_BEFORE_SOURCE_REQUEST",
+  "tester_decision_blob": "b7e4effb3f17513dc4bf127e0850325bf7c36f69"
+}
