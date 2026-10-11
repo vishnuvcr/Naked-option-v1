@@ -92,6 +92,25 @@ class PreflightTests(unittest.TestCase):
             self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
             self.assertEqual(report["duplicate_key_count"], 1)
 
+    def test_equivalent_epoch_encodings_are_canonicalized_for_duplicate_detection(self):
+        with tempfile.TemporaryDirectory() as td:
+            row_a = ["1700000000", "option", "NIFTY", "2026-10-29", "25000", "CE"] + ["x"] * 41
+            row_b = ["1700000000.0", "option", "NIFTY", "2026-10-29", "25000", "CE"] + ["x"] * 41
+            path = self.make_file(td, [row_a, row_b], KEY_HEADER)
+            report = run(path, Path(td) / "r.json", self.digest(path), 2, 47)
+            self.assertEqual(report["duplicate_key_count"], 1)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
+
+    def test_spot_rows_fall_back_to_security_id_key_when_option_fields_are_blank(self):
+        with tempfile.TemporaryDirectory() as td:
+            header = ["timestamp_epoch", "instrument_type", "symbol", "expiry", "strike", "option_type", "security_id"] + [f"c{i}" for i in range(40)]
+            row = ["1700000000", "spot", "NIFTY", "", "", "", "13"] + [""] * 40
+            path = self.make_file(td, [row, row], header)
+            report = run(path, Path(td) / "r.json", self.digest(path), 2, 47)
+            self.assertEqual(report["duplicate_key_count"], 1)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
+            self.assertEqual(report["incomplete_composite_key_rows"], 0)
+
     def test_missing_recognized_key_fields_is_not_estimable_not_pass(self):
         with tempfile.TemporaryDirectory() as td:
             path = self.make_file(td, [["x"] * 47], GENERIC_HEADER)
