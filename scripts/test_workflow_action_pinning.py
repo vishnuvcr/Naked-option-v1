@@ -9,6 +9,29 @@ class WorkflowActionPinningTests(unittest.TestCase):
         workflow = Path(".github/workflows/phase-07-offline-preflight-tests.yml")
         self.assertEqual(inspect_workflow(workflow.read_text(encoding="utf-8")), [])
 
+    def test_real_file_audit_workflow_complies_with_pins_and_permissions(self):
+        workflow = Path(".github/workflows/phase-07-real-file-preflight-audit.yml")
+        self.assertEqual(
+            inspect_workflow(workflow.read_text(encoding="utf-8"), allow_secrets=True, allow_actions_read=True),
+            [],
+        )
+
+    def test_unapproved_secret_is_rejected_in_data_workflow(self):
+        text = """name: Test
+workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  test:
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        env:
+          HF_TOKEN: ${{ secrets.UNKNOWN_SECRET }}
+"""
+        errors = inspect_workflow(text, allow_secrets=True, allow_actions_read=True)
+        self.assertTrue(any("unapproved secrets" in item for item in errors))
+
     def test_mutable_tag_is_rejected(self):
         sha = APPROVED_ACTIONS["actions/checkout"]["sha"]
         text = f"""name: Test
