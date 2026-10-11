@@ -226,6 +226,7 @@ jobs:
           retention-days: 90
 
       - name: Remove plaintext and verify cleanup
+        id: cleanup
         if: always()
         env:
           BUNDLE_DIR: ${{ runner.temp }}/repair-bundle
@@ -243,7 +244,7 @@ jobs:
           echo "PASS: plaintext source and derived monthly files removed."
 
       - name: Publish sanitized repair report and manifest
-        if: steps.repair.outcome == 'success'
+        if: steps.repair.outcome == 'success' && steps.cleanup.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
@@ -269,7 +270,7 @@ jobs:
           PY
 
       - name: Commit sanitized report and manifest
-        if: steps.repair.outcome == 'success'
+        if: steps.repair.outcome == 'success' && steps.cleanup.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
