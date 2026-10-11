@@ -1,3 +1,16 @@
+## 2026-10-11 — Phase 8 moved to the audited saved forecast panels (R2)
+
+- The Phase 7 reference artifact is already available: [run #994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/37957677656), artifact ID 11638738288. It contains all 10 saved prediction panels (50,555 rows) and the paired aggregate JSON. The independent Phase 7 audit reports 3,098 checks passed and zero failed; it does **not** promote a model or strategy.
+- Developer commit [55bd22d](https://github.com/vishnuvcr/Naked-option-v1/commit/55bd22dfb1b8d8e8caeb472fdef90d2bd18a711e) switches the Phase 8 frozen input from Run #654's aggregate-only artifact to immutable Run #994 panels. It preserves the old input manifest as R1 and pins exact artifact, embedded-manifest, aggregate, source-code and panel hashes.
+- Phase 8 production workflow now validates saved forecasts without refitting the prediction models. The existing 1e-9 metric tolerance remains unchanged; empirical authorization remains false while integration testing and point-in-time option data gates are completed.
+- Current result: no strategy has been promoted and no Phase 8 option P&L has been run by this change. Next gate: hosted saved-panel validation, then test the pre-registered naked long CE/PE grid with Paytm Money costs, spreads and slippage after the option-history gate passes.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/ERROR_LOG.md) · [Chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/logs/CHAT_LOG.md) · [R2 amendment proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-developer/research/gates/phase8-run994-manifest-amendment-proposal.md).
+
+**Developer → Tester:** review developer commit 55bd22d and the hosted R2 saved-panel integration result; keep empirical authorization false until the exact snapshot passes.
+**Tester → Developer:** verify all ten saved panels and source/metric hashes independently, then return the exact-snapshot gate result before any option P&L job.
+
+---
+
 ## 2026-10-11 — Gzip boundary scanner R2 passed synthetic review
 
 - Hosted synthetic run [38153849924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153849924) passed 6 tests and CLI guard. Tester decision: [R2 review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R2_2026-10-11.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R2_2026-10-11.json).
