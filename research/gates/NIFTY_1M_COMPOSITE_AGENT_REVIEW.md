@@ -1,13 +1,13 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
-- Decision: PASS_WITH_SCOPED_RESTRICTIONS
-- Reviewed developer commit: 9b4ec897c859c1f0f774d10b9eeda8ba16a18a17
-- Report time (UTC): 2026-10-11T05:44:45Z
-- Deterministic checks: PASS
+- Decision: REQUEST_CHANGES
+- Reviewed developer commit: 49e8c42d8dfe5156ea2dbb24da54b237063150e4
+- Report time (UTC): 2026-10-11T05:55:19Z
+- Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
 - Single-request diagnostic authorized: NO
-- Cache-preserving spot-only recovery authorized: YES — at most 61 spot requests; zero live option refetches
+- Cache-preserving spot-only recovery authorized: NO
 - General live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO
@@ -17,7 +17,7 @@
 - INFO — SPOT_OHLC_STRICT_VOLUME_DEGRADED: Timestamp/OHLC arrays remain mandatory and aligned; unusable volume stays blank and is quality-flagged.
 - INFO — SANITIZED_DIAGNOSTIC_PRESENT: Unexpected validation errors retain a bounded reason token without logging payload bodies.
 - INFO — SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS: The one-request diagnostic scope is pinned to the frozen request manifest and writes only sanitized metadata.
-- INFO — SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS: The separate recovery runner requires a valid cache for every option request and forbids live option refetches.
+- BLOCKER — SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING: Recovery workflow must count the diagnostic wire attempt, prove all 8,540 option caches are valid and disable live option refetches before the one-use marker is spent. missing_collector=;missing_audit=;missing_accounting=;missing_workflow=audit_nifty_1m_composite_cache.py,SPOT_ONLY_CACHE_PRESERVING_RECOVERY,run_nifty_1m_composite_dataset.py --spot-only-recovery,nifty1m-composite-,account_nifty_1m_probe_attempt.py
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: missing-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: empty-volume response.
 - INFO — REGRESSION_CASE_PRESENT: Regression coverage exists: misaligned volume array.
