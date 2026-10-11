@@ -262,6 +262,36 @@ def repair_dataset(input_dir: pathlib.Path, output_dir: pathlib.Path, report_pat
                                             counts["unknown_join_rows_masked"] += 1
                                         append_flag(row, "REPAIR_UNKNOWN_JOIN_STATUS_MASKED")
 
+                                # Fail closed if any invalid numeric/candle values remain in the derived row.
+                                if typ == "SPOT":
+                                    if any(row.get(field, "").strip() for field in SPOT_FIELDS[:4]) and not valid_ohlc(row, "nifty_"):
+                                        raise ValueError("post_repair_spot_ohlc_invariant_failed")
+                                    if row.get("nifty_volume", "").strip() and not valid_nonnegative(row["nifty_volume"]):
+                                        raise ValueError("post_repair_spot_volume_invariant_failed")
+                                elif typ == "OPTION":
+                                    if any(row.get(field, "").strip() for field in OPTION_FIELDS) and not valid_ohlc(row, "option_"):
+                                        raise ValueError("post_repair_option_ohlc_invariant_failed")
+                                    if row.get("option_volume", "").strip() and not valid_nonnegative(row["option_volume"]):
+                                        raise ValueError("post_repair_option_volume_invariant_failed")
+                                    if row.get("spot_join_status") == "NO_EXACT_TIMESTAMP_SPOT_MATCH":
+                                        if any(row.get(field, "").strip() for field in SPOT_FIELDS):
+                                            raise ValueError("post_repair_unmatched_row_not_blank")
+                                    elif row.get("spot_join_status") == "EXACT_TIMESTAMP_MATCH":
+                                        source_spot = spot_lookup.get(epoch) if epoch is not None else None
+                                        if source_spot is None:
+                                            if any(row.get(field, "").strip() for field in SPOT_FIELDS):
+                                                raise ValueError("post_repair_exact_join_without_source_not_blank")
+                                        else:
+                                            source_ohlc = {"nifty_" + name: source_spot.get("nifty_" + name, "") for name in OHLC_FIELDS}
+                                            expected_ohlc = source_ohlc if valid_ohlc(source_ohlc, "nifty_") else {field: "" for field in SPOT_FIELDS[:4]}
+                                            expected_volume = source_spot.get("nifty_volume", "") if valid_nonnegative(source_spot.get("nifty_volume", "")) else ""
+                                            if any((row.get(field, "") or "") != (expected_ohlc.get(field, "") or "") for field in SPOT_FIELDS[:4]):
+                                                raise ValueError("post_repair_exact_join_ohlc_mismatch")
+                                            if (row.get("nifty_volume", "") or "") != (expected_volume or ""):
+                                                raise ValueError("post_repair_exact_join_volume_mismatch")
+                                    elif any(row.get(field, "").strip() for field in SPOT_FIELDS):
+                                        raise ValueError("post_repair_unknown_join_not_blank")
+                                counts["post_repair_row_invariants_checked"] += 1
                                 if row.get("data_quality_flags", "") != flags_before:
                                     counts["rows_with_quality_flags_updated"] += 1
                                 writer.writerow(row)
