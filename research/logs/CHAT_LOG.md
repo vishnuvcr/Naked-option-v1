@@ -1441,3 +1441,14 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Reproduce the offline integrity and reconciliation checks from the artifact metadata.
 **Tester → Developer:** Return scoped results; do not grant empirical permissions from an archive-integrity pass.
+
+
+### 2026-10-11 — Corrected and started the actual offline value audit
+
+- Fixed the malformed workflow step that caused the first `main` deployment run to fail before any job started. Added regression coverage for the named artifact-download step and for test-before-access ordering. Recorded the first implementation/test errors in `DATASET_VALUE_AUDIT_MISTAKES.md`.
+- Updated the tester-role code report to exact developer snapshot `346b959f43ad8f97a54a3ecbddab55c54df6f2ac`; the offline test suite passed in run `38121967789` and protocol check passed in run `38121967994`.
+- Promoted the exact corrected workflow to `main`. Run `38122043916` has passed the preflight/self-tests, pulled the fixed existing artifact, validated all part hashes/sizes, and successfully decrypted monthly gzip parts. Row-level scanning was still in progress at the time of this entry.
+- No market-data endpoint was called. No model fit/score, holdout access or strategy/P&L test was performed.
+
+**Developer → Tester:** Review the completed value-level report and temp-cleanup proof once published.
+**Tester → Developer:** Keep all modeling gates closed until the value-level verdict and its separate empirical gate are accepted.
