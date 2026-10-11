@@ -457,3 +457,10 @@
 - Correction: copy the exact dependency file and exact reviewed 61-part dataset manifest to the Phase 8 developer branch; verify their Git blob IDs match the source pins. The original Phase 7 decryptor was also copied verbatim when a direct branch query confirmed it was absent from Phase 8.
 - Prevention: all files needed by a gated workflow must exist on that exact branch and be included in exact-snapshot review. The reviewer gate must fail closed if any dependency or manifest is missing or changed.
 - The preflight request is still false. No raw dataset was decrypted/opened by these failed attempts; no P&L or strategy result exists.
+
+
+## 2026-10-11 — Phase 8 one-use preflight activation fixture and reviewer-pin mismatch
+- Run [38161622139](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161622139) failed at the synthetic workflow contract because it still expected the active request JSON to remain `requested=false` after the tester-approved activation. The request was correctly enabled for one metadata-only preflight, while the trade/holdout/source/promotion flags remained false. No artifact was opened.
+- Correction: make the regression validate both possible activation states and require exact approved code pins whenever enabled; independently keep synthetic tests that prove a false request skips without a decision.
+- Run [38161662282](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161662282) then passed all contract tests but the authorization gate failed closed because the request carried the old tester pin for `scripts/test_phase8_cached_composite_preflight.py` (`6d2a2f5e...`) while the corrected test blob was `c5955cfe...`. No cached composite was downloaded or decrypted.
+- Correction: preserve the prior tester decision as a dated archive, re-review the exact updated test snapshot, update the active tester decision with the new 15-file pin set and refresh only the request's `approved_code_blob_shas`. All 4 execution flags remain false. The next hosted run must pass exact hashes before marker/decryption.
