@@ -402,3 +402,13 @@ No scientific or protocol change was made during this checkpoint.
 - Tester report/decision R1 recorded REQUEST_CHANGES for daily H=1 exact-float source alignment and requires at most two ULPs only for `future_return`.
 - Developer added float64 ordered-bit ULP distance checks in `scripts/validate_phase7_reference_panels.py` (commit `5f54ca2a8c597369e145e4184446430cc9ec38fb`) and deterministic tests for 1/2/3 ULP, NaN, infinity, sign changes and daily H=1 source alignment in `scripts/test_phase8_reference_panels.py` (commit `6def41c40fa3c6a041b831dc938493eaafcf6680`).
 - Hosted runs #38164332000 and #38164349776 were pending/in progress at the time of this log. Inspect both outcomes; any observed pair greater than 2 ULP blocks acceptance. Source artifacts and forecasts remain unchanged.
+
+## 2026-10-12 — User said “Ok proceed”: simplify and advance H=1 gate
+
+- User asked to proceed and separately flagged that the workflow was becoming overcomplicated. Response: keep the research moving and report only meaningful outcomes.
+- Checked current developer branch workflow evidence. Exact HEAD `da33a40f4f52e51807ca0fb7882e7920021c47a1` passed validator regression [#38164567189](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567189) and protocol check [#38164567374](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38164567374).
+- Tester recorded [R2 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R2_2026-10-12.json) for one narrow reason: the full reconstruction run passed on an earlier commit, so the final diagnostics-persistence change still needs a full reconstruction on exact HEAD. Earlier observed discrepancies were 64 daily H=1 values, max absolute difference 3.469446951953614e-18, max ULP distance 1, no out-of-policy values; this is prior-run evidence, not yet exact-HEAD evidence.
+- Next step: rerun reconstruction against the immutable cached Run #994 artifact only, confirm persisted diagnostics, and leave empirical option P&L/holdout/data acquisition closed. The R1 one-use preflight authorization remains consumed/disabled.
+
+**Developer → Tester:** Verify the exact-HEAD reconstruction artifact and make a concise pass/fail decision.
+**Tester → Developer:** Keep the gate open only for this evidence gap; do not add unrelated requirements.
