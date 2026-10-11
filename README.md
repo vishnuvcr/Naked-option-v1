@@ -650,3 +650,12 @@ The Phase 7 official-source cross-check remains **BLOCKED / REQUEST CHANGES**. A
 - No official NSE Indices or Dhan instrument-master request was made. The earlier one-use Dhan sample approval remains SPENT; no new data has been accepted for modeling and no prediction or strategy result changed.
 - **Next gate:** obtain a verifiable hosted Actions receipt for the exact current commit, pin the tested source/test/workflow blobs, then submit that exact snapshot to the isolated tester. Live acquisition remains prohibited until a new explicit tester PASS.
 - See [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), [chat log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md), and [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PHASE7_DHAN_SAMPLE_OFFICIAL_REFERENCE_CROSSCHECK_CODE_TESTER.md).
+
+
+## Latest resume checkpoint — 2026-10-11: independent parser gate pending
+
+The user requested continuation. The developer re-checked the exact review issue, phase-07 developer/tester branches, research status and offline test receipt. No new independent tester report is present on [issue #7](https://github.com/vishnuvcr/Naked-option-v1/issues/7). Offline tests passed at [run 38101761538](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38101761538), but the prior live acquisition remains partial: 8,490,723 option rows, zero spot rows, and 61 spot requests reported as `unexpected_ValueError`. The actual spot response/parser cause remains unknown; missing volume is only a hypothesis.
+
+No new live request was launched and no approval was spent. The next step requires an exact-snapshot independent tester PASS specifying whether a single diagnostic request or bounded 61-spot recovery is allowed. Do not fit/score prediction models, access the final holdout, or run option strategies until the dataset passes independent coverage and integrity review.
+
+Research ledgers: [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) · [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md) · [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
