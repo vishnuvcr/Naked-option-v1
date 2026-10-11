@@ -159,7 +159,7 @@ def test_workflow_and_request_restrictions_are_metadata_only():
     assert "actions/download-artifact@v4" in text
     assert "run-id: 38131641336" in text
     assert "11698879857" in text and "11638738288" in text
-    assert "cbd3c51bcaecef0572b1f0727b82ccc4f8f624469a256a6a440327c83b03204" in text
+    assert "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204" in text
     assert "scripts/run_phase8_long_option.py" in text
     assert "--mode preflight" in text
     assert "--mode empirical" not in text
