@@ -8,6 +8,7 @@ secret; it is never sent to Dhan, logged, or persisted.
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import datetime as dt
 import gzip
