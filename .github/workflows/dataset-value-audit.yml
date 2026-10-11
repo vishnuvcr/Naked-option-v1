@@ -200,15 +200,23 @@ jobs:
         run: |
           set -euo pipefail
           if [[ ! -s research/data/DATASET_VALUE_AUDIT_RESULT.json ]]; then
-            python -c 'import json,pathlib; pathlib.Path("research/data/DATASET_VALUE_AUDIT_RESULT.json").write_text(json.dumps({"schema_version":1,"audit_type":"OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT","status":"AUDIT_ERROR","detail":"No valid sanitized audit result was produced.","sensitive_market_values_in_report":False,"plaintext_uploaded":False,"live_source_requests_made":False,"permission_conclusion":"NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"},indent=2,sort_keys=True)+"\\n",encoding="utf-8")'
+            printf '%s\n' '{"schema_version":1,"audit_type":"OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT","status":"AUDIT_ERROR","detail":"No valid sanitized audit result was produced.","sensitive_market_values_in_report":false,"plaintext_uploaded":false,"live_source_requests_made":false,"permission_conclusion":"NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"}' > research/data/DATASET_VALUE_AUDIT_RESULT.json
           fi
           rm -rf "${{ runner.temp }}/dataset-plain" "${{ runner.temp }}/dataset-input" "${{ runner.temp }}/dataset-bundle"
-          rm -f "${{ runner.temp }}/dataset-audit-keys.sqlite" "${{ runner.temp }}/dataset-audit-keys.sqlite-journal" "${{ runner.temp }}/dataset-audit-keys.sqlite-wal" "${{ runner.temp }}/dataset-audit-keys.sqlite-shm"
+          rm -f "${{ runner.temp }}/dataset-audit-keys.sqlite" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-journal" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-wal" \
+                "${{ runner.temp }}/dataset-audit-keys.sqlite-shm"
           if find "${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
             echo "ERROR: plaintext monthly CSV.GZ remained in runner temp."
             exit 1
           fi
-          echo "Plaintext monthly parts and duplicate-check database removed."
+          if [[ -e "${{ runner.temp }}/dataset-audit-keys.sqlite" ]]; then
+            echo "ERROR: temporary duplicate-check database remained in runner temp."
+            exit 1
+          fi
+          echo "Plaintext monthly parts and duplicate-check database removed and verified."
+
       - name: Commit only the sanitized aggregate result
         if: always()
         shell: bash
