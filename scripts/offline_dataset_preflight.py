@@ -150,12 +150,25 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         complete = True
                         for column_index in column_indexes:
                             value = row[column_index].strip()
-                            if header[column_index].strip().lower() == "timestamp_epoch":
+                            column_name = header[column_index].strip().lower()
+                            if column_name == "timestamp_epoch":
                                 normalized_epoch = normalize_timestamp(value, header[column_index])
                                 if normalized_epoch is None:
                                     complete = False
                                     break
                                 value = format(normalized_epoch, ".15g")
+                            elif column_name == "returned_strike":
+                                try:
+                                    normalized_strike = float(value)
+                                except ValueError:
+                                    complete = False
+                                    break
+                                if not math.isfinite(normalized_strike):
+                                    complete = False
+                                    break
+                                value = format(normalized_strike, ".15g")
+                            elif column_name in ("row_type", "instrument_type", "option_type", "underlying", "symbol"):
+                                value = value.upper()
                             if not value:
                                 complete = False
                                 break
