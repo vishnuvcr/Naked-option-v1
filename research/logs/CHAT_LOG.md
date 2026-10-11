@@ -1369,3 +1369,13 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 - Offline tests passed on commit `519be79eeb3feb6ec612b0ee656b43eca1d4a621`; exact developer commit including the workflow-copy fix is `df0854790fe53c9aed31addd1a947b653c1dc7a2`.
 - Independent tester report is PASS_WITH_SCOPED_RESTRICTIONS for code checks only. It expressly does not authorize live requests. HF AI verdict unavailable due HTTP 402.
 - Therefore no API call occurred in this step. Next action is to get the one-request non-exporting diagnostic scope independently authorized; then inspect its sanitized schema/reason output before targeted recovery.
+
+
+## 2026-10-11 — User: “Continue” (Phase 7 recovery)
+
+- User directed continuation from the checkpoint describing Run `38116772719`.
+- Verified the isolated tester's current exact-snapshot decision and inspected the run jobs/artifact list before relying on the checkpoint.
+- Confirmed original encrypted artifact restore/decryption preflight passed for 8,490,723 option rows and zero spot rows; credential presence and pre-request one-use marker steps passed.
+- At the last check, only the collector/merge step was running; there was no published recovery result/artifact and no basis yet to claim successful spot recovery.
+- Updated [research status](../STATUS.md), [research log](RESEARCH_LOG.md), and [error log](ERROR_LOG.md); refreshed the main-branch README checkpoint. Recorded only user-visible requests, verified states, results, and review findings; private chain-of-thought is not stored.
+- Prediction/model fitting, scoring, strategy/P&L, and final-holdout access remain gated by independent audit of the realized recovery artifact.
