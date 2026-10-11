@@ -5,6 +5,10 @@ on:
     workflows: ["Phase 7 NIFTY Spot Failed-Window Patch — Exact-SHA Gate"]
     types: [completed]
     branches: [phase-07-tester]
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/phase-07-spot-patch-value-audit.yml"
   workflow_dispatch:
     inputs:
       run_id:
@@ -22,11 +26,11 @@ concurrency:
 
 jobs:
   audit:
-    if: \${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.head_branch == 'phase-07-tester' && github.event.workflow_run.status == 'completed') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.workflow_run.head_branch == 'phase-07-tester' && github.event.workflow_run.status == 'completed') }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      TARGET_RUN_ID: \${{ github.event.workflow_run.id || inputs.run_id }}
+      TARGET_RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id || '38126168547' }}
     steps:
       - name: Checkout audit code and status destination
         uses: actions/checkout@v4
@@ -38,7 +42,7 @@ jobs:
       - name: Validate source run identity
         id: preflight
         env:
-          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -79,18 +83,18 @@ jobs:
         if: steps.preflight.outputs.audit_ready == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: nifty-1m-spot-failed-window-patch-\${{ env.TARGET_RUN_ID }}
-          run-id: \${{ env.TARGET_RUN_ID }}
-          repository: \${{ github.repository }}
-          github-token: \${{ secrets.GITHUB_TOKEN }}
-          path: \${{ runner.temp }}/spot-patch-bundle
+          name: nifty-1m-spot-failed-window-patch-${{ env.TARGET_RUN_ID }}
+          run-id: ${{ env.TARGET_RUN_ID }}
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/spot-patch-bundle
 
       - name: Verify encrypted part integrity and prepare decrypt input
         if: steps.preflight.outputs.audit_ready == 'true'
         env:
-          BUNDLE_DIR: \${{ runner.temp }}/spot-patch-bundle
-          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
-          TARGET_RUN_ID: \${{ env.TARGET_RUN_ID }}
+          BUNDLE_DIR: ${{ runner.temp }}/spot-patch-bundle
+          INPUT_DIR: ${{ runner.temp }}/spot-patch-input
+          TARGET_RUN_ID: ${{ env.TARGET_RUN_ID }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -170,23 +174,93 @@ jobs:
         id: decrypt
         if: steps.preflight.outputs.audit_ready == 'true'
         env:
-          HF_TOKEN: \${{ secrets.HF_TOKEN }}
-          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
-          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_DIR: ${{ runner.temp }}/spot-patch-input
+          PLAIN_DIR: ${{ runner.temp }}/spot-patch-plain
         run: |
           set -euo pipefail
           [[ -n "$HF_TOKEN" ]] || { echo "HF_TOKEN unavailable."; exit 1; }
           python scripts/decrypt_nifty_1m_composite.py --input-dir "$INPUT_DIR" --output-dir "$PLAIN_DIR"
           cp "$INPUT_DIR/dataset_manifest.json" "$PLAIN_DIR/dataset_manifest.json"
 
+      - name: Diagnose spot timestamp alignment without exposing prices
+        id: alignment
+        if: steps.decrypt.outcome == 'success'
+        env:
+          PLAIN_DIR: ${{ runner.temp }}/spot-patch-plain
+          TARGET_RUN_ID: ${{ env.TARGET_RUN_ID }}
+        run: |
+          python - <<'PY'
+          import bisect, csv, gzip, json, os, pathlib
+          from collections import Counter
+          root = pathlib.Path(os.environ["PLAIN_DIR"])
+          lower, upper = "2021-11-08", "2021-11-15"
+          missing_epochs, new_spot_epochs = set(), set()
+          missing_rows_by_day, new_spot_rows_by_day = Counter(), Counter()
+          new_spot_weekday_rows = Counter()
+          for path in root.glob("nifty_1m_composite_*.csv.gz"):
+              with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
+                  for row in csv.DictReader(handle):
+                      day = row.get("session_date", "")
+                      if not (lower <= day < upper):
+                          continue
+                      epoch = int(row["timestamp_epoch"])
+                      if row.get("row_type") == "OPTION" and row.get("spot_join_status") == "NO_EXACT_TIMESTAMP_SPOT_MATCH":
+                          missing_epochs.add(epoch)
+                          missing_rows_by_day[day] += 1
+                      if row.get("row_type") == "SPOT" and str(row.get("source_request_id", "")).startswith("GAPSPOT1M-PATCH-R2-"):
+                          new_spot_epochs.add(epoch)
+                          new_spot_rows_by_day[day] += 1
+                          from datetime import date
+                          new_spot_weekday_rows[date.fromisoformat(day).strftime("%A")] += 1
+          sorted_spot = sorted(new_spot_epochs)
+          nearest_signed = Counter()
+          for epoch in missing_epochs:
+              pos = bisect.bisect_left(sorted_spot, epoch)
+              candidates = sorted_spot[max(0, pos-1):min(len(sorted_spot), pos+1)]
+              if not candidates:
+                  nearest_signed["NO_NEW_SPOT_ROWS"] += 1
+                  continue
+              nearest = min(candidates, key=lambda x: abs(x-epoch))
+              delta = nearest-epoch
+              if abs(delta) <= 300:
+                  nearest_signed[str(delta)] += 1
+              else:
+                  nearest_signed["OUTSIDE_300_SECONDS"] += 1
+          report = {
+              "schema_version": 1,
+              "audit_type": "SPOT_PATCH_TIMESTAMP_ALIGNMENT_DIAGNOSTIC",
+              "patch_run_id": os.environ["TARGET_RUN_ID"],
+              "failed_window_start_inclusive": lower,
+              "failed_window_end_exclusive": upper,
+              "new_patch_spot_rows": sum(new_spot_rows_by_day.values()),
+              "new_patch_distinct_timestamps": len(new_spot_epochs),
+              "new_patch_rows_by_session_date": dict(sorted(new_spot_rows_by_day.items())),
+              "new_patch_rows_by_weekday": dict(sorted(new_spot_weekday_rows.items())),
+              "unmatched_option_rows_in_failed_window": sum(missing_rows_by_day.values()),
+              "unmatched_option_distinct_timestamps_in_failed_window": len(missing_epochs),
+              "unmatched_option_rows_by_session_date": dict(sorted(missing_rows_by_day.items())),
+              "exact_timestamp_intersection_with_new_patch": len(missing_epochs & new_spot_epochs),
+              "nearest_new_spot_minus_option_epoch_seconds": dict(sorted(nearest_signed.items())),
+              "raw_market_values_emitted": False,
+              "model_fitting_or_scoring_performed": False,
+              "holdout_accessed": False,
+              "strategy_or_pnl_tested": False
+          }
+          out = pathlib.Path("research/data") / ("SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_" + os.environ["TARGET_RUN_ID"] + ".json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(report, sort_keys=True, indent=2) + "\\n", encoding="utf-8")
+          print(json.dumps({k:v for k,v in report.items() if k not in {"new_patch_rows_by_session_date","new_patch_rows_by_weekday","unmatched_option_rows_by_session_date","nearest_new_spot_minus_option_epoch_seconds"}}, sort_keys=True))
+          PY
+
       - name: Run offline semantic and value audit
         id: audit
         if: steps.decrypt.outcome == 'success'
         continue-on-error: true
         env:
-          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
-          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
-          SQLITE_TEMP: \${{ runner.temp }}/spot-patch-keys.sqlite
+          PLAIN_DIR: ${{ runner.temp }}/spot-patch-plain
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json
+          SQLITE_TEMP: ${{ runner.temp }}/spot-patch-keys.sqlite
         run: |
           set +e
           python scripts/audit_nifty_1m_composite_values.py --input-dir "$PLAIN_DIR" --output-json "$OUTPUT_JSON" --sqlite-temp "$SQLITE_TEMP"
@@ -197,7 +271,7 @@ jobs:
       - name: Write sanitized precondition failure if audit did not run
         if: always() && steps.audit.outcome != 'success'
         env:
-          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json
         run: |
           python - <<'PY'
           import json, os, pathlib
@@ -210,15 +284,15 @@ jobs:
       - name: Remove plaintext and duplicate-check scratch
         if: always()
         env:
-          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
-          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
-          BUNDLE_DIR: \${{ runner.temp }}/spot-patch-bundle
-          SQLITE_TEMP: \${{ runner.temp }}/spot-patch-keys.sqlite
+          PLAIN_DIR: ${{ runner.temp }}/spot-patch-plain
+          INPUT_DIR: ${{ runner.temp }}/spot-patch-input
+          BUNDLE_DIR: ${{ runner.temp }}/spot-patch-bundle
+          SQLITE_TEMP: ${{ runner.temp }}/spot-patch-keys.sqlite
         run: |
           set -euo pipefail
           rm -rf "$PLAIN_DIR" "$INPUT_DIR" "$BUNDLE_DIR"
           rm -f "$SQLITE_TEMP" "$SQLITE_TEMP-journal" "$SQLITE_TEMP-wal" "$SQLITE_TEMP-shm"
-          if find "\${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
+          if find "${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
             echo "Unexpected plaintext monthly part remained in runner temp."
             exit 1
           fi
@@ -226,8 +300,8 @@ jobs:
       - name: Append sanitized audit results to README and status
         if: always()
         env:
-          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
-          TARGET_RUN_ID: \${{ env.TARGET_RUN_ID }}
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json
+          TARGET_RUN_ID: ${{ env.TARGET_RUN_ID }}
         run: |
           python - <<'PY'
           import json, os, pathlib
@@ -238,6 +312,8 @@ jobs:
           r = json.loads(p.read_text(encoding="utf-8"))
           rows = r.get("rows", {})
           integrity = r.get("row_integrity", {})
+          alignment_path = root / "research/data" / ("SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_" + os.environ["TARGET_RUN_ID"] + ".json")
+          alignment = json.loads(alignment_path.read_text(encoding="utf-8")) if alignment_path.is_file() else {}
           text = (
               f"- Patch run: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['TARGET_RUN_ID']}\n"
               f"- Sanitized report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}\n"
@@ -257,13 +333,13 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json" research/STATUS.md README.md
+          git add "research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json" "research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_${{ env.TARGET_RUN_ID }}.json" research/STATUS.md README.md
           git diff --cached --quiet || { git commit -m "research: publish sanitized spot patch value audit"; git push origin HEAD:main; }
 
       - name: Enforce post-run audit gate
         if: always()
         env:
-          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          OUTPUT_JSON: ${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json
         run: |
           python - <<'PY'
           import json, os, pathlib
@@ -278,7 +354,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sanitized-spot-patch-audit-\${{ env.TARGET_RUN_ID }}
-          path: research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          name: sanitized-spot-patch-audit-${{ env.TARGET_RUN_ID }}
+          path: research/data/DATASET_VALUE_AUDIT_PATCH_RUN_${{ env.TARGET_RUN_ID }}.json
           if-no-files-found: error
           retention-days: 90
