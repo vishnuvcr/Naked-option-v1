@@ -430,3 +430,12 @@ No scientific or protocol change was made during this checkpoint.
 
 **Developer → Tester:** Review any archived-source candidate by exact hash.
 **Tester → Developer:** Do not authorize unpinned source retrieval or close the gate without a full exact-HEAD report.
+
+
+## 2026-10-12 — Source cache recovery request and incident correction
+
+- Tester R3 required the exact frozen source inputs after cache-only validation failed. Existing archive research found no matching raw file artifacts; the existing cache's intraday Parquet SHA does not match Run #994, while the daily CSV does.
+- Added a strict tester-gated restoration workflow and request for the two exact spot-reference files only. It checks the embedded Run #994 manifest first, preserves already matching sources, requires exact tester-approved code blob hashes before source acquisition, records an R1 attempt before provider calls, and accepts files only when their SHA-256 values match the frozen manifest. Request is pending; no restoration occurred.
+- Process mistake logged: the cache exporter push unexpectedly triggered Phase 3 acquisition run #38165705151 because its push paths were previously broad. We narrowed the Phase 3 auto-run filters in commit `f27d36f`; results from the unintended run are excluded from H1 source validation. The GitHub connector does not provide a cancellation operation.
+- Synthetic source-cache tests exposed a mis-specified test expectation (the verifier raises for a redirected manifest path); fixed in commit `2646c9a`. Hosted tests #38166407016 and pre-approval restoration run #38166407067 were running/denying by design at the time of the update; their final states must be inspected.
+- ULP diagnostics from earlier frozen panel validations remained within 1 ULP (strict bound 2); this does not close the newest source-data gate. No P&L/holdout/strategy promotion authorized.
