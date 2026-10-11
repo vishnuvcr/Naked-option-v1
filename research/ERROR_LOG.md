@@ -1133,3 +1133,10 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Impact: no accepted spot data; no new prediction result. Re-running live acquisition before review risks spending a new approval without knowing the parser cause.
 - Disposition: no network request started; no approval reused or spent. Missing-volume remains an unconfirmed hypothesis.
 - Prevention: require tester report bound to exact developer snapshot `269ce879e2587d0b3473fdc1aac91acc95da05ff` or exact protected code blob SHAs before any new request.
+
+
+## 2026-10-11 — Offline artifact integrity verification
+- Result: downloaded ZIP SHA-256 matched GitHub digest; ZIP integrity test passed; all 37 encrypted parts matched manifest hashes and sizes.
+- Reconciliation: 8,490,723 option rows; zero spot rows; 7,481 request/quality failures; discontinuous month coverage; PARTIAL_GRID.
+- Limitation: authenticated decryption was not verified because collection-time HF_TOKEN is not available to the offline inspection. Do not conflate ciphertext hashes with decryption or dataset validity.
+- Disposition: no live request or model run. Await independent exact-snapshot review in issue #7.
