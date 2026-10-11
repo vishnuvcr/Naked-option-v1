@@ -1,0 +1,210 @@
+name: Phase 8 Frozen Source Restore (Tester Gated)
+
+on:
+  push:
+    branches: [phase-08-developer]
+    paths:
+      - .github/workflows/phase8-frozen-source-restore.yml
+      - scripts/authorize_phase8_source_cache_bootstrap.py
+      - scripts/verify_phase8_cached_source_inputs.py
+      - scripts/acquire_nifty_daily_history.py
+      - scripts/acquire_hf_intraday_sample.py
+      - scripts/test_phase8_cached_source_inputs.py
+      - scripts/test_phase8_source_cache_bootstrap.py
+      - research/gates/PHASE8_SOURCE_CACHE_RESTORE_REQUEST_R1_2026-10-12.json
+      - research/gates/PHASE8_SOURCE_CACHE_RESTORE_CHECKPOINT_R1.json
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "Tester-approved frozen-source restore request ID"
+        required: true
+        type: choice
+        options:
+          - PHASE8_SOURCE_CACHE_RESTORE_R1_2026-10-12
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8-frozen-source-restore-r1
+  cancel-in-progress: false
+
+env:
+  REFERENCE_RUN_ID: "37957677656"
+  REFERENCE_COMMIT: "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb"
+  REFERENCE_ARTIFACT_ID: "11638738288"
+  REFERENCE_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+  REFERENCE_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
+
+jobs:
+  restore-frozen-spot-inputs:
+    name: Restore only the two frozen Phase 7 spot-reference inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install existing acquisition-script dependencies
+        run: python -m pip install pandas numpy pyarrow
+
+      - name: Download only the immutable Run #994 reference artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase7-ensemble-reference
+          run-id: 37957677656
+          repository: vishnuvcr/Naked-option-v1
+          github-token: ${{ github.token }}
+          path: data/cache/reference/phase7_run994/unpacked
+
+      - name: Verify embedded manifest identity before reading its source pins
+        run: |
+          set -euo pipefail
+          manifest="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          test -s "$manifest"
+          actual="$(sha256sum "$manifest" | awk '{print $1}')"
+          echo "embedded_manifest_sha256=$actual"
+          test "$actual" = "$REFERENCE_MANIFEST_SHA256"
+
+      - name: Restore only the artifact-specific source cache
+        id: restore_source_cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/cache/raw/phase3/nifty50_daily.csv
+            data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet
+          key: phase8-phase3-source-Linux-${{ env.REFERENCE_ARTIFACT_SHA256 }}
+
+      - name: Verify current frozen source files offline
+        id: cache_check
+        shell: bash
+        run: |
+          set -u
+          manifest="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          report="data/reports/phase8/source_cache_verification.json"
+          python scripts/verify_phase8_cached_source_inputs.py --manifest "$manifest" --root "$GITHUB_WORKSPACE" --allow-missing --output "$report"
+          rc=$?
+          status="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$report")"
+          echo "status=$status"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" = "PASS" ]; then
+            exit 0
+          fi
+          if [ "$status" = "MISSING" ] && [ "$rc" = "0" ]; then
+            exit 0
+          fi
+          echo "SOURCE_CACHE_FAIL_CLOSED status=$status exit=$rc"
+          exit 2
+
+      - name: Deny a second R1 restore attempt
+        if: steps.cache_check.outputs.status == 'MISSING'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            let page = 1;
+            while (true) {
+              const result = await github.rest.actions.listArtifactsForRepo({
+                owner, repo, per_page: 100, page
+              });
+              const found = result.data.artifacts.find(a =>
+                a.name === "phase8-source-cache-bootstrap-attempt-R1" && !a.expired
+              );
+              if (found) {
+                core.setFailed("R1 already has a recorded restore attempt; require a new tester request and decision.");
+                return;
+              }
+              if (result.data.artifacts.length < 100) break;
+              page += 1;
+            }
+            core.info("No prior R1 attempt marker found.");
+
+      - name: Fetch independent tester branch
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: git fetch --no-tags origin phase-08-tester:refs/remotes/origin/phase-08-tester
+
+      - name: Authorize exact reviewed snapshot and frozen input hashes
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: |
+          python scripts/authorize_phase8_source_cache_bootstrap.py \
+            --tester-ref origin/phase-08-tester \
+            --manifest data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json \
+            --output data/reports/phase8/source_cache_bootstrap_authorization.json
+
+      - name: Record the one-time attempt before contacting source providers
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path=Path("data/reports/phase8/source_cache_bootstrap_attempt.json")
+          path.parent.mkdir(parents=True, exist_ok=True)
+          record={
+            "schema_version": 1,
+            "request_id": "PHASE8_SOURCE_CACHE_RESTORE_R1_2026-10-12",
+            "status": "ATTEMPT_STARTED",
+            "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+            "workflow_commit": os.environ["GITHUB_SHA"],
+            "network_scope": ["NIFTY daily spot history", "HF intraday NIFTY spot reference"],
+            "option_market_source_audit": False,
+            "empirical_option_pnl_authorized": False,
+            "holdout_access_authorized": False,
+            "strategy_promotion_authorized": False
+          }
+          path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Publish immutable attempt marker before source restoration
+        if: steps.cache_check.outputs.status == 'MISSING'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-source-cache-bootstrap-attempt-R1
+          path: data/reports/phase8/source_cache_bootstrap_attempt.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Restore frozen NIFTY daily source candidate
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: python scripts/acquire_nifty_daily_history.py
+
+      - name: Restore frozen HF intraday reference candidate
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: python scripts/acquire_hf_intraday_sample.py
+
+      - name: Strictly verify both source files against immutable Run #994 manifest
+        if: steps.cache_check.outputs.status == 'MISSING'
+        run: |
+          python scripts/verify_phase8_cached_source_inputs.py \
+            --manifest data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json \
+            --root "$GITHUB_WORKSPACE" \
+            --output data/reports/phase8/source_cache_verification.json
+
+      - name: Save the verified artifact-specific source cache
+        if: steps.cache_check.outputs.status == 'MISSING'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/cache/raw/phase3/nifty50_daily.csv
+            data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet
+          key: phase8-phase3-source-Linux-${{ env.REFERENCE_ARTIFACT_SHA256 }}
+
+      - name: Upload verified source inputs and full provenance report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-frozen-source-restoration-R1
+          path: |
+            data/cache/raw/phase3/nifty50_daily.csv
+            data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet
+            data/reports/phase8/source_cache_verification.json
+            data/reports/phase8/source_cache_bootstrap_authorization.json
+            data/reports/phase8/source_cache_bootstrap_attempt.json
+          if-no-files-found: warn
+          retention-days: 90
