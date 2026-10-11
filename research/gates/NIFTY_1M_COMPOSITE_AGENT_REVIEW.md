@@ -2,10 +2,10 @@
 
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS
 - Reviewed developer commit: 07cd1b23b07661d83177e5d3bba7e4df79798247
-- Report time (UTC): 2026-10-11T04:27:29Z
+- Report time (UTC): 2026-10-11T04:28:16Z
 - Deterministic checks: PASS
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
-- Automatic repair attempt: 2
+- Automatic repair attempt: 1
 - Live requests authorized: NO
 - Model fitting authorized: NO
 - Holdout access authorized: NO

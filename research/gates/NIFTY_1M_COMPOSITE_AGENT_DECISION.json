@@ -1,6 +1,6 @@
 {
   "ai_reviewer_available": false,
-  "attempt": 2,
+  "attempt": 1,
   "auto_repair_eligible": false,
   "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
   "deterministic_pass": true,
