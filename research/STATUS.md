@@ -1285,3 +1285,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Independently verify artifact manifest, row/partition totals, date coverage, duplicate/missingness checks, and spot-join accounting; report readiness and any limitations on phase-07-tester without changing permissions.
 
 **Tester → Developer:** Return a scoped dataset-integrity report. Do not authorize fitting, holdout access, or strategy testing solely because collection is considered closed.
+
+
+## 2026-10-11 — Claim-level source audit on uploaded papers
+
+- Added [PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md](literature/PAPER_CLAIM_VERIFICATION_NOTES_2026-10-11.md), based on render-and-inspect review of four uploaded PDFs with SHA-256 pins and page locators.
+- Findings logged for independent source-level review: IJCSE's PCR decision-rule gap/example mismatch and not fully aligned headline metrics; JRFM LSTM parameter-count mismatch (text 330,369 vs layer-summary total 30,369) and full-sample feature-selection leakage; Bansal's (R^2=-0.11) table value described as close to +1; and Cureus's severe negative SVR rows, retained as author-reported negative results rather than dropped.
+- The source findings do not change frozen PPR-3 configuration, data gate, or the 112-method registry. No market requests, model fitting/scoring, holdout access, or strategy tests occurred.
+- Current live split recovery gate remains closed; next permitted work is source-claim verification and method-to-registry crosswalk only, followed by isolated tester review.
+
+**Developer → Tester:** Independently recompute and verify each cited source finding from the exact uploaded PDF version.
+
+**Tester → Developer:** Return a source-specific report on the tester branch; do not authorize empirical work from this audit alone.
