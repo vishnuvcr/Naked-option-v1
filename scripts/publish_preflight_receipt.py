@@ -8,6 +8,9 @@ from pathlib import Path
 
 ALLOWED_REPORT_KEYS = {
     "status", "file_name", "file_size_bytes", "sha256", "gzip_integrity",
+    "expected_compressed_sha256", "compressed_sha256_matches_expected",
+    "uncompressed_sha256", "expected_uncompressed_sha256", "uncompressed_sha256_matches_expected",
+    "uncompressed_size_bytes", "expected_uncompressed_size_bytes", "uncompressed_size_matches_expected",
     "data_rows", "columns", "column_names", "recognized_timestamp_column",
     "timestamp_epoch_min", "timestamp_epoch_max", "timestamp_parse_errors",
     "recognized_row_type_counts", "null_or_blank_counts_by_column",
@@ -20,6 +23,7 @@ ALLOWED_LIMITATIONS = {
     "Unparseable timestamps and incomplete composite identifiers are reported but not repaired.",
     "This scan does not establish session-calendar correctness, target validity, leakage safety, exact spot joins, or OHLC semantics.",
     "No market row values are emitted in this report.",
+    "Gzip container metadata may change on recompression; the exact uncompressed CSV byte hash and byte count are checked separately.",
 }
 ALLOWED_STATUSES = {
     "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS",
@@ -27,6 +31,10 @@ ALLOWED_STATUSES = {
     "PREFLIGHT_FAIL_DUPLICATE_KEYS",
     "PREFLIGHT_REVIEW_TIMESTAMP_PARSE_ERRORS",
     "PREFLIGHT_REVIEW_INCOMPLETE_COMPOSITE_KEYS",
+    "PREFLIGHT_FAIL_UNCOMPRESSED_SHA256",
+    "PREFLIGHT_FAIL_UNCOMPRESSED_SIZE",
+    "PREFLIGHT_FAIL_ROW_WIDTH",
+    "PREFLIGHT_FAIL_ROW_COUNT",
 }
 SAFE_NAME = __import__("re").compile(r"^[A-Za-z_][A-Za-z0-9_ .:/-]{0,99}$")
 
@@ -53,10 +61,27 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
     unexpected = sorted(set(report) - ALLOWED_REPORT_KEYS)
     if unexpected:
         raise ValueError("REPORT_CONTAINS_UNAPPROVED_FIELDS")
-    if not isinstance(report.get("status"), str) or not isinstance(report.get("sha256"), str):
+    required_hash_fields = (
+        "sha256", "expected_compressed_sha256",
+        "uncompressed_sha256", "expected_uncompressed_sha256",
+    )
+    if not isinstance(report.get("status"), str) or any(not isinstance(report.get(k), str) for k in required_hash_fields):
         raise ValueError("REPORT_REQUIRED_METADATA_MISSING")
-    if len(report["sha256"]) != 64 or any(ch not in "0123456789abcdef" for ch in report["sha256"]):
-        raise ValueError("REPORT_SHA256_INVALID")
+    for field in required_hash_fields:
+        value = report[field]
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("REPORT_SHA256_INVALID")
+    for field in (
+        "compressed_sha256_matches_expected",
+        "uncompressed_sha256_matches_expected",
+        "uncompressed_size_matches_expected",
+    ):
+        if not isinstance(report.get(field), bool):
+            raise ValueError("REPORT_CONTENT_IDENTITY_FLAG_INVALID")
+    for field in ("uncompressed_size_bytes", "expected_uncompressed_size_bytes"):
+        value = report.get(field)
+        if not isinstance(value, int) or value < 0:
+            raise ValueError("REPORT_CONTENT_SIZE_INVALID")
     if report.get("file_name") != "nifty_repaired_composite_2021-10_to_2026-10.csv.gz":
         raise ValueError("REPORT_FILE_NAME_INVALID")
     if report.get("status") not in ALLOWED_STATUSES:
@@ -102,10 +127,14 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
         raise ValueError("REPORT_KEY_FIELDS_INVALID")
     if not all(isinstance(group, list) and all(name in report["column_names"] for name in group) for group in report["duplicate_key_fields"]):
         raise ValueError("REPORT_KEY_FIELDS_INVALID")
-    if report.get("data_rows") != 8_999_865 or report.get("columns") != 47:
+    if report.get("uncompressed_sha256_matches_expected") is not True or report.get("uncompressed_size_matches_expected") is not True:
+        receipt["receipt_status"] = "REPORT_PRESENT_CONTENT_IDENTITY_MISMATCH"
+    elif report.get("data_rows") != 8_999_865 or report.get("columns") != 47:
         receipt["receipt_status"] = "REPORT_PRESENT_WITH_EXPECTATION_MISMATCH"
     elif report.get("status") != "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS":
         receipt["receipt_status"] = "REPORT_PRESENT_NONPASS"
+    elif report.get("compressed_sha256_matches_expected") is False:
+        receipt["receipt_status"] = "REPORT_PRESENT_PASS_CONTENT_HASH_VERIFIED"
     else:
         receipt["receipt_status"] = "REPORT_PRESENT_PASS"
     receipt["report_available"] = True
