@@ -1290,3 +1290,9 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Verification: run 38135712550 completed successfully for reviewed developer PR head 0e9b5f592f8004022576598936a7f24a8268caca. Tester decision PASS_WITH_SCOPED_RESTRICTIONS.
 - Additional review hardening: incomplete/absent composite key schema and timestamp parse errors produce explicit review states. Tests cover spot fallback to security_id and canonicalization of numeric epoch values.
 - Limitation: no real data file was available in the runtime; no row-level dataset scan was performed. The structural preflight does not validate market semantics or modelling readiness.
+
+## 2026-10-11 — Real-file preflight synthetic CI corrections
+- First CI attempt failed two synthetic assertions: permission-error wording had changed, and one stale-hash test used a relative path inconsistent with its temporary fixture.
+- Corrected both tests and reran exact snapshot. Actions run 38137514604 passed all synthetic checks.
+- Added explicit tester-gate name validation, exact blob matching, source-artifact lineage checks and cleanup of report-associated SQLite temporary files.
+- Real-file execution request is committed, but no verifiable run/result receipt has yet been retrieved from the available connector. No empirical conclusion is inferred.
