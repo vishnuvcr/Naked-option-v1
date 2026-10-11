@@ -41,11 +41,25 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
         raise ValueError("REPORT_CONTAINS_UNAPPROVED_FIELDS")
     if not isinstance(report.get("status"), str) or not isinstance(report.get("sha256"), str):
         raise ValueError("REPORT_REQUIRED_METADATA_MISSING")
+    if len(report["sha256"]) != 64 or any(ch not in "0123456789abcdef" for ch in report["sha256"]):
+        raise ValueError("REPORT_SHA256_INVALID")
+    if not isinstance(report.get("column_names"), list) or not all(isinstance(x, str) for x in report["column_names"]):
+        raise ValueError("REPORT_COLUMN_NAMES_INVALID")
+    for field in ("data_rows", "columns", "file_size_bytes", "timestamp_parse_errors", "row_width_errors"):
+        if not isinstance(report.get(field), int) or report[field] < 0:
+            raise ValueError("REPORT_COUNT_FIELD_INVALID")
+    for field in ("null_or_blank_counts_by_column", "recognized_row_type_counts"):
+        value = report.get(field)
+        if not isinstance(value, dict) or not all(isinstance(k, str) and isinstance(v, int) and v >= 0 for k, v in value.items()):
+            raise ValueError("REPORT_COUNT_MAP_INVALID")
+    if not isinstance(report.get("limitations"), list) or not all(isinstance(x, str) for x in report["limitations"]):
+        raise ValueError("REPORT_LIMITATIONS_INVALID")
     if report.get("data_rows") != 8_999_865 or report.get("columns") != 47:
-        # Preserve failed/partial scan metadata, but never label it as accepted.
         receipt["receipt_status"] = "REPORT_PRESENT_WITH_EXPECTATION_MISMATCH"
+    elif report.get("status") != "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS":
+        receipt["receipt_status"] = "REPORT_PRESENT_NONPASS"
     else:
-        receipt["receipt_status"] = "REPORT_PRESENT"
+        receipt["receipt_status"] = "REPORT_PRESENT_PASS"
     receipt["report_available"] = True
     receipt["report"] = report
     return receipt
