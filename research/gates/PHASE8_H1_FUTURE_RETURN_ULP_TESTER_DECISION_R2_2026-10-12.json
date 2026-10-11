@@ -1,0 +1,36 @@
+{
+  "phase": "8",
+  "gate": "H1 future_return ULP source-alignment validation",
+  "review": "R2",
+  "date": "2026-10-12",
+  "developer_branch": "phase-08-developer",
+  "developer_head": "da33a40f4f52e51807ca0fb7882e7920021c47a1",
+  "reviewed_blobs": {
+    "scripts/validate_phase7_reference_panels.py": "9650ebc39d495dd414cfcbc2710452295743c0e9",
+    "scripts/test_phase8_reference_panels.py": "569b6e511a768ca875d23225eeb65c039fc8b87e",
+    ".github/workflows/phase8-panel-validator-test.yml": "2ee83ff45f4b5aa1d237da3e64bfb6e6a9aa4329"
+  },
+  "evidence": {
+    "validator_regression_run": 38164567189,
+    "validator_regression_conclusion": "success",
+    "protocol_check_run": 38164567374,
+    "protocol_check_conclusion": "success",
+    "full_reconstruction_run": 38164524835,
+    "full_reconstruction_head": "21dd39b6819dcc1ecae67307633fe4621e168c58",
+    "prior_daily_h1_mismatch_count": 64,
+    "prior_daily_h1_max_abs_diff": 3.469446951953614e-18,
+    "prior_daily_h1_max_ulp_distance": 1,
+    "prior_daily_h1_out_of_policy_count": 0
+  },
+  "decision": "REQUEST_CHANGES",
+  "reason": "Full reconstruction and persisted per-panel diagnostics have not been evidenced on the exact current developer HEAD. Existing full reconstruction passed on an older commit; current regression tests pass.",
+  "required_action": "Run saved Run #994 reconstruction on exact HEAD using immutable cached reference artifact only; confirm diagnostics persisted, all future_return mismatches <=2 ULP, labels/timestamps exact, and no source artifact/tolerance changes.",
+  "prohibited": [
+    "option P&L",
+    "holdout access",
+    "fresh market-data acquisition",
+    "empirical authorization",
+    "strategy promotion"
+  ],
+  "one_use_preflight_authorization": "consumed_disabled"
+}
