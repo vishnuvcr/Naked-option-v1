@@ -1519,3 +1519,12 @@ Tester → Developer: Keep real-file execution and all downstream gates closed u
 
 Developer → Tester: Re-review after successful CI and approved workflow security-policy resolution.
 Tester → Developer: Keep the real-file audit and all downstream gates closed until those blockers are resolved.
+
+## 2026-10-11 — Phase 7 offline preflight synthetic gate passed
+
+- Tester exact-snapshot decision: [OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_REVIEW_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_SYNTHETIC_CI_TESTER_REVIEW_2026-10-11.md) — PASS WITH SCOPED RESTRICTIONS for synthetic code validation only.
+- Reviewed developer PR #9 exact head `0e9b5f592f8004022576598936a7f24a8268caca`; successful Actions run [38135712550](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38135712550), job `offline-unit-tests`.
+- PR #9 merged into `phase-07-developer` as `b295a5da96722a42865d36f40eeeca1eec31eab2`. This records code-gate approval only.
+- Workflow uses full commit-SHA action pins, `contents: read`, synthetic fixtures, manual dispatch and a check that plaintext data / `.env` are absent.
+- Actual CSV.GZ is not present in this runtime. Real-file preflight is still NOT AUTHORIZED. No new data requests, model fitting/scoring, holdout access or strategy/P&L testing occurred.
+- Next proposed phase: design a separate bounded, in-runner real-file structural audit that validates the exact CSV SHA and writes only a sanitized metadata report; requires a fresh tester decision tied to exact workflow/script hashes before execution.
