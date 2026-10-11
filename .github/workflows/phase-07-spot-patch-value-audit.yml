@@ -1,0 +1,284 @@
+name: Phase 7 NIFTY Spot Patch - Post-Run Value Audit
+
+on:
+  workflow_run:
+    workflows: ["Phase 7 NIFTY Spot Failed-Window Patch — Exact-SHA Gate"]
+    types: [completed]
+    branches: [phase-07-tester]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Completed patch-gate run ID to audit."
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: phase-07-spot-patch-value-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: \${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.head_branch == 'phase-07-tester' && github.event.workflow_run.status == 'completed') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      TARGET_RUN_ID: \${{ github.event.workflow_run.id || inputs.run_id }}
+    steps:
+      - name: Checkout audit code and status destination
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Validate source run identity
+        id: preflight
+        env:
+          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_RUN_ID" =~ ^[0-9]+$ ]] || { echo "Invalid target run ID."; exit 1; }
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID")"
+          name="$(jq -r '.name // ""' <<< "$run_json")"
+          branch="$(jq -r '.head_branch // ""' <<< "$run_json")"
+          status="$(jq -r '.status // ""' <<< "$run_json")"
+          if [[ "$name" != "Phase 7 NIFTY Spot Failed-Window Patch — Exact-SHA Gate" || "$branch" != "phase-07-tester" || "$status" != "completed" ]]; then
+            echo "Refusing non-patch, wrong-branch or incomplete source run."
+            exit 1
+          fi
+          artifacts="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/artifacts?per_page=100")"
+          artifact_name="nifty-1m-spot-failed-window-patch-$TARGET_RUN_ID"
+          count="$(jq --arg n "$artifact_name" '[.artifacts[] | select(.name == $n and .expired == false and .size_in_bytes > 0)] | length' <<< "$artifacts")"
+          if [[ "$count" != "1" ]]; then
+            echo "Expected exactly one patch artifact named $artifact_name; found $count."
+            exit 1
+          fi
+          echo "audit_ready=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.preflight.outputs.audit_ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-composite.txt
+
+      - name: Install dependencies and test offline auditor
+        if: steps.preflight.outputs.audit_ready == 'true'
+        run: |
+          set -euo pipefail
+          python -m pip install -r requirements-composite.txt
+          python -m py_compile scripts/decrypt_nifty_1m_composite.py scripts/audit_nifty_1m_composite_values.py scripts/test_audit_nifty_1m_composite_values.py
+          python scripts/test_audit_nifty_1m_composite_values.py
+
+      - name: Download exact encrypted patch artifact
+        if: steps.preflight.outputs.audit_ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: nifty-1m-spot-failed-window-patch-\${{ env.TARGET_RUN_ID }}
+          run-id: \${{ env.TARGET_RUN_ID }}
+          repository: \${{ github.repository }}
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: \${{ runner.temp }}/spot-patch-bundle
+
+      - name: Verify encrypted part integrity and prepare decrypt input
+        if: steps.preflight.outputs.audit_ready == 'true'
+        env:
+          BUNDLE_DIR: \${{ runner.temp }}/spot-patch-bundle
+          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
+          TARGET_RUN_ID: \${{ env.TARGET_RUN_ID }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, pathlib, shutil
+          bundle = pathlib.Path(os.environ["BUNDLE_DIR"])
+          manifests = list(bundle.rglob("dataset_manifest.json"))
+          if len(manifests) != 1:
+              raise SystemExit("patch_dataset_manifest_count_invalid")
+          root = manifests[0].parent
+          manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
+          if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
+              raise SystemExit("patch_plaintext_scope_marker_invalid")
+          if manifest.get("dataset_id") != "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL":
+              raise SystemExit("patch_dataset_id_mismatch")
+          parts = manifest.get("parts")
+          if not isinstance(parts, list) or not parts:
+              raise SystemExit("patch_encrypted_parts_missing")
+          summary = manifest.get("dataset_summary", {})
+          expected_options = 8490723
+          expected_existing_spot = 506898
+          if manifest.get("source_row_count_options") != expected_options or summary.get("rows_options") != expected_options:
+              raise SystemExit("patch_option_row_count_mismatch")
+          if summary.get("option_rows_preserved") is not True:
+              raise SystemExit("patch_option_row_preservation_flag_false")
+          if int(manifest.get("source_row_count_spot", -1)) < expected_existing_spot:
+              raise SystemExit("patch_spot_row_count_below_base")
+          enc_root = root / "encrypted"
+          if not enc_root.is_dir():
+              raise SystemExit("patch_encrypted_directory_missing")
+          names, total_rows = set(), 0
+          for part in parts:
+              name = part.get("file", "")
+              if not name or pathlib.Path(name).name != name or not name.endswith(".csv.gz.enc"):
+                  raise SystemExit("unsafe_patch_manifest_part_name")
+              names.add(name)
+              p = enc_root / name
+              if not p.is_file() or p.stat().st_size != int(part.get("encrypted_bytes", -1)):
+                  raise SystemExit("patch_encrypted_part_missing_or_size_mismatch")
+              digest = hashlib.sha256()
+              with p.open("rb") as stream:
+                  for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              if digest.hexdigest() != part.get("encrypted_sha256"):
+                  raise SystemExit("patch_encrypted_part_sha256_mismatch")
+              total_rows += int(part.get("row_count", -1))
+          actual_names = {p.name for p in enc_root.glob("*.csv.gz.enc") if p.is_file()}
+          if actual_names != names:
+              raise SystemExit("patch_encrypted_part_set_mismatch")
+          if total_rows != expected_options + int(manifest["source_row_count_spot"]):
+              raise SystemExit("patch_manifest_row_sum_mismatch")
+          coverage_path = root / "coverage_and_errors.json"
+          if not coverage_path.is_file():
+              raise SystemExit("patch_coverage_report_missing")
+          coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
+          if coverage.get("summary", {}).get("rows_options") != expected_options:
+              raise SystemExit("patch_coverage_option_rows_mismatch")
+          if coverage.get("summary", {}).get("rows_spot") != manifest.get("source_row_count_spot"):
+              raise SystemExit("patch_coverage_spot_rows_mismatch")
+          safe_results = list(bundle.rglob("NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_RESULT.json"))
+          if len(safe_results) != 1:
+              raise SystemExit("patch_safe_result_count_invalid")
+          safe = json.loads(safe_results[0].read_text(encoding="utf-8"))
+          base = coverage.get("base_partial_artifact_id")
+          if base != "11697215166":
+              raise SystemExit("patch_base_artifact_lineage_mismatch")
+          if safe.get("live_option_requests_allowed") is not False or safe.get("model_fitting_authorized") is not False:
+              raise SystemExit("patch_permission_flags_invalid")
+          input_dir = pathlib.Path(os.environ["INPUT_DIR"])
+          input_dir.mkdir(parents=True, exist_ok=True)
+          shutil.copyfile(manifests[0], input_dir / "dataset_manifest.json")
+          for name in names:
+              (input_dir / name).symlink_to(enc_root / name)
+          print(json.dumps({"preflight":"PASS","source_run_id":os.environ["TARGET_RUN_ID"],"encrypted_part_count":len(parts),"rows_options":expected_options,"rows_spot":int(manifest["source_row_count_spot"]),"manifest_row_sum":total_rows,"market_values_printed":False}, sort_keys=True))
+          PY
+
+      - name: Decrypt authenticated monthly parts locally
+        id: decrypt
+        if: steps.preflight.outputs.audit_ready == 'true'
+        env:
+          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
+          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
+        run: |
+          set -euo pipefail
+          [[ -n "$HF_TOKEN" ]] || { echo "HF_TOKEN unavailable."; exit 1; }
+          python scripts/decrypt_nifty_1m_composite.py --input-dir "$INPUT_DIR" --output-dir "$PLAIN_DIR"
+          cp "$INPUT_DIR/dataset_manifest.json" "$PLAIN_DIR/dataset_manifest.json"
+
+      - name: Run offline semantic and value audit
+        id: audit
+        if: steps.decrypt.outcome == 'success'
+        continue-on-error: true
+        env:
+          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
+          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          SQLITE_TEMP: \${{ runner.temp }}/spot-patch-keys.sqlite
+        run: |
+          set +e
+          python scripts/audit_nifty_1m_composite_values.py --input-dir "$PLAIN_DIR" --output-json "$OUTPUT_JSON" --sqlite-temp "$SQLITE_TEMP"
+          rc=$?
+          echo "value_audit_exit_code=$rc"
+          exit 0
+
+      - name: Write sanitized precondition failure if audit did not run
+        if: always() && steps.audit.outcome != 'success'
+        env:
+          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          p = pathlib.Path(os.environ["OUTPUT_JSON"])
+          if not p.exists():
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text(json.dumps({"schema_version":1,"audit_type":"OFFLINE_DECRYPTED_VALUE_SEMANTIC_AUDIT","status":"AUDIT_PRECONDITION_FAILED","detail":"Artifact preparation or authenticated decryption failed; plaintext was not uploaded.","source_patch_run_id":os.environ.get("GITHUB_RUN_ID",""),"live_source_requests_made":False,"model_fitting_or_scoring_performed":False,"holdout_accessed":False,"strategy_or_pnl_tested":False,"permission_conclusion":"NO_MODEL_AUTHORIZATION_FROM_DATA_AUDIT"},sort_keys=True,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Remove plaintext and duplicate-check scratch
+        if: always()
+        env:
+          PLAIN_DIR: \${{ runner.temp }}/spot-patch-plain
+          INPUT_DIR: \${{ runner.temp }}/spot-patch-input
+          BUNDLE_DIR: \${{ runner.temp }}/spot-patch-bundle
+          SQLITE_TEMP: \${{ runner.temp }}/spot-patch-keys.sqlite
+        run: |
+          set -euo pipefail
+          rm -rf "$PLAIN_DIR" "$INPUT_DIR" "$BUNDLE_DIR"
+          rm -f "$SQLITE_TEMP" "$SQLITE_TEMP-journal" "$SQLITE_TEMP-wal" "$SQLITE_TEMP-shm"
+          if find "\${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
+            echo "Unexpected plaintext monthly part remained in runner temp."
+            exit 1
+          fi
+
+      - name: Append sanitized audit results to README and status
+        if: always()
+        env:
+          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          TARGET_RUN_ID: \${{ env.TARGET_RUN_ID }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          root = pathlib.Path(".")
+          p = pathlib.Path(os.environ["OUTPUT_JSON"])
+          if not p.is_file():
+              raise SystemExit("sanitized_patch_audit_report_missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          rows = r.get("rows", {})
+          integrity = r.get("row_integrity", {})
+          text = (
+              f"- Patch run: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['TARGET_RUN_ID']}\n"
+              f"- Sanitized report: https://github.com/{os.environ['GITHUB_REPOSITORY']}/blob/main/{p.as_posix()}\n"
+              f"- Audit status: {r.get('status', 'UNKNOWN')}; semantic error occurrences: {integrity.get('semantic_error_count', 'n/a')}.\n"
+              f"- Option rows: {rows.get('option_rows', 'n/a')}; spot rows: {rows.get('spot_rows', 'n/a')}; unmatched option rows: {r.get('spot_join', {}).get('observed_missing', 'n/a')}.\n"
+              "- Model fitting, holdout access, and strategy/P&L testing remain unauthorized.\n"
+          )
+          for target, heading in [(root/"research/STATUS.md", "Dhan patch post-run value audit"), (root/"README.md", "Latest Dhan patch value audit")]:
+              with target.open("a",encoding="utf-8") as f:
+                  f.write(f"\n\n## {heading} - run {os.environ['TARGET_RUN_ID']}\n\n{text}\n")
+          PY
+
+      - name: Commit sanitized audit report and status
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json" research/STATUS.md README.md
+          git diff --cached --quiet || { git commit -m "research: publish sanitized spot patch value audit"; git push origin HEAD:main; }
+
+      - name: Enforce post-run audit gate
+        if: always()
+        env:
+          OUTPUT_JSON: \${{ github.workspace }}/research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          report = json.loads(pathlib.Path(os.environ["OUTPUT_JSON"]).read_text(encoding="utf-8"))
+          status = report.get("status")
+          print("Post-run semantic audit status:", status)
+          if status != "PASS_WITH_COVERAGE_RESTRICTIONS":
+              raise SystemExit("Value audit did not pass; keep dataset partial and do not fit models.")
+          PY
+
+      - name: Upload sanitized audit report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitized-spot-patch-audit-\${{ env.TARGET_RUN_ID }}
+          path: research/data/DATASET_VALUE_AUDIT_PATCH_RUN_\${{ env.TARGET_RUN_ID }}.json
+          if-no-files-found: error
+          retention-days: 90
