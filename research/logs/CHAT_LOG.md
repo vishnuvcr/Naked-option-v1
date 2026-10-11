@@ -1521,3 +1521,11 @@ Independent code review identified a schema mismatch: the runner referenced miss
 
 **Developer → Tester:** Review the offline unmatched timestamp distribution after tests pass; recommend any new acquisition only if the precise missing dates/source mechanism are identified.
 **Tester → Developer:** Keep live, model, holdout and strategy gates closed until the exact reason for unchanged joins is resolved and a fresh data audit passes.
+
+
+### 2026-10-11 — Offline diagnostic test failure and correction
+- Offline pipeline run [38127450732](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127450732) caught an incorrect expected overlap count in the new timestamp-map test. The fixture contains two spot epochs that match unmatched option epochs exactly; the diagnostic correctly counted 2. The faulty test expected 1.
+- Fix is test-only. No live Dhan request or source row edit occurred.
+
+**Developer → Tester:** Verify the corrected unit test and full offline suite on the new developer snapshot.
+**Tester → Developer:** Do not run the all-date diagnostic or propose new data retrieval until the suite passes and the report explains exact overlaps by date.

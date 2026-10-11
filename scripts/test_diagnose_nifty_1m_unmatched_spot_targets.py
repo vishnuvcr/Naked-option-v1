@@ -41,7 +41,7 @@ class TestUnmatchedSpotDiagnostic(unittest.TestCase):
         self.assertEqual(report["row_counts"]["spot_rows"],2)
         self.assertEqual(report["unmatched_option_rows"]["row_count"],4)
         self.assertEqual(report["unmatched_option_rows"]["distinct_option_timestamps"],4)
-        self.assertEqual(report["unmatched_option_rows"]["timestamps_marked_missing_but_present_in_existing_spot_rows"]["distinct_timestamps"],1)
+        self.assertEqual(report["unmatched_option_rows"]["timestamps_marked_missing_but_present_in_existing_spot_rows"]["distinct_timestamps"],2)
         self.assertEqual(report["unmatched_option_rows"]["new_r2_patch_exact_timestamp_overlap"]["distinct_unmatched_option_timestamps"],1)
         self.assertEqual(report["unmatched_option_rows"]["unmatched_rows_by_session_date"]["2021-11-09"],3)
         self.assertEqual(report["spot_coverage"]["patch_r2_rows_by_weekday"]["Tuesday"],1)

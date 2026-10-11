@@ -1235,3 +1235,9 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - R2 exact-timestamp diagnostic: only 2,244 patch spot timestamps, none intersects any unmatched option timestamp in the failed week; no unmatched option rows exist within that target week. R2 did not repair the join gap.
 - Tester branch records REQUEST CHANGES in `NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json`. R2 marker is spent; no further Dhan call or modelling permission.
 - New all-date distribution analyzer is prepared for offline analysis of the same encrypted artifact. It must pass offline regression tests before use; it must not mutate data or shift timestamps.
+
+
+## 2026-10-11 — Incorrect expected count in synthetic offline diagnostic test
+- Run [38127450732](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127450732) failed only at `test_date_distribution_exact_overlap_and_nearest_offsets`: actual `timestamps_marked_missing_but_present_in_existing_spot_rows.distinct_timestamps=2`, expected 1.
+- Fixture placed SPOT rows at BASE_EPOCH and BASE_EPOCH+120, while OPTION rows marked missing included both those epochs. The analyzer count of 2 is correct; the test expectation was wrong.
+- Corrective action: update the assertion to 2 and rerun offline tests. No live source requests, model fitting, holdout access or strategy work occurred.
