@@ -1,3 +1,11 @@
+## 2026-10-11 — Modeling-readiness synthetic implementation approved; empirical gate remains closed
+
+- Latest synthetic workflow [38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) passed.
+- Tester review: [corrected implementation review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_IMPLEMENTATION_TESTER_REVIEW_R5_CORRECTED_2026-10-11.md); machine decision: [JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_IMPLEMENTATION_TESTER_DECISION_R5_CORRECTED_2026-10-11.json).
+- Developer fixed nested report validation, iterable horizon handling, negative metadata counts and tolerance validation. Final status is **PASS WITH SCOPED RESTRICTIONS — synthetic code only**.
+- **No real-data MR-0 to MR-5 run or prediction experiment is authorized yet.** The next step is a bounded feasibility-run proposal, followed by tester review. Model fitting/scoring, holdout observations, source requests, and strategy/P&L remain closed.
+- See [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md), [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG.md), and [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/CHAT_LOG.md).
+
 # NIFTY Naked-Option Direction Research
 
 ## 2026-10-11 — R5 canonical structural audit completed; data readiness still gated
