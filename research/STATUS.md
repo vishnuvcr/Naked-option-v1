@@ -1237,3 +1237,15 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 
 **Developer → Tester:** Review partial-artifact preservation and workflow binding when submitted.
 **Tester → Developer:** Do not execute the proposal or proceed to empirical prediction runs until the exact snapshot passes the applicable gate.
+
+
+## 2026-10-11 — Split recovery implementation ready for restricted gate review
+
+- Offline-only split proposal: 34 contiguous, disjoint shards (max 7 calendar days), max 4,000 rows and 8 MiB per response, one attempt each, zero retries. It uses partial artifact 11693866249 as the base and preserves 8,490,723 option rows plus 403,664 existing spot rows.
+- Collector updates: partial-artifact preflight, preservation-aware merge, per-request attempt ceilings, separate split ledger/result/one-use marker, exact proposal blob verification, and corrected cumulative response-byte reconciliation.
+- Added an exact-SHA request workflow with manual dispatch and automatic checks after tester decisions. It validates the exact developer SHA and proposal blob, verifies the encrypted artifact digest, and spends a one-use marker before any Dhan request.
+- Latest gate test [38118998725](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118998725) correctly denied the split run because the tester decision remains offline-only and live requests are not authorized; the request job was skipped. No Dhan request was made.
+- Offline tests and the prior exact-snapshot code gate passed. AI reviewer remains unavailable (HTTP 402), so no live-data authorization or model-fitting authorization exists. The dataset remains partial, and the 34-shard proposal has not been executed.
+
+**Developer → Tester:** Re-review the exact current snapshot after the latest log/status commits, focusing on preservation and marker/workflow safety.
+**Tester → Developer:** Return an offline scoped decision only; do not authorize live source requests while the AI reviewer is unavailable or the decision flags remain false.
