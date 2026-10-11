@@ -2,7 +2,7 @@
 
 ## Status
 
-**DRAFT FOR INDEPENDENT TESTER GATE — NO EMPIRICAL EXECUTION AUTHORIZED**
+**ACTIVE FORECAST INPUT R2 ACCEPTED FOR REPRODUCIBILITY; OPTION DATA / EMPIRICAL EXECUTION GATES REMAIN OPEN**
 
 Phase 8 translates the frozen Phase 7 probability forecasts P01–P10 into long NIFTY CE/PE trades. The Phase 7 forecasts are treated as fixed inputs; no Phase 7 method, label, probability rule, or holdout boundary may be changed because of Phase 8 results.
 
@@ -36,11 +36,13 @@ To determine whether the frozen Phase 7 directional forecasts can be translated 
 6. Report gross and net option P&L, break-even moves, drawdowns, tail losses, turnover, win/loss distribution and chronological stability.
 7. Produce a finite shortlist for Phase 9 only; Phase 8 does not declare a strategy final.
 
-## Frozen input boundary
+## Frozen input boundary — active R2
 
-Phase 7 Run #654 is the accepted technical forecast artifact. No P01–P10 candidate may be removed, retuned, reweighted or reselected using Phase 8 performance.
+The active Phase 8 forecast input is the immutable Phase 7 Run #994 row-level panel artifact listed in PHASE8_FROZEN_INPUT_MANIFEST.json. Its source run/commit, artifact, embedded manifest, paired aggregate, panel hashes and accepted validation are recorded in PHASE8_RUN994_R2_SPEC_ADDENDUM.md.
 
-The Phase 7 untouched holdout remains protected.
+Phase 7 Run #654 and its aggregate-only manifest remain archived as historical R1 lineage; they are not the active Phase 8 forecast input. The accepted Run #994 panel is consumed as-is. Phase 8 must not refit Phase 7 or regenerate probability predictions in order to proceed.
+
+No P01–P10 candidate may be removed, retuned, reweighted or reselected using Phase 8 performance. The Phase 7 untouched holdout remains protected.
 
 The Phase 8 decision timestamp is the timestamp attached to the stored Phase 7 forecast. No option observation after that timestamp may be used to determine whether a contract is selected.
 
@@ -52,7 +54,7 @@ For every non-abstaining probability p:
 - p < 0.50 → long PE;
 - p = 0.50 → no trade.
 
-P05 uses its frozen [0.45, 0.55] abstention band; P06 uses its frozen [0.40, 0.60] abstention band.
+P05 and P10 use their frozen [0.45, 0.55] abstention band; P06 uses its frozen [0.40, 0.60] abstention band. Both boundaries are abstentions for each band. These are the bands in the accepted Phase 7 Run #994 source module.
 
 One strategy cell may have at most one open trade at a time. No pyramiding or overlapping self-funded positions is permitted within a cell.
 
@@ -306,22 +308,19 @@ For Q1 OHLC/proxy rows, a synthetic half-spread is applied independently at entr
 
 The option tick size is taken from the point-in-time contract metadata. The synthetic spread is not claimed to reproduce an observed historical quote; it is a conservative stress proxy. Incremental slippage from the C0–C3 scenario is then added separately. A Q1 result therefore remains **non-quote-executable**.
 
-## Phase 7 forecast reconstruction gate
+## Active R2 saved-forecast panel gate
 
-The accepted Run #654 aggregate artifact does not itself store every row-level P01–P10 probability and decision timestamp. Phase 8 therefore requires a deterministic reconstruction step **before option P&L is generated**.
+The active R2 input is Phase 7 Run #994:
+- source workflow run: 37957677656;
+- source commit: b50be8cfa1ebe008a800e65a53f9c0fb2581aecb;
+- reference artifact ID: 11638738288;
+- reference artifact SHA-256: 3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9;
+- embedded panel-manifest SHA-256: f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091;
+- paired aggregate SHA-256: 96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39.
 
-The reconstruction must:
+Hosted Phase 8 run 38157819076 validated all ten saved panels, 50,555 rows, exact source alignment, panel hashes and aggregate metrics within the unchanged 1e-9 absolute tolerance. Its output evidence is artifact 11709261335, SHA-256 249afea08ced49517a44744053afa382ce05165f53d0d23c5aac860a0c54214c; the report records all_cells_reproduced=true.
 
-1. use the exact Run #654 developer commit and the frozen Phase 6/7 inputs;
-2. execute the same P01–P10 definitions, training schedule, blocked-predictor handling and seeds;
-3. preserve the original Phase 7 chronological horizon/layer boundaries;
-4. output one row per decision timestamp with P01–P10 probabilities and abstention state;
-5. compare aggregate metrics against the immutable Run #654 artifact for all 100 cells;
-6. fail closed if any metric differs beyond the pre-registered numerical tolerance;
-7. hash and archive the reconstructed prediction dataset before option execution.
-
-The reconstruction is a reproducibility operation, not a new model. No Phase 8 result may be used to alter Phase 7 code or reconstruction parameters.
-
+The active R2 consumer reads saved P01–P10 probability rows and never falls back to Phase 7 model fitting. If any exact artifact identity, panel/source hash, timestamp, label, metric, family-test statistic or required cell is missing/mismatched, validation fails closed and empirical option P&L remains blocked. The earlier Run #654 reconstruction requirement is retained as historical R1 lineage in PHASE8_FROZEN_INPUT_MANIFEST_R1_RUN654.json, not as the active input contract.
 
 ## Reproducibility clarifications added after tester review
 

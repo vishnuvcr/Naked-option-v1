@@ -427,3 +427,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Result: 10/10 forecast cells reproduced, 50,555 rows, `all_cells_reproduced=true`, absolute metric tolerance 1e-9. No Phase 7 model refitting used as fallback.
 - Tester report/decision are on `phase-08-tester`: `PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_REPORT.md` and `PHASE8_RUN994_SAVED_FORECAST_R2_TESTER_DECISION.json`; decision PASS WITH SCOPED RESTRICTIONS for forecast reproducibility only.
 - No empirical option P&L ran. The 4,800-cell grid remains disabled. Next: version a Phase 8 spec addendum that retires stale Run #654 active-input wording while preserving the old R1 lineage, then implement/test the no-refit option runner with the already-cached composite. Do not seek the same data again.
+
+
+## 2026-10-11 — R2 specification alignment and P10 abstention correction implemented
+
+- Tester proposal gate PHASE8_R2_ACTIVE_SPEC_AND_RUNNER_PROPOSAL_TESTER.md = PASS WITH SCOPED RESTRICTIONS for implementation only.
+- Added versioned R2 forecast-input addendum and aligned the active method/data specs to Run #994, keeping the Run #654 R1 manifest for historical lineage.
+- Corrected direction_from_probability: P10 now uses its frozen [0.45, 0.55] abstention interval from the exact Run #994 source, in addition to P05/P06 bands. Added tests for both exact boundaries and inside/outside the band.
+- No Phase 7 prediction, label, horizon, cost, 4,800-grid, holdout or promotion rule changed. Empirical option P&L remains disabled.
+- Next: hosted regressions, then tester review of the exact implementation snapshot; build no-refit runner and synthetic dry-run only before any empirical authorization.

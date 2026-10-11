@@ -306,3 +306,12 @@ No scientific or protocol change was made during this checkpoint.
 - Independent review recomputed all ten Parquet SHA-256 values; output manifest is PASS, all_cells_reproduced=true, 10 cells and 50,555 rows at the unchanged 1e-9 tolerance.
 - Tester saved a scoped PASS in phase-08-tester. This means reproducibility is accepted, not that a prediction method is profitable.
 - Do next: correct the stale active Run #654 references via a versioned R2 spec addendum; then use the existing cached/encrypted 61-part repaired NIFTY composite (artifact 11698879857, canonical decoded SHA-256 cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204) and existing Phase 8 cost schedule/engine. Keep missing-point-in-time contract metadata flagged; do not collect the same dataset again or claim quote-executable results from OHLC proxies.
+
+
+## 2026-10-11 — Implement R2 specification reconciliation and P10 abstention fix
+
+- Tester reviewed the spec/runner proposal at exact snapshot 01f5fd01e5c9ab556d4036986718b8db3121f239 and returned PASS WITH SCOPED RESTRICTIONS for proposal only.
+- Implemented a versioned R2 spec addendum; active method/data specs now point to the accepted Run #994 saved panel, while Run #654 remains historical R1.
+- Source consistency check found Phase 8 trade mapping omitted P10's [0.45,0.55] abstention band. Engine and tests now cover P10 just like the accepted Run #994 source, with both boundaries abstaining.
+- The registered 4,800-cell universe, costs, forecasts, labels, horizons and holdout are unchanged. Empirical option P&L remains false/disabled.
+- Next: run hosted regression, submit the exact code/manifest snapshot to tester, then implement and test the full no-refit runner against the existing cached dataset.

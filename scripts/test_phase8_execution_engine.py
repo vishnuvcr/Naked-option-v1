@@ -30,8 +30,17 @@ def test_direction_boundaries():
     assert direction_from_probability(0.5001, "P01") == "CE"
     assert direction_from_probability(0.4999, "P01") == "PE"
     assert direction_from_probability(0.50, "P01") is None
+    assert direction_from_probability(0.4499, "P05") == "PE"
     assert direction_from_probability(0.45, "P05") is None
+    assert direction_from_probability(0.50, "P05") is None
+    assert direction_from_probability(0.55, "P05") is None
     assert direction_from_probability(0.5501, "P05") == "CE"
+    # Run #994 freezes P10 abstention in [0.45, 0.55] too.
+    assert direction_from_probability(0.4499, "P10") == "PE"
+    assert direction_from_probability(0.45, "P10") is None
+    assert direction_from_probability(0.50, "P10") is None
+    assert direction_from_probability(0.55, "P10") is None
+    assert direction_from_probability(0.5501, "P10") == "CE"
     assert direction_from_probability(0.3999, "P06") == "PE"
     assert direction_from_probability(0.60, "P06") is None
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-**DRAFT FOR INDEPENDENT TESTER GATE — DATA ACQUISITION NOT YET ACCEPTED**
+**R2 FORECAST INPUT ACCEPTED; POINT-IN-TIME OPTION DATA QUALITY GATE REMAINS OPEN**
 
 ## Data requirements
 
@@ -156,9 +156,11 @@ The dataset cannot advance to the empirical job until:
 
 No strategy result is generated from an unapproved composite.
 
-## Phase 7 row-level forecast dependency
+## Active Phase 7 row-level forecast dependency — R2
 
-Run #654's accepted artifact stores aggregate candidate metrics but not a complete row-level probability table. Before empirical option execution, regenerate the P01–P10 prediction panel deterministically from the frozen Run #654 developer commit and source inputs. The reconstruction is accepted only when all 100 aggregate metrics reproduce within a frozen numerical tolerance. The prediction panel is then hashed and treated as an immutable Phase 8 input.
+The active input is Phase 7 Run #994's immutable row-level P01–P10 probability panel artifact, pinned in PHASE8_FROZEN_INPUT_MANIFEST.json and documented in PHASE8_RUN994_R2_SPEC_ADDENDUM.md. Hosted run 38157819076 validated all 10 forecast cells (daily H=1,2,3,5,10; intraday H=5,15,30,60,120), all 50,555 rows, exact row-level source alignment, every panel hash and each aggregate cell at absolute tolerance 1e-9.
+
+Do not regenerate or refit Phase 7 as part of Phase 8. Restore and verify the already-cached immutable Run #994 artifact; fail closed on any identity, data, panel or metric mismatch. Run #654 is retained as historical R1 aggregate-only lineage only.
 
 
 ## Tester-required data controls now frozen

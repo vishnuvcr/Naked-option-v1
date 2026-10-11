@@ -70,7 +70,7 @@ def direction_from_probability(
     if not np.isfinite(probability):
         return None
     p = float(probability)
-    if candidate == "P05":
+    if candidate in {"P05", "P10"}:
         return "CE" if p > 0.55 else "PE" if p < 0.45 else None
     if candidate == "P06":
         return "CE" if p > 0.60 else "PE" if p < 0.40 else None
