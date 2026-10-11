@@ -1,0 +1,256 @@
+name: Phase 7 NIFTY Spot Failed-Window Patch — Exact-SHA Gate
+
+on:
+  workflow_run:
+    workflows: ["Phase 7 NIFTY Composite — Automated Tester Developer Loop"]
+    types: [completed]
+  push:
+    branches: [phase-07-tester]
+    paths:
+      - "research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json"
+  workflow_dispatch:
+    inputs:
+      developer_sha:
+        description: "Exact developer commit to evaluate; blank means current developer tip."
+        type: string
+        required: false
+        default: ""
+      proposal_blob_sha:
+        description: "Exact patch proposal blob SHA; blank means current proposal blob."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: phase-07-nifty-spot-failed-window-patch
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'phase-07-developer') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/phase-07-tester')
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.check.outputs.authorized }}
+      review_sha: ${{ steps.check.outputs.review_sha }}
+      proposal_blob_sha: ${{ steps.check.outputs.proposal_blob_sha }}
+      workflow_blob_sha: ${{ steps.check.outputs.workflow_blob_sha }}
+      tester_decision_blob: ${{ steps.check.outputs.tester_decision_blob }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          path: developer
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: check
+        name: Validate exact proposal, workflow, tester decision and unused marker
+        shell: bash
+        env:
+          INPUT_DEVELOPER_SHA: ${{ inputs.developer_sha }}
+          INPUT_PROPOSAL_SHA: ${{ inputs.proposal_blob_sha }}
+        run: |
+          set -euo pipefail
+          cd developer
+          git fetch --no-tags origin +refs/heads/phase-07-developer:refs/remotes/origin/phase-07-developer
+          review_sha="$(git rev-parse refs/remotes/origin/phase-07-developer)"
+          proposal_blob_sha="$(git rev-parse refs/remotes/origin/phase-07-developer:research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json)"
+          workflow_blob_sha="$(git -C ../controller rev-parse HEAD:.github/workflows/phase-07-nifty-1m-spot-failed-window-patch.yml)"
+          echo "review_sha=$review_sha" >> "$GITHUB_OUTPUT"
+          echo "proposal_blob_sha=$proposal_blob_sha" >> "$GITHUB_OUTPUT"
+          echo "workflow_blob_sha=$workflow_blob_sha" >> "$GITHUB_OUTPUT"
+          echo "tester_decision_blob=" >> "$GITHUB_OUTPUT"
+          echo "authorized=false" >> "$GITHUB_OUTPUT"
+          if [[ -n "$INPUT_DEVELOPER_SHA" && "$INPUT_DEVELOPER_SHA" != "$review_sha" ]]; then
+            echo "Manual developer SHA is stale; no source access."
+            exit 0
+          fi
+          if [[ -n "$INPUT_PROPOSAL_SHA" && "$INPUT_PROPOSAL_SHA" != "$proposal_blob_sha" ]]; then
+            echo "Manual proposal SHA is stale; no source access."
+            exit 0
+          fi
+          if git cat-file -e "refs/remotes/origin/phase-07-developer:research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_EXECUTION.json" 2>/dev/null; then
+            echo "This exact patch marker has already been spent; refuse re-execution."
+            exit 0
+          fi
+          if ! git -C ../tester cat-file -e HEAD:research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json 2>/dev/null; then
+            echo "Tester patch decision is not present; no source access."
+            exit 0
+          fi
+          tester_decision_blob="$(git -C ../tester rev-parse HEAD:research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json)"
+          echo "tester_decision_blob=$tester_decision_blob" >> "$GITHUB_OUTPUT"
+          set +e
+          python scripts/validate_nifty_1m_spot_failed_window_patch.py \
+            --proposal research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json \
+            --proposal-blob-sha "$proposal_blob_sha" \
+            --developer-sha "$review_sha" \
+            --workflow-blob-sha "$workflow_blob_sha" \
+            --decision ../tester/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json \
+            > "$RUNNER_TEMP/patch-gate-result.json"
+          rc=$?
+          set -e
+          cat "$RUNNER_TEMP/patch-gate-result.json"
+          if [[ "$rc" -eq 0 ]]; then
+            echo "authorized=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Tester authorization absent, stale, or out-of-scope; no request job will run."
+          fi
+
+  failed-window-patch:
+    needs: gate
+    if: needs.gate.outputs.authorized == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check credentials and unused marker before spending authorization
+        working-directory: developer
+        env:
+          DHAN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
+          HF_CONFIGURED: ${{ secrets.HF_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          [[ "$DHAN_CONFIGURED" == "true" ]] || { echo "Dhan credential missing; no marker spent."; exit 1; }
+          [[ "$HF_CONFIGURED" == "true" ]] || { echo "HF token missing; no marker spent."; exit 1; }
+          test ! -e research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_EXECUTION.json
+      - name: Download and verify the exact latest encrypted partial artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p developer/data/recovery/source-artifact
+          curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11697215166/zip" \
+            -o "$RUNNER_TEMP/spot-patch-base.zip"
+          echo "07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a  $RUNNER_TEMP/spot-patch-base.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/spot-patch-base.zip" -d developer/data/recovery/source-artifact
+      - name: Spend the exact-snapshot one-use patch marker before any request
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          PROPOSAL_BLOB_SHA: ${{ needs.gate.outputs.proposal_blob_sha }}
+          WORKFLOW_BLOB_SHA: ${{ needs.gate.outputs.workflow_blob_sha }}
+          TESTER_DECISION_BLOB: ${{ needs.gate.outputs.tester_decision_blob }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test ! -e research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_EXECUTION.json
+          python - <<'PY'
+          import datetime,hashlib,json,os,pathlib
+          proposal=pathlib.Path("research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json")
+          raw=proposal.read_bytes()
+          blob=hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\0"+raw).hexdigest()
+          if blob != os.environ["PROPOSAL_BLOB_SHA"]:
+              raise SystemExit("patch_proposal_blob_SHA_changed")
+          marker={
+            "schema_version":1,
+            "status":"SPENT_BEFORE_SOURCE_REQUEST",
+            "scope":"PATCH_ONLY_PREVIOUSLY_FAILED_WINDOW",
+            "reviewed_developer_commit":os.environ["REVIEW_SHA"],
+            "patch_proposal_blob_sha":blob,
+            "reviewed_workflow_blob_sha":os.environ["WORKFLOW_BLOB_SHA"],
+            "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
+            "max_patch_requests":7,
+            "max_retry_requests":0,
+            "base_artifact_id":"11697215166",
+            "base_artifact_sha256":"07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a",
+            "live_option_requests_allowed":False,
+            "created_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z"),
+            "github_run_id":os.environ["RUN_ID"]
+          }
+          p=pathlib.Path("research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_EXECUTION.json")
+          p.write_text(json.dumps(marker,sort_keys=True,indent=2)+"\n",encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_EXECUTION.json
+          git commit -m "research: spend exact one-week spot patch authorization"
+          git push origin HEAD:phase-07-developer
+      - name: Run only the approved failed-window spot patch
+        working-directory: developer
+        env:
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          PROPOSAL_BLOB_SHA: ${{ needs.gate.outputs.proposal_blob_sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set +e
+          python scripts/run_nifty_1m_spot_failed_window_patch.py \
+            --source-dir data/recovery/source-artifact \
+            --plain-dir data/recovery/plain \
+            --execute \
+            --reviewed-sha "$REVIEW_SHA" \
+            --patch-proposal research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json \
+            --proposal-blob-sha "$PROPOSAL_BLOB_SHA" \
+            --attempt-ledger "data/reports/nifty_1m_spot_gapfill/attempt_ledger_patch_$RUN_ID.json"
+          rc=$?
+          echo "patch_collector_exit_code=$rc"
+          [[ -s research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_RESULT.json ]] || exit "$rc"
+          exit 0
+      - name: Remove all plaintext and source-artifact scratch
+        if: always()
+        run: |
+          rm -rf developer/data/exports/nifty_1m_composite/plain
+          rm -rf developer/data/recovery/plain developer/data/recovery/source-artifact
+          rm -rf developer/data/work/nifty_1m_spot_gapfill
+      - name: Commit safe patch result metadata
+        if: always()
+        working-directory: developer
+        run: |
+          set -euo pipefail
+          if [[ -f research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_RESULT.json ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_RESULT.json
+            git diff --cached --quiet || git commit -m "research: record one-week spot patch result"
+            git push origin HEAD:phase-07-developer
+          fi
+      - name: Upload only encrypted output and safe metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-spot-failed-window-patch-${{ github.run_id }}
+          path: |
+            developer/data/exports/nifty_1m_composite/encrypted/
+            developer/data/exports/nifty_1m_composite/dataset_manifest.json
+            developer/data/exports/nifty_1m_composite/coverage_and_errors.json
+            developer/data/exports/nifty_1m_composite/README.md
+            developer/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_RESULT.json
+          if-no-files-found: warn
+          retention-days: 90
