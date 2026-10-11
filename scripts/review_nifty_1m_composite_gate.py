@@ -289,16 +289,35 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
     diagnostic_execution_path = target / "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json"
     recovery_execution_path = target / "research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
     diagnostic_result: dict[str, Any] = {}
+    diagnostic_execution: dict[str, Any] = {}
     if diagnostic_result_path.is_file():
         try:
             diagnostic_result = json.loads(diagnostic_result_path.read_text(encoding="utf-8"))
         except Exception:
             add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_RESULT_INVALID", "Diagnostic result exists but is not valid JSON.")
+    if diagnostic_execution_path.is_file():
+        try:
+            diagnostic_execution = json.loads(diagnostic_execution_path.read_text(encoding="utf-8"))
+        except Exception:
+            add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_EXECUTION_MARKER_INVALID", "Diagnostic execution marker is invalid.")
     diagnostic_already_spent = diagnostic_execution_path.is_file()
     recovery_already_spent = recovery_execution_path.is_file()
-    probe_authorized = diagnostic_scope.get("status") == "PASS" and not diagnostic_already_spent
+    probe_authorized = (
+        diagnostic_scope.get("status") == "PASS"
+        and not diagnostic_already_spent
+        and not diagnostic_result_path.is_file()
+    )
+    diagnostic_result_bound = (
+        diagnostic_result.get("developer_reviewed_sha") == diagnostic_execution.get("reviewed_developer_commit")
+        and diagnostic_result.get("request_scope_sha256") == diagnostic_scope.get("request_scope_sha256")
+        and diagnostic_execution.get("request_id") == "SPOT1M-20260915-20261011"
+        and diagnostic_execution.get("scope") == "ONE_NONPERSISTING_SPOT_SCHEMA_DIAGNOSTIC"
+        and diagnostic_execution.get("max_wire_requests") == 1
+        and diagnostic_execution.get("max_retries") == 0
+    )
     diagnostic_ready_for_recovery = (
-        diagnostic_result.get("request_id") == "SPOT1M-20260915-20261011"
+        diagnostic_result_bound
+        and diagnostic_result.get("request_id") == "SPOT1M-20260915-20261011"
         and diagnostic_result.get("http_status") == 200
         and diagnostic_result.get("parser_status") in {"PARSED_OK", "PARSED_WITH_VOLUME_GAP"}
         and int(diagnostic_result.get("row_count", 0)) > 0
