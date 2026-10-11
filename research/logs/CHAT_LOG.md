@@ -346,3 +346,11 @@ No scientific or protocol change was made during this checkpoint.
 - Implementation CI found the Phase 8 branch lacked already reviewed Phase 7 decryption prerequisites (requirements, decryptor and 61-part public manifest). Copied them byte-for-byte; recorded both failures in ERROR_LOG. These attempts did not reach real dataset decryption.
 - The test-only suite passed bundle-integrity synthetic tests, stale-code authorization tests, the registered 4,800-cell runner test, existing cost arithmetic regression and pure runner self-test. The newest CI run for the copied decryptor remains in progress.
 - Next: complete this hosted regression, submit exact current code blob hashes for tester review, and only after tester PASS enable one metadata-only cached-composite preflight request. The preflight is expected to keep all 4,800 cells ineligible until point-in-time contract eligibility is addressed; that is a data-gate result, not P&L.
+
+
+## 2026-10-11 — Activate one metadata-only preflight behind refreshed exact-code decision
+
+- R1 request was enabled only after the implementation-level tester decision. Run 38161622139 rejected the stale test assertion that the file should always remain false; the one-time activation had correctly set `requested=true` but all P&L/holdout/new-source/promotion flags remained false.
+- Run 38161662282 passed synthetic tests but correctly blocked at exact-code authorization because the test fixture blob had changed after the first review. No composite artifact was opened.
+- Archived the previous tester decision, rechecked the updated test blob, refreshed the active tester decision and copied its exact 15 code/spec/data-contract hashes into the activation request. The next hosted run should pass only if those hashes still match.
+- The marker step verifies no prior consumed marker, repeats exact-snapshot authorization and pushes a durable consumption marker before decrypting; any failure after marker commit consumes R1. No replay of R1 is allowed after consumption.
