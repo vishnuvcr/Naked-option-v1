@@ -1,3 +1,14 @@
+## Latest Dhan spot recovery outcome and next gate — 2026-10-11
+
+- **R1 run:** [38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291) completed successfully at the workflow level; data status remains `SPOT_GAPFILL_PARTIAL`.
+- **R1 output artifact:** [11697215166](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291/artifacts/11697215166), encrypted ZIP SHA-256 `07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a`.
+- **Observed result:** 34 new wire requests; 33 successful; 1 rejected row-cap validation; 0 retries. Added 103,234 spot rows. Preserved 8,490,723 option rows and all 403,664 earlier spot rows; resulting spot rows=506,898.
+- **Exact joins:** matched 8,471,702 option rows; 19,021 remain unmatched (down from 899,551). Do not create missing target values from option prices, interpolation, or nearby timestamps.
+- **Failed request:** `GAPSPOT1M-R1-20211108-20211115`, 2021-11-08 inclusive to 2021-11-15 exclusive. Dhan returned HTTP 200, 255,574 bytes, but the row cap of 4,000 was exceeded. The R1 safe error record did not retain observed row count or response SHA-256.
+- **R2 preparation:** proposal [`NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json`](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_PROPOSAL.json) requests exactly seven one-calendar-day spot shards over only the failed interval, each capped at 500 rows / 4 MiB, one attempt, zero retries. It pins latest artifact 11697215166 and checks no spot timestamp overlaps the 506,898-row base.
+- **Fail-closed gate:** new validator, row-cap diagnostic regression test, runner and exact-SHA workflow are staged for automated offline checks and separate tester review. R1 marker is spent; R2 uses a distinct marker and exact workflow/proposal hashes. No R2 live request has been made by this entry.
+- **Still blocked:** no model fitting/scoring, holdout access, strategy/P&L testing or clean-dataset promotion. Previous value audit still failed (old artifact): 224 joined NIFTY OHLC violations, 9 standalone spot OHLC violations, 11 negative option-volume occurrences and 42 option-session dates without spot rows. A new value audit is required on the R2 output artifact.
+
 ## User-requested Dhan spot-gap recovery — 2026-10-11
 
 - **Requested action:** recover the six previously failed NIFTY 1-minute spot windows from Dhan and join genuine returned spot bars to the existing option panel by exact epoch timestamp.

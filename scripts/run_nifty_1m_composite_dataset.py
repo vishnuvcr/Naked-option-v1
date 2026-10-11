@@ -278,7 +278,7 @@ def parse_spot_response(payload: dict[str, Any], request: dict[str, Any]) -> tup
 
     timestamps, arrays = _array_set(payload, ["timestamp", "open", "high", "low", "close", "volume"])
     if len(timestamps) > int(request.get("max_rows", 0)):
-        raise ValueError("response_row_cap_exceeded")
+        raise ValueError(f"response_row_cap_exceeded_n{len(timestamps)}_cap{int(request.get('max_rows', 0))}")
     start_date = dt.date.fromisoformat(request["window_start_inclusive"])
     end_date = dt.date.fromisoformat(request["window_end_exclusive"])
     from_time = dt.time.fromisoformat(request["body"]["fromDate"].split(" ", 1)[1])

@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import datetime as dt
 import gzip
+import json
 import pathlib
 import sys
 import tempfile
@@ -314,6 +315,58 @@ class TestSpotGapfillMerge(unittest.TestCase):
         self.assertEqual(counters["spot_join_missing"], 1)
 
 
+
+
+
+class TestSpotGapfillRowCapMetadata(unittest.TestCase):
+    def test_row_cap_failure_records_observed_count_and_response_hash(self):
+        request = {
+            "request_id": "TEST-SPOT-ROW-CAP",
+            "source_family": "NIFTY_SPOT_1M",
+            "endpoint": "https://example.invalid/spot",
+            "method": "POST",
+            "window_start_inclusive": "2021-11-08",
+            "window_end_exclusive": "2021-11-09",
+            "max_rows": 1,
+            "max_response_bytes": 1024 * 1024,
+            "max_attempts": 1,
+            "body": {
+                "securityId": "13", "exchangeSegment": "IDX_I", "instrument": "INDEX",
+                "interval": "1", "oi": False,
+                "fromDate": "2021-11-08 09:15:00", "toDate": "2021-11-08 15:30:00",
+            },
+        }
+        raw = json.dumps({
+            "timestamp": [1636334100, 1636334160],
+            "open": [1, 1], "high": [1, 1], "low": [1, 1], "close": [1, 1], "volume": [10, 10],
+        }).encode("utf-8")
+        response = mock.Mock()
+        response.status = 200
+        response.headers = {"Content-Type": "application/json"}
+        response.read.return_value = raw
+        response.close.return_value = None
+        opener = mock.Mock()
+        opener.open.return_value = response
+        collector_obj = gapfill.SpotGapFillCollector(
+            token="test-token", key=b"x" * 32,
+            requests=[request],
+            ledger={"wire_attempts_new": 0, "retry_attempts_new": 0, "attempts_by_request_id": {}},
+        )
+        collector_obj.pacer.wait = mock.Mock()
+        collector_obj._record_attempt = mock.Mock()
+        with mock.patch.object(gapfill.urllib.request, "build_opener", return_value=opener), \
+             mock.patch.object(gapfill, "get_cached_payload", return_value=None):
+            payload, status, digest, http_status, size = collector_obj._get_payload(request)
+        self.assertIsNone(payload)
+        self.assertEqual(status, "FAILED_VALIDATION")
+        self.assertEqual(http_status, 200)
+        self.assertEqual(size, len(raw))
+        self.assertEqual(digest, hashlib.sha256(raw).hexdigest())
+        self.assertEqual(collector_obj.errors[0]["reason"], "response_row_cap_exceeded_n2_cap1")
+        self.assertEqual(collector_obj.errors[0]["observed_rows"], 2)
+        self.assertEqual(collector_obj.errors[0]["max_rows"], 1)
+        self.assertEqual(collector_obj.errors[0]["response_bytes"], len(raw))
+        self.assertEqual(collector_obj.errors[0]["response_sha256"], hashlib.sha256(raw).hexdigest())
 
 
 class TestSpotGapfillByteBudget(unittest.TestCase):

@@ -1186,3 +1186,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Prior state: the existing tester decision NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json authorizes offline proposal/design review only and explicitly sets live_requests_authorized=false. The earlier one-use acquisition approval is marked SPENT and cannot be reused.
 - Impact: no source request is made until the tester report/decision binds the new developer commit and exact proposal blob hash and expressly authorizes only the 34-request spot scope. Existing dataset remains partial; 899,551 option rows are still reported without an exact spot join at the last audited checkpoint.
 - Disposition: prepare exact-snapshot developer submission; tester branch must independently review code/test/workflow blob hashes and the immutable base artifact/row-preservation contract. Do not bypass or broaden the gate. No model/holdout/strategy permission is implied.
+
+
+## 2026-10-11 — R1 partial recovery and row-cap diagnostic defect
+- **Execution:** run [38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291) completed at workflow level and uploaded encrypted artifact 11697215166 (ZIP SHA-256 `07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a`).
+- **Data outcome:** 33/34 approved spot requests passed, one failed validation, zero retries. Added 103,234 spot rows; option rows 8,490,723 and old spot rows 403,664 preserved. Exact joins improved to 8,471,702 matched; 19,021 remained missing. Dataset remains partial.
+- **Specific failure:** request `GAPSPOT1M-R1-20211108-20211115`, HTTP 200 / 255,574 bytes, generic row-cap failure over 4,000 timestamps. Existing result stored no observed row count or response hash for the rejected payload. This is an observability defect, not a reason to increase the cap.
+- **Corrective change prepared:** row-cap exception now embeds observed timestamp count and cap; collector failure metadata records response SHA-256, byte count, observed rows and max rows without raw response body/price values. A regression test asserts these safe fields.
+- **Next action:** submit a new exact-snapshot tester gate for 7 one-day calls from 2021-11-08 to 2021-11-15, max 500 rows/4 MiB, one attempt each, no retries, base artifact 11697215166. The previous 34-call approval is spent and cannot be reused. Live requests remain blocked until the new tester decision and workflow hash validate.
+- **Permissions:** option endpoints, order endpoints, model fitting/scoring, holdout access and strategy testing remain unauthorized.
+

@@ -1464,3 +1464,15 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Review the exact developer snapshot and the pinned code/test/workflow artifacts; if passing, authorize only the 34 spot requests, 0 retries, and immutable base-artifact preservation described in the submission. Reject any broader scope.
 **Tester → Developer:** Verify exact SHAs, one-attempt behavior, no option endpoint, artifact hash/row-preservation checks, encrypted-only artifacts, cleanup, and unchanged model/holdout/strategy restrictions before publishing the decision.
+
+
+### 2026-10-11 — R1 Dhan recovery outcome; R2 patch proposal prepared
+
+- Recovery run [38124538291](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38124538291) is complete at workflow level. Artifact 11697215166 has SHA-256 `07e402f194a42421a1d3df6a3a8b3031c30352250ff110b085e984816405d26a`.
+- Result: 34 requests / 33 success / 1 row-cap failure / 0 retries; 103,234 added spot rows. Existing option rows=8,490,723 and existing spot rows=403,664 preserved; final spot rows=506,898. Exact joins=8,471,702 matched / 19,021 missing. Data are still partial.
+- The failed window is 2021-11-08 through 2021-11-15 exclusive-end. A generic row-cap diagnostic did not record observed row count or response hash. Code is being corrected and regression-tested.
+- Next bounded request scope is seven one-day shards over that failed week only, max 500 rows/4 MiB/one attempt per request, zero retries, using the immutable encrypted output artifact 11697215166. This requires a new tester decision and a distinct spent marker; R1 permission is not reused.
+- No market prices or private internal reasoning are logged. Model fitting, holdout access, and strategy/P&L testing remain unauthorized. A fresh structural audit is required on the updated artifact.
+
+**Developer → Tester:** Check every request body, the new row-count/hash diagnostics, latest artifact digest, row-preservation and timestamp-overlap checks, one-attempt/global budget, encrypted artifact output and exact controller workflow SHA. Reject any broader request scope.
+**Tester → Developer:** Review the exact developer SHA and workflow blob SHA. If passing, authorize only seven spot requests and zero retries; after the run, require an updated integrity/value audit and keep modelling/holdout/strategy gates closed.

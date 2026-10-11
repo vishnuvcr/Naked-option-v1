@@ -425,20 +425,38 @@ class SpotGapFillCollector:
             else:
                 self.errors.append(self._error_record(request, exc.reason, status_code))
                 return None, "FAILED_REQUEST", "", status_code, 0
+        response_sha256 = collector.sha256_bytes(raw)
+        payload: dict[str, Any] | None = None
+        observed_rows: int | None = None
         try:
             payload = parse_json_numbers(raw)
+            observed_rows = collector._payload_row_count(payload, request)
             _validate_request_payload(payload, request)
             rows, problems = parse_spot_response(payload, request)
-            digest = collector.sha256_bytes(raw)
             cached_meta = store_cached_payload(request, raw, self.key, status, len(rows), content_type)
             return payload, "FETCHED_AFTER_ONE_RETRY" if self.ledger["attempts_by_request_id"].get(request["request_id"], 0) > 1 else "FETCHED", cached_meta["response_sha256"], status, len(raw)
         except Exception as exc:
+            reason = _safe_exception_reason(exc)
             if isinstance(exc, collector.SourceRequestError) and exc.reason.startswith("dhan_api_auth_or_entitlement"):
                 self.auth_failed = True
-                self.errors.append(self._error_record(request, "dhan_auth_or_entitlement_failure", exc.http_status))
-                return None, "DHAN_AUTH_FAILURE", "", exc.http_status, len(raw)
-            self.errors.append(self._error_record(request, _safe_exception_reason(exc), status))
-            return None, "FAILED_VALIDATION", "", status, len(raw)
+                error = self._error_record(request, "dhan_auth_or_entitlement_failure", exc.http_status)
+                error.update({"response_sha256": response_sha256, "response_bytes": len(raw)})
+                self.errors.append(error)
+                return None, "DHAN_AUTH_FAILURE", response_sha256, exc.http_status, len(raw)
+            if observed_rows is None and isinstance(payload, dict):
+                try:
+                    observed_rows = collector._payload_row_count(payload, request)
+                except Exception:
+                    observed_rows = None
+            error = self._error_record(request, reason, status)
+            error.update({
+                "response_sha256": response_sha256,
+                "response_bytes": len(raw),
+                "observed_rows": observed_rows,
+                "max_rows": int(request.get("max_rows", 0)),
+            })
+            self.errors.append(error)
+            return None, "FAILED_VALIDATION", response_sha256, status, len(raw)
 
     @staticmethod
     def _error_record(request: dict[str, Any], reason: str, status: int | None) -> dict[str, Any]:
