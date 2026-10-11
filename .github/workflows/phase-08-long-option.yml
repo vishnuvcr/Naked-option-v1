@@ -231,12 +231,13 @@ jobs:
           key: phase8-phase3-source-${{ runner.os }}-${{ hashFiles('research/phase2/**','research/phase6/PHASE6_METHOD_SPEC.md') }}
           restore-keys: |
             phase8-phase3-source-${{ runner.os }}-
-      - name: Ensure source data
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      - name: Require cached source data for offline reconstruction
         run: |
-          python scripts/acquire_nifty_daily_history.py
-          python scripts/acquire_hf_intraday_sample.py
+          set -euo pipefail
+          test -s data/cache/raw/phase3/nifty50_daily.csv || { echo "CACHE_MISS: daily NIFTY source absent; refusing network acquisition during frozen-artifact reconstruction"; exit 2; }
+          test -s data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet || { echo "CACHE_MISS: intraday reference absent; refusing network acquisition during frozen-artifact reconstruction"; exit 2; }
+          echo "CACHE_ONLY_RECONSTRUCTION=true"
+          sha256sum data/cache/raw/phase3/nifty50_daily.csv data/cache/raw/phase3/hf_intraday/nifty50_index_reference.parquet
       - name: Validate saved Run #994 forecasts without model refit
         run: |
           set -o pipefail
