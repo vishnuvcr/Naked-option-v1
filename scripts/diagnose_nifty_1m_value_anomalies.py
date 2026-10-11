@@ -73,6 +73,7 @@ def analyze(input_dir: pathlib.Path) -> dict[str, Any]:
     by_date: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
     by_source: dict[str, collections.Counter[str]] = collections.defaultdict(collections.Counter)
     records: list[dict[str, Any]] = []
+    issue_epochs: dict[str, set[int]] = collections.defaultdict(set)
     bad_dates = 0
     matched_epoch_values: dict[int, tuple[str, dict[str, str]]] = {}
     spot_epoch_rows: dict[int, dict[str, str]] = {}
@@ -121,9 +122,11 @@ def analyze(input_dir: pathlib.Path) -> dict[str, Any]:
             day = "(invalid_or_missing)"
             bad_dates += 1
         src = digest(str(row.get("source_request_id", "") or "(blank)"))
-        counters[f"{subject}:{issue}"] += 1
-        by_date[day][f"{subject}:{issue}"] += 1
-        by_source[src][f"{subject}:{issue}"] += 1
+        issue_key = f"{subject}:{issue}"
+        counters[issue_key] += 1
+        issue_epochs[issue_key].add(epoch)
+        by_date[day][issue_key] += 1
+        by_source[src][issue_key] += 1
         if len(records) < 1500:
             records.append({
                 "row_fingerprint_sha256_16": row_fingerprint(row),
@@ -203,6 +206,9 @@ def analyze(input_dir: pathlib.Path) -> dict[str, Any]:
             "unmatched_option_rows": unmatched_rows,
         },
         "issue_occurrence_counts": dict(sorted(counters.items())),
+        "issue_distinct_epoch_counts": {
+            key: len(epochs) for key, epochs in sorted(issue_epochs.items())
+        },
         "issue_counts_by_session_date": {
             day: dict(sorted(counts.items())) for day, counts in sorted(by_date.items())
         },
