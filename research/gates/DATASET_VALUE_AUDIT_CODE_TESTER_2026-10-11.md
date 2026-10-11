@@ -2,9 +2,9 @@
 
 - Review date: 2026-10-11 UTC
 - Branch: `phase-07-tester`
-- Exact developer commit reviewed: `a6fb2d62bc469f0706e92e49d70a0343f83e1650`
-- Offline composite test run: [38121662540](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121662540) — success (includes parsing the new audit workflow and its self-test workflow step)
-- Protocol check: [38121662694](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121662694) — success
+- Exact developer commit reviewed: `346b959f43ad8f97a54a3ecbddab55c54df6f2ac`
+- Offline composite test run: [38121967789](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967789) — success (includes parsing the new audit workflow and its self-test workflow step)
+- Protocol check: [38121967994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967994) — success
 - Reviewer independence caveat: this tester-role report was created in the same connected assistant session; it is not an independent human identity or independent AI review. The repository's HF AI reviewer was previously unavailable with HTTP 402.
 
 ## Exact files reviewed
@@ -12,10 +12,10 @@
 | File | Blob SHA |
 |---|---|
 | `scripts/audit_nifty_1m_composite_values.py` | `65a281e56f60e42774b83924d9dbc8c2cd164ba9` |
-| `scripts/test_audit_nifty_1m_composite_values.py` | `ea473a13bbe59e2708c7b0847cebc7f50993fb33` |
+| `scripts/test_audit_nifty_1m_composite_values.py` | `04dd0ffe347f39e1da56c78b3649c028e98cb10d` |
 | `scripts/decrypt_nifty_1m_composite.py` | `6ba27b65548b9197e0db35deeafcedbade6ca445` |
 | `requirements-composite.txt` | `8c74241f2035a3e388087078be5e5aaf846addca` |
-| `.github/workflows/dataset-value-audit.yml` | `0200f2c2cea3ca767e79b2df8c35375b7dbb3e8d` |
+| `.github/workflows/dataset-value-audit.yml` | `00436a389ee82fd9adde980bfef5515f1e420b49` |
 | `.github/workflows/phase-07-nifty-1m-composite-tests.yml` | `db7666905fb97f703784e7f3e7bda8958b106715` |
 
 ## Findings and checks
@@ -40,3 +40,14 @@ Run the exact workflow on `main` using only artifact 11693866249 and the existin
 **Tester → Developer:** Promote only these exact reviewed code/workflow blobs; verify the report after the fixed-artifact run and do not widen empirical permissions.
 
 **Developer → Tester:** Independently inspect the hosted result status, summary metrics and cleanup evidence; report any runtime flaw on `phase-07-tester`.
+
+
+## Workflow-definition defect found and corrected
+
+The first published workflow on `main` failed before any job started; its job list was empty, so no artifact download, decryption, or row-level audit was executed. Root cause: the self-test insertion had omitted the named step header for the artifact-download action, causing the action's `uses:` to coexist with the previous `run:` in the same step definition. The corrected developer snapshot restores the step boundary. A regression test now asserts the expected download step block and that offline tests occur before artifact access.
+
+- The first regression assertion itself initially encoded literal backslash-n characters instead of Python newline escapes, so [run 38121943728](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121943728) failed only that test. The test source was corrected, and the full offline suite passed at [run 38121967789](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967789).
+- Protocol check: [run 38121967994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967994) — PASS.
+- Exact reviewed workflow blob SHA: `00436a389ee82fd9adde980bfef5515f1e420b49`.
+
+These corrections are code/test-only. The deployment on `main` still needs to be updated from the reviewed blob, and a successful hosted run must prove artifact download, authenticated decryption, semantic audit, and temporary plaintext cleanup before the research can claim value-level validation.
