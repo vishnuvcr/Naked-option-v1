@@ -223,10 +223,6 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         key_batch.clear()
                     db.commit()
 
-        if width_errors:
-            raise ValueError("ROW_WIDTH_MISMATCH")
-        if counts["data_rows"] != expected_rows:
-            raise ValueError("ROW_COUNT_MISMATCH")
         if db is not None:
             if key_batch:
                 before = db.total_changes
@@ -241,6 +237,12 @@ def run(path: Path, report_path: Path, expected_sha: str,
         elif expected_uncompressed_bytes and not uncompressed_size_match:
             duplicate_status = "NOT_EVALUATED_CONTENT_SIZE_FAILED"
             overall_status = "PREFLIGHT_FAIL_UNCOMPRESSED_SIZE"
+        elif width_errors:
+            duplicate_status = "NOT_EVALUATED_ROW_WIDTH_FAILED"
+            overall_status = "PREFLIGHT_FAIL_ROW_WIDTH"
+        elif counts["data_rows"] != expected_rows:
+            duplicate_status = "NOT_EVALUATED_ROW_COUNT_FAILED"
+            overall_status = "PREFLIGHT_FAIL_ROW_COUNT"
         elif not key_cols:
             duplicate_status = "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY"
             overall_status = "PREFLIGHT_REVIEW_DUPLICATE_CHECK_NOT_ESTIMABLE"
