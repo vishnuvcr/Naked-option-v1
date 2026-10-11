@@ -183,9 +183,13 @@ def summarize_critical_data_gaps(
     expiry_fields_missing = bool(
         missing_expiry_columns or any(count > 0 for count in blank_expiry_option_rows.values())
     )
-    expiry_fields_blank_for_all_option_rows = bool(option_rows) and all(
-        missing_expiry_columns or blank_expiry_option_rows.get(field, 0) >= option_rows
-        for field in expiry_fields
+    expiry_fields_blank_for_all_option_rows = (
+        bool(option_rows)
+        and not missing_expiry_columns
+        and all(
+            blank_expiry_option_rows.get(field, 0) >= option_rows
+            for field in expiry_fields
+        )
     )
     return {
         "lot_size_column_missing": "lot_size" not in indexes,
