@@ -110,6 +110,11 @@ class PreflightTests(unittest.TestCase):
             self.assertEqual(report["duplicate_key_count"], 1)
             self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
             self.assertEqual(report["incomplete_composite_key_rows"], 0)
+            self.assertEqual(report["key_group_row_counts"]["1"]["rows_assigned"], 2)
+            self.assertEqual(
+                report["key_group_row_counts"]["1"]["fields"],
+                ["timestamp_epoch", "instrument_type", "security_id"],
+            )
 
     def test_missing_recognized_key_fields_is_not_estimable_not_pass(self):
         with tempfile.TemporaryDirectory() as td:
