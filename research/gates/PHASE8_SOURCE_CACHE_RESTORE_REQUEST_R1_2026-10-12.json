@@ -19,7 +19,7 @@
       "path": "data/cache/raw/phase3/nifty50_daily.csv",
       "sha256": "5816b0e73f4bd1327e567249f366fbebb01a549bd539fd4743424fbefe70f5c1",
       "role": "NIFTY spot daily reference for saved forecast label/source alignment",
-      "source": "Yahoo Finance NIFTY index history via existing Phase 3 acquisition script",
+      "source": "Yahoo Finance NIFTY index history via existing Phase 3 script; the same script also requests official NSE index archive ZIPs for spot-date cross-checks",
       "period_utc": {
         "start": "2020-01-01",
         "end_exclusive": "2026-10-01"
