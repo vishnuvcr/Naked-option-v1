@@ -15,5 +15,7 @@
   "strategy_testing_authorized": false,
   "decision_date": "2026-10-11",
   "report_path": "research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_TESTER_REPORT.md",
-  "report_sha256": ""
+  "report_sha256": "",
+  "activation_trigger_note": "Administrative re-commit to trigger the already-approved exact-SHA gate after the workflow file was added to the tester branch. Scope unchanged: 7 spot requests, 0 retries, no options/models/holdout/strategy testing.",
+  "activation_triggered_at_utc": "2026-10-11T08:49:19.422Z"
 }
