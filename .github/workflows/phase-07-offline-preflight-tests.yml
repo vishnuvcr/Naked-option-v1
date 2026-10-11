@@ -1,0 +1,31 @@
+name: Phase 07 Offline Dataset Preflight Tests
+on:
+  push:
+    branches: [phase-07-developer]
+    paths:
+      - 'scripts/offline_dataset_preflight.py'
+      - 'scripts/test_offline_dataset_preflight.py'
+      - '.github/workflows/phase-07-offline-preflight-tests.yml'
+  pull_request:
+    branches: [phase-07-developer]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run deterministic synthetic fixtures only
+        env:
+          PYTHONPATH: scripts
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py
+      - name: Ensure no real data or credentials are staged
+        run: |
+          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv
+          test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv.gz
+          test ! -e .env
