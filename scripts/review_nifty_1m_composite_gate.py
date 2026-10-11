@@ -22,8 +22,13 @@ FILES = [
     "scripts/test_nifty_1m_composite_dataset.py",
     "scripts/validate_nifty_1m_composite_manifest.py",
     "scripts/validate_nifty_1m_composite_approval.py",
+    "scripts/run_nifty_1m_spot_diagnostic.py",
+    "scripts/test_nifty_1m_spot_diagnostic.py",
+    "scripts/audit_nifty_1m_composite_cache.py",
+    "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json",
     ".github/workflows/phase-07-nifty-1m-composite-live.yml",
     ".github/workflows/phase-07-nifty-1m-composite-tests.yml",
+    ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml",
 ]
 REQUIRED_FIELDS = ["timestamp", "open", "high", "low", "close", "volume"]
 REQUIRED_TEST_MARKERS = {
@@ -75,12 +80,17 @@ def check_parser(source: str, findings: list[dict[str, str]]) -> None:
             if len(node.args) >= 2 and isinstance(node.args[1], ast.List):
                 fields_found = {x.value for x in node.args[1].elts if isinstance(x, ast.Constant) and isinstance(x.value, str)}
                 break
-    if not set(REQUIRED_FIELDS).issubset(fields_found):
-        add(findings, "BLOCKER", "SPOT_FIELDS_NOT_SCHEMA_GUARDED",
-            "Spot parser does not validate timestamp, OHLC, and volume together. Dhan's documented intraday response includes volume; do not remove it without exact response evidence.")
+    mandatory_spot_fields = {"timestamp", "open", "high", "low", "close"}
+    if not mandatory_spot_fields.issubset(fields_found):
+        add(findings, "BLOCKER", "SPOT_OHLC_FIELDS_NOT_SCHEMA_GUARDED",
+            "Spot parser must strictly validate timestamp and every OHLC array.")
+    elif ('volume_unusable' not in source or 'SPOT_VOLUME_MISSING_OR_MISALIGNED' not in source
+          or 'spot_volume_missing_or_misaligned' not in source):
+        add(findings, "BLOCKER", "SPOT_VOLUME_DEGRADATION_NOT_EXPLICIT",
+            "Missing/empty/misaligned volume must remain blank and be quality-flagged rather than zero-filled.")
     else:
-        add(findings, "INFO", "SPOT_RESPONSE_FIELDS_REQUIRED",
-            "Spot parser requires timestamp, OHLC, and volume arrays, consistent with Dhan's documented response shape.")
+        add(findings, "INFO", "SPOT_OHLC_STRICT_VOLUME_DEGRADED",
+            "Timestamp/OHLC arrays remain mandatory and aligned; unusable volume stays blank and is quality-flagged.")
 
     safe_fn = function_source(tree, "_safe_exception_reason")
     if safe_fn is None:
@@ -106,9 +116,11 @@ def run_offline_tests(root: pathlib.Path, findings: list[dict[str, str]]) -> dic
         ["python", "-m", "py_compile", "scripts/run_nifty_1m_composite_dataset.py",
          "scripts/decrypt_nifty_1m_composite.py", "scripts/validate_nifty_1m_composite_manifest.py",
          "scripts/test_nifty_1m_composite_dataset.py", "scripts/test_nifty_1m_composite_manifest.py",
-         "scripts/validate_nifty_1m_composite_approval.py"],
+         "scripts/validate_nifty_1m_composite_approval.py", "scripts/run_nifty_1m_spot_diagnostic.py",
+         "scripts/test_nifty_1m_spot_diagnostic.py", "scripts/audit_nifty_1m_composite_cache.py"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_manifest"],
         ["python", "-m", "unittest", "-v", "test_nifty_1m_composite_dataset"],
+        ["python", "-m", "unittest", "-v", "test_nifty_1m_spot_diagnostic"],
     ]
     results = []
     for command in tests:
@@ -125,6 +137,96 @@ def run_offline_tests(root: pathlib.Path, findings: list[dict[str, str]]) -> dic
             add(findings, "BLOCKER", "OFFLINE_TEST_FAILED",
                 f"Offline check {command[0]} {command[1]} failed with exit code {proc.returncode}.")
     return {"checks": results, "passed": all(r["exit_code"] == 0 for r in results)}
+
+
+def request_scope_digest(request: dict[str, Any]) -> str:
+    scope = {"endpoint": request.get("endpoint"), "method": request.get("method"), "body": request.get("body")}
+    return sha256(json.dumps(scope, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
+
+
+def check_diagnostic_scope(target: pathlib.Path, findings: list[dict[str, str]]) -> dict[str, Any]:
+    """Independently validate exactly one non-persisting spot diagnostic request."""
+    plan_path = target / "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_PLAN.json"
+    manifest_path = target / "research/gates/NIFTY_1M_COMPOSITE_REQUESTS_2026.json"
+    script_path = target / "scripts/run_nifty_1m_spot_diagnostic.py"
+    workflow_path = target / ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
+    try:
+        plan = json.loads(plan_path.read_text(encoding="utf-8"))
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_PLAN_OR_MANIFEST_INVALID",
+            "Tester cannot parse the exact diagnostic plan and the frozen 2026 request manifest.")
+        return {"status": "BLOCKED", "reason": "PLAN_OR_MANIFEST_INVALID"}
+    matches = [r for r in manifest.get("requests", []) if r.get("request_id") == plan.get("request_id")]
+    required_false = ("persist_raw_response", "write_response_cache", "write_csv_rows",
+                      "export_market_rows", "log_market_values", "log_credentials",
+                      "model_fitting_authorized", "holdout_access_authorized", "strategy_testing_authorized")
+    if (plan.get("status") != "DRAFT_FOR_AUTOMATED_TESTER_REVIEW"
+            or plan.get("max_wire_requests") != 1 or plan.get("max_retries") != 0
+            or plan.get("source_family") != "NIFTY_SPOT_1M" or len(matches) != 1
+            or matches[0].get("source_family") != "NIFTY_SPOT_1M"
+            or matches[0].get("endpoint") != plan.get("endpoint")
+            or plan.get("endpoint") != "https://api.dhan.co/v2/charts/intraday"
+            or plan.get("request_id") != "SPOT1M-20260915-20261011"
+            or any(plan.get(k) is not False for k in required_false)):
+        add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_SCOPE_NOT_EXACT",
+            "Diagnostic must be one frozen-manifest spot request, no retry, no cache/export/logged market values or model scope.")
+        return {"status": "BLOCKED", "reason": "SCOPE_INVALID"}
+    if not script_path.is_file() or not workflow_path.is_file():
+        add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_EXECUTOR_MISSING",
+            "The exact diagnostic runner or automatic workflow is missing.")
+        return {"status": "BLOCKED", "reason": "EXECUTOR_MISSING"}
+    script = script_path.read_text(encoding="utf-8")
+    workflow = workflow_path.read_text(encoding="utf-8")
+    script_markers = ("wire_requests\": 1", "retries\": 0", "raw_response_persisted\": False",
+                      "cache_written\": False", "market_values_logged\": False",
+                      "NoRedirect()", "response.read(cap + 1)", "parse_spot_response")
+    workflow_markers = ("workflow_run:", "phase-07-tester", "diagnostic_probe_authorized",
+                        "NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json", "DHAN_ACCESS_TOKEN",
+                        "run_nifty_1m_spot_diagnostic.py")
+    if any(marker not in script for marker in script_markers) or any(marker not in workflow for marker in workflow_markers):
+        add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_SAFEGUARD_MISSING",
+            "Diagnostic runner/workflow is missing one-request, no-persistence or exact tester-decision guards.")
+        return {"status": "BLOCKED", "reason": "SAFEGUARD_MISSING"}
+    result = {"status": "PASS", "request_id": plan["request_id"],
+              "max_wire_requests": 1, "max_retries": 0, "persist_raw_response": False,
+              "write_response_cache": False, "export_market_rows": False}
+    add(findings, "INFO", "SPOT_DIAGNOSTIC_EXACT_SCOPE_PASS",
+        "The one-request diagnostic scope is pinned to the frozen request manifest and writes only sanitized metadata.")
+    return result
+
+
+def check_spot_recovery_scope(target: pathlib.Path, findings: list[dict[str, str]]) -> dict[str, Any]:
+    """Review the no-option-refetch guard before a separate 61-spot recovery."""
+    collector_path = target / "scripts/run_nifty_1m_composite_dataset.py"
+    audit_path = target / "scripts/audit_nifty_1m_composite_cache.py"
+    workflow_path = target / ".github/workflows/phase-07-nifty-1m-composite-spot-diagnostic.yml"
+    try:
+        collector = collector_path.read_text(encoding="utf-8")
+        audit = audit_path.read_text(encoding="utf-8")
+        workflow = workflow_path.read_text(encoding="utf-8")
+    except Exception:
+        add(findings, "BLOCKER", "SPOT_RECOVERY_GUARD_FILES_MISSING",
+            "Spot-only recovery requires the collector's cache-only option mode, an independent cache auditor and an automatic workflow.")
+        return {"status": "BLOCKED", "reason": "RECOVERY_GUARD_FILES_MISSING"}
+    required_collector = ("allow_live: bool = True", "allow_live=not spot_only_recovery",
+                          "--spot-only-recovery", "live_option_requests_enabled")
+    required_audit = ("option_cache_valid", "option_cache_missing", "source_requests_made\": 0",
+                      "wire_requests_reserved_for_spot", "8540", "61")
+    required_workflow = ("audit_nifty_1m_composite_cache.py", "NIFTY_1M_SPOT_RECOVERY_EXECUTION.json",
+                         "SPOT_ONLY_RECOVERY", "run_nifty_1m_composite_dataset.py --spot-only-recovery",
+                         "nifty1m-composite-")
+    if (any(marker not in collector for marker in required_collector)
+            or any(marker not in audit for marker in required_audit)
+            or any(marker not in workflow for marker in required_workflow)):
+        add(findings, "BLOCKER", "SPOT_RECOVERY_CACHE_ONLY_GUARD_MISSING",
+            "Recovery workflow must prove all 8,540 option caches are valid and disable every live option request before the one-use marker is spent.")
+        return {"status": "BLOCKED", "reason": "CACHE_ONLY_GUARD_MISSING"}
+    result = {"status": "PASS", "spot_request_limit": 61, "option_cache_required": 8540,
+              "live_option_requests_allowed": False, "cache_audit_required": True}
+    add(findings, "INFO", "SPOT_RECOVERY_CACHE_ONLY_SCOPE_PASS",
+        "The separate recovery runner requires a valid cache for every option request and forbids live option refetches.")
+    return result
 
 
 def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
@@ -152,6 +254,8 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
     workflow_source = workflow_path.read_text(encoding="utf-8") if workflow_path.is_file() else ""
 
     check_parser(parser_source, findings)
+    diagnostic_scope = check_diagnostic_scope(target, findings)
+    recovery_scope = check_spot_recovery_scope(target, findings)
     for label, marker in REQUIRED_TEST_MARKERS.items():
         if not re.search(marker, tests_source):
             add(findings, "BLOCKER", "MISSING_REGRESSION_CASE", f"Missing explicit regression coverage: {label}.")
@@ -181,6 +285,33 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
             add(findings, "BLOCKER", "FORBIDDEN_SCOPE_LITERAL", f"Approval validator contains forbidden permission literal: {marker}.")
 
     offline = run_offline_tests(target, findings)
+    diagnostic_result_path = target / "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_RESULT.json"
+    diagnostic_execution_path = target / "research/gates/NIFTY_1M_SPOT_DIAGNOSTIC_EXECUTION.json"
+    recovery_execution_path = target / "research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
+    diagnostic_result: dict[str, Any] = {}
+    if diagnostic_result_path.is_file():
+        try:
+            diagnostic_result = json.loads(diagnostic_result_path.read_text(encoding="utf-8"))
+        except Exception:
+            add(findings, "BLOCKER", "SPOT_DIAGNOSTIC_RESULT_INVALID", "Diagnostic result exists but is not valid JSON.")
+    diagnostic_already_spent = diagnostic_execution_path.is_file()
+    recovery_already_spent = recovery_execution_path.is_file()
+    probe_authorized = diagnostic_scope.get("status") == "PASS" and not diagnostic_already_spent
+    diagnostic_ready_for_recovery = (
+        diagnostic_result.get("request_id") == "SPOT1M-20260915-20261011"
+        and diagnostic_result.get("http_status") == 200
+        and diagnostic_result.get("parser_status") in {"PARSED_OK", "PARSED_WITH_VOLUME_GAP"}
+        and int(diagnostic_result.get("row_count", 0)) > 0
+        and diagnostic_result.get("raw_response_persisted") is False
+        and diagnostic_result.get("cache_written") is False
+        and diagnostic_result.get("market_values_logged") is False
+        and diagnostic_result.get("wire_requests") == 1
+        and diagnostic_result.get("retries") == 0
+    )
+    recovery_authorized = (
+        diagnostic_ready_for_recovery and recovery_scope.get("status") == "PASS"
+        and not recovery_already_spent
+    )
     blockers = [f for f in findings if f["severity"] == "BLOCKER"]
     verdict = "REQUEST_CHANGES" if blockers else "PASS_WITH_SCOPED_RESTRICTIONS"
     return {
@@ -191,6 +322,10 @@ def review(target: pathlib.Path, reviewed_sha: str) -> dict[str, Any]:
         "created_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "files": hashes,
         "offline_tests": offline,
+        "diagnostic_scope_review": diagnostic_scope,
+        "spot_recovery_scope_review": recovery_scope,
+        "diagnostic_probe_authorized": bool(probe_authorized and verdict != "REQUEST_CHANGES"),
+        "spot_recovery_authorized": bool(recovery_authorized and verdict != "REQUEST_CHANGES"),
         "verdict": verdict,
         "live_requests_authorized": False,
         "model_fitting_authorized": False,
