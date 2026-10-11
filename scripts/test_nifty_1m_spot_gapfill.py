@@ -213,6 +213,68 @@ class TestSpotGapfillMerge(unittest.TestCase):
         self.assertEqual(counters["spot_join_missing"], 0)
         self.assertEqual(rows_by_month["2026-10"], 3)
 
+    def test_partial_base_preserves_existing_spot_rows_and_fills_only_new_matches(self):
+        epoch = int(dt.datetime.fromisoformat("2026-10-01T09:15:00+05:30").timestamp())
+        old_option = sample_row("OPTION", epoch, "OPT-HIST")
+        old_option.update({
+            "option_close": "100", "nifty_open": "24700", "nifty_high": "24702",
+            "nifty_low": "24698", "nifty_close": "24701", "nifty_volume": "12345",
+            "spot_join_status": "EXACT_TIMESTAMP_MATCH", "data_quality_flags": "",
+        })
+        old_spot = sample_row("SPOT", epoch, "GAPSPOT1M-OLD")
+        old_spot.update({
+            "nifty_open": "24700", "nifty_high": "24702", "nifty_low": "24698",
+            "nifty_close": "24701", "nifty_volume": "12345", "spot_join_status": "SPOT_SOURCE_ROW",
+            "data_quality_flags": "",
+        })
+        new_epoch = epoch + 60
+        missing_option = sample_row("OPTION", new_epoch, "OPT-HIST")
+        missing_option.update({
+            "option_close": "101", "nifty_open": "", "nifty_high": "", "nifty_low": "",
+            "nifty_close": "", "nifty_volume": "", "spot_join_status": "NO_EXACT_TIMESTAMP_SPOT_MATCH",
+            "data_quality_flags": "SPOT_JOIN_MISSING",
+        })
+        new_spot = sample_row("SPOT", new_epoch, "GAPSPOT1M-R1")
+        new_spot.update({
+            "nifty_open": "24701", "nifty_high": "24703", "nifty_low": "24699",
+            "nifty_close": "24702", "nifty_volume": "23456", "spot_join_status": "SPOT_SOURCE_ROW",
+            "data_quality_flags": "",
+        })
+        spot_map = {
+            new_epoch: {k: new_spot.get(k, "") for k in (
+                "nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume", "data_quality_flags"
+            )}
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            base_path = root / "base" / "nifty_1m_composite_2026-10.csv.gz"
+            spot_dir = root / "spots"
+            output_dir = root / "output"
+            write_gz_csv(base_path, [old_option, old_spot, missing_option])
+            write_gz_csv(spot_dir / "spot_rows_2026-10.csv.gz", [new_spot])
+            old_plain = gapfill.PLAIN_ROOT
+            gapfill.PLAIN_ROOT = output_dir
+            try:
+                rows_by_month, counters = gapfill.merge_into_existing_dataset(
+                    [base_path], spot_dir, spot_map, preserve_existing_spot_rows=True
+                )
+            finally:
+                gapfill.PLAIN_ROOT = old_plain
+            with gzip.open(output_dir / "nifty_1m_composite_2026-10.csv.gz", "rt", encoding="utf-8", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+        options = [row for row in rows if row["row_type"] == "OPTION"]
+        spots = [row for row in rows if row["row_type"] == "SPOT"]
+        self.assertEqual(len(options), 2)
+        self.assertEqual(len(spots), 2)
+        self.assertEqual(options[0]["nifty_close"], "24701")
+        self.assertEqual(options[1]["nifty_close"], "24702")
+        self.assertNotIn("SPOT_JOIN_MISSING", options[1]["data_quality_flags"])
+        self.assertEqual(counters["rows_options_out"], 2)
+        self.assertEqual(counters["rows_spot_out"], 2)
+        self.assertEqual(counters["spot_join_matched"], 2)
+        self.assertEqual(counters["spot_join_missing"], 0)
+        self.assertEqual(rows_by_month["2026-10"], 4)
+
     def test_unmatched_option_keeps_spot_blank_and_is_flagged(self):
         epoch = int(dt.datetime.fromisoformat("2026-10-01T09:15:00+05:30").timestamp())
         row = sample_row("OPTION", epoch, "OPT-HIST")
