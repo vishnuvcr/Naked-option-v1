@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "gate": "phase8-auth-hash-and-gap-summary-r3-code-review",
+  "reviewed_at": "2026-10-11",
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "Exact-pinned code and synthetic data-gap reporting checks only; no real-data execution permission",
+  "developer_branch": "phase-08-developer",
+  "developer_tested_snapshot_commit": "4d93085519675484570bb054cbedb1c2405708f0",
+  "developer_branch_head_at_review": "454bfdf4e7c43519c1d43ea953fd9dca5018aa00",
+  "prior_review_decision": "REQUEST_CHANGES",
+  "workflow_run_id": 38163678060,
+  "workflow_conclusion": "success",
+  "contract_tests_conclusion": "success",
+  "authorization_contract_tests_conclusion": "success",
+  "cost_arithmetic_tests_conclusion": "success",
+  "synthetic_runner_self_test_conclusion": "success",
+  "critical_file_pin_check_conclusion": "success",
+  "metadata_only_preflight_job_conclusion": "skipped",
+  "reviewed_code_blob_shas": {
+    ".github/workflows/phase8-cached-composite-preflight.yml": "c267923cba97ed05936d9410b27329a9868b40ed",
+    "scripts/run_phase8_long_option.py": "cda6a15ae00a7f00039be0033c621a164da1f92a",
+    "scripts/test_phase8_long_option_runner.py": "566c328ec38a0bb3aaad8267081460a295012669",
+    "scripts/phase8_execution_engine.py": "53524cdd3df55de804f757939f99dc5e92c8b1c3",
+    "scripts/test_phase8_execution_engine.py": "02323a80417ddfec7265b0633d6fdd043fb10bc3",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "scripts/validate_phase8_cached_composite_bundle.py": "cb48b1f752770783b385a40ebd090d77dc5c5ef8",
+    "scripts/test_phase8_cached_composite_bundle.py": "edcfe6929b0e37f6b6c28f8a013b61f59857f945",
+    "scripts/authorize_phase8_cached_composite_preflight.py": "fe1a5790067f9cd9e5c43d8f752f754a9bfa7c20",
+    "scripts/test_phase8_cached_composite_preflight.py": "a44aa4cb395d7405e689fbfea6c632c50c44b5a4",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json": "dd8b83113d4b79429008024779107a776b1a0f12",
+    "research/phase8/PHASE8_METHOD_SPEC.md": "93c25a91663d9f9dcda4617e576b4fcb3d052234",
+    "data/reference/phase8_cost_schedule.json": "89ba6c098cd2ebf6d964a47c0760b6a198ba7e74",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca"
+  },
+  "empirical_option_pnl_authorized": false,
+  "holdout_access_authorized": false,
+  "new_market_source_requests_authorized": false,
+  "strategy_promotion_authorized": false,
+  "r1_request_reusable": false,
+  "remaining_blockers": [
+    "Expiry fields are blank in cached option rows; point-in-time expiry mapping is unproven.",
+    "lot_size and tick_size columns are absent.",
+    "Historical executable bid/ask coverage is unproven.",
+    "Daily H=1 future_return numerical comparison anomaly remains a separate unresolved gate.",
+    "Phase 9 robustness and Phase 10 untouched-forward gates remain open."
+  ],
+  "notes": [
+    "R1 marker remains consumed; this review does not enable a new request.",
+    "No real-data scan occurred in run 38163678060."
+  ]
+}
