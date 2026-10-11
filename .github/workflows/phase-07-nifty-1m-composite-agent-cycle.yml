@@ -55,8 +55,9 @@ jobs:
           ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
-          git fetch --no-tags origin phase-07-developer phase-07-tester
-          branch_sha="$(git rev-parse origin/phase-07-developer)"
+          git fetch --no-tags origin +refs/heads/phase-07-developer:refs/remotes/origin/phase-07-developer +refs/heads/phase-07-tester:refs/remotes/origin/phase-07-tester
+          branch_sha="$(git ls-remote origin refs/heads/phase-07-developer | awk '{print $1}')"
+          test -n "$branch_sha"
           if [[ -n "$REQUESTED_SHA" && "$REQUESTED_SHA" == "$branch_sha" ]]; then review_sha="$REQUESTED_SHA"; else review_sha="$branch_sha"; fi
           state_json="$(git show origin/phase-07-tester:research/gates/NIFTY_1M_COMPOSITE_AGENT_STATE.json 2>/dev/null || printf '{}')"
           old_attempts="$(printf '%s' "$state_json" | python -c 'import json,sys; d=json.load(sys.stdin); print(int(d.get("auto_repair_attempts",0)))' 2>/dev/null || printf '0')"
