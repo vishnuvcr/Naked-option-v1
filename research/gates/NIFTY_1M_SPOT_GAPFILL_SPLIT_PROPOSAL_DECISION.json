@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "reviewed_at_utc": "2026-10-11T06:31:00Z",
-  "reviewed_developer_commit": "9da1d081de4d43b206642b5a5643a44738ea0580",
+  "reviewed_at_utc": "2026-10-11T06:34:00Z",
+  "reviewed_developer_commit": "d2176806aa6c5db08e0577ddc3daf08a9652f1a6",
   "proposal_path": "research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json",
   "proposal_scope": "OFFLINE_SPLIT_MANIFEST_DESIGN_ONLY",
   "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
@@ -13,7 +13,7 @@
   "maximum_response_bytes": 8388608,
   "maximum_attempts_per_request": 1,
   "maximum_retry_requests": 0,
-  "offline_test_run_id": "38118242124",
+  "offline_test_run_id": "38118437757",
   "production_collector_honors_max_attempts_field": false,
   "exact_manifest_live_dispatch_implemented": false,
   "live_requests_authorized": false,
@@ -21,6 +21,15 @@
   "model_fitting_authorized": false,
   "holdout_access_authorized": false,
   "strategy_testing_authorized": false,
-  "next_gate": "Implement and test max_attempts=1 and exact-SHA request authorization path, then resubmit offline only.",
-  "role_caveat": "Tester-role review within same connected assistant session; not a separate human identity or independent AI reviewer."
+  "next_gate": "Integrate partial-artifact base preservation and exact-SHA authorization into a separate fail-closed workflow, then obtain a fresh exact-snapshot tester authorization.",
+  "role_caveat": "Tester-role review within same connected assistant session; not a separate human identity or independent AI reviewer.",
+  "decision_scope": "OFFLINE_SPLIT_MANIFEST_AND_AUTH_VALIDATOR_ONLY",
+  "exact_snapshot_code_gate_run_id": "38118437808",
+  "per_request_max_attempts_enforced": true,
+  "exact_sha_authorization_validator_present": true,
+  "exact_sha_authorization_validator_integrated_into_request_workflow": false,
+  "partial_artifact_ingestion_supported": false,
+  "base_partial_artifact_id": "11693866249",
+  "existing_spot_rows_to_preserve": 403664,
+  "existing_option_rows_to_preserve": 8490723
 }
