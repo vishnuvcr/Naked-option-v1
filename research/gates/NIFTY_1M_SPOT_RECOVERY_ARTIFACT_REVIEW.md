@@ -95,3 +95,16 @@ The artifact is encrypted using a key derived from the repository's HF_TOKEN. Th
 **Tester → Developer:** Implement partial-artifact ingestion/preservation and integrate the exact-SHA authorization validator into a separate fail-closed workflow. Keep it offline-only until the resulting exact snapshot receives a fresh explicit tester authorization.
 
 **Developer → Tester:** Review the new base-artifact preflight, option/spot row preservation, de-duplication and one-use marker path before any live request can be enabled.
+
+
+## Fourth review — partial-artifact runner and request-workflow gate
+
+- Exact developer snapshot reviewed: `be7d5cb9c3825d2b389c8796dfe7085e68973772`.
+- Offline pipeline tests passed, including partial-artifact row preservation, per-request attempt ceilings, exact-SHA validator behavior and split-workflow YAML validation. The code gate [38119094646](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119094646) returned `PASS_WITH_SCOPED_RESTRICTIONS`; the AI reviewer remained unavailable (HTTP 402).
+- The exact-SHA split workflow is now installed on main, developer and tester branches. It verifies the proposal blob SHA and the base artifact ZIP digest, requires a separate spent-before-request marker, uses a distinct split ledger/result, and only exposes a request job if the tester decision explicitly sets `decision_scope=SPLIT_RECOVERY_EXECUTION`, `split_recovery_authorized=true`, `live_requests_authorized=true`, request limit 34, retry limit 0, and no option requests.
+- Gate runs [38118998725](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118998725) and [38118990427](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38118990427) denied the proposal without making requests. The first denial exposed a schema-field mismatch; the validator now accepts the exact proposal SHA under either recognized field name while still requiring equality. After the schema correction, the denial reason was only the missing execution scope/authorization flags, as intended.
+- **Decision remains PASS WITH SCOPED RESTRICTIONS for offline code only.** The request job must remain skipped because AI review is unavailable and live authorization is false. The 34-shard retry has not run; the dataset remains partial. No option refetch, model fitting/scoring, holdout access or strategy testing is authorized.
+
+**Tester → Developer:** Keep the request job disabled unless an exact-snapshot tester decision explicitly authorizes the split execution scope; AI reviewer unavailability is not approval.
+
+**Developer → Tester:** Re-review only after the authorization decision or code changes; do not infer permission from an offline code-gate pass.
