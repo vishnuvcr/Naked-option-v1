@@ -143,6 +143,49 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertEqual(rows[0]["nifty_close"], "24701.75")
         self.assertTrue(rows[0]["timestamp_utc"].endswith("Z"))
 
+    def test_spot_parser_rejects_missing_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1]}
+        with self.assertRaisesRegex(ValueError, "response_field_not_array_volume"):
+            collector.parse_spot_response(payload, request)
+
+    def test_spot_parser_rejects_empty_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": []}
+        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+            collector.parse_spot_response(payload, request)
+
+    def test_spot_parser_rejects_misaligned_volume(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": [1, 2]}
+        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+            collector.parse_spot_response(payload, request)
+
+    def test_spot_parser_rejects_noninteger_timestamp(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        for invalid_timestamp in (True, str(ts), float(ts)):
+            payload = {
+                "timestamp": [invalid_timestamp], "open": [1], "high": [1],
+                "low": [1], "close": [1], "volume": [1]
+            }
+            with self.subTest(timestamp_type=type(invalid_timestamp).__name__):
+                with self.assertRaisesRegex(ValueError, "response_timestamp_not_integer_epoch"):
+                    collector.parse_spot_response(payload, request)
+
+    def test_spot_parser_rejects_each_misaligned_ohlc_array(self):
+        request = spot_request()
+        ts = epoch_ist("2026-10-01", "09:15:00")
+        for field in ("open", "high", "low", "close"):
+            payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": [1]}
+            payload[field] = []
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
+                    collector.parse_spot_response(payload, request)
+
     def test_spot_parser_rejects_misaligned_arrays(self):
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
