@@ -214,6 +214,7 @@ jobs:
           PY
 
       - name: Upload encrypted derived dataset and sanitized report
+        id: upload_derived
         if: steps.repair.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
@@ -237,14 +238,14 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf "$BUNDLE_DIR" "$INPUT_DIR" "$PLAIN_DIR" "$OUTPUT_DIR"
-          if find "${{ runner.temp }}" -type f -name 'nifty_1m_composite_*.csv.gz' -print -quit | grep -q .; then
-            echo "Plaintext monthly files remain in runner temp."
+          if find "${{ runner.temp }}" -type f -name '*.csv.gz' -print -quit | grep -q .; then
+            echo "Plaintext gzip files remain in runner temp."
             exit 1
           fi
-          echo "PASS: plaintext source and derived monthly files removed."
+          echo "PASS: all plaintext gzip files removed."
 
       - name: Publish sanitized repair report and manifest
-        if: steps.repair.outcome == 'success' && steps.cleanup.outcome == 'success'
+        if: steps.repair.outcome == 'success' && steps.upload_derived.outcome == 'success' && steps.cleanup.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
@@ -270,7 +271,7 @@ jobs:
           PY
 
       - name: Commit sanitized report and manifest
-        if: steps.repair.outcome == 'success' && steps.cleanup.outcome == 'success'
+        if: steps.repair.outcome == 'success' && steps.upload_derived.outcome == 'success' && steps.cleanup.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
