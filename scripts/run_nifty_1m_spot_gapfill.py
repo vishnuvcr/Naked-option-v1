@@ -14,6 +14,7 @@ import argparse
 import csv
 import datetime as dt
 import gzip
+import hashlib
 import heapq
 import json
 import os
@@ -46,6 +47,7 @@ EXECUTION_MARKER = ROOT / "research/gates/NIFTY_1M_SPOT_RECOVERY_EXECUTION.json"
 SPLIT_EXECUTION_MARKER = ROOT / "research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json"
 PREFLIGHT_RESULT = ROOT / "research/gates/NIFTY_1M_SPOT_GAPFILL_PREFLIGHT.json"
 RECOVERY_RESULT = ROOT / "research/gates/NIFTY_1M_SPOT_RECOVERY_RESULT.json"
+SPLIT_RECOVERY_RESULT = ROOT / "research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_RESULT.json"
 WORK_ROOT = ROOT / "data/work/nifty_1m_spot_gapfill"
 REPORTS_ROOT = ROOT / "data/reports/nifty_1m_spot_gapfill"
 ATTEMPT_LEDGER = REPORTS_ROOT / "attempt_ledger.json"
@@ -797,6 +799,227 @@ def execute(args: argparse.Namespace) -> int:
         "raw_market_values_logged": False,
     }, sort_keys=True))
     return 0 if gapfill_complete else 2
+
+
+def _git_blob_sha(path: pathlib.Path) -> str:
+    raw = path.read_bytes()
+    header = b"blob " + str(len(raw)).encode("ascii") + b"\0"
+    return hashlib.sha1(header + raw).hexdigest()
+
+
+def execute_split(args: argparse.Namespace) -> int:
+    token = os.environ.get("DHAN_ACCESS_TOKEN", "").strip()
+    hf_token = os.environ.get("HF_TOKEN", "").strip()
+    if not token or not hf_token:
+        raise ValueError("required_secret_not_configured")
+    proposal_path = args.split_proposal.resolve()
+    proposal = split_proposal_validator.load_json(proposal_path)
+    proposal_errors = split_proposal_validator.validate_proposal(proposal)
+    if proposal_errors:
+        raise ValueError("split_proposal_invalid:" + ",".join(proposal_errors[:8]))
+    if not args.proposal_blob_sha or _git_blob_sha(proposal_path) != args.proposal_blob_sha:
+        raise ValueError("split_proposal_blob_sha_mismatch")
+    marker = _load_object(SPLIT_EXECUTION_MARKER)
+    if (marker.get("status") != "SPENT_BEFORE_SOURCE_REQUEST"
+            or marker.get("scope") != "SPLIT_SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL"
+            or marker.get("reviewed_developer_commit") != args.reviewed_sha
+            or marker.get("split_proposal_blob_sha") != args.proposal_blob_sha
+            or marker.get("max_spot_requests") != 34
+            or marker.get("max_gapfill_requests") != 34
+            or marker.get("max_retry_requests") != 0
+            or marker.get("base_artifact_id") != "11693866249"
+            or marker.get("live_option_requests_allowed") is not False
+            or marker.get("tester_decision_blob") is None):
+        raise ValueError("split_execution_marker_missing_or_scope_mismatch")
+
+    requests = proposal["requests"]
+    base = proposal["base_partial_artifact"]
+    source_dir = args.source_dir.resolve()
+    plain_dir = args.plain_dir.resolve()
+    base_spot_rows = int(proposal["expected_existing_spot_rows"])
+    preflight_result = preflight(
+        source_dir, plain_dir, hf_token,
+        expected_spot_rows=base_spot_rows,
+        expected_artifact_run_id=int(base["run_id"]),
+    )
+    if preflight_result.get("status") != "PASS":
+        raise ValueError("encrypted_partial_artifact_preflight_failed")
+    normalized_source_dir = _normalize_artifact_layout(source_dir)
+    old_coverage = _load_object(normalized_source_dir / "coverage_and_errors.json")
+    old_manifest = decryptor.read_manifest(normalized_source_dir)
+    key = derive_key(hf_token)
+
+    if WORK_ROOT.exists():
+        shutil.rmtree(WORK_ROOT)
+    WORK_ROOT.mkdir(parents=True, exist_ok=True)
+    if ENCRYPTED_ROOT.exists():
+        shutil.rmtree(ENCRYPTED_ROOT)
+    ledger_path = args.split_ledger.resolve()
+    ledger = _read_ledger(ledger_path)
+    collector_obj = SpotGapFillCollector(
+        token, key, requests, ledger,
+        baseline_wire_attempts=8_653,
+        baseline_retry_attempts=5,
+        ledger_path=ledger_path,
+    )
+    gap = collector_obj.collect()
+
+    old_gapfill_results = old_coverage.get("gapfill_request_results", [])
+    if not isinstance(old_gapfill_results, list) or len(old_gapfill_results) != 47:
+        raise ValueError("partial_base_gapfill_history_missing")
+    row_counts, join_counts = merge_into_existing_dataset(
+        [path for path in plain_dir.glob("nifty_1m_composite_*.csv.gz")],
+        WORK_ROOT,
+        gap["spot_by_epoch"],
+        preserve_existing_spot_rows=True,
+    )
+    rows_options = int(join_counts["rows_options_out"])
+    rows_spot_out = int(join_counts["rows_spot_out"])
+    if rows_options != EXPECTED_OPTION_ROWS:
+        raise ValueError("merged_option_row_count_changed")
+    if rows_spot_out != base_spot_rows + int(gap["rows_spot"]):
+        raise ValueError("merged_existing_spot_row_count_changed")
+    old_summary = old_coverage.get("summary", {})
+    new_spot_requests_ok = sum(
+        result.get("status") in {"CACHE_HIT", "FETCHED", "FETCHED_AFTER_ONE_RETRY"}
+        for result in gap["request_results"]
+    )
+    split_complete = (
+        new_spot_requests_ok == len(requests)
+        and rows_spot_out == base_spot_rows + int(gap["rows_spot"])
+        and rows_options == EXPECTED_OPTION_ROWS
+        and int(join_counts["spot_join_missing"]) == 0
+    )
+    spot_status = "SPOT_GAPFILL_COMPLETE" if split_complete else "SPOT_GAPFILL_PARTIAL"
+    original_errors = old_coverage.get("errors", [])
+    original_results = old_coverage.get("request_results", [])
+    errors = list(original_errors) + gap["errors"]
+    results = list(original_results) + gap["request_results"]
+    session_dates = set()
+    for path in PLAIN_ROOT.glob("nifty_1m_composite_*.csv.gz"):
+        with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                if row.get("row_type") == "SPOT":
+                    session_dates.add(row.get("session_date", ""))
+
+    previous_response_bytes = sum(int(item.get("response_bytes") or 0) for item in old_gapfill_results)
+    previous_gapfill_planned = int(old_summary.get("gapfill_request_count_planned", 47))
+    previous_gapfill_succeeded = int(old_summary.get("gapfill_request_count_succeeded", 41))
+    previous_gapfill_failed = int(old_summary.get("gapfill_request_count_failed", 6))
+    summary = {
+        **{k: old_summary.get(k) for k in (
+            "request_count_planned", "failed_responses", "empty_valid_responses",
+            "missing_greek_inputs", "observed_trading_session_count"
+        )},
+        "request_count_processed": int(old_summary.get("request_count_processed", 0)) + len(requests),
+        "gapfill_request_count_planned": len(requests),
+        "gapfill_request_count_succeeded": new_spot_requests_ok,
+        "gapfill_request_count_failed": len(requests) - new_spot_requests_ok,
+        "gapfill_request_count_cumulative_planned": previous_gapfill_planned + len(requests),
+        "gapfill_request_count_cumulative_succeeded": previous_gapfill_succeeded + new_spot_requests_ok,
+        "gapfill_request_count_cumulative_failed": previous_gapfill_failed + len(requests) - new_spot_requests_ok,
+        "wire_requests_this_run": gap["wire_requests_this_run"],
+        "wire_requests_cumulative": gap["wire_requests_cumulative"],
+        "retry_requests_this_run": gap["retry_requests_this_run"],
+        "retry_requests_cumulative": gap["retry_requests_cumulative"],
+        "rows_options": rows_options,
+        "original_rows_options": EXPECTED_OPTION_ROWS,
+        "option_rows_preserved": rows_options == EXPECTED_OPTION_ROWS,
+        "rows_spot": rows_spot_out,
+        "spot_rows_existing_preserved": base_spot_rows,
+        "spot_rows_downloaded": int(gap["rows_spot"]),
+        "spot_join_matched": int(join_counts["spot_join_matched"]),
+        "spot_join_missing": int(join_counts["spot_join_missing"]),
+        "spot_recovery_status": spot_status,
+        "spot_volume_quality_flag_count": int(old_summary.get("spot_volume_quality_flag_count", 0)) + sum(
+            "SPOT_VOLUME_MISSING_OR_MISALIGNED" in v.get("data_quality_flags", "")
+            for v in gap["spot_by_epoch"].values()
+        ),
+        "observed_trading_session_count": len(session_dates),
+        "cache_hits": int(old_summary.get("cache_hits", 0)) + gap["cache_hits"],
+        "fresh_responses": int(old_summary.get("fresh_responses", 0)) + gap["fresh_responses"],
+        "downloaded_bytes": previous_response_bytes + gap["downloaded_bytes"],
+        "previous_downloaded_bytes_reconciled_from_request_results": True,
+        "historical_option_request_grid_status": old_coverage.get("status", "PARTIAL_GRID"),
+        "source_requests_made_this_run": gap["wire_requests_this_run"],
+        "live_option_requests_allowed": False,
+        "raw_response_persisted_unencrypted": False,
+    }
+    result = {
+        "schema_version": 1,
+        "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL",
+        "created_at_utc": utc_now(),
+        "status": "PARTIAL_GRID",
+        "spot_gapfill_status": spot_status,
+        "source_provider": "DhanHQ Data API",
+        "history_start_inclusive": "2021-10-11",
+        "history_end_exclusive": "2026-10-11",
+        "interval": "1-minute",
+        "user_acceptance": "Preserve the latest partial encrypted dataset, including existing spot rows, and request only the six previously failed spot-window interval splits. No rolling-option requests are permitted.",
+        "schema_columns": list(old_manifest.get("columns", COLUMNS)),
+        "rows_per_month": dict(sorted(row_counts.items())),
+        "summary": summary,
+        "errors": errors,
+        "request_results": results,
+        "gapfill_request_results": gap["request_results"],
+        "previous_gapfill_request_results": old_gapfill_results,
+        "original_request_failures_preserved": old_coverage.get("original_request_failures_preserved", len(original_errors)),
+        "missing_greek_inputs": old_coverage.get("missing_greek_inputs", []),
+        "greek_method": old_coverage.get("greek_method", old_manifest.get("greek_method", "")),
+        "greek_iv_unit_convention": old_coverage.get("greek_iv_unit_convention", old_manifest.get("greek_iv_unit_convention", "")),
+        "spot_join_policy": "Exact timestamp_epoch match from newly recovered spot bars. Existing exact spot joins and standalone SPOT rows are preserved. Non-matching option rows remain blank and flagged.",
+        "model_fitting_authorized": False,
+        "holdout_access_authorized": False,
+        "strategy_testing_authorized": False,
+        "source_artifact_run_id": old_coverage.get("source_artifact_run_id", 38082385220),
+        "base_partial_artifact_run_id": int(base["run_id"]),
+        "base_partial_artifact_id": str(base["artifact_id"]),
+        "split_proposal_blob_sha": args.proposal_blob_sha,
+        "source_artifact_encrypted_hashes_verified": True,
+        "source_rows_options_verified": EXPECTED_OPTION_ROWS,
+        "source_rows_spot_preserved": rows_spot_out >= base_spot_rows,
+        "plain_rows_uploaded": False,
+    }
+    encrypt_outputs(key, result)
+    shutil.rmtree(plain_dir, ignore_errors=True)
+    shutil.rmtree(WORK_ROOT, ignore_errors=True)
+    shutil.rmtree(ROOT / "data/recovery/source-artifact", ignore_errors=True)
+    result_safe = {
+        "schema_version": 1,
+        "result_type": "SPOT_ONLY_SPLIT_GAPFILL",
+        "status": spot_status,
+        "reviewed_developer_commit": args.reviewed_sha,
+        "split_proposal_blob_sha": args.proposal_blob_sha,
+        "github_run_id": os.environ.get("GITHUB_RUN_ID", ""),
+        "summary": summary,
+        "option_rows_preserved": rows_options == EXPECTED_OPTION_ROWS,
+        "existing_spot_rows_preserved": rows_spot_out >= base_spot_rows,
+        "base_partial_artifact_id": str(base["artifact_id"]),
+        "live_option_requests_allowed": False,
+        "raw_market_values_committed": False,
+        "completed_at_utc": utc_now(),
+    }
+    atomic_write(SPLIT_RECOVERY_RESULT, (json.dumps(result_safe, sort_keys=True, indent=2) + "\n").encode("utf-8"))
+    print(json.dumps({
+        "status": spot_status,
+        "original_option_rows": EXPECTED_OPTION_ROWS,
+        "option_rows_preserved": rows_options == EXPECTED_OPTION_ROWS,
+        "existing_spot_rows_preserved": rows_spot_out >= base_spot_rows,
+        "spot_rows_total": rows_spot_out,
+        "spot_rows_new": int(gap["rows_spot"]),
+        "spot_join_matched": int(join_counts["spot_join_matched"]),
+        "spot_join_missing": int(join_counts["spot_join_missing"]),
+        "gapfill_requests_planned": len(requests),
+        "gapfill_requests_succeeded": new_spot_requests_ok,
+        "gapfill_requests_failed": len(requests) - new_spot_requests_ok,
+        "wire_requests_this_run": gap["wire_requests_this_run"],
+        "wire_requests_cumulative": gap["wire_requests_cumulative"],
+        "retry_requests_this_run": gap["retry_requests_this_run"],
+        "retry_requests_cumulative": gap["retry_requests_cumulative"],
+        "live_option_requests_allowed": False,
+        "raw_market_values_logged": False,
+    }, sort_keys=True))
+    return 0 if split_complete else 2
 
 
 def main() -> int:
