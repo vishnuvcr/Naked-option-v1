@@ -1430,3 +1430,14 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 **Developer → Tester:** Check the next method-level submission against the pinned task/config rows, retaining source fidelity vs adaptation distinctions.
 
 **Tester → Developer:** Continue only offline until a genuine independent exact-snapshot gate can be obtained.
+
+
+### 2026-10-11 — User said “Ok proceed”; offline artifact audit
+
+- Re-read the current main README, developer status and logs, and tester split decision before taking action.
+- Verified the existing encrypted artifact offline: ZIP SHA-256 `aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`; ZIP integrity passed; all 57 encrypted parts matched manifest size/hash; row totals reconciled to 8,894,387.
+- Found no reason to reopen acquisition: six spot gap-fill windows remain failed, 899,551 option rows lack a matched spot row, and the manifest still says `PARTIAL_GRID` / `SPOT_GAPFILL_PARTIAL`. Added `research/data/DATASET_OFFLINE_INTEGRITY_AUDIT_2026-10-11.md`.
+- Data remained encrypted; no values were decrypted and no data requests, model fits/scores, holdout reads or strategy tests were performed. Next is tester review and, only after readiness gates, defining the permitted prediction universe.
+
+**Developer → Tester:** Reproduce the offline integrity and reconciliation checks from the artifact metadata.
+**Tester → Developer:** Return scoped results; do not grant empirical permissions from an archive-integrity pass.
