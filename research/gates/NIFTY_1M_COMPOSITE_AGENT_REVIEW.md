@@ -1,8 +1,8 @@
 # Automated Independent Tester Report — NIFTY 1-Minute Composite
 
 - Decision: REQUEST_CHANGES
-- Reviewed developer commit: 5ab3b82e35fe577b4671e7f32297af3d9dad1bab
-- Report time (UTC): 2026-10-11T05:24:29Z
+- Reviewed developer commit: 3b4b889fe9a5b567a585e6ad7cfb5b172bb7de28
+- Report time (UTC): 2026-10-11T05:25:09Z
 - Deterministic checks: REQUEST CHANGES
 - AI reviewer: REVIEWER_UNAVAILABLE / NO_VERDICT
 - Automatic repair attempt: 1
@@ -29,14 +29,13 @@
 - BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: manual live-run confirmation.
 - BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: encrypted-only export.
 - BLOCKER — LIVE_GUARD_REGRESSION: Live workflow safeguard missing: no force push.
-- BLOCKER — OFFLINE_TEST_FAILED: Offline check python -m failed with exit code 1.
 
 ## Offline test summary
 
 - PASS: python -m py_compile scripts/run_nifty_1m_composite_dataset.py scripts/decrypt_nifty_1m_composite.py scripts/validate_nifty_1m_composite_manifest.py scripts/test_nifty_1m_composite_dataset.py scripts/test_nifty_1m_composite_manifest.py scripts/validate_nifty_1m_composite_approval.py scripts/run_nifty_1m_spot_diagnostic.py scripts/test_nifty_1m_spot_diagnostic.py scripts/audit_nifty_1m_composite_cache.py (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_manifest (exit 0)
 - PASS: python -m unittest -v test_nifty_1m_composite_dataset (exit 0)
-- FAIL: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 1)
+- PASS: python -m unittest -v test_nifty_1m_spot_diagnostic (exit 0)
 
 ## Independent AI review
 
