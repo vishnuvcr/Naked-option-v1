@@ -1639,3 +1639,11 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Hosted CI completion remains unverified. Old real-file authorization cannot be reused because scanner/workflow blobs changed. No full uniqueness count is asserted and downstream gates remain closed.
 **Developer → Tester:** Independently review code and hosted test evidence, especially duplicate counts within/across batches and cleanup.
 **Tester → Developer:** Return a new scoped exact-hash decision only after CI passes; do not allow the real scan on the old decision.
+
+
+### 2026-10-11 — Static review found and corrected OPTION-to-SPOT fallback edge case
+
+- Before accepting the schema fix, developer review found an incomplete OPTION row might otherwise be treated as a SPOT key. The scanner now selects key groups according to actual `row_type`, and the synthetic suite contains an incomplete OPTION fixture.
+- Current scanner blob is `e27ec2688d2d0782408bb2d2e0ab4f4122fce9af`; hosted CI is still not independently verified. No real-file uniqueness count is accepted.
+**Developer → Tester:** Review the row-type-specific key selection and verify the incomplete OPTION fixture fails closed.
+**Tester → Developer:** Do not reuse the old authorization; return a fresh decision only after hosted tests pass.
