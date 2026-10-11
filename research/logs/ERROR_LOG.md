@@ -337,3 +337,11 @@ New errors must be appended, never overwritten.
 - **Correction:** Added a sanitized provenance diagnostic with distinct-epoch counts, session date, hashed source request identifiers, and row fingerprints that exclude market prices/volumes. It never mutates source rows or performs approximate joins.
 - **Verification:** synthetic test suite and protocol check passed at developer snapshot `0c502aa44274e841af263bd70791204144a36a78`; hosted latest-artifact provenance run is in progress. Do not call the operational gate passed until its report, cleanup, and publication steps complete.
 - **Disposition:** keep source artifact immutable; no new requests, model fitting/scoring, holdout access or strategy/P&L testing. Do not clamp negative volume or invent OHLC values. Repair only in a derived dataset with exact-source evidence or explicit missing/exclusion flags.
+
+
+## 2026-10-11 — Regression assertion stale after artifact pin update
+
+- **Observed:** Offline pipeline run `38129931878` failed one test because `test_audit_nifty_1m_composite_values.py` still expected the retired artifact run `38116772719` and its former artifact name after the workflow was pinned to run `38126168547` / artifact `11696937921`.
+- **Correction:** Updated the regression assertions to the current exact artifact name and run ID; corrected the preflight log from 57 to 61 parts.
+- **Verification:** Follow-up run `38129976608` passed the offline pipeline suite; the final log-only update is being rechecked at the latest SHA.
+- **Impact:** No data collection, decryption, source-row modification, model fitting, holdout access or strategy testing resulted from the failed test.
