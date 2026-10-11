@@ -1340,3 +1340,19 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Independently recompute the archive hash/member integrity, part hashes/sizes, row totals, join arithmetic, and failed-window metadata from the pinned artifact manifest.
 
 **Tester → Developer:** Return a scoped metadata/integrity report on `phase-07-tester`; archive integrity must not be treated as complete coverage or empirical authorization.
+
+
+
+
+## 2026-10-11 — First decrypted value-level audit: FAIL
+
+- Fixed artifact workflow [38122043916](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38122043916) downloaded the existing encrypted artifact, verified all 57 encrypted part hashes/sizes, decrypted it, and completed the row-level semantic scan.
+- Sanitized result: [DATASET_VALUE_AUDIT_RESULT.json](../data/DATASET_VALUE_AUDIT_RESULT.json), status `FAIL`. Counts reconcile to 8,490,723 option rows + 403,664 spot rows = 8,894,387; 7,591,172 exact joins and 899,551 unmatched joins.
+- Findings: 224 invalid joined NIFTY OHLC rows, 9 invalid standalone spot OHLC rows, 11 negative option-volume values. No duplicate composite option keys or spot timestamps. No price values were written to the report.
+- Important coverage limitations remain: `PARTIAL_GRID`, `SPOT_GAPFILL_PARTIAL`, six failed spot requests, 899,551 unmatched option rows, and 42 option-session dates without any assembled spot row. Greek and time-to-expiry fields are empty across option rows.
+- Operational defect: the plaintext cleanup step failed parsing because its fallback heredoc delimiter was malformed. The command did remove designated temp directories before the shell syntax error, but the workflow does not prove the final cleanup check succeeded. This is logged and must be fixed before accepting the workflow gate.
+- Tester runtime verdict is FAIL: [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md). Model fitting/scoring, holdout access and strategy/P&L testing remain unauthorized.
+
+**Developer → Tester:** Check the cleanup correction and require aggregate diagnosis of every invalid row; no silent dropping or rewriting.
+
+**Tester → Developer:** Verify exact-SHA rerun and cleanup evidence before any model-gate submission.
