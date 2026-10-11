@@ -40,7 +40,7 @@ class ProspectiveBoundaryTests(unittest.TestCase):
             self.assertEqual(result["train_end_session"], "2026-01-14")
             self.assertEqual(result["validation_end_session"], "2026-01-17")
             self.assertEqual(result["holdout_start_session"], "2026-01-18")
-            self.assertEqual(result["holdout_start_byte_offset"], raw.index(b"OPTION,")+0 if False else result["holdout_start_byte_offset"])
+            self.assertEqual(result["holdout_start_byte_offset"], raw.index(b"SPOT,1002040,2026-01-18"))
             self.assertEqual(result["dataset_sha256"], hashlib.sha256(raw).hexdigest())
             self.assertEqual(result["holdout_range_sha256"], hashlib.sha256(raw[result["holdout_start_byte_offset"]:]).hexdigest())
             self.assertFalse(result["value_fields_accessed"])
@@ -75,7 +75,7 @@ class ProspectiveBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)/"bad.csv"
             path.write_text("type,ts,session,close\nFUTURE,1,2026-01-01,999\n", encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "CSV_ROW_WIDTH_INVALID"):
+            with self.assertRaisesRegex(ValueError, "ROW_TYPE_INVALID"):
                 scan_metadata_file(path, expected_columns=4, column_map=COLUMN_MAP, row_type_values=ROW_TYPES)
 
     def test_cli_exposes_only_synthetic_self_test(self):
