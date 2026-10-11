@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-11",
+  "gate": "REAL_FILE_PREFLIGHT_IMPLEMENTATION",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "7a430ba836e1169e9761298ca544f2fab3dc569e",
+  "workflow_run_id": 38137514604,
+  "workflow_conclusion": "success",
+  "reviewed_files": {
+    ".github/workflows/phase-07-real-file-preflight-audit.yml": "a0bf00cad4e7f29f79a353c1c7353c116038dfc5",
+    ".github/workflows/phase-07-offline-preflight-tests.yml": "2da382b39a8b69e03e1ef3f724a2ee5211f2e0f2",
+    "scripts/offline_dataset_preflight.py": "07aa68b638c8c189bc94e083866368dd00723b4a",
+    "scripts/test_offline_dataset_preflight.py": "5ae5df68fde13ee5a723e710b1ba83b7ffb99564",
+    "scripts/validate_real_file_preflight_authorization.py": "2f8174c320188c79257ca1b14c683f509a66227e",
+    "scripts/test_validate_real_file_preflight_authorization.py": "c21fa939ba66d15ff2b5a4408e1384117bc80e80",
+    "scripts/check_workflow_action_pinning.py": "cc6ecc45fd78470d838debc19f5b835369acb1d3",
+    "scripts/test_workflow_action_pinning.py": "e414c5cea4d71586ad80f9b5b0b85cbd79a3dade",
+    "scripts/decrypt_nifty_1m_composite.py": "6ba27b65548b9197e0db35deeafcedbade6ca445",
+    "requirements-composite.txt": "8c74241f2035a3e388087078be5e5aaf846addca",
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8"
+  },
+  "real_file_preflight_execution_authorized": true,
+  "authorized_scope": "single exact-lineage structural audit on ephemeral runner; sanitized metadata report only",
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "report": "research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_REVIEW_2026-10-11.md"
+}
