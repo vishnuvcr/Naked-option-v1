@@ -324,3 +324,11 @@
 - Root cause: the implementation and regression-test changes were committed separately, and each change activated the Phase 7 workflow. The regression jobs passed, but the workflow graph also queued empirical jobs; the original Run #852 was still reported active.
 - Impact: risk of redundant compute and ambiguous run ordering. No Phase 8 grid was started and no metric/artifact has been accepted. The available GitHub tool interface exposes no workflow-cancel action, so cancellation could not be performed through the available tools.
 - Prevention: group code+test edits into one commit where possible and verify workflow path filters/job dependencies before changing Phase 7 science paths. Before the next empirical run, inspect the status of all queued/active Phase 7 runs and accept exactly one artifact only after tester audit.
+
+## 2026-10-11 — Phase 8 stale forecast input blocked saved-panel progression
+- Category: workflow/research lineage
+- Component: research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json and .github/workflows/phase-08-long-option.yml.
+- Symptom: the Phase 8 workflow still pinned the Run #654 aggregate-only artifact and attempted to refit models on a later runner, even though the later, independently audited Phase 7 Run #994 reference artifact now contains paired saved predictions.
+- Impact: the old replay path continued failing two small P07 H=60 Brier values at the frozen 1e-9 tolerance; that path could not be used to accept a forecast panel. This was a lineage mismatch, not proof that Run #654 metrics were scientifically wrong.
+- Correction: archive the Run #654 input as R1; point the active Phase 8 input at immutable Run #994 artifact 11638738288 (R2); verify the ZIP/manifest/aggregate hashes; consume saved predictions and never refit as a fallback.
+- Prevention: every future prediction reference requires explicit immutable artifact ID, exact commit, archive/manifest/aggregate hashes and tester acceptance. No tolerance relaxation and no option P&L until the new hosted panel integration and option-data gates pass.

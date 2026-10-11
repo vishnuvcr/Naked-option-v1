@@ -240,3 +240,11 @@ No scientific or protocol change was made during this checkpoint.
 - Re-polled Phase 7 Run #852; it remained stale in progress with no artifact. Inspection of the bootstrap implementation found repeated construction of all possible overlapping blocks for every resample.
 - Developer replaced that allocation pattern with direct sampling of the same block starts and added exact legacy-equivalence tests. Hosted regression jobs passed; independent tester approved the optimization with scoped restrictions. Report: `research/gates/PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md`.
 - Mistake: implementation and test were committed separately, which triggered extra empirical workflow attempts while #852 was still reported active. This is recorded in `research/ERROR_LOG.md`; no cancellation control was exposed by the connected GitHub tools. No metrics or artifact are accepted and Phase 8 remains blocked.
+
+## 2026-10-11 — User direction: stop revisiting existing data; resume prediction-to-option testing
+
+- User explicitly directed the research to stop repeatedly rediscovering the data and move into NIFTY prediction-method testing followed by naked long-option buying evaluation.
+- Re-read current Phase 8 status, error log, conversation log, frozen input manifest, Phase 8 data/method specs, saved-panel validator approval and the Phase 7 Run #994 tester report.
+- Confirmed that Phase 7 reference artifact 11638738288 is available from run 37957677656, source commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb. It contains ten saved panels (50,555 rows) and paired aggregate metrics. Its technical tester audit reports 3,098 checks passed, zero failed, but does not promote a predictor as a profitable method.
+- Archived the previous Phase 8 Run #654 manifest as R1 and changed the active Phase 8 manifest/workflow/tests to R2. The production workflow is being switched from model refitting to saved-panel consumption, with all exact hashes checked and empirical authorization left false. The change must pass hosted tests and review before option P&L may run.
+- Next after panel integration: complete the existing free-source/point-in-time option-data gate; if the data support it, run the preregistered CE/PE delta x DTE x exit x cost matrix using Paytm Money fees and conservative spreads/slippage. Report all failures and negative results.

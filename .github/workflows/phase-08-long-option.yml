@@ -19,8 +19,12 @@ permissions:
   actions: read
 
 env:
-  RUN654_ARTIFACT_ID: "11551679532"
-  RUN654_ARTIFACT_SHA256: "c554a59f1fcf6630c4ddb12282fd047e988d9fbc39ec16c2b766453416137b7a"
+  REFERENCE_RUN_ID: "37957677656"
+  REFERENCE_COMMIT: "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb"
+  REFERENCE_ARTIFACT_ID: "11638738288"
+  REFERENCE_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9"
+  REFERENCE_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
+  REFERENCE_AGGREGATE_SHA256: "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
 
 jobs:
   protocol:
@@ -44,8 +48,15 @@ jobs:
           python - <<'PY'
           import json, os
           p=json.load(open("research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json"))
-          assert p["artifact_id"] == int(os.environ["RUN654_ARTIFACT_ID"])
-          assert p["artifact_sha256"] == os.environ["RUN654_ARTIFACT_SHA256"]
+          assert p["reference_version"] == "R2"
+          assert p["phase7_run"] == 994
+          assert p["workflow_run_id"] == int(os.environ["REFERENCE_RUN_ID"])
+          assert p["developer_commit"] == os.environ["REFERENCE_COMMIT"]
+          assert p["artifact_id"] == int(os.environ["REFERENCE_ARTIFACT_ID"])
+          assert p["artifact_sha256"] == os.environ["REFERENCE_ARTIFACT_SHA256"]
+          assert p["embedded_manifest_sha256"] == os.environ["REFERENCE_MANIFEST_SHA256"]
+          assert p["aggregate_result_sha256"] == os.environ["REFERENCE_AGGREGATE_SHA256"]
+          assert p["forecast_panel_count"] == 10 and p["forecast_rows_total"] == 50555
           assert p["empirical_option_execution_authorized"] is False
           assert p["reconstruction_tolerance_abs"] == 1e-9
           PY
@@ -67,43 +78,60 @@ jobs:
           pip install numpy pandas scikit-learn pyarrow
       - name: Workflow contract regression
         run: python scripts/test_phase8_workflow_contract.py
-      - name: Reconstruction regression
+      - name: Reconstruction legacy fail-closed regression
         run: python scripts/test_phase8_reconstruction.py
+      - name: Saved forecast-panel regression (synthetic only)
+        run: python scripts/test_phase8_reference_panels.py
       - name: Execution-engine regression
         run: PYTHONPATH=scripts python scripts/test_phase8_execution_engine.py
 
   artifact:
-    name: phase8-run654-artifact
+    name: phase8-run994-reference-artifact
     needs: regression
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore cached immutable Run #654 artifact
+      - name: Restore cached immutable Run #994 reference artifact
         uses: actions/cache/restore@v4
         with:
-          path: data/cache/reference/phase7_run654
-          key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
-      - name: Restore or download immutable Run #654 artifact
+          path: data/cache/reference/phase7_run994
+          key: phase8-run994-${{ env.REFERENCE_ARTIFACT_SHA256 }}
+      - name: Restore or download immutable Run #994 reference artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p data/cache/reference/phase7_run654
-          zip="data/cache/reference/phase7_run654/phase7_run654.zip"
+          mkdir -p data/cache/reference/phase7_run994
+          zip="data/cache/reference/phase7_run994/phase7_reference.zip"
           if [ ! -s "$zip" ]; then
-            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${RUN654_ARTIFACT_ID}/zip" > "$zip"
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${REFERENCE_ARTIFACT_ID}/zip" > "$zip"
           fi
           actual="$(sha256sum "$zip" | awk '{print $1}')"
-          test "$actual" = "$RUN654_ARTIFACT_SHA256"
-          rm -rf data/cache/reference/phase7_run654/unpacked
-          mkdir -p data/cache/reference/phase7_run654/unpacked
-          unzip -q "$zip" -d data/cache/reference/phase7_run654/unpacked
-          test "$(find data/cache/reference/phase7_run654/unpacked -name phase7_ensemble_results.json | wc -l)" = "1"
-      - name: Cache immutable Run #654 artifact
+          test "$actual" = "$REFERENCE_ARTIFACT_SHA256"
+          rm -rf data/cache/reference/phase7_run994/unpacked
+          mkdir -p data/cache/reference/phase7_run994/unpacked
+          unzip -q "$zip" -d data/cache/reference/phase7_run994/unpacked
+          manifest="data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"
+          aggregate="data/cache/reference/phase7_run994/unpacked/phase7_ensemble_results.json"
+          test -s "$manifest" && test -s "$aggregate"
+          manifest_actual="$(sha256sum "$manifest" | awk '{print $1}')"
+          aggregate_actual="$(sha256sum "$aggregate" | awk '{print $1}')"
+          test "$manifest_actual" = "$REFERENCE_MANIFEST_SHA256"
+          test "$aggregate_actual" = "$REFERENCE_AGGREGATE_SHA256"
+          python - <<'PY'
+          import json, os
+          m=json.load(open("data/cache/reference/phase7_run994/unpacked/phase7_reference/phase7_reference_manifest.json"))
+          assert m["status"] == "COMPLETE" and m["schema_version"] == 1
+          assert str(m["run_id"]) == os.environ["REFERENCE_RUN_ID"]
+          assert m["commit"] == os.environ["REFERENCE_COMMIT"]
+          assert len(m["prediction_panels"]) == 10
+          assert sum(int(x["rows"]) for x in m["prediction_panels"]) == 50555
+          PY
+      - name: Cache immutable Run #994 reference artifact
         uses: actions/cache/save@v4
         with:
-          path: data/cache/reference/phase7_run654
-          key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
+          path: data/cache/reference/phase7_run994
+          key: phase8-run994-${{ env.REFERENCE_ARTIFACT_SHA256 }}
 
   sources:
     name: phase8-free-source-audit
@@ -174,12 +202,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy pandas scikit-learn pyarrow
-      - name: Restore cached Run #654 artifact
+      - name: Restore cached Run #994 reference artifact
         uses: actions/cache/restore@v4
         with:
-          path: data/cache/reference/phase7_run654
-          key: phase8-run654-${{ env.RUN654_ARTIFACT_SHA256 }}
-      - name: Restore Phase 3/6 source data
+          path: data/cache/reference/phase7_run994
+          key: phase8-run994-${{ env.REFERENCE_ARTIFACT_SHA256 }}
+      - name: Restore source data needed for independent panel lineage validation
         uses: actions/cache/restore@v4
         with:
           path: data/cache
@@ -192,18 +220,16 @@ jobs:
         run: |
           python scripts/acquire_nifty_daily_history.py
           python scripts/acquire_hf_intraday_sample.py
-      - name: Reconstruct from immutable Run #654 artifact
+      - name: Validate saved Run #994 forecasts without model refit
         run: |
           set -o pipefail
-          REF="$(find data/cache/reference/phase7_run654/unpacked -name phase7_ensemble_results.json -print -quit)"
-          test -n "$REF"
           mkdir -p data/reports/phase8
-          if ! python scripts/reconstruct_phase7_predictions.py --reference "$REF" >data/reports/phase8/reconstruction_stdout.log 2>&1; then
-            echo "RECONSTRUCTION_COMMAND_FAILED"
-            tail -n 160 data/reports/phase8/reconstruction_stdout.log
+          if ! python scripts/validate_phase7_reference_panels.py --artifact-dir data/cache/reference/phase7_run994/unpacked --output-dir data/reports/phase8 >data/reports/phase8/saved_panel_validation_stdout.log 2>&1; then
+            echo "SAVED_PANEL_VALIDATION_FAILED"
+            tail -n 200 data/reports/phase8/saved_panel_validation_stdout.log
             exit 1
           fi
-          tail -n 40 data/reports/phase8/reconstruction_stdout.log
+          tail -n 60 data/reports/phase8/saved_panel_validation_stdout.log
       - name: Validate forecast panel
         run: python scripts/validate_phase8_forecast_panel.py
       - name: Upload reconstruction evidence

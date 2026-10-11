@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **IMPLEMENTATION AUTHORIZED — DATA/WORKFLOW GATES PENDING** | frozen tester-approved specification; empirical execution still blocked |
+| Phase 8 Long-option execution | **SAVED FORECAST INPUT R2 PINNED — HOSTED INTEGRATION PENDING** | audited Run #994 panel artifact pinned; option P&L and 4,800-cell grid remain blocked |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -352,3 +352,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Latest GitHub Actions poll shows Runs #852 (`37912587739`), #924 (`37914896724`) and #925 (`37914905848`) all still reported in progress at the Phase 7 empirical script, with no published artifacts. #852 metadata remains stale; the newer attempts have passed regression and tester authorization jobs but their empirical jobs are also active.
 - This is a workflow orchestration issue caused by separate implementation and test commits. The error log records it. No result is accepted by run order or completion order alone. Phase 8 remains blocked pending a full audit of one complete immutable artifact.
 - Tester has approved the optimization only for exact sampler equivalence/regression. Empirical acceptance is still pending.
+
+## 2026-10-11 — Phase 8 Run #994 saved-forecast input pinned
+
+- Phase 7 Run #994 (37957677656) completed successfully at developer commit b50be8cfa1ebe008a800e65a53f9c0fb2581aecb; immutable artifact 11638738288 contains all ten saved probability panels plus the paired aggregate JSON.
+- The artifact was downloaded and its ZIP SHA-256 (3e8a22ded608668b5674f7aed609fefa5c4befcde39ca58b7f208e59ab25959a9), embedded manifest SHA-256, aggregate SHA-256, all ten panel hashes, row counts and total 50,555 rows were checked locally. The Phase 7 tester report records 3,098 checks passed and zero failed; it does not promote a predictor as a profitable method.
+- Created a versioned Phase 8 Run #994 amendment proposal. The implementation changes the Phase 8 workflow to consume the immutable panels (no predictor refit), validate source/code/panel hashes and exact metrics under the frozen 1e-9 tolerance, and keep empirical authorization false.
+- Previous Run #654 manifest is retained separately as R1; it is not overwritten. The active manifest is R2.
+- Current gate: hosted implementation/integration regression and tester review. No option P&L, no 4,800-cell strategy grid, no holdout access and no strategy promotion yet.
