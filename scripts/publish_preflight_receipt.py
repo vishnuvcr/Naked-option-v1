@@ -71,17 +71,19 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
         value = report[field]
         if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
             raise ValueError("REPORT_SHA256_INVALID")
-    for field in (
-        "compressed_sha256_matches_expected",
-        "uncompressed_sha256_matches_expected",
-        "uncompressed_size_matches_expected",
-    ):
+    for field in ("compressed_sha256_matches_expected", "uncompressed_sha256_matches_expected"):
         if not isinstance(report.get(field), bool):
             raise ValueError("REPORT_CONTENT_IDENTITY_FLAG_INVALID")
-    for field in ("uncompressed_size_bytes", "expected_uncompressed_size_bytes"):
-        value = report.get(field)
-        if not isinstance(value, int) or value < 0:
-            raise ValueError("REPORT_CONTENT_SIZE_INVALID")
+    size_expected = report.get("expected_uncompressed_size_bytes")
+    size_match = report.get("uncompressed_size_matches_expected")
+    if not isinstance(report.get("uncompressed_size_bytes"), int) or report["uncompressed_size_bytes"] < 0:
+        raise ValueError("REPORT_CONTENT_SIZE_INVALID")
+    if size_expected is not None and (not isinstance(size_expected, int) or size_expected < 0):
+        raise ValueError("REPORT_CONTENT_SIZE_INVALID")
+    if size_match is not None and not isinstance(size_match, bool):
+        raise ValueError("REPORT_CONTENT_IDENTITY_FLAG_INVALID")
+    if size_expected is None and size_match is not None:
+        raise ValueError("REPORT_CONTENT_IDENTITY_FLAG_INVALID")
     if report.get("file_name") != "nifty_repaired_composite_2021-10_to_2026-10.csv.gz":
         raise ValueError("REPORT_FILE_NAME_INVALID")
     if report.get("status") not in ALLOWED_STATUSES:
@@ -127,7 +129,10 @@ def build_receipt(run_metadata: dict, report_path: Path | None) -> dict:
         raise ValueError("REPORT_KEY_FIELDS_INVALID")
     if not all(isinstance(group, list) and all(name in report["column_names"] for name in group) for group in report["duplicate_key_fields"]):
         raise ValueError("REPORT_KEY_FIELDS_INVALID")
-    if report.get("uncompressed_sha256_matches_expected") is not True or report.get("uncompressed_size_matches_expected") is not True:
+    if report.get("uncompressed_sha256_matches_expected") is not True or (
+        report.get("expected_uncompressed_size_bytes") is not None
+        and report.get("uncompressed_size_matches_expected") is not True
+    ):
         receipt["receipt_status"] = "REPORT_PRESENT_CONTENT_IDENTITY_MISMATCH"
     elif report.get("data_rows") != 8_999_865 or report.get("columns") != 47:
         receipt["receipt_status"] = "REPORT_PRESENT_WITH_EXPECTATION_MISMATCH"
