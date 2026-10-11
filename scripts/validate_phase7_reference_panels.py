@@ -178,7 +178,7 @@ def compare_float64_within_ulps(actual, expected, max_ulps: int = 2) -> tuple[bo
 
 
 def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
-                                  daily_source: pd.DataFrame, intraday_source: pd.DataFrame) -> None:
+                                  daily_source: pd.DataFrame, intraday_source: pd.DataFrame) -> dict:
     if layer == "daily":
         y_expected, future_expected = p7.p6.make_label(daily_source, horizon)
         expected_times = pd.to_datetime(daily_source["date"], errors="raise").reset_index(drop=True)
@@ -222,6 +222,14 @@ def verify_panel_source_alignment(frame: pd.DataFrame, layer: str, horizon: int,
     expected_times = pd.DatetimeIndex(pd.to_datetime(expected_times, utc=(layer == "intraday"), errors="raise"))
     if not np.array_equal(actual_times.asi8, expected_times.asi8):
         raise SystemExit(f"ARTIFACT_ERROR: source-derived decision timestamp mismatch for {layer} H={horizon}")
+
+    return {
+        "layer": layer,
+        "horizon": int(horizon),
+        "label_direction_exact": True,
+        "decision_timestamp_exact": True,
+        "future_return": future_diagnostic,
+    }
 
 def compare_panel(frame: pd.DataFrame, expected_cell: dict, intraday: bool):
     required = {"layer", "horizon", "source_row_index", "decision_timestamp",
@@ -355,7 +363,9 @@ def main():
         if set(frame["source_commit"].astype(str)) != {str(manifest["commit"])}:
             raise SystemExit(f"ARTIFACT_ERROR: panel commit identity mismatch: {panel_path.name}")
         intraday, horizons = LAYERS[layer]
-        verify_panel_source_alignment(frame, layer, H, daily_source, intraday_source)
+        source_alignment = verify_panel_source_alignment(
+            frame, layer, H, daily_source, intraday_source
+        )
         if H not in horizons:
             raise SystemExit(f"ARTIFACT_ERROR: unregistered horizon {layer} H={H}")
         if int(aggregate[layer]["rows"]) <= 0:
@@ -367,7 +377,8 @@ def main():
         copied_path = str(out.relative_to(ROOT)) if out.is_relative_to(ROOT) else str(out)
         cells.append({"layer": layer, "horizon": H, "rows": metrics["rows"],
                       "blocks": metrics["blocks"], "reference_match": True,
-                      "copied_path": copied_path})
+                      "copied_path": copied_path,
+                      "source_alignment": source_alignment})
         prediction_files.append({"path": copied_path, "sha256": sha256(out),
                                  "rows": metrics["rows"], "layer": layer, "horizon": H})
     result = {
