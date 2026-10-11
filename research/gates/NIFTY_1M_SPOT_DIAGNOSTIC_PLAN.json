@@ -34,7 +34,9 @@
     "quality_flag_counts",
     "raw_response_persisted",
     "cache_written",
-    "market_values_logged"
+    "market_values_logged",
+    "wire_requests",
+    "retries"
   ],
   "model_fitting_authorized": false,
   "holdout_access_authorized": false,
