@@ -1085,3 +1085,13 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 - Compared the method registry (112 candidate methods) and literature registry (36 source records) against the 15 uploaded PDFs found in the conversation mount.
 - Created `research/literature/UPLOADED_PAPER_METHOD_COVERAGE_AUDIT.md` as a first-pass paper inventory. Full-text method settings and exact replication-to-result crosswalk remain an open subtask.
 - This was a documentation/status step only: no dataset was accepted, no model was fitted, no holdout was opened, and no scientific metric changed.
+
+
+## 2026-10-11 — Run 38116772719 recovery execution checkpoint
+
+- Independent tester decision `817af6b8b2db14c2ca22f80ea61b6e5279d4d01f` approved the exact reviewed code snapshot `d0b602bd86b6cf8785f3f3c033c0e897f93f3bfd` for *spot-only* recovery, capped at 61 unique spot requests. Live option refetch, modelling, scoring, strategy/P&L, and final-holdout access remain unauthorized. AI reviewer was unavailable (Hugging Face HTTP 402); the approval is limited to the deterministic offline code gate and explicitly scoped acquisition.
+- Run [38116772719](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719) restored the original encrypted artifact and cache, successfully decrypted and validated 8,490,723 option rows and zero original spot rows, confirmed required credentials, and committed the one-use authorization marker before entering its collector.
+- At this log entry, collector/merge step 10 remains `in_progress`; result summary and artifact upload have not occurred, so actual spot row coverage, join-match rates and request outcomes are not yet known. Do not infer recovery success from successful preflight.
+- Static code-review caveat (not a reproduced runtime error): malformed response bodies may not be included in the 256 MiB aggregate response-byte counter if validation raises before the counter is updated. Recorded separately in [ERROR_LOG.md](../ERROR_LOG.md); independent tester should verify and require a regression before any future request-bearing run.
+- GitHub's in-progress job-log endpoint currently returns `BlobNotFound` despite job-step metadata being available. This is an observability limitation, not evidence of a source failure.
+- Recovery stays within the bounded approved workflow; do not duplicate the run or advance research/model gates until final artifact coverage and independent review.
