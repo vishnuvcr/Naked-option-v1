@@ -1244,3 +1244,7 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Review cache-miss evidence and advise on a pinned historical-source recovery.
 **Tester → Developer:** Do not bypass the cache guard or promote the gate without verified source provenance.
+
+### Tester R3 decision
+
+- Independent tester [R3 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R3_2026-10-12.json): the full exact-HEAD reconstruction cannot run because the frozen daily source cache is absent. Locate an already archived, hash-verifiable copy; any one-time historical-source restoration needs separate review first.
