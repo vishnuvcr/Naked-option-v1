@@ -34,14 +34,21 @@
   },
   "tester_decision_blob": "817af6b8b2db14c2ca22f80ea61b6e5279d4d01f",
   "post_recovery_tester_review": {
-    "status": "PENDING_AUTOMATED_EXACT_SNAPSHOT_REVIEW",
-    "requested_at_utc": "2026-10-11T06:20:00Z",
-    "reason": "Recovery run completed with SPOT_GAPFILL_PARTIAL; independently verify realized artifact, failed shards, request accounting, join coverage, and aggregate byte-budget accounting before any next phase.",
+    "status": "OFFLINE_CODE_GATE_COMPLETE_ARTIFACT_REVIEW_PENDING",
+    "requested_at_utc": "2026-10-11T06:24:30Z",
+    "reviewed_developer_commit": "a5437ba8a31fe325b2988b92a8bf9325ee002450",
+    "tester_workflow_run_id": "38117905217",
+    "tester_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+    "deterministic_checks_passed": true,
+    "ai_reviewer_available": false,
+    "artifact_level_review_completed": false,
+    "reason": "Exact-snapshot offline tester cycle passed the code gate after aggregate response-byte accounting was moved before validation and regression coverage added. It did not inspect/decrypt the realized recovery artifact or validate the six failed shards and realized counters.",
     "restrictions": [
       "no new live source requests",
       "no option refetch",
-      "no model fitting",
+      "no model fitting or scoring",
       "no holdout access",
+      "no strategy or P&L testing",
       "prediction-only research"
     ]
   }
