@@ -120,6 +120,12 @@ class TestEncryptedComposite(unittest.TestCase):
             finally:
                 collector.CACHE_ROOT, collector.REPORTS_ROOT, collector.ATTEMPT_LEDGER_PATH = old_cache, old_reports, old_ledger
 
+    def test_safe_exception_reason_logs_only_bounded_reason_tokens(self):
+        self.assertEqual(collector._safe_exception_reason(ValueError("response_field_not_array_volume")),
+                         "response_field_not_array_volume")
+        self.assertEqual(collector._safe_exception_reason(ValueError("x" * 121)), "ValueError")
+        self.assertEqual(collector._safe_exception_reason(ValueError("private token\nbody")), "ValueError")
+
     def test_spot_parser_preserves_values_and_timezone(self):
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
