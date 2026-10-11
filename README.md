@@ -834,3 +834,18 @@ The R2 failed-week patch is complete, but it did **not** repair the missing spot
 - [Latest passing offline test suite](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38127552962)
 
 No additional Dhan requests are authorized by the post-run tester decision. No option API, model fitting/scoring, holdout access or strategy/P&L test is permitted. The new timestamp diagnostic uses no source calls, emits no prices, and does not modify source data.
+
+
+## Offline unmatched-option timestamp distribution - patch run 38126168547
+
+- Offline source: encrypted patch artifact 11696937921; patch run https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547.
+- Dataset counts verified: 8490723 option rows; 509142 spot rows.
+- Unmatched option rows: 19021 across 421 distinct timestamps.
+- Exact match inconsistencies: 0 unmatched timestamps are already present in the spot row set; R2 overlap is 0.
+- Nearest same-session spot offsets within 60 / 300 seconds: 196 / 296. This is diagnostic only, not an approximate join.
+- R2 spot rows on weekend-dated session labels: 2613. All rows remain unmodified.
+- Value anomaly occurrence categories: {"MATCHED_NIFTY_OHLC:HIGH_BELOW_CLOSE": 112, "MATCHED_NIFTY_OHLC:HIGH_BELOW_OPEN": 108, "MATCHED_NIFTY_OHLC:LOW_ABOVE_CLOSE": 112, "MATCHED_NIFTY_OHLC:LOW_ABOVE_OPEN": 50, "OPTION_VOLUME:NEGATIVE_VOLUME": 11, "SPOT_OHLC:HIGH_BELOW_CLOSE": 5, "SPOT_OHLC:HIGH_BELOW_OPEN": 2, "SPOT_OHLC:LOW_ABOVE_CLOSE": 4, "SPOT_OHLC:LOW_ABOVE_OPEN": 1, "SPOT_VOLUME:NEGATIVE_VOLUME": 309}.
+- Distinct joined-NIFTY OHLC violation epochs: 7; standalone spot OHLC violation epochs: 12.
+- Timestamp report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json
+- Value anomaly report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_38126168547.json
+- No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run.

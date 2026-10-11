@@ -285,3 +285,18 @@ The independent static review accepts developer commit 39e964d's P10 diagnostic 
 - [R2 window diagnostic](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/SPOT_PATCH_TIMESTAMP_ALIGNMENT_RUN_38126168547.json): 2,244 new R2 spot timestamps; exact overlap with unmatched option timestamps=0; unmatched option rows in failed week=0. This explains why the patch did not increase join matches.
 - The [tester post-run decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_POSTRUN_TESTER_DECISION.json) is REQUEST CHANGES. No further source calls or modelling are authorized.
 - All-date offline mapping workflow added: [.github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml](https://github.com/vishnuvcr/Naked-option-v1/blob/main/.github/workflows/phase-07-unmatched-option-timestamp-diagnostic.yml). It analyzes the same encrypted R2 artifact for unmatched timestamps by date, existing-spot intersections and nearest signed offsets only; no prices are emitted or changed. A report will be published under `research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json`.
+
+
+## Offline unmatched-option timestamp distribution - patch run 38126168547
+
+- Offline source: encrypted patch artifact 11696937921; patch run https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38126168547.
+- Dataset counts verified: 8490723 option rows; 509142 spot rows.
+- Unmatched option rows: 19021 across 421 distinct timestamps.
+- Exact match inconsistencies: 0 unmatched timestamps are already present in the spot row set; R2 overlap is 0.
+- Nearest same-session spot offsets within 60 / 300 seconds: 196 / 296. This is diagnostic only, not an approximate join.
+- R2 spot rows on weekend-dated session labels: 2613. All rows remain unmodified.
+- Value anomaly occurrence categories: {"MATCHED_NIFTY_OHLC:HIGH_BELOW_CLOSE": 112, "MATCHED_NIFTY_OHLC:HIGH_BELOW_OPEN": 108, "MATCHED_NIFTY_OHLC:LOW_ABOVE_CLOSE": 112, "MATCHED_NIFTY_OHLC:LOW_ABOVE_OPEN": 50, "OPTION_VOLUME:NEGATIVE_VOLUME": 11, "SPOT_OHLC:HIGH_BELOW_CLOSE": 5, "SPOT_OHLC:HIGH_BELOW_OPEN": 2, "SPOT_OHLC:LOW_ABOVE_CLOSE": 4, "SPOT_OHLC:LOW_ABOVE_OPEN": 1, "SPOT_VOLUME:NEGATIVE_VOLUME": 309}.
+- Distinct joined-NIFTY OHLC violation epochs: 7; standalone spot OHLC violation epochs: 12.
+- Timestamp report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/UNMATCHED_OPTION_TIMESTAMP_DISTRIBUTION_R2_RUN_38126168547.json
+- Value anomaly report: https://github.com/vishnuvcr/Naked-option-v1/blob/main//home/runner/work/Naked-option-v1/Naked-option-v1/research/data/VALUE_ANOMALY_PROVENANCE_R2_RUN_38126168547.json
+- No prices were emitted; no source requests, source-row edits, modelling, holdout access or strategies were run.
