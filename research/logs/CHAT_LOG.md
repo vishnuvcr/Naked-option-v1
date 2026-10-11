@@ -1630,3 +1630,12 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - No modelling, holdout, data-source requests, or strategy/P&L testing was performed.
 **Developer → Tester:** Independently verify the report and determine whether scanner key schema coverage requires REQUEST CHANGES.
 **Tester → Developer:** Keep downstream gates closed and require a complete, schema-compatible duplicate-key assessment before accepting the data-readiness gate.
+
+
+### 2026-10-11 — Developer correction after tester REQUEST CHANGES
+
+- Added actual CSV schema key groups for OPTION and SPOT rows and batched SQLite inserts to reduce the long scan runtime.
+- Added an actual-schema synthetic test file and wired it into the offline synthetic workflow. Exact current blobs are recorded in the developer handoff.
+- Hosted CI completion remains unverified. Old real-file authorization cannot be reused because scanner/workflow blobs changed. No full uniqueness count is asserted and downstream gates remain closed.
+**Developer → Tester:** Independently review code and hosted test evidence, especially duplicate counts within/across batches and cleanup.
+**Tester → Developer:** Return a new scoped exact-hash decision only after CI passes; do not allow the real scan on the old decision.
