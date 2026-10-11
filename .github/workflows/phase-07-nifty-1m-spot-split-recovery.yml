@@ -1,0 +1,233 @@
+name: Phase 7 NIFTY Spot Split Recovery — Exact-SHA Gate
+
+on:
+  workflow_run:
+    workflows: ["Phase 7 NIFTY Composite — Automated Tester Developer Loop"]
+    types: [completed]
+  push:
+    branches: [phase-07-tester]
+    paths:
+      - "research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json"
+  workflow_dispatch:
+    inputs:
+      developer_sha:
+        description: "Exact developer commit to evaluate; blank means current developer tip."
+        type: string
+        required: false
+        default: ""
+      proposal_blob_sha:
+        description: "Exact proposal blob SHA to evaluate; blank means current proposal blob."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: phase-07-nifty-spot-split-recovery
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'phase-07-developer') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/phase-07-tester')
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.check.outputs.authorized }}
+      review_sha: ${{ steps.check.outputs.review_sha }}
+      proposal_blob_sha: ${{ steps.check.outputs.proposal_blob_sha }}
+      tester_decision_blob: ${{ steps.check.outputs.tester_decision_blob }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: controller
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-developer
+          path: developer
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-07-tester
+          path: tester
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: check
+        name: Validate exact proposal, tester decision, and spent-marker state
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DEVELOPER_SHA: ${{ inputs.developer_sha }}
+          INPUT_PROPOSAL_SHA: ${{ inputs.proposal_blob_sha }}
+        run: |
+          set -euo pipefail
+          cd developer
+          git fetch --no-tags origin +refs/heads/phase-07-developer:refs/remotes/origin/phase-07-developer +refs/heads/phase-07-tester:refs/remotes/origin/phase-07-tester
+          review_sha="$(git rev-parse refs/remotes/origin/phase-07-developer)"
+          proposal_blob_sha="$(git rev-parse refs/remotes/origin/phase-07-developer:research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json)"
+          tester_decision_blob="$(git -C ../tester rev-parse HEAD:research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json)"
+          echo "review_sha=$review_sha" >> "$GITHUB_OUTPUT"
+          echo "proposal_blob_sha=$proposal_blob_sha" >> "$GITHUB_OUTPUT"
+          echo "tester_decision_blob=$tester_decision_blob" >> "$GITHUB_OUTPUT"
+          echo "authorized=false" >> "$GITHUB_OUTPUT"
+
+          if [[ -n "$INPUT_DEVELOPER_SHA" && "$INPUT_DEVELOPER_SHA" != "$review_sha" ]]; then
+            echo "Manual developer SHA is stale; fail closed without source access."
+            exit 0
+          fi
+          if [[ -n "$INPUT_PROPOSAL_SHA" && "$INPUT_PROPOSAL_SHA" != "$proposal_blob_sha" ]]; then
+            echo "Manual proposal SHA differs from the current exact proposal; fail closed."
+            exit 0
+          fi
+          if git cat-file -e "refs/remotes/origin/phase-07-developer:research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json" 2>/dev/null; then
+            echo "Split recovery marker already exists; one-use authorization cannot be reused."
+            exit 0
+          fi
+          set +e
+          python scripts/validate_nifty_1m_spot_gapfill_split_proposal.py             --proposal research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json             --proposal-blob-sha "$proposal_blob_sha"             --developer-sha "$review_sha"             --decision ../tester/research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json             > "$RUNNER_TEMP/split-gate-result.json"
+          rc=$?
+          set -e
+          cat "$RUNNER_TEMP/split-gate-result.json"
+          if [[ "$rc" -eq 0 ]]; then
+            echo "authorized=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Tester authorization is absent, stale, or outside the exact split-recovery scope. No request job will run."
+          fi
+
+  split-recovery:
+    needs: gate
+    if: needs.gate.outputs.authorized == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.review_sha }}
+          path: developer
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check credentials and unused marker before spending authorization
+        working-directory: developer
+        env:
+          DHAN_CONFIGURED: ${{ secrets.DHAN_ACCESS_TOKEN != '' }}
+          HF_CONFIGURED: ${{ secrets.HF_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          [[ "$DHAN_CONFIGURED" == "true" ]] || { echo "Dhan credential missing; no marker spent."; exit 1; }
+          [[ "$HF_CONFIGURED" == "true" ]] || { echo "HF token missing; no marker spent."; exit 1; }
+          test ! -e research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json
+      - name: Download and verify the exact encrypted partial base artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_ARTIFACT_ID: "11693866249"
+          BASE_ARTIFACT_SHA256: "aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216"
+        run: |
+          set -euo pipefail
+          mkdir -p developer/data/recovery/source-artifact
+          curl --fail --silent --show-error --location             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$BASE_ARTIFACT_ID/zip"             -o "$RUNNER_TEMP/base-partial-artifact.zip"
+          echo "$BASE_ARTIFACT_SHA256  $RUNNER_TEMP/base-partial-artifact.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/base-partial-artifact.zip" -d developer/data/recovery/source-artifact
+      - name: Spend the exact-snapshot one-use marker before any Dhan request
+        working-directory: developer
+        env:
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          PROPOSAL_BLOB_SHA: ${{ needs.gate.outputs.proposal_blob_sha }}
+          TESTER_DECISION_BLOB: ${{ needs.gate.outputs.tester_decision_blob }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          test ! -e research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json
+          python - <<'PY'
+          import datetime,hashlib,json,os,pathlib
+          p=pathlib.Path("research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json")
+          raw=p.read_bytes()
+          blob=hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\0"+raw).hexdigest()
+          if blob != os.environ["PROPOSAL_BLOB_SHA"]:
+              raise SystemExit("split proposal blob SHA changed before marker spend")
+          marker={
+            "schema_version":1,
+            "status":"SPENT_BEFORE_SOURCE_REQUEST",
+            "scope":"SPLIT_SPOT_ONLY_ARTIFACT_PRESERVING_GAPFILL",
+            "reviewed_developer_commit":os.environ["REVIEW_SHA"],
+            "split_proposal_blob_sha":blob,
+            "tester_decision_blob":os.environ["TESTER_DECISION_BLOB"],
+            "max_spot_requests":34,
+            "max_gapfill_requests":34,
+            "max_retry_requests":0,
+            "base_artifact_id":"11693866249",
+            "base_artifact_sha256":"aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216",
+            "live_option_requests_allowed":False,
+            "created_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z"),
+            "github_run_id":os.environ["RUN_ID"]
+          }
+          path=pathlib.Path("research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json")
+          path.write_text(json.dumps(marker,sort_keys=True,indent=2)+"\n",encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_EXECUTION.json
+          git commit -m "research: spend authorized split-recovery marker"
+          git push origin HEAD:phase-07-developer
+      - name: Run the bounded spot-only split recovery
+        working-directory: developer
+        env:
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          REVIEW_SHA: ${{ needs.gate.outputs.review_sha }}
+          PROPOSAL_BLOB_SHA: ${{ needs.gate.outputs.proposal_blob_sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set +e
+          python scripts/run_nifty_1m_spot_gapfill.py             --source-dir data/recovery/source-artifact             --plain-dir data/recovery/plain             --execute             --reviewed-sha "$REVIEW_SHA"             --split-proposal research/gates/NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL.json             --proposal-blob-sha "$PROPOSAL_BLOB_SHA"             --split-ledger "data/reports/nifty_1m_spot_gapfill/attempt_ledger_split_$RUN_ID.json"
+          rc=$?
+          echo "collector_exit_code=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Remove all plaintext and source-artifact scratch
+        if: always()
+        run: |
+          rm -rf developer/data/exports/nifty_1m_composite/plain
+          rm -rf developer/data/recovery/plain developer/data/recovery/source-artifact
+          rm -rf developer/data/work/nifty_1m_spot_gapfill
+      - name: Commit safe split result metadata
+        if: always()
+        working-directory: developer
+        run: |
+          set -euo pipefail
+          if [[ -f research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_RESULT.json ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_RESULT.json
+            git diff --cached --quiet || git commit -m "research: record split spot recovery result"
+            git push origin HEAD:phase-07-developer
+          fi
+      - name: Upload only encrypted output and safe metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-1m-spot-split-recovery-${{ github.run_id }}
+          path: |
+            developer/data/exports/nifty_1m_composite/encrypted/
+            developer/data/exports/nifty_1m_composite/dataset_manifest.json
+            developer/data/exports/nifty_1m_composite/coverage_and_errors.json
+            developer/data/exports/nifty_1m_composite/README.md
+            developer/research/gates/NIFTY_1M_SPOT_SPLIT_RECOVERY_RESULT.json
+          if-no-files-found: warn
+          retention-days: 90
