@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-11",
+  "gate": "REAL_FILE_PREFLIGHT_RESULT_AUDIT",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_sha": "534f3cd5a4329b5e45fa38a1b507ebce6bcf027c",
+  "implementation_authorization_decision_blob_sha": "cdc253e72058030c144d91da78400b6299b104e3",
+  "workflow_run_id": 38147761301,
+  "workflow_conclusion": "success",
+  "workflow_jobs": {
+    "synthetic_authorization_tests": "success",
+    "real_file_audit": "success",
+    "plaintext_and_temporary_index_cleanup": "success"
+  },
+  "report_artifact": {
+    "artifact_id": 11705154936,
+    "name": "phase07-offline-preflight-metadata-38147761301",
+    "size_bytes": 1639,
+    "zip_sha256": "ec4f7b99c37bc7a4c897860f6b176ceb215e67c2b18e542644470e21c62ac1d7"
+  },
+  "reviewed_runtime_and_publisher_file_hashes": 17,
+  "matched_file_hashes": 17,
+  "file_hash_mismatches": 0,
+  "decoded_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "decoded_csv_sha256_matches_expected": true,
+  "gzip_integrity": "PASS",
+  "compressed_container_sha_matches_expected": false,
+  "compressed_hash_interpretation": "diagnostic only when the exact decompressed-content SHA matches; no bypass used",
+  "data_rows": 8999865,
+  "columns": 47,
+  "option_rows": 8490723,
+  "spot_rows": 509142,
+  "row_width_errors": 0,
+  "timestamp_parse_errors": 0,
+  "incomplete_composite_key_rows": 0,
+  "duplicate_key_check": "PASS",
+  "duplicate_key_count": 0,
+  "option_key_fields": [
+    "timestamp_epoch",
+    "row_type",
+    "source_request_id",
+    "expiry_flag",
+    "expiry_code",
+    "requested_relative_strike",
+    "option_type"
+  ],
+  "spot_key_fields": [
+    "timestamp_epoch"
+  ],
+  "plaintext_cleanup_verified": true,
+  "data_readiness": "PENDING_SEPARATE_REVIEW",
+  "model_fitting_scoring": "CLOSED",
+  "holdout": "CLOSED",
+  "new_source_requests": "CLOSED",
+  "strategy_pnl": "CLOSED",
+  "reviewer_independence": "same connected assistant session; not a separate human/external-model reviewer",
+  "report_path": "research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md",
+  "report_blob_sha": "f298d0eae7aaa60d49ab7480193682c3a7eadf3c",
+  "next_gate": "EXACT_SNAPSHOT_MODELING_READINESS_PROPOSAL_AND_TESTER_REVIEW_REQUIRED"
+}
