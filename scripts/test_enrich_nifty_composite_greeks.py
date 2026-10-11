@@ -51,7 +51,7 @@ def main():
         assert len(out)==3 and report["greek_rows_with_delta"]==2,report
         assert out.loc[0,"greek_status"]=="GREEKS_ESTIMATED_FROM_INVERTED_IV",out.loc[0,"greek_status"]
         assert out.loc[0,"delta"]>0 and out.loc[1,"delta"]<0
-        assert abs(float(out.loc[0,"time_to_expiry_years"])-tte)<1e-12
+        assert abs(float(out.loc[0,"time_to_expiry_years"])-tte)<1e-12, (out.loc[0,"time_to_expiry_years"],tte,out.loc[0,"expiry_date"],out.loc[0,"timestamp_ist"],out.loc[0,"greek_valuation_offset_seconds"])
         assert out.loc[0,"greek_valuation_offset_seconds"]==60
         assert out.loc[2,"greek_status"]=="NOT_OPTION_ROW"
     print("PASS: IV inversion, Greek signs, finite-difference delta/gamma, invalid premium, expiry calendar, row-preserving synthetic enrichment")
