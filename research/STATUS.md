@@ -1620,3 +1620,17 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
 
 **Developer → Tester:** Review the R5 sanitized report, canonical OPTION/SPOT duplicate counts, incomplete keys, content hash, timestamp/width results and cleanup evidence after the job completes.
 **Tester → Developer:** Do not promote the dataset or open prediction models based on an in-progress scan or the rejected R4 duplicate count.
+
+
+## 2026-10-11 — R5 canonical structural audit completed and reviewed
+
+- Run [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301) completed successfully; synthetic and real-file audit jobs passed, and cleanup verified plaintext/SQLite removal.
+- Exact R5 developer snapshot: `534f3cd5a4329b5e45fa38a1b507ebce6bcf027c`. All 17 tester-reviewed runtime/publisher blobs matched at the triggering snapshot.
+- Tester-role result: **PASS_WITH_SCOPED_RESTRICTIONS** for structural audit only. See [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_REVIEW_R5_2026-10-11.md) and [decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_RESULT_TESTER_DECISION_R5_2026-10-11.json).
+- Exact decoded CSV SHA matches the pinned `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`; gzip integrity passed; 8,999,865 rows and 47 columns reconcile to 8,490,723 OPTION + 509,142 SPOT; zero row-width errors, timestamp parse errors, incomplete keys or duplicate canonical OPTION/SPOT keys.
+- Compressed gzip container hash differs from prior byte hash; the decoded content hash is the frozen identity and matches. This is reported transparently, not ignored as a content mismatch.
+- Residual data readiness restrictions remain: 19,021 unmatched OPTION rows across 421 timestamps; 24,847 rows retain weekend-session review flags; 382 joined OPTION rows affected by invalid spot OHLC were masked, plus 12 SPOT OHLC rows, 309 SPOT volume values and 11 OPTION volume values; expiry/TTE/Greek/rate/dividend columns are entirely blank in this artifact.
+- Modeling readiness is **PENDING**. Current paper-replication target contract remains `PROPOSED_NOT_AUTHORIZED`; PPR-2 registry crosswalk is NOT STARTED; PPR-3 protocol freeze and empirical execution are NOT AUTHORIZED. No fitting, holdout, new source requests or strategy/P&L work is authorized.
+
+**Developer → Tester:** Review the bounded data/model-readiness proposal with tests before any modeling gate can open.
+**Tester → Developer:** Do not begin fitting/scoring, inspect final holdout labels, issue new data requests or test strategies based only on this structural pass.
