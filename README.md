@@ -1018,3 +1018,12 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Inspect report contents and cleanup proof after run 38144072524 completes.
 **Tester → Developer:** Keep modelling and strategy gates closed until data-readiness is separately accepted.
+
+
+## 2026-10-11 — R3 audit failed closed; compressed-hash contract correction underway
+
+- R3 audit [38144072524](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38144072524) passed exact authorization, the 61-part source lineage and hash checks, decryption, merge row count (8,999,865), and final plaintext/temp cleanup.
+- The scanner stopped with `INPUT_SHA256_MISMATCH` before structural scanning. No report or duplicate-key count was produced, and no data-readiness PASS is claimed.
+- The likely defect is comparing the byte hash of a recompressed gzip container with the previously exported gzip hash; gzip timestamp metadata can make those byte hashes differ. This will be confirmed, not assumed, by pinning and checking the full uncompressed CSV content hash separately while retaining compressed-hash metadata.
+- [R3 hash mismatch record](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG_ADDENDUM_R3_HASH_MISMATCH_2026-10-11.md) and [status addendum](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/R3_HASH_MISMATCH_STATUS_2026-10-11.md).
+- R3 authorization is consumed. Fresh code/test review and exact-hash tester approval are required before another real-file audit. Modelling, holdout and strategy/P&L remain closed.
