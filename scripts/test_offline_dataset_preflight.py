@@ -97,6 +97,7 @@ class PreflightTests(unittest.TestCase):
             path = self.make_file(td, [["x"] * 47], GENERIC_HEADER)
             report = run(path, Path(td) / "r.json", self.digest(path), 1, 47)
             self.assertEqual(report["duplicate_key_check"], "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY")
+            self.assertEqual(report["status"], "PREFLIGHT_REVIEW_DUPLICATE_CHECK_NOT_ESTIMABLE")
             self.assertIsNone(report["duplicate_key_count"])
 
     def test_incomplete_key_rows_are_not_counted_as_unique_or_duplicate(self):
@@ -105,6 +106,9 @@ class PreflightTests(unittest.TestCase):
             path = self.make_file(td, [row, row], KEY_HEADER)
             report = run(path, Path(td) / "r.json", self.digest(path), 2, 47)
             self.assertEqual(report["duplicate_key_count"], 0)
+            self.assertEqual(report["incomplete_composite_key_rows"], 2)
+            self.assertEqual(report["duplicate_key_check"], "PARTIAL_INCOMPLETE_COMPOSITE_KEYS")
+            self.assertEqual(report["status"], "PREFLIGHT_REVIEW_INCOMPLETE_COMPOSITE_KEYS")
 
     def test_corrupt_gzip_trailer_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
@@ -131,6 +135,7 @@ class PreflightTests(unittest.TestCase):
             path = self.make_file(td, rows, KEY_HEADER)
             report = run(path, Path(td) / "r.json", self.digest(path), 2, 47)
             self.assertEqual(report["timestamp_parse_errors"], 1)
+            self.assertEqual(report["status"], "PREFLIGHT_REVIEW_TIMESTAMP_PARSE_ERRORS")
 
 
 if __name__ == "__main__":
