@@ -10,6 +10,7 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import repair_nifty_1m_composite_values as repair
+import validate_repaired_nifty_1m_composite as repaired_validator
 from decrypt_nifty_1m_composite import decrypt_bytes, derive_key
 from test_audit_nifty_1m_composite_values import COLUMNS, base_row, write_fixture
 
@@ -95,6 +96,11 @@ class DerivedDatasetRepairTests(unittest.TestCase):
             for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"):
                 option[field] = ""
             write_fixture(root, [option], [])
+            manifest_path = root / "dataset_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["dataset_summary"]["spot_join_matched"] = 0
+            manifest["dataset_summary"]["spot_join_missing"] = 1
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             out = pathlib.Path(tmp) / "derived"
             report = repair.repair_dataset(root, out, pathlib.Path(tmp) / "report.json", SECRET)
             self.assertEqual(report["repair_counts"].get("unmatched_option_rows_preserved"), 1)
@@ -120,6 +126,26 @@ class DerivedDatasetRepairTests(unittest.TestCase):
             root = pathlib.Path(tmp)
             with self.assertRaises(ValueError):
                 repair.repair_dataset(root, root, root / "report.json", SECRET)
+
+
+
+    def test_independent_post_repair_validator_checks_exact_join(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp) / "input"
+            option = base_row("OPTION", "request-opt")
+            spot = base_row("SPOT", "request-spot")
+            write_fixture(root, [option], [spot])
+            manifest_path = root / "dataset_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["dataset_id"] = "synthetic_DERIVED_REPAIR_V1"
+            manifest["derived_from"] = {"parent_dataset_id": "synthetic-parent"}
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report_path = pathlib.Path(tmp) / "safe-report.json"
+            result = repaired_validator.audit(root, report_path, pathlib.Path(tmp) / "audit.sqlite")
+            self.assertEqual(result["status"], "PASS_WITH_COVERAGE_RESTRICTIONS")
+            self.assertEqual(result["row_counts"]["total"], 2)
+            self.assertEqual(result["join_counts"]["exact_join_field_mismatches"], 0)
+            self.assertNotIn("21000", report_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
