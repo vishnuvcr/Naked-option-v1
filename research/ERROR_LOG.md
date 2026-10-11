@@ -526,3 +526,11 @@
 - Tester R1 requested a narrowly scoped, strict maximum-two-ULP comparator for float64 `future_return` only. Labels/timestamps must remain exact; aggregate tolerance, source pins and the saved artifact are immutable.
 - Developer submitted `compare_float64_within_ulps` in [5f54ca2](https://github.com/vishnuvcr/Naked-option-v1/commit/5f54ca2a8c597369e145e4184446430cc9ec38fb), and tests in [6def41c](https://github.com/vishnuvcr/Naked-option-v1/commit/6def41c40fa3c6a041b831dc938493eaafcf6680). Hosted regression is pending. Actual mismatches have not yet been demonstrated to all fall within the registered two-ULP ceiling; any value beyond it keeps validation blocked.
 - Do not alter or regenerate Run #994, do not increase the limit, and do not enter option P&L/holdout/promotion.
+
+## 2026-10-12 — Phase 8 H=1 tester review R2 (evidence gap, not a code failure)
+- Category: validation provenance / incomplete evidence
+- Component: full Run #994 forecast reconstruction after ULP diagnostics persistence
+- Symptom: validator regression #38164567189 and protocol check #38164567374 passed on developer HEAD `da33a40f4f52e51807ca0fb7882e7920021c47a1`, but the latest full reconstruction evidence is run #38164524835 on older HEAD `21dd39b6819dcc1ecae67307633fe4621e168c58`.
+- Impact: cannot yet assert that the final per-panel ULP diagnostics are persisted in a full exact-HEAD reconstruction artifact. This is not evidence of a numerical-policy violation.
+- Required correction: run full reconstruction against the immutable cached Run #994 artifact on exact current HEAD; verify all source-derived `future_return` differences are <=2 ULP and labels/timestamps remain exact.
+- Guardrails: no fresh market-data fetch, no saved artifact regeneration/rounding, no tolerance change, no option P&L or holdout access. R1 authorization remains consumed/disabled.
