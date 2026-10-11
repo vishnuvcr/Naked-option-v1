@@ -439,3 +439,29 @@ No scientific or protocol change was made during this checkpoint.
 - Process mistake logged: the cache exporter push unexpectedly triggered Phase 3 acquisition run #38165705151 because its push paths were previously broad. We narrowed the Phase 3 auto-run filters in commit `f27d36f`; results from the unintended run are excluded from H1 source validation. The GitHub connector does not provide a cancellation operation.
 - Synthetic source-cache tests exposed a mis-specified test expectation (the verifier raises for a redirected manifest path); fixed in commit `2646c9a`. Hosted tests #38166407016 and pre-approval restoration run #38166407067 were running/denying by design at the time of the update; their final states must be inspected.
 - ULP diagnostics from earlier frozen panel validations remained within 1 ULP (strict bound 2); this does not close the newest source-data gate. No P&L/holdout/strategy promotion authorized.
+
+
+## 2026-10-12 — User requested completing missing NIFTY 1-minute Greek inputs
+
+### User request
+User instructed the research to obtain Greek-calculation inputs from Dhan API, HF_TOKEN or other sources, and deliver the enriched dataset.
+
+### Developer decision summary
+- Reused the exact cached composite rather than redownloading or changing historical option rows: source Actions run #38131641336, artifact 11698879857, verified ZIP SHA-256 40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b.
+- Looked up official Dhan API documentation and public HF source metadata. Dhan's historical rolling-options API provides minute OHLC/IV/OI/volume/spot but a limited ATM-relative strike grid; Dhan's separate option-chain Greek fields are live, not historical Greek time series. No Dhan credentials were assumed, and no Dhan call was made in this gate.
+- Added an exact-snapshot tester-gated workflow on phase-08-developer to use the repository's existing HF_TOKEN secret, fetch the public HF NIFTY minute-spot file and expiry-partition file list, enrich only the cached rolling grid, preserve row counts, keep unresolved Greek fields missing and encrypted-upload only.
+- Greek method is European Black–Scholes. Invert IV from option close when valid; otherwise use the existing labelled provider-IV unit heuristic. Calculate Delta, Gamma, Theta per calendar day, Vega per 1% IV and Rho per 1% annual rate move. Use r=0 and q=0 as explicitly disclosed proxies, and value the minute-bar close at timestamp + 60 seconds.
+- Independent tester checked exact four-source blob pins and passed the developer synthetic suite plus an independent 162-case CE/PE price/IV/Greek sign, bounds and finite-difference audit. Decision: phase-08-tester gate PHASE8_GREEK_ENRICHMENT_R1 = PASS_WITH_SCOPED_RESTRICTIONS for developer snapshot 467a08195bb5031bf73eb01fc86f2129f9776227.
+- Several real synthetic defects were caught and fixed before acquisition: NumPy 2 read-only arrays during merge/masking, then a pandas 3 timestamp-unit bug in time-to-expiry. They are detailed in research/ERROR_LOG.md; no data source call occurred in failed attempts.
+- Rerun #38168504700 attempt 2 subsequently passed the exact tester authorization, validated and restored the immutable encrypted source artifact, fetched HF NIFTY spot + expiry file-list inputs, and entered the enrichment/re-encryption stage.
+
+### Scientific limitations / current disposition
+- This is enrichment of the existing PARTIAL_GRID, not a guarantee of every exchange-listed NIFTY strike/contract. HF's own source documentation states option coverage is partial for sparse/illiquid/far strikes.
+- Dates mapped from HF expiry file partitions are source-backed calendar proxies, while expiry dates beyond the latest partition use a separately labelled Tuesday-rule proxy. This is not a complete point-in-time official contract master.
+- Greeks are model estimates, not historical vendor-observed Greeks. Historical rates/dividend yields remain unavailable in the current scoped gate and are represented with explicit r=0/q=0 proxies. Historical executable bid/ask, lot/tick metadata and full expiry provenance remain blockers for any strategy test.
+- HF dataset licence is CC-BY-NC-4.0; do not use the derived output commercially without appropriate permission. Option P&L, holdout access, strategy promotion and plaintext artifact upload remain unauthorized.
+- At the time of this log entry, the output artifact had not yet passed final row/hash/encryption validation or upload. No final coverage count is accepted until that hosted run concludes.
+
+**Developer → Tester:** verify final hosted output row counts, Greek status distribution, all encrypted part hashes, row preservation and source attribution before acceptance.
+
+**Tester → Developer:** accept only the exact reviewed output if validation/upload passes; keep strategy and execution gates closed and retain all data-quality restrictions.
