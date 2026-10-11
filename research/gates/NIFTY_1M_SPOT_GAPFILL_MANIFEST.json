@@ -1,0 +1,929 @@
+{
+  "schema_version": 1,
+  "manifest_id": "NIFTY_1M_SPOT_GAPFILL_39D_WINDOWS_2026-10-11_V1",
+  "purpose": "Preserve the existing encrypted option dataset and fill its missing spot joins using only the Dhan NIFTY spot endpoint.",
+  "status": "DRAFT_FOR_AUTOMATED_TESTER_REVIEW",
+  "source_family": "NIFTY_SPOT_1M",
+  "dataset_scope": {
+    "underlying": "NIFTY 50",
+    "granularity": "1-minute",
+    "history_start_inclusive": "2021-10-11",
+    "history_end_exclusive": "2026-10-11",
+    "endpoint": "https://api.dhan.co/v2/charts/intraday"
+  },
+  "chunk_calendar_days": 39,
+  "planned_unique_requests": 47,
+  "max_retries_per_request": 1,
+  "max_retry_requests_this_run": 47,
+  "maximum_wire_requests_this_run": 94,
+  "prior_wire_requests_cumulative": 8606,
+  "diagnostic_wire_requests_additional": 1,
+  "expected_wire_requests_cumulative_max": 8701,
+  "global_wire_requests_max": 8701,
+  "global_retry_requests_max": 100,
+  "prior_retry_requests_cumulative": 5,
+  "per_response_bytes_max": 8388608,
+  "per_response_rows_max": 12000,
+  "rate_limit_requests_per_second": 2,
+  "live_option_requests_allowed": false,
+  "preserve_existing_option_rows_expected": 8490723,
+  "original_dataset_artifact_run_id": 38082385220,
+  "original_dataset_artifact_name": "nifty-1m-composite-encrypted-bundle",
+  "raw_response_persistence": "AES-256-GCM encrypted cache only; never write raw provider response to public logs, artifacts or git",
+  "retry_policy": "At most one retry per new request, only for timeout, HTTP 429, or HTTP 5xx; no retry for auth, schema or other HTTP errors. A strict global remaining-wire budget applies.",
+  "requests": [
+    {
+      "request_id": "GAPSPOT1M-20211011-20211119",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2021-10-11",
+      "window_end_exclusive": "2021-11-19",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2021-10-11 09:15:00",
+        "toDate": "2021-11-18 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20211119-20211228",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2021-11-19",
+      "window_end_exclusive": "2021-12-28",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2021-11-19 09:15:00",
+        "toDate": "2021-12-27 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20211228-20220205",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2021-12-28",
+      "window_end_exclusive": "2022-02-05",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2021-12-28 09:15:00",
+        "toDate": "2022-02-04 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220205-20220316",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-02-05",
+      "window_end_exclusive": "2022-03-16",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-02-05 09:15:00",
+        "toDate": "2022-03-15 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220316-20220424",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-03-16",
+      "window_end_exclusive": "2022-04-24",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-03-16 09:15:00",
+        "toDate": "2022-04-23 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220424-20220602",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-04-24",
+      "window_end_exclusive": "2022-06-02",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-04-24 09:15:00",
+        "toDate": "2022-06-01 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220602-20220711",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-06-02",
+      "window_end_exclusive": "2022-07-11",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-06-02 09:15:00",
+        "toDate": "2022-07-10 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220711-20220819",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-07-11",
+      "window_end_exclusive": "2022-08-19",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-07-11 09:15:00",
+        "toDate": "2022-08-18 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220819-20220927",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-08-19",
+      "window_end_exclusive": "2022-09-27",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-08-19 09:15:00",
+        "toDate": "2022-09-26 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20220927-20221105",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-09-27",
+      "window_end_exclusive": "2022-11-05",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-09-27 09:15:00",
+        "toDate": "2022-11-04 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20221105-20221214",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-11-05",
+      "window_end_exclusive": "2022-12-14",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-11-05 09:15:00",
+        "toDate": "2022-12-13 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20221214-20230122",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2022-12-14",
+      "window_end_exclusive": "2023-01-22",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2022-12-14 09:15:00",
+        "toDate": "2023-01-21 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230122-20230302",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-01-22",
+      "window_end_exclusive": "2023-03-02",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-01-22 09:15:00",
+        "toDate": "2023-03-01 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230302-20230410",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-03-02",
+      "window_end_exclusive": "2023-04-10",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-03-02 09:15:00",
+        "toDate": "2023-04-09 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230410-20230519",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-04-10",
+      "window_end_exclusive": "2023-05-19",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-04-10 09:15:00",
+        "toDate": "2023-05-18 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230519-20230627",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-05-19",
+      "window_end_exclusive": "2023-06-27",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-05-19 09:15:00",
+        "toDate": "2023-06-26 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230627-20230805",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-06-27",
+      "window_end_exclusive": "2023-08-05",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-06-27 09:15:00",
+        "toDate": "2023-08-04 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230805-20230913",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-08-05",
+      "window_end_exclusive": "2023-09-13",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-08-05 09:15:00",
+        "toDate": "2023-09-12 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20230913-20231022",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-09-13",
+      "window_end_exclusive": "2023-10-22",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-09-13 09:15:00",
+        "toDate": "2023-10-21 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20231022-20231130",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-10-22",
+      "window_end_exclusive": "2023-11-30",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-10-22 09:15:00",
+        "toDate": "2023-11-29 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20231130-20240108",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2023-11-30",
+      "window_end_exclusive": "2024-01-08",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2023-11-30 09:15:00",
+        "toDate": "2024-01-07 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240108-20240216",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-01-08",
+      "window_end_exclusive": "2024-02-16",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-01-08 09:15:00",
+        "toDate": "2024-02-15 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240216-20240326",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-02-16",
+      "window_end_exclusive": "2024-03-26",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-02-16 09:15:00",
+        "toDate": "2024-03-25 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240326-20240504",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-03-26",
+      "window_end_exclusive": "2024-05-04",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-03-26 09:15:00",
+        "toDate": "2024-05-03 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240504-20240612",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-05-04",
+      "window_end_exclusive": "2024-06-12",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-05-04 09:15:00",
+        "toDate": "2024-06-11 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240612-20240721",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-06-12",
+      "window_end_exclusive": "2024-07-21",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-06-12 09:15:00",
+        "toDate": "2024-07-20 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240721-20240829",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-07-21",
+      "window_end_exclusive": "2024-08-29",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-07-21 09:15:00",
+        "toDate": "2024-08-28 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20240829-20241007",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-08-29",
+      "window_end_exclusive": "2024-10-07",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-08-29 09:15:00",
+        "toDate": "2024-10-06 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20241007-20241115",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-10-07",
+      "window_end_exclusive": "2024-11-15",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-10-07 09:15:00",
+        "toDate": "2024-11-14 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20241115-20241224",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-11-15",
+      "window_end_exclusive": "2024-12-24",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-11-15 09:15:00",
+        "toDate": "2024-12-23 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20241224-20250201",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2024-12-24",
+      "window_end_exclusive": "2025-02-01",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2024-12-24 09:15:00",
+        "toDate": "2025-01-31 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250201-20250312",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-02-01",
+      "window_end_exclusive": "2025-03-12",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-02-01 09:15:00",
+        "toDate": "2025-03-11 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250312-20250420",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-03-12",
+      "window_end_exclusive": "2025-04-20",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-03-12 09:15:00",
+        "toDate": "2025-04-19 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250420-20250529",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-04-20",
+      "window_end_exclusive": "2025-05-29",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-04-20 09:15:00",
+        "toDate": "2025-05-28 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250529-20250707",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-05-29",
+      "window_end_exclusive": "2025-07-07",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-05-29 09:15:00",
+        "toDate": "2025-07-06 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250707-20250815",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-07-07",
+      "window_end_exclusive": "2025-08-15",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-07-07 09:15:00",
+        "toDate": "2025-08-14 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250815-20250923",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-08-15",
+      "window_end_exclusive": "2025-09-23",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-08-15 09:15:00",
+        "toDate": "2025-09-22 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20250923-20251101",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-09-23",
+      "window_end_exclusive": "2025-11-01",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-09-23 09:15:00",
+        "toDate": "2025-10-31 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20251101-20251210",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-11-01",
+      "window_end_exclusive": "2025-12-10",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-11-01 09:15:00",
+        "toDate": "2025-12-09 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20251210-20260118",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2025-12-10",
+      "window_end_exclusive": "2026-01-18",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2025-12-10 09:15:00",
+        "toDate": "2026-01-17 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260118-20260226",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-01-18",
+      "window_end_exclusive": "2026-02-26",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-01-18 09:15:00",
+        "toDate": "2026-02-25 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260226-20260406",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-02-26",
+      "window_end_exclusive": "2026-04-06",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-02-26 09:15:00",
+        "toDate": "2026-04-05 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260406-20260515",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-04-06",
+      "window_end_exclusive": "2026-05-15",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-04-06 09:15:00",
+        "toDate": "2026-05-14 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260515-20260623",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-05-15",
+      "window_end_exclusive": "2026-06-23",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-05-15 09:15:00",
+        "toDate": "2026-06-22 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260623-20260801",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-06-23",
+      "window_end_exclusive": "2026-08-01",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-06-23 09:15:00",
+        "toDate": "2026-07-31 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260801-20260909",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-08-01",
+      "window_end_exclusive": "2026-09-09",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-08-01 09:15:00",
+        "toDate": "2026-09-08 15:30:00"
+      }
+    },
+    {
+      "request_id": "GAPSPOT1M-20260909-20261011",
+      "source_family": "NIFTY_SPOT_1M",
+      "endpoint": "https://api.dhan.co/v2/charts/intraday",
+      "method": "POST",
+      "window_start_inclusive": "2026-09-09",
+      "window_end_exclusive": "2026-10-11",
+      "max_response_bytes": 8388608,
+      "max_rows": 12000,
+      "body": {
+        "securityId": "13",
+        "exchangeSegment": "IDX_I",
+        "instrument": "INDEX",
+        "interval": "1",
+        "oi": false,
+        "fromDate": "2026-09-09 09:15:00",
+        "toDate": "2026-10-10 15:30:00"
+      }
+    }
+  ]
+}
