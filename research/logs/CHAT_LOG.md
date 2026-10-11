@@ -1620,3 +1620,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Audit outcome and receipt are still pending verification. No model or strategy work occurred.
 **Developer → Tester:** Independently re-check the 11 exact hashes and inspect the eventual sanitized report/run receipt.
 **Tester → Developer:** Accept only the exact authorized run with a verified metadata report and cleanup confirmation.
+
+
+### 2026-10-11 — User uploaded the pinned repaired composite CSV
+
+- User supplied `nifty_repaired_composite_2021-10_to_2026-10.csv.gz`. Local SHA-256 matches the expected pinned hash; gzip integrity passed.
+- Full streaming scans confirmed 8,999,865 rows, 47 columns, zero row-width mismatches, 8,490,723 OPTION rows and 509,142 SPOT rows; no blank timestamp_epoch or underlying values and no incomplete option/spot key fields under the actual header.
+- The production preflight key-group definitions appear not to match the actual schema names. A full local SQLite uniqueness scan timed out, so duplicate-key status remains unknown. A supplemental report was committed for independent tester review.
+- No modelling, holdout, data-source requests, or strategy/P&L testing was performed.
+**Developer → Tester:** Independently verify the report and determine whether scanner key schema coverage requires REQUEST CHANGES.
+**Tester → Developer:** Keep downstream gates closed and require a complete, schema-compatible duplicate-key assessment before accepting the data-readiness gate.
