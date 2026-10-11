@@ -1558,3 +1558,13 @@ Independent code review identified a schema mismatch: the runner referenced miss
 - Promoted the exact files to main. Export run 38133038676 was created and queued. The workflow creates one merged CSV.GZ, verifies 8,999,865 rows, encrypts it to a one-time public key, uploads ciphertext-only for one day, then cleans runner plaintext.
 - At this checkpoint, no plaintext CSV has yet been produced in the chat workspace; the final file link must wait for workflow completion and local checksum/row validation. The private key remains only in the current local workspace and must be removed after use.
 - No new market-data requests, model/holdout/strategy runs or source edits occurred.
+
+
+### 2026-10-11 — Offline export completed
+- Export run [38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676) succeeded all steps. Source exact-run checks, all 61 encrypted-part hashes, decryption, merge, 8,999,865-row/47-column check, one-time-key encryption, ciphertext-only upload and plaintext cleanup all passed.
+- Artifact [11699299285](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676/artifacts/11699299285) contained ciphertext only, 230,930,593 bytes, one-day retention.
+- Local CSV.GZ: 230,858,600 bytes, SHA-256 `f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5`; gzip integrity PASS. Plain CSV: 4,747,892,392 bytes, SHA-256 `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`; one header + 8,999,865 data rows, 47 columns. Full schema width validated over two adjacent parser-checked segments.
+- Final tester report/decision stored on `phase-07-tester`; verdict `PASS_WITH_SCOPED_RESTRICTIONS`, export only.
+- The first single-invocation local validator timed out before its final summary. This was logged; validation was completed through two consecutive chunks plus exact file hashes, gzip integrity and physical line counts. The temporary RSA private key and intermediary export packages/scripts were removed.
+- Final local manifest: `nifty_repaired_composite_offline_manifest.json`, SHA-256 `ac9736c6c757c9624dc9ddbf8acf1e016faa44dd0e37d76a0a7b340ce3fe6254`.
+- No plaintext dataset was committed to the public repository or uploaded as an Action artifact. No market data requests, prediction fits, holdout access or strategies were run.
