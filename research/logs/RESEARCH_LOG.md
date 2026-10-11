@@ -1114,3 +1114,18 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Independently audit the immutable encrypted artifact/manifest and realized request, byte, row, and join counters when a properly authorized artifact-review mechanism is available; keep the current no-live-request/no-model gate.
 
 **Tester → Developer:** Treat a5437ba as an offline code-gate pass only. Do not promote recovery to complete or authorize data acquisition/model fitting without a separate artifact-level review.
+
+
+## 2026-10-11 — Encrypted recovery artifact metadata audit
+
+- Downloaded artifact 11693866249 from run [38116772719](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719). ZIP SHA-256 matched GitHub's artifact digest: `aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216`.
+- Verified all 57 encrypted monthly parts against manifest byte sizes and SHA-256 hashes; no missing or extra encrypted part. Monthly row counts sum to 8,894,387 = 8,490,723 option + 403,664 spot rows. These checks are metadata/hash integrity, not a decryption/value-level audit.
+- The six failed shards all returned HTTP 200 but exceeded the 12,000-row response cap. Their windows are 2021-10-11–2021-11-19, 2021-11-19–2021-12-28, 2021-12-28–2022-02-05, 2022-02-05–2022-03-16, 2022-03-16–2022-04-24, and 2022-04-24–2022-06-02. Total response bytes for these failures: 6,517,187.
+- The artifact's `downloaded_bytes` counter is 21,731,367, equal to the 41 successful response bodies. Summing all 47 request-result `response_bytes` yields 28,248,554. This confirms undercounting of the six failed payloads; it does not establish that the 256 MiB cap was exceeded. The defect is fixed in the current collector and regression tests pass.
+- Tester-role artifact report: [NIFTY_1M_SPOT_RECOVERY_ARTIFACT_REVIEW.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_RECOVERY_ARTIFACT_REVIEW.md), decision [JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_SPOT_RECOVERY_ARTIFACT_DECISION.json). Decision: `REQUEST_CHANGES` for data completeness. This audit was performed by the tester role in the same connected assistant session, not by a separate human identity or independent AI reviewer.
+- No encrypted CSV was decrypted; the row preservation/value-level claim remains supported by run metadata and encrypted-part hashes, not an independent plaintext re-read. The dataset remains `SPOT_GAPFILL_PARTIAL`; no live requests, fitting/scoring, strategy tests or holdout access are authorized.
+- Next: prepare an offline-only replacement manifest splitting the six failed intervals into smaller disjoint windows and test its coverage/request-budget invariants. The prior one-use authorization is spent; any new live request requires a fresh exact-snapshot tester authorization.
+
+**Developer → Tester:** Review the offline split-manifest proposal for complete coverage, no overlap, request limits, row caps and no option refetch.
+
+**Tester → Developer:** Do not dispatch the proposed shards or begin prediction-model fitting until the exact manifest/code passes its gate and fresh request authorization is explicitly granted.
