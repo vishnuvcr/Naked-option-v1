@@ -35,7 +35,7 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           mkdir -p research/data
           rm -f research/data/DATASET_VALUE_AUDIT_RESULT.json
-          echo "Source: immutable existing Actions artifact run 38116772719 / artifact 11693866249"
+          echo "Source: immutable existing Actions artifact run 38126168547 / artifact 11696937921"
           echo "Scope: decrypt and inspect only; no market-data endpoint calls."
 
       - name: Test decryptor and semantic auditor before artifact access
@@ -53,8 +53,8 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          name: nifty-1m-composite-spot-recovery-38116772719
-          run-id: 38116772719
+          name: nifty-1m-spot-failed-window-patch-38126168547
+          run-id: 38126168547
           repository: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ runner.temp }}/dataset-bundle
@@ -82,18 +82,14 @@ jobs:
           if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
               raise SystemExit("artifact_plaintext_scope_marker_invalid")
           parts = manifest.get("parts")
-          if not isinstance(parts, list) or len(parts) != 57:
+          if not isinstance(parts, list) or len(parts) != 61:
               raise SystemExit("artifact_part_count_mismatch")
           summary = manifest.get("dataset_summary", {})
           expected = {
-              "original_rows_options": 8490723,
               "rows_options": 8490723,
-              "rows_spot": 403664,
-              "spot_join_matched": 7591172,
-              "spot_join_missing": 899551,
-              "gapfill_request_count_planned": 47,
-              "gapfill_request_count_succeeded": 41,
-              "gapfill_request_count_failed": 6,
+              "rows_spot": 509142,
+              "spot_join_matched": 8471702,
+              "spot_join_missing": 19021,
           }
           for key, value in expected.items():
               if summary.get(key) != value:
@@ -123,7 +119,7 @@ jobs:
           actual_names = {p.name for p in encrypted_root.glob("*.csv.gz.enc") if p.is_file()}
           if actual_names != manifest_names:
               raise SystemExit("artifact_part_set_mismatch")
-          if total_rows != 8894387:
+          if total_rows != 8999865:
               raise SystemExit("artifact_manifest_row_sum_mismatch")
           out.mkdir(parents=True, exist_ok=True)
           shutil.copyfile(manifest_path, out / "dataset_manifest.json")
