@@ -1,3 +1,15 @@
+## 2026-10-11 — Gzip scanner R2 and tester pass
+
+- Extended the prospective boundary scanner to detect gzip input, calculate offsets and canonical hash over the decompressed CSV stream, hash the suffix without decoding its rows, and separately record the source-container hash.
+- A hosted test first failed on an incorrectly escaped gzip magic-byte literal; fixed from job logs and verified [run 38153849924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38153849924) passed.
+- Tester R2 approved synthetic-only scope: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_REVIEW_R2_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_IMPLEMENTATION_TESTER_DECISION_R2_2026-10-11.json).
+- The cached dataset remains encrypted; no download/decryption/scan was run. Next is the durable one-use authorization adapter, then separate execution review.
+
+**Developer → Tester:** Review exact adapter hashes after synthetic CI.  
+**Tester → Developer:** No cached-file invocation until execution is separately authorized.
+
+
+
 ## 2026-10-11 — Adapter proposal approved; encrypted artifact format identified
 
 - Tester approved the one-use metadata scan adapter proposal for design only: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_REVIEW_R1_2026-10-11.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_PROPOSAL_TESTER_DECISION_R1_2026-10-11.json).
