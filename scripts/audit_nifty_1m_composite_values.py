@@ -184,6 +184,9 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                     if typ not in {"OPTION", "SPOT"}:
                         invalid["unknown_row_type"] += 1
                         continue
+                    for flag in set(row.get("data_quality_flags", "").split("|")):
+                        if flag:
+                            flag_counts[flag] += 1
 
                     try:
                         epoch_num = _decimal(row.get("timestamp_epoch", ""))
@@ -259,12 +262,8 @@ def audit_dataset(input_dir: pathlib.Path, output_path: pathlib.Path,
                             if val is None:
                                 # Count separately from general missingness to avoid silent feature fill.
                                 missing["option_rows_" + field] += 1
-                        if row.get("option_type", "") not in {"CE", "PE"}:
+                        if row.get("option_type", "") not in {"CALL", "PUT"}:
                             invalid["option_type_invalid"] += 1
-                        if row.get("data_quality_flags", "").strip():
-                            for flag in set(row["data_quality_flags"].split("|")):
-                                if flag:
-                                    flag_counts[flag] += 1
                     else:
                         counts["spot_rows"] += 1
                         _check_ohlc(row, ("nifty_open", "nifty_high", "nifty_low", "nifty_close"),
