@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "auto_repair_attempts": 0,
+  "last_reviewed_developer_commit": "",
+  "last_decision": "NOT_RUN",
+  "last_ai_reviewer_available": false,
+  "live_requests_authorized": false,
+  "model_fitting_authorized": false,
+  "holdout_access_authorized": false
+}
