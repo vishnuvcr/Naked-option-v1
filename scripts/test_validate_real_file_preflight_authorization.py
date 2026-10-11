@@ -34,7 +34,7 @@ class AuthorizationValidationTests(unittest.TestCase):
             approval["real_file_preflight_execution_authorized"] = False
             decision_path.write_text(json.dumps(approval), encoding="utf-8")
             request["tester_decision_blob_sha"] = blob_sha(decision_path)
-            self.assertFalse(evaluate(approval, request, decision_path, ["source.py"])["authorized"])
+            self.assertFalse(evaluate(approval, request, decision_path, [str(source)])["authorized"])
 
     def test_stale_file_hash_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
