@@ -11,6 +11,11 @@ on:
       - 'scripts/test_validate_real_file_preflight_authorization.py'
       - 'scripts/check_workflow_action_pinning.py'
       - 'scripts/test_workflow_action_pinning.py'
+      - 'scripts/publish_preflight_receipt.py'
+      - 'scripts/test_publish_preflight_receipt.py'
+      - 'scripts/test_receipt_workflow_policy.py'
+      - '.github/workflows/phase-07-publish-preflight-receipt.yml'
+      - '.github/workflows/phase-07-receipt-publisher-tests.yml'
       - 'research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json'
   workflow_dispatch:
 
@@ -53,7 +58,7 @@ jobs:
       - name: Run synthetic regression suites
         env:
           PYTHONPATH: scripts
-        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_offline_dataset_actual_schema.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py
+        run: python -m unittest -v scripts/test_offline_dataset_preflight.py scripts/test_offline_dataset_actual_schema.py scripts/test_workflow_action_pinning.py scripts/test_validate_real_file_preflight_authorization.py scripts/test_publish_preflight_receipt.py scripts/test_receipt_workflow_policy.py
       - name: Confirm no dataset plaintext is staged
         run: |
           test ! -e nifty_repaired_composite_2021-10_to_2026-10.csv
@@ -84,7 +89,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/validate_real_file_preflight_authorization.py \
-            --decision tester-review/research/gates/REAL_FILE_PREFLIGHT_SCHEMA_FIX_TESTER_DECISION_2026-10-11.json \
+            --decision tester-review/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R4_2026-10-11.json \
             --request research/gates/REAL_FILE_PREFLIGHT_EXECUTION_REQUEST.json \
             --reviewed-files \
               .github/workflows/phase-07-real-file-preflight-audit.yml \
@@ -96,6 +101,11 @@ jobs:
               scripts/test_validate_real_file_preflight_authorization.py \
               scripts/check_workflow_action_pinning.py \
               scripts/test_workflow_action_pinning.py \
+              scripts/publish_preflight_receipt.py \
+              scripts/test_publish_preflight_receipt.py \
+              scripts/test_receipt_workflow_policy.py \
+              .github/workflows/phase-07-publish-preflight-receipt.yml \
+              .github/workflows/phase-07-receipt-publisher-tests.yml \
               scripts/decrypt_nifty_1m_composite.py \
               requirements-composite.txt \
               research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json \
