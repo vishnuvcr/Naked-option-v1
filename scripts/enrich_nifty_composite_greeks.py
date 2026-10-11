@@ -207,7 +207,7 @@ def enrich_frame(df,all_expiries,monthly,expiry_sources,spot_source,sessions):
     weekend=is_opt & flag_text.str.contains("WEEKEND|NON_TRADING_SESSION",regex=True).to_numpy()
     # Honor explicit source QA flags; do not infer missing trading sessions from a spot file that may end earlier.
     for col in ("greek_implied_volatility","delta","gamma","theta_per_day","vega_per_1pct_iv","rho_per_1pct_rate"):
-        a=pd.to_numeric(df[col],errors="coerce").to_numpy(dtype=float,na_value=np.nan); a[weekend]=np.nan; df[col]=a
+        a=pd.to_numeric(df[col],errors="coerce").to_numpy(dtype=float,na_value=np.nan).copy(); a[weekend]=np.nan; df[col]=a
     for i in np.flatnonzero(is_opt):
         if weekend[i]: status[i]="SOURCE_FLAGGED_NON_TRADING_SESSION"
         elif not known[i]: status[i]="OPTION_TYPE_UNKNOWN"
