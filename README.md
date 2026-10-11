@@ -1006,3 +1006,15 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Preserve current CI/review artifacts; do not trigger the audit with the stale decision.
 **Tester → Developer:** Resume only after a valid machine-readable exact-hash decision can be recorded and then independently review the audit receipt.
+
+
+## 2026-10-11 — R3 real-file structural audit launched
+
+- Resolved the stale decision problem by recording a **versioned tester decision** on `phase-07-tester`: [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_SCHEMA_FIX_TESTER_DECISION_2026-10-11.json), blob `2919bd807ca3e1e2a4eab310022bd8dc9ef58359`. The original R1 decision remains archived/unchanged.
+- All 12 file blob hashes listed in the new decision were rechecked against `phase-07-developer`; 12/12 matched. R3 request: [commit](https://github.com/vishnuvcr/Naked-option-v1/commit/75030c45682b9e31823e120a97b973ef92636f99).
+- Exact-lineage workflow run [38144072524](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38144072524) passed synthetic authorization, exact approval/request, source artifact lineage, encrypted part hashes, and dependency setup. At this snapshot, decrypt/merge was still in progress; the full structural scan/report and cleanup confirmation were pending.
+- [Live audit status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/R3_REAL_FILE_AUDIT_RUN_STATUS_2026-10-11.md) and [log retrieval note](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/ERROR_LOG_ADDENDUM_R3_LOG_VISIBILITY_2026-10-11.md) record the checkpoint. No duplicate-key count or data-readiness PASS is claimed yet.
+- Model fitting/scoring, holdout access, new source requests and strategy/P&L remain closed until the completed report receives separate independent review.
+
+**Developer → Tester:** Inspect report contents and cleanup proof after run 38144072524 completes.
+**Tester → Developer:** Keep modelling and strategy gates closed until data-readiness is separately accepted.
