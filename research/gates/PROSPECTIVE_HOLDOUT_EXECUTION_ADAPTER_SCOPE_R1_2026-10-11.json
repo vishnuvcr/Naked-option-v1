@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "gate_id": "PROSPECTIVE_HOLDOUT_EXECUTION_ADAPTER_R1",
+  "date": "2026-10-11",
+  "verdict_requested": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "scope": "design-only for one-use authorization adapter and workflow",
+  "allowed_future_scope": "one metadata-only prospective boundary scan of the already-cached composite after a separate execution decision",
+  "prohibited_scope": [
+    "price/quote/feature/Greek/sentiment/label value access",
+    "model fitting",
+    "model tuning",
+    "prediction scoring",
+    "new source requests",
+    "strategy P&L",
+    "trading"
+  ],
+  "one_use": {
+    "nonce_required": true,
+    "durable_marker_branch": "phase-07-developer",
+    "marker_before_file_open": true,
+    "attempt_must_equal": 1,
+    "consumed_on_failure": true
+  },
+  "required_hashes": [
+    "developer_commit",
+    "scanner_blob",
+    "test_blob",
+    "schema_blob",
+    "workflow_blob",
+    "dataset_sha256",
+    "input_manifest_sha256",
+    "calendar_manifest_sha256"
+  ],
+  "output_allowlist": [
+    "sanitized boundary manifest",
+    "sanitized error code and byte offset",
+    "consumed authorization marker"
+  ],
+  "implementation_authorized": false,
+  "cached_file_scan_authorized": false,
+  "next_step": "Tester reviews design only; after design pass, implement synthetic-only adapter and submit exact hashes for implementation review."
+}
