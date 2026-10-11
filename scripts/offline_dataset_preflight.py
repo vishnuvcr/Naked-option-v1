@@ -22,9 +22,13 @@ EXPECTED_UNCOMPRESSED_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6
 TIMESTAMP_NAMES = ("timestamp_epoch", "timestamp", "datetime", "date_time", "timestamp_ist")
 ROWTYPE_NAMES = ("row_type", "instrument_type", "record_type", "data_type")
 KEY_GROUPS = (
-    # Canonical groups for the actual repaired composite CSV schema.
-    ("timestamp_epoch", "row_type", "underlying", "expiry_code", "returned_strike", "option_type"),
-    ("timestamp_epoch", "row_type", "underlying"),
+    # Canonical OPTION request identity used by the dataset collector, auditor,
+    # and repaired-dataset validator. Do not substitute the returned strike for
+    # requested_relative_strike or omit the source request identity.
+    ("timestamp_epoch", "row_type", "source_request_id", "expiry_flag", "expiry_code",
+     "requested_relative_strike", "option_type"),
+    # SPOT epoch uniqueness is checked independently, mirroring the production validator.
+    ("timestamp_epoch",),
     # Compatibility groups retained for older/synthetic schemas.
     ("timestamp_epoch", "instrument_type", "symbol", "expiry", "strike", "option_type"),
     ("timestamp_epoch", "row_type", "symbol", "expiry", "strike", "option_type"),
@@ -159,8 +163,8 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         timestamp_max = normalized if timestamp_max is None else max(timestamp_max, normalized)
 
                 if key_cols and db is not None:
-                    # Select the first usable key schema per row. For example, spot rows
-                    # may lack option expiry/strike/type but still have a security_id key.
+                    # Select a type-specific identity on the repaired composite schema:
+                    # official request identity for OPTION rows, timestamp uniqueness for SPOT.
                     selected_key = None
                     for group_number, (group_names, column_indexes) in enumerate(key_cols):
                         # On the repaired schema, OPTION and SPOT rows must use their
@@ -168,9 +172,9 @@ def run(path: Path, report_path: Path, expected_sha: str,
                         # back to the shorter SPOT key.
                         if rowtype_col is not None and header[rowtype_col].strip().lower() == "row_type":
                             row_kind = row[rowtype_col].strip().upper()
-                            if row_kind == "OPTION" and "expiry_code" not in group_names:
+                            if row_kind == "OPTION" and "source_request_id" not in group_names:
                                 continue
-                            if row_kind == "SPOT" and tuple(group_names) != ("timestamp_epoch", "row_type", "underlying"):
+                            if row_kind == "SPOT" and tuple(group_names) != ("timestamp_epoch",):
                                 continue
                         candidate_values = []
                         complete = True
