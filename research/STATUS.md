@@ -382,3 +382,14 @@ The developer's one-use approval was consumed before the first request. [Guarded
 
 **Tester → Developer:** Update main README and developer logs, then submit an exact-snapshot data/model-readiness proposal with deterministic target, missingness, session and leakage checks.
 **Developer → Tester:** Review that proposal and tests before authorizing any prediction fitting or holdout access.
+
+
+## 2026-10-11 — Modeling-readiness proposal design reviewed
+- Tester report: [MODELING_READINESS_PROPOSAL_TESTER_REVIEW_R5_2026-10-11.md](gates/MODELING_READINESS_PROPOSAL_TESTER_REVIEW_R5_2026-10-11.md), verdict **PASS WITH SCOPED RESTRICTIONS — proposal/design only**.
+- Machine decision: [MODELING_READINESS_PROPOSAL_TESTER_DECISION_R5_2026-10-11.json](gates/MODELING_READINESS_PROPOSAL_TESTER_DECISION_R5_2026-10-11.json).
+- Exact developer blobs reviewed: proposal f3b04eec5097dffedd0a1418de1a8673a7756bd9; scope JSON 741cd5870107a52e8f20dc83b6ba83761ac71a2e.
+- Allowed next step is a deterministic metadata-only feasibility scanner/report schema plus synthetic tests. No real-file execution, source pulls, fitting/tuning/scoring, holdout, strategy/P&L or trading permission granted.
+- Current PPR target contract remains PROPOSED_NOT_AUTHORIZED, and upstream literature/protocol/data gates remain unchanged.
+
+**Tester → Developer:** Implement offline feasibility checks and synthetic tests; submit exact hashes for a fresh implementation review.
+**Developer → Tester:** Do not authorize a real-file audit or model execution until exact-snapshot code review passes.
