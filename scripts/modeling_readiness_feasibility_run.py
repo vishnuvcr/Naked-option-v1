@@ -324,6 +324,8 @@ def sanitize_report(report: Mapping[str, Any], schema: Mapping[str, Any]) -> dic
     for horizon, values in targets.items():
         if values.get("eligible_origins") != values.get("down_count", 0) + values.get("flat_count", 0) + values.get("up_count", 0):
             raise ValueError("REPORT_TARGET_COUNTS_MISMATCH")
+        if values.get("eligible_origins") != values.get("train_eligible_origins", 0) + values.get("validation_eligible_origins", 0):
+            raise ValueError("REPORT_SPLIT_TARGET_COUNTS_MISMATCH")
     for family, values in report.get("feature_families", {}).items():
         possible = values.get("possible_cells", 0)
         nonblank = values.get("nonblank_cells", 0)
@@ -579,9 +581,11 @@ def build_blocked_report(input_manifest: Mapping[str, Any], reason: str) -> dict
         "invalid_ohlc_rows": 0, "off_calendar_rows": 0, "duplicate_spot_epoch_rows": 0,
         "unmatched_option_rows": 0, "weekend_review_rows": 0,
         "target_horizons": {str(h): {"status": target_status, "eligible_origins": 0,
-                          "excluded_missing_endpoint": 0, "down_count": 0, "flat_count": 0, "up_count": 0}
+                          "excluded_missing_endpoint": 0, "down_count": 0, "flat_count": 0, "up_count": 0,
+                          "train_eligible_origins": 0, "validation_eligible_origins": 0}
                             for h in HORIZONS},
         "feature_families": {}, "train_session_count": 0, "validation_session_count": 0,
+        "min_train_eligible_origins": 0, "common_validation_origins": 0,
         "session_status": "NOT_ESTIMABLE", "split_status": split_status,
         "source_manifest_sha256": "", "calendar_manifest_sha256": "", "split_manifest_sha256": "",
         "block_reason": reason, "cleanup_status": "NOT_RUN", "gate_status": gate_status,
