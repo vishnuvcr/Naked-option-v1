@@ -1493,3 +1493,7 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 - Generic auto-recovery run [38125709072](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125709072) rejected a stale tester decision because it did not bind the exact current developer snapshot. It skipped both source-request jobs, so no additional Dhan calls occurred.
 - Dedicated R2 patch workflow [38125708986](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125708986) passed its exact-SHA gate but skipped patch execution because the new patch decision was not yet present. No R2 calls occurred.
 - Next reviewer decision must bind the final developer SHA, proposal SHA `8f24ee75490d4e8f9e9759b569d9a4d4e10e0c19`, and controller workflow blob SHA `4b7c20d9272d512cdd00e36a78a1d658e2f835c2`.
+
+
+### 2026-10-11 — Patch runner manifest mismatch corrected before execution
+Independent code review identified a schema mismatch: the runner referenced missing top-level `expected_existing_spot_rows` rather than the existing `base_partial_artifact.existing_spot_rows` field. Corrected this before any R2 source requests and added a regression assertion. This was a fail-before-network defect; no data changed. The new exact developer commit must pass offline checks and tester review.

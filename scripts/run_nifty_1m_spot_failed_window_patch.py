@@ -104,7 +104,7 @@ def execute_patch(args: argparse.Namespace) -> int:
 
     source_dir = args.source_dir.resolve()
     plain_dir = args.plain_dir.resolve()
-    base_spot_rows = int(proposal["expected_existing_spot_rows"])
+    base_spot_rows = int(base["existing_spot_rows"])
     if base_spot_rows != BASE_SPOT_ROWS:
         raise ValueError("proposal_expected_spot_rows_mismatch")
     preflight = gapfill.preflight(

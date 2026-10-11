@@ -65,6 +65,13 @@ class TestFailedWindowPatchProposal(unittest.TestCase):
         errors = validator.validate_authorization(self.proposal, sha, "d" * 40, workflow_sha, decision)
         self.assertIn("tester_developer_sha_mismatch", errors)
 
+    def test_runner_reads_existing_spot_count_from_pinned_artifact_manifest(self):
+        runner_path = pathlib.Path(__file__).resolve().parent / "run_nifty_1m_spot_failed_window_patch.py"
+        source = runner_path.read_text(encoding="utf-8")
+        self.assertIn('base_spot_rows = int(base["existing_spot_rows"])', source)
+        self.assertNotIn('proposal["expected_existing_spot_rows"]', source)
+        self.assertEqual(self.proposal["base_partial_artifact"]["existing_spot_rows"], 506_898)
+
     def test_scope_does_not_authorize_models_or_options(self):
         sha, dev, wf = "a" * 40, "b" * 40, "c" * 40
         decision = {

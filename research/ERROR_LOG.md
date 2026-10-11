@@ -1210,3 +1210,10 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - The dedicated R2 patch gate [38125708986](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125708986) also skipped the patch job because `NIFTY_1M_SPOT_FAILED_WINDOW_PATCH_DECISION.json` was absent at that time. This is intentional fail-closed behavior; it did not trigger live calls.
 - Corrected offline test run [38125766065](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766065) passed after isolating the pre-existing spent-marker test to a nonexistent temporary marker path. Research Protocol Check [38125766215](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38125766215) also passed. No R2 requests were made.
 - Continue only through a fresh exact-snapshot tester decision for the separate seven-request patch; do not reuse generic or R1 authorization.
+
+
+## 2026-10-11 — R2 runner would fail preflight due to proposal key mismatch
+- **Bug:** `run_nifty_1m_spot_failed_window_patch.py` read `proposal["expected_existing_spot_rows"]`; the proposal schema has no such key. The authoritative value is `proposal["base_partial_artifact"]["existing_spot_rows"] == 506898`.
+- **Impact:** would raise KeyError before preflight or any Dhan source request; no market values or rows were changed. No R2 source request has been made.
+- **Fix:** read the existing spot count from the pinned base-artifact object and add an offline regression test to prevent repeating the mismatch.
+- **Gate:** rerun the entire offline suite; tester must review the new exact commit and workflow/proposal hashes before authorizing the seven calls.
