@@ -229,6 +229,22 @@ def _nullable_number(value: Any) -> float | None:
 
 
 def parse_spot_response(payload: dict[str, Any], request: dict[str, Any]) -> tuple[list[dict[str, Any]], list[str]]:
+    # Dhan documents volume for intraday candles, but an index response may
+    # omit it or return an array that does not align with timestamps. Preserve
+    # the raw response unchanged; degrade only this derived volume column to
+    # blank, and flag every affected OHLC row. Timestamp and OHLC arrays remain
+    # mandatory, type-checked, and exactly aligned.
+    payload = dict(payload)
+    timestamp_hint = payload.get("timestamp")
+    volume_hint = payload.get("volume")
+    volume_unusable = (
+        isinstance(timestamp_hint, list)
+        and len(timestamp_hint) > 0
+        and (not isinstance(volume_hint, list) or len(volume_hint) != len(timestamp_hint))
+    )
+    if volume_unusable:
+        payload["volume"] = [None] * len(timestamp_hint)
+
     timestamps, arrays = _array_set(payload, ["timestamp", "open", "high", "low", "close", "volume"])
     if len(timestamps) > int(request.get("max_rows", 0)):
         raise ValueError("response_row_cap_exceeded")
@@ -237,7 +253,7 @@ def parse_spot_response(payload: dict[str, Any], request: dict[str, Any]) -> tup
     from_time = dt.time.fromisoformat(request["body"]["fromDate"].split(" ", 1)[1])
     to_time = dt.time.fromisoformat(request["body"]["toDate"].split(" ", 1)[1])
     rows = []
-    problems = []
+    problems = ["spot_volume_missing_or_misaligned"] if volume_unusable else []
     seen = set()
     for i, epoch in sorted(enumerate(timestamps), key=lambda it: (it[1], it[0])):
         ist = dt.datetime.fromtimestamp(epoch, tz=UTC).astimezone(IST)
@@ -248,6 +264,8 @@ def parse_spot_response(payload: dict[str, Any], request: dict[str, Any]) -> tup
         if ist.date() == dt.date.fromisoformat(request["window_end_exclusive"]) - dt.timedelta(days=1) and ist.time().replace(tzinfo=None) > to_time:
             raise ValueError("spot_timestamp_after_requested_end_time")
         flags = []
+        if volume_unusable:
+            flags.append("SPOT_VOLUME_MISSING_OR_MISALIGNED")
         if epoch in seen:
             flags.append("DUPLICATE_TIMESTAMP_IN_PROVIDER_RESPONSE")
             problems.append("duplicate_timestamp")

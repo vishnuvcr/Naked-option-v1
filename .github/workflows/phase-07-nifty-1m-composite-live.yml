@@ -132,7 +132,7 @@ jobs:
           path: |
             data/cache/nifty_1m_composite/raw
             data/reports/nifty_1m_composite
-          key: nifty1m-composite-__RUN_ID__
+          key: nifty1m-composite-${{ github.run_id }}
 
       - name: Seal completion/partial status
         if: always() && steps.spend.outcome == 'success'

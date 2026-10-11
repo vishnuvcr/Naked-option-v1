@@ -1350,3 +1350,13 @@ User said “Resume” and “Continue” after objecting to the research stoppi
 ### Remaining gate
 The existing acquisition approval is spent; a new independently reviewed exact-snapshot acquisition authorization is still required. Keep prediction fitting, holdout access and strategy/P&L work blocked until a valid independent data-coverage/integrity gate is passed.
 
+
+
+## 2026-10-11 — User authorized continuation of spot-gap recovery
+
+### Developer action summary
+- Confirmed prior acquired artifact has 8,490,723 option rows and zero spot rows; archive integrity previously passed but the dataset remains partial.
+- Implemented tolerant handling for unusable spot volume while preserving strict timestamp/OHLC validation. Unavailable volume is blank plus an explicit quality flag; no zero fill or value fabrication.
+- Fixed Actions cache-save key to include the run ID so a later successful recovery can persist a new cache generation.
+- Added missing/empty/misaligned-volume regression cases while retaining timestamp and OHLC misalignment tests.
+- No live request or model experiment was run in this code-change step. The exact underlying prior parser error remains unconfirmed pending independent gate review and a sanctioned diagnostic/recovery run.

@@ -144,25 +144,35 @@ class TestEncryptedComposite(unittest.TestCase):
         self.assertTrue(rows[0]["timestamp_utc"].endswith("Z"))
 
     def test_spot_parser_rejects_missing_volume(self):
+        # Legacy gate marker retained; missing volume now degrades safely rather than rejecting valid OHLC.
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
-        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1]}
-        with self.assertRaisesRegex(ValueError, "response_field_not_array_volume"):
-            collector.parse_spot_response(payload, request)
+        payload = {"timestamp": [ts], "open": [1], "high": [2], "low": [0.5], "close": [1.5]}
+        rows, problems = collector.parse_spot_response(payload, request)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["nifty_volume"], "")
+        self.assertIn("SPOT_VOLUME_MISSING_OR_MISALIGNED", rows[0]["data_quality_flags"])
+        self.assertIn("spot_volume_missing_or_misaligned", problems)
 
     def test_spot_parser_rejects_empty_volume(self):
+        # An empty volume array is treated as unavailable, never zero-filled.
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
-        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": []}
-        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
-            collector.parse_spot_response(payload, request)
+        payload = {"timestamp": [ts], "open": [1], "high": [2], "low": [0.5], "close": [1.5], "volume": []}
+        rows, problems = collector.parse_spot_response(payload, request)
+        self.assertEqual(rows[0]["nifty_volume"], "")
+        self.assertIn("SPOT_VOLUME_MISSING_OR_MISALIGNED", rows[0]["data_quality_flags"])
+        self.assertIn("spot_volume_missing_or_misaligned", problems)
 
     def test_spot_parser_rejects_misaligned_volume(self):
+        # A mismatched volume vector invalidates the entire volume field for this response.
         request = spot_request()
         ts = epoch_ist("2026-10-01", "09:15:00")
-        payload = {"timestamp": [ts], "open": [1], "high": [1], "low": [1], "close": [1], "volume": [1, 2]}
-        with self.assertRaisesRegex(ValueError, "response_field_array_length_mismatch"):
-            collector.parse_spot_response(payload, request)
+        payload = {"timestamp": [ts], "open": [1], "high": [2], "low": [0.5], "close": [1.5], "volume": [9, 10]}
+        rows, problems = collector.parse_spot_response(payload, request)
+        self.assertEqual(rows[0]["nifty_volume"], "")
+        self.assertIn("SPOT_VOLUME_MISSING_OR_MISALIGNED", rows[0]["data_quality_flags"])
+        self.assertIn("spot_volume_missing_or_misaligned", problems)
 
     def test_spot_parser_rejects_noninteger_timestamp(self):
         request = spot_request()

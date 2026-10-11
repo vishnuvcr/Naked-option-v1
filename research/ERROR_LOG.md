@@ -1,5 +1,14 @@
 # Error Log
 
+## 2026-10-11 — Spot-response gap recovery hardening
+- Category: data acquisition / parser resilience
+- Component: `scripts/run_nifty_1m_composite_dataset.py::parse_spot_response`
+- Observed incident: previous Dhan acquisition recorded `unexpected_ValueError` for all 61 NIFTY spot request windows; exact ValueError reason was not retained. The root cause is not established.
+- Change: missing, empty or length-mismatched volume is now treated as unavailable volume only; OHLC and timestamps remain mandatory and aligned. Every affected row receives `SPOT_VOLUME_MISSING_OR_MISALIGNED`; the volume cell remains blank, not zero. Input payload/raw cache bytes are not rewritten.
+- Regression coverage: absent/empty/misaligned volume plus noninteger timestamps and independently misaligned OHLC arrays.
+- Related durability correction: cache-save key now uses the unique GitHub Actions run ID instead of a literal placeholder.
+- Disposition: code update submitted for independent offline review; no source calls made. Do not claim the data is recovered until the guarded acquisition confirms spot rows and exact-timestamp joins.
+
 ## 2026-10-07 — Phase 6 Run 37668947725
 - Category: implementation/runtime
 - Component: scripts/run_phase6_novel.py intraday cutoff construction

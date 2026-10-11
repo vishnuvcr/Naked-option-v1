@@ -1,5 +1,12 @@
 # Paper-method replication checkpoint — 2026-10-10
 
+## Spot-gap recovery correction — 2026-10-11
+
+- Implementation update: the spot parser now keeps timestamp/OHLC fields strictly validated while treating absent, empty, or length-mismatched volume as unavailable. It emits blank volume plus `SPOT_VOLUME_MISSING_OR_MISALIGNED`; it never imputes zero. Raw response bytes remain unmodified.
+- Recovery durability: fixed the Actions cache-save key to include `github.run_id`, so follow-up runs can save a fresh cache generation rather than collide with a literal placeholder key.
+- Regression cases now cover missing, empty and misaligned volume while retaining strict OHLC/timestamp mismatch tests.
+- Execution state: code-only change. No live Dhan request, full recovery, model fit or prediction/strategy test has run in this step. The underlying reason for the prior 61 spot parser failures remains unconfirmed until a sanctioned diagnostic/recovery run logs sanitized reason tokens.
+
 **Current phase state (2026-10-11): PPR-1, PPR-2 and PPR-3 passed with scoped restrictions. PPR-4's source-inventory snapshot historically reported no existing holdout manifest; the prospective 252-session/10-session-tail design is approved as design only. The user has accepted Dhan output as provided and waived further external price-value cross-checking. New bulk acquisition still awaits exact-snapshot tester review. Missing data is not a reason to stop the overall research: source failures trigger free-source fallbacks, lineage-preserving composites, or feature-family-specific NOT_ESTIMABLE results while unrelated work continues. This policy update does not claim a new download or model run.**
 
 ## User-directed Dhan acceptance and no-source-stop policy — 2026-10-11
