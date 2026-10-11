@@ -42,5 +42,22 @@ class ActualCompositeSchemaTests(unittest.TestCase):
             self.assertEqual(report["incomplete_composite_key_rows"], 1)
 
 
+    def test_option_key_canonicalizes_strike_and_case_fields(self):
+        with tempfile.TemporaryDirectory() as td:
+            header = ["timestamp_epoch", "row_type", "underlying", "expiry_code", "returned_strike", "option_type"] + [f"c{i}" for i in range(41)]
+            row_a = ["1700000000", "OPTION", "NIFTY", "2026-10-29", "25000", "CE"] + [""] * 41
+            row_b = ["1700000000.0", "option", "nifty", "2026-10-29", "25000.0", "ce"] + [""] * 41
+            path = Path(td) / "canonical-key.csv.gz"
+            with gzip.open(path, "wt", encoding="utf-8", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(header)
+                writer.writerows([row_a, row_b])
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            report = run(path, Path(td) / "report.json", digest, 2, 47)
+            self.assertEqual(report["duplicate_key_count"], 1)
+            self.assertEqual(report["status"], "PREFLIGHT_FAIL_DUPLICATE_KEYS")
+            self.assertEqual(report["incomplete_composite_key_rows"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()
