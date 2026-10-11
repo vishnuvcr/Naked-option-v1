@@ -1,9 +1,9 @@
 {
-  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R4",
-  "requested": false,
-  "tester_decision_blob_sha": "1ff485037ca359cffc7750ff6f96b51afa2b74d2",
-  "reviewed_developer_sha": "current triggering commit; authorization binds all 17 exact runtime and publisher file blobs listed in the tester decision",
-  "scope": "single exact-lineage structural preflight; validate uncompressed CSV content SHA; sanitized metadata report only; no modelling",
+  "request_id": "REAL_FILE_PREFLIGHT_2026-10-11_R5",
+  "requested": true,
+  "tester_decision_blob_sha": "cdc253e72058030c144d91da78400b6299b104e3",
+  "reviewed_developer_sha": "current triggering commit; authorization binds all 17 reviewed runtime and publisher file blobs",
+  "scope": "single exact-lineage structural preflight using official canonical OPTION request identity and separate SPOT epoch uniqueness; decoded CSV content SHA validated; sanitized metadata only; no modelling",
   "reviewed_file_hashes_verified_at_request": true,
-  "note": "R4 single-use request consumed by run 38146429502. The raw decoded content SHA matched, but the preflight duplicate count is rejected by the tester because the key differs from the repository's established canonical identity. This request is marked spent; canonical row-key correction and fresh R5 tester authorization are required."
+  "note": "R5 supersedes consumed R4. The prior R4 decoded content SHA matched, but its duplicate-key count is rejected because its key schema omitted canonical request identity fields and used returned_strike. All 17 reviewed file blob hashes were independently rechecked immediately before this request. Expected uncompressed byte count remains unpinned because no authoritative reference exists."
 }
