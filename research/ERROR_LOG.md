@@ -1178,3 +1178,11 @@ All entries below are test/integration failures only. None made a Dhan request, 
 - Prevention: do not infer approval from a comment alone; bind each tester report to an exact developer commit and read the tester-owned report/decision files. If AI inference is unavailable, retain only deterministic offline-gate scope and keep all live/scientific gates closed.
 - Impact: no market-data request, model fit, strategy test or holdout access was triggered by this workflow correction.
 
+
+
+## 2026-10-11 — Dhan spot split recovery held for fresh exact-snapshot authorization
+- Category: governance gate / acquisition authorization.
+- Scope: retry only the six failed spot windows identified in the artifact review; proposal uses 34 shards, at most 7 calendar days, 4,000 rows and 8 MiB per response, one attempt per request, no retries.
+- Prior state: the existing tester decision NIFTY_1M_SPOT_GAPFILL_SPLIT_PROPOSAL_DECISION.json authorizes offline proposal/design review only and explicitly sets live_requests_authorized=false. The earlier one-use acquisition approval is marked SPENT and cannot be reused.
+- Impact: no source request is made until the tester report/decision binds the new developer commit and exact proposal blob hash and expressly authorizes only the 34-request spot scope. Existing dataset remains partial; 899,551 option rows are still reported without an exact spot join at the last audited checkpoint.
+- Disposition: prepare exact-snapshot developer submission; tester branch must independently review code/test/workflow blob hashes and the immutable base artifact/row-preservation contract. Do not bypass or broaden the gate. No model/holdout/strategy permission is implied.

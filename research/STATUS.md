@@ -1,3 +1,13 @@
+## User-requested Dhan spot-gap recovery — 2026-10-11
+
+- **Requested action:** recover the six previously failed NIFTY 1-minute spot windows from Dhan and join genuine returned spot bars to the existing option panel by exact epoch timestamp.
+- **Current stage:** developer handoff is being submitted for a fresh exact-snapshot tester decision. The previous split proposal decision only approved offline design; the previous one-use bulk-acquisition approval is spent and is not reusable. No new Dhan request has been made by this step.
+- **Bounded scope:** 34 disjoint shards spanning 2021-10-11 through 2022-06-02; max 7 calendar days, 4,000 rows, 8 MiB per response, one attempt per shard and zero retry budget. Source is spot-only POST /v2/charts/intraday for NIFTY (securityId=13, IDX_I, INDEX, interval 1 minute). No option endpoint is in scope.
+- **Immutable base:** encrypted artifact 11693866249, SHA-256 aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216; preserve all 8,490,723 option rows and all 403,664 already recovered spot rows. Do not edit any original response. Output/cache must remain encrypted and public logs must not contain raw prices or credentials.
+- **Acceptance:** only real Dhan-returned observations may be added. Join on exact timestamp_epoch; missing prices remain missing and quality-flagged. Keep response hashes and request lineage. Internal timestamp/field alignment and OHLC checks remain mandatory, even though external provider-value reconciliation was waived by the user.
+- **Gates still closed:** no model fitting/scoring, holdout access, strategy/P&L testing, or promotion to a clean prediction dataset until the recovery result and exact joins are independently reviewed. The value-level audit remains FAIL and is not repaired by this handoff.
+- **Next transition:** review the exact developer commit and fixed request scope on phase-07-tester; the split-recovery workflow can issue requests only if the new decision explicitly authorizes exactly 34 spot requests, zero retries, and no options/model/holdout/strategy permissions.
+
 # Paper-method replication checkpoint — 2026-10-10
 
 ## Tester checkpoint after spot-gap patch — 2026-10-11

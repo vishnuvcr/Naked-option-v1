@@ -1452,3 +1452,15 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 
 **Developer → Tester:** Review the completed value-level report and temp-cleanup proof once published.
 **Tester → Developer:** Keep all modeling gates closed until the value-level verdict and its separate empirical gate are accepted.
+
+
+### 2026-10-11 — User requested Dhan spot-value recovery
+
+- User instruction: access Dhan API to obtain genuine historical NIFTY spot values for missing exact-timestamp joins.
+- Repository checkpoint: six prior gapfill requests failed the response-row cap; last accepted partial encrypted artifact is 11693866249 with SHA-256 aff6e392df65e7dc5995cf1188af77815edb8ec02a84bc2d64156a9bb5c83216. It contains 8,490,723 option rows and 403,664 recovered spot rows; last audit reported 899,551 option rows without an exact spot join.
+- Decision summary: reuse only the dedicated 34-shard, spot-only proposal. Request budget is 34 wire requests maximum, 0 retries, 4,000 rows / 8 MiB per response and a maximum 7-calendar-day window. Preserve original option values and existing spot rows; add only source-returned observations with source lineage; join by exact timestamp.
+- Gate status at log time: prior tester decision is offline-only and prior one-use approval is spent. A fresh exact-snapshot tester decision is required before live Dhan requests. No new request or model fit is claimed by this log entry.
+- Data-safety boundary: no secrets, raw price values, or hidden internal reasoning are logged here. Model fitting/scoring, holdout access, and strategy/P&L tests remain unauthorized.
+
+**Developer → Tester:** Review the exact developer snapshot and the pinned code/test/workflow artifacts; if passing, authorize only the 34 spot requests, 0 retries, and immutable base-artifact preservation described in the submission. Reject any broader scope.
+**Tester → Developer:** Verify exact SHAs, one-attempt behavior, no option endpoint, artifact hash/row-preservation checks, encrypted-only artifacts, cleanup, and unchanged model/holdout/strategy restrictions before publishing the decision.
