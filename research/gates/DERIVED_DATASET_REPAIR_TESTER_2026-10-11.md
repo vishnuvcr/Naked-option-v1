@@ -1,17 +1,17 @@
 # Tester Report — Derived Dataset Repair Pipeline
 
 - Review date: 2026-10-11 UTC
-- Exact developer commit reviewed: `b1cb16e38e8c510412d1329f63eb70a2f76058e5`
-- Offline pipeline suite: [38129565390](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129565390) — success
-- Protocol check: [38129565580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129565580) — success
+- Exact developer commit reviewed: `362b6ac4ff4c556def94282a19038c71cbc6a2a0`
+- Offline pipeline suite: [38130054709](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130054709) — success
+- Protocol check: [38130054774](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130054774) — success
 - Reviewer independence caveat: this tester-role review is in the same connected assistant session, not a separate human or independent AI reviewer.
 
 ## Exact files reviewed
 
 | File | Blob SHA |
 |---|---|
-| `scripts/repair_nifty_1m_composite_values.py` | `088f2f2ef231c62d38fc8e043983baab278bf6a1` |
-| `scripts/test_repair_nifty_1m_composite_values.py` | `7feec4ab65a82d202192ff7f83453d898ee27037` |
+| `scripts/repair_nifty_1m_composite_values.py` | `5c45126a90b85f661aa908ac311481b0eb27e41c` |
+| `scripts/test_repair_nifty_1m_composite_values.py` | `d1a4a535380f5cebbd90f4c25754a8748cc7fb7e` |
 | `.github/workflows/phase-07-nifty-1m-composite-tests.yml` | `43219ac101bd8965a7cd55441b5820ba11a6e7d0` |
 
 ## Review findings
@@ -24,6 +24,16 @@
 6. **Encryption — PASS BY CODE REVIEW.** Derived monthly gzip parts are encrypted using the repository's existing AES-GCM format and key derivation. Only the encrypted parts, manifest, and sanitized aggregate report should be published.
 7. **Synthetic regression tests — PASS.** Four tests cover exact-epoch reconciliation, masking invalid spot OHLC/volume, negative option volume masking, unmatched row preservation, encrypted-output readability and input/output path separation.
 8. **Remaining operational gate — NOT YET PASSED.** This report does not establish the latest artifact's provenance distribution or actual derived-output counts. The hosted repair workflow must run against the exact approved artifact, verify hashes and row counts, remove plaintext, and publish its aggregate report. A new tester review must check the actual output counts before any modelling dataset is selected.
+
+## Additional exact-snapshot checks
+
+- Derived repair workflow blob: `.github/workflows/phase-07-derived-dataset-repair.yml` — `8438ee8d44ebf0a8f20233513d2b2a28637a9ceb`.
+- Offline test workflow blob: `.github/workflows/phase-07-nifty-1m-composite-tests.yml` — `ac5614f7108a443086ef698e688a396be888cc8b`.
+- Dataset audit workflow blob: `.github/workflows/dataset-value-audit.yml` — `d1e7b15ce9746dbb20ac4ec2f6ca3533603afbe5`; it is now pinned to the 61-part latest artifact and uses a non-heredoc cleanup fallback.
+- The all-date provenance workflow [38129159707](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129159707) completed successfully, including plaintext cleanup and report publication.
+- Provenance counts: 382 joined NIFTY OHLC violations occur at 7 distinct epochs; 12 standalone spot OHLC violations at 12 epochs; 309 negative spot-volume occurrences at 309 epochs; 11 negative option-volume occurrences at 10 epochs. Joined values match the standalone spot row at exact epochs. These findings support exact-source reconciliation and explicit masking, not arbitrary value invention.
+- Unmatched coverage: 19,021 option rows across 421 timestamps; no timestamp exists in the standalone spot set. Nearest-bar distances are diagnostics only and are not used to fill rows.
+- The derived workflow now verifies all encrypted part hashes and row totals, uploads only the encrypted derived bundle and sanitized metadata, checks for any remaining plaintext gzip scratch files, and gates publication on successful upload and cleanup.
 
 ## Verdict
 
