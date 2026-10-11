@@ -452,3 +452,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 - Runner self-tests and all registered grid checks passed in the initial hosted Phase 8 regression. Before real composite preflight, the implementation was aligned to the repository's established offline preflight rule: gzip metadata may vary during re-merge, but decoded CSV SHA-256, counts and schema must match exactly.
 - The runner now records the archive hash comparison for provenance and fails only if the canonical decoded CSV digest, row count, schema or row-type counts mismatch. No tolerance or data-quality threshold changed. No composite values or P&L have been processed yet.
+
+
+## 2026-10-11 — Runner hash-error regression wording corrected
+
+- Hosted run [38159986058](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159986058) found one runner unit-test assertion mismatch: a fake composite was correctly rejected, but the diagnostic said “decoded” rather than “canonical CSV” SHA-256 mismatch.
+- Corrected the diagnostic only. Exact hash comparison is unchanged; hosted runner tests must pass before tester code review and real composite preflight.

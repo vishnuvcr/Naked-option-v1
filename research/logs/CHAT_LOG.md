@@ -331,3 +331,8 @@ No scientific or protocol change was made during this checkpoint.
 - After hosted runner test/self-test pass, reviewed the preflight against `offline_dataset_preflight.py`. The existing offline audit deliberately separates gzip container hash from decoded CSV content hash because gzip metadata can vary after monthly parts are merged.
 - Adjusted Phase 8 preflight to record compressed hash match but make the exact canonical decoded CSV digest and row/column/row-type counts the acceptance conditions. Updated the synthetic negative test to ensure wrong decoded content still fails.
 - This is not a bypass: the encrypted monthly manifest/part hashes remain mandatory in the upcoming composite materialization job, and no data/P&L was opened by this correction.
+
+
+## 2026-10-11 — Runner fixture correction
+- Run 38159986058 failed only at the new synthetic composite-integrity test. The wrong-content input was rejected correctly; the expected diagnostic text differed from the function's current message.
+- Align the error code wording with the frozen canonical CSV digest terminology. No integrity policy or threshold changed.

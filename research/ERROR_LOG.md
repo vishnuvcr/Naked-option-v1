@@ -440,3 +440,10 @@
 - Reviewed against the existing `scripts/offline_dataset_preflight.py` contract, which explicitly notes that gzip creation timestamps can alter the compressed hash when identical monthly gzip parts are re-merged; it separately enforces the canonical uncompressed CSV hash.
 - Correction: the Phase 8 runner records whether the compressed gzip hash matches the pinned value but accepts a re-merged gzip only when the **canonical decoded CSV SHA-256** exactly matches `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`, row/column counts match, and the expected OPTION/SPOT counts match. A non-matching decoded content hash still fails closed.
 - This fix was made before any composite data was opened by the runner; it is a compatibility correction, not a waiver of content integrity. No P&L was generated.
+
+
+## 2026-10-11 — Runner regression expected a different content-hash diagnostic
+- Category: unit-test fixture / error message consistency
+- Hosted run: [38159986058](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159986058), reviewed code commit `482eb7e3bf6f2042f8fad4251905d7a1d4fd6281`.
+- The runner correctly rejected a synthetic non-pinned composite after its decoded content hash failed, but the regression expected the wording `canonical CSV SHA-256 mismatch` while code emitted `decoded SHA-256 mismatch`.
+- Correction: align the emitted error code with the canonical-content terminology used in the project and regression. The rejection condition and hash validation remain unchanged. No composite values or P&L were processed.

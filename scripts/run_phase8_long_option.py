@@ -186,7 +186,7 @@ def preflight_composite_csv_gz(path: Path) -> dict:
             uncompressed_bytes += len(block)
     decoded_hash = uncompressed_hash.hexdigest()
     if decoded_hash != COMPOSITE_CANONICAL_SHA256:
-        raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: decoded SHA-256 mismatch ({decoded_hash})")
+        raise ValueError(f"COMPOSITE_PREFLIGHT_BLOCKED: canonical CSV SHA-256 mismatch ({decoded_hash})")
 
     row_types: Counter[str] = Counter()
     blanks: Counter[str] = Counter()
