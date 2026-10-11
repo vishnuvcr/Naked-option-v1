@@ -18,6 +18,8 @@ from pathlib import Path
 EXPECTED_ROWS = 8_999_865
 EXPECTED_COLUMNS = 47
 EXPECTED_SHA256 = "f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5"
+EXPECTED_UNCOMPRESSED_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
+EXPECTED_UNCOMPRESSED_BYTES = 4_747_892_392
 TIMESTAMP_NAMES = ("timestamp_epoch", "timestamp", "datetime", "date_time", "timestamp_ist")
 ROWTYPE_NAMES = ("row_type", "instrument_type", "record_type", "data_type")
 KEY_GROUPS = (
@@ -38,6 +40,17 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def sha256_gzip_payload(path: Path) -> tuple[str, int]:
+    """Hash decompressed CSV bytes, independent of gzip container metadata."""
+    digest = hashlib.sha256()
+    size_bytes = 0
+    with gzip.open(path, "rb") as stream:
+        for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+            size_bytes += len(block)
+    return digest.hexdigest(), size_bytes
 
 
 def normalize_timestamp(value: str, column_name: str):
@@ -61,11 +74,25 @@ def normalize_timestamp(value: str, column_name: str):
 
 
 def run(path: Path, report_path: Path, expected_sha: str,
-        expected_rows: int, expected_cols: int) -> dict:
+        expected_rows: int, expected_cols: int,
+        expected_uncompressed_sha: str = "",
+        expected_uncompressed_bytes: int = 0) -> dict:
     if not path.is_file():
         raise ValueError("INPUT_FILE_NOT_FOUND")
     digest = sha256_file(path)
-    if expected_sha and digest != expected_sha:
+    compressed_match = digest == expected_sha if expected_sha else None
+    # Gzip creation timestamps can change the compressed SHA when the exact same
+    # monthly gzip parts are re-merged. Verify the content SHA separately.
+    uncompressed_digest, uncompressed_bytes = sha256_gzip_payload(path)
+    uncompressed_match = (
+        uncompressed_digest == expected_uncompressed_sha
+        if expected_uncompressed_sha else None
+    )
+    uncompressed_size_match = (
+        uncompressed_bytes == expected_uncompressed_bytes
+        if expected_uncompressed_bytes else None
+    )
+    if expected_sha and not compressed_match and not expected_uncompressed_sha:
         raise ValueError("INPUT_SHA256_MISMATCH")
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -208,7 +235,13 @@ def run(path: Path, report_path: Path, expected_sha: str,
                 key_batch.clear()
             db.commit()
 
-        if not key_cols:
+        if expected_uncompressed_sha and not uncompressed_match:
+            duplicate_status = "NOT_EVALUATED_CONTENT_HASH_FAILED"
+            overall_status = "PREFLIGHT_FAIL_UNCOMPRESSED_SHA256"
+        elif expected_uncompressed_bytes and not uncompressed_size_match:
+            duplicate_status = "NOT_EVALUATED_CONTENT_SIZE_FAILED"
+            overall_status = "PREFLIGHT_FAIL_UNCOMPRESSED_SIZE"
+        elif not key_cols:
             duplicate_status = "NOT_ESTIMABLE_NO_RECOGNIZED_COMPOSITE_KEY"
             overall_status = "PREFLIGHT_REVIEW_DUPLICATE_CHECK_NOT_ESTIMABLE"
         elif duplicate_keys:
@@ -228,6 +261,14 @@ def run(path: Path, report_path: Path, expected_sha: str,
             "file_name": path.name,
             "file_size_bytes": path.stat().st_size,
             "sha256": digest,
+            "expected_compressed_sha256": expected_sha or None,
+            "compressed_sha256_matches_expected": compressed_match,
+            "uncompressed_sha256": uncompressed_digest,
+            "expected_uncompressed_sha256": expected_uncompressed_sha or None,
+            "uncompressed_sha256_matches_expected": uncompressed_match,
+            "uncompressed_size_bytes": uncompressed_bytes,
+            "expected_uncompressed_size_bytes": expected_uncompressed_bytes or None,
+            "uncompressed_size_matches_expected": uncompressed_size_match,
             "gzip_integrity": "PASS",
             "data_rows": counts["data_rows"],
             "columns": len(header),
@@ -257,7 +298,8 @@ def run(path: Path, report_path: Path, expected_sha: str,
                 "This is structural preflight only, not modelling-readiness approval.",
                 "Unparseable timestamps and incomplete composite identifiers are reported but not repaired.",
                 "This scan does not establish session-calendar correctness, target validity, leakage safety, exact spot joins, or OHLC semantics.",
-                "No market row values are emitted in this report."
+                "No market row values are emitted in this report.",
+                "Gzip container metadata may change on recompression; the exact uncompressed CSV byte hash and byte count are checked separately."
             ]
         }
         report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -280,15 +322,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True)
     parser.add_argument("--report", required=True)
-    parser.add_argument("--expected-sha256", default=EXPECTED_SHA256)
+    parser.add_argument("--expected-sha256", default=EXPECTED_SHA256,
+                        help="reference SHA-256 of the previously exported gzip container")
+    parser.add_argument("--expected-uncompressed-sha256", default=EXPECTED_UNCOMPRESSED_SHA256)
+    parser.add_argument("--expected-uncompressed-bytes", type=int, default=EXPECTED_UNCOMPRESSED_BYTES)
     parser.add_argument("--expected-rows", type=int, default=EXPECTED_ROWS)
     parser.add_argument("--expected-columns", type=int, default=EXPECTED_COLUMNS)
     args = parser.parse_args()
     try:
         report = run(Path(args.input), Path(args.report), args.expected_sha256,
-                     args.expected_rows, args.expected_columns)
+                     args.expected_rows, args.expected_columns,
+                     args.expected_uncompressed_sha256, args.expected_uncompressed_bytes)
         print(json.dumps({key: report[key] for key in (
-            "status", "sha256", "data_rows", "columns", "gzip_integrity",
+            "status", "sha256", "compressed_sha256_matches_expected",
+            "uncompressed_sha256", "uncompressed_sha256_matches_expected",
+            "uncompressed_size_bytes", "data_rows", "columns", "gzip_integrity",
             "duplicate_key_check", "timestamp_parse_errors")}, sort_keys=True))
         if report["status"] != "PREFLIGHT_PASS_WITH_SCOPED_RESTRICTIONS":
             sys.exit(2)
