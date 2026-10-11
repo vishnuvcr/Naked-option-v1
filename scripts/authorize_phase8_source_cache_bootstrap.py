@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-DECISION_PATH = "research/gates/PHASE8_SOURCE_CACHE_BOOTSTRAP_TESTER_DECISION_R1_2026-10-11.json"
+DECISION_PATH = "research/gates/PHASE8_SOURCE_CACHE_RESTORE_TESTER_DECISION_R1_2026-10-12.json"
 CONSUMED_MARKER = "research/phase8/PHASE8_SOURCE_CACHE_BOOTSTRAP_CONSUMED_R1.json"
 SOURCE_PATHS = {
     "daily_csv": "data/cache/raw/phase3/nifty50_daily.csv",
