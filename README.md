@@ -9,11 +9,19 @@ The tester is the automated independent reviewer on `phase-07-tester`, not a per
 The latest developer change [519be79](https://github.com/vishnuvcr/Naked-option-v1/commit/519be79eeb3feb6ec612b0ee656b43eca1d4a621) hardens the spot parser: timestamps and OHLC remain strictly aligned; absent/empty/misaligned volume stays blank and is quality-flagged, never zero-filled. The Actions cache-save key now uses the run ID so future recovery shards can be persisted under a new cache generation. Offline pipeline tests passed in [run 38113709721](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113709721). The isolated tester run [38113756772](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113756772) produced `PASS_WITH_SCOPED_RESTRICTIONS` on exact snapshot [df08547](https://github.com/vishnuvcr/Naked-option-v1/commit/df0854790fe53c9aed31addd1a947b653c1dc7a2), but that report is strictly an offline code-gate result: live requests are still NOT authorized; AI review was unavailable (HTTP 402). **At that earlier checkpoint, no new Dhan request had been made; the dataset remained partial pending a spot-only recovery and exact-timestamp join validation.**
 
 
-### Latest live recovery checkpoint — 2026-10-11 06:07 UTC
+### Latest live recovery checkpoint — 2026-10-11 06:13 UTC
 
-Run [38116772719](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719) is active on `phase-07-developer`. The exact-snapshot tester decision [`817af6b`](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_DECISION.json) allows only a cache-preserving spot-only recovery (up to 61 unique spot requests; zero option refetches). Hugging Face AI review was unavailable (HTTP 402), so this is a restricted deterministic code gate, not a scientific-results approval.
+Run [38116772719](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719) completed at the workflow level, but the collector returned exit code 2 and the scientific/data result is **`SPOT_GAPFILL_PARTIAL`**. The tester-authorized one-use request scope is spent.
 
-The encrypted source bundle was restored and decrypted successfully. Preflight confirmed **8,490,723 option rows and zero spot rows**. Both required secrets were present; the one-use authorization marker was committed before any source request. The collector step is now in progress using 47 non-overlapping 39-calendar-day spot windows and the existing bounded retry/wire budget. At this checkpoint, no coverage outcome or new encrypted result artifact is available. Model fitting/scoring, strategy tests, and holdout access remain blocked pending the realized artifact and independent tester review.
+- Preserved **8,490,723/8,490,723 option rows**; zero live option refetches.
+- Spot gapfill: 47 planned shards, **41 succeeded and 6 failed**, 47 wire requests this run, 0 retries this run (5 cumulative).
+- Added **403,664 spot rows**. Reported exact-timestamp joins: **7,591,172 matched**, **899,551 missing**; 1,081 observed trading sessions. Coverage remains partial/discontinuous.
+- Encrypted output artifact: [11693866249, 229,145,190 bytes](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38116772719/artifacts/11693866249). The workflow saved the run-specific response cache and removed plaintext scratch files before uploading encrypted parts and safe metadata.
+- The realized artifact, six failed-shard reasons, request/byte-budget accounting, hashes and join integrity still require independent tester review. A static-review caveat about aggregate byte accounting is recorded in [ERROR_LOG.md](research/logs/ERROR_LOG.md).
+
+**No model fitting/scoring, strategy/P&L tests, holdout access, or additional live requests are authorized.** Workflow success indicates the partial result was safely persisted, not that recovery achieved full coverage. See [Phase 7 status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md) and [research log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/logs/RESEARCH_LOG.md).
+
+
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
 
