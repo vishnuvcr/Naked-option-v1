@@ -3,7 +3,7 @@
   "holdout_access_authorized": false,
   "last_ai_reviewer_available": false,
   "last_decision": "PASS_WITH_SCOPED_RESTRICTIONS",
-  "last_reviewed_developer_commit": "f91a03d1f85f9567c37ea0f9f469d827a4d49832",
+  "last_reviewed_developer_commit": "b7eef540081b509d75e439fe10d529d04f3d0ffd",
   "live_requests_authorized": false,
   "model_fitting_authorized": false,
   "schema_version": 1
