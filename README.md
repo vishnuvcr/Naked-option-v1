@@ -756,3 +756,10 @@ No prediction fitting/scoring, holdout access, or strategy/P&L tests are authori
 **Developer → Tester:** Inspect the exact promoted workflow and verify the hosted runtime result and plaintext cleanup.
 
 **Tester → Developer:** Require a separate model gate even if row-level structure passes; do not infer prediction readiness from an archive integrity pass.
+
+
+### 2026-10-11 workflow correction note
+
+The first deployment of the offline value-audit workflow failed before any job started because the artifact-download step header had been omitted during insertion of the preflight self-test. That failed run did not download or decrypt the artifact. The developer workflow has been corrected and the exact updated snapshot passed the complete offline suite at [run 38121967789](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967789) and protocol checks at [run 38121967994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38121967994). The current tester-role code review is [DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DATASET_VALUE_AUDIT_CODE_TESTER_2026-10-11.md); as documented there, it is a same-session scoped review, not independent external validation.
+
+The corrected workflow is being redeployed from the exact reviewed blob. Actual value-level validation remains pending until the hosted workflow downloads the existing artifact, authenticates decryption, writes the sanitized report, removes plaintext temporary files, and completes with a verified result. Collection remains closed; no prediction model, holdout, or strategy test has run.
