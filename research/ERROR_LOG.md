@@ -447,3 +447,13 @@
 - Hosted run: [38159986058](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38159986058), reviewed code commit `482eb7e3bf6f2042f8fad4251905d7a1d4fd6281`.
 - The runner correctly rejected a synthetic non-pinned composite after its decoded content hash failed, but the regression expected the wording `canonical CSV SHA-256 mismatch` while code emitted `decoded SHA-256 mismatch`.
 - Correction: align the emitted error code with the canonical-content terminology used in the project and regression. The rejection condition and hash validation remain unchanged. No composite values or P&L were processed.
+
+
+
+## 2026-10-11 — Phase 8 cached-composite preflight missing prerequisites on developer branch
+- Category: workflow packaging / branch-isolated dependency drift.
+- Run [38160868499](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38160868499) failed during dependency installation because `requirements-composite.txt` existed on `phase-07-developer` but was absent from `phase-08-developer`. This occurred before any market-data access.
+- Run [38160933691](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38160933691) then failed the critical Git blob pin check because the pinned `research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json` was likewise not present in the Phase 8 checkout. No dataset download/decryption/preflight was reached.
+- Correction: copy the exact dependency file and exact reviewed 61-part dataset manifest to the Phase 8 developer branch; verify their Git blob IDs match the source pins. The original Phase 7 decryptor was also copied verbatim when a direct branch query confirmed it was absent from Phase 8.
+- Prevention: all files needed by a gated workflow must exist on that exact branch and be included in exact-snapshot review. The reviewer gate must fail closed if any dependency or manifest is missing or changed.
+- The preflight request is still false. No raw dataset was decrypted/opened by these failed attempts; no P&L or strategy result exists.
