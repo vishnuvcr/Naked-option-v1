@@ -482,3 +482,14 @@
 - Previous scan run [38161788742](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38161788742) completed encrypted bundle validation and the canonical decoded CSV hash/row/schema/type-count checks; metadata artifact 11710418667 was uploaded (ZIP SHA-256 `8f5f52a356aac05259c802cdae521ee0989565ccf403734bc00b4428f2f598da`), and temporary encrypted/plaintext cleanup passed. Its overall workflow only failed at the 63-character post-report assertion literal.
 - It additionally exposed a report bug: expiry header columns exist but all 8,999,865 rows had blanks for expiry_date, expiry_mapping_source and time_to_expiry_years. The new gap summary counts OPTION-row blank values and has a synthetic regression. Lot-size/tick-size header columns are missing. All 4,800 cells remain ineligible.
 - R1 one-use marker remains committed, request R1 is set to `requested=false`, and is spent. No P&L/holdout/source acquisition/promotion.
+
+
+## 2026-10-11 — Phase 8 authorization positive-fixture failure: hard-coded canonical SHA typo
+
+- Category: authorization contract test / immutable-input identity pin.
+- Failing run: [38162721421](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38162721421), job `phase8-cached-preflight-contract-tests`; step `Verify exact reviewer authorization contract tests`.
+- The positive synthetic test `test_exact_snapshot_only` failed at `evaluate_authorization` with `AUTH_BLOCKED: immutable source/forecast identity changed`. Comparison of the expected source dictionary and test fixture isolated one mismatch in `canonical_csv_sha256`: the authorizer literal omitted one `b` (`...0727b82...`), while the independently pinned 64-character canonical value is `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`.
+- This was an authorization-code constant defect, not evidence that the saved data or forecast identity had changed. Bundle-integrity tests passed; the failing positive contract test prevented downstream jobs from running.
+- Correction: developer commit [be8b9c6](https://github.com/vishnuvcr/Naked-option-v1/commit/be8b9c630a1061558fcf14a5bdb50a388f6e329b) changes only the malformed canonical SHA literal to the verified value. No validation condition was weakened.
+- Safety: request R1 is already consumed and disabled; do not replay it. No new data fetch/decryption, holdout access, option P&L or strategy promotion occurred in run #38162721421. Any future real-data operation would require a new versioned request and exact-hash tester decision.
+- Next: independently review the exact developer snapshot and confirm all synthetic authorization tests pass. Then handle the separate daily H=1 floating-point comparison policy as its own reviewer-gated correction.
