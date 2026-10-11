@@ -1594,3 +1594,16 @@ Tester → Developer: Keep the real-file audit and all downstream gates closed u
  
 **Developer → Tester:** Review the final sanitized R4 report and cleanup proof when the job completes.
 **Tester → Developer:** Keep all modelling, holdout, sources and strategy/P&L permissions closed until a separate data-readiness verdict is issued.
+
+ 
+## 2026-10-11 — R4 key identity rejected; R5 canonical audit in progress
+
+- R4 run [38146429502](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38146429502) verified the pinned decompressed CSV SHA `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`, 8,999,865 rows, 47 columns, zero width errors, zero timestamp parse errors, and successful plaintext/temp-index cleanup.
+- R4's reported duplicate count of 4,148,431 is **not accepted**: the scanner key used `returned_strike` and omitted `source_request_id`, `expiry_flag`, and `requested_relative_strike`, unlike the repository's official row key. Independent tester review [REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_DATA_READINESS_TESTER_REVIEW_R4_2026-10-11.md).
+- Scanner now uses canonical OPTION key `timestamp_epoch,row_type,source_request_id,expiry_flag,expiry_code,requested_relative_strike,option_type` and checks SPOT duplicate timestamp epochs separately. Legacy schemas choose legacy key groups only; the timestamp-only SPOT key cannot silently become a fallback key for old schemas.
+- Corrected tests passed: [offline suite 38147564246](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147564246), 50 tests; [audit synthetic suite 38147564314](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147564314). New exact-hash tester review/decision: [R5 review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CANONICAL_KEY_TESTER_REVIEW_R5_2026-10-11.md), [R5 decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_CONTENT_HASH_TESTER_DECISION_R5_2026-10-11.json). All 17 reviewed file hashes matched before request.
+- R5 request commit `534f3cd5a4329b5e45fa38a1b507ebce6bcf027c`; current audit run [38147761301](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38147761301) has passed synthetic authorization; exact artifact download is in progress. No corrected full duplicate count is available yet.
+- Coverage concern from R4 report: `expiry_date`, `time_to_expiry_years`, Greek assumptions/values and risk-free/dividend fields are blank in all rows. This must be assessed in the separate data-readiness gate before model design; do not infer these are harmless simply because structural hashing passed.
+ 
+**Developer → Tester:** Inspect R5's canonical duplicate counts, incomplete keys, coverage diagnostics, exact decoded hash and cleanup evidence after completion.
+**Tester → Developer:** Do not treat the R4 duplicate count as valid or open models/holdout/strategy/P&L until R5 receives a separate data-readiness decision.
