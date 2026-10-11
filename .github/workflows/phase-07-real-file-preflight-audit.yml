@@ -31,6 +31,8 @@ env:
   EXPECTED_PARENT_ARTIFACT_ID: '11696937921'
   EXPECTED_PARENT_ARTIFACT_SHA256: '5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b'
   EXPECTED_CSV_GZ_SHA256: 'f0d7057c189985065d346811057e8c1b6c0aeed25528ee90b29a8d2fd568a7b5'
+  EXPECTED_UNCOMPRESSED_CSV_SHA256: 'cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204'
+  EXPECTED_UNCOMPRESSED_CSV_BYTES: '4747892392'
   EXPECTED_ROWS: '8999865'
   EXPECTED_COLUMNS: '47'
 
@@ -187,10 +189,12 @@ jobs:
         env:
           MERGED_PATH: ${{ runner.temp }}/nifty_repaired_composite_2021-10_to_2026-10.csv.gz
           REPORT_PATH: ${{ runner.temp }}/offline_preflight_report.json
+          EXPECTED_UNCOMPRESSED_CSV_SHA256: ${{ env.EXPECTED_UNCOMPRESSED_CSV_SHA256 }}
+          EXPECTED_UNCOMPRESSED_CSV_BYTES: ${{ env.EXPECTED_UNCOMPRESSED_CSV_BYTES }}
         shell: bash
         run: |
           set +e
-          python scripts/offline_dataset_preflight.py --input "$MERGED_PATH" --report "$REPORT_PATH" --expected-sha256 "$EXPECTED_CSV_GZ_SHA256" --expected-rows "$EXPECTED_ROWS" --expected-columns "$EXPECTED_COLUMNS"
+          python scripts/offline_dataset_preflight.py --input "$MERGED_PATH" --report "$REPORT_PATH" --expected-sha256 "$EXPECTED_CSV_GZ_SHA256" --expected-uncompressed-sha256 "$EXPECTED_UNCOMPRESSED_CSV_SHA256" --expected-uncompressed-bytes "$EXPECTED_UNCOMPRESSED_CSV_BYTES" --expected-rows "$EXPECTED_ROWS" --expected-columns "$EXPECTED_COLUMNS"
           rc=$?
           if [[ -f "$REPORT_PATH" ]]; then echo "report_exists=true" >> "$GITHUB_OUTPUT"; fi
           exit "$rc"
