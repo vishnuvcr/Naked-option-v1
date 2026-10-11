@@ -87,7 +87,7 @@ def scan_metadata_file(
     whole_hash = hashlib.sha256()
     container_hash = sha256_file(path)
     with path.open("rb") as signature_stream:
-        compressed = signature_stream.read(2) == b"\\x1f\\x8b"
+        compressed = signature_stream.read(2) == bytes((31, 139))
     row_count = 0
     row_type_counts = {"OPTION": 0, "SPOT": 0}
     sessions: list[str] = []
