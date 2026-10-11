@@ -1,5 +1,9 @@
 # NIFTY Naked-Option Direction Research
 
+## Autonomous developer–tester protocol — 2026-10-11
+
+The tester is the automated independent reviewer on `phase-07-tester`, not a person. The developer and tester exchange exact-snapshot submissions, machine-readable decisions, findings and bounded repair attempts through GitHub Actions. Issue #7 is a status mirror only; nobody should wait for a human reply to continue a predefined gate. A pass automatically hands off to the next eligible scoped gate, while permissions remain scope-specific (a diagnostic is not a bulk-download approval). See [RESEARCH_INSTRUCTIONS.md](RESEARCH_INSTRUCTIONS.md) and [Phase 7 automated agent-cycle protocol](research/automation/PHASE7_AUTOMATED_AGENT_CYCLE.md).
+
 ## Spot-gap recovery — 2026-10-11
 
 The latest developer change [519be79](https://github.com/vishnuvcr/Naked-option-v1/commit/519be79eeb3feb6ec612b0ee656b43eca1d4a621) hardens the spot parser: timestamps and OHLC remain strictly aligned; absent/empty/misaligned volume stays blank and is quality-flagged, never zero-filled. The Actions cache-save key now uses the run ID so future recovery shards can be persisted under a new cache generation. Offline pipeline tests passed in [run 38113709721](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113709721). The isolated tester run [38113756772](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113756772) produced `PASS_WITH_SCOPED_RESTRICTIONS` on exact snapshot [df08547](https://github.com/vishnuvcr/Naked-option-v1/commit/df0854790fe53c9aed31addd1a947b653c1dc7a2), but that report is strictly an offline code-gate result: live requests are still NOT authorized; AI review was unavailable (HTTP 402). **No new Dhan request has been made; the dataset remains partial until the spot-recovery run succeeds and its joins are validated.**
