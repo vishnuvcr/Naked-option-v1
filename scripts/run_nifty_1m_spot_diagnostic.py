@@ -41,7 +41,10 @@ def find_request(request_id: str) -> dict[str, Any]:
 
 
 def _array_metadata(payload: dict[str, Any]) -> tuple[list[str], dict[str, str], dict[str, int]]:
-    keys = sorted(str(k) for k in payload.keys())
+    # Only emit allowlisted schema keys; provider-specific diagnostic fields
+    # (for example errorMessage) are deliberately not echoed, even as names.
+    safe_keys = {"timestamp", "open", "high", "low", "close", "volume", "data", "errorCode", "status", "error"}
+    keys = sorted(str(k) for k in payload.keys() if str(k) in safe_keys)
     types: dict[str, str] = {}
     lengths: dict[str, int] = {}
     for key in ("timestamp", "open", "high", "low", "close", "volume"):
