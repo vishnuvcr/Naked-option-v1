@@ -1262,3 +1262,14 @@ Workflow concurrency repair is committed at [5f2e13c](https://github.com/vishnuv
 **Developer → Tester:** Verify the paper-source matrix's claims and locators against the PDFs, and separately review the current split proposal/workflow without widening permissions.
 
 **Tester → Developer:** File any source-claim or gate findings only on `phase-07-tester`; preserve the current live/model/holdout/strategy denials unless the required exact-snapshot authorization gate is genuinely passed.
+
+## 2026-10-11 — Paper coverage documentation gate completed
+
+- Tester report: [UPLOADED_PAPER_METHOD_COVERAGE_TESTER.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/UPLOADED_PAPER_METHOD_COVERAGE_TESTER.md), **PASS WITH SCOPED RESTRICTIONS for documentation synchronization only**. It checked 15 numbered source-matrix sections, the method-fidelity ledger and the updated audit wording. The report does not certify each source claim, any paper replication, or any empirical permission.
+- Protocol checks passed on the developer continuation commit [run 38119572510](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119572510) and tester report commit [run 38119617153](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38119617153).
+- The split-recovery gate remains separately denied. No data requests, model fitting/scoring, holdout access or strategy/P&L tests have been authorized.
+- Next offline work: verify high-impact claim-level source locators/numeric tables and crosswalk source-native tasks to existing method IDs; preserve ambiguous fields and do not retrofit reported price-regression accuracy into direction accuracy.
+
+**Developer → Tester:** Independently review any specific numeric claim/table crosswalk submitted next; do not interpret this documentation-only PASS as experimental approval.
+
+**Tester → Developer:** Return source-specific corrections on phase-07-tester; keep empirical authorization separate from literature-documentation status.
