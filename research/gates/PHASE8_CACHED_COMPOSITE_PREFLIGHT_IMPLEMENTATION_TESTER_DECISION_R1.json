@@ -5,9 +5,10 @@
   "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
   "scope": "metadata-only cached composite preflight",
   "developer_branch": "phase-08-developer",
-  "developer_snapshot_commit": "0bcb59f115bdf72474e5231076f31616242b66a9",
-  "hosted_contract_run_id": 38161419163,
-  "hosted_contract_run_conclusion": "success",
+  "developer_snapshot_commit": "7fb30a0a04eeba5aa65485e974ca35091fe035b6",
+  "previous_decision_archived_path": "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_R1_PRE_ACTIVATION.json",
+  "contract_workflow_run_id": 38161662282,
+  "contract_tests_conclusion": "success",
   "approved_code_blob_shas": {
     ".github/workflows/phase8-cached-composite-preflight.yml": "ebef271b4509842c971c03d9e090f6c9020a3019",
     "scripts/run_phase8_long_option.py": "6904ce2c544fb24b25e42d2db138a5dc16efb9cd",
@@ -18,7 +19,7 @@
     "scripts/validate_phase8_cached_composite_bundle.py": "cb48b1f752770783b385a40ebd090d77dc5c5ef8",
     "scripts/test_phase8_cached_composite_bundle.py": "edcfe6929b0e37f6b6c28f8a013b61f59857f945",
     "scripts/authorize_phase8_cached_composite_preflight.py": "ef8df0d630877ba750ce695af3889ee86b72b228",
-    "scripts/test_phase8_cached_composite_preflight.py": "6d2a2f5e75f9ff71a72adbed9566ae9805aa98e4",
+    "scripts/test_phase8_cached_composite_preflight.py": "c5955cfeff54493537976a10c8c83088fb702dec",
     "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
     "research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json": "dd8b83113d4b79429008024779107a776b1a0f12",
     "research/phase8/PHASE8_METHOD_SPEC.md": "93c25a91663d9f9dcda4617e576b4fcb3d052234",
@@ -57,12 +58,12 @@
   "request_file_path": "research/gates/PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json",
   "request_may_change_only": [
     "requested: false -> true",
-    "approved_code_blob_shas: {} -> this exact approved_code_blob_shas dictionary"
+    "approved_code_blob_shas: {}/prior stale hash set -> this exact approved_code_blob_shas dictionary"
   ],
   "caveats": [
-    "Run 38161419163 only exercised contract tests and default-disabled authorization; it did not touch the composite.",
-    "The accepted prediction artifact is a reproducibility result, not evidence of economic edge.",
-    "Expected 4,800 INELIGIBLE cells are a data-readiness result, not a P&L result.",
-    "Tester branch review is role-separated but not an external human/model instance."
+    "Run 38161622139 failed only a contract assertion that still expected requested=false after tester-approved activation; no data artifact was touched by that failed run.",
+    "Current exact-snapshot tester review is still branch-separated in this session rather than external replication.",
+    "The upcoming metadata preflight is not P&L and cannot promote a method.",
+    "The consumed marker must remain durable even if later preflight work fails."
   ]
 }
