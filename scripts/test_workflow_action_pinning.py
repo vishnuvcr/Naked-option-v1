@@ -16,6 +16,18 @@ class WorkflowActionPinningTests(unittest.TestCase):
             [],
         )
 
+    def test_receipt_publisher_workflow_complies_with_narrow_write_scope(self):
+        workflow = Path(".github/workflows/phase-07-publish-preflight-receipt.yml")
+        self.assertEqual(
+            inspect_workflow(
+                workflow.read_text(encoding="utf-8"),
+                allow_secrets=True,
+                allow_actions_read=True,
+                allow_contents_write=True,
+            ),
+            [],
+        )
+
     def test_unapproved_secret_is_rejected_in_data_workflow(self):
         text = """name: Test
 workflow_dispatch:
