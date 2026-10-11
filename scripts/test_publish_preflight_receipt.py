@@ -42,7 +42,7 @@ class PublishReceiptTests(unittest.TestCase):
             path = Path(td) / "report.json"
             path.write_text(json.dumps(self.report()), encoding="utf-8")
             receipt = build_receipt(self.metadata(), path)
-            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT")
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS")
             self.assertTrue(receipt["report_available"])
             self.assertEqual(receipt["report"]["sha256"], "b" * 64)
 
@@ -59,6 +59,22 @@ class PublishReceiptTests(unittest.TestCase):
             path.write_text(json.dumps(self.report(data_rows=10)), encoding="utf-8")
             receipt = build_receipt(self.metadata(), path)
             self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_WITH_EXPECTATION_MISMATCH")
+
+    def test_raw_value_hidden_in_allowed_text_field_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            value = self.report(limitations=["raw option price: 123.45"])
+            path.write_text(json.dumps(value), encoding="utf-8")
+            # Schema is structurally valid; publisher must not infer whether free-text is safe.
+            receipt = build_receipt(self.metadata(), path)
+            self.assertEqual(receipt["receipt_status"], "REPORT_PRESENT_PASS")
+
+    def test_invalid_hash_or_count_types_are_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "report.json"
+            path.write_text(json.dumps(self.report(sha256="not-a-hash")), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "REPORT_SHA256_INVALID"):
+                build_receipt(self.metadata(), path)
 
     def test_report_without_required_metadata_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
