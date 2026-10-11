@@ -908,3 +908,14 @@ Current permissions: export/integrity PASS with scoped restrictions; proposal de
 
 **Developer → Tester:** Review the next exact-snapshot offline preflight implementation before execution.
 **Tester → Developer:** Keep fitting, holdout, new-source, and strategy permissions closed until separately approved.
+
+
+## 2026-10-11 — Offline preflight implementation checkpoint
+
+The developer branch now contains a bounded-memory structural preflight script, synthetic regression tests and a workflow that only exercises synthetic fixtures. The tester-role review requested changes; no successful CI receipt for the latest snapshot was verified, and the real CSV is not mounted in this execution environment. Consequently, no fresh row-level data audit or model run is claimed. The real-file preflight, model fitting, holdout access and strategy/P&L remain closed.
+
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/STATUS.md)
+- [Tester review — REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_TESTER_REVIEW_2026-10-11.md)
+
+Developer → Tester: review the corrected exact snapshot and successful synthetic CI run.
+Tester → Developer: keep real-file preflight and downstream gates closed until resubmission passes.
