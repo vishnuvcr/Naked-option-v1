@@ -193,6 +193,8 @@ def validate_input_manifests(
         return False, "BLOCKED_LEAKAGE"
     if split_manifest.get("validation_eligible_origins") != split_manifest.get("validation_eligible_origins_verified"):
         return False, "BLOCKED_LEAKAGE"
+    if split_manifest.get("validation_eligible_origins") != split_manifest.get("common_validation_origins"):
+        return False, "BLOCKED_LEAKAGE"
     if not _nonnegative_int(split_manifest.get("train_eligible_origins")) or not _nonnegative_int(split_manifest.get("common_validation_origins")):
         return False, "BLOCKED_LEAKAGE"
     if split_manifest["train_eligible_origins"] < 252 or split_manifest["common_validation_origins"] < 250:
@@ -507,7 +509,7 @@ def _scan_prefix(dataset_path: str | Path, byte_limit: int, manifest: Mapping[st
         "feature_families": feature_results, "train_session_count": len(session_rows["train"]),
         "validation_session_count": len(session_rows["validation"]), "session_status": split,
         "split_status": "PASS", "source_manifest_sha256": "", "calendar_manifest_sha256": "",
-        "split_manifest_sha256": "", "cleanup_status": "PASS",
+        "split_manifest_sha256": "", "cleanup_status": "NOT_RUN",
         "gate_status": "PASS_WITH_RESTRICTIONS" if (
             split != "PASS" or count["unmatched_option"] > 0 or count["weekend_review"] > 0
             or any(v["status"] != "CANDIDATE" for v in feature_results.values())
