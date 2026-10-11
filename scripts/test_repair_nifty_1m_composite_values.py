@@ -107,6 +107,14 @@ class DerivedDatasetRepairTests(unittest.TestCase):
             self.assertEqual(row["spot_join_status"], "NO_EXACT_TIMESTAMP_SPOT_MATCH")
             self.assertTrue(all(row[field] == "" for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume")))
 
+    def test_workflows_install_crypto_and_find_nested_manifest(self):
+        root = pathlib.Path(__file__).resolve().parents[1]
+        repair_workflow = (root / ".github" / "workflows" / "phase-07-derived-dataset-repair.yml").read_text(encoding="utf-8")
+        diagnostic_workflow = (root / ".github" / "workflows" / "phase-07-unmatched-option-timestamp-diagnostic.yml").read_text(encoding="utf-8")
+        self.assertIn('root.rglob("dataset_manifest.json")', repair_workflow)
+        self.assertIn("source_manifest_count_invalid", repair_workflow)
+        self.assertIn("pip install -r requirements-composite.txt", diagnostic_workflow)
+
     def test_source_and_output_directories_must_be_disjoint(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
