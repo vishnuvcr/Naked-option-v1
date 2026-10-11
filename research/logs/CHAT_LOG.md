@@ -1360,3 +1360,12 @@ The existing acquisition approval is spent; a new independently reviewed exact-s
 - Fixed Actions cache-save key to include the run ID so a later successful recovery can persist a new cache generation.
 - Added missing/empty/misaligned-volume regression cases while retaining timestamp and OHLC misalignment tests.
 - No live request or model experiment was run in this code-change step. The exact underlying prior parser error remains unconfirmed pending independent gate review and a sanctioned diagnostic/recovery run.
+
+
+## 2026-10-11 — Spot-gap recovery gate status
+
+- Implemented tolerance for missing/empty/misaligned spot volume with blank values and row quality flags; OHLC/timestamp validation is strict.
+- Fixed cache save to use a unique run-specific key.
+- Offline tests passed on commit `519be79eeb3feb6ec612b0ee656b43eca1d4a621`; exact developer commit including the workflow-copy fix is `df0854790fe53c9aed31addd1a947b653c1dc7a2`.
+- Independent tester report is PASS_WITH_SCOPED_RESTRICTIONS for code checks only. It expressly does not authorize live requests. HF AI verdict unavailable due HTTP 402.
+- Therefore no API call occurred in this step. Next action is to get the one-request non-exporting diagnostic scope independently authorized; then inspect its sanitized schema/reason output before targeted recovery.

@@ -1,5 +1,13 @@
 # Paper-method replication checkpoint — 2026-10-10
 
+## Tester checkpoint after spot-gap patch — 2026-10-11
+
+- Exact developer snapshot: `df0854790fe53c9aed31addd1a947b653c1dc7a2`.
+- Independent offline run: [38113709721](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38113709721) passed the compile, parser/encryption tests, request manifest checks and approval-helper offline self-test.
+- Isolated tester report: [PASS_WITH_SCOPED_RESTRICTIONS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/NIFTY_1M_COMPOSITE_AGENT_REVIEW.md), blob `58814ea5de49764d1f6279e590fddca0f51b7b3f`. It is strictly an offline code-gate result: live requests, modelling and holdout access are all explicitly NOT authorized. AI review was unavailable (HF Inference HTTP 402; no AI verdict).
+- The report's `SPOT_RESPONSE_FIELDS_REQUIRED` wording is stale/inaccurate for the changed parser: the parser now pads only an unusable volume vector in memory, keeps its serialized values blank, and flags rows, while strict timestamp/OHLC validation remains. This wording issue is logged for tester-harness correction.
+- No fresh Dhan request was made. The prior acquisition approval is spent. Do not mark data complete until a separate one-request diagnostic is authorized, its sanitized result is inspected, and the approved recovery run fills the spot gaps and validates timestamp joins.
+
 ## Spot-gap recovery correction — 2026-10-11
 
 - Implementation update: the spot parser now keeps timestamp/OHLC fields strictly validated while treating absent, empty, or length-mismatched volume as unavailable. It emits blank volume plus `SPOT_VOLUME_MISSING_OR_MISALIGNED`; it never imputes zero. Raw response bytes remain unmodified.

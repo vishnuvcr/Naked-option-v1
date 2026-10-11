@@ -1,5 +1,12 @@
 # Error Log
 
+## 2026-10-11 — Independent tester report wording does not match tolerant volume behavior
+- Category: test/reviewer-harness finding
+- Component: `phase-07-tester/scripts/review_nifty_1m_composite_gate.py` and the automated report generated for developer snapshot `df0854790fe53c9aed31addd1a947b653c1dc7a2`.
+- Symptom: the report says `SPOT_RESPONSE_FIELDS_REQUIRED` and describes volume as required even though the submitted parser normalizes a missing/empty/misaligned volume vector to blank placeholders after recording that it is unusable; resulting rows receive `SPOT_VOLUME_MISSING_OR_MISALIGNED`. Timestamp and OHLC vectors remain required/aligned.
+- Impact: no live-request authorization is inferred from the report. Current report is valid only as an offline deterministic code-gate PASS; AI reviewer returned HTTP 402/no verdict.
+- Disposition: record for tester-owned harness/report correction. Do not edit the tester branch from developer role, and do not make new Dhan requests until a diagnostic-specific authorization exists.
+
 ## 2026-10-11 — Spot-response gap recovery hardening
 - Category: data acquisition / parser resilience
 - Component: `scripts/run_nifty_1m_composite_dataset.py::parse_spot_response`
