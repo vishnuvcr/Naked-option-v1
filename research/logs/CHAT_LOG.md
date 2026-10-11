@@ -336,3 +336,13 @@ No scientific or protocol change was made during this checkpoint.
 ## 2026-10-11 — Runner fixture correction
 - Run 38159986058 failed only at the new synthetic composite-integrity test. The wrong-content input was rejected correctly; the expected diagnostic text differed from the function's current message.
 - Align the error code wording with the frozen canonical CSV digest terminology. No integrity policy or threshold changed.
+
+
+
+## 2026-10-11 — Continue from forecast gate to cached-composite preflight
+- Confirmed the successful Phase 8 Run #994/R2 validation remains intact. Created a dedicated default-disabled metadata-only preflight workflow, an encrypted-part manifest/hash validator and an exact-snapshot authorization checker on `phase-08-developer`.
+- The workflow reuses only the existing composite artifact 11698879857/run 38131641336 and existing Run #994 forecast artifact 11638738288/run 37957677656. It makes no market-source API requests; it verifies run/artifact IDs before download, checks 61 encrypted-part names/sizes/hashes, decrypts only under runner temp, verifies canonical decoded SHA and row/type counts, runs `--mode preflight`, uploads metadata reports only and deletes all downloaded/decrypted temporary files.
+- Request `PHASE8_CACHED_COMPOSITE_PREFLIGHT_EXECUTION_REQUEST_R1.json` remains `requested=false`; empirical option P&L, holdout access, new sources and strategy promotion are false.
+- Implementation CI found the Phase 8 branch lacked already reviewed Phase 7 decryption prerequisites (requirements, decryptor and 61-part public manifest). Copied them byte-for-byte; recorded both failures in ERROR_LOG. These attempts did not reach real dataset decryption.
+- The test-only suite passed bundle-integrity synthetic tests, stale-code authorization tests, the registered 4,800-cell runner test, existing cost arithmetic regression and pure runner self-test. The newest CI run for the copied decryptor remains in progress.
+- Next: complete this hosted regression, submit exact current code blob hashes for tester review, and only after tester PASS enable one metadata-only cached-composite preflight request. The preflight is expected to keep all 4,800 cells ineligible until point-in-time contract eligibility is addressed; that is a data-gate result, not P&L.
