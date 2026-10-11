@@ -38,3 +38,20 @@ No new data requests, model fitting/scoring, holdout access, or strategy/P&L tes
 **Developer → Tester:** Review the sanitized provenance report and the proposed repair policy before approving a derived dataset.
 
 **Tester → Developer:** Reject silent source edits, approximate joins, and arbitrary volume/OHLC fixes; require exact-snapshot evidence and before/after reconciliation.
+
+
+## 2026-10-11 — Derived dataset repair output review completed
+
+- Hosted repair workflow [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) completed successfully; all steps passed, including source integrity checks, regression tests, 61-part derived output verification, the integrated post-repair audit, encrypted artifact upload, plaintext cleanup and sanitized-report publication.
+- Source remains pinned to run 38126168547 / artifact 11696937921, ZIP SHA-256 `5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b`.
+- Derived encrypted artifact: [11698879857](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336/artifacts/11698879857), size 231,076,122 bytes. Report: [DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DERIVED_DATASET_REPAIR_REPORT_R2_RUN_38126168547.json). Manifest: [DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json](https://github.com/vishnuvcr/Naked-option-v1/blob/main/research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json).
+- Validation: `DERIVED_REPAIR_COMPLETE`; post-repair audit `PASS_WITH_COVERAGE_RESTRICTIONS`. Preserved 8,999,865 rows (8,490,723 option + 509,142 spot), zero rows deleted, 61 encrypted parts, 8,471,702 exact matches and 19,021 unmatched option rows. Exact join mismatches, nonblank invalid OHLC/volume, duplicate keys/timestamps, invalid timestamps/session dates, unknown row/join types, and manifest/monthly count mismatches are all zero.
+- Corrections/masking: 1,528 joined NIFTY fields reconciled from exact-epoch spot rows; 382 joined option rows masked for invalid source-spot OHLC; 12 standalone spot OHLC rows, 309 spot-volume values and 11 option-volume values masked. The original source is unchanged.
+- Remaining restrictions: 19,021 unmatched option rows remain blank/unmatched across 421 timestamps; 24,847 rows carry weekend-session review flags. No approximate joins or invented values were used. These must be considered in a distinct modelling-readiness review.
+- Tester decision: **PASS WITH SCOPED RESTRICTIONS — repair output and post-repair audit only**. See [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DERIVED_DATASET_REPAIR_OUTPUT_TESTER_REPORT_RUN_38131641336.md) and [machine-readable decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/DERIVED_DATASET_REPAIR_OUTPUT_TESTER_DECISION_RUN_38131641336.json). The tester-role report is from this connected session, not an external independent reviewer, and notes that a second direct download/re-hash of the artifact binary was unavailable through the connector.
+- No market-data request, prediction fitting/scoring, holdout access or strategy/P&L test occurred. This is not a model-readiness or strategy approval.
+- Next gate: an exact-snapshot modelling-readiness proposal must define eligibility for unmatched rows, investigate weekend-session flags and empty Greek/time-to-expiry fields, and pass tester review before any fitting or holdout access.
+
+**Developer → Tester:** Review the exact-snapshot modelling-readiness proposal and preflight before authorizing any prediction-model run.
+
+**Tester → Developer:** Keep model/holdout/strategy gates closed unless the modelling-readiness gate independently passes.
