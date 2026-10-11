@@ -168,50 +168,55 @@ jobs:
           decision_path.write_text(json.dumps(payload,indent=2,sort_keys=True)+"\n")
           dev_summary=dev_log.read_text(errors="replace").strip()[-4000:] if dev_log.exists() else "Not executed."
           ind_summary=ind_json.read_text(errors="replace").strip() if ind_json.exists() else (ind_log.read_text(errors="replace").strip()[-4000:] if ind_log.exists() else "Not executed.")
-          report=f"""# Independent tester review — Phase 8 Greek enrichment R1
+          run_id=os.environ.get("WORKFLOW_RUN_ID","")
+          findings_text="\n".join("- "+x for x in findings) if findings else "- No mathematical or synthetic integrity blocker was detected within this limited gate."
+          report_lines=[
+              "# Independent tester review — Phase 8 Greek enrichment R1",
+              "",
+              f"Decision: **{decision}**",
+              "",
+              f"Exact developer snapshot: {sha}",
+              "",
+              f"Tester workflow run: {run_id}",
+              "",
+              f"Pin check: {pin}",
+              "",
+              f"Developer synthetic suite exit: {dev_rc or 'not executed'}",
+              "",
+              f"Independent formula audit exit: {ind_rc or 'not executed'}",
+              "",
+              "## Scope reviewed",
+              "",
+              "The tester checked the exact source blobs for enrichment implementation, developer synthetic suite, hosted workflow, and scope request. External data access must remain blocked unless this machine decision matches the exact commit and blob hashes.",
+              "",
+              "## Findings",
+              "",
+              findings_text,
+              "",
+              "## Developer test output",
+              "",
+              dev_summary,
+              "",
+              "## Independent test output",
+              "",
+              ind_summary,
+              "",
+              "## Restrictions",
+              "",
+              "- No Dhan requests, option P&L, holdout access, strategy promotion or plaintext artifact upload is authorized.",
+              "- The source is a partial rolling strike grid and not every exchange-listed NIFTY option.",
+              "- Expiry comes from published HF expiry partitions plus a separately labelled Tuesday-rule proxy; this is not a complete point-in-time contract master.",
+              "- IV is inverted from option close where valid; a source IV fallback uses the prior documented unit heuristic.",
+              "- Zero rate and zero dividend are disclosed proxies. Greeks must be labelled model estimates.",
+              "- Hugging Face source licence CC-BY-NC-4.0 restricts this output to non-commercial research.",
+              "",
+              "**Developer → Tester:** this decision applies only to the exact commit and blobs above; any code change needs another review.",
+              "",
+              "**Tester → Developer:** " + ("proceed with narrowly scoped HF enrichment and keep all execution/strategy gates blocked." if ok else "repair the findings and submit a new exact-snapshot tester request; do not retrieve market data."),
+              ""
+          ]
+          report_path.write_text("\n".join(report_lines))
 
-Decision: **{decision}**
-
-Exact developer snapshot: {sha}
-
-Tester workflow run: {os.environ.get("WORKFLOW_RUN_ID","")}
-
-Pin check: {pin}
-
-Developer synthetic suite exit: {dev_rc or "not executed"}
-
-Independent formula audit exit: {ind_rc or "not executed"}
-
-## Scope reviewed
-
-The tester checked the exact source blobs for enrichment implementation, developer synthetic suite, hosted workflow, and scope request. External data access must remain blocked unless this machine decision matches the exact commit and blob hashes.
-
-## Findings
-
-{chr(10).join("- "+x for x in findings) if findings else "- No mathematical or synthetic integrity blocker was detected within this limited gate."}
-
-## Developer test output
-
-{dev_summary}
-
-## Independent test output
-
-{ind_summary}
-
-## Restrictions
-
-- No Dhan requests, option P&L, holdout access, strategy promotion or plaintext artifact upload is authorized.
-- The source is a partial rolling strike grid and not every exchange-listed NIFTY option.
-- Expiry comes from published HF expiry partitions plus a separately labelled Tuesday-rule proxy; this is not a complete point-in-time contract master.
-- IV is inverted from option close where valid; a source IV fallback uses the prior documented unit heuristic.
-- Zero rate and zero dividend are disclosed proxies. Greeks must be labelled model estimates.
-- Hugging Face source licence CC-BY-NC-4.0 restricts this output to non-commercial research.
-
-**Developer → Tester:** this decision applies only to the exact commit and blobs above; any code change needs another review.
-
-**Tester → Developer:** {("proceed with narrowly scoped HF enrichment and keep all execution/strategy gates blocked." if ok else "repair the findings and submit a new exact-snapshot tester request; do not retrieve market data.")}
-"""
-          report_path.write_text(report)
           PY
 
       - name: Commit tester-owned decision and report to tester branch
