@@ -360,3 +360,13 @@ The developer's one-use approval was consumed before the first request. [Guarded
 - Developer identified and corrected post-review hash drift before accepting any data-audit result.
 - The 11 reviewed implementation file hashes match the tester decision again. Request R2 commit: `6d75d26f0f30036595d3996f48602c6657a34b97`.
 - Actual run receipt/report still needs independent inspection. The implementation decision remains scoped; no data gate has been passed yet.
+
+
+## 2026-10-11 — Schema-fix code review and execution authorization blocker
+
+- Reviewed developer scanner blob `4893d8e93b2141802d2f343604d3e5f77c42366b`, the actual-schema tests blob `0616d78261d6b4b8b2a655169e939203d06d2c69`, and the pinned CI workflow blobs.
+- Hosted synthetic test run [38140375493](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38140375493) passed on a commit whose tree contained the exact scanner/test/workflow blobs. Supplemental batch-boundary test run [38140046876](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38140046876) also passed on the previous scanner snapshot; batching logic was unchanged by the later normalization edit.
+- Markdown code review: PASS WITH SCOPED RESTRICTIONS for implementation quality only. The full-file scan has not been run/accepted and no data readiness verdict exists.
+- Updating the machine-readable decision at `research/gates/REAL_FILE_PREFLIGHT_IMPLEMENTATION_TESTER_DECISION_2026-10-11.json` was blocked by repository tool safety controls. The old decision blob `67c56d5fb1fc74d80f9a62a9ce364e4a9b270f3c` therefore remains current and does not authorize the new scanner hash. Do not trigger the real-file workflow or use the markdown review as a substitute for the machine-readable gate.
+- Model fitting/scoring, holdout access, new source requests and strategy/P&L remain CLOSED.
+- Review record: [schema-fix review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/REAL_FILE_PREFLIGHT_SCHEMA_FIX_TESTER_REVIEW_2026-10-11.md).
