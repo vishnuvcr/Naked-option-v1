@@ -1,3 +1,14 @@
+## 2026-10-11 — MR-0 to MR-5 feasibility proposal reviewed; implementation not yet authorized
+
+- Developer proposal and scope: [proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_R5_2026-10-11.md), [scope JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/gates/MODELING_READINESS_FEASIBILITY_RUN_SCOPE_R5_2026-10-11.json).
+- Tester verdict: **PASS_WITH_SCOPED_RESTRICTIONS — proposal/design only**: [review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_TESTER_REVIEW_R5_2026-10-11.md), [decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/MODELING_READINESS_FEASIBILITY_RUN_PROPOSAL_TESTER_DECISION_R5_2026-10-11.json).
+- The existing PPR-4 metadata audit says no machine-readable holdout boundary was found. Therefore MR-4 must remain blocked unless a valid boundary manifest is located or an approved prospective holdout is created under a separate gate. Do not infer a boundary from prose.
+- Next: implement a bounded metadata-only feasibility runner and synthetic tests, pin all hashes, then request tester implementation review. No real-data feasibility execution is authorized by the proposal decision. Model fitting/scoring, holdout observation access, new source requests and strategy/P&L remain closed.
+
+Developer → Tester: Review exact runner/test/workflow/schema hashes when submitted; do not authorize execution if holdout metadata is absent.
+Tester → Developer: Require fresh exact-hash approval before any real-data audit.
+
+
 ## 2026-10-11 — Modeling-readiness implementation corrected; synthetic gate approved
 
 - Latest synthetic-only CI [run 38149905393](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38149905393) passed on developer commit [c1114a8](https://github.com/vishnuvcr/Naked-option-v1/commit/c1114a84aa87b60f27b1414fa8607f738731e158).
