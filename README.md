@@ -976,3 +976,14 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 - The exact-file gate correctly exposed post-review file-hash drift. The three changed reviewed files were restored, and all 11 tester-approved file blob hashes now match again.
 - Execution request R2: [commit](https://github.com/vishnuvcr/Naked-option-v1/commit/6d75d26f0f30036595d3996f48602c6657a34b97). The audit is limited to metadata-only structural checks.
 - The actual run receipt/report is not yet verifiably visible. Do not infer that the dataset audit passed; modelling, holdout and strategy/P&L remain closed.
+
+
+## 2026-10-11 — User-uploaded CSV: preliminary validation only
+
+- User supplied the pinned CSV.GZ; local SHA-256 matches the expected hash and gzip integrity passes.
+- Full streaming checks confirmed 8,999,865 rows, 47 columns, zero row-width errors, and the expected 8,490,723 OPTION / 509,142 SPOT row split.
+- The actual header's key fields differ from the generic preflight duplicate-key groups. A full uniqueness scan timed out locally, so duplicate-key status remains **UNKNOWN** and no data-readiness PASS is claimed.
+- [Preliminary check report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/UPLOADED_CSV_PRELIMINARY_CHECK_2026-10-11.md) is submitted for independent tester review. This supplemental scan is not a replacement for the authorized hosted audit receipt.
+- Model fitting/scoring, holdout access, new source requests and strategy/P&L remain closed.
+**Developer → Tester:** Verify the exact-file findings and review schema compatibility of duplicate-key detection.
+**Tester → Developer:** Issue a written tester decision; do not open the next gate until uniqueness and other data-readiness checks are independently accepted.
