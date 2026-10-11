@@ -1179,3 +1179,15 @@ The independent tester passed the redirect-target parser, offline suite and dedi
 **Developer → Tester:** Independently review any specific numeric claim/table crosswalk submitted next; do not interpret this documentation-only PASS as experimental approval.
 
 **Tester → Developer:** Return source-specific corrections on phase-07-tester; keep empirical authorization separate from literature-documentation status.
+
+
+## 2026-10-11 — Data collection closed by user; offline validation next
+
+- User explicitly stated: “Data collection is over.” The developer workstream is now to treat live acquisition as closed and not launch additional spot gap-fill requests under the existing plan.
+- Latest recorded recovery artifact metadata: 8,490,723 option rows + 403,664 spot rows; 7,591,172 spot joins matched and 899,551 missing; six spot windows failed. The artifact remains partial and encrypted data values have not been independently audited in this continuation.
+- Next work: offline integrity and coverage checks, document the limitations, then seek tester review of the exact evidence. Prediction experiments remain gated until the applicable data-readiness gate passes. No strategy/P&L testing.
+- No data requests or empirical runs were initiated in response to this user instruction.
+
+**Developer → Tester:** Audit the existing artifact/manifest and data-readiness evidence on the tester branch; preserve the separate live/model/holdout/strategy denials.
+
+**Tester → Developer:** Provide a bounded readiness report and required fixes; do not infer empirical authorization from collection closure.
