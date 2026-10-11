@@ -311,15 +311,87 @@ def test_source_alignment_checks_daily_and_intraday_labels():
         validator.verify_panel_source_alignment(bad_intra, "intraday", 5, daily_source, intraday_source)
     except SystemExit as exc:
         assert "source-derived future-return mismatch" in str(exc)
-        assert "mismatch_count=1" in str(exc)
-        assert "max_abs_diff=0.01" in str(exc)
+        assert '"out_of_policy_count":1' in str(exc)
+        assert '"max_abs_diff":0.01' in str(exc)
     else:
         raise AssertionError("mutated intraday future return was not rejected")
+
+
+def test_float64_source_alignment_ulp_policy():
+    compare = validator.compare_float64_within_ulps
+    base = np.float64(1.0)
+    one_ulp = np.nextafter(base, np.inf)
+    two_ulps = np.nextafter(one_ulp, np.inf)
+    three_ulps = np.nextafter(two_ulps, np.inf)
+
+    for value, expected_distance in ((one_ulp, 1), (two_ulps, 2)):
+        passed, diagnostic = compare([base], [value], max_ulps=2)
+        assert passed is True, diagnostic
+        assert diagnostic["exact_mismatch_count"] == 1
+        assert diagnostic["accepted_within_ulps_count"] == 1
+        assert diagnostic["out_of_policy_count"] == 0
+        assert diagnostic["max_ulp_distance"] == expected_distance
+
+    passed, diagnostic = compare([base], [three_ulps], max_ulps=2)
+    assert passed is False
+    assert diagnostic["out_of_policy_count"] == 1
+    assert diagnostic["max_ulp_distance"] == 3
+    assert diagnostic["first_non_exact_pairs"][0]["within_policy"] is False
+
+    passed, diagnostic = compare(
+        [np.nan, np.inf, -np.inf, 0.0],
+        [np.nan, np.inf, -np.inf, -0.0],
+        max_ulps=2,
+    )
+    assert passed is True, diagnostic
+    assert diagnostic["exact_mismatch_count"] == 0
+
+    for actual, expected in (
+        ([np.nan], [0.0]),
+        ([np.inf], [1.0]),
+        ([np.inf], [-np.inf]),
+        ([0.006], [-0.006]),
+    ):
+        passed, diagnostic = compare(actual, expected, max_ulps=2)
+        assert passed is False, (actual, expected, diagnostic)
+        assert diagnostic["out_of_policy_count"] == 1
+
+    passed, diagnostic = compare([1.0, 2.0], [1.0], max_ulps=2)
+    assert passed is False
+    assert diagnostic["shape_mismatch"] is True
+
+    # Daily H=1's source-derived returns are allowed only the registered two ULPs.
+    daily_ts = pd.date_range("2025-01-01", periods=30, freq="D")
+    daily_source = pd.DataFrame({
+        "date": daily_ts,
+        "close": 100.0 * np.exp(np.arange(30) * 0.001 + np.sin(np.arange(30)) * 0.002),
+    })
+    y, future = p7.p6.make_label(daily_source, 1)
+    panel = pd.DataFrame({
+        "decision_timestamp": daily_ts,
+        "label_direction": y.to_numpy(dtype=float),
+        "future_return": future.to_numpy(dtype=float),
+    })
+    row = int(np.flatnonzero(np.isfinite(panel["future_return"].to_numpy()))[0])
+    original = np.float64(panel.loc[row, "future_return"])
+    panel.loc[row, "future_return"] = np.nextafter(original, np.inf)
+    validator.verify_panel_source_alignment(panel, "daily", 1, daily_source, pd.DataFrame())
+    panel.loc[row, "future_return"] = np.nextafter(
+        np.nextafter(np.nextafter(original, np.inf), np.inf), np.inf
+    )
+    try:
+        validator.verify_panel_source_alignment(panel, "daily", 1, daily_source, pd.DataFrame())
+    except SystemExit as exc:
+        assert "source-derived future-return mismatch" in str(exc)
+        assert '"max_ulp_distance":3' in str(exc)
+    else:
+        raise AssertionError("three-ULP daily H=1 future-return change was not rejected")
 
 
 if __name__ == "__main__":
     test_saved_panel_metrics_reconcile_without_model_refit()
     test_code_hashes_are_checked_against_git_commit()
     test_source_alignment_checks_daily_and_intraday_labels()
+    test_float64_source_alignment_ulp_policy()
     test_full_artifact_directory_validation()
     print("Phase 8 saved-panel validator regression PASS")
