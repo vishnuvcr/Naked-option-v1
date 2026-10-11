@@ -7,7 +7,7 @@ on:
       - "scripts/enrich_nifty_composite_greeks.py"
       - "scripts/test_enrich_nifty_composite_greeks.py"
       - ".github/workflows/phase8-greek-enrichment.yml"
-      - "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R1_2026-10-12.md"
+      - "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md"
   workflow_dispatch:
     inputs:
       run_enrichment:
@@ -53,7 +53,7 @@ jobs:
         run: |
           python - <<'PY'
           import json, os, subprocess
-          path = "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R1_2026-10-12.json"
+          path = "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R2_2026-10-12.json"
           try:
               raw = subprocess.check_output(["git", "show", "origin/phase-08-tester:" + path], text=True)
           except subprocess.CalledProcessError:
