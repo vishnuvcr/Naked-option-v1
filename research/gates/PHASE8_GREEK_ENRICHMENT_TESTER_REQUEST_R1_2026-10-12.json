@@ -43,5 +43,7 @@
   "reviewer_instructions": {
     "developer": "Do not alter the reviewed snapshot after submission; any changed blob needs a new tester request.",
     "tester": "Write the decision only on phase-08-tester. Approve only the exact reviewed commit, after both test suites pass. Keep Dhan requests, P&L, holdout, promotion and plaintext uploads explicitly unauthorized."
-  }
+  },
+  "workflow_attempt": 2,
+  "workflow_validation_note": "R1 tester workflow corrected to build Markdown report as a list so the YAML block scalar remains valid; rerun exact same developer snapshot."
 }
