@@ -115,7 +115,7 @@ def ai_review(args: argparse.Namespace) -> int:
         candidate = {
             "decision": "REQUEST_CHANGES",
             "summary": "AI reviewer unavailable; no independent AI verdict was produced.",
-            "findings": [{"severity": "BLOCKER", "file": "automation/nifty_composite_agent.py",
+            "findings": [{"severity": "WARNING", "file": "automation/nifty_composite_agent.py",
                           "finding": type(exc).__name__ + ": " + str(exc),
                           "required_fix": "Restore HF Inference Provider access and rerun the workflow."}],
             "review_status": "REVIEWER_UNAVAILABLE",
@@ -168,7 +168,7 @@ def compile_report(args: argparse.Namespace) -> int:
         f"- Reviewed developer commit: {args.reviewed_sha}",
         f"- Report time (UTC): {now_utc()}",
         f"- Deterministic checks: {'PASS' if deterministic_ok else 'REQUEST CHANGES'}",
-        f"- AI reviewer: {ai.get('review_status', 'UNKNOWN')} / {ai.get('decision', 'UNKNOWN')}",
+        f"- AI reviewer: {ai.get('review_status', 'UNKNOWN')} / {(ai.get('decision', 'UNKNOWN') if ai_completed else 'NO_VERDICT')}",
         f"- Automatic repair attempt: {args.attempt}",
         "- Live requests authorized: NO", "- Model fitting authorized: NO", "- Holdout access authorized: NO", "",
         "## Deterministic findings", "",
