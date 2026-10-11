@@ -1,5 +1,9 @@
 # NIFTY Naked-Option Direction Research
 
+## One-time offline CSV export — in progress
+
+The tester-approved encrypted export is queued in [Actions run 38133038676](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38133038676). It will produce a single merged CSV.GZ from the verified 61-part repaired dataset and upload only a one-time-key-encrypted package; no plaintext CSV is committed or uploaded. The offline file is not ready until the output SHA-256 and 8,999,865 data rows are verified locally.
+
 ## 2026-10-11 — Derived dataset repair output review completed
 
 - Hosted repair workflow [38131641336](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38131641336) completed successfully; all steps passed, including source integrity checks, regression tests, 61-part derived output verification, the integrated post-repair audit, encrypted artifact upload, plaintext cleanup and sanitized-report publication.
