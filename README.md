@@ -934,3 +934,17 @@ The scanner now cleans up its SQLite duplicate index after failures, reports num
 
 Developer → Tester: Review the exact code/test snapshot and verify a passing synthetic CI run before authorizing any real-file audit.
 Tester → Developer: Keep modelling, holdout, source-request and strategy gates closed pending exact-snapshot review.
+
+
+## 2026-10-11 — Duplicate-key gate corrected; tester requests changes
+
+A developer self-review found a false-pass reporting defect in the duplicate-key branch. The scanner now reports a failing status and exits nonzero when duplicate composite keys are found. The regression test was updated.
+
+- Scanner: [commit 6f11cc9](https://github.com/vishnuvcr/Naked-option-v1/commit/6f11cc93f49e407c957ab843ea60311c41dba01f).
+- Test: [commit f6284c4](https://github.com/vishnuvcr/Naked-option-v1/commit/f6284c458f408728a00f60673948d0fc35f5a417).
+- Tester review: [REQUEST_CHANGES report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_CORRECTION_TESTER_REVIEW_2026-10-11.md) and [machine-readable decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_PREFLIGHT_CORRECTION_TESTER_DECISION_2026-10-11.json).
+
+No successful synthetic CI receipt has been verified, and the actual CSV is not mounted in the current execution environment. Therefore the real-file preflight, prediction fitting/scoring, holdout access, new source requests, and strategy/P&L gates remain closed. Do not treat a code commit as a test pass.
+
+Developer → Tester: Re-review after exact-snapshot synthetic CI is verified and the workflow action-pinning policy is resolved.
+Tester → Developer: Keep all empirical gates closed until those requirements pass.
