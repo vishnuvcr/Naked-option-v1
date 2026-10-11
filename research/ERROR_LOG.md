@@ -1307,3 +1307,13 @@ All entries below are test/integration failures only. None made a Dhan request, 
 ## 2026-10-11 — Exact-hash gate mismatch caught before execution acceptance
 - Post-review changes had altered the blob hashes for `phase-07-offline-preflight-tests.yml`, `check_workflow_action_pinning.py`, and `test_workflow_action_pinning.py`. The tester's exact-hash authorization would therefore reject the run.
 - Restored each file to its reviewed blob SHA and verified all 11 required paths now match. Reissued the explicit request as R2; no audit result is accepted until a completed run receipt and sanitized report are retrieved.
+
+
+## 2026-10-11 — Uploaded CSV preliminary scan limitation
+
+- Category: execution/runtime and schema-coverage review.
+- Input: user-uploaded `nifty_repaired_composite_2021-10_to_2026-10.csv.gz`; pinned SHA matched the expected export hash.
+- Completed: gzip integrity, 47-column header, full 8,999,865-row width scan (zero malformed widths), row-type counts, timestamp extrema, and key-field presence checks.
+- Runtime issue: a local SQLite-backed full uniqueness scan exceeded the execution time limit. No duplicate-key count was produced or inferred.
+- Potential scanner coverage issue: the actual header uses `row_type,underlying,expiry_code,returned_strike`; the current generic preflight key-group registry expects `instrument_type,symbol,expiry,strike` or `security_id`. The real-file report must not claim uniqueness PASS unless a supported key group matches the actual schema. Tester must decide whether a separate exact-hash correction/review is required.
+- Disposition: logged in https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-developer/research/data/preflight/UPLOADED_CSV_PRELIMINARY_CHECK_2026-10-11.md. All downstream research gates remain closed.
