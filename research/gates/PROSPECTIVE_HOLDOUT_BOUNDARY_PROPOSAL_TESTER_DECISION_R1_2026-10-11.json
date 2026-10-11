@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-11",
+  "gate": "PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_R1",
+  "verdict": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "reviewed_developer_commit": "cd264e49e820dac7f55d587bccc4ee97c137b39a",
+  "reviewed_blobs": {
+    "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_PROPOSAL_R1_2026-10-11.md": "8af859743457896591ed1f021abe546c24200069",
+    "research/gates/PROSPECTIVE_HOLDOUT_BOUNDARY_SCOPE_R1_2026-10-11.json": "4700a46ca15461c21c12a948767b3933254b67bd"
+  },
+  "allowed_scope": "implementation and synthetic-only tests for metadata-only prospective boundary scanner",
+  "permissions": {
+    "implementation": true,
+    "synthetic_tests": true,
+    "cached_dataset_scan": false,
+    "model_fitting": false,
+    "model_tuning": false,
+    "prediction_scoring": false,
+    "holdout_value_access": false,
+    "new_source_requests": false,
+    "strategy_pnl": false,
+    "trading": false
+  },
+  "required_checks": [
+    "only row_type, timestamp_epoch, session_date, byte offsets and record lengths used by application logic",
+    "stable error codes and offsets only; no raw row contents in logs",
+    "deterministic 70/15/15 session allocation with documented rounding",
+    "per-horizon train/validation endpoint purge computed, not trusted from manifest",
+    "streaming suffix hash without decoding/materializing holdout values",
+    "fail closed on malformed rows, timestamp ambiguity, or failed purge"
+  ],
+  "next_step": "Developer implements scanner and synthetic tests; tester must review exact implementation hashes before any real-file execution authorization.",
+  "reviewer_independence": "Role-isolated review on phase-07-tester in the same connected assistant session; not an external human review."
+}
