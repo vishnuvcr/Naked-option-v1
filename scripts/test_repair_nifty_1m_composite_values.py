@@ -96,6 +96,11 @@ class DerivedDatasetRepairTests(unittest.TestCase):
             for field in ("nifty_open", "nifty_high", "nifty_low", "nifty_close", "nifty_volume"):
                 option[field] = ""
             write_fixture(root, [option], [])
+            manifest_path = root / "dataset_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["dataset_summary"]["spot_join_matched"] = 0
+            manifest["dataset_summary"]["spot_join_missing"] = 1
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             out = pathlib.Path(tmp) / "derived"
             report = repair.repair_dataset(root, out, pathlib.Path(tmp) / "report.json", SECRET)
             self.assertEqual(report["repair_counts"].get("unmatched_option_rows_preserved"), 1)
