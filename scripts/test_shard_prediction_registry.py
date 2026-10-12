@@ -32,12 +32,14 @@ class RegistryShardTests(unittest.TestCase):
             index = build_index(source, out, records, "methods", 2)
             self.assertEqual(index["total_records"], 3)
             self.assertEqual(index["shard_count"], 2)
+            self.assertEqual(index["source_file"], "source.json")
             self.assertEqual(verify_index(out / "methods_INDEX.json"), [])
 
             shard = out / "methods_0001.jsonl"
             shard.write_bytes(shard.read_bytes() + b" ")
+            errors = verify_index(out / "methods_INDEX.json")
             self.assertTrue(any("byte length mismatch" in e or "SHA-256 mismatch" in e
-                                for e in verify_index(out / "methods_INDEX.json")))
+                                for e in errors))
 
     def test_duplicate_ids_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -57,6 +59,59 @@ class RegistryShardTests(unittest.TestCase):
             }), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "cannot infer record list"):
                 load_records(source, None)
+
+    def test_explicit_empty_record_list_is_valid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.json"
+            source.write_text('{"methods": []}', encoding="utf-8")
+            self.assertEqual(load_records(source, "methods"), [])
+            index = build_index(source, Path(tmp) / "out", [], "methods", 10)
+            self.assertEqual(index["shard_count"], 0)
+            self.assertEqual(verify_index(Path(tmp) / "out" / "methods_INDEX.json"), [])
+
+    def test_missing_key_and_ambiguous_ids_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.json"
+            source.write_text('{"methods": [{"method_id": "M1"}]}', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "requested records key not found"):
+                load_records(source, "configs")
+            source.write_text('[{"method_id": "M1", "id": "other"}]', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "exactly one recognized stable ID"):
+                load_records(source, None)
+            source.write_text('[{"method_id": ""}]', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "non-empty"):
+                load_records(source, None)
+
+    def test_noncanonical_json_and_missing_final_lf_detected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source.json"
+            source.write_text('[{"method_id":"M1","z":1}]', encoding="utf-8")
+            out = root / "out"
+            build_index(source, out, load_records(source, None), "methods", 10)
+            shard = out / "methods_0001.jsonl"
+            shard.write_bytes(b'{"z": 1, "method_id": "M1"}')
+            errors = verify_index(out / "methods_INDEX.json")
+            self.assertTrue(any("missing final LF" in e for e in errors))
+            self.assertTrue(any("non-canonical JSON record" in e for e in errors))
+
+    def test_malformed_index_and_unsafe_path_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bad = root / "bad.json"
+            bad.write_text("{", encoding="utf-8")
+            self.assertTrue(any("invalid index JSON" in e for e in verify_index(bad)))
+            bad.write_text(json.dumps({
+                "schema_version": "auditable-record-shards-v1",
+                "total_records": 0,
+                "shard_count": 1,
+                "shards": [{"path": "../outside.jsonl", "record_count": 0,
+                            "byte_length": 0, "first_id": "", "last_id": "",
+                            "sha256": hashlib.sha256(b"").hexdigest()}],
+            }), encoding="utf-8")
+            errors = verify_index(bad)
+            self.assertTrue(any("unsafe shard path" in e for e in errors))
+            self.assertTrue(any("shard_count mismatch" in e for e in errors))
 
 
 if __name__ == "__main__":
