@@ -743,3 +743,14 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 **Developer → Tester:** audit R2 registry/config files against exact commits and report PASS/REQUEST CHANGES.
 
 **Tester → Developer:** no model runs until the registry and execution implementation both pass independent gates.
+
+
+## 2026-10-12 — R1 registry audit and R2 resubmission
+
+- Tester independently checked the R1 registry/config files and confirmed basic counts/hashes, then issued REQUEST CHANGES for insufficient config coverage, probability calibration compatibility and missing target eligibility details.
+- Developer generated R2 with model-family-specific parameter presets and 8,000 configurations. A human index count typo (4,000 vs 2,000 per shard) was corrected before submitting review.
+- Created tester issue #25. It records the exact R2 file links and commits, and explicitly asks the tester to require smaller files if actual contents cannot be read and audited.
+- Current status: registry R2 review pending; empirical runs are still blocked. This log records visible actions/outcomes, not private reasoning.
+
+**Developer → Tester:** audit R2 and return a hash-pinned verdict.
+**Tester → Developer:** no empirical run until registry gate and synthetic runner gate pass.
