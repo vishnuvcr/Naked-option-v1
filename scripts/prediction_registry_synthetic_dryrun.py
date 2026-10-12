@@ -24,6 +24,7 @@ REGISTRY = ROOT / "research" / "registry"
 INDEX_PATH = REGISTRY / "PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
 MATRIX_PATH = REGISTRY / "PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json"
 PREREG_PATH = REGISTRY / "PREDICTION_PREREGISTRATION_V2_R2.json"
+DATA_MANIFEST_PATH = ROOT / "research" / "data" / "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
 FOLD_IDS = [f"F{i:02d}" for i in range(1, 9)]
 LABEL_IDS = ("INTRA_30M_UP_DOWN", "POS_1D_UP_DOWN")
 SEED = 2026101208
@@ -71,6 +72,11 @@ def sha256_bytes(data: bytes) -> str:
 
 def canonical_json(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def git_blob_sha1(data: bytes) -> str:
+    header = b"blob " + str(len(data)).encode("ascii") + b"\\0"
+    return hashlib.sha1(header + data).hexdigest()
 
 
 def atomic_json(path: Path, value: Any) -> None:
@@ -164,9 +170,24 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
     idx = json.loads(idx_raw.decode("utf-8"))
     matrix_raw = MATRIX_PATH.read_bytes()
     matrix = json.loads(matrix_raw.decode("utf-8"))
-    prereg = json.loads(PREREG_PATH.read_text(encoding="utf-8"))
+    prereg_raw = PREREG_PATH.read_bytes()
+    prereg = json.loads(prereg_raw.decode("utf-8"))
+    data_manifest_raw = DATA_MANIFEST_PATH.read_bytes()
+    expected_manifest_blob = prereg.get("scope", {}).get("data_manifest_sha256_git_blob")
+    actual_manifest_blob = git_blob_sha1(data_manifest_raw)
+    if expected_manifest_blob != actual_manifest_blob:
+        raise SystemExit(f"BLOCKED: pinned data-manifest Git blob hash mismatch: {actual_manifest_blob}")
+    data_manifest = json.loads(data_manifest_raw.decode("utf-8"))
+    if data_manifest.get("encrypted_only") is not True:
+        raise SystemExit("BLOCKED: data manifest does not declare encrypted_only=true")
+    if data_manifest.get("rows_preserved") != 8999865:
+        raise SystemExit("BLOCKED: pinned data manifest row count changed; preregistration must be reviewed")
     if idx.get("method_record_count") != 1000 or idx.get("configuration_record_count") != 8000:
         raise SystemExit("BLOCKED: shard index has unexpected total counts")
+    matrix_body = dict(matrix)
+    expected_matrix_digest = matrix_body.pop("matrix_sha256", None)
+    if expected_matrix_digest != sha256_bytes(canonical_json(matrix_body)):
+        raise SystemExit("BLOCKED: compatibility matrix canonical digest mismatch")
     method_rows = matrix.get("rows")
     if not isinstance(method_rows, list) or len(method_rows) != 1000:
         raise SystemExit("BLOCKED: row-level compatibility matrix must have 1000 rows")
@@ -203,7 +224,9 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
     metadata = {
         "method_index_sha256": sha256_bytes(idx_raw),
         "compatibility_matrix_sha256": sha256_bytes(matrix_raw),
-        "preregistration_sha256": sha256_bytes(PREREG_PATH.read_bytes()),
+        "preregistration_sha256": sha256_bytes(prereg_raw),
+        "data_manifest_git_blob_sha1": actual_manifest_blob,
+        "data_manifest_raw_sha256": sha256_bytes(data_manifest_raw),
         "method_count": 1000,
         "configuration_count": 8000,
     }
