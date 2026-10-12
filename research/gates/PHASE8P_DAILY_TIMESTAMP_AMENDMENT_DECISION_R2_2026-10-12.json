@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DAILY_DECISION_TIME_AMENDMENT",
+  "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS",
+  "amendment_version": "R2_PROVENANCE_CORRECTION",
+  "proposal_path": "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md",
+  "proposal_commit_sha": "3f48c1b00b8abcb35103cda620734071c77b459c",
+  "proposal_blob_sha1": "265c6696466b1999371cb4581baf20fbe950d3f1",
+  "tester_review_r1_blob_sha1": "57e7989489d347c528d5bba5147d1272d5a45f9a",
+  "decision_r1_blob_sha1": "bd5514467a1d2a049db5e0d37c4db356adec6e26",
+  "convention": "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST",
+  "scope_only": true,
+  "real_artifact_access_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false
+}
