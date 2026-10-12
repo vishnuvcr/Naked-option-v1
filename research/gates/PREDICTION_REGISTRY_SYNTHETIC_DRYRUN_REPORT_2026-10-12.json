@@ -2,10 +2,10 @@
   "schema_version": "prediction-registry-synthetic-dryrun-report-v1",
   "status": "PASS_SYNTHETIC_PLUMBING_ONLY",
   "date": "2026-10-12",
-  "runner_source_commit": "d6ab3298f42367de9b0101cdedf477165b20d31f",
-  "workflow_run_id": 38253486894,
-  "workflow_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894",
-  "artifact_id": 11749307748,
+  "runner_source_commit": "6d4787348d7b0b794e210026ceddcea19192eccc",
+  "workflow_run_id": 38254175308,
+  "workflow_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308",
+  "artifact_id": 11749635242,
   "result_file": {
     "name": "results.jsonl",
     "sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b",
@@ -33,7 +33,7 @@
     "source_dataset_encrypted_only": true
   },
   "seed": 2026101208,
-  "runtime_seconds": 47.197704,
+  "runtime_seconds": 46.958744,
   "restart_tests": {
     "interruption_after_task": 17,
     "resumed_output_matches_clean_output_byte_for_byte": true,
@@ -73,15 +73,20 @@
   },
   "statistical_utility_tests": {
     "included_in_same_run": true,
-    "workflow_test_name": "Verify preregistered statistics utilities",
     "result": "PASS",
-    "files": [
-      "scripts/prediction_statistics.py",
-      "scripts/test_prediction_statistics.py"
+    "test_count": 8,
+    "checks": [
+      "log loss/Brier/balanced accuracy known vector",
+      "calibration intercept and slope",
+      "deterministic paired five-session block bootstrap",
+      "BY FDR adjusted p-values",
+      "reject floating labels",
+      "calibration requires both classes",
+      "integer validation for bootstrap replicates/block length/seed"
     ]
   },
   "pinned_checkout": {
-    "required_sha": "d6ab3298f42367de9b0101cdedf477165b20d31f",
+    "required_sha": "6d4787348d7b0b794e210026ceddcea19192eccc",
     "assertion": "git rev-parse HEAD == GITHUB_SHA",
     "passed": true
   }
