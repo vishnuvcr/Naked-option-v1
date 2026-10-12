@@ -74,14 +74,16 @@
   "statistical_utility_tests": {
     "included_in_same_run": true,
     "result": "PASS",
-    "test_count": 8,
+    "test_count": 10,
     "checks": [
       "log loss/Brier/balanced accuracy known vector",
+      "balanced accuracy requires both classes",
       "calibration intercept and slope",
-      "deterministic paired five-session block bootstrap",
-      "BY FDR adjusted p-values",
-      "reject floating labels",
       "calibration requires both classes",
+      "deterministic paired five-session block bootstrap",
+      "constant-effect and too-short-fold bootstrap cases",
+      "BY FDR adjusted p-values",
+      "reject floating labels and invalid probability values",
       "integer validation for bootstrap replicates/block length/seed"
     ]
   },
