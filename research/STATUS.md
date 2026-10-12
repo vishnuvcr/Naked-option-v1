@@ -1,3 +1,14 @@
+# Live status checkpoint — 2026-10-12
+
+## Phase 8P Greek-feature prediction sub-study
+**Current status: CODE GATE BLOCKED — TESTER REQUEST_CHANGES.** The scope R3 is approved for implementation only. Developer synthetic CI passed on matching source/test blobs, but independent review of snapshot `16cb5d266c6312aeeea07ebd61fbbcd589a8281d` found incomplete end-to-end runner, caller-controlled fit authorization, missing chronological block-order checks, mixed OPTION/SPOT timestamp failure, missing daily feature-time contract and insufficient artifact/target/holdout binding in preflight.
+
+No R3 or Run #994 market artifact was downloaded/decrypted for this new sub-study. No empirical model was fitted, no holdout accessed, and no P&L/strategy testing occurred. Phase 8P cannot advance until a new exact-code snapshot receives independent PASS and its later schema-only preflight separately passes tester review.
+
+Details: [tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md) · [decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json) · [scope R3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md)
+
+---
+
 # Research Status
 
 ## Cross-branch checkpoint — 2026-10-10
