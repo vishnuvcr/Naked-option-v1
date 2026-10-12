@@ -4,8 +4,8 @@
   "status": "REQUESTED_NOT_APPROVED",
   "requested_at": "2026-10-12",
   "developer_branch": "phase-08-prediction-developer",
-  "reviewed_snapshot_commit": "b04b2541ea80cdb8b80d703b27ef778f4b7c425b",
-  "tested_source_commit": "877b7baf3aafb309021dfc621f7e98406b5532ee",
+  "reviewed_snapshot_commit": "503af0a4c6af98aec2c2a41b633cedc50df75d34",
+  "tested_source_commit": "32cad4b775133436f809a684a6b916cd3f6d00b4",
   "review_artifacts": {
     "contrast_repair_report": "research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_REPORT_2026-10-12.json",
     "contrast_repair_report_blob_sha1": "b6e992ce7922a4b168ea0101687e7ce4d71b9e01",
@@ -13,7 +13,12 @@
     "synthetic_report_blob_sha1": "9b2aa5e113706cf7d70f75a3372830daca5a3683",
     "synthetic_report_is_historical": true,
     "note": "The canonical synthetic report predates contrast repair; use the contrast-repair supplement for latest run 38255852608.",
-    "contrast_repair_log": "research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md"
+    "contrast_repair_log": "research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md",
+    "compatibility_shard_index": "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json",
+    "compatibility_shard_index_blob_sha1": "ebe233aca9e3d12fb3a7af1af579261d4c4e872c",
+    "compatibility_shard_count": 40,
+    "compatibility_shard_size": 25,
+    "compatibility_shard_note": "Every 25-row JSON shard is committed and individually accessible; index contains byte counts, record counts, first/last IDs, SHA-256, source matrix file SHA-256 and semantic matrix digest. CI verified byte hashes and exact reconstruction against the full matrix."
   },
   "ci": {
     "contrast_repair_run": {
@@ -37,6 +42,14 @@
       "conclusion": "success",
       "artifact_id": 11749737651,
       "result_sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b"
+    },
+    "review_shards_run": {
+      "id": 38299233992,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992",
+      "conclusion": "success",
+      "tested_commit": "32cad4b775133436f809a684a6b916cd3f6d00b4",
+      "generated_shards_commit": "503af0a4c6af98aec2c2a41b633cedc50df75d34",
+      "artifact_id": 11769402300
     }
   },
   "registry": {
@@ -81,6 +94,7 @@
     "statistical_tests": "PASS"
   },
   "review_questions": [
+    "Independently recompute the compatibility shard index SHA-256 values and reconstruct all 1,000 rows; CI reports exact reconstruction, but independently verify this from the now-accessible committed shards.",
     "Independently recompute all method/config shard hashes, byte counts, ID ranges, master equality and index linkage.",
     "Verify each nearest_neighbor_method_id is the deterministic minimum-distance peer under the registered semantic fields and each contrast lists exactly the differing field values.",
     "Determine whether semantic fingerprints and the 426 conditional rows represent scientifically meaningful distinctions rather than only a unique Cartesian encoding.",
