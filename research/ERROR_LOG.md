@@ -1020,3 +1020,9 @@
 ## 2026-10-12 — Test count in latest synthetic report corrected
 
 - During final artifact audit, the latest `scripts/test_prediction_statistics.py` was found to contain 10 test methods. The pinned full run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) log confirms `Ran 10 tests` and `OK`. A draft summary still said 8, reflecting an earlier version of the suite. Updated the machine-readable report and status/checkpoint references to 10. Older 8-test counts for earlier commits remain historically correct.
+
+
+## 2026-10-12 — Explicit registry review request pinned
+
+- Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json` with tested source commit `6d4787348d7b0b794e210026ceddcea19192eccc`, blob IDs for code/manifests/reports, run IDs 38254175308 / 38254175428 / 38254175326, output SHA-256, count summary and a checklist for an independent mathematical/scientific review.
+- The review request explicitly says 426 methods are only conditionally compatible in principle, 574 blocked, and zero empirically eligible. It prohibits fitting/holdout access pending a fresh independent PASS. It does not change the existing tester REQUEST CHANGES decision.
