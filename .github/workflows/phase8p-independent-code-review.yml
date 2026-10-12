@@ -34,11 +34,11 @@ jobs:
         run: |
           set -euo pipefail
           git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
-          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json > "${RUNNER_TEMP}/phase8p-code-review-request.json"
+          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_CODE_REVIEW_REQUEST_R2_2026-10-12.json > "${RUNNER_TEMP}/phase8p-code-review-request-r2.json"
           python - <<'PY'
           import json, os, subprocess
           from pathlib import Path
-          request=json.loads(Path(os.environ["RUNNER_TEMP"]+"/phase8p-code-review-request.json").read_text())
+          request=json.loads(Path(os.environ["RUNNER_TEMP"]+"/phase8p-code-review-request-r2.json").read_text())
           sha=request["developer_commit"]
           subprocess.check_call(["git","cat-file","-e",sha+"^{commit}"])
           print("DEVELOPER_SNAPSHOT="+sha)
@@ -62,7 +62,7 @@ jobs:
           set -euo pipefail
           git worktree add --detach "${RUNNER_TEMP}/phase8p-developer" "${DEV_SHA}"
           test "$(git -C "${RUNNER_TEMP}/phase8p-developer" rev-parse HEAD)" = "${DEV_SHA}"
-          cp "${RUNNER_TEMP}/phase8p-code-review-request.json" "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json"
+          cp "${RUNNER_TEMP}/phase8p-code-review-request-r2.json" "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R2_2026-10-12.json"
 
       - name: Run independent formulas, hashes and synthetic-only tests
         id: audit
@@ -71,18 +71,18 @@ jobs:
           set -euo pipefail
           python scripts/phase8p_independent_code_audit.py \
             --developer-root "${RUNNER_TEMP}/phase8p-developer" \
-            --request "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json" \
+            --request "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R2_2026-10-12.json" \
             --out "${RUNNER_TEMP}/phase8p-independent-code-review.json" | tee "${RUNNER_TEMP}/phase8p-independent-summary.json"
 
       - name: Upload independent code-review receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase8p-independent-code-review-r1
+          name: phase8p-independent-code-review-r2
           path: |
             ${{ runner.temp }}/phase8p-independent-code-review.json
             ${{ runner.temp }}/phase8p-independent-summary.json
-            ${{ runner.temp }}/phase8p-code-review-request.json
+            ${{ runner.temp }}/phase8p-code-review-request-r2.json
           if-no-files-found: warn
           retention-days: 90
 
