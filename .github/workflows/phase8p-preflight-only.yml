@@ -247,10 +247,13 @@ jobs:
           p=Path(sys.argv[1]); err=Path(sys.argv[2]).read_bytes(); rc=int(sys.argv[3])
           lines=err.decode("utf-8",errors="replace").splitlines()
           tail=lines[-1] if lines else "NO_DIAGNOSTIC_AVAILABLE"
-          # Keep only a machine-safe failure category; do not publish raw tracebacks or data.
-          category=tail.split(":",1)[0][:120].replace("\\","_").replace("/","_")
+          # Emit only an exception class and a symbolic GateBlocked code, never raw data or traceback.
+          category=tail.split(":",1)[0][:80]
+          detail=tail.split(":",1)[1].strip() if ":" in tail else ""
+          candidate=detail.split(":",1)[0].strip()
+          safe_code=candidate if 0 < len(candidate) <= 120 and all(ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for ch in candidate) else "UNCLASSIFIED_GATE_BLOCK"
           report={"schema_version":2,"status":"BLOCKED","mode":"SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT",
-             "runtime_preflight_failure":True,"failure_category":category,
+             "runtime_preflight_failure":True,"failure_category":category,"failure_code":safe_code,
              "runner_exit_code":rc,"stderr_sha256":hashlib.sha256(err).hexdigest(),
              "model_fit_authorized":False,"holdout_access_authorized":False,
              "option_pnl_authorized":False,"strategy_promotion_authorized":False,
@@ -277,7 +280,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           python - "${RUNNER_TEMP}/phase8p-preflight/input-receipt.json" <<'PY'
-          import hashlib,json,os,subprocess
+          import hashlib,json,os,subprocess,sys
           from pathlib import Path
           base=Path(os.environ["RUNNER_TEMP"])/"phase8p-preflight"
           base.mkdir(parents=True,exist_ok=True)
