@@ -732,3 +732,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review the exact aggregate report and output digest from run #38207005953 when published; verify counts/hashes/conflicts and no raw data leakage. Do not approve model fit until the data gate passes.
 **Tester → Developer:** issue the independent diagnostic-results gate decision, preserving the nonce receipt and any runtime/resource failure as evidence.
+
+
+## Phase 8P one-use duplicate diagnostic R1 — runner shutdown, no result (2026-10-12)
+
+- Run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) ended **FAILURE** after approximately 12 minutes; GitHub runner log reports exit code 143 and shutdown signal during step “Run authorized aggregate-only duplicate diagnostic”.
+- Authorization gate passed; the unique nonce had been permanently committed before artifact access; pinned code was checked out and the encrypted source ZIP hash was verified. The scan produced no sanitized aggregate report and no result artifact.
+- Interpretation: **technical/infrastructure failure only; not a data finding**. Duplicate counts/conflicts remain unknown. The consumed nonce cannot be reused.
+- Next: prepare a fresh executor workflow/request revision with a new nonce and explicit runtime progress/resource safeguards; obtain a new independent workflow PASS and separately issued one-use authorization. Then rerun the same diagnostic scope once. No model or strategy test until the diagnostic output is independently accepted.
+
+**Developer → Tester:** preserve run #38207005953 as failed technical evidence, not data evidence. Review the fresh executor revision and its new one-use request separately.
+**Tester → Developer:** reject reuse of the consumed nonce; do not authorize prediction features until a diagnostic report passes the data gate.
