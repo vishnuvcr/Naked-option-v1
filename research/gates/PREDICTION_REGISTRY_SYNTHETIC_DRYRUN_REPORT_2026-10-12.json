@@ -1,0 +1,64 @@
+{
+  "schema_version": "prediction-registry-synthetic-dryrun-report-v1",
+  "status": "PASS_SYNTHETIC_PLUMBING_ONLY",
+  "date": "2026-10-12",
+  "commit": "9319856912efb945ce9ac5162d3ec0b173551af7",
+  "workflow_run_id": 38251707853,
+  "workflow_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38251707853",
+  "artifact_id": 11749150256,
+  "result_file": {
+    "name": "results.jsonl",
+    "sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b",
+    "bytes": 36955576,
+    "rows": 64000
+  },
+  "task_universe": {
+    "configurations": 8000,
+    "outer_folds": 8,
+    "total_tasks": 64000
+  },
+  "terminal_status_counts": {
+    "SYNTHETIC_MOCK_ONLY": 27264,
+    "BLOCKED_COMPATIBILITY": 36736
+  },
+  "errors": {
+    "runtime_exception_rows": 0,
+    "error_jsonl_rows": 0
+  },
+  "safety_assertions": {
+    "market_data_opened": false,
+    "model_fitting_performed": false,
+    "holdout_accessed": false,
+    "scientific_evidence": false,
+    "source_dataset_encrypted_only": true
+  },
+  "seed": 2026101208,
+  "runtime_seconds": 45.650572,
+  "restart_tests": {
+    "interruption_after_task": 17,
+    "resumed_output_matches_clean_output_byte_for_byte": true,
+    "failure_injection_logged_with_traceback_hash": true,
+    "registry_loader_validated_8000_configurations": true
+  },
+  "resource_estimate": {
+    "status": "ASSUMPTION_BASED_NOT_BENCHMARKED",
+    "design_compatible_configurations_pending_gate": 3408,
+    "hypothetical_fit_calls": 109056,
+    "assumed_serial_cpu_hours": 1173.33,
+    "assumed_matrix_shape": [
+      20000,
+      1920
+    ],
+    "assumed_matrix_mib": 293,
+    "estimated_peak_single_worker_mib": 1671.9,
+    "estimated_four_worker_memory_lower_bound_mib": 6687.6,
+    "assumption": "5 CPU seconds per baseline fit with family multipliers; not measured on real estimators/data."
+  },
+  "gate_status": {
+    "registry_integrity": "PASS",
+    "synthetic_orchestration": "PASS",
+    "scientific_compatibility_preregistration": "BLOCKED_PENDING_INDEPENDENT_TESTER",
+    "empirical_fitting": "NOT_AUTHORIZED",
+    "untouched_holdout_access": "NOT_AUTHORIZED"
+  }
+}
