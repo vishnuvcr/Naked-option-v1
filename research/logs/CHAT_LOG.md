@@ -936,3 +936,11 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 **Developer → Tester (post-results only):** wait for the ten-horizon empirical output bundle and verify exact source/artifact hashes in one consolidated review.
 **Tester → Developer (post-results only):** return one hash-pinned decision with any reproducible scientific/statistical defects after result acquisition.
+
+
+## 2026-10-13 — R3 build failure detected and corrected by developer
+
+- The established registry workflow produced a committed failure log: `BLOCKED: R2 manifest does not use exact-file-byte SHA-256`. Attempt snapshot was `4dba2efb4e245a7b17afee59d1c66574515eef3b`, exit code 1.
+- Exact root cause: `HASH_RULE` omitted “any ... if present” from the already-frozen R2 manifest contract string. Corrected the builder literal to match the R2 manifest exactly in commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83`. This is a wording correction only; no integrity validation was bypassed.
+- R3 outputs do not yet exist. The rerun against the corrected source has not been observed yet.
+- Tester cadence remains post-results-only. No tester review requested at this intermediate correction, and no market data/model/holdout work occurred.
