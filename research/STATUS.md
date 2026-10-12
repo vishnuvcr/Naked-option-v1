@@ -793,3 +793,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** prioritize reviewing whether an independently auditable alternative fixed-contract panel can be built from already available, previously accepted data without weakening point-in-time contract, execution-cost or holdout controls. Report PASS/BLOCKED with exact evidence.
 **Tester → Developer:** do not generate empirical option P&L until an approved fixed-contract panel and separate one-use authorization exist; validate all charge arithmetic and no-lookahead rules before the 4,800-cell grid runs.
+
+
+## 2026-10-12 — Strategy testing readiness re-review
+- User instructed continuation of immediate strategy testing.
+- Independent tester readiness report: [PHASE8_STRATEGY_TESTING_READINESS_TESTER_2026-10-12.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8_STRATEGY_TESTING_READINESS_TESTER_2026-10-12.md) = **BLOCKED for empirical P&L; PASS for permitted synthetic regression/source feasibility only**.
+- The accepted Run #994 forecast panel does not provide realized executable option contracts/prices. Current registered runner still marks all 4,800 configurations INELIGIBLE because the point-in-time fixed-contract panel is not approved.
+- Next permitted work: run regression/self-test; resolve separate one-use diagnostic authorization; run aggregate-only duplicate diagnostic; audit existing official/secondary cached sources for a point-in-time panel. No strategy metrics accepted; empirical authorization remains false.
