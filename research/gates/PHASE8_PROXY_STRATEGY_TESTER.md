@@ -1,12 +1,12 @@
-# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R5)
+# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R6)
 
 STATUS: PASS — OHLC PROXY BACKTEST AUTHORIZED
 
 Developer branch: phase-08-prediction-developer
-Reviewed code commit: 3b235ef095e230eab2113fadf06b6d5da1b57c9e
-Runner blob SHA: fcb1f6592c62f113cc64edb6be39047e92d5f967
-Synthetic test blob SHA: 27c6b3227b57223f0877fd0d1236c455c73d440a
-Workflow blob SHA: a3c80e65e14de9a06f366f5c6dfd640152abf37e
+Reviewed code commit: a750a2921b157f4e9e2ffc47b6434cc363b2d48e
+Runner blob SHA: b26f86af76cedd63d3aff1cb6cb74fb9588eb7a5
+Synthetic test blob SHA: 768a9e38262af9d0e5aa657bc00414078158b89b
+Workflow blob SHA: 9a3c04e5b23e779de5964d9396a732f0fe262ffc
 
 ## Independent review and change rationale
 
@@ -44,3 +44,11 @@ PASS for one hosted attempt using these exact runner/test/workflow blobs, after 
 - The vectorized scan uses the first qualifying OHLC bar in timestamp order. A stop gap uses the lower of stop level and bar open when open is positive; invalid high/low bars are not allowed to trigger or update the trailing high. If no trigger occurs before the frozen schedule, the scheduled exit open is used.
 - Two new synthetic tests cover scheduled-time fallback and invalid bars in trailing-stop evaluation. The R5 run is authorised only if the hosted regression confirms these exact blobs pass.
 - R3 and R4 runs remain diagnostic/non-accepted if they finish; R3 has the documented delta look-ahead and R4 uses the slower, loop-based exit scan. Only a result-level audit can accept R5 metrics.
+
+
+## R6 vectorized contract selection review
+
+- Contract selection now computes the as-of delta array in one vectorized pass for all candidate rows at a timestamp. The ranking order remains: available as-of delta before moneyness fallback; then absolute delta-target error; then absolute log-moneyness; strike distance; contract code; original row order.
+- Stored delta is used only if its valuation timestamp is no later than the entry timestamp. Otherwise the ranking delta is recomputed from source IV, rolling_spot and expiry remaining as of entry. Current-minute `nifty_close` and close-valued `time_to_expiry_years` are not used to rank the contract.
+- Test now compares vectorized calculations against the pointwise as-of function for both directly available and recalculated Greek rows. Exact R6 blobs are eligible for empirical execution only if the current hosted regression/self-test and tester gate pass.
+- The R5 vectorized-exit run and earlier R3/R4 runs are superseded diagnostics. The first empirical output eligible for result-level audit will be the new R6 run on these exact blobs.
