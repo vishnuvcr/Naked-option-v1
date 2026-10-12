@@ -842,3 +842,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The repository already contains the enriched version of the same 61-part composite: workflow run 38195812828, artifact 11723198817, SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736. Its expiry mapping is a file-list/rule proxy, not a point-in-time exchange master.
 - Tester R3 has approved use of this existing artifact for one frozen-grid Q1/OHLC proxy attempt. No new data collection and no bid/ask prerequisite.
 - Next action: execute the same 4,800 configurations × four cost scenarios and independently review results; prior failed attempts are non-evidence.
+
+
+## 2026-10-12 — Phase 8 live checkpoint (08:49 UTC)
+
+- Re-queried hosted run [38222296903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38222296903), commit `368a3d19e615f8ea09a2006b6b709fc66d8946e3`. Run remains **in_progress**.
+- Jobs: regression **success**; exact-snapshot tester-gate **success**; `proxy-backtest` **in_progress**, currently on “Run the 4,800 configuration OHLC proxy grid”. Input-restore/decryption steps completed successfully.
+- No run artifacts are published yet; therefore no verified trade ledger, net P&L, win rate, loss rate, expectancy, or accepted drawdown metric is available.
+- Attempt to retrieve active job logs returned GitHub storage `BlobNotFound` (404). Record as an observability limitation, not a backtest failure. Continue checking run state and artifacts; do not rerun or modify the active snapshot while it is running.
+- Result review remains gated by `research/gates/PHASE8_PROXY_RESULTS_AUDIT_HANDOFF_R1_2026-10-12.md`, including R1 drawdown-percentage defect and R5–R9 implementation/data risks. Pre-run gate success is not a result-level tester PASS.
+
+**Developer → Tester:** prepare to independently audit the actual artifact/ledger when published; report missing evidence as unavailable rather than infer zero trades or zero P&L.
+**Tester → Developer:** keep promotion and Phase 9 blocked until hash-pinned result-level review; request corrections for affected metrics.
