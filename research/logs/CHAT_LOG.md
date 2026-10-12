@@ -827,3 +827,10 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 - Four config shards contain 8,000 unique IDs and match their declared per-shard record counts/ranges, but the manifest SHA-256 values match none of the three checked encodings (raw file, canonical root JSON, canonical records joined with LF). Hash semantics remain unresolved.
 - The CI run is correctly red because the registry data fails integrity checks. The 8 utility tests and SHA-256 known vector still pass; those results are not registry approval.
 - Next: clarify and test the config digest rule; prepare missing method-shard regeneration from the committed master registry; preserve the failure evidence; resubmit exact outputs for independent tester review. No fitting/holdout access.
+
+
+### 2026-10-12 — R2 registry repair continuation
+
+User instructed: “Resolve the issue.” Developer added a guarded shard generator and workflow on phase-08-prediction-developer. The generator validates the 1,000-method master and ordered PM0001–PM1000 IDs, refuses to overwrite any existing shard unless it exactly matches the master slice, and creates only absent 50-record shards.
+
+The workflow also establishes a transparent config-shard hash contract: SHA-256 over exact committed file bytes (UTF-8 JSON bytes, including a final newline if present). Before pinning each digest, it checks the declared record count, unique IDs, and first/last IDs. The manifest has now changed to this explicit rule. This is an integrity metadata repair, not a scientific result. The integrity audit and independent tester decision remain mandatory; no model fitting or holdout access is authorized.
