@@ -11,6 +11,10 @@ on:
       - "scripts/test_reshard_prediction_registry.py"
       - "scripts/build_prediction_compatibility_matrix.py"
       - "scripts/test_prediction_compatibility_matrix.py"
+      - "scripts/prediction_registry_synthetic_dryrun.py"
+      - "scripts/test_prediction_registry_synthetic_dryrun.py"
+      - "scripts/test_prediction_preregistration.py"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json"
       - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - "scripts/audit_prediction_registry_shards.py"
       - "research/registry/**"
@@ -41,6 +45,10 @@ jobs:
         run: python scripts/build_prediction_compatibility_matrix.py
       - name: Test compatibility matrix rules
         run: python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
+      - name: Test frozen preregistration source pins and statistical rules
+        run: python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+      - name: Test synthetic checkpoint/restart and error logging
+        run: python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
       - name: Check whether generated compatibility output is committed
         shell: bash
         run: |
