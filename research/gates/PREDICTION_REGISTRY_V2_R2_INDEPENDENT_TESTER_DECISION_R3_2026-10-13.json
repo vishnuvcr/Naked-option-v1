@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "gate": "PREDICTION_REGISTRY_V2_R2_INDEPENDENT_REVIEW",
+  "decision": "REQUEST_CHANGES",
+  "reviewed_at": "2026-10-13",
+  "developer_branch": "phase-08-prediction-developer",
+  "reviewed_snapshot_commit": "503af0a4c6af98aec2c2a41b633cedc50df75d34",
+  "declared_tested_source_commit": "32cad4b775133436f809a684a6b916cd3f6d00b4",
+  "findings": [
+    {
+      "id": "T2",
+      "severity": "BLOCKING",
+      "file": "scripts/prediction_statistics.py",
+      "test": "scripts/test_prediction_statistics.py",
+      "summary": "Degenerate moving-block bootstrap can return a zero-width CI and minimum p-value for a single admissible block/constant deltas; fail closed with non-identifiable status and null inferential outputs."
+    },
+    {
+      "id": "T3",
+      "severity": "BLOCKING_FOR_EXHAUSTIVE_SCOPE",
+      "file": "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json",
+      "summary": "Only 30-minute intraday and +1-session positional labels are registered, versus the broader frozen prediction horizon set."
+    }
+  ],
+  "audit_progress": {
+    "compatibility_shards_verified": 8,
+    "compatibility_shards_total": 40,
+    "config_shards_verified": 0,
+    "config_shards_total": 80,
+    "full_reconstruction_signed_off": false,
+    "tester_owned_audit_script": "scripts/independent_prediction_registry_audit_r2.py",
+    "tester_owned_workflow": ".github/workflows/phase-08p-independent-registry-review.yml",
+    "workflow_commit": "42508741d60a280c2f3e1cacab6bf18e07a440a6",
+    "workflow_result": "NOT_YET_OBSERVED"
+  },
+  "source_blobs": {
+    "statistical_implementation": "3b36b21ed3d7c47a6b58e5f95c6b6f6861e0c776",
+    "statistical_tests": "5512c48863442c2cf835b7a3c018aabd8a5b5164",
+    "label_manifest": "eca01d604afa3db3fcb86e962ca3a579c85a35dc"
+  },
+  "authorization": {
+    "empirical_model_fitting": false,
+    "encrypted_market_data_access": false,
+    "outer_fold_model_selection": false,
+    "holdout_access": false,
+    "option_pnl": false,
+    "strategy_promotion": false
+  }
+}
