@@ -243,3 +243,7 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** review preflight workflow before artifact download; independently assess its aggregate report afterwards.
 **Developer → Tester:** preserve R1 REQUEST_CHANGES; use R2 only for the exact approved code snapshot and do not run models until separate preflight decision.
+
+
+## 2026-10-12 — Tester approved schema-only preflight executor R2
+- The isolated tester audit passed 29/29 checks on the exact workflow blob and wrote a machine decision PASS_PREFLIGHT_WORKFLOW_ONLY. Only schema/coverage preflight is permitted; fitting remains blocked pending a separate data-preflight review.
