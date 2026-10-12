@@ -3,7 +3,7 @@
   "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_R5",
   "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
   "review_scope": "STATIC_AND_SYNTHETIC_ONLY_NO_REAL_ARTIFACT_ACCESS",
-  "developer_commit": "ade5372c1f9f92e07857ab2aabcca18f21b899e1",
+  "developer_commit": "916ff866a5290e38203cff3ea2fa30d77a229d18",
   "implementation": {
     "core_module_path": "scripts/phase8p_greek_prediction.py",
     "core_module_blob_sha1": "3358381d64b3e675e49687fa5d34df44d8a9c984",
@@ -12,7 +12,7 @@
     "core_synthetic_workflow_path": ".github/workflows/phase8p-greek-prediction.yml",
     "core_synthetic_workflow_blob_sha1": "5d413bc4a0d6fb63c89775a153af33f270853b8f",
     "diagnostic_path": "scripts/phase8p_duplicate_key_diagnostic.py",
-    "diagnostic_blob_sha1": "3abf03253024053ffdb39044db38e15532406e22",
+    "diagnostic_blob_sha1": "2e4a47c7453768c66759a5167028aac9eb12568d",
     "diagnostic_test_path": "scripts/test_phase8p_duplicate_key_diagnostic.py",
     "diagnostic_test_blob_sha1": "2a77cf0e634f568bdb8374cddea368d4d8e63c06",
     "diagnostic_synthetic_workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml",
@@ -96,5 +96,6 @@
   "holdout_access_authorized": false,
   "external_market_source_requests_authorized": false,
   "option_pnl_authorized": false,
-  "strategy_promotion_authorized": false
+  "strategy_promotion_authorized": false,
+  "review_update_note": "R5 runtime amendment snapshot. Synthetic gate run 38208731140 and protocol check 38208731426 passed. This updates exact code pins only; it does not authorize real artifact access, decryption, diagnostic execution, deduplication, modeling, holdout access, external source requests, option P&L, or strategy promotion."
 }
