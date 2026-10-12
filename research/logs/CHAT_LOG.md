@@ -143,3 +143,15 @@ No scientific or protocol change was made during this checkpoint.
 - Reviewed failed source-alignment evidence from run #38162517430 and exact immutable source identifiers. It reports 64 daily H=1 `future_return` mismatches with maximum absolute error (3.469446951953614e-18).
 - Tester report and machine decision R1 require a dedicated exact-or-at-most-two-ULP float64 comparator for `future_return` only. It must emit ULP diagnostics and reject any observed value beyond the bound. Labels/timestamps remain exact, aggregate tolerance and immutable artifact remain unchanged.
 - Developer must add deterministic 1/2/3 ULP and NaN/infinity/sign tests, rerun the hosted reconstruction and resubmit exact hashes. Decision currently REQUEST_CHANGES; no P&L/holdout/source request/promotion is opened.
+
+
+## 2026-10-12 — Resume: Phase 8 Greek enrichment R2
+- User said “Ok proceed” to continue the Greek enrichment gate.
+- Verified R2 independent tester workflow [#38194602133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602133): exact snapshot `6ebb54bdbbc7ed0198d23d0b555aea547a127f9f`, exact four reviewed file hashes, developer synthetic suite, and 162 independent CE/PE Black-Scholes / finite-difference test cases passed. Decision is PASS_WITH_SCOPED_RESTRICTIONS.
+- Verified developer workflow [#38194592152](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152), attempt 2: preflight/tester gate, cached encrypted artifact checksum, HF expiry metadata and NIFTY spot fetch passed. At the time of logging, enrichment/re-encryption of 61 monthly partitions was still in progress and the final integrity/coverage gate had not yet run.
+- Duplicate tester workflow [#38194602150](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602150) retained a stale R1 gate path, skipped tests and failed while trying to write duplicate outputs. No source request occurred. Removed the duplicate workflow from the tester branch and logged the failure in research/ERROR_LOG.md.
+- Maintained role isolation and scope restrictions: no Dhan API, empirical P&L, holdout, strategy promotion, commercial use or plaintext publication. Tester status reflects that output has not yet been accepted.
+
+**Tester → Developer:** do not call the dataset delivered until the hosted run completes all 61 parts, preserves 8,999,865 rows, validates every encrypted-part hash and proves no plaintext files remain; report actual coverage and null-rate limitations.
+
+**Developer → Tester:** independently verify the final hosted artifact and coverage report against the exact approved snapshot; reject row/hash/encryption failures and preserve partial-grid and CC-BY-NC non-commercial restrictions.
