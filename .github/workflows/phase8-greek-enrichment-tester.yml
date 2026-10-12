@@ -4,7 +4,7 @@ on:
   push:
     branches: [phase-08-tester]
     paths:
-      - "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12.json"
+      - "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12.json"
   workflow_dispatch: {}
 
 permissions:
@@ -36,7 +36,7 @@ jobs:
           set +e
           python - <<'PY'
           import json, os, pathlib, subprocess
-          request_path="research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12.json"
+          request_path="research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12.json"
           req=json.loads(pathlib.Path(request_path).read_text())
           sha=req["developer_snapshot_sha"]
           errors=[]
@@ -49,7 +49,7 @@ jobs:
               "scripts/enrich_nifty_composite_greeks.py",
               "scripts/test_enrich_nifty_composite_greeks.py",
               ".github/workflows/phase8-greek-enrichment.yml",
-              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md",
+              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R3_2026-10-12.md",
           }
           if set(expected) != required: errors.append("reviewed_blobs set does not equal required four files")
           if not errors:
@@ -114,14 +114,14 @@ jobs:
           import json, os, pathlib
           from datetime import datetime, timezone
           root=pathlib.Path(os.environ["GITHUB_WORKSPACE"])
-          req=json.loads((root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12.json").read_text())
+          req=json.loads((root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12.json").read_text())
           pin=os.environ.get("PIN_CHECK_STATUS","FAIL")
           dev_rc=os.environ.get("DEV_TEST_RC",os.environ.get("DEVELOPER_SUITE_OUTCOME",""))
           ind_rc=os.environ.get("INDEPENDENT_TEST_RC",os.environ.get("INDEPENDENT_SUITE_OUTCOME",""))
           ok=pin=="PASS" and dev_rc=="0" and ind_rc=="0"
           decision="PASS_WITH_SCOPED_RESTRICTIONS" if ok else "REQUEST_CHANGES"
-          decision_path=root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R2_2026-10-12.json"
-          report_path=root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R2_2026-10-12.md"
+          decision_path=root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json"
+          report_path=root/"research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R3_2026-10-12.md"
           tmp=pathlib.Path(os.environ["RUNNER_TEMP"])
           dev_log=tmp/"developer-suite.log"
           ind_json=tmp/"independent-audit.json"
@@ -137,7 +137,7 @@ jobs:
           sha=req["developer_snapshot_sha"]
           payload={
               "schema_version":1,
-              "gate":"PHASE8_GREEK_ENRICHMENT_R2",
+              "gate":"PHASE8_GREEK_ENRICHMENT_R3",
               "reviewed_at_utc":datetime.now(timezone.utc).isoformat(),
               "decision":decision,
               "developer_snapshot_sha":sha,
@@ -171,7 +171,7 @@ jobs:
           run_id=os.environ.get("WORKFLOW_RUN_ID","")
           findings_text="\n".join("- "+x for x in findings) if findings else "- No mathematical or synthetic integrity blocker was detected within this limited gate."
           report_lines=[
-              "# Independent tester review — Phase 8 Greek enrichment R1",
+              "# Independent tester review — Phase 8 Greek enrichment R3",
               "",
               f"Decision: **{decision}**",
               "",
@@ -225,15 +225,15 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R2_2026-10-12.md research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R2_2026-10-12.json
-          git commit -m "Record Phase 8 Greek enrichment tester decision R1"
+          git add research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R3_2026-10-12.md research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json
+          git commit -m "Record Phase 8 Greek enrichment tester decision R3"
           git push origin HEAD:phase-08-tester
 
       - name: Upload synthetic test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase8-greek-enrichment-independent-tester-r1
+          name: phase8-greek-enrichment-independent-tester-r3
           path: |
             ${{ runner.temp }}/developer-suite.log
             ${{ runner.temp }}/independent-audit.json

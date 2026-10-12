@@ -155,3 +155,13 @@ No scientific or protocol change was made during this checkpoint.
 **Tester → Developer:** do not call the dataset delivered until the hosted run completes all 61 parts, preserves 8,999,865 rows, validates every encrypted-part hash and proves no plaintext files remain; report actual coverage and null-rate limitations.
 
 **Developer → Tester:** independently verify the final hosted artifact and coverage report against the exact approved snapshot; reject row/hash/encryption failures and preserve partial-grid and CC-BY-NC non-commercial restrictions.
+
+
+## 2026-10-12 — Tester opened R3 row-count review after R2 failed
+- Independently confirmed developer run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) reached the 8,999,865 output rows but failed because its source-manifest aggregate lookup returned None. Validation and upload were skipped; no dataset was delivered.
+- R3 developer snapshot: [7bea94a81a491368041c822d76f2af7a983973da](https://github.com/vishnuvcr/Naked-option-v1/commit/7bea94a81a491368041c822d76f2af7a983973da). Exact four-file pins are to be submitted in the R3 request after blob verification.
+- Updated tester workflow to use R3 request, decision and report paths; added a separately authored manifest-row-count audit that sums per-part counts and rejects mismatch/malformed data before the standard independent Greek audit.
+- The developer R3 workflow was triggered by the code push but must fail closed at the tester authorization step because no R3 decision exists yet; it must not fetch HF data. The canonical R3 tester workflow will be triggered only after the exact pinned request JSON is committed.
+
+**Tester → Developer:** confirm the new pre-fetch gate makes zero HF requests until R3 decision PASS and independently confirm per-part count behavior.
+**Developer → Tester:** do not rerun data acquisition or publish a dataset until the R3 report shows exact blob pins and both suites pass.

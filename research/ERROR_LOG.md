@@ -107,3 +107,10 @@
 - Impact: no source-data request was made by the duplicate run. The canonical R2 workflow independently passed the exact four-blob pins, developer synthetic suite and 162-case independent Black-Scholes audit; its machine decision is the only accepted decision. The duplicate failure does not supersede that decision.
 - Correction: removed the duplicate `.github/workflows/phase8-greek-enrichment-tester-r2.yml` from `phase-08-tester`; retain `.github/workflows/phase8-greek-enrichment-tester.yml` as the sole canonical workflow for the R2 request path.
 - Prevention: one canonical tester workflow per gate/request; audit workflow trigger paths and unique decision/report write ownership before pushing a request.
+
+
+## 2026-10-12 — Phase 8 R2 terminal row-count failure
+- Category: manifest schema / failed acceptance gate.
+- Hosted run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) ended with `ValueError: row count changed: source=None output=8999865`; the row/hash validation and upload steps were skipped.
+- Root cause: cached manifest did not provide top-level `rows_preserved`, although per-part `row_count` values were available. R1 experienced the same terminal failure. R2 was therefore non-evidence for data delivery.
+- R3 requires per-part row-count summation, checks optional top-level total consistency, includes independent malformed-count regression cases, and adds a pre-HF guard for exactly 8,999,865 rows. No data request is approved under R3 until the exact snapshot receives a PASS decision.

@@ -25,6 +25,42 @@ def main():
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
 
+    # Independently reconstruct expected rows from the part-level counts. The
+    # actual cached manifest schema has no top-level rows_preserved key; R2 missed
+    # this and failed after the entire calculation. These are small synthetic
+    # fixtures, not market data, and this tester script owns the reference sum.
+    row_cases = [
+        ({"parts": [{"row_count": 2}, {"row_count": 7}]}, 9),
+        ({"parts": [{"row_count": "2"}, {"row_count": 7}], "rows_preserved": 9}, 9),
+    ]
+    for fixture, expected in row_cases:
+        independently_summed = sum(int(part["row_count"]) for part in fixture["parts"])
+        actual = m.manifest_expected_rows(fixture)
+        if independently_summed != expected or actual != expected:
+            raise AssertionError(("per_part_row_sum", fixture, independently_summed, actual, expected))
+    invalid_row_manifests = [
+        {"parts": [{"row_count": 2}, {"row_count": 7}], "rows_preserved": 8},
+        {"parts": [{"row_count": 1.5}]},
+        {"parts": [{"row_count": -1}]},
+        {"parts": [{"file": "no-row-count"}]},
+    ]
+    rejected_invalid_row_manifests = 0
+    for fixture in invalid_row_manifests:
+        try:
+            m.manifest_expected_rows(fixture)
+        except ValueError:
+            rejected_invalid_row_manifests += 1
+        else:
+            raise AssertionError(("invalid_row_count_manifest_accepted", fixture))
+    if rejected_invalid_row_manifests != len(invalid_row_manifests):
+        raise AssertionError(("invalid_row_count_manifest_rejections", rejected_invalid_row_manifests))
+    manifest_row_count_audit = {
+        "status": "PASS",
+        "valid_cases": len(row_cases),
+        "invalid_cases_rejected": rejected_invalid_row_manifests,
+        "reference": "independent sum of per-part row_count values; top-level declared total checked only when present",
+    }
+
     checked = 0
     # Independent analytic prices are fed to the submitted IV inversion.
     for S in (24000.0, 25000.0, 26000.0):
@@ -68,8 +104,9 @@ def main():
     # Developer-owned synthetic integration suite already verifies row preservation and status fields.
     result = {
         "status": "PASS",
-        "test_kind": "independent_formula_and_finite_difference_audit",
+        "test_kind": "independent_formula_and_finite_difference_and_manifest_row_count_audit",
         "synthetic_contract_cases": checked,
+        "manifest_row_count_audit": manifest_row_count_audit,
         "independent_reference": "Black-Scholes closed-form implementation using math.erf; not copied from developer module",
         "checks": [
             "IV inversion for CE and PE across spot/moneyness/tenor/volatility grid",
@@ -78,6 +115,8 @@ def main():
             "call/put rho signs",
             "finite-difference delta/gamma and vega-per-1%-unit comparisons",
             "invalid option price rejection",
+            "source-manifest per-part count sum when aggregate key is absent",
+            "reject malformed, fractional, negative and inconsistent manifest counts",
         ],
         "scope_exclusions": ["no source-data request", "no token access", "no historical P&L", "no holdout", "no strategy promotion"],
     }

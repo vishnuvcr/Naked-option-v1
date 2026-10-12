@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
+| Phase 8 Long-option execution | **BLOCKED — R2 FAILED ROW-COUNT GATE; R3 INDEPENDENT REVIEW PENDING** | Tester accepts no R1/R2 artifact. R3 fixes the absent top-level count key using per-part counts and adds independent schema audit + pre-HF guard |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -178,3 +178,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - The developer run [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) passed authorization, cached-source integrity, and HF metadata/spot retrieval. As of this status update, the 61-part enrichment/re-encryption step remained in progress; output rows, encrypted hashes and coverage were not yet accepted.
 - A second, duplicate workflow had a stale R1 path and failed its pin gate. It was removed and logged; it did not request source data and does not supersede the canonical passing decision.
 - Scope restrictions remain: public HF spot plus expiry file-list enrichment only; no Dhan API call, empirical option P&L, holdout access, strategy promotion, commercial use, or plaintext upload.
+
+
+## 2026-10-12 — Phase 8 R2 terminal failure and R3 review opened
+- Developer run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) failed at terminal row-count validation with `source=None output=8999865`. The final validation and upload were skipped; no enriched artifact was uploaded.
+- Root cause: input manifest lacked top-level `rows_preserved`; counts were available per part. R1 had failed at the same point and the R2 synthetic tests did not model this manifest schema.
+- Developer R3 snapshot [7bea94a81a491368041c822d76f2af7a983973da](https://github.com/vishnuvcr/Naked-option-v1/commit/7bea94a81a491368041c822d76f2af7a983973da) now sums part row counts, validates optional aggregate fields, adds fixtures for missing/matching/mismatching and malformed counts, and checks 8,999,865 rows before any external HF request.
+- Tester R3 workflow has been prepared to pin that exact snapshot and adds an independent count-sum audit alongside the 162-case independent Greek formula audit. R3 decision is not yet available; source access remains blocked until it is recorded.
+- Restrictions unchanged: no Dhan API, P&L, holdout, strategy promotion, commercial use or plaintext upload.
