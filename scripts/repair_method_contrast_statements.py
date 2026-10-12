@@ -96,3 +96,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# Deterministic nearest-neighbor contrast repair; no model execution.
