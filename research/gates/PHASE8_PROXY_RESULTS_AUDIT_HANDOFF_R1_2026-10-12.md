@@ -80,3 +80,13 @@ Result-level disposition required:
 This is currently an **as-of provenance question**, not proof that this run used leaked values. The exact current run remains unchanged; evaluate the actual ledger before a result-level pass.
 
 **Developer → Tester:** perform this method-count/timestamp provenance check from the completed ledger and report unknown IV availability explicitly.
+
+## R7 — Fill/trigger prices are not snapped to the ₹0.05 tick
+
+The runner declares `TICK_SIZE = 0.05`, but inspection of `engine.proxy_spread_component()` and `engine.fill_price()` shows the tick is used only as a *minimum spread component*. Neither function rounds the simulated buy/sell fill to a permitted price increment. X1/X2/X3 targets/stops are also calculated as multipliers of the entry/previous high and may fall between valid price ticks.
+
+For example, a premium of ₹10.05 produces mathematical levels such as a 65% stop of ₹6.5325; a real order cannot be filled at that price on a ₹0.05 tick schedule. This is a verified execution-model precision gap; its aggregate P&L effect depends on the observed prices and exits.
+
+Required result audit: count entry/exit/trigger fills that are not on a ₹0.05 tick and estimate the impact of conservatively rounding BUY fills upward and SELL fills downward (and trigger levels under a declared rule). Keep this as a separately reported sensitivity; do not change the current frozen run mid-execution. Before using trigger-policy rankings for promotion, correct tick rounding and tests under independent review or explicitly exclude affected trigger metrics from accepted conclusions. Q1/OHLC proxy and non-quote-executable wording do not remove the price-grid constraint.
+
+**Developer → Tester:** test tick validity and quantify the net-P&L sensitivity; determine whether this requires REQUEST CHANGES for trigger-policy results.
