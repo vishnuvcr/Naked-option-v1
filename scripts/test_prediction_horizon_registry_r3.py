@@ -101,6 +101,10 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual(prereg["status"], "FROZEN_TEN_HORIZON_REGISTRY_DEVELOPER_VALIDATION_PENDING_NO_EMPIRICAL_RESULTS")
         self.assertEqual(prereg["scope"]["empirical_execution_gate"], "BLOCKED_PENDING_DEVELOPER_DATA_PREFLIGHT_AND_TEN_HORIZON_REGISTRY_QA")
         self.assertFalse(prereg["scope"]["r2_pilot_only"])
+        self.assertNotIn("scope_amendment_2026_10_13", prereg, "R2 pilot restriction must not remain as an active R3 scope amendment")
+        history = [x for x in prereg.get("historical_scope_amendments", []) if x.get("amendment_id") == "scope_amendment_2026_10_13"]
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["status"], "SUPERSEDED_BY_COMPLETE_TEN_HORIZON_R3")
         self.assertFalse(prereg["gate"]["empirical_fitting_authorized_by_builder"])
         self.assertEqual(prereg["metrics_and_inference"]["bootstrap"]["block_length_exchange_sessions"], 10)
         self.assertEqual(prereg["metrics_and_inference"]["multiplicity"]["stratum_families"], build.ALL_LABEL_IDS)
