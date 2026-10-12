@@ -16,6 +16,57 @@ def main():
     assert result["real_artifacts_opened"] is False
     assert result["empirical_model_fitted"] is False
 
+    # Expected terminal label rows may have no target-end timestamp; only finite labels
+    # must have a proven target endpoint, and every endpoint present must be after decision.
+    frame = pd.DataFrame({
+        "layer": ["intraday"] * 4, "horizon": [5] * 4,
+        "source_row_index": range(4),
+        "decision_timestamp": pd.date_range("2025-01-02T04:00:00Z", periods=4, freq="h"),
+        "label_direction": [0, 1, 0, np.nan],
+        "future_return": [-.01, .02, -.03, np.nan],
+        "block_index": [0, 0, 1, 1],
+        **{f"P{i:02d}": [.4, .6, .45, .55] for i in range(1, 11)},
+    })
+    manifest = {
+        "status": "COMPLETE", "schema_version": 1, "run_id": 37957677656,
+        "commit": m.FROZEN_PHASE7_COMMIT,
+        "protocol": "research/phase7/PHASE7_METHOD_SPEC.md", "seed": 42,
+        "manifest_sha256": "a" * 64,
+    }
+    receipts = {
+        "greek": {"verified": True, "artifact_name":"greek",
+                  "artifact_id":m.PINNED_ARTIFACTS["greek"]["artifact_id"],
+                  "sha256":m.PINNED_ARTIFACTS["greek"]["sha256"]},
+        "forecast": {"verified": True, "artifact_name":"forecast",
+                     "artifact_id":m.PINNED_ARTIFACTS["forecast"]["artifact_id"],
+                     "sha256":m.PINNED_ARTIFACTS["forecast"]["sha256"]},
+    }
+    target_proof = {
+        "daily_label_source_blob_sha1": m.FROZEN_LABEL_SOURCE_BLOBS["daily"],
+        "intraday_label_source_blob_sha1": m.FROZEN_LABEL_SOURCE_BLOBS["intraday"],
+        "daily_rule":"close.shift(-H)",
+        "intraday_rule":"exact timestamp + H minutes",
+        "target_end_checks_passed":True,
+    }
+    holdout_proof = {
+        "proof":"VERIFIED", "mask_sha256":"b" * 64,
+        "cutoff_by_layer":{"daily":"2025-02-01","intraday":"2025-02-01T00:00:00Z"},
+        "source_manifest_sha256":manifest["manifest_sha256"],
+    }
+    target_ends = list(pd.to_datetime(frame["decision_timestamp"], utc=True) + pd.Timedelta(minutes=5))
+    target_ends[-1] = pd.NaT
+    preflight = m.preflight_contract(
+        manifest, [frame], artifact_receipts=receipts,
+        target_maturity_proof=target_proof,
+        holdout_exclusion_proof=holdout_proof,
+        target_end_by_panel={"intraday:H5":target_ends},
+        panel_file_sha256={str(i):str(i).zfill(64) for i in range(10)},
+    )
+    assert not any("TARGET_END_VECTOR_INVALID" in r for r in preflight["reasons"])
+    assert not any("FINITE_LABEL_WITHOUT_TARGET_END" in r for r in preflight["reasons"])
+    assert result["real_artifacts_opened"] is False
+    assert result["empirical_model_fitted"] is False
+
     # Inference fails closed rather than silently dropping invalid paired observations.
     try:
         m.paired_brier_bootstrap([0,1], [.2,np.nan], [.3,.7], 2, reps=10)
