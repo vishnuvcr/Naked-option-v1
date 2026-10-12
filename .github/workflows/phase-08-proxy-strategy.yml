@@ -185,13 +185,13 @@ jobs:
           old=readme.read_text(encoding="utf-8")
           marker="## Latest Phase 8 OHLC proxy strategy run"
           section=(
-              f"\\n\\n{marker} — Run {run_id}\\n\\n"
-              f"- **Status:** {data['status']} (Q1/OHLC proxy, not quote-executable).\\n"
-              f"- **Trades simulated:** {data['trade_count']:,}; 4,800 configurations × 4 cost scenarios.\\n"
-              f"- **Candidates positive under C3 with at least 30 trades:** {data['configurations_with_30_plus_trades_positive_c3']}.\\n"
-              f"- **Report:** [full run report](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_run_report.json)\\n"
-              f"- **Grid:** [all rows](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_summary.csv)\\n"
-              f"- **Worst-cost candidates:** [C3 top 50](research/results/phase8-proxy-run-{run_id}/phase8_proxy_top_50_worst_cost_scenario.csv)\\n"
+              f"\n\n{marker} — Run {run_id}\n\n"
+              f"- **Status:** {data['status']} (Q1/OHLC proxy, not quote-executable).\n"
+              f"- **Trades simulated:** {data['trade_count']:,}; 4,800 configurations × 4 cost scenarios.\n"
+              f"- **Candidates positive under C3 with at least 30 trades:** {data['configurations_with_30_plus_trades_positive_c3']}.\n"
+              f"- **Report:** [full run report](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_run_report.json)\n"
+              f"- **Grid:** [all rows](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_summary.csv)\n"
+              f"- **Worst-cost candidates:** [C3 top 50](research/results/phase8-proxy-run-{run_id}/phase8_proxy_top_50_worst_cost_scenario.csv)\n"
           )
           if marker in old:
               old=old[:old.index(marker)-2].rstrip()
@@ -203,16 +203,16 @@ jobs:
                   state="COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING" if data["status"]=="COMPLETE_PROXY_BACKTEST" else data["status"]
                   lines[i]=f"| Phase 8 Long-option execution | {state} | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |"
                   break
-          status.write_text("\\n".join(lines)+"\\n",encoding="utf-8")
+          status.write_text("\n".join(lines)+"\n",encoding="utf-8")
           with Path("research/logs/RESEARCH_LOG.md").open("a",encoding="utf-8") as f:
-              f.write(f"\\n\\n## {datetime.date.today().isoformat()} — Phase 8 OHLC proxy strategy Run {run_id}\\n\\n")
-              f.write(f"- Status: {data['status']}; simulated trades: {data['trade_count']}.\\n")
-              f.write(f"- C3-positive configurations with at least 30 trades: {data['configurations_with_30_plus_trades_positive_c3']}.\\n")
-              f.write("- No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.\\n")
+              f.write(f"\n\n## {datetime.date.today().isoformat()} — Phase 8 OHLC proxy strategy Run {run_id}\n\n")
+              f.write(f"- Status: {data['status']}; simulated trades: {data['trade_count']}.\n")
+              f.write(f"- C3-positive configurations with at least 30 trades: {data['configurations_with_30_plus_trades_positive_c3']}.\n")
+              f.write("- No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.\n")
           with Path("research/logs/CHAT_LOG.md").open("a",encoding="utf-8") as f:
-              f.write(f"\\n\\n## {datetime.date.today().isoformat()} — User directed strategy testing without bid/ask validation\\n\\n")
-              f.write(f"- OHLC proxy run {run_id}: status {data['status']}; trades {data['trade_count']}; C3-positive configs with >=30 trades {data['configurations_with_30_plus_trades_positive_c3']}.\\n")
-              f.write("- No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.\\n")
+              f.write(f"\n\n## {datetime.date.today().isoformat()} — User directed strategy testing without bid/ask validation\n\n")
+              f.write(f"- OHLC proxy run {run_id}: status {data['status']}; trades {data['trade_count']}; C3-positive configs with >=30 trades {data['configurations_with_30_plus_trades_positive_c3']}.\n")
+              f.write("- No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.\n")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -224,7 +224,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase8-ohcl-proxy-results-${{ github.run_id }}
+          name: phase8-ohlc-proxy-results-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_strategy_run_report.json
             ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_strategy_summary.csv
