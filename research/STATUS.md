@@ -1080,3 +1080,8 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 
 ### Statistical test-count correction — 2026-10-12
 The latest pinned full run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) reports `Ran 10 tests` in the current `scripts/test_prediction_statistics.py`, not eight. The machine-readable synthetic report now records 10. Earlier eight-test counts referred to an earlier version of that file.
+
+
+## Fresh independent registry review request — 2026-10-12
+
+Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json` to pin the exact tested source commit, all relevant source artifact blob IDs, the latest synthetic/repair/clean-audit run IDs, 10/10 statistical utility tests, and explicit independent review questions. The request is a handoff, not approval. Tester must independently audit distinctness/compatibility, label and purge/embargo rules, bootstrap/BY math, and resource-estimate limitations. No empirical fitting or holdout access.
