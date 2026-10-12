@@ -697,3 +697,17 @@
 
 **Developer → Tester:** await run #38207005953's aggregate output and independently classify its report; no model execution.
 **Tester → Developer:** if the diagnostic completes, review output schema and digest; if it fails, approve only a reviewed technical correction and new nonce.
+
+
+## 2026-10-12 — Real duplicate diagnostic run R1 terminated by hosted runner
+
+- Run: [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953), head commit `4bbf7639a64972dc4626833a2506b9a0771dd13e`, attempt 1.
+- Completed before failure: two-stage authorization gate, permanent nonce ledger commit, pinned dependency install, detached approved-code checkout, cache restore, pinned encrypted-source ZIP hash verification.
+- Failed step: `Run authorized aggregate-only duplicate diagnostic`; job log ended with `Process completed with exit code 143` and `The runner has received a shutdown signal`. The run had started 05:13:24 UTC and ended 05:25:44 UTC.
+- No diagnostic aggregate report/artifact was created; downstream receipt/upload steps were skipped. There is no duplicate count, conflict field result, or market/prediction inference from this run.
+- Root cause remains **unconfirmed**: exit 143 is a runner shutdown signal. Do not label it OOM unless new direct evidence proves that. Synthetic review had not established real scan runtime/peak memory.
+- The single-use nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133` is consumed and must never be reused. Any retry needs a new nonce, fresh workflow/request/code pins and independent tester approvals, plus a separate final authorization.
+- Disposition: failed engineering execution, non-evidence for data integrity and non-evidence for trading performance.
+
+**Developer → Tester:** review a fresh, newly pinned execution workflow designed to expose safe progress/timeout diagnostics; then review its separate one-use authorization request. Do not accept the failed R1 run as data evidence.
+**Tester → Developer:** preserve R1 history; only a new tester-created authorization may permit a fresh single use.
