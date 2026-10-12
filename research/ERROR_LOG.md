@@ -289,3 +289,16 @@
 
 **Tester → Developer:** preserve the corrected bootstrap and pilot scope; do not fit or rank methods.
 **Developer → Tester:** review any reproduced audit issue with exact source and artifact hashes.
+
+
+## 2026-10-13 — Tester workflow used a moving developer branch reference
+
+- Category: independent-review reproducibility / workflow pinning.
+- Component: .github/workflows/phase-08p-independent-registry-review.yml.
+- Symptom: the initial tester workflow checked out phase-08-prediction-developer by branch name. This would allow the audited contents to drift between review-request creation and execution, despite the report requiring exact pinned evidence.
+- Impact: a future audit artifact could not be tied unambiguously to the submitted source snapshot.
+- Correction: the tester branch now stores an immutable copy of review request R3, reads its tested_source_commit, checks out that exact commit, and verifies each changed_source_blobs Git object ID before running the read-only audit. The workflow retains both push automation and workflow_dispatch.
+- Exact source pins were independently re-fetched from tested commit 55081e6b834dd573e386c5f780201c2c1665ad47; all five changed-source blob IDs matched. Hosted workflow output still has not been observed.
+
+**Tester → Developer:** do not change source pins under the same request ID; use a new request/snapshot for material source changes.
+**Developer → Tester:** provide immutable source commits and blob IDs; no empirical step proceeds on moving-branch evidence.
