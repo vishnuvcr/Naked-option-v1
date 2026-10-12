@@ -60,3 +60,9 @@ A GitHub Actions protocol/validator failure is an engineering or governance fail
 - The exact code/test snapshot `16cb5d266c6312aeeea07ebd61fbbcd589a8281d` passed the developer synthetic CI, but the isolated tester workflow [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) returned REQUEST_CHANGES after 9/13 checks passed.
 - Findings and required corrections are documented in [the independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md). The synthetic green run is not empirical evidence.
 - No real input artifact was downloaded/decrypted; no empirical fit, source request, holdout access or option P&L was performed.
+
+
+## 2026-10-12 — Phase 8P schema preflight executor R2
+- The preflight executor's R2 trigger/request-path mismatch was corrected and reviewed independently. The tester workflow review initially had a case-sensitive wording assertion error (28/29), then passed 29/29 after the tester corrected its own audit.
+- The first execution attempt [#38202662228](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202662228) stopped at the pending-request gate before artifact download, as designed. After the exact tester workflow decision was pinned, authorized schema-only run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) started.
+- At this log update the authorized run is still in progress verifying/downloading the immutable Greek artifact. No model fitting or empirical prediction result has occurred.
