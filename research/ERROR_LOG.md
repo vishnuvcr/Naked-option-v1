@@ -943,3 +943,9 @@
 - Run `38241558360` failed with 7/8 tests passing. The failing assertion expected `shard_count mismatch`, but the fixture declared shard_count=1 and contained exactly one entry; therefore that particular assertion was invalid.
 - Corrected the test fixture to declare shard_count=2 in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`. Await fresh CI before claiming success.
 - This is a test-fixture defect; no scientific result and no registry gate clearance.
+
+## 2026-10-12 — Shard adversarial suite rerun passed
+
+- Fresh run `38241647992` passed all 8 unit tests and the SHA-256 known-vector check after fixture correction commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`.
+- Earlier run `38241558360` remains documented as failed 7/8 because its fixture's shard-count expectation was inconsistent; this was corrected and the new run is green.
+- CI success is not independent tester approval or scientific validity. No registry shards or empirical prediction outputs were generated.
