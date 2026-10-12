@@ -264,6 +264,17 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
         ("open_interest", "_lag_open_interest"),
     ):
         options[lag_col] = options.groupby("contract_code", sort=False)[source_col].shift(1)
+    # Duplicate records within the same minute are not a prior bar. Clear all
+    # lagged inputs for those rows so source order cannot create same-minute leakage.
+    invalid_lag = (
+        options["_lag_timestamp_epoch"].notna()
+        & (options["_lag_timestamp_epoch"] >= options["timestamp_epoch"])
+    )
+    lag_columns = [
+        "_lag_delta", "_lag_timestamp_epoch", "_lag_greek_valuation_offset_seconds",
+        "_lag_rolling_spot", "_lag_option_volume", "_lag_open_interest",
+    ]
+    options.loc[invalid_lag, lag_columns] = np.nan
     times = options["timestamp_epoch"].to_numpy(dtype=np.int64)
     unique_times, starts = np.unique(times, return_index=True)
     ends = np.r_[starts[1:], len(options)].astype(np.int64)
