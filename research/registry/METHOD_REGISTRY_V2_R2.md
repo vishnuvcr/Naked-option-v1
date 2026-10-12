@@ -3,7 +3,7 @@
 **Status: DRAFT — INDEPENDENT TESTER REVIEW REQUIRED; NO EMPIRICAL EXECUTION AUTHORIZED.**
 
 - 1,000 method definitions: 20 algorithm/architecture families × 10 causal feature representations × 5 inference operators.
-- 16,000 configurations: 2 label strata × 2 lookbacks (20/60 bars) × 2 model-family-specific complexity presets for each method.
+- 8,000 configurations: 2 label strata × 2 lookbacks (20/60 bars) × 2 model-family-specific complexity presets for each method.
 - Label IDs: `INTRA_30M_UP_DOWN` and `POS_1D_UP_DOWN`; definitions and common label rules are in `PREDICTION_LABEL_MANIFEST_V2_R2.json`.
 - Registry: `METHOD_REGISTRY_V2_R2.json`.
 - Configuration manifest: `PREDICTION_CONFIG_MANIFEST_V2_R2.json`; 4 shards of 2,000 configs each are listed with hashes and ID ranges.
