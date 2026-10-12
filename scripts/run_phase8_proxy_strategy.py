@@ -501,50 +501,67 @@ def make_skeletons(events: list[dict], options: pd.DataFrame, sessions: list[str
 
 def simulate_exit(skel: dict, policy: str, options: pd.DataFrame,
                   data_info: dict) -> dict | None:
+    """Vectorized Q1 exit scan preserving the frozen stop/target order."""
     idxs = skel["series_idx"]
     entry_pos = int(skel["entry_series_pos"])
     scheduled_pos = int(skel["scheduled_series_pos"])
     if entry_pos >= len(idxs) or scheduled_pos >= len(idxs) or scheduled_pos <= entry_pos:
         return None
+
     option_open = data_info["option_open"]
     option_high = data_info["option_high"]
     option_low = data_info["option_low"]
     times = data_info["times"]
     entry_base = float(skel["entry_base"])
+    segment_idxs = idxs[entry_pos:scheduled_pos + 1]
+    opens = option_open[segment_idxs]
+    highs = option_high[segment_idxs]
+    lows = option_low[segment_idxs]
+    segment_len = len(segment_idxs)
     exit_pos = scheduled_pos
     exit_base = float(option_open[idxs[scheduled_pos]])
     exit_reason = "TIME_EXIT"
-    if not np.isfinite(exit_base) or exit_base < 0:
-        return None
-    if policy != "X0":
-        trailing_high = None
-        found = False
-        for series_pos in range(entry_pos, scheduled_pos + 1):
-            row_idx = int(idxs[series_pos])
-            high = float(option_high[row_idx])
-            low = float(option_low[row_idx])
-            if not np.isfinite(high) or not np.isfinite(low):
-                trailing_high = max(float(trailing_high or entry_base), entry_base)
-                continue
-            price, reason, new_high = engine.conservative_trigger_exit(
-                {"high": high, "low": low}, policy, entry_base, trailing_high
-            )
-            trailing_high = new_high
-            if reason is not None and price is not None:
-                # If a stop was crossed by a gap through its level, OHLC-only
-                # data cannot justify the stop price; use the lower bar open.
-                bar_open = float(option_open[row_idx])
-                if reason in {"STOP_LOSS", "TRAILING_STOP"} and np.isfinite(bar_open) and bar_open > 0:
-                    price = min(float(price), bar_open)
-                exit_pos = series_pos
-                exit_base = float(price)
-                exit_reason = str(reason)
-                found = True
-                break
-        if not found:
-            exit_pos = scheduled_pos
-            exit_base = float(option_open[idxs[scheduled_pos]])
-            exit_reason = "TIME_EXIT"
+
+    if policy == "X1":
+        target = entry_base * 1.50
+        hits = np.flatnonzero(np.isfinite(highs) & (highs >= target))
+        if len(hits):
+            rel_pos = int(hits[0])
+            exit_pos = entry_pos + rel_pos
+            exit_base = target
+            exit_reason = "TAKE_PROFIT"
+    elif policy == "X2":
+        stop = entry_base * 0.65
+        hits = np.flatnonzero(np.isfinite(lows) & (lows <= stop))
+        if len(hits):
+            rel_pos = int(hits[0])
+            exit_pos = entry_pos + rel_pos
+            bar_open = float(opens[rel_pos])
+            exit_base = min(stop, bar_open) if np.isfinite(bar_open) and bar_open > 0 else stop
+            exit_reason = "STOP_LOSS"
+    elif policy == "X3":
+        valid_bar = np.isfinite(highs) & np.isfinite(lows)
+        high_update = np.where(valid_bar, highs, -np.inf)
+        # For bar k, the trailing level uses the maximum high strictly before k.
+        running_with_entry = np.maximum.accumulate(np.r_[entry_base, high_update])
+        previous_high = running_with_entry[:-1]
+        stop_levels = previous_high * 0.75
+        hits_mask = valid_bar & (lows <= stop_levels)
+        # The frozen rule does not test a trailing stop on the entry bar because
+        # there is no prior trailing high yet.
+        if segment_len:
+            hits_mask[0] = False
+        hits = np.flatnonzero(hits_mask)
+        if len(hits):
+            rel_pos = int(hits[0])
+            exit_pos = entry_pos + rel_pos
+            stop = float(stop_levels[rel_pos])
+            bar_open = float(opens[rel_pos])
+            exit_base = min(stop, bar_open) if np.isfinite(bar_open) and bar_open > 0 else stop
+            exit_reason = "TRAILING_STOP"
+    elif policy != "X0":
+        raise ValueError(f"unknown exit policy {policy}")
+
     exit_row_idx = int(idxs[exit_pos])
     if not np.isfinite(exit_base) or exit_base < 0:
         return None
