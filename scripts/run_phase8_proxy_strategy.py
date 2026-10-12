@@ -268,60 +268,22 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
 
 
 def resolve_delta(row: pd.Series, decision_time: int) -> tuple[float, str]:
-    """Return only a delta usable at decision_time; never consume close-valued Greeks early."""
-    observed = row.get("delta")
+    """Pointwise reference: accept only a stored Greek whose valuation is as-of."""
     try:
-        delta_value = float(observed)
+        delta_value = float(row.get("delta"))
         offset_value = float(row.get("greek_valuation_offset_seconds"))
         row_epoch = float(row.get("timestamp_epoch"))
         if (
-            np.isfinite(delta_value)
-            and abs(delta_value) <= 1.0
-            and np.isfinite(offset_value)
-            and np.isfinite(row_epoch)
+            np.isfinite(delta_value) and abs(delta_value) <= 1.0
+            and np.isfinite(offset_value) and np.isfinite(row_epoch)
             and row_epoch + offset_value <= float(decision_time)
         ):
             return abs(delta_value), "OBSERVED_DELTA_ASOF"
-    except Exception:
-        # An absent/unknown valuation offset is not permission to use a stored Greek.
+    except (TypeError, ValueError):
         pass
-
-    # The enriched Greek's time_to_expiry_years is calculated at the close
-    # (timestamp + greek_valuation_offset_seconds). Recompute T at the actual
-    # decision instant rather than reusing that later-valued quantity.
-    spot = row.get("rolling_spot")
-    try:
-        spot = float(spot)
-        strike = float(row.get("returned_strike"))
-        iv = float(row.get("implied_volatility"))
-        if iv > 3:
-            iv /= 100.0
-        expiry = str(row.get("expiry_key", row.get("expiry_date", "")))[:10]
-        expiry_ts = pd.Timestamp(expiry + " 15:30:00", tz=IST)
-        t = (expiry_ts.timestamp() - float(decision_time)) / (365.0 * 86400.0)
-        rf = float(row.get("risk_free_rate_decimal"))
-        if not np.isfinite(rf):
-            rf = 0.0
-        q = float(row.get("dividend_yield_decimal"))
-        if not np.isfinite(q):
-            q = 0.0
-        if (
-            np.isfinite(spot) and spot > 0
-            and np.isfinite(strike) and strike > 0
-            and np.isfinite(iv) and 0 < iv <= 5
-            and np.isfinite(t) and t > 0
-        ):
-            d1 = (math.log(spot / strike) + (rf - q + 0.5 * iv * iv) * t) / (iv * math.sqrt(t))
-            nd1 = 0.5 * (1.0 + math.erf(d1 / math.sqrt(2.0)))
-            ot = str(row.get("option_type", "")).strip().upper()
-            signed = math.exp(-q * t) * nd1 if ot in {"CE", "CALL", "C"} else (
-                -math.exp(-q * t) * (1.0 - nd1) if ot in {"PE", "PUT", "P"} else float("nan")
-            )
-            if np.isfinite(signed) and abs(signed) <= 1:
-                return abs(signed), "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
-    except Exception:
-        pass
-    return float("nan"), "MONEYNESS_FALLBACK"
+    # No raw-IV provenance timestamp exists in the frozen source schema.
+    # Refuse to synthesize a delta from an IV that may be close-valued.
+    return float("nan"), "MONEYNESS_FALLBACK_IV_UNVERIFIED"
 
 
 def resolve_deltas_vectorized(rows: pd.DataFrame, decision_time: int) -> tuple[np.ndarray, np.ndarray]:
