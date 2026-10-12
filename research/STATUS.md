@@ -917,3 +917,18 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Developer → Tester:** complete issue #23 review on the tester branch, hash-pin the proposal, and return a reproducible PASS/REQUEST CHANGES.
 
 **Tester → Developer:** no registry expansion or empirical batch until the independent decision is committed.
+
+
+## 2026-10-12 — R2 protocol gate passed with restrictions; registry V2 submitted for independent review
+
+- Independent tester R1 report requested changes on five concrete protocol issues. Developer prepared R2 addressing method fingerprinting, config completeness, frozen primary metrics/multiplicity, deterministic batch/restart/resource contract, and strict historical-result reconciliation.
+- R2 proposal blob SHA: `96b8b3d34fe7f038795247da007ba40ed704a60d`.
+- Tester decision: **PASS WITH SCOPED RESTRICTIONS — protocol only**, report at `research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_R2_TESTER_REPORT.md`, decision at `research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_R2_TESTER_DECISION.md`. Empirical execution is not authorized.
+- Draft registry V2 R1 generated on developer branch: 1,000 proposed method identities from 20 algorithm/architecture families × 10 causal feature representations × 5 inference operators; 2,000 proposed configurations (lookback 20/60 for each method). Method records and configurations are separate counts. All statuses are NOT_RUN.
+- Latest method registry commit: `2195173c4cea8146034ab90c14299370dfa88889`. Configuration manifest commit: `76908596a4dc21b1c0b0aa9ba78f88089744e6bc`. Manifest's recorded SHA-256: `71c49148b2e5666a47cad550cd12cdc9b40bc7af46fa0817f658ea0591191240`.
+- Opened independent registry gate [issue #24](https://github.com/vishnuvcr/Naked-option-v1/issues/24). Tester must validate hash correctness, uniqueness/near-duplicates, scientific compatibility, config coverage, missingness/sample rules, resources and reproducibility. The generated Cartesian product is only a draft; the method count is not accepted until the tester verifies the records.
+- No empirical prediction fit or holdout access occurred. Next gate remains open; no Phase 8 result may select predictors.
+
+**Developer → Tester:** independently validate all registry/configuration records and submit hash-pinned PASS/REQUEST CHANGES on the tester branch.
+
+**Tester → Developer:** identify exact invalid or duplicate method combinations and config-manifest issues; no empirical execution until registry gate passes.
