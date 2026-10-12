@@ -9,6 +9,9 @@ on:
       - "scripts/test_shard_prediction_registry.py"
       - "scripts/reshard_prediction_registry.py"
       - "scripts/test_reshard_prediction_registry.py"
+      - "scripts/build_prediction_compatibility_matrix.py"
+      - "scripts/test_prediction_compatibility_matrix.py"
+      - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - "scripts/audit_prediction_registry_shards.py"
       - "research/registry/**"
       - ".github/workflows/prediction-registry-shard-tests.yml"
@@ -34,6 +37,12 @@ jobs:
         run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
       - name: Test deterministic re-sharder
         run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
+      - name: Build row-level compatibility matrix
+        run: python scripts/build_prediction_compatibility_matrix.py
+      - name: Test compatibility matrix rules
+        run: python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
+      - name: Verify committed compatibility output is deterministic
+        run: git diff --exit-code -- research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md
       - name: Verify standard SHA-256 vector
         run: |
           python - <<'PY'
