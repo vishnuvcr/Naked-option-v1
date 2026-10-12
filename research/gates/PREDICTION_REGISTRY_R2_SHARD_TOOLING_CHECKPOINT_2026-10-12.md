@@ -40,3 +40,15 @@ Status: **IMPLEMENTED, NOT YET EXECUTED OR TESTER-APPROVED**.
 - Hosted GitHub Actions run [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039) completed successfully on workflow commit `8fd619332155ba8cd68614c5a96a9ab81de37433`.
 - Four unit tests passed (0.072 seconds): SHA-256 known vector, shard round-trip/tamper detection, duplicate-ID rejection, and ambiguous-input rejection. The workflow's independent SHA-256 known-vector step also passed.
 - This is developer CI evidence only; independent tester review is still requested. No method/config shards have been generated. Scientific compatibility, label/statistical freeze and synthetic restart/resource gates remain unresolved; empirical fitting and holdout access remain prohibited.
+
+## Validator hardening follow-up — 2026-10-12
+
+- After inspecting the first utility version, hardened stable-ID handling (exactly one recognized non-empty ID field), explicit empty-list handling, missing-key errors, deterministic source basename recording, supported-kind checks, and fail-closed index validation.
+- Verification now rejects unsafe/duplicate shard paths, malformed index structures, missing final LF, CR bytes, non-canonical JSON record encoding, duplicate IDs, and count/hash/byte/range mismatches.
+- Expanded adversarial tests for empty lists, missing keys, ambiguous IDs, canonical JSONL, malformed indexes, and path traversal.
+- Commits: validator 9c6db727656d351742e3f2a93a7d8c6e3508aa8b; expanded tests 49c60997b12aeb71a93a891b3c895cd6a34445b9.
+- Workflow run 38241541882 passed on the validator commit, but its log ran the earlier four-test version because the expanded test update followed immediately afterward. The expanded eight-test suite is running as [run 38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360); its result must be checked before reporting the new test set as passed.
+- This remains utility-only. No registry shards have been generated; no scientific/empirical gate is cleared.
+
+**Developer → Tester:** independently inspect the updated validator and adversarial tests at 49c60997b12aeb71a93a891b3c895cd6a34445b9, and inspect the exact hosted test logs.
+**Tester → Developer:** issue a hash-pinned scoped decision and name any residual defects; do not authorize fitting from shard integrity alone.
