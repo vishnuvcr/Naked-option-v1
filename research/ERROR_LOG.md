@@ -167,3 +167,10 @@
 - The immediately earlier run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) returned REQUEST_CHANGES and remains preserved as failed-gate history. The later run is the accepted R2 code-only decision.
 - No real input artifact was downloaded/decrypted; no model fitted; no holdout/P&L/strategy was accessed. Code PASS allows only a separate schema/coverage preflight.
 - Workflow review for the preflight executor is now a distinct pending gate. It is not part of the code-only PASS and must be reviewed before download.
+
+
+## 2026-10-12 — Phase 8P preflight workflow review R2 audit assertion repair
+- Independent tester workflow [#38202735979](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202735979) evaluated the pinned developer workflow snapshot `55fa77de8e37815931cd331a862d1398bfead003` and passed 28/29 checks. The only failure was a case-sensitive status-text assertion: the proposal used uppercase “NO ARTIFACT DOWNLOAD YET”, while the audit expected title case.
+- This was a tester harness assertion mismatch, not a developer security bypass. The independent result confirms no market artifact was downloaded, no artifact decrypted, no model fitted, no holdout accessed, and no P&L/strategy action occurred.
+- Corrected the independent audit to compare normalized lowercase proposal text in commit `08ce9d3a5b7ccb5142e6bf7809a73f8735a2ea88`. The workflow rerun [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) is pending.
+- The first result remains recorded as a failed review attempt; only the subsequent complete independent receipt can determine the workflow decision.
