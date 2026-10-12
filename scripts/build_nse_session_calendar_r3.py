@@ -22,7 +22,7 @@ def sha256(raw: bytes) -> str:
 def git_blob_sha1(raw: bytes) -> str:
     return hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
 
-def build_calendar(source: dict[str, Any]) -> dict[str, Any]:
+def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
     if source.get("calendar_id") != "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3":
         raise ValueError("CALENDAR_BLOCKED: source calendar id mismatch")
     if source.get("timezone") != "Asia/Kolkata":
@@ -150,7 +150,6 @@ def build_calendar(source: dict[str, Any]) -> dict[str, Any]:
                 raise ValueError(f"CALENDAR_BLOCKED: unsupported weekend session {row['date']}")
         if row["intraday_label_eligible"] and not row["regular_hours_compatible"]:
             raise ValueError(f"CALENDAR_BLOCKED: intraday-eligible date lacks regular hours: {row['date']}")
-    source_raw=json.dumps(source,ensure_ascii=False,sort_keys=True,indent=2).encode("utf-8")+b"\n"
     special_list=sorted(specials.values(),key=lambda x:x["date"])
     return {
       "schema_version":"nse-capital-market-session-calendar-v1",
@@ -181,7 +180,7 @@ def build_calendar(source: dict[str, Any]) -> dict[str, Any]:
 def main()->int:
     raw=SOURCE.read_bytes()
     source=json.loads(raw.decode("utf-8"))
-    obj=build_calendar(source)
+    obj=build_calendar(source, raw)
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     out_raw=(json.dumps(obj,ensure_ascii=False,sort_keys=True,indent=2)+"\n").encode("utf-8")
     OUTPUT.write_bytes(out_raw)
