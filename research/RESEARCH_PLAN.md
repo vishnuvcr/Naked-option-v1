@@ -37,7 +37,7 @@ A method is not promoted on a single backtest metric.
 - Use nested walk-forward tuning.
 - Apply transaction-cost and slippage scenarios.
 - Evaluate calibration, discrimination and trading economics separately.
-- Perform independent tester gates at every phase.
+- Run developer-side automated integrity, correctness, leakage and statistical checks during execution. Defer independent tester review until the planned results bundle has been acquired and frozen; then submit one consolidated review, followed by targeted corrections and reruns if required. See [Tester Review Cadence Policy](governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md).
 - Produce a reproducible final manuscript with tables, figures, appendices and machine-readable experiment manifests.
 
 ## 5. Pre-registered phase catalog
@@ -61,10 +61,10 @@ Technical trend/momentum, mean reversion, range/volatility, price-action/market-
 Logistic/GLM, LDA/QDA, GAMs, tree ensembles, random forests, gradient boosting, calibrated classifiers, state-space models, HMM/regime models, Bayesian models, survival/hazard views of directional moves, and controlled sequence models.
 
 ### Phase 6 — Novel research methods
-Pre-registered experimental metrics and representations, including entropy/complexity, multi-scale features, information-flow measures, adaptive regime scores, composite lead-lag pressure, option-implied directional pressure and abstention/confidence operators. Novel methods must beat strong baselines out-of-sample and pass tester review.
+Pre-registered experimental metrics and representations, including entropy/complexity, multi-scale features, information-flow measures, adaptive regime scores, composite lead-lag pressure, option-implied directional pressure and abstention/confidence operators. Novel methods must beat strong baselines out-of-sample under the frozen developer-side validation suite; all methods, including null and failed results, are included in the consolidated post-acquisition tester audit.
 
 ### Phase 7 — Ensemble + regime-conditioned prediction
-Stack only models that have passed earlier gates. Compare static, regime-conditioned, mixture-of-experts and abstention policies. Freeze all selection rules before touching the final holdout.
+Stack only models that pass frozen developer-side data-integrity, leakage, and technical/statistical validation. Preserve every failed candidate; do not wait for intermediate tester reviews. Compare static, regime-conditioned, mixture-of-experts and abstention policies. Freeze all selection rules before touching the final holdout.
 
 ### Phase 8 — Long-option execution research
 Map directional forecasts to calls/puts. Test expiry, delta/moneyness, DTE, entry timing, exit timing, stop/time-stop, profit target, trailing exit, IV filters and no-trade rules. Never use information unavailable at trade time.
@@ -80,7 +80,7 @@ Research manuscript, full methods, data provenance, all null findings, winning/f
 
 ## Phase 8P scope addendum — 2026-10-13
 
-The full research target scope in Phase 3 is unchanged: intraday horizons 5/15/30/60/120 minutes and positional horizons +1/+2/+3/+5/+10 exchange sessions remain mandatory before final cross-horizon conclusions or method ranking. The current R2 registry has only two labels (30-minute intraday and +1-session positional) and is therefore reclassified as a bounded synthetic/design pilot, not an exhaustive horizon grid. The pilot validates method identity, family/operator compatibility, statistical utilities, artifact integrity and synthetic workflow behavior only; it authorizes no empirical fitting and no method selection. A distinct PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE must freeze all ten label definitions, horizon-specific maturity/purge/embargo/sample eligibility, regenerate and hash-pin the full configuration manifest and shards, and receive independent tester PASS before any empirical model fitting begins. No pilot output may be used to rank or select methods.
+The full research target scope in Phase 3 is unchanged: intraday horizons 5/15/30/60/120 minutes and positional horizons +1/+2/+3/+5/+10 exchange sessions remain mandatory before final cross-horizon conclusions or method ranking. The current R2 registry has only two labels (30-minute intraday and +1-session positional) and is therefore reclassified as a bounded synthetic/design pilot, not an exhaustive horizon grid. The pilot validates method identity, family/operator compatibility, statistical utilities, artifact integrity and synthetic workflow behavior only; it authorizes no empirical fitting and no method selection. A distinct PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE must freeze all ten label definitions, horizon-specific maturity/purge/embargo/sample eligibility, regenerate and hash-pin the full configuration manifest and shards, and pass developer-side integrity/label/chronology tests before empirical fitting begins. Independent tester review of the complete source-plus-results bundle is deferred until the planned result-acquisition run has completed and its artifacts are frozen. No R2 pilot output may rank or select methods.
 
 ## 6. Promotion criteria
 
@@ -103,7 +103,7 @@ No single numeric threshold is sufficient for promotion; all gates are conjuncti
 
 A single failed model, family, backtest or phase is **never** sufficient to conclude that no usable strategy exists. The developer must complete the full pre-registered Phase 0-11 program, repair reproducible technical failures, rerun failed gates where scientifically valid, and preserve every null result before a final conclusion is issued.
 
-The research remains finite and governed: the method universe is the pre-registered catalog in `METHOD_REGISTRY.md`, together with only explicitly documented amendments that pass the developer/tester governance gate. It must not become an uncontrolled infinite search or an unlogged optimization loop.
+The research remains finite and governed: the method universe is the pre-registered catalog in `METHOD_REGISTRY.md`, together with only explicitly documented amendments made before the relevant results are inspected. Developer-side governance/integrity checks run before execution; independent tester review is consolidated after the planned results bundle is acquired. It must not become an uncontrolled infinite search or an unlogged optimization loop.
 
 A final null conclusion is permissible only after the complete phase catalog, all declared candidate families, cost-aware execution tests, robustness gates and fresh-forward verification have been completed, or after a serious irreparable data/research limitation is formally recorded.
 
