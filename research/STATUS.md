@@ -721,3 +721,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** update the tester-owned request binding to R3 and independently audit the exact hashes; do not download/decrypt real data during the code gate.
 **Tester → Developer:** return immutable PASS/REQUEST_CHANGES and exact hashes; even on PASS, require separate diagnostic-only authorization before scanning the pinned encrypted artifact.
+
+
+## 2026-10-12 — One-use duplicate diagnostic is running
+
+- Independent workflow-only approval R2: PASS 33/33, exact workflow blob `398063be2215dbed40c123521bf2868b0bcdb6a3`, decision blob `8d39ad104c519b79bfe47f6731bac101a0798347`.
+- Independent final one-use authorization: `PASS_ONE_TIME_DUPLICATE_DIAGNOSTIC_EXECUTION_ONLY`; authorization blob `a9390a2a597bbfedaedcf792fe5f60c29361cc82`, request blob `bfb186fba597acdd831f8d854471d9b6d0adde36`; validity 2026-10-12 05:12:44–17:12:44 UTC; nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133`.
+- Developer execution run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953): approval gate passed, permanent nonce ledger committed before data access, Python setup/dependencies/code pin/cache restore succeeded, and the pinned encrypted source ZIP hash was verified. The aggregate duplicate diagnostic is currently running.
+- Real-data scan is authorized for this single diagnostic only. **No records are being deduplicated; no features/model/holdout/option P&L/strategy work is authorized.** Await the aggregate report, verify its hash/schema, then submit it to the tester's separate data-result gate before moving to prediction experiments.
+
+**Developer → Tester:** review the exact aggregate report and output digest from run #38207005953 when published; verify counts/hashes/conflicts and no raw data leakage. Do not approve model fit until the data gate passes.
+**Tester → Developer:** issue the independent diagnostic-results gate decision, preserving the nonce receipt and any runtime/resource failure as evidence.
