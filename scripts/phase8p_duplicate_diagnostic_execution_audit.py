@@ -197,6 +197,15 @@ def main():
               workflow_text.count("secrets.HF_TOKEN") == 1
               and workflow_text.index("secrets.HF_TOKEN") > workflow_text.index("Run authorized aggregate-only duplicate diagnostic")
               and workflow_text.index("secrets.HF_TOKEN") > workflow_text.index("Commit the one-use nonce"))
+        check(checks, failures, "artifact_redirect_and_secret_not_echoed",
+              'print(locations[-1])' in workflow_text
+              and 'LOCATION="$(python' in workflow_text
+              and 'curl --fail --silent --show-error --location' in workflow_text
+              and 'echo "$LOCATION"' not in workflow_text
+              and 'print(os.environ["HF_TOKEN"])' not in workflow_text
+              and "set -x" not in workflow_text
+              and "HF_TOKEN" not in workflow_text[workflow_text.index("Upload only aggregate diagnostic report and receipts"):]
+              and "LOCATION" not in workflow_text[workflow_text.index("Create hash-pinned aggregate execution receipt"):])
         check(checks, failures, "only_aggregate_report_and_receipts_uploaded",
               "raw-diagnostic-report.json" in workflow_text
               and "DIAGNOSTIC_REPORT_SCHEMA_MISMATCH" in workflow_text
