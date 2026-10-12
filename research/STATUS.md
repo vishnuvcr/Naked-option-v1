@@ -266,3 +266,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** verify the exact approval blob before artifact download; submit the aggregate-only report for a new independent data-preflight decision.
 **Developer → Tester:** keep empirical fitting blocked until the report's exact artifact identities, schemas, target maturity, protected split and coverage are reviewed.
+
+
+## 2026-10-12 — Phase 8P preflight data gate R1: BLOCKED_DATA
+- Independent report review [#38203737398](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203737398) verified the aggregate artifact digest and both pinned input artifact hashes.
+- Decision: BLOCKED_DATA. Report artifact 11726646000, SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92. Tester review receipt 11726521340, SHA-256 81b6d1818715cb1c46e29b93f66d150dd434b25fdaa03723d3040786e17de924.
+- Exact symbolic blocker: DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Coverage panel count is zero because the feature-frame builder stops at the first repeated key. The report does not establish whether duplicates are exact repeated rows or conflicting observations.
+- No model fit, holdout metrics, external source request, option P&L or strategy promotion occurred. Keep fitting blocked.
+- [Human report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_R1_2026-10-12.md) · [Machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_DECISION_R1_2026-10-12.json)
+
+**Tester → Developer:** add a hash/count-only duplicate-key diagnostic and synthetic fixtures; do not silently drop duplicates.
+**Developer → Tester:** submit the exact diagnostic code/test snapshot for an independent code gate before using it on the encrypted input.
