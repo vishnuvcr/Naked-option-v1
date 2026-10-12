@@ -58,7 +58,7 @@ def main():
 
     check(checks, failures, "workflow_review_request_is_pending_and_non_authorizing",
           req.get("status") == "PENDING_INDEPENDENT_TESTER_REVIEW"
-          and req.get("review_scope") == "EXECUTOR_WORKFLOW_AND_NO_REAL_ARTIFACT_ACCESS_ONLY"
+          and req.get("review_scope") == "EXECUTOR_WORKFLOW_AND_NOOP_GUARDS_ONLY_NO_REAL_ARTIFACT_ACCESS"
           and req.get("real_artifact_access_authorized") is False
           and req.get("real_artifact_decryption_authorized") is False
           and req.get("real_diagnostic_authorized") is False
