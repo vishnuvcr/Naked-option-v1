@@ -876,3 +876,8 @@ Run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3825
 
 ### 2026-10-12 — Final report count audit
 The latest full synthetic run's log confirms the hardened statistical suite ran 10 tests successfully (not 8, which described an earlier revision). The report/status/checkpoint now record 10 tests. Latest run remains synthetic-only, with no market data, model fit or holdout access.
+
+
+### 2026-10-12 — Resume: method registry distinctness audit
+
+User requested resume. During review of method shards, developer found generic nearest-neighbor contrast text that overstated which fields changed. Added deterministic nearest-peer contrast repair and tests; rebuilt master/shards/index/matrix and refreshed preregistration pins. Repair/audit 38255852834, clean registry checks 38255852565, and synthetic sweep 38255852608 passed. Full synthetic sweep processed 64,000 tasks with 0 errors and no market data/model fitting. Added contrast repair log and refreshed independent review request. Existing tester REQUEST CHANGES remains in force.
