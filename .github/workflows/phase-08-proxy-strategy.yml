@@ -21,7 +21,9 @@ permissions:
   actions: read
 
 concurrency:
-  group: phase-08-proxy-strategy
+  # Versioned group lets a corrected no-lookahead runner proceed while a prior
+  # diagnostic/non-accepted run is still consuming its old snapshot.
+  group: phase-08-proxy-strategy-asof-v2
   cancel-in-progress: false
 
 jobs:
