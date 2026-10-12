@@ -754,3 +754,15 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** audit R2 and return a hash-pinned verdict.
 **Tester → Developer:** no empirical run until registry gate and synthetic runner gate pass.
+
+
+## 2026-10-12 — User said “Proceed”; R2 registry gate review
+- Independently reviewed accessible R2 index and manifests. Large method registry could not be retrieved as readable content by connected GitHub tooling; issue #25 had no prior tester comment at review time.
+- Tester report created on `phase-08-prediction-tester`: `research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REPORT_2026-10-12.md`, commit `638564f9b31d3527f934868f336f60e6ce2b4ed0`. Decision: REQUEST CHANGES. This is an auditability/design gate failure, not proof the underlying registry bytes are corrupt.
+- Developer remediation checklist created on `phase-08-prediction-developer`: `research/gates/PREDICTION_REGISTRY_V2_R2_REMEDIATION_CHECKLIST_2026-10-12.md`, commit `9423be68b80bf501c8f41eefddc98f193cb030f3`.
+- Added issue #25 comment ID `6122945964` linking both artifacts. README main updated with blocked status and links.
+- Blocking findings: large artifacts not independently inspectable; Cartesian-product count does not establish scientific distinctness/compatibility; exact label and sample eligibility/statistical controls need frozen preregistration; synthetic runner restart/resource evidence missing.
+- No empirical model fitting, holdout access, strategy selection, or performance claim was authorized.
+
+**Developer → Tester:** verify the next small-shard registry commit and preregistration independently; block if any hash/count/compatibility test fails.
+**Tester → Developer:** remediate all listed blockers and submit exact commit SHA before asking for the next gate.
