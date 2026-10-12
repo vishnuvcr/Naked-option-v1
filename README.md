@@ -352,3 +352,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - The frozen 4,800-cell grid and four cost scenarios remain unchanged. The runner currently marks all configurations ineligible because the point-in-time fixed-contract option panel is not approved. No P&L or strategy metrics have been generated or accepted.
 - Next: obtain fresh regression evidence, resolve the separate one-use diagnostic authorization, run the aggregate-only duplicate diagnostic, and audit already available official/secondary data for valid point-in-time contract identity and execution prices.
 - Research status, error log and conversation log were updated. No workflow dispatch or hosted run is claimed in this checkpoint.
+
+
+## Strategy-testing automation — 2026-10-12
+
+- Added a scoped automatic trigger to [Phase 8 Long-Option Research](.github/workflows/phase-08-long-option.yml) on developer-branch changes to the runner, its regression tests, frozen manifest, or workflow. Manual and reusable workflow triggers remain available.
+- The trigger is intended for protocol, regression, immutable forecast artifact verification and forecast reconstruction. Existing empirical jobs still require explicit authorization and data gates.
+- The Actions run ID/outcome is not yet confirmed through the available connector; no successful run is claimed. See [research status](research/STATUS.md), [error log](research/ERROR_LOG.md) and [chat log](research/logs/CHAT_LOG.md).
+- No empirical P&L or strategy performance metrics have been generated. The next gate remains verified hosted execution plus an approved point-in-time option panel and separate diagnostic authorization.
