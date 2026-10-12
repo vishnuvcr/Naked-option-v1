@@ -11,13 +11,22 @@ REQUIRED_FILES = [
     "scripts/test_phase8p_greek_prediction.py",
     ".github/workflows/phase8p-greek-prediction.yml",
     "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md",
+    "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md",
 ]
 REQUIRED_PIPELINE_FUNCTIONS = [
+    "verify_code_gate_for_preflight",
     "verify_pinned_artifact_identity",
+    "load_frozen_forecast_panels",
+    "iter_encrypted_composite_parts",
     "build_option_feature_frame",
     "build_daily_spot_features",
     "align_features_to_prediction_panel",
+    "preflight_contract",
+    "run_schema_preflight_from_artifacts",
+    "enforce_fit_gate",
+    "_walk_forward_predict_core",
     "run_prediction_study",
+    "run_prediction_study_from_artifacts",
     "write_aggregate_only_report",
 ]
 PROHIBITED_MARKET_OPERATIONS = ["requests.get(", "huggingface_hub", "dhan", "download_workflow_artifact("]
@@ -60,10 +69,45 @@ def main():
     missing_funcs=sorted(set(REQUIRED_PIPELINE_FUNCTIONS)-functions)
     checks.append({"check":"end_to_end_pipeline_completeness","required_functions":REQUIRED_PIPELINE_FUNCTIONS,"missing_functions":missing_funcs,"pass":not missing_funcs})
     if missing_funcs: failures.append("END_TO_END_PIPELINE_INCOMPLETE:"+",".join(missing_funcs))
-    if "def enforce_fit_gate" in source and "scope_approved: bool" in source and "code_approved: bool" in source:
-        failures.append("FIT_AUTHORIZATION_USES_CALLER_CONTROLLED_BOOLEAN_FLAGS")
-        checks.append({"check":"authorization_binding","pass":False,"reason":"Caller can supply True flags; gate does not verify signed/pinned decision fields itself"})
-    else: checks.append({"check":"authorization_binding","pass":True})
+    function_nodes = {n.name:n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    fit_node = function_nodes.get("enforce_fit_gate")
+    public_fit_node = function_nodes.get("walk_forward_predict")
+    fit_args = ([arg.arg for arg in fit_node.args.args] if fit_node else [])
+    public_args = ([arg.arg for arg in public_fit_node.args.args] if public_fit_node else [])
+    auth_tokens = (
+        "_read_and_verify_tester_evidence",
+        "PHASE8P_AUTHORIZATION_BUNDLE_SHA256",
+        "PASS_PREFLIGHT_ONLY",
+        "INDEPENDENT_CODE_GATE_NOT_PASSED",
+    )
+    auth_body = source[source.find("def enforce_fit_gate"):source.find("def calibration_intercept_slope")]
+    auth_ok = bool(fit_args == ["authorization_bundle_path"]
+                   and not any(x in public_args for x in ("scope_approved","code_approved","preflight"))
+                   and all(token in auth_body for token in auth_tokens)
+                   and "scope_approved: bool" not in source
+                   and "code_approved: bool" not in source)
+    checks.append({"check":"authorization_binding","pass":auth_ok,
+                   "fit_gate_args":fit_args,"public_fit_args":public_args})
+    if not auth_ok: failures.append("FIT_AUTHORIZATION_NOT_BOUND_TO_TESTER_BUNDLE_AND_PREFLIGHT")
+    preflight_source = source[source.find("def preflight_contract"):source.find("def moving_block_indices")]
+    holdout_source = source[source.find("def _derive_holdout_proof_from_frozen_manifest"):source.find("def _build_features_for_panels")]
+    proof_ok = bool('"model_fit_authorized": False' in preflight_source
+                    and 'if not isinstance(contract, Mapping):' in holdout_source
+                    and 'return None' in holdout_source
+                    and "mask_sha256" in holdout_source
+                    and "source_artifact_id" in holdout_source)
+    checks.append({"check":"preflight_fail_closed_holdout_binding","pass":proof_ok})
+    if not proof_ok: failures.append("PREFLIGHT_DOES_NOT_FAIL_CLOSED_ON_UNPROVEN_HOLDOUT")
+    pins_ok = all(token in source for token in (
+        "11723198817",
+        "11638738288",
+        "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
+        "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+        "CC-BY-NC-4.0",
+        "nifty_1m_composite:v1",
+    ))
+    checks.append({"check":"immutable_artifact_and_encryption_pins","pass":pins_ok})
+    if not pins_ok: failures.append("PINNED_INPUT_OR_ENCRYPTION_LINEAGE_MISSING")
     wf=(root/".github/workflows/phase8p-greek-prediction.yml").read_text(encoding="utf-8")
     if "requests.get(" in source or "huggingface_hub" in source:
         failures.append("UNSCOPED_EXTERNAL_DATA_ACCESS_IN_REVIEWED_MODULE")
