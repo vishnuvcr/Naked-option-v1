@@ -923,3 +923,16 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 **Developer → Tester (post-results only):** wait for a formal acquired-results request with pinned source and artifact hashes; review the full result bundle in one consolidated pass.
 **Tester → Developer (after results acquired):** issue a hash-pinned decision with reproducible defects and the exact artifacts needing correction/reruns.
+
+
+## 2026-10-13 — Continuing as developer under post-results-only tester cadence
+
+- User instruction remains: “No tester review at each step! Tester to review only after the results acquirement!”
+- Continued developer-side work: created the deterministic R3 registry builder, tests, workflow and an R3 job in the established registry CI. R3 covers the complete frozen ten-horizon objective, 40,000 configs across 1,000 methods, preserving R2 as a two-label synthetic/design pilot.
+- Identified an opaque R2 per-config digest rule. The exact R2 shard file SHA-256, record count, and ID ranges are still the manifest's authoritative checks; the first sample's `config_sha256` does not match canonical object JSON SHA-256. R3 avoids silently reinterpreting this field, preserves it as `source_r2_config_sha256`, and recalculates a declared canonical output digest.
+- Added developer tests for label scope, horizon-specific purge/embargo, config-ID replacement, 40,000 expansion count, 4,000-per-label distribution, per-record output hashes, source artifact pins, and R2 preservation.
+- The new output manifests/shards and CI diagnostic files are still absent on the branch as observed through the repository file interface. This is recorded as unverified build/CI state, not a test pass or a data result. The standalone workflow's run state is not directly exposed by the connected GitHub status endpoint; the R3 build is also attached to the established registry workflow.
+- No empirical model has been fitted, no holdout was accessed, and no prediction result or method ranking is claimed. Tester review remains deferred until all planned results are acquired, frozen and hashed.
+
+**Developer → Tester (post-results only):** wait for the ten-horizon empirical output bundle and verify exact source/artifact hashes in one consolidated review.
+**Tester → Developer (post-results only):** return one hash-pinned decision with any reproducible scientific/statistical defects after result acquisition.
