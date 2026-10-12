@@ -5,8 +5,8 @@ on:
     branches: [phase-08-prediction-developer]
     paths:
       - ".github/workflows/phase8p-duplicate-diagnostic-execution.yml"
-      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json"
-      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_REQUEST_R1_2026-10-12.json"
+      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R3_2026-10-12.json"
+      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_REQUEST_R2_2026-10-12.json"
       - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_WAKEUP_R1_2026-10-12.json"
   workflow_dispatch:
     inputs:
@@ -32,20 +32,20 @@ jobs:
     env:
       DEVELOPER_BRANCH: phase-08-prediction-developer
       TESTER_BRANCH: phase-08-prediction-tester
-      EXECUTION_REQUEST_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json
-      WORKFLOW_APPROVAL_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json
-      EXECUTION_AUTHORIZATION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_R1_2026-10-12.json
-      EXECUTION_AUTH_REQUEST_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_REQUEST_R1_2026-10-12.json
-      R4_CODE_DECISION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R4_2026-10-12.json
-      R4_CODE_REPORT_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md
+      EXECUTION_REQUEST_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R3_2026-10-12.json
+      WORKFLOW_APPROVAL_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R3_2026-10-12.json
+      EXECUTION_AUTHORIZATION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_R2_2026-10-12.json
+      EXECUTION_AUTH_REQUEST_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_REQUEST_R2_2026-10-12.json
+      R5_CODE_DECISION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R5_2026-10-12.json
+      R5_CODE_REPORT_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R5_2026-10-12.md
       SCOPE_DECISION_PATH: research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json
       NONCE_LEDGER_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_NONCES.jsonl
       GREEK_ARTIFACT_ID: "11723198817"
       GREEK_ARTIFACT_SHA256: "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
-      APPROVED_CODE_COMMIT: "8f8d513330d1cb064b4d3ffe9933f8e8014f2850"
+      APPROVED_CODE_COMMIT: "916ff866a5290e38203cff3ea2fa30d77a229d18"
       APPROVED_CORE_MODULE_BLOB: "3358381d64b3e675e49687fa5d34df44d8a9c984"
-      APPROVED_DIAGNOSTIC_BLOB: "6e4484cc5893bae27966c2b8d7561c2435e00023"
-      APPROVED_DIAGNOSTIC_TEST_BLOB: "232de27ff2c26a4ad228ae179d8ec5565ac97eeb"
+      APPROVED_DIAGNOSTIC_BLOB: "2e4a47c7453768c66759a5167028aac9eb12568d"
+      APPROVED_DIAGNOSTIC_TEST_BLOB: "2a77cf0e634f568bdb8374cddea368d4d8e63c06"
 
     steps:
       - name: Checkout only repository control files
@@ -55,7 +55,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Verify independent R4 code decision and two-stage execution authorization before any data access
+      - name: Verify independent R5 code decision and two-stage execution authorization before any data access
         id: gate
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -113,37 +113,37 @@ jobs:
           if request.get("workflow_path") != workflow_path or request.get("workflow_blob_sha1") != workflow_blob:
               blocked("exact workflow blob is not the one in the request")
           if request.get("developer_code_commit") != os.environ["APPROVED_CODE_COMMIT"]:
-              blocked("developer code commit pin differs from the approved R4 snapshot")
+              blocked("developer code commit pin differs from the approved R5 snapshot")
           if int(request.get("source_artifact", {}).get("artifact_id", -1)) != int(os.environ["GREEK_ARTIFACT_ID"]):
               blocked("artifact id pin mismatch")
           if request.get("source_artifact", {}).get("sha256") != os.environ["GREEK_ARTIFACT_SHA256"]:
               blocked("artifact SHA-256 pin mismatch")
-          if request.get("execution_nonce") != "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133":
+          if request.get("execution_nonce") != "PHASE8P_DUP_DIAG_EXEC_20261012_R2_916FF866":
               blocked("execution nonce not the exact frozen request nonce")
           if request.get("real_artifact_access_authorized") is not False or request.get("real_artifact_decryption_authorized") is not False:
               blocked("workflow-only request must not grant real artifact access")
           if request.get("model_fit_authorized") is not False or request.get("holdout_access_authorized") is not False or request.get("option_pnl_authorized") is not False:
               blocked("out-of-scope research authorization flag is not false")
 
-          code_decision_path = os.environ["R4_CODE_DECISION_PATH"]
+          code_decision_path = os.environ["R5_CODE_DECISION_PATH"]
           scope_decision_path = os.environ["SCOPE_DECISION_PATH"]
-          for p in (code_decision_path, os.environ["R4_CODE_REPORT_PATH"], scope_decision_path):
+          for p in (code_decision_path, os.environ["R5_CODE_REPORT_PATH"], scope_decision_path):
               if not has_path(tester, p):
                   blocked("required tester decision/report is missing: " + p)
           code_sha = blob(tester, code_decision_path)
           scope_sha = blob(tester, scope_decision_path)
-          if code_sha != request.get("r4_code_decision_blob_sha1"):
-              blocked("R4 code decision blob differs from reviewed request")
-          if blob(tester, os.environ["R4_CODE_REPORT_PATH"]) != request.get("r4_code_report_blob_sha1"):
-              blocked("R4 code report blob differs from reviewed request")
+          if code_sha != request.get("r5_code_decision_blob_sha1"):
+              blocked("R5 code decision blob differs from reviewed request")
+          if blob(tester, os.environ["R5_CODE_REPORT_PATH"]) != request.get("r5_code_report_blob_sha1"):
+              blocked("R5 code report blob differs from reviewed request")
           if scope_sha != request.get("r4_scope_decision_blob_sha1"):
               blocked("R4 scope decision blob differs from reviewed request")
           code_decision = json.loads(show(tester, code_decision_path))
           scope_decision = json.loads(show(tester, scope_decision_path))
           if code_decision.get("decision") != "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY" or code_decision.get("developer_commit") != os.environ["APPROVED_CODE_COMMIT"]:
-              blocked("exact R4 code-only PASS absent")
+              blocked("exact R5 code-only PASS absent")
           if code_decision.get("real_artifact_accessed") is not False or code_decision.get("real_diagnostic_authorized") is not False or code_decision.get("model_fit_authorized") is not False:
-              blocked("R4 code-only decision has an unexpected permission")
+              blocked("R5 code-only decision has an unexpected permission")
           if scope_decision.get("decision") != "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS" or scope_decision.get("real_artifact_access_authorized") is not False:
               blocked("R4 scope decision is absent or overbroad")
 
@@ -161,7 +161,7 @@ jobs:
               blocked("tester workflow PASS does not pin this exact workflow and request")
           if approval.get("developer_code_commit") != os.environ["APPROVED_CODE_COMMIT"]:
               blocked("workflow reviewer approved a different code snapshot")
-          if approval.get("r4_code_decision_blob_sha1") != code_sha or approval.get("r4_scope_decision_blob_sha1") != scope_sha:
+          if approval.get("r5_code_decision_blob_sha1") != code_sha or approval.get("r4_scope_decision_blob_sha1") != scope_sha:
               blocked("workflow approval does not pin the tester's exact R4 decisions")
           if approval.get("real_artifact_access_authorized") is not False or approval.get("execution_authorization_granted") is not False:
               blocked("workflow-only PASS must not itself authorize execution")
@@ -178,7 +178,7 @@ jobs:
               "executor_workflow_blob_sha1": workflow_blob,
               "executor_request_blob_sha1": request_blob,
               "workflow_approval_decision_blob_sha1": approval_blob,
-              "r4_code_decision_blob_sha1": code_sha,
+              "r5_code_decision_blob_sha1": code_sha,
               "r4_scope_decision_blob_sha1": scope_sha,
               "developer_code_commit": os.environ["APPROVED_CODE_COMMIT"],
               "source_artifact_id": int(os.environ["GREEK_ARTIFACT_ID"]),
@@ -221,7 +221,7 @@ jobs:
               "executor_workflow_blob_sha1": workflow_blob,
               "executor_request_blob_sha1": request_blob,
               "workflow_approval_decision_blob_sha1": approval_blob,
-              "r4_code_decision_blob_sha1": code_sha,
+              "r5_code_decision_blob_sha1": code_sha,
               "r4_scope_decision_blob_sha1": scope_sha,
               "developer_code_commit": os.environ["APPROVED_CODE_COMMIT"],
               "source_artifact_id": int(os.environ["GREEK_ARTIFACT_ID"]),
@@ -275,7 +275,7 @@ jobs:
               "workflow_approval_decision_blob_sha1": approval_blob,
               "execution_authorization_decision_blob_sha1": auth_blob,
               "execution_authorization_request_blob_sha1": auth_request_blob,
-              "r4_code_decision_blob_sha1": code_sha, "r4_scope_decision_blob_sha1": scope_sha,
+              "r5_code_decision_blob_sha1": code_sha, "r4_scope_decision_blob_sha1": scope_sha,
               "developer_code_commit": os.environ["APPROVED_CODE_COMMIT"],
               "source_artifact_id": int(os.environ["GREEK_ARTIFACT_ID"]),
               "source_artifact_sha256": os.environ["GREEK_ARTIFACT_SHA256"],
@@ -463,7 +463,7 @@ jobs:
                   if candidate and len(candidate)<=100 and all(ch.isupper() or ch.isdigit() or ch in "_-" for ch in candidate):
                       code=candidate
               safe={
-                "schema_version":1,"gate":"PHASE8P_DUPLICATE_OPTION_KEY_DIAGNOSTIC_R4",
+                "schema_version":1,"gate":"PHASE8P_DUPLICATE_OPTION_KEY_DIAGNOSTIC_R5",
                 "status":"BLOCKED","failure_code":code,
                 "input_artifact_id":int(artifact_id),"expected_artifact_sha256":artifact_sha,
                 "raw_report_sha256":raw_hash,
