@@ -21,9 +21,9 @@ permissions:
   actions: read
 
 concurrency:
-  # Versioned group lets a corrected no-lookahead runner proceed while a prior
-  # diagnostic/non-accepted run is still consuming its old snapshot.
-  group: phase-08-proxy-strategy-asof-v2
+  # Versioned group lets the vectorized no-lookahead runner proceed while
+  # superseded diagnostic runs remain active on older snapshots.
+  group: phase-08-proxy-strategy-asof-v3-vectorized
   cancel-in-progress: false
 
 jobs:
