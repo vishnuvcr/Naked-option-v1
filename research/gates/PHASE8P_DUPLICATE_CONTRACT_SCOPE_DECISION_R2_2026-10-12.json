@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT",
+  "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS",
+  "proposal_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT_R4_2026-10-12.md",
+  "proposal_blob_sha1": "1ea9bca882b53fd2853829137aba2d521023b3bd",
+  "proposal_commit_sha": "f9436fcd146316e3a3fbf4f166270d12c7c85471",
+  "tester_report_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_TESTER_R2_2026-10-12.md",
+  "tester_report_blob_sha1": "3305ed3a2a6617441c9ccaf73764d9edf0e53b5f",
+  "parent_scope_blob_sha1": "018500722f88f5fb100a2e24afc3d5d97394631e",
+  "duplicate_scope_r3_blob_sha1": "6ea73c246a2cecd158e4bf8dbbd087befafcb89a",
+  "triggers": {
+    "failed_synthetic_ci_run": 38204234797,
+    "prior_blocked_preflight_runs": [
+      38203577299,
+      38203641510
+    ]
+  },
+  "input_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "scope": "SCOPE_ONLY; IMPLEMENTATION_AND_SYNTHETIC_TESTING_AUTHORIZED; NO REAL ARTIFACT ACCESS",
+  "real_artifact_access_authorized": false,
+  "code_gate_passed": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false,
+  "requirements": [
+    "Derive exact ordered column set from manifest inside pinned artifact; verify each part header exactly matches it.",
+    "Require semantic identity/economic columns and validate conditional timestamp representations against epoch.",
+    "Signature includes every actual manifest column except the four allowed provenance-variance fields when present.",
+    "Unknown columns are compared, never dropped; ambiguous normalization blocks.",
+    "Only exact duplicates may be canonicalized in memory; conflicts remain BLOCKED and produce only aggregate diagnostic."
+  ],
+  "next_gate": "new exact code/test/workflow snapshot independent review",
+  "artifacts_opened_during_review": false,
+  "model_fitted": false
+}
