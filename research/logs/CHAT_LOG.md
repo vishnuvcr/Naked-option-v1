@@ -542,3 +542,13 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** R1 remediation must be reviewed only on exact new code/test hashes.
 **Tester → Developer:** empirical artifacts stay closed until the code gate and then schema-preflight gate both pass.
+
+
+## 2026-10-12 — Resume checkpoint: Phase 8P code gate R2 and executor review
+- Reviewed the latest independent tester run, not only GitHub's workflow conclusion: tester [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) printed `PASS_FOR_CODE_ONLY`, 16/16 checks; the preceding R2 run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) had returned REQUEST_CHANGES and remains preserved.
+- Committed tester report/decision R2 on the independent tester branch. This authorizes the next schema/coverage-only gate for the exact immutable artifacts, not model fitting.
+- Submitted a separate preflight executor proposal/workflow for review. Current workflow SHA-1 `a48d28402fcb3575689d06f6bbb7a5bb31324df4`; proposal SHA-1 `267cc3fba9d2e5a8313be5efb60879d27586d529`. It has not downloaded either artifact.
+- No real data, model, holdout, option P&L or external data source was accessed in this step.
+
+**Developer → Tester:** review the workflow and its cache/token/output rules as a separate gate.
+**Tester → Developer:** return PASS_PREFLIGHT_WORKFLOW_ONLY or REQUEST_CHANGES; keep artifacts closed until the exact approval is pinned.
