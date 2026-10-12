@@ -378,3 +378,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Report:** [full run report](research/results/phase8-proxy-run-38221391371/phase8_proxy_strategy_run_report.json)
 - **Grid:** [all rows](research/results/phase8-proxy-run-38221391371/phase8_proxy_strategy_summary.csv)
 - **Worst-cost candidates:** [C3 top 50](research/results/phase8-proxy-run-38221391371/phase8_proxy_top_50_worst_cost_scenario.csv)
+
+
+## 2026-10-12 — Prediction registry shard tooling submitted for review
+
+- Added `scripts/shard_prediction_registry.py` to split record lists into canonical JSONL shards and produce an index with counts, byte lengths, ID ranges, and SHA-256 hashes; added `scripts/test_shard_prediction_registry.py` with integrity and known-vector tests.
+- Checkpoint: [registry shard tooling and tester handoff](research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md).
+- Code commits: utility `a0ce5b04346c50c81dd8fed9fdac9b3a5f3f4cce`; tests `57760230594c8829e8d816a156696b595084e8f6`; checkpoint `6d31c849f1c23f808d1cd35c085d6847b5ef5eae`.
+- Independent review requested in [issue #25](https://github.com/vishnuvcr/Naked-option-v1/issues/25). The utility and tests have **not yet been executed** in a hosted workflow; no generated shards are claimed and no gate has passed.
+- Method compatibility, semantic distinctness, frozen label/sample/statistical settings, and synthetic restart/resource evidence remain unresolved. Empirical fitting and untouched-holdout access remain prohibited.
