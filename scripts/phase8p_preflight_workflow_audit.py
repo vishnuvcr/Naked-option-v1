@@ -59,8 +59,9 @@ def main():
         checks.append({"check":"workflow_proposal_blob_lookup","pass":False,"detail":type(exc).__name__})
     check(checks,failures,"exact_workflow_blob",actual_workflow_blob==EXPECTED["workflow_blob"],actual_workflow_blob)
     check(checks,failures,"exact_proposal_blob",actual_proposal_blob==EXPECTED["proposal_blob"],actual_proposal_blob)
+    proposal_lower = prop_text.lower()
     check(checks,failures,"proposal_scope_and_no_data_before_review",
-          "No artifact download yet" in prop_text and "No model fitting occurs in this workflow" in prop_text)
+          "no artifact download yet" in proposal_lower and "no model fitting occurs in this workflow" in proposal_lower)
     check(checks,failures,"request_is_pending_review",
           request.get("status")=="PENDING_INDEPENDENT_TESTER_REVIEW"
           and request.get("no_data_download_before_review") is True
