@@ -40,3 +40,13 @@ Rerun authorization: R2 — 2026-10-12. Use the corrected tester-approved runner
 - Hosted run 38222175404 passed compilation, all 12 synthetic tests, runner self-test, and exact tester gate. It did not run the empirical job because this was the regression-only trigger.
 - Launch the finite 4,800-config × four-scenario proxy grid using the already-existing expiry-enriched option artifact 11723198817 and frozen Run #994 forecast artifact 11638738288. All previous runs that used the loop-based trigger scan are superseded diagnostics; the R3 stored-delta lookahead run is NON-ACCEPTED.
 - No new market-data acquisition, no bid/ask prerequisite, no refit, and no promotion based solely on historical ranking.
+
+
+## R7 corrected execution request — 2026-10-12
+
+- Independent tester R7 code gate PASS is recorded on `phase-08-prediction-tester` for the exact runner/test/workflow blobs; hosted regression run 38229662631 passed compile, synthetic regression and runner self-test.
+- Launch one fresh finite grid against the same pinned Run #994 forecast artifact and enriched option artifact. The corrected runner applies tick-rounded fills, 120-second intraday entry cap, timestamp-aggregated local-peak drawdown, strict OHLC consistency validation, prior-bar-only delta/spot/liquidity, duplicate same-timestamp lag invalidation, duplicate diagnostics and lot-size transition expiry exclusions.
+- Raw-IV Black–Scholes recomputation is disabled because the frozen source does not provide a separate IV-availability timestamp. Count fallback/usable delta selection in output; do not imply the raw IV is point-in-time proven.
+- Keep Paytm Money brokerage as the documented historical fallback and all statutory charges/slippage; execution remains Q1/OHLC proxy, not quote-executable.
+- Workflow publication is run-directory-only to avoid shared-file rebase conflicts; failure status must distinguish a missing-metrics failure from a publication failure when result artifacts exist.
+- This is a request to run the corrected grid only. It does not authorize promotion. The result-level tester must independently reconcile the new ledger, summaries, tick costs, P&L, win/loss, returns, drawdowns, diagnostics and yearly robustness before any strategy decision.
