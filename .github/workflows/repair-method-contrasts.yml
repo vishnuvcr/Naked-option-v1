@@ -1,0 +1,82 @@
+name: Repair Method Contrast Registry
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - "scripts/repair_method_contrast_statements.py"
+      - "scripts/test_repair_method_contrast_statements.py"
+      - "scripts/pin_prediction_preregistration_sources.py"
+      - ".github/workflows/repair-method-contrasts.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08-method-contrast-repair
+  cancel-in-progress: false
+
+jobs:
+  repair-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+      - name: Assert exact commit
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Repair exact nearest-neighbor contrast text
+        run: python scripts/repair_method_contrast_statements.py
+      - name: Rebuild small shards and index
+        run: python scripts/reshard_prediction_registry.py
+      - name: Rebuild compatibility matrix
+        run: python scripts/build_prediction_compatibility_matrix.py
+      - name: Repin preregistration source blobs
+        run: python scripts/pin_prediction_preregistration_sources.py
+      - name: Test exact method contrasts
+        run: python -m unittest discover -s scripts -p "test_repair_method_contrast_statements.py" -v
+      - name: Test registry shards
+        run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+      - name: Test deterministic re-sharding
+        run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
+      - name: Test compatibility matrix
+        run: python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
+      - name: Test preregistration source pins
+        run: python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+      - name: Test statistical utilities
+        run: python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
+      - name: Audit registry
+        run: python scripts/audit_prediction_registry_shards.py | tee "${RUNNER_TEMP}/registry-audit.json"
+      - name: Commit verified generated artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/registry/METHOD_REGISTRY_V2_R2.json research/registry/method_shards research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_PREREGISTRATION_V2_R2.json
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git commit -m "Repair exact method contrast statements and repin registry"
+          git fetch origin phase-08-prediction-developer
+          git rebase origin/phase-08-prediction-developer
+          python scripts/repair_method_contrast_statements.py
+          python scripts/reshard_prediction_registry.py
+          python scripts/build_prediction_compatibility_matrix.py
+          python scripts/pin_prediction_preregistration_sources.py
+          python -m unittest discover -s scripts -p "test_repair_method_contrast_statements.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+          python scripts/audit_prediction_registry_shards.py
+          git add research/registry/METHOD_REGISTRY_V2_R2.json research/registry/method_shards research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_PREREGISTRATION_V2_R2.json
+          if ! git diff --cached --quiet; then git commit -m "Refresh contrast-repaired registry after rebase"; fi
+          git push origin HEAD:phase-08-prediction-developer
