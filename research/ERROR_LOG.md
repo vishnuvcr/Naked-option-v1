@@ -723,3 +723,11 @@
 
 **Developer → Tester:** independently review R5 scope and later exact code/workflow hashes; reject any reuse of the consumed R1 nonce.
 **Tester → Developer:** return a written R5 review and exact gate requirements; no real-data access until fresh independent approvals and final one-use authorization.
+
+
+## 2026-10-12 — R5 tester static-audit failure and correction
+- Category: independent review harness / static audit.
+- Evidence: tester run [#38208463708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208463708) returned REQUEST_CHANGES, 29/30 checks. The single failed check was `diagnostic_static_audit`, reported as `ValueError`; the prior aggregate artifact did not identify the failing expression, so the precise historical trigger is not asserted.
+- All six source/test/workflow blob pins, scope-only authorization flags, core and diagnostic self-tests, regression suites, and source-artifact pin checks passed in that review. No real artifact was accessed/decrypted and no model was fitted.
+- Tester-owned audit was revised to recognize the current R5 disk-backed scan and aggregate progress callback, and its function-boundary delimiter was corrected. Fresh independent review [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622) is pending at log time.
+- Disposition: prior REQUEST_CHANGES remains historical evidence; the revised audit is not yet approved. Real-data execution remains blocked. Do not reuse R1 nonce.
