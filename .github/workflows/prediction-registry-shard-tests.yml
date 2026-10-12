@@ -120,8 +120,7 @@ jobs:
           if-no-files-found: warn
 
   full-horizon-r3-registry:
-    needs: registry-integrity
-    if: success()
+    # Run independently so an unrelated R2 audit problem cannot silently suppress R3 build diagnostics.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
