@@ -651,3 +651,9 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - Tester readiness review completed on isolated `phase-08-prediction-tester` branch. Decision: empirical P&L remains blocked; permitted regression/source feasibility work may continue.
 - No workflow was dispatched from this connector session because no workflow-dispatch action is available. No hosted run or result is claimed.
 - No empirical P&L generated and no strategy promoted. Continue with regression evidence, valid authorization, real aggregate-only duplicate diagnostic, and point-in-time panel feasibility.
+
+
+## 2026-10-12 — Local regression execution attempt
+- Attempted a shallow Git checkout of `phase-08-prediction-developer` to run the existing Phase 8 self-test locally.
+- The execution container could not resolve `github.com`; checkout failed before any source was obtained or test executed.
+- Logged as infrastructure/tooling failure in `research/ERROR_LOG.md`. No test result or empirical output claimed.
