@@ -404,3 +404,8 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Initial CI run [38241541882](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241541882) passed the earlier four-test snapshot. The expanded test run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) must be verified separately.
 - Current gate: **BLOCKED**. No method/config shards generated; compatibility, semantic distinctness, and preregistration remain unresolved. No fitting or holdout access is authorized.
 - Details: [Research Status](research/STATUS.md), [Error Log](research/ERROR_LOG.md), [Conversation Log](research/logs/CHAT_LOG.md), [Shard Tooling Checkpoint](research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md).
+
+### Shard test correction — 2026-10-12
+
+- Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed 7/8 due to a test-fixture count expectation, recorded in [Error Log](research/ERROR_LOG.md).
+- Fixture correction: [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c). Await fresh CI before claiming a green expanded suite.
