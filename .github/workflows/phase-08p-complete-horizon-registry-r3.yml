@@ -46,6 +46,19 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Generate daily calendar from pinned NSE holiday sources
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p research/gates
+          python scripts/build_nse_session_calendar_r3.py 2>&1 | tee research/gates/NSE_SESSION_CALENDAR_BUILD_LOG_R3_2026-10-13.txt
+
+      - name: Run NSE session-calendar regression tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m unittest discover -s scripts -p "test_nse_session_calendar_r3.py" -v 2>&1 | tee research/gates/NSE_SESSION_CALENDAR_TEST_LOG_R3_2026-10-13.txt
+
       - name: Build complete ten-horizon registry (no data read / no model fit)
         id: build
         shell: bash
