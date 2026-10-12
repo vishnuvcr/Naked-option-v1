@@ -972,3 +972,12 @@
 - Root cause: path strings were sorted rather than extracting the numeric part suffix. The old shard sizes (50 methods/file and 2,000 configs/file) also did not meet the tester's recommended maximum audit chunk sizes (25 and 100).
 - Correction: audit now extracts numeric suffixes, checks contiguous part numbering, validates every method file against its exact master slice, enforces exact-file SHA-256 and byte counts for configurations, and compares a recomputed per-shard index. New reshard utility rebuilds 40 method shards of 25 records and 80 config shards of 100 records after validating source integrity.
 - Status: source/workflow changes committed to the developer branch; hosted run result and generated artifact commit are not yet independently verified. Tester decision remains REQUEST CHANGES; no fitting/holdout access.
+
+
+## 2026-10-12 — Automated R2 registry repair failures and corrections
+
+- Run 38249203340 failed safely because multiple legacy method-shard naming schemes duplicated IDs across files. The generator was corrected to tolerate overlap only across files when each full record matches the canonical master; duplicate IDs inside one file, unknown IDs and record conflicts still stop the run. The successful canonical rebuild then removed all obsolete shard paths.
+- Run 38249506164 also failed at the re-shard step for the same legacy overlap finding before the guard was revised.
+- Run 38249556690 initially failed after re-sharding because broad unittest discovery imported unrelated test modules requiring pandas/numpy unavailable in the minimal runner. The workflow now executes the two intended test modules separately; both pass.
+- Successful repair workflow: 38249556690. Separate committed-artifact integrity workflow: 38249716356. The audit returned 1,000/1,000 unique method IDs, 8,000/8,000 unique config IDs, 80 small config shards, and errors=[]; test suites passed 8/8 and 5/5 respectively plus the SHA-256 known vector.
+- This closes only the artifact count/hash/index consistency defect. Scientific compatibility and statistical preregistration remain blocked and the independent tester gate remains REQUEST CHANGES.
