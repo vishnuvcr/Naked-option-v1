@@ -49,3 +49,10 @@
 
 ### Statistical test-count correction
 The current suite has ten tests; the latest pinned run log confirms all 10 passed. Earlier counts of 8 referred to a prior revision. Report and checkpoint were corrected accordingly.
+
+
+### Resume continuation — 2026-10-13
+
+- Latest independent review handoff: [refreshed R2 request](PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json), reviewed snapshot `b04b2541ea80cdb8b80d703b27ef778f4b7c425b`, tested executable source `877b7baf3aafb309021dfc621f7e98406b5532ee`.
+- Contrast repair, registry audit, clean registry suite, and synthetic sweep passed (runs 38255666293, 38255852834, 38255852565, 38255852608). Synthetic artifact ID 11749737651; 64,000 tasks; 10 statistical tests; 0 error rows; no market data/model fitting/holdout.
+- Tester branch head remains `638564f9b31d3527f934868f336f60e6ce2b4ed0`; the existing R2 report is still REQUEST CHANGES. No progression to empirical fitting or holdout is permitted until independent tester approval.
