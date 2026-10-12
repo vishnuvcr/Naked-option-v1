@@ -1,5 +1,13 @@
 # Research Status
 
+## Active research-control policy — 2026-10-13
+
+- Independent tester review is deferred until the planned results bundle is acquired, frozen, and hashed. Intermediate commits and phase steps are not sent for tester review.
+- Developer-side unit/regression tests, data validation, schema checks, exact source/result hashes and leakage/statistical assertions remain mandatory during execution.
+- The tester workflow now waits for a formal acquired-results review request. See [cadence policy](governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md).
+- R2 remains a non-empirical two-target pilot. The developer must complete and validate the full ten-horizon registry, proceed through planned result acquisition, and then request one consolidated independent review. Historic R3 REQUEST CHANGES remains logged, but is no longer used to pause every intermediate step under the revised cadence.
+
+
 ## Phase 8P R2 current checkpoint — 2026-10-13
 
 - Developer correction submission: [T2 bootstrap / T3 horizon-scope report](gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
@@ -20,12 +28,12 @@
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
-| Phase 8P Prediction registry gate | REQUEST CHANGES — correction submitted for independent review | 1,000 methods / 8,000 configs are a synthetic/design pilot only; 426 conditional, 574 blocked, 0 empirically eligible. T2 correction submitted; full horizon gate required before empirical fitting. |
+| Phase 8P Prediction research | DEVELOPER EXECUTION — FULL HORIZON REGISTRY / RESULTS ACQUISITION | R2 pilot only; next build a developer-validated ten-horizon registry, execute the frozen research workload, preserve all results and failures, then submit one consolidated tester review after result acquisition. |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-13
+Last updated: 2026-10-13 (tester review deferred until result acquisition)
 
 ## Phase 5 current state
 
