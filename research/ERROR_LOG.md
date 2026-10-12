@@ -810,3 +810,12 @@
 - Correction: added an explicit no-eligible-row guard, aggregate-only row-type/key/OHLC counters, and normalization of row tags and expiry text. No data source was re-downloaded and no bid/ask gate was added.
 - Regression verification: hosted synthetic suite and self-test passed on runner blob `1689a00b16813795ec5256158ee10c27a92bcc1a`, test blob `a128d48d2fc41851bd54a9e9c32d4809cc6a8ba2` in run 38219833960. This is code regression evidence, not strategy evidence.
 - Rerun: hosted run 38219967649 uses the same forecast and composite artifacts; empirical outcome remains pending.
+
+
+## 2026-10-12 — Phase 8 OHLC proxy run 38219967649
+- Category: input-artifact selection / expiry mapping.
+- Symptom: runner correctly failed closed with `NO_USABLE_OPTION_KEYS`: 8,490,723 OPTION rows had expiry text that did not match YYYY-MM-DD; 0 option rows lacked timestamp, 0 lacked strike, and 0 had unknown side. Source composite had 8,490,723 option rows and 509,142 spot rows.
+- Impact: no trades or strategy metrics were generated. Run artifact 11734195589 preserved the 394-byte sanitized aggregate error log.
+- Root cause: the selected original repaired composite artifact 11698879857 preserves all rows but leaves the `expiry_date` field blank for option rows. Expiry mapping is produced by the already-existing enrichment workflow, not by the basic repair artifact.
+- Correction: switch the backtest to already-created expiry-enriched artifact 11723198817 from run 38195812828, SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`. This is reuse of existing data, not new market-data collection. Its expiry mapping remains a documented proxy, not an official point-in-time contract master.
+- Next: run the same frozen strategy grid with the enriched artifact; preserve this failure as NON-EVIDENCE and do not interpret it as zero P&L or zero signals.
