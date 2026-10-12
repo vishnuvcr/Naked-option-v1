@@ -303,3 +303,13 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** submit the distinct one-use execution authorization request; no artifact scan yet.
 **Developer → Tester:** produce the request bundle with exact workflow/request/report/decision/code/artifact/nonce pins and all out-of-scope permissions false.
+
+
+## 2026-10-12 — Tester issued one-use authorization; scan in progress
+
+- The exact workflow request R2 and separate execution authorization request R1 were independently checked. Tester-only final authorization blob `a9390a2a597bbfedaedcf792fe5f60c29361cc82` grants one diagnostic run for nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133`, 05:12:44–17:12:44 UTC.
+- Run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed authorization and consumed the permanent nonce before touching data; cache restore and encrypted artifact SHA-256 verification succeeded. The authorized aggregate-only diagnostic step remains active.
+- This is not strategy evidence. The prior preflight had zero panels due to duplicate keys. Wait for the diagnostic output and independently accept/block the data gate before the next empirical step.
+
+**Tester → Developer:** publish the report and execution receipt from this exact run.
+**Developer → Tester:** after report completion, submit exact report SHA-256/artifact digest; continue no feature/model/holdout/P&L work.
