@@ -74,11 +74,41 @@ jobs:
 
       - name: Run R3 registry integrity, horizon, hash and scope tests
         if: success()
-        run: python -m unittest discover -s scripts -p "test_prediction_horizon_registry_r3.py" -v
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s scripts -p "test_prediction_horizon_registry_r3.py" -v > /tmp/r3-registry-tests.log 2>&1
+          rc=$?
+          cat /tmp/r3-registry-tests.log
+          cp /tmp/r3-registry-tests.log research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
+          python - "$rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json")
+          state = json.loads(path.read_text(encoding="utf-8"))
+          state["registry_test_exit_code"] = int(sys.argv[1])
+          path.write_text(json.dumps(state, indent=2) + "\\n", encoding="utf-8")
+          PY
+          if [ "$rc" -ne 0 ]; then exit 1; fi
 
       - name: Run statistical utility regressions
         if: success()
-        run: python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v > /tmp/r3-statistical-tests.log 2>&1
+          rc=$?
+          cat /tmp/r3-statistical-tests.log
+          cp /tmp/r3-statistical-tests.log research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt
+          python - "$rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json")
+          state = json.loads(path.read_text(encoding="utf-8"))
+          state["statistical_test_exit_code"] = int(sys.argv[1])
+          path.write_text(json.dumps(state, indent=2) + "\\n", encoding="utf-8")
+          PY
+          if [ "$rc" -ne 0 ]; then exit 1; fi
 
       - name: Confirm R2 pilot files were not altered
         run: |
@@ -93,6 +123,8 @@ jobs:
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
+            research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
+            research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt
             research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json
             research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json
             research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json
@@ -121,7 +153,7 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
-          git add research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
+          git add research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt
           if git diff --cached --quiet; then
             echo "No new failure diagnostics to commit."
             exit 0
