@@ -1296,3 +1296,13 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 ### Tester R3 decision
 
 - Independent tester [R3 REQUEST CHANGES](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_H1_FUTURE_RETURN_ULP_TESTER_DECISION_R3_2026-10-12.json): the full exact-HEAD reconstruction cannot run because the frozen daily source cache is absent. Locate an already archived, hash-verifiable copy; any one-time historical-source restoration needs separate review first.
+
+
+## 2026-10-12 — Phase 8P Greek feature prediction study: schema preflight authorized
+- Scope R3 and code R2 passed their scoped tester gates; preflight executor R2 passed independent workflow review 29/29 checks: [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_R2_2026-10-12.md) · [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json).
+- Authorized schema-only preflight run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) is running against pinned Greek artifact 11723198817 and frozen forecast artifact 11638738288. It cannot fit a model or access holdout metrics.
+- No Greek-feature incremental prediction results exist yet. A separate tester review of the exact preflight report must pass before model fitting; otherwise the outcome is recorded as BLOCKED_DATA.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/STATUS.md) · [Developer error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/ERROR_LOG.md) · [Tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/STATUS.md) · [Tester error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/ERROR_LOG.md)
+
+**Developer → Tester:** Review the exact preflight report/hash once run #38202961271 finishes.
+**Tester → Developer:** No empirical fitting until the data-preflight report receives a separate PASS.
