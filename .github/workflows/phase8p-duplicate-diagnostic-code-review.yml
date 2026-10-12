@@ -48,7 +48,6 @@ jobs:
           Path(os.environ["GITHUB_OUTPUT"]).open("a").write("developer_sha="+commit+"\n")
           print("Pinned exact developer diagnostic snapshot.")
           PY
-          cp "$REQUEST" "${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json"
 
       - name: Set up independent reviewer Python
         uses: actions/setup-python@v5
