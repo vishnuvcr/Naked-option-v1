@@ -819,3 +819,12 @@
 - Root cause: the selected original repaired composite artifact 11698879857 preserves all rows but leaves the `expiry_date` field blank for option rows. Expiry mapping is produced by the already-existing enrichment workflow, not by the basic repair artifact.
 - Correction: switch the backtest to already-created expiry-enriched artifact 11723198817 from run 38195812828, SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`. This is reuse of existing data, not new market-data collection. Its expiry mapping remains a documented proxy, not an official point-in-time contract master.
 - Next: run the same frozen strategy grid with the enriched artifact; preserve this failure as NON-EVIDENCE and do not interpret it as zero P&L or zero signals.
+
+
+## 2026-10-12 — Phase 8 contract-selection look-ahead correction
+- Category: scientific methodology / timestamp alignment.
+- Finding: the expiry-enriched composite records `greek_valuation_offset_seconds=60` for OPTION rows. The stored Greek delta and enriched time-to-expiry are calculated using the 1-minute candle close at timestamp+60 seconds, while the proxy runner enters at the candle's option_open at the source timestamp.
+- Impact: using stored `delta` directly to select an entry contract leaks approximately one minute of future information. Any result from the then-running R3 grid (run 38220714996) is NON-ACCEPTED and must not be used to select/promote a strategy, even if its run completes.
+- Correction: amended resolve_delta to use a stored delta only if timestamp_epoch + greek_valuation_offset_seconds <= decision time; otherwise it recalculates a Black–Scholes ranking delta from the row's rolling_spot, source IV, and expiry as of decision time. It no longer uses the precomputed close-valued time_to_expiry_years. Contract moneyness fallback no longer uses current-minute `nifty_close` when the bar-entry price is its open.
+- Regression: new synthetic tests verify the stored Greek cannot be used before its valuation timestamp and no current-bar close fallback is used. Fresh exact-blob regression and independent tester approval are required before another empirical run.
+- No new data were acquired, no bid/ask requirement was added, and no results from the affected run are accepted.
