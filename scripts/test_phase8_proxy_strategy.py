@@ -127,6 +127,38 @@ def test_stop_gap_uses_worse_open_not_unfillable_stop_level():
     assert result["exit_epoch"] == 160
 
 
+def test_vectorized_exit_falls_back_to_scheduled_price_when_no_trigger():
+    idxs = np.array([0, 1, 2], dtype=np.int64)
+    data = {
+        "times": np.array([100, 160, 220], dtype=np.int64),
+        "option_open": np.array([100.0, 108.0, 112.0]),
+        "option_high": np.array([120.0, 130.0, 140.0]),
+        "option_low": np.array([90.0, 85.0, 80.0]),
+    }
+    skeleton = {"series_idx": idxs, "entry_series_pos": 0, "scheduled_series_pos": 2,
+                "entry_base": 100.0}
+    result = runner.simulate_exit(skeleton, "X1", pd.DataFrame(), data)
+    assert result["exit_reason"] == "TIME_EXIT"
+    assert result["exit_base"] == 112.0
+    assert result["exit_epoch"] == 220
+
+
+def test_vectorized_trailing_exit_ignores_invalid_bar_and_uses_prior_high():
+    idxs = np.array([0, 1, 2, 3], dtype=np.int64)
+    data = {
+        "times": np.array([100, 160, 220, 280], dtype=np.int64),
+        "option_open": np.array([100.0, 100.0, 80.0, 85.0]),
+        "option_high": np.array([120.0, np.nan, 115.0, 90.0]),
+        "option_low": np.array([95.0, 60.0, 80.0, 84.0]),
+    }
+    skeleton = {"series_idx": idxs, "entry_series_pos": 0, "scheduled_series_pos": 3,
+                "entry_base": 100.0}
+    result = runner.simulate_exit(skeleton, "X3", pd.DataFrame(), data)
+    assert result["exit_reason"] == "TRAILING_STOP"
+    assert result["exit_base"] == 80.0
+    assert result["exit_epoch"] == 220
+
+
 def test_close_valued_greek_delta_is_not_used_before_valuation_time():
     entry_epoch = int(pd.Timestamp("2024-01-02 10:00:00", tz=runner.IST).timestamp())
     row = pd.Series({
@@ -201,6 +233,8 @@ if __name__ == "__main__":
         test_take_profit_stop_and_trailing_exit_paths,
         test_intraday_horizon_after_close_is_skipped,
         test_stop_gap_uses_worse_open_not_unfillable_stop_level,
+        test_vectorized_exit_falls_back_to_scheduled_price_when_no_trigger,
+        test_vectorized_trailing_exit_ignores_invalid_bar_and_uses_prior_high,
         test_close_valued_greek_delta_is_not_used_before_valuation_time,
         test_contract_selection_does_not_use_current_bar_close_for_spot_fallback,
         test_row_type_normalization_tolerates_whitespace_and_bom,
@@ -209,4 +243,4 @@ if __name__ == "__main__":
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 10 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 12 Phase 8 proxy-strategy synthetic tests")
