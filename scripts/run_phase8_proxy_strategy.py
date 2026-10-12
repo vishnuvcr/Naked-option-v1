@@ -197,14 +197,19 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
         )
     # Q1 proxy fills require usable observed OHLC. This is row eligibility for
     # calculating a trade, not a source-validation gate that stops the study.
-    ohlc_ok = (
-        np.isfinite(options["option_open"])
-        & np.isfinite(options["option_high"])
-        & np.isfinite(options["option_low"])
-        & (options["option_open"] > 0)
-        & (options["option_high"] > 0)
-        & (options["option_low"] > 0)
-    )
+    # Enforce complete OHLC consistency, including close. Invalid bars must
+    # never enter contract selection or trigger logic.
+    o = options["option_open"].to_numpy(dtype=float)
+    h = options["option_high"].to_numpy(dtype=float)
+    l = options["option_low"].to_numpy(dtype=float)
+    c = options["option_close"].to_numpy(dtype=float)
+    finite_ohlc = np.isfinite(o) & np.isfinite(h) & np.isfinite(l) & np.isfinite(c)
+    positive_ohlc = (o > 0) & (h > 0) & (l > 0) & (c > 0)
+    structurally_valid = (h >= l) & (o >= l) & (o <= h) & (c >= l) & (c <= h)
+    diagnostics["rows_invalid_ohlc_nonfinite"] = int((~finite_ohlc).sum())
+    diagnostics["rows_invalid_ohlc_nonpositive"] = int((finite_ohlc & ~positive_ohlc).sum())
+    diagnostics["rows_invalid_ohlc_structure"] = int((finite_ohlc & positive_ohlc & ~structurally_valid).sum())
+    ohlc_ok = finite_ohlc & positive_ohlc & structurally_valid
     diagnostics["rows_skipped_unusable_ohlc"] = int((~ohlc_ok).sum())
     options = options[ohlc_ok].copy()
     if options.empty:
@@ -494,9 +499,9 @@ def make_skeletons(events: list[dict], options: pd.DataFrame, sessions: list[str
             diagnostics["NO_OVERLAPPING_OPTION_TIME"] += 1
             continue
         entry_epoch = int(unique_times[entry_pos])
-        # Intraday decisions are allowed at most five minutes of source delay.
+        # Frozen intraday convention allows only the next 1- or 2-minute bar.
         # Daily close-to-next-session entries are naturally overnight.
-        if event["layer"] == "intraday" and entry_epoch - decision > 300:
+        if event["layer"] == "intraday" and entry_epoch - decision > 120:
             diagnostics["ENTRY_BAR_TOO_LATE"] += 1
             continue
         planned_exit = plan_exit_epoch(decision, event["layer"], int(event["horizon"]),
@@ -724,14 +729,21 @@ def summarise_trades(trades: pd.DataFrame, grid: list[dict]) -> pd.DataFrame:
             losses = pnl < 0
             gross_win = float(pnl[wins].sum()) if wins.any() else 0.0
             gross_loss = float(-pnl[losses].sum()) if losses.any() else 0.0
-            equity = np.cumsum(pnl)
+            # Drawdown is calculated on timestamp-aggregated realized P&L so
+            # simultaneous exits do not create artificial ordering-dependent DD.
+            exits = group["exit_timestamp_ist"].astype(str).to_numpy()
+            dd_frame = pd.DataFrame({"exit_timestamp_ist": exits, "pnl": pnl})
+            by_exit = dd_frame.groupby("exit_timestamp_ist", sort=True, as_index=False)["pnl"].sum()
+            equity = by_exit["pnl"].to_numpy(dtype=float).cumsum()
             peaks = np.maximum.accumulate(np.r_[0.0, equity])[1:]
             dd = peaks - equity
             dd_idx = int(np.argmax(dd)) if len(dd) else 0
             max_dd = float(dd[dd_idx]) if len(dd) else 0.0
+            local_peak = float(peaks[dd_idx]) if len(peaks) else 0.0
+            max_dd_pct = (100.0 * max_dd / local_peak) if local_peak > 0 else float("nan")
             peak_idx = int(np.argmax(np.r_[0.0, equity[:dd_idx + 1]]))
-            peak_time = "" if peak_idx == 0 else str(group.iloc[min(peak_idx - 1, len(group)-1)]["exit_timestamp_ist"])
-            trough_time = str(group.iloc[dd_idx]["exit_timestamp_ist"]) if len(group) else ""
+            peak_time = "" if peak_idx == 0 else str(by_exit.iloc[min(peak_idx - 1, len(by_exit)-1)]["exit_timestamp_ist"])
+            trough_time = str(by_exit.iloc[dd_idx]["exit_timestamp_ist"]) if len(by_exit) else ""
             try:
                 pvalue = float(ttest_1samp(returns, popmean=0.0, nan_policy="omit").pvalue) if len(returns) >= 2 else float("nan")
             except Exception:
@@ -751,7 +763,7 @@ def summarise_trades(trades: pd.DataFrame, grid: list[dict]) -> pd.DataFrame:
                 "average_loser_rupees": float(pnl[losses].mean()) if losses.any() else float("nan"),
                 "profit_factor": float(gross_win / gross_loss) if gross_loss > 0 else (float("inf") if gross_win > 0 else float("nan")),
                 "max_drawdown_rupees": max_dd,
-                "max_drawdown_pct_of_peak_equity": float(100.0 * max_dd / max(1e-9, float(peaks.max()))) if len(peaks) and peaks.max() > 0 else float("nan"),
+                "max_drawdown_pct_of_peak_equity": max_dd_pct,
                 "max_drawdown_peak_timestamp": peak_time,
                 "max_drawdown_trough_timestamp": trough_time,
                 "p_value_iid_screen": pvalue,
