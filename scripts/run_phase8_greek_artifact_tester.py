@@ -20,9 +20,23 @@ def sha_file(path):
         for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
     return h.hexdigest()
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,req,fp,code,msg,headers,newurl):
+        return None
+
 def download(url,token,path):
     req=urllib.request.Request(url,headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.github+json","User-Agent":"Naked-option-v1-artifact-tester"})
-    with urllib.request.urlopen(req,timeout=180) as response,path.open("wb") as out:
+    opener=urllib.request.build_opener(NoRedirect)
+    try:
+        response=opener.open(req,timeout=60)
+        location=response.geturl()
+        response.close()
+    except urllib.error.HTTPError as exc:
+        if exc.code not in (301,302,303,307,308): raise
+        location=exc.headers.get("Location")
+        if not location: raise RuntimeError("artifact API redirect has no Location header")
+    obj=urllib.request.Request(location,headers={"User-Agent":"Naked-option-v1-artifact-tester"})
+    with urllib.request.urlopen(obj,timeout=240) as response,path.open("wb") as out:
         while True:
             block=response.read(1024*1024)
             if not block: break
