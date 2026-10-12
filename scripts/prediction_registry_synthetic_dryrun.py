@@ -567,3 +567,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# Synthetic CI rerun requested after the registry contrast repair; no market data is read.
