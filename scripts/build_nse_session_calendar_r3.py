@@ -76,6 +76,7 @@ def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
     days=[]
     current=START
     session_index=0
+    prediction_session_index=0
     while current<=END:
         ds=current.isoformat()
         is_weekday=current.weekday()<5
@@ -122,11 +123,16 @@ def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
                 opened_reason="Exchange not scheduled open."
         if is_open:
             session_index+=1
+        prediction_index = None
+        if is_open and positional:
+            prediction_session_index+=1
+            prediction_index = prediction_session_index
         days.append({
             "date":ds,
             "weekday":current.strftime("%A"),
             "is_exchange_trading_session":is_open,
             "exchange_session_index":session_index if is_open else None,
+            "prediction_session_index":prediction_index,
             "session_type":session_type,
             "session_id":session_id,
             "regular_hours_compatible":compatible,
@@ -168,6 +174,7 @@ def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
       "day_count":len(days),
       "calendar_day_rows":days,
       "exchange_session_count":sum(x["is_exchange_trading_session"] for x in days),
+      "prediction_session_count":sum(x["prediction_session_index"] is not None for x in days),
       "intraday_label_eligible_session_count":sum(x["intraday_label_eligible"] for x in days),
       "positional_label_eligible_session_count":sum(x["positional_label_eligible"] for x in days),
       "notes":[
