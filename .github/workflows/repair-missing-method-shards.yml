@@ -11,6 +11,8 @@ on:
       - "scripts/prediction_registry_synthetic_dryrun.py"
       - "scripts/test_prediction_registry_synthetic_dryrun.py"
       - "scripts/test_prediction_preregistration.py"
+      - "scripts/prediction_statistics.py"
+      - "scripts/test_prediction_statistics.py"
       - "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json"
       - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - ".github/workflows/repair-missing-method-shards.yml"
@@ -56,6 +58,8 @@ jobs:
         run: python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
       - name: Run preregistration source-pin and statistical-rule tests
         run: python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+      - name: Run paired block bootstrap and BY FDR numerical tests
+        run: python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
       - name: Audit rebuilt registry before committing
         shell: bash
         run: |
@@ -88,6 +92,7 @@ jobs:
           python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
           python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
           python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
           python scripts/audit_prediction_registry_shards.py
           git add -A research/registry/method_shards research/registry/config_shards research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_PREREGISTRATION_V2_R2.json
           if ! git diff --cached --quiet; then
