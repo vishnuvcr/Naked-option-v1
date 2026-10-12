@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 WORKFLOW_PATH = ".github/workflows/phase8p-duplicate-diagnostic-execution.yml"
-REQUEST_PATH = "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json"
+REQUEST_PATH = "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R3_2026-10-12.json"
 EXPECTED_DEV_BRANCH = "phase-08-prediction-developer"
 EXPECTED_TESTER_BRANCH = "phase-08-prediction-tester"
 
@@ -71,13 +71,13 @@ def main():
           {"expected": req.get("workflow_blob_sha1"), "actual": workflow_blob})
     check(checks, failures, "one_use_nonce_present_at_top_level_and_contract",
           req.get("execution_nonce") == req.get("execution_authorization_contract", {}).get("one_use_nonce")
-          and req.get("execution_nonce") == "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133")
+          and req.get("execution_nonce") == "PHASE8P_DUP_DIAG_EXEC_20261012_R2_916FF866")
     check(checks, failures, "workflow_request_blob_is_immutable_for_this_review",
           bool(req_blob) and len(req_blob) == 40,
           {"request_path": REQUEST_PATH, "request_blob_sha1": req_blob})
 
-    # Independently pin the earlier R4 code-only and scope-only decisions on the tester-owned branch.
-    code_review = req.get("r4_code_review", {})
+    # Independently pin the earlier R5 code-only and scope-only decisions on the tester-owned branch.
+    code_review = req.get("r5_code_review", {})
     scope_review = req.get("r4_scope_review", {})
     code_decision_path = code_review.get("decision_path")
     code_report_path = code_review.get("report_path")
@@ -88,16 +88,16 @@ def main():
         actual_scope_decision = blob(root, tester, scope_decision_path)
         code_decision = json.loads(show(root, tester, code_decision_path))
         scope_decision = json.loads(show(root, tester, scope_decision_path))
-        check(checks, failures, "r4_code_decision_blob_pin",
+        check(checks, failures, "r5_code_decision_blob_pin",
               actual_code_decision == code_review.get("decision_blob_sha1")
-              == req.get("r4_code_decision_blob_sha1"))
-        check(checks, failures, "r4_code_report_blob_pin",
+              == req.get("r5_code_decision_blob_sha1"))
+        check(checks, failures, "r5_code_report_blob_pin",
               actual_code_report == code_review.get("report_blob_sha1")
-              == req.get("r4_code_report_blob_sha1"))
+              == req.get("r5_code_report_blob_sha1"))
         check(checks, failures, "r4_scope_decision_blob_pin",
               actual_scope_decision == scope_review.get("decision_blob_sha1")
               == req.get("r4_scope_decision_blob_sha1"))
-        check(checks, failures, "r4_code_review_is_code_only",
+        check(checks, failures, "r5_code_review_is_code_only",
               code_decision.get("decision") == "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY"
               and code_decision.get("developer_commit") == req.get("developer_code_commit")
               and code_decision.get("real_artifact_accessed") is False
@@ -108,7 +108,7 @@ def main():
               and scope_decision.get("real_artifact_access_authorized") is False
               and scope_decision.get("model_fit_authorized") is False)
     except Exception as exc:
-        check(checks, failures, "r4_pinned_tester_decisions_readable", False, type(exc).__name__)
+        check(checks, failures, "r5_pinned_tester_decisions_readable", False, type(exc).__name__)
 
     # Exact code references are reviewed as immutable git blobs; they are never executed here.
     try:
@@ -136,7 +136,7 @@ def main():
         steps = job.get("steps", [])
         names = [step.get("name", "") for step in steps]
         required_order = [
-            "Verify independent R4 code decision and two-stage execution authorization before any data access",
+            "Verify independent R5 code decision and two-stage execution authorization before any data access",
             "Commit the one-use nonce to the permanent developer ledger before downloading data",
             "Set up Python after execution authorization",
             "Install pinned diagnostic dependencies after authorization",
@@ -175,9 +175,9 @@ def main():
               and "PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY" in workflow_text
               and "PASS_ONE_TIME_DUPLICATE_DIAGNOSTIC_EXECUTION_ONLY" in workflow_text
               and "execution_authorization_granted" in workflow_text)
-        check(checks, failures, "R2_workflow_approval_path_matches_request_contract",
+        check(checks, failures, "R3_workflow_approval_path_matches_request_contract",
               req["execution_authorization_contract"]["workflow_approval_decision_path"]
-              == "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json"
+              == "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R3_2026-10-12.json"
               and req["execution_authorization_contract"]["workflow_approval_decision_path"] in workflow_text)
         check(checks, failures, "separate_execution_authorization_request_is_pinned",
               req["execution_authorization_contract"]["one_use_execution_authorization_path"] in workflow_text
@@ -199,7 +199,7 @@ def main():
               and "GITHUB_RUN_ATTEMPT" in workflow_text
               and "execution nonce has already been consumed" in workflow_text
               and "git push origin HEAD:phase-08-prediction-developer" in workflow_text
-              and "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133" in workflow_text)
+              and "PHASE8P_DUP_DIAG_EXEC_20261012_R2_916FF866" in workflow_text)
         check(checks, failures, "pinned_artifact_hash_verified_before_diagnostic",
               workflow_text.index("Download or validate pinned encrypted Greek artifact")
               < workflow_text.index("ACTUAL=\"$(sha256sum")
