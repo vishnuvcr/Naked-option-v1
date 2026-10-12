@@ -1014,3 +1014,10 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - All four config-shard `sha256` values in `PREDICTION_CONFIG_MANIFEST_V2_R2.json` match neither raw file bytes nor the canonical JSON-root or canonical record-stream digests tested so far. This is a manifest/hash-definition mismatch until the intended digest rule is established.
 - Config shard count and ID uniqueness checks passed: 8,000 records and 8,000 unique IDs across the four files. This does not establish compatibility or scientific validity.
 - **Gate remains BLOCKED.** No model fitting or holdout access. Resolve the missing method shards and config hash semantics, then obtain independent tester review.
+
+
+## R2 registry repair automation — 2026-10-12
+
+- Added a guarded generator that fills only absent method shards from the canonical 1,000-record master. Existing shards must exactly equal their master slice; existing mismatches stop the generator.
+- The developer-branch workflow generated the missing shards; spot checks confirm PART12 begins at PM0551 and PART20 contains the final master slice. The workflow also updated the config manifest to use a newly explicit, reproducible hash contract: SHA-256 of the exact committed shard file bytes.
+- The manifest now contains regenerated digests under that contract. The integrity workflow must still complete successfully, and the independent tester must review the exact resulting artifacts. No prediction fitting or holdout access is authorized.
