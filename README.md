@@ -343,3 +343,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 **Developer → Tester:** prioritize reviewing whether an independently auditable alternative fixed-contract panel can be built from already available, previously accepted data without weakening point-in-time contract, execution-cost or holdout controls. Report PASS/BLOCKED with exact evidence.
 **Tester → Developer:** do not generate empirical option P&L until an approved fixed-contract panel and separate one-use authorization exist; validate all charge arithmetic and no-lookahead rules before the 4,800-cell grid runs.
+
+
+## Strategy testing checkpoint — 2026-10-12
+
+- User confirmed to proceed with immediate strategy testing.
+- Independent tester readiness report: [Phase 8 Strategy-Testing Readiness](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8_STRATEGY_TESTING_READINESS_TESTER_2026-10-12.md) — **empirical P&L BLOCKED; synthetic regression/source feasibility allowed**.
+- The frozen 4,800-cell grid and four cost scenarios remain unchanged. The runner currently marks all configurations ineligible because the point-in-time fixed-contract option panel is not approved. No P&L or strategy metrics have been generated or accepted.
+- Next: obtain fresh regression evidence, resolve the separate one-use diagnostic authorization, run the aggregate-only duplicate diagnostic, and audit already available official/secondary data for valid point-in-time contract identity and execution prices.
+- Research status, error log and conversation log were updated. No workflow dispatch or hosted run is claimed in this checkpoint.
