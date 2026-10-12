@@ -46,6 +46,7 @@ jobs:
           set -euo pipefail
           git fetch --no-tags origin phase-08-prediction-tester:refs/remotes/origin/phase-08-prediction-tester
           python - <<'PY'
+          import json
           import subprocess
           branch = "origin/phase-08-prediction-tester"
           review_path = "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md"
@@ -64,7 +65,24 @@ jobs:
               "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md",
           ):
               subprocess.check_call(["git", "cat-file", "-e", f"HEAD:{path}"])
-          print("PASS: R3 scope approval exists; R1/R2/R3 history preserved; no artifacts opened.")
+
+          # R4 is a separately approved scope amendment; it authorizes implementation only.
+          duplicate_decision_path = "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json"
+          expected_duplicate_decision_blob = "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b"
+          actual_duplicate_decision_blob = subprocess.check_output(
+              ["git", "rev-parse", f"{branch}:{duplicate_decision_path}"], text=True
+          ).strip()
+          if actual_duplicate_decision_blob != expected_duplicate_decision_blob:
+              raise SystemExit("DUPLICATE_SCOPE_GATE_BLOCKED: R4 tester decision blob mismatch")
+          duplicate_decision = json.loads(subprocess.check_output(
+              ["git", "show", f"{branch}:{duplicate_decision_path}"], text=True
+          ))
+          if (duplicate_decision.get("decision") != "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS"
+                  or duplicate_decision.get("proposal_blob_sha1") != "1ea9bca882b53fd2853829137aba2d521023b3bd"
+                  or duplicate_decision.get("real_artifact_access_authorized") is not False
+                  or duplicate_decision.get("model_fit_authorized") is not False):
+              raise SystemExit("DUPLICATE_SCOPE_GATE_BLOCKED: R4 is not approved or scope-only flags changed")
+          print("PASS: prediction R3 and duplicate-contract R4 scope approvals exist; no artifacts opened.")
           PY
 
       - name: Run embedded synthetic-only checks
