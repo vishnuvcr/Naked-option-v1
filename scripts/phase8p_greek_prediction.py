@@ -335,7 +335,7 @@ def preflight_contract(
         name: {"artifact_id": receipts.get(name, {}).get("artifact_id"),
                "sha256": receipts.get(name, {}).get("sha256")}
         for name in ("greek", "forecast")
-    } if isinstance(receipts, Mapping) else {}
+    } if isinstance(artifact_receipts, Mapping) else {}
     return {
         "schema_version": 2,
         "status": "PASS" if not reasons else "BLOCKED",
