@@ -14,3 +14,10 @@ Next gate: confirm the hosted integrity audit passes, inspect its pinned artifac
 ## Latest developer continuation — 2026-10-12
 
 The audit itself needed hardening: lexicographic order could place PART10 ahead of PART2. Updated it to numeric ordering and strict full-record comparison to the 1,000-method master. Added a deterministic reshard tool to convert the existing validated source set into 40 method files (25 each) and 80 configuration files (100 each), along with an index of per-file path, byte count, record count, ID range, and SHA-256. The workflow is set to run tests + audit before commit and upload the audit JSON. No result is claimed until hosted output and resulting artifact commit are inspected.
+
+
+## Verified registry-integrity subgate — 2026-10-12
+
+The automated re-sharding run and separate clean-branch registry audit both passed. The resulting small-shard index is committed. Reported: 1,000 methods/1,000 unique IDs, 8,000 configurations/8,000 unique IDs, 40 method shards of 25 records, 80 configuration shards of 100 records, and zero audit errors. Targeted tests passed 8/8 and 5/5; SHA-256 known-vector check passed.
+
+The integrity defect is resolved at the data-manifest layer only. The tester's REQUEST CHANGES remains in force for scientific compatibility/distinctness, complete machine-readable preregistration, and synthetic resource/restart evidence. No prediction fitting or untouched holdout access.
