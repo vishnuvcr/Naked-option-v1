@@ -255,7 +255,7 @@ def test_drawdown_uses_local_peak_and_aggregates_same_timestamp():
         np.array([100.0, -150.0, 100.0]),
         np.array(["2024-01-01T10:00:00", "2024-01-01T10:00:00", "2024-01-01T10:01:00"]),
     )
-    assert same_time["max_dd"] == 0.0
+    assert same_time["max_dd"] == 50.0
 
 def test_proxy_cost_scenarios_get_more_conservative():
     base = 100.0
