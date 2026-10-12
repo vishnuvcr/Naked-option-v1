@@ -1,6 +1,6 @@
 {
   "schema_version": "prediction-preregistration-v2-r2",
-  "date": "2026-10-12",
+  "date": "2026-10-13",
   "status": "DRAFT_INDEPENDENT_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
   "scope": {
     "objective": "NIFTY 50 direction prediction only",
@@ -31,7 +31,7 @@
       "label_horizon_minutes": 30,
       "session_rule": "decision and horizon-end timestamps must both lie inside the same official trading session; no overnight carry",
       "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
-      "flat_tolerance_abs_simple_return": 1e-08,
+      "flat_tolerance_abs_simple_return": 1e-8,
       "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
       "eligible_timestamp_range": [
         "2021-10-11",
@@ -43,7 +43,7 @@
       "label_horizon": "one complete exchange session",
       "session_rule": "one target per exchange session at the registered close decision time; only the next official session close supplies the target",
       "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
-      "flat_tolerance_abs_simple_return": 1e-08,
+      "flat_tolerance_abs_simple_return": 1e-8,
       "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
       "eligible_timestamp_range": [
         "2021-10-11",
@@ -160,7 +160,7 @@
     "inner_validation": "Use deterministic expanding inner chronological folds contained wholly in the current outer training window. Each inner validation fold has one-session purge and embargo; no random row split.",
     "hyperparameters": "Only the frozen configuration fields in the committed config shard may be used; no ad-hoc tuning or model-family substitution.",
     "probability_calibration": "Native probabilities when family contract proves semantics; otherwise train-only Platt calibration on predictions made out-of-fold within inner chronological folds. No outer-validation targets used to fit or choose calibration.",
-    "probability_clipping_epsilon": 1e-06,
+    "probability_clipping_epsilon": 0.000001,
     "prevalence_baseline": "Training-fold positive prevalence with fixed Jeffreys smoothing p=(n_positive+0.5)/(n_train+1), then clip to [1e-6,1-1e-6]; baseline is scored on exactly the same common evaluation rows as candidate.",
     "deterministic_seed": 2026101208
   },
@@ -247,5 +247,45 @@
     "encrypted_data": "This preregistration consumes only a dataset artifact whose decryption/access gate is separately authorized. The committed manifest currently declares encrypted_only=true; no decryption or row access is performed by this specification builder.",
     "holdout_protection": "No untouched holdout path/secret is read or written by R2 tooling."
   },
-  "gate": "DRAFT ONLY. These choices are frozen as a proposed protocol file for independent tester review. No empirical fitting until the tester independently approves this preregistration, the compatibility matrix, adapter tests and synthetic restart/resource evidence."
+  "gate": "DRAFT ONLY. These choices are frozen as a proposed protocol file for independent tester review. No empirical fitting until the tester independently approves this preregistration, the compatibility matrix, adapter tests and synthetic restart/resource evidence.",
+  "scope_amendment_2026_10_13": {
+    "amendment_type": "CLARIFY_R2_TWO_TARGET_REGISTRY_PILOT",
+    "status": "PILOT_ONLY_NOT_EXHAUSTIVE",
+    "included_target_labels": [
+      "INTRA_30M_UP_DOWN",
+      "POS_1D_UP_DOWN"
+    ],
+    "purpose": "The current 1,000-method / 8,000-configuration R2 registry is a finite pilot to validate method identity, conservative family/operator compatibility, statistical utilities, artifact integrity, and synthetic runner orchestration for one representative intraday target and one representative positional target.",
+    "explicit_non_claims": [
+      "R2 does not cover the full frozen intraday horizon set of 5/15/30/60/120 minutes.",
+      "R2 does not cover the full frozen positional horizon set of +1/+2/+3/+5/+10 exchange sessions.",
+      "R2 pilot rows and any future pilot metrics cannot establish exhaustive horizon coverage or justify final cross-horizon model ranking."
+    ],
+    "required_next_gate": "PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE",
+    "required_horizon_labels": {
+      "intraday": [
+        "INTRA_5M_UP_DOWN",
+        "INTRA_15M_UP_DOWN",
+        "INTRA_30M_UP_DOWN",
+        "INTRA_60M_UP_DOWN",
+        "INTRA_120M_UP_DOWN"
+      ],
+      "positional": [
+        "POS_1D_UP_DOWN",
+        "POS_2D_UP_DOWN",
+        "POS_3D_UP_DOWN",
+        "POS_5D_UP_DOWN",
+        "POS_10D_UP_DOWN"
+      ]
+    },
+    "before_empirical_fitting": [
+      "Freeze and independently approve all ten target-label definitions and their sample-eligibility rules.",
+      "Regenerate the configuration universe for all ten labels, with horizon-specific target maturity, purge, embargo, and fold-end rules.",
+      "Regenerate and pin all expanded configuration shards, indexes, manifests, and synthetic reports.",
+      "Obtain a distinct independent tester PASS for the horizon-complete registry and statistical protocol."
+    ],
+    "no_empirical_fit_authorized_by_this_amendment": true,
+    "no_pilot_result_may_select_or_rank_methods": true,
+    "rationale": "This clarification retains the already committed 8,000-configuration R2 artifact as a bounded synthetic/design pilot and avoids a silent post-result scope change. It does not reduce the full research aim; all ten frozen horizons remain mandatory before any empirical fitting or method selection."
+  }
 }
