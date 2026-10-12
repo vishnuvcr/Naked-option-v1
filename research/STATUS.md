@@ -932,3 +932,17 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Developer → Tester:** independently validate all registry/configuration records and submit hash-pinned PASS/REQUEST CHANGES on the tester branch.
 
 **Tester → Developer:** identify exact invalid or duplicate method combinations and config-manifest issues; no empirical execution until registry gate passes.
+
+
+## 2026-10-12 — Registry V2 R1 rejected; R2 draft submitted
+
+- Tester verified R1's basic integrity: 1,000 unique method IDs/fingerprints, 2,000 unique config IDs/hashes, valid parent references, and independent SHA-256 recomputation passed.
+- Tester issued REQUEST CHANGES because the grid only varied lookback, probability/calibration compatibility was underspecified, and label/sample eligibility details were absent.
+- Developer prepared R2: 1,000 proposed method definitions and 8,000 proposed configurations (intraday/positional label IDs × 20/60 lookback × family-specific regularized/flexible presets), with training-fold-only probability calibration and survival hazard mapping.
+- R2 files are in `research/registry/`; exact links and commit hashes are recorded in [tester issue #25](https://github.com/vishnuvcr/Naked-option-v1/issues/25).
+- Independent registry R2 gate is OPEN. The JSON files are too large for the current file-fetch adapter to return complete contents in one response; tester is explicitly asked not to infer PASS from the index and to request smaller auditable shards if necessary.
+- No empirical prediction model was fitted, no market data was opened for this registry step, and no untouched holdout was accessed. No strategy selection or Phase 9 progression.
+ 
+**Developer → Tester:** independently audit R2 content, fingerprints, semantic compatibility, labels and all 8,000 configs; report PASS/REQUEST CHANGES with hashes.
+
+**Tester → Developer:** if artifact size prevents audit, require smaller shards and re-review; do not authorize empirical runs.
