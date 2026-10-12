@@ -2,7 +2,7 @@
   "schema_version": 1,
   "gate": "PHASE8P_FROZEN_ARTIFACT_SCHEMA_PREFLIGHT_EXECUTION",
   "status": "PENDING_INDEPENDENT_WORKFLOW_REVIEW",
-  "workflow_blob_sha1": "474712e945dfaef83c814c9e17d1513ad44a3152",
+  "workflow_blob_sha1": "b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5",
   "approved_developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
   "code_decision_blob_sha1": "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b",
   "preflight_workflow_approval": {
@@ -29,7 +29,7 @@
   "upload_raw_data_authorized": false,
   "no_data_download_before_workflow_review": true,
   "no_model_fit_before_preflight_tester_decision": true,
-  "authorization_note": "Prior R2 workflow review is revoked for execution because the exact workflow blob changed to add safe diagnostic codes and repair the input receipt step. Do not download artifacts until the revised workflow receives a new tester PASS.",
+  "authorization_note": "Execution is paused pending independent review of revised workflow blob b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5. No artifacts may be downloaded until the exact revised workflow receives PASS_PREFLIGHT_WORKFLOW_ONLY.",
   "workflow_review_completed": false,
   "authorization_scope": "PENDING_WORKFLOW_R3_REVIEW_NO_DOWNLOAD_NO_FIT"
 }
