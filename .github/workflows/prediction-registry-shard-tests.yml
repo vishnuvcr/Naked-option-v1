@@ -24,6 +24,9 @@ on:
       - ".github/workflows/prediction-registry-shard-tests.yml"
       - "scripts/build_prediction_horizon_registry_r3.py"
       - "scripts/test_prediction_horizon_registry_r3.py"
+      - "scripts/build_nse_session_calendar_r3.py"
+      - "scripts/test_nse_session_calendar_r3.py"
+      - "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
       - "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
       - "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
       - ".github/workflows/phase-08p-complete-horizon-registry-r3.yml"
@@ -142,6 +145,18 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Generate daily calendar from pinned NSE holiday sources
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p research/gates
+          python scripts/build_nse_session_calendar_r3.py 2>&1 | tee research/gates/NSE_SESSION_CALENDAR_BUILD_LOG_R3_2026-10-13.txt
+
+      - name: Run NSE session-calendar regression tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m unittest discover -s scripts -p "test_nse_session_calendar_r3.py" -v 2>&1 | tee research/gates/NSE_SESSION_CALENDAR_TEST_LOG_R3_2026-10-13.txt
       - name: Build full ten-horizon registry without data access or fitting
         shell: bash
         run: |
@@ -203,6 +218,9 @@ jobs:
           name: phase-08p-horizon-registry-r3-developer-checks
           path: |
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
+            research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json
+            research/gates/NSE_SESSION_CALENDAR_BUILD_LOG_R3_2026-10-13.txt
+            research/gates/NSE_SESSION_CALENDAR_TEST_LOG_R3_2026-10-13.txt
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
             research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
@@ -219,12 +237,15 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
-          git add research/registry/config_shards_r3 \
+          git add research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json research/gates/NSE_SESSION_CALENDAR_BUILD_LOG_R3_2026-10-13.txt research/gates/NSE_SESSION_CALENDAR_TEST_LOG_R3_2026-10-13.txt \
+            research/registry/config_shards_r3 \
             research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json \
             research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json \
             research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json \
             research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json \
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json \
+            research/gates/NSE_SESSION_CALENDAR_BUILD_LOG_R3_2026-10-13.txt \
+            research/gates/NSE_SESSION_CALENDAR_TEST_LOG_R3_2026-10-13.txt \
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt \
             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json \
             research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
