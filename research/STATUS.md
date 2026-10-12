@@ -224,3 +224,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer run 38195812828; artifact ID 11723198817.
 - Artifact not accepted; see tester report findings.
 - Trading/economic gates remain blocked.
+
+
+## 2026-10-12 — R3 artifact tester download authentication correction (revision 3)
+- Tester run #38197110523 created a job; exact source identity and synthetic auditor fixtures passed, but artifact download failed with HTTP 401 before the actual ZIP audit. Decision is REQUEST_CHANGES; this is a tester download plumbing defect, not a data-integrity finding.
+- Corrected the tester's redirect handling: authenticated request to the GitHub artifact API obtains a short-lived signed URL, and the second request downloads from that URL without reusing API credentials. Request revision 3 retriggers the same immutable artifact ID and digest.
+- Artifact remains pending independent ZIP/hash/coverage acceptance.

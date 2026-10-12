@@ -217,3 +217,11 @@ No scientific or protocol change was made during this checkpoint.
 
 **Developer → Tester:** correct discrepancies before resubmitting.
 **Tester → Developer:** reject artifact delivery.
+
+
+## 2026-10-12 — R3 artifact tester download authentication correction (revision 3)
+- Run #38197110523 finally created a tester job. Source identity checks and synthetic audit tests passed; actual artifact download returned HTTP 401, so no bundle-level integrity audit ran. The tester decision is REQUEST_CHANGES.
+- Fixed the artifact download redirect handler and incremented request revision 3 to retrigger the same artifact ID 11723198817 and SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736.
+
+**Tester → Developer:** keep dataset acceptance pending until ZIP integrity/coverage audit completes.
+**Developer → Tester:** same immutable artifact remains under review; no P&L/holdout/promotion.

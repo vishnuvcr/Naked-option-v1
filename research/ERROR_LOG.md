@@ -142,3 +142,9 @@
 - Decision: REQUEST_CHANGES.
 - Findings: Artifact download/hash/CRC: HTTPError: HTTP Error 401: Server failed to authenticate the request. Please refer to the information in the www-authenticate header.
 - No dataset accepted and no downstream gate opened.
+
+
+## 2026-10-12 — R3 artifact tester download authentication correction (revision 3)
+- Tester workflow run #38197110523: source run/commit/artifact identity gate PASS; synthetic audit fixtures PASS; artifact download gate FAIL with HTTP 401; actual ZIP audit SKIPPED; tester decision REQUEST_CHANGES.
+- Root cause: authenticated artifact API download request did not correctly handle GitHub's redirect to signed object storage. Corrected to separate API authentication from the signed-URL download. This defect must not be conflated with dataset integrity.
+- No dataset accepted and no economic/strategy gate opened.
