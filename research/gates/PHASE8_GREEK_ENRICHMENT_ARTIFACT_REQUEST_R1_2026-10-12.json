@@ -37,5 +37,7 @@
     "commercial_use_authorized": false,
     "source_license": "CC-BY-NC-4.0; non-commercial research only",
     "source_grid_status": "PARTIAL_GRID"
-  }
+  },
+  "gate_revision": 2,
+  "workflow_validation_fix": "The previous four invocations failed before creating jobs; simplified workflow now invokes a standalone Python orchestrator. Artifact pins are unchanged."
 }

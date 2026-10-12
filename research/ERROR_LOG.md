@@ -127,3 +127,11 @@
 
 ## 2026-10-12 — R3 developer artifact produced; independent artifact audit pending
 - Developer run #38195812828 attempt 2 passed its own final checks and uploaded artifact 11723198817. No independent artifact acceptance has been issued yet. The separate tester audit will determine whether the downloaded ZIP and coverage metadata match the developer report.
+
+
+## 2026-10-12 — Independent artifact workflow failed before jobs were created
+- Category: tester CI workflow orchestration.
+- Runs [#38196504082](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38196504082), [#38196604819](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38196604819), [#38196664518](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38196664518), and [#38196699993](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38196699993) all failed with no jobs created. No artifact download or independent test ran.
+- This does not validate or invalidate the artifact; delivery remains pending.
+- Correction: replace the complicated embedded workflow with a minimal workflow and standalone Python orchestrator; retrigger revision 2 without changing the immutable artifact pins.
+- Prevention: verify CI job creation and terminal test evidence before recording an independent decision; a failed run with zero jobs is a blocker.

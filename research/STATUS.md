@@ -212,3 +212,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Artifact: ID `11723198817`, name `nifty-1m-greeks-enriched-r3`, 1,610,370,340 bytes; uploaded ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
 - Developer-reported counts: 8,999,865 rows preserved; 61 encrypted monthly parts; 8,418,616 option rows with Delta; zero exact-timestamp spot misses; zero unmapped expiries under the current proxy rules. These are pending independent ZIP/coverage audit.
 - Artifact review workflow and synthetic auditor are on this branch. The artifact request JSON will pin exact developer run, snapshot, artifact ID/name, ZIP digest and expected row totals. Code-only R3 PASS is not a data-delivery PASS.
+
+
+## 2026-10-12 — Tester artifact workflow no-job failure and simplified retrial
+- Runs #38196504082, #38196604819, #38196664518 and #38196699993 failed before creating any jobs; no independent artifact audit or decision was produced. This is a workflow orchestration failure, not a dataset validation result.
+- Replaced the layered inline workflow with a compact workflow calling `scripts/run_phase8_greek_artifact_tester.py`, which validates the exact approved R3 code decision and artifact identity/digest, executes synthetic rejection tests, downloads and hashes the ZIP, checks archive CRC, performs the actual ZIP/manifest/coverage audit, and writes the tester decision and logs.
+- Request revision 2 retriggers the same exact immutable artifact (developer run 38195812828, artifact 11723198817, ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`). Artifact review remains pending until the new workflow produces an actual decision.

@@ -34,7 +34,11 @@ def count_map_sum(obj,name,expected):
 
 def audit_bundle(bundle_path,expected_rows=8999865,expected_parts=61,expected_option_rows=8490723,
                  expected_spot_rows=509142,expected_source_artifact_id=11698879857,expected_source_run_id=38131641336):
-    zipsha=hashlib.sha256(bundle_path.read_bytes()).hexdigest()
+    digest=hashlib.sha256()
+    with bundle_path.open('rb') as source_file:
+        for block in iter(lambda: source_file.read(1024*1024), b''):
+            digest.update(block)
+    zipsha=digest.hexdigest()
     with ZipFile(bundle_path,"r") as zf:
         infos=[i for i in zf.infolist() if not i.is_dir()]
         names=[i.filename for i in infos]

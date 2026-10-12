@@ -198,3 +198,12 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** do not equate developer upload success with acceptance; review the actual downloaded bundle and coverage report.
 **Developer → Tester:** keep option P&L, holdout and promotion blocked pending the new artifact gate.
+
+
+## 2026-10-12 — Artifact reviewer workflow repaired and retriggered
+- Four earlier artifact workflow runs (#38196504082, #38196604819, #38196664518, #38196699993) ended before job creation; no audit was performed. Defect recorded in tester error log.
+- Simplified the YAML and moved API, artifact download, SHA/CRC, coverage and report logic into `scripts/run_phase8_greek_artifact_tester.py`. The audit remains tester-owned and uses only the fixed artifact request; any failure yields REQUEST_CHANGES and a durable report.
+- Request revision 2 changes only the gate-retrigger metadata; run/commit/artifact/hash pins unchanged.
+
+**Tester → Developer:** dataset delivery remains pending independent artifact verification.
+**Developer → Tester:** keep P&L, holdout and strategy promotion blocked until artifact review is complete.
