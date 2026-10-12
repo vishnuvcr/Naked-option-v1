@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "gate": "PREDICTION_REGISTRY_V2_R2_INDEPENDENT_REVIEW",
+  "status": "REQUESTED_NOT_APPROVED",
+  "requested_at": "2026-10-13",
+  "developer_branch": "phase-08-prediction-developer",
+  "reviewed_snapshot_commit": "237be1df9f72a279cb9c559daa5bade370c2ef15",
+  "tested_source_commit": "55081e6b834dd573e386c5f780201c2c1665ad47",
+  "supersedes_request": "research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json",
+  "correction_report": "research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md",
+  "changed_source_blobs": {
+    "scripts/prediction_statistics.py": "669ab408f18acff2f79e47669203a7598077e3cd",
+    "scripts/test_prediction_statistics.py": "63a4d5befbca3463a72d26fea959b1bf3b7b14f7",
+    "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json": "967a1f30ab79f984c4e0ac11785df358660db296",
+    "scripts/test_prediction_preregistration.py": "64391825c43fa8fdacf50683c7feed127bf29113",
+    "scripts/prediction_registry_synthetic_dryrun.py": "eb67e900a586e326eb7ad97fb22875782bcbd4e7"
+  },
+  "corrections": {
+    "T2": {
+      "summary": "If the empirical bootstrap resampling distribution contains only one unique mean estimate, retain the observed mean descriptively but return null CI bounds and null p-value with NON_IDENTIFIABLE_DEGENERATE_RESAMPLING status.",
+      "tests": [
+        "constant positive delta",
+        "constant zero delta",
+        "fold length equals block length",
+        "ordinary non-degenerate deterministic directional case"
+      ]
+    },
+    "T3": {
+      "summary": "R2 is explicitly limited to a non-empirical two-target synthetic/design pilot. It is not a full horizon registry and no pilot output may rank/select methods.",
+      "required_next_gate": "PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE",
+      "frozen_overall_horizons": {
+        "intraday": [
+          "INTRA_5M_UP_DOWN",
+          "INTRA_15M_UP_DOWN",
+          "INTRA_30M_UP_DOWN",
+          "INTRA_60M_UP_DOWN",
+          "INTRA_120M_UP_DOWN"
+        ],
+        "positional": [
+          "POS_1D_UP_DOWN",
+          "POS_2D_UP_DOWN",
+          "POS_3D_UP_DOWN",
+          "POS_5D_UP_DOWN",
+          "POS_10D_UP_DOWN"
+        ]
+      },
+      "empirical_fit_allowed": false,
+      "method_ranking_allowed": false
+    }
+  },
+  "independent_review_questions": [
+    "Verify T2 behavior and tests from the exact pinned source blobs; determine whether any other degenerate-bootstrap or p-value/calibration issues remain.",
+    "Verify that the synthetic runner fail-closes unless the explicit non-empirical pilot scope is present.",
+    "Verify the amended preregistration and research-plan addendum preserve the full ten-horizon objective and hard-block all empirical fitting/selection pending the horizon-complete registry gate.",
+    "Complete the full independent reconstruction of 40 compatibility shards, 40 method shards, 80 configuration shards, master/index links, hashes, counts, IDs, semantic fingerprints, configuration hashes, and nearest-peer contrast algorithm. Provide a machine-readable artifact hash.",
+    "Inspect family/operator compatibility, target/session semantics, chronological folds, purge/embargo, bootstrap/BY math, and synthetic restart/resource assumptions. Do not infer scientific validity from passing plumbing tests."
+  ],
+  "integrity_and_ci": {
+    "developer_regression_workflow": ".github/workflows/prediction-registry-shard-tests.yml",
+    "latest_trigger_commit": "55081e6b834dd573e386c5f780201c2c1665ad47",
+    "hosted_run_id": "NOT_YET_VERIFIED",
+    "pilot_scope": "SYNTHETIC_DESIGN_ONLY",
+    "empirically_eligible_methods": 0
+  },
+  "prohibited_until_a_new_tester_decision_and_horizon_complete_gate": [
+    "empirical model fitting",
+    "outer-fold model selection",
+    "ranking or selecting methods based on pilot outputs",
+    "decryption or reading encrypted market data",
+    "untouched holdout access",
+    "strategy selection",
+    "option P&L"
+  ],
+  "developer_role_handoff": "Developer → Tester: independently review the exact pinned artifacts, complete the full shard/config audit and return a hash-pinned PASS or REQUEST CHANGES. Do not authorize empirical fitting in the pilot.",
+  "tester_role_handoff": "Tester → Developer: report all remaining defects with reproducible hashes/evidence; if the pilot gate passes, state explicitly that the separate ten-horizon registry gate remains required before any empirical fitting or method ranking."
+}
