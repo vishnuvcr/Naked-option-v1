@@ -396,3 +396,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [GitHub Actions run 38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039) passed on the developer branch: four unit tests passed and the SHA-256 known-vector check passed.
 - This is tooling-only evidence; the independent tester has been asked to inspect the exact code/logs. No shards have yet been generated and the registry gate remains blocked.
 - See [tooling checkpoint](research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md) and [issue #25](https://github.com/vishnuvcr/Naked-option-v1/issues/25).
+
+## Prediction registry validation — 2026-10-12
+
+- Shard validator hardening: [commit 9c6db72](https://github.com/vishnuvcr/Naked-option-v1/commit/9c6db727656d351742e3f2a93a7d8c6e3508aa8b).
+- Expanded adversarial tests: [commit 49c6099](https://github.com/vishnuvcr/Naked-option-v1/commit/49c60997b12aeb71a93a891b3c895cd6a34445b9).
+- Initial CI run [38241541882](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241541882) passed the earlier four-test snapshot. The expanded test run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) must be verified separately.
+- Current gate: **BLOCKED**. No method/config shards generated; compatibility, semantic distinctness, and preregistration remain unresolved. No fitting or holdout access is authorized.
+- Details: [Research Status](research/STATUS.md), [Error Log](research/ERROR_LOG.md), [Conversation Log](research/logs/CHAT_LOG.md), [Shard Tooling Checkpoint](research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md).
