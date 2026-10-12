@@ -615,3 +615,10 @@
 - Impact: no synthetic test executed; no dataset opened/decrypted; no model fitting or empirical result. This run is non-evidence.
 - Correction: removed the cache: pip setting while preserving explicitly pinned dependency versions. Updated workflow commit 35b712cdd1999a5aa5a64c98b8a3dbc807bea9a4; automatic replacement run [#38199087844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199087844) is pending/completing.
 - Prevention: require each new isolated workflow to be exercised through setup, tests, and uploaded receipt before treating it as passing. Failed workflow attempts remain in this append-only log.
+
+
+## 2026-10-12 — Phase 8P tester-scope guard wording mismatch
+- Workflow run [#38199087844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199087844), snapshot 35b712cdd1999a5aa5a64c98b8a3dbc807bea9a4, passed Python setup/dependency installation but failed before tests because the workflow expected the phrase “No data artifact was decrypted” while the independently approved report says “No data artifact was downloaded/decrypted”.
+- Impact: the synthetic suite did not run; no real artifacts were opened, and no scientific result was produced. The guard failed closed as intended.
+- Correction: aligned the text assertion with the actual tester report wording in workflow commit 809f2664cee7d87d8bac3c162f38b77d0a58b38d. Replacement run [#38199152061](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199152061) is underway.
+- Prevention: scope-review linkage checks should rely on pinned reviewer blob hashes and machine decision fields wherever available, rather than brittle prose snippets alone.
