@@ -1,5 +1,15 @@
 ## Latest Phase 8P correction checkpoint — 2026-10-13
 
+- The developer corrected a degenerate moving-block bootstrap case. Non-identifiable resamples now return null confidence limits and p-value instead of a zero-width interval and a minimum p-value. Regression tests cover constant positive/zero deltas and a single-admissible-block fold.
+- R2 is explicitly a two-target synthetic/design pilot, not exhaustive horizon coverage. Empirical fitting and method ranking remain blocked until the complete intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session registry gate is independently approved.
+- [Developer correction submission](research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
+- The latest tester decision remains REQUEST CHANGES pending independent re-review. Hosted results for the newest correction are not yet verified.
+- No market-data fitting, holdout access, or performance claim resulted from this correction.
+
+---
+
+## Latest Phase 8P correction checkpoint — 2026-10-13
+
 - Developer corrected the degenerate moving-block bootstrap: non-identifiable resamples now return null inferential outputs instead of a zero-width confidence interval/minimum p-value. Regression tests cover constant positive/zero deltas and a single-admissible-block fold.
 - R2 is explicitly a two-target synthetic/design pilot, not exhaustive horizon coverage. No empirical fitting or method ranking is authorized; the complete intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session registry gate is required first.
 - [Developer correction submission](research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
