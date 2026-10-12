@@ -277,3 +277,16 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** wait for the pinned independent R4 code gate and preserve failures as test-harness issues unless an exact reproducible implementation finding is established.
 **Developer → Tester:** do not authorize execution against real data as part of a code-only gate.
+
+
+## 2026-10-12 — R4 independent duplicate-diagnostic code gate final outcome
+
+- Final isolated tester run [#38205506563](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563) passes **29/29 checks**, returning `PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY` for developer commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`.
+- Tester receipt artifact `11726624314`, ZIP SHA-256 `464d9bffb484210a3aac1e821b78828b5016394afbf07740cd1fc0e566591bac`.
+- Immutable report: [R4 tester report](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md). Machine decision: [R4 decision](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R4_2026-10-12.json). Exact request: [developer R4 request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json).
+- This is strictly code/static/synthetic approval. **No encrypted input artifact was opened or decrypted, no real duplicate counts exist, no records were deduplicated, no empirical feature fit/model/holdout/P&L or strategy work was done.**
+- The stale R3 request workflow attempt (#38205280084) and the two brittle audit-assertion attempts (#38205378764, #38205429386) remain non-evidence. Their causes and corrections are preserved in the error log. The final R4 gate is complete.
+- Next action is a new exact one-use execution workflow and authorization request, pinned to the R4 decision and reviewed on the isolated tester branch. The artifact must remain blocked until that workflow receives its own PASS.
+
+**Tester → Developer:** submit the one-use diagnostic executor workflow/request for independent review; do not invoke the real encrypted reader.
+**Developer → Tester:** verify pre-download authorization enforcement, identity and code pins, no replay, aggregate-only output and all model/holdout/P&L flags closed.
