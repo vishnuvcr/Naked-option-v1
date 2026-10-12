@@ -839,3 +839,10 @@ The workflow also establishes a transparent config-shard hash contract: SHA-256 
 ### 2026-10-12 — Developer continuation: fine-grained registry auditability
 
 User instruction: “Ok proceed”. Continued Phase 8 registry repair on phase-08-prediction-developer only. Added scripts/reshard_prediction_registry.py, strict numeric-order/full-record/index verifier changes in scripts/audit_prediction_registry_shards.py, and helper regression tests in scripts/test_reshard_prediction_registry.py. Updated the repair workflow to test, audit before commit, and upload a JSON audit artifact. Posted a scoped handoff to independent tester issue #25. No empirical model fitting was run and no holdout was accessed. Hosted outcome remains unverified; existing independent tester decision remains REQUEST CHANGES.
+
+
+### 2026-10-12 — Registry integrity repair outcome
+
+After the user said “Ok proceed”, the developer added fine-grained resharding and fixed two CI issues: cross-file duplicate legacy shards were accepted only when their entire records matched the canonical master, then canonical shards replaced the duplicate layouts; broad test discovery was narrowed after it accidentally imported unrelated tests requiring missing pandas/numpy dependencies.
+
+Verified runs: repair run 38249556690 and separate committed-registry run 38249716356. Audit artifact output: 1,000 methods, 1,000 unique method IDs, 8,000 configs, 8,000 unique config IDs, 80 config shards, errors=[]; 8/8 + 5/5 targeted unit tests and SHA-256 vector passed. No empirical model fitting or holdout access occurred. The independent tester gate remains REQUEST CHANGES until compatibility/distinctness, full preregistration and synthetic restart/resource evidence are reviewed.
