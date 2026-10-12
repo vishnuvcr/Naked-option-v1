@@ -56,3 +56,8 @@ The current suite has ten tests; the latest pinned run log confirms all 10 passe
 - Latest independent review handoff: [refreshed R2 request](PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json), reviewed snapshot `b04b2541ea80cdb8b80d703b27ef778f4b7c425b`, tested executable source `877b7baf3aafb309021dfc621f7e98406b5532ee`.
 - Contrast repair, registry audit, clean registry suite, and synthetic sweep passed (runs 38255666293, 38255852834, 38255852565, 38255852608). Synthetic artifact ID 11749737651; 64,000 tasks; 10 statistical tests; 0 error rows; no market data/model fitting/holdout.
 - Tester branch head remains `638564f9b31d3527f934868f336f60e6ce2b4ed0`; the existing R2 report is still REQUEST CHANGES. No progression to empirical fitting or holdout is permitted until independent tester approval.
+
+
+### Matrix inspectability repair — 2026-10-13
+
+Published 40 small compatibility matrix shards (25 rows each), a SHA-256 index, and exact-reconstruction tests. Registry CI [38299233992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992) passed the four new tests and existing statistical suite. Index blob: `ebe233aca9e3d12fb3a7af1af579261d4c4e872c`; generated shard commit: `503af0a4c6af98aec2c2a41b633cedc50df75d34`. Refreshed handoff: `PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json`. This improves reviewability only; scientific gate remains blocked.
