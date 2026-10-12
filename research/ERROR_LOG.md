@@ -302,3 +302,12 @@
 
 **Tester → Developer:** do not change source pins under the same request ID; use a new request/snapshot for material source changes.
 **Developer → Tester:** provide immutable source commits and blob IDs; no empirical step proceeds on moving-branch evidence.
+
+
+## 2026-10-13 — Tester workflow cadence trigger corrected
+
+- Category: workflow scheduling / process adherence.
+- Component: .github/workflows/phase-08p-independent-registry-review.yml.
+- Symptom: the earlier tester workflow could trigger on intermediate audit-script and review-request changes, which conflicts with the user's new instruction to review only after results acquisition.
+- Correction: push trigger now listens only for research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json. The manual dispatch button remains, but the workflow fails closed unless results_acquired=true, source commit and changed-source blobs match, and the pinned result-bundle manifest/artifact hashes validate. A developer-side workflow automatically copies the validated post-results request onto the tester branch to trigger the consolidated review.
+- The historical R2 tester decision is preserved. No new tester review is performed until the result-acquisition sentinel is submitted.
