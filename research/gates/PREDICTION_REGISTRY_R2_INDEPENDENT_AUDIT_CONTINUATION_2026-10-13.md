@@ -31,7 +31,7 @@ The first tester-side audit script was written against the old bootstrap return 
 - test a non-degenerate sample remains inferentially enabled;
 - treat the missing eight labels as a recorded scope note only when the explicit pilot restriction and horizon-complete hard gate are present; otherwise record a blocking issue.
 
-Updated tester audit script blob: `4a8aba83c19442f973b7b1514d9bfda814c5d479`. Workflow commit will be the subsequent tester-branch commit that contains this script update. Hosted artifact result is not yet available to the tester in the current evidence channel.
+Updated tester audit script blob: `4a8aba83c19442f973b7b1514d9bfda814c5d479`, committed at `17e4bf7658d8a18f86721fc6589eb4bd1a41df34`. Tester workflow definition is at `42508741d60a280c2f3e1cacab6bf18e07a440a6`. Hosted artifact result is not yet available to the tester in the current evidence channel.
 
 ## Still outstanding
 
