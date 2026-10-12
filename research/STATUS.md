@@ -854,3 +854,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** prepare to independently audit the actual artifact/ledger when published; report missing evidence as unavailable rather than infer zero trades or zero P&L.
 **Tester → Developer:** keep promotion and Phase 9 blocked until hash-pinned result-level review; request corrections for affected metrics.
+
+
+## 2026-10-12 — Phase 8 run 38222296903: computation complete, tester gate pending
+
+- The hosted numerical grid completed and published artifact [11736907952](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38222296903/artifacts/11736907952): 4,800 configurations × four cost scenarios, 19,200 summary rows and 1,596,680 ledger rows per scenario. Artifact ZIP SHA-256: `07ede4908c9a49e78de9a3aec711ac514de78f16437a825a063b6d4eb0902d54`.
+- The overall Actions run is marked failed because result publication/rebase conflicted in README.md, research/logs/CHAT_LOG.md, and research/logs/RESEARCH_LOG.md. The numerical artifact exists; the failure-handler's `FAILED_NO_METRICS` file is contradictory and must not be treated as a no-results outcome.
+- Preliminary developer diagnostics are in [DEVELOPER_PRELIMINARY_AUDIT.md](results/phase8-proxy-run-38222296903/DEVELOPER_PRELIMINARY_AUDIT.md); independent result-level audit is requested in [Issue #22](https://github.com/vishnuvcr/Naked-option-v1/issues/22).
+- C3 screening found only two configurations with at least 30 trades and positive net P&L. Neither is accepted or promoted. All ledger selections use a raw-IV Black–Scholes proxy with unresolved as-of provenance, off-tick fill prices are widespread, and the registered drawdown percentage is known defective.
+- Keep Phase 9 and strategy promotion blocked pending independent reproduction, corrected metrics/sensitivities and a tester PASS. The output remains Q1/OHLC proxy, not quote-executable.
+
+**Developer → Tester:** independently reproduce counts, costs, metrics and all audit findings from the hash-pinned artifact; issue PASS/REQUEST CHANGES.
+**Tester → Developer:** withhold promotion and Phase 9 until result-level evidence is independently accepted.
