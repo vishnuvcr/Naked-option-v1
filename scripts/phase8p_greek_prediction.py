@@ -475,15 +475,249 @@ def paired_metrics(y, p_spot, p_augmented) -> dict[str, Any]:
     out["calibration_spot_plus_greek"] = calibration_intercept_slope(y, p1)
     return out
 
-def enforce_fit_gate(scope_approved: bool, code_approved: bool, preflight: Mapping[str, Any]) -> None:
-    if not scope_approved: raise GateBlocked("SCOPE_APPROVAL_MISSING")
-    if not code_approved: raise GateBlocked("EXACT_CODE_TESTER_APPROVAL_MISSING")
-    if preflight.get("status") != "PASS" or preflight.get("model_fit_authorized") is not True:
-        raise GateBlocked("EXACT_PREFLIGHT_TESTER_APPROVAL_MISSING_OR_BLOCKED")
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def _git_text(ref: str, path: str) -> str:
+    root = _repo_root()
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(root), "show", f"{ref}:{path}"],
+            stderr=subprocess.PIPE,
+        ).decode("utf-8")
+    except subprocess.CalledProcessError as exc:
+        raise GateBlocked(f"TESTER_EVIDENCE_UNAVAILABLE:{ref}:{path}") from exc
+
+
+def _git_blob_sha1(ref: str, path: str) -> str:
+    root = _repo_root()
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", f"{ref}:{path}"],
+            text=True, stderr=subprocess.PIPE,
+        ).strip()
+    except subprocess.CalledProcessError as exc:
+        raise GateBlocked(f"TESTER_EVIDENCE_BLOB_UNAVAILABLE:{ref}:{path}") from exc
+
+
+def verify_code_gate_for_preflight() -> dict[str, Any]:
+    """Allow schema-only artifact inspection only after an exact tester code PASS.
+
+    The workflow must fetch the isolated tester branch and pin the actual Git blob SHA.
+    This function can never authorize model fitting.
+    """
+    env_names = (
+        "PHASE8P_CODE_DECISION_REF",
+        "PHASE8P_CODE_DECISION_PATH",
+        "PHASE8P_CODE_DECISION_BLOB_SHA1",
+    )
+    missing = [name for name in env_names if not os.environ.get(name)]
+    if missing:
+        raise GateBlocked("CODE_GATE_EVIDENCE_ENV_MISSING:" + ",".join(missing))
+    ref = os.environ["PHASE8P_CODE_DECISION_REF"]
+    path = os.environ["PHASE8P_CODE_DECISION_PATH"]
+    expected_blob = os.environ["PHASE8P_CODE_DECISION_BLOB_SHA1"]
+    actual_blob = _git_blob_sha1(ref, path)
+    if actual_blob != expected_blob:
+        raise GateBlocked("CODE_TESTER_DECISION_BLOB_SHA_MISMATCH")
+    try:
+        decision = json.loads(_git_text(ref, path))
+    except json.JSONDecodeError as exc:
+        raise GateBlocked("CODE_TESTER_DECISION_JSON_INVALID") from exc
+    if decision.get("decision") != "PASS_FOR_CODE_ONLY":
+        raise GateBlocked("INDEPENDENT_CODE_GATE_NOT_PASSED")
+    current = subprocess.check_output(
+        ["git", "-C", str(_repo_root()), "rev-parse", "HEAD"], text=True
+    ).strip()
+    if decision.get("developer_commit") != current:
+        raise GateBlocked("CODE_REVIEW_DEVELOPER_COMMIT_MISMATCH")
+    return {"decision": decision, "blob_sha1": actual_blob, "developer_commit": current}
+
+
+def _read_and_verify_tester_evidence(evidence: Mapping[str, Any], kind: str,
+                                     current_commit: str) -> tuple[str, Any]:
+    if not isinstance(evidence, Mapping):
+        raise GateBlocked(f"{kind}_EVIDENCE_MISSING")
+    ref, path, expected_blob = (
+        str(evidence.get("git_ref", "")),
+        str(evidence.get("path", "")),
+        str(evidence.get("blob_sha1", "")),
+    )
+    if not ref or not path or len(expected_blob) != 40:
+        raise GateBlocked(f"{kind}_EVIDENCE_PIN_MALFORMED")
+    actual_blob = _git_blob_sha1(ref, path)
+    if actual_blob != expected_blob:
+        raise GateBlocked(f"{kind}_EVIDENCE_BLOB_SHA_MISMATCH")
+    text = _git_text(ref, path)
+    if path.endswith(".json"):
+        try:
+            parsed: Any = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise GateBlocked(f"{kind}_EVIDENCE_JSON_INVALID") from exc
+    else:
+        parsed = text
+    if isinstance(parsed, dict) and parsed.get("developer_commit") not in (None, current_commit):
+        raise GateBlocked(f"{kind}_EVIDENCE_DEVELOPER_COMMIT_MISMATCH")
+    return text, parsed
+
+
+def enforce_fit_gate(authorization_bundle_path: str | Path | None = None) -> dict[str, Any]:
+    """Verify the exact two-role authorization chain; arbitrary booleans/dicts are rejected.
+
+    A workflow must set PHASE8P_AUTHORIZATION_BUNDLE_SHA256 to the exact tester-reviewed
+    bundle digest. The bundle pins tester-branch Git blobs, the reviewed developer commit,
+    the schema-preflight report SHA-256 and a separate tester decision for that report.
+    """
+    if authorization_bundle_path is None:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_PATH_REQUIRED")
+    expected_bundle_sha = os.environ.get("PHASE8P_AUTHORIZATION_BUNDLE_SHA256", "")
+    if len(expected_bundle_sha) != 64:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_SHA256_ENV_MISSING")
+    bundle_path = Path(authorization_bundle_path)
+    if not bundle_path.is_file():
+        raise GateBlocked("AUTHORIZATION_BUNDLE_FILE_MISSING")
+    actual_bundle_sha = sha256_file(bundle_path)
+    if actual_bundle_sha != expected_bundle_sha:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_SHA256_MISMATCH")
+    try:
+        bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_JSON_INVALID") from exc
+    if bundle.get("schema_version") != 1:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_SCHEMA_MISMATCH")
+
+    current_commit = subprocess.check_output(
+        ["git", "-C", str(_repo_root()), "rev-parse", "HEAD"], text=True
+    ).strip()
+    if bundle.get("developer_commit") != current_commit:
+        raise GateBlocked("AUTHORIZATION_BUNDLE_DEVELOPER_COMMIT_MISMATCH")
+
+    scope_text, scope_doc = _read_and_verify_tester_evidence(
+        bundle.get("scope_approval"), "SCOPE", current_commit
+    )
+    if bundle["scope_approval"].get("blob_sha1") != "798008657afe0757c54c9aa7dc5eeb1fade3faf5":
+        raise GateBlocked("UNEXPECTED_SCOPE_REVIEW_BLOB")
+    if "PASS — SCOPE ONLY, WITH RESTRICTIONS" not in scope_text:
+        raise GateBlocked("SCOPE_REVIEW_NOT_PASS")
+    scope_blob = subprocess.check_output(
+        ["git", "-C", str(_repo_root()), "rev-parse",
+         f"{current_commit}:research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md"],
+        text=True,
+    ).strip()
+    if scope_blob != "018500722f88f5fb100a2e24afc3d5d97394631e":
+        raise GateBlocked("APPROVED_SCOPE_SOURCE_BLOB_MISMATCH")
+
+    amendment_text, amendment_doc = _read_and_verify_tester_evidence(
+        bundle.get("daily_time_amendment_approval"), "DAILY_TIME_AMENDMENT", current_commit
+    )
+    if bundle["daily_time_amendment_approval"].get("blob_sha1") != "090f51e892055d6fb717d3f43e153d0ac47b24df":
+        raise GateBlocked("DAILY_TIME_AMENDMENT_REVIEW_BLOB_MISMATCH")
+    if "PASS — SCOPE AMENDMENT ONLY, WITH RESTRICTIONS" not in amendment_text:
+        raise GateBlocked("DAILY_TIME_AMENDMENT_NOT_PASS")
+    proposal_blob = subprocess.check_output(
+        ["git", "-C", str(_repo_root()), "rev-parse",
+         f"{current_commit}:research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md"],
+        text=True,
+    ).strip()
+    if proposal_blob != "265c6696466b1999371cb4581baf20fbe950d3f1":
+        raise GateBlocked("DAILY_TIME_AMENDMENT_PROPOSAL_BLOB_MISMATCH")
+    if not isinstance(amendment_doc, str) or "cash-close" not in amendment_doc.lower():
+        raise GateBlocked("DAILY_TIME_AMENDMENT_REVIEW_CONTENT_INVALID")
+
+    code_text, code_doc = _read_and_verify_tester_evidence(
+        bundle.get("code_approval"), "CODE", current_commit
+    )
+    if not isinstance(code_doc, dict) or code_doc.get("decision") != "PASS_FOR_CODE_ONLY":
+        raise GateBlocked("INDEPENDENT_CODE_GATE_NOT_PASSED")
+    if code_doc.get("developer_commit") != current_commit:
+        raise GateBlocked("CODE_APPROVAL_DEVELOPER_COMMIT_MISMATCH")
+    reviewed = code_doc.get("reviewed_blobs")
+    if not isinstance(reviewed, Mapping):
+        raise GateBlocked("CODE_APPROVAL_BLOB_MAP_MISSING")
+    required_paths = {
+        "scripts/phase8p_greek_prediction.py",
+        "scripts/test_phase8p_greek_prediction.py",
+        ".github/workflows/phase8p-greek-prediction.yml",
+        "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md",
+    }
+    if not required_paths.issubset(reviewed):
+        raise GateBlocked("CODE_APPROVAL_DOES_NOT_PIN_REQUIRED_FILES")
+    for path, expected_blob in reviewed.items():
+        actual = subprocess.check_output(
+            ["git", "-C", str(_repo_root()), "rev-parse", f"{current_commit}:{path}"],
+            text=True,
+        ).strip()
+        if actual != expected_blob:
+            raise GateBlocked("REVIEWED_DEVELOPER_BLOB_MISMATCH:" + path)
+
+    preflight_path = Path(str(bundle.get("preflight_report_path", "")))
+    preflight_sha_expected = str(bundle.get("preflight_report_sha256", ""))
+    if not preflight_path.is_file() or len(preflight_sha_expected) != 64:
+        raise GateBlocked("TESTER_REVIEWED_PREFLIGHT_REPORT_MISSING")
+    preflight_sha_actual = sha256_file(preflight_path)
+    if preflight_sha_actual != preflight_sha_expected:
+        raise GateBlocked("TESTER_REVIEWED_PREFLIGHT_SHA256_MISMATCH")
+    try:
+        preflight = json.loads(preflight_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise GateBlocked("PREFLIGHT_REPORT_JSON_INVALID") from exc
+    if preflight.get("status") != "PASS" or preflight.get("mode") != "SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT":
+        raise GateBlocked("SCHEMA_PREFLIGHT_NOT_PASS")
+    if preflight.get("model_fit_authorized") is not False:
+        raise GateBlocked("SCHEMA_PREFLIGHT_MUST_NOT_SELF_AUTHORIZE_FIT")
     if preflight.get("holdout_access_authorized") is not False:
-        raise GateBlocked("HOLDOUT_MUST_REMAIN_CLOSED")
+        raise GateBlocked("PREFLIGHT_HOLDOUT_FLAG_INVALID")
     if preflight.get("option_pnl_authorized") is not False or preflight.get("strategy_promotion_authorized") is not False:
-        raise GateBlocked("OUT_OF_SCOPE_AUTHORIZATION_FLAG")
+        raise GateBlocked("PREFLIGHT_OUT_OF_SCOPE_FLAGS_INVALID")
+    for name, pin in PINNED_ARTIFACTS.items():
+        observed = preflight.get("input_artifacts", {}).get(name, {})
+        if observed.get("artifact_id") != pin["artifact_id"] or observed.get("sha256") != pin["sha256"]:
+            raise GateBlocked("PREFLIGHT_INPUT_ARTIFACT_PIN_MISMATCH:" + name)
+    if not preflight.get("target_maturity_proof", {}).get("target_end_checks_passed"):
+        raise GateBlocked("PREFLIGHT_TARGET_MATURITY_PROOF_MISSING")
+    holdout_proof = preflight.get("holdout_exclusion_proof", {})
+    if (holdout_proof.get("proof") != "VERIFIED"
+            or not holdout_proof.get("mask_sha256")
+            or not holdout_proof.get("cutoff_by_layer")):
+        raise GateBlocked("PREFLIGHT_PROTECTED_HOLDOUT_PROOF_MISSING")
+
+    preflight_text, preflight_decision = _read_and_verify_tester_evidence(
+        bundle.get("preflight_approval"), "PREFLIGHT", current_commit
+    )
+    if not isinstance(preflight_decision, dict):
+        raise GateBlocked("PREFLIGHT_TESTER_DECISION_INVALID")
+    if preflight_decision.get("decision") != "PASS_PREFLIGHT_ONLY":
+        raise GateBlocked("INDEPENDENT_PREFLIGHT_GATE_NOT_PASSED")
+    if preflight_decision.get("developer_commit") != current_commit:
+        raise GateBlocked("PREFLIGHT_DECISION_DEVELOPER_COMMIT_MISMATCH")
+    if preflight_decision.get("preflight_report_sha256") != preflight_sha_actual:
+        raise GateBlocked("PREFLIGHT_DECISION_REPORT_DIGEST_MISMATCH")
+    if preflight_decision.get("authorize_prediction_fit") is not True:
+        raise GateBlocked("PREFLIGHT_TESTER_DID_NOT_AUTHORIZE_PREDICTION_FIT")
+    if preflight_decision.get("holdout_access_authorized") is not False:
+        raise GateBlocked("PREFLIGHT_TESTER_HOLDOUT_FLAG_INVALID")
+    if preflight_decision.get("option_pnl_authorized") is not False or preflight_decision.get("strategy_promotion_authorized") is not False:
+        raise GateBlocked("PREFLIGHT_TESTER_OUT_OF_SCOPE_FLAGS_INVALID")
+
+    input_artifacts = bundle.get("input_artifacts", {})
+    for name, pin in PINNED_ARTIFACTS.items():
+        observed = input_artifacts.get(name, {})
+        if observed.get("artifact_id") != pin["artifact_id"] or observed.get("sha256") != pin["sha256"]:
+            raise GateBlocked("AUTHORIZATION_BUNDLE_INPUT_PIN_MISMATCH:" + name)
+    return {
+        "verified": True,
+        "developer_commit": current_commit,
+        "authorization_bundle_sha256": actual_bundle_sha,
+        "preflight_report_sha256": preflight_sha_actual,
+        "preflight": preflight,
+        "scope_doc": scope_doc,
+        "daily_amendment_doc": amendment_doc,
+        "code_decision": code_doc,
+        "preflight_decision": preflight_decision,
+        "input_artifacts": input_artifacts,
+    }
+
 
 def calibration_intercept_slope(y, p):
     """Fit diagnostic calibration of observed labels on prediction logits."""
