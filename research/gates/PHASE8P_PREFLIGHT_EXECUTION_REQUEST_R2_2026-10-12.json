@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_FROZEN_ARTIFACT_SCHEMA_PREFLIGHT_EXECUTION",
+  "status": "PENDING_INDEPENDENT_WORKFLOW_REVIEW",
+  "workflow_blob_sha1": "474712e945dfaef83c814c9e17d1513ad44a3152",
+  "approved_developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+  "code_decision_blob_sha1": "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b",
+  "preflight_workflow_approval": {
+    "path": "",
+    "blob_sha1": ""
+  },
+  "artifacts": {
+    "greek": {
+      "artifact_id": 11723198817,
+      "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+    },
+    "forecast": {
+      "artifact_id": 11638738288,
+      "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+    }
+  },
+  "forecast_manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+  "forecast_aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false,
+  "upload_raw_data_authorized": false,
+  "no_data_download_before_workflow_review": true,
+  "no_model_fit_before_preflight_tester_decision": true
+}
