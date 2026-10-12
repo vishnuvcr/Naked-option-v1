@@ -88,8 +88,17 @@ class NSESessionCalendarR3Tests(unittest.TestCase):
         indexes=[x["exchange_session_index"] for x in open_rows]
         self.assertEqual(indexes,list(range(1,len(open_rows)+1)))
         self.assertEqual(self.calendar["exchange_session_count"],len(open_rows))
+        prediction_rows=[x for x in self.calendar["calendar_day_rows"] if x["prediction_session_index"] is not None]
+        prediction_indexes=[x["prediction_session_index"] for x in prediction_rows]
+        self.assertEqual(prediction_indexes,list(range(1,len(prediction_rows)+1)))
+        self.assertEqual(self.calendar["prediction_session_count"],len(prediction_rows))
         self.assertEqual(self.calendar["intraday_label_eligible_session_count"],sum(x["intraday_label_eligible"] for x in open_rows))
         self.assertEqual(self.calendar["positional_label_eligible_session_count"],sum(x["positional_label_eligible"] for x in open_rows))
+        for row in self.calendar["calendar_day_rows"]:
+            if row["is_exchange_trading_session"] and not row["positional_label_eligible"]:
+                self.assertIsNone(row["prediction_session_index"])
+            if row["positional_label_eligible"]:
+                self.assertIsNotNone(row["prediction_session_index"])
 
     def test_unannounced_special_session_fails_if_calendar_is_patched_in_memory(self):
         altered=dict(self.source)
