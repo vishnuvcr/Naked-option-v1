@@ -1,29 +1,11 @@
 test_config_id_replacement_is_precise (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_config_id_replacement_is_precise) ... ok
 test_full_r2_source_is_integrity_checked_and_expands_to_40000 (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_full_r2_source_is_integrity_checked_and_expands_to_40000) ... ok
-test_generated_full_registry_outputs_are_consistent (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_generated_full_registry_outputs_are_consistent) ... ERROR
-test_official_nse_calendar_is_complete_and_pinned (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_official_nse_calendar_is_complete_and_pinned) ... ERROR
+test_generated_full_registry_outputs_are_consistent (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_generated_full_registry_outputs_are_consistent) ... ok
+test_official_nse_calendar_is_complete_and_pinned (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_official_nse_calendar_is_complete_and_pinned) ... ok
 test_r2_artifacts_are_not_overwritten (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_r2_artifacts_are_not_overwritten) ... ok
 test_ten_frozen_labels_and_horizon_specific_purge_embargo (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_ten_frozen_labels_and_horizon_specific_purge_embargo) ... ok
 
-======================================================================
-ERROR: test_generated_full_registry_outputs_are_consistent (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_generated_full_registry_outputs_are_consistent)
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/runner/work/Naked-option-v1/Naked-option-v1/scripts/test_prediction_horizon_registry_r3.py", line 150, in test_generated_full_registry_outputs_are_consistent
-    self.assertEqual(labels_by_id[label_id]["label_horizon"], f"{h} complete following exchange sessions")
-                     ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-KeyError: 'label_horizon'
+Ran 6 tests in 2.317s
 
-======================================================================
-ERROR: test_official_nse_calendar_is_complete_and_pinned (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_official_nse_calendar_is_complete_and_pinned)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/runner/work/Naked-option-v1/Naked-option-v1/scripts/test_prediction_horizon_registry_r3.py", line 58, in test_official_nse_calendar_is_complete_and_pinned
-    self.assertEqual({int(x["year"]) for x in calendar["sources"]}, {2021, 2022, 2023, 2024, 2025, 2026})
-                                              ~~~~~~~~^^^^^^^^^^^
-KeyError: 'sources'
-
-----------------------------------------------------------------------
-Ran 6 tests in 1.007s
-
-FAILED (errors=2)
+OK

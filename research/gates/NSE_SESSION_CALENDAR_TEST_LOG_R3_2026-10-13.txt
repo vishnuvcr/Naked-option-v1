@@ -1,0 +1,33 @@
+test_day_range_is_full_and_unique (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_day_range_is_full_and_unique) ... ok
+test_reconciled_2026_closures_are_closed (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_reconciled_2026_closures_are_closed) ... ok
+test_regular_sessions_only_on_weekdays_not_closed_holidays (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_regular_sessions_only_on_weekdays_not_closed_holidays) ... ok
+test_session_indices_and_counts_are_consistent (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_session_indices_and_counts_are_consistent) ... ok
+test_source_metadata_and_exact_file_hash_are_pinned (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_source_metadata_and_exact_file_hash_are_pinned) ... ok
+test_special_sessions_are_explicit_and_fail_closed (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_special_sessions_are_explicit_and_fail_closed) ... ok
+test_unannounced_special_session_fails_if_calendar_is_patched_in_memory (test_nse_session_calendar_r3.NSESessionCalendarR3Tests.test_unannounced_special_session_fails_if_calendar_is_patched_in_memory) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.046s
+
+OK
+{
+  "status": "GENERATED_FROM_PINNED_OFFICIAL_SOURCE_PENDING_DATA_PREFLIGHT",
+  "calendar_day_rows": 1826,
+  "exchange_session_count": 1241,
+  "intraday_label_eligible_session_count": 1233,
+  "positional_label_eligible_session_count": 1233,
+  "special_session_dates": [
+    "2021-11-04",
+    "2022-10-24",
+    "2023-11-12",
+    "2024-01-20",
+    "2024-03-02",
+    "2024-05-18",
+    "2024-11-01",
+    "2025-02-01",
+    "2025-10-21"
+  ],
+  "source_calendar_sha256": "45cb278887e640d8ce114abbb503c8b619aa6159eb023c60814985a0e90eee51",
+  "generated_calendar_sha256": "47a669d606ffa183b19c5263bcdb31da1573d547028cdc75bfdd9f98ca49f792",
+  "output_git_blob_sha1": "0d519cad63a6547f767ef3270298e48d9f70bef9"
+}
