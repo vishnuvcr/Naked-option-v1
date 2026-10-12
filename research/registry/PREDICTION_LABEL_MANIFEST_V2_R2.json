@@ -1,1 +1,49 @@
-{"schema_version":"prediction-label-manifest-v1","status":"DRAFT_TESTER_REVIEW_REQUIRED","labels":[{"id":"INTRA_30M_UP_DOWN","stratum":"intraday","horizon":"30 minutes","definition":"sign of NIFTY spot return over next 30 minutes; zero/flat treatment fixed in label manifest"},{"id":"POS_1D_UP_DOWN","stratum":"positional","horizon":"1 trading session","definition":"sign of next-session close-to-close NIFTY spot return; zero/flat treatment fixed in label manifest"}],"common_rules":{"decision_time":"timestamp of the forecast row; features must be available by that time","flat_return":"exclude flat returns from directional two-class labels; separately report exclusion count; no threshold tuned on evaluation data","intraday_sessions":"only labels fully contained within a trading session; no overnight carry","positional_sessions":"next session close-to-close; no overlap with intraday label rows in same metric family","purge_embargo":"purge overlapping label windows and apply embargo at fold boundaries","minimums":"exact sample count, missingness, and class-support thresholds must be frozen and tester-approved before empirical run"}}
+{
+  "schema_version": "prediction-label-manifest-v2-r2",
+  "status": "DRAFT_INDEPENDENT_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
+  "pinned_data_date_range": {
+    "start": "2021-10-11",
+    "end": "2026-10-10",
+    "source": "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json; manifest says encrypted_only=true and these bounds must be verified against decrypted eligible timestamps before any fit"
+  },
+  "return_convention": {
+    "metric": "simple return",
+    "formula": "(target_spot_price / decision_spot_price) - 1",
+    "flat_tolerance_abs_simple_return": 1e-8,
+    "equality_rule": "flat when absolute simple return <= 1e-8; exclude flat values from directional two-class scoring and report each exclusion count",
+    "no_tuning": "flat tolerance cannot be changed after outer validation metrics are produced"
+  },
+  "labels": [
+    {
+      "id": "INTRA_30M_UP_DOWN",
+      "stratum": "intraday",
+      "horizon_minutes": 30,
+      "definition": "sign of NIFTY spot simple return from forecast decision price to spot price 30 minutes later",
+      "session_requirement": "decision and target endpoint must both be inside the same official NSE trading session; no overnight carry",
+      "flat_treatment": "exclude from directional two-class metrics; report exclusion counts by fold/source",
+      "target_missing_max_fraction": 0.01
+    },
+    {
+      "id": "POS_1D_UP_DOWN",
+      "stratum": "positional",
+      "horizon_exchange_sessions": 1,
+      "definition": "sign of NIFTY spot simple return from one official session close to the next official session close",
+      "session_requirement": "one target observation per eligible exchange session at the registered closing decision time; next official session supplies the target",
+      "flat_treatment": "exclude from directional two-class metrics; report exclusion counts by fold/source",
+      "target_missing_max_fraction": 0.01
+    }
+  ],
+  "common_rules": {
+    "timezone": "Asia/Kolkata (IST); session boundaries from an official exchange calendar pinned before label generation",
+    "decision_time": "timestamp of the forecast row; every feature must be available at or before this timestamp",
+    "price_provenance": "NIFTY spot/index observations only for labels; option/derived features may be predictors but never substitute for the target spot close",
+    "intraday_sessions": "label endpoint must fall within the same trading session; exclude overnight windows",
+    "positional_sessions": "next-session close-to-close endpoint; ensure no overlapping target horizon is counted twice",
+    "purge_embargo": "one complete exchange session purged immediately before validation and the first complete validation session embargoed from scored rows; purge any training label interval overlapping validation",
+    "missing_target_rows": "exclude and count; BLOCK a fold if target-pair missingness exceeds 1% of session-eligible rows",
+    "flat_tolerance": 1e-8,
+    "minimums": "use exact sample/class/missingness minima from PREDICTION_PREREGISTRATION_V2_R2.json; do not relax or move fold dates after viewing results",
+    "holdout": "no untouched holdout access; fresh forward phase requires a separate gate"
+  },
+  "execution_gate": "DRAFT ONLY; no empirical fitting until the independent tester approves the label manifest, compatibility matrix, preregistration and synthetic runner."
+}
