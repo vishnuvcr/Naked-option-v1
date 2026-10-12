@@ -225,3 +225,13 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** keep dataset acceptance pending until ZIP integrity/coverage audit completes.
 **Developer → Tester:** same immutable artifact remains under review; no P&L/holdout/promotion.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow 38197317740)
+- Developer run 38195812828; artifact 11723198817; decision PASS_WITH_SCOPED_RESTRICTIONS.
+- Artifact ZIP SHA-256: e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
+- Coverage summary: {"expiry_mapping_source_counts": {"HF_EXPIRY_PARTITION_FILELIST_PROXY": 7715704, "NSE_TUESDAY_RULE_PROXY_NOT_CONTRACT_MASTER_VERIFIED": 775019}, "greek_rows_with_delta": 8418616, "greek_status_counts": {"GREEKS_ESTIMATED_FROM_INVERTED_IV": 8382036, "GREEKS_ESTIMATED_FROM_SOURCE_IV_FALLBACK": 36580, "IV_INPUT_INVALID": 49873, "SOURCE_FLAGGED_NON_TRADING_SESSION": 22234}, "hf_revision": "0f4800e43e6f96cec0794369d78eb4d3c4211ef5", "iv_source_counts": {"IV_INPUT_INVALID": 49873, "IV_INVERTED_FROM_OPTION_CLOSE": 8404270, "SOURCE_IV_HEURISTIC_FALLBACK_GT3_AS_PERCENT_POINTS": 36580}, "option_rows": 8490723, "option_rows_missing_spot": 0, "option_rows_unmapped_expiry": 0, "parts": 61, "rows_preserved": 8999865, "source_license": "CC-BY-NC-4.0", "spot_field_values_filled": 19746, "spot_rows": 509142, "status": "PASS"}
+- Findings: none
+
+**Developer → Tester:** keep economic/strategy gates blocked until separately authorized.
+**Tester → Developer:** accept only artifact integrity/coverage; no P&L or strategy promotion.

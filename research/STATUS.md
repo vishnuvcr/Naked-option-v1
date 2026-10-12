@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | **ARTIFACT AUDIT REQUEST CHANGES — DELIVERY NOT ACCEPTED** | Tester-owned decision REQUEST_CHANGES; see PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md |
+| Phase 8 Long-option execution | **ARTIFACT AUDIT PASSED — TRADING GATES BLOCKED** | Tester-owned decision PASS_WITH_SCOPED_RESTRICTIONS; see PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -230,3 +230,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester run #38197110523 created a job; exact source identity and synthetic auditor fixtures passed, but artifact download failed with HTTP 401 before the actual ZIP audit. Decision is REQUEST_CHANGES; this is a tester download plumbing defect, not a data-integrity finding.
 - Corrected the tester's redirect handling: authenticated request to the GitHub artifact API obtains a short-lived signed URL, and the second request downloads from that URL without reusing API credentials. Request revision 3 retriggers the same immutable artifact ID and digest.
 - Artifact remains pending independent ZIP/hash/coverage acceptance.
+
+## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow 38197317740)
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS.
+- Developer run 38195812828; artifact ID 11723198817.
+- Encrypted part hashes, row counts, coverage and no-plaintext conditions passed.
+- Trading/economic gates remain blocked.
