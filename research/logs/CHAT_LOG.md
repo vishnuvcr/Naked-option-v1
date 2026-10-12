@@ -527,3 +527,8 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 ### 2026-10-12 — Phase 8P reviewer guard hardening
 - Run #38199152061 failed closed on another literal-sentence mismatch: the workflow expected wording not present in the valid tester report. This was a guard defect, not a tester rejection.
 - The workflow now checks the independent PASS decision and exact reviewed scope hash, with no incidental explanatory sentence. Commit 997bb235ed1d778d513227982fb00fa1e36384bd; automatic retry triggered. No dataset was opened and no model trained.
+
+
+### 2026-10-12 — Synthetic timestamp fixture corrected
+- Phase 8P run #38199407140 caught a synthetic test that queried a source-bar start instead of its completed-bar end. The implementation's strict exact-time rule was retained; the fixture was shifted by one minute to the correct bar-end. Repair commit bc2e8d583e8c44d4dc0588fd784a6ee91ed75a6f.
+- No empirical data was opened and no real model trained. The corrected test suite reruns automatically.
