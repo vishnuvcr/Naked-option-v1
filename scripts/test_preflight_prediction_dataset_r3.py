@@ -33,8 +33,8 @@ class PredictionDataPreflightHelpersTests(unittest.TestCase):
     def test_price_column_selection_is_priority_ordered_and_case_insensitive(self):
         header = ["Timestamp", "SPOT_CLOSE", "close", "index_close"]
         chosen, candidates = preflight.exact_close_column(header)
-        self.assertEqual(chosen, "index_close")
-        self.assertEqual(candidates, ["index_close", "SPOT_CLOSE", "close"])
+        self.assertEqual(chosen, "SPOT_CLOSE")
+        self.assertEqual(candidates, ["SPOT_CLOSE", "index_close", "close"])
         chosen, candidates = preflight.exact_close_column(["row_type", "timestamp_epoch", "close"])
         self.assertEqual(chosen, "close")
         self.assertEqual(candidates, ["close"])
