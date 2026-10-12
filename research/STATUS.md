@@ -1,5 +1,12 @@
 # Research Status
 
+## Phase 8P R2 current checkpoint — 2026-10-13
+
+- Developer correction submission: [T2 bootstrap / T3 horizon-scope report](gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
+- The moving-block bootstrap now fails closed on a single-valued resampling distribution; CI and p-value are null with an explicit non-identifiable status. Regression coverage was changed accordingly. Hosted test result remains unverified.
+- R2 is a two-target synthetic/design pilot only. Full horizon coverage (5/15/30/60/120 minutes; +1/+2/+3/+5/+10 sessions) remains mandatory before any empirical fit, method ranking, or selection.
+- No market data/model/holdout/option P&L was accessed or generated in this correction step.
+
 | Phase | Status | Gate |
 |---|---|---|
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
@@ -11,7 +18,7 @@
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
-| Phase 8P Prediction registry gate | DATA INTEGRITY + SYNTHETIC PLUMBING PASSED; SCIENTIFIC GATE BLOCKED | 1,000 methods / 8,000 configs verified; 426 conditional, 574 blocked, 0 empirically eligible; tester REQUEST CHANGES |
+| Phase 8P Prediction registry gate | REQUEST CHANGES — correction submitted for independent review | 1,000 methods / 8,000 configs are a synthetic/design pilot only; 426 conditional, 574 blocked, 0 empirically eligible. T2 correction submitted; full horizon gate required before empirical fitting. |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
