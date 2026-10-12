@@ -1090,3 +1090,8 @@ Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json
 ## Fresh independent registry review request — 2026-10-12
 
 Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json` to pin the exact tested source commit, relevant source artifact blob IDs, latest synthetic/repair/clean-audit run IDs, 10/10 statistical utility tests, and explicit independent review questions. The request is a handoff, not approval. Tester must independently audit distinctness/compatibility, label and purge/embargo rules, bootstrap/BY math, and resource-estimate limitations. No empirical fitting or holdout access.
+
+
+## Latest registry repair — 2026-10-12
+
+Corrected misleading method nearest-neighbor contrast statements. The registry now names a deterministic nearest peer and exact differing semantic fields/values. Repair/audit run 38255852834, clean registry run 38255852565, and full synthetic run 38255852608 passed. Full sweep: 64,000 synthetic tasks, zero errors; no market data or fitted model was used. See the [repair log](gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md) and [refreshed tester request](gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). Scientific approval remains pending.
