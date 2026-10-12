@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | **R3 CODE GATE PASSED — INDEPENDENT ARTIFACT GATE PREPARED** | Developer run #38195812828 attempt 2 is enriching; separate tester workflow checks encrypted-part hashes, row totals, coverage and plaintext absence before acceptance |
+| Phase 8 Long-option execution | **R3 DEVELOPER ARTIFACT UPLOADED — INDEPENDENT ARTIFACT GATE PENDING** | Artifact 11723198817 from run #38195812828; tester workflow must verify ZIP digest, encrypted files, row totals and Greek coverage before acceptance |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -205,3 +205,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 ## 2026-10-12 — Independent artifact-delivery gate prepared
 - A separate tester-owned workflow and synthetic-tested audit script now exist for the final R3 uploaded bundle. It verifies source run/commit/artifact identity, ZIP CRC, all 61 encrypted chunk hashes, exact per-part row sums, manifest/coverage agreement, Greek status/expiry/IV count totals, source attribution/license/revision, and absence of plaintext files.
 - Artifact gate request intentionally remains absent until a successful developer artifact ID is available. No artifact-level decision has been issued yet; code-only R3 approval does not equal dataset acceptance.
+
+
+## 2026-10-12 — R3 developer artifact available for independent review
+- Developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) completed successfully at the exact approved SHA `f556c7b44088f18551453c36f78e8d5de7fe141e`. Its final row/hash/encrypted-only validation passed and artifact upload succeeded.
+- Artifact: ID `11723198817`, name `nifty-1m-greeks-enriched-r3`, 1,610,370,340 bytes; uploaded ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
+- Developer-reported counts: 8,999,865 rows preserved; 61 encrypted monthly parts; 8,418,616 option rows with Delta; zero exact-timestamp spot misses; zero unmapped expiries under the current proxy rules. These are pending independent ZIP/coverage audit.
+- Artifact review workflow and synthetic auditor are on this branch. The artifact request JSON will pin exact developer run, snapshot, artifact ID/name, ZIP digest and expected row totals. Code-only R3 PASS is not a data-delivery PASS.

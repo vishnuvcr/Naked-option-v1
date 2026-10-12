@@ -188,3 +188,13 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** do not describe the dataset as delivered until the artifact-level decision is PASS.
 **Developer → Tester:** after terminal validation succeeds, provide the artifact ID and run ID through the tester request; do not progress to P&L.
+
+
+## 2026-10-12 — R3 developer artifact available for independent review
+- Developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) completed successfully at the exact approved SHA `f556c7b44088f18551453c36f78e8d5de7fe141e`. Its final row/hash/encrypted-only validation passed and artifact upload succeeded.
+- Artifact: ID `11723198817`, name `nifty-1m-greeks-enriched-r3`, 1,610,370,340 bytes; uploaded ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
+- Developer-reported counts: 8,999,865 rows preserved; 61 encrypted monthly parts; 8,418,616 option rows with Delta; zero exact-timestamp spot misses; zero unmapped expiries under the current proxy rules. These are pending independent ZIP/coverage audit.
+- Artifact review workflow and synthetic auditor are on this branch. The artifact request JSON will pin exact developer run, snapshot, artifact ID/name, ZIP digest and expected row totals. Code-only R3 PASS is not a data-delivery PASS.
+
+**Tester → Developer:** do not equate developer upload success with acceptance; review the actual downloaded bundle and coverage report.
+**Developer → Tester:** keep option P&L, holdout and promotion blocked pending the new artifact gate.
