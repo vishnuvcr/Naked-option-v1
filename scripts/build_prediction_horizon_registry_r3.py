@@ -341,6 +341,15 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["chronological_validation"]["inner_validation"]["split_policy"] += (
         " The exact purge/embargo length is horizon-specific as pinned in the label manifest; no random split is permitted."
     )
+    p["chronological_validation"]["inner_validation"]["minimum_inner_training_rows"] = {
+        label: (10000 if label.startswith("INTRA_") else 150) for label in ALL_LABEL_IDS
+    }
+    p["chronological_validation"]["inner_validation"]["minimum_inner_validation_rows"] = {
+        label: (1000 if label.startswith("INTRA_") else 30) for label in ALL_LABEL_IDS
+    }
+    p["chronological_validation"]["inner_validation"]["class_support_each_direction_minimum"] = {
+        label: (100 if label.startswith("INTRA_") else 10) for label in ALL_LABEL_IDS
+    }
     p["sample_eligibility"]["minimum_train_rows"] = {
         label: (20000 if label.startswith("INTRA_") else 250) for label in ALL_LABEL_IDS
     }
