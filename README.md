@@ -1,3 +1,12 @@
+## Latest Phase 8P R2 prediction-registry tester decision — 2026-10-13
+
+- **Decision: REQUEST CHANGES.** Empirical fitting, encrypted-data access, holdout access, option P&L and strategy promotion remain prohibited.
+- Blocking finding T2: the moving-block bootstrap can report a zero-width confidence interval and minimum p-value when its resampling support has no variation.
+- Scope finding T3: the R2 manifest contains only the 30-minute intraday and +1-session positional labels, not the full frozen horizon set.
+- [Independent tester report](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REVIEW_R3_2026-10-13.md) · [Machine decision](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_DECISION_R3_2026-10-13.json).
+- [Tester-owned read-only audit script](scripts/independent_prediction_registry_audit_r2.py) · [Workflow](.github/workflows/phase-08p-independent-registry-review.yml). Full reconstruction and configuration-shard audit remain pending an observed hosted result.
+
+---
 ## Latest Phase 8P checkpoint — 2026-10-12
 
 - **Duplicate-diagnostic code gate:** PASS FOR CODE ONLY on exact developer commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`; independent tester workflow [#38204532045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204532045) passed 19/19 checks.
