@@ -370,3 +370,12 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Empirical P&L remains blocked pending the point-in-time fixed-contract panel, duplicate-data result acceptance and separate one-use authorization.
 - Detailed status: [research/STATUS.md](research/STATUS.md); errors/observability: [research/ERROR_LOG.md](research/ERROR_LOG.md); conversation decision log: [research/logs/CHAT_LOG.md](research/logs/CHAT_LOG.md); Phase 8 data requirements: [PHASE8_DATA_PLAN.md](research/phase8/PHASE8_DATA_PLAN.md).
 
+
+
+## Latest Phase 8 OHLC proxy strategy run — rerun pending (2026-10-12)
+
+- **Current status:** no strategy metrics accepted yet. The earlier OHLC run stopped because the original repaired composite had blank expiry dates for all 8,490,723 option rows; the error is recorded in [research/ERROR_LOG.md](research/ERROR_LOG.md).
+- **Input correction:** reuse the already-existing expiry-enriched composite, [source run 38195812828, artifact 11723198817](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828/artifacts/11723198817), SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`. Expiry is inferred from an expiry-partition file list and weekly Tuesday-rule proxy; this is not an official point-in-time contract master.
+- **Frozen study:** saved Phase 7 Run #994 forecasts; 4,800 configurations; four spread/slippage scenarios; Paytm Money and date-effective statutory charges; Q1/OHLC proxy only.
+- **No new data collection, no bid/ask requirement.** The tester has approved one new run on the exact pinned runner/test/workflow blobs.
+- Plan: [Phase 8 proxy backtest plan](research/phase8/PHASE8_PROXY_BACKTEST_PLAN.md) · [Research status](research/STATUS.md) · [Error log](research/ERROR_LOG.md) · [Conversation log](research/logs/CHAT_LOG.md).
