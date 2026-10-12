@@ -1,0 +1,321 @@
+name: Phase 8P Frozen-Artifact Schema Preflight (No Model Fit)
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R1_2026-10-12.json"
+  workflow_dispatch:
+    inputs:
+      run_schema_preflight:
+        description: "Run only pinned artifact schema/coverage preflight after tester workflow approval"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase8p-preflight-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  schema-only-preflight:
+    if: ${{ github.event_name == 'push' || inputs.run_schema_preflight == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      APPROVED_DEVELOPER_COMMIT: "a5a38e3592234aea9052e697416c8154c6f8e8f8"
+      CODE_DECISION_PATH: "research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R2_2026-10-12.json"
+      CODE_DECISION_BLOB_SHA1: "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b"
+      GREEK_ARTIFACT_ID: "11723198817"
+      GREEK_ARTIFACT_SHA256: "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+      FORECAST_ARTIFACT_ID: "11638738288"
+      FORECAST_ARTIFACT_SHA256: "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+      FORECAST_MANIFEST_SHA256: "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091"
+      FORECAST_AGGREGATE_SHA256: "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39"
+
+    steps:
+      - name: Checkout workflow/request snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify tester-approved workflow, exact code snapshot, and artifact pins before any download
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-tester:refs/remotes/origin/phase-08-prediction-tester
+          git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          def git(*args):
+              return subprocess.check_output(["git", *args], text=True).strip()
+          req_path = "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R1_2026-10-12.json"
+          req = json.loads(Path(req_path).read_text(encoding="utf-8"))
+          if req.get("status") != "AUTHORIZED_TO_RUN_SCHEMA_PREFLIGHT_ONLY":
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: request is not tester-authorized")
+          current_workflow_blob = git("rev-parse", f"HEAD:.github/workflows/phase8p-preflight-only.yml")
+          if req.get("workflow_blob_sha1") != current_workflow_blob:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: workflow blob differs from reviewed version")
+          if req.get("approved_developer_commit") != os.environ["APPROVED_DEVELOPER_COMMIT"]:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: code snapshot pin differs")
+          dev = os.environ["APPROVED_DEVELOPER_COMMIT"]
+          git("cat-file", "-e", dev + "^{commit}")
+          if git("rev-parse", f"{dev}:scripts/phase8p_greek_prediction.py") != "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d":
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: approved code module blob mismatch")
+          if git("rev-parse", f"{dev}:scripts/test_phase8p_greek_prediction.py") != "4681c8e34aab1edae44f70ffad455741799d7075":
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: approved test blob mismatch")
+          tester_ref = "refs/remotes/origin/phase-08-prediction-tester"
+          approval = req.get("preflight_workflow_approval", {})
+          approval_path = approval.get("path", "")
+          expected_approval_blob = approval.get("blob_sha1", "")
+          if not approval_path or len(expected_approval_blob) != 40:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: tester workflow approval pin missing")
+          actual_approval_blob = git("rev-parse", f"{tester_ref}:{approval_path}")
+          if actual_approval_blob != expected_approval_blob:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: tester workflow approval blob mismatch")
+          d = json.loads(git("show", f"{tester_ref}:{approval_path}"))
+          if d.get("decision") != "PASS_PREFLIGHT_WORKFLOW_ONLY":
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: tester did not approve executor workflow")
+          if d.get("developer_workflow_blob_sha1") != current_workflow_blob:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: tester approved a different workflow blob")
+          if d.get("approved_developer_commit") != dev:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: tester reviewed a different code snapshot")
+          if d.get("code_decision_blob_sha1") != os.environ["CODE_DECISION_BLOB_SHA1"]:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: R2 code decision blob mismatch")
+          code_raw = git("show", f"{tester_ref}:{os.environ['CODE_DECISION_PATH']}")
+          code = json.loads(code_raw)
+          if git("rev-parse", f"{tester_ref}:{os.environ['CODE_DECISION_PATH']}") != os.environ["CODE_DECISION_BLOB_SHA1"]:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: code decision blob mismatch")
+          if code.get("decision") != "PASS_FOR_CODE_ONLY" or code.get("developer_commit") != dev:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: exact-snapshot code-only PASS missing")
+          pins = {
+              "greek": (int(os.environ["GREEK_ARTIFACT_ID"]), os.environ["GREEK_ARTIFACT_SHA256"]),
+              "forecast": (int(os.environ["FORECAST_ARTIFACT_ID"]), os.environ["FORECAST_ARTIFACT_SHA256"]),
+          }
+          if req.get("artifacts") != {
+              name: {"artifact_id": aid, "sha256": sha}
+              for name, (aid, sha) in pins.items()
+          }:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: request artifact pins do not match source constants")
+          wf = Path(".github/workflows/phase8p-preflight-only.yml").read_text(encoding="utf-8")
+          if "--run-preflight" not in wf or "--run-study" in wf or "huggingface.co" in wf.lower() or "nseindia" in wf.lower() or "dhan" in wf.lower():
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: workflow is not a strictly scoped schema-only executor")
+          if req.get("model_fit_authorized") is not False or req.get("holdout_access_authorized") is not False:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: out-of-scope authorization flag is not false")
+          print("PASS: exact tester-approved workflow/code/artifact pins; schema preflight only; no artifact downloaded yet.")
+          PY
+
+      - name: Set up Python
+        if: success()
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned preflight dependencies
+        if: success()
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2 pyarrow==17.0.0 cryptography==43.0.3
+
+      - name: Restore cached encrypted Greek artifact only
+        if: success()
+        id: greek-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
+          key: phase8p-greek-artifact-11723198817-e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
+
+      - name: Download or validate exact encrypted Greek artifact
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/cache/phase8p-artifacts "${RUNNER_TEMP}/phase8p-preflight"
+          ZIP="data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip"
+          if [ ! -s "$ZIP" ]; then
+            HEADERS="${RUNNER_TEMP}/phase8p-preflight/greek-headers.txt"
+            API_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${GREEK_ARTIFACT_ID}/zip"
+            STATUS="$(curl --silent --show-error --max-time 60 -D "$HEADERS" -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "$API_URL")"
+            if [ "$STATUS" != "302" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "307" ]; then
+              echo "ARTIFACT_DOWNLOAD_BLOCKED: GitHub API returned HTTP $STATUS"
+              exit 1
+            fi
+            LOCATION="$(python - "$HEADERS" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="utf-8",errors="replace").read().splitlines()
+          locations=[line.split(":",1)[1].strip() for line in lines if line.lower().startswith("location:")]
+          if not locations: raise SystemExit("Missing GitHub artifact redirect location")
+          print(locations[-1])
+          PY
+          )"
+            curl --fail --silent --show-error --location --retry 3 --retry-all-errors --connect-timeout 30 --max-time 2400 "$LOCATION" --output "$ZIP"
+          fi
+          ACTUAL="$(sha256sum "$ZIP" | awk '{print $1}')"
+          if [ "$ACTUAL" != "$GREEK_ARTIFACT_SHA256" ]; then
+            echo "ARTIFACT_SHA256_MISMATCH: greek expected=$GREEK_ARTIFACT_SHA256 actual=$ACTUAL"
+            exit 1
+          fi
+          echo "Greek artifact ZIP SHA-256 verified: $ACTUAL"
+          echo "Greek artifact path: $ZIP"
+
+      - name: Save immutable encrypted Greek artifact cache
+        if: success() && steps.greek-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
+          key: phase8p-greek-artifact-11723198817-e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
+
+      - name: Download exact frozen prediction artifact (never persist in cache)
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/phase8p-preflight"
+          ZIP="${RUNNER_TEMP}/phase8p-preflight/phase7-ensemble-reference.zip"
+          HEADERS="${RUNNER_TEMP}/phase8p-preflight/forecast-headers.txt"
+          API_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FORECAST_ARTIFACT_ID}/zip"
+          STATUS="$(curl --silent --show-error --max-time 60 -D "$HEADERS" -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "$API_URL")"
+          if [ "$STATUS" != "302" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "307" ]; then
+            echo "ARTIFACT_DOWNLOAD_BLOCKED: GitHub API returned HTTP $STATUS"
+            exit 1
+          fi
+          LOCATION="$(python - "$HEADERS" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="utf-8",errors="replace").read().splitlines()
+          locations=[line.split(":",1)[1].strip() for line in lines if line.lower().startswith("location:")]
+          if not locations: raise SystemExit("Missing GitHub artifact redirect location")
+          print(locations[-1])
+          PY
+          )"
+          curl --fail --silent --show-error --location --retry 3 --retry-all-errors --connect-timeout 30 --max-time 1200 "$LOCATION" --output "$ZIP"
+          ACTUAL="$(sha256sum "$ZIP" | awk '{print $1}')"
+          if [ "$ACTUAL" != "$FORECAST_ARTIFACT_SHA256" ]; then
+            echo "ARTIFACT_SHA256_MISMATCH: forecast expected=$FORECAST_ARTIFACT_SHA256 actual=$ACTUAL"
+            exit 1
+          fi
+          echo "Forecast artifact ZIP SHA-256 verified: $ACTUAL"
+
+      - name: Checkout the exact tester-approved code snapshot in an isolated worktree
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-preflight/developer-code" "${APPROVED_DEVELOPER_COMMIT}"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-preflight/developer-code" rev-parse HEAD)" = "${APPROVED_DEVELOPER_COMMIT}"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-preflight/developer-code" rev-parse HEAD:scripts/phase8p_greek_prediction.py)" = "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d"
+
+      - name: Run schema/coverage-only preflight, never fit a model
+        if: success()
+        id: preflight
+        continue-on-error: true
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PHASE8P_CODE_DECISION_REF: "refs/remotes/origin/phase-08-prediction-tester"
+          PHASE8P_CODE_DECISION_PATH: "research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R2_2026-10-12.json"
+          PHASE8P_CODE_DECISION_BLOB_SHA1: ${{ env.CODE_DECISION_BLOB_SHA1 }}
+        run: |
+          set -euo pipefail
+          CORE="${RUNNER_TEMP}/phase8p-preflight/developer-code"
+          GREEK_ZIP="${GITHUB_WORKSPACE}/data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip"
+          FORECAST_ZIP="${RUNNER_TEMP}/phase8p-preflight/phase7-ensemble-reference.zip"
+          REPORT="${RUNNER_TEMP}/phase8p-preflight/phase8p-schema-preflight-report.json"
+          mkdir -p "${RUNNER_TEMP}/phase8p-preflight"
+          set +e
+          (cd "$CORE" && python scripts/phase8p_greek_prediction.py --run-preflight \
+            --greek-zip "$GREEK_ZIP" --forecast-zip "$FORECAST_ZIP" \
+            --greek-artifact-id "$GREEK_ARTIFACT_ID" --forecast-artifact-id "$FORECAST_ARTIFACT_ID" \
+            --output "$REPORT") > "${RUNNER_TEMP}/phase8p-preflight/stdout.log" 2> "${RUNNER_TEMP}/phase8p-preflight/stderr.log"
+          RC=$?
+          set -e
+          if [ ! -s "$REPORT" ]; then
+            python - "$REPORT" "${RUNNER_TEMP}/phase8p-preflight/stderr.log" "$RC" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          p=Path(sys.argv[1]); err=Path(sys.argv[2]).read_bytes(); rc=int(sys.argv[3])
+          lines=err.decode("utf-8",errors="replace").splitlines()
+          tail=lines[-1] if lines else "NO_DIAGNOSTIC_AVAILABLE"
+          # Keep only a machine-safe failure category; do not publish raw tracebacks or data.
+          category=tail.split(":",1)[0][:120].replace("\\","_").replace("/","_")
+          report={"schema_version":2,"status":"BLOCKED","mode":"SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT",
+             "runtime_preflight_failure":True,"failure_category":category,
+             "runner_exit_code":rc,"stderr_sha256":hashlib.sha256(err).hexdigest(),
+             "model_fit_authorized":False,"holdout_access_authorized":False,
+             "option_pnl_authorized":False,"strategy_promotion_authorized":False,
+             "reasons":["PREFLIGHT_RUNTIME_FAILURE_NO_VALID_REPORT"]}
+          p.write_text(json.dumps(report,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+          PY
+          fi
+          python - "$REPORT" <<'PY'
+          import json,sys
+          from pathlib import Path
+          d=json.loads(Path(sys.argv[1]).read_text())
+          print(json.dumps({"status":d.get("status"),"mode":d.get("mode"),
+             "reasons":d.get("reasons",[]),"coverage_by_panel":d.get("coverage_by_panel",{}),
+             "model_fit_authorized":d.get("model_fit_authorized"),
+             "holdout_access_authorized":d.get("holdout_access_authorized"),
+             "option_pnl_authorized":d.get("option_pnl_authorized"),
+             "strategy_promotion_authorized":d.get("strategy_promotion_authorized")},sort_keys=True))
+          PY
+          if [ "$RC" -ne 0 ]; then exit 1; fi
+
+      - name: Create artifact/input receipt without raw rows or keys
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python - "${RUNNER_TEMP}/phase8p-preflight/input-receipt.json" <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          base=Path(os.environ["RUNNER_TEMP"])/"phase8p-preflight"
+          items=[]
+          for name,path,pin in (
+             ("greek",Path("data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip"),os.environ["GREEK_ARTIFACT_SHA256"]),
+             ("forecast",base/"phase7-ensemble-reference.zip",os.environ["FORECAST_ARTIFACT_SHA256"])):
+              if path.is_file():
+                h=hashlib.sha256()
+                with path.open("rb") as f:
+                  for b in iter(lambda:f.read(1024*1024),b""): h.update(b)
+                items.append({"name":name,"artifact_id":int(os.environ["GREEK_ARTIFACT_ID"] if name=="greek" else os.environ["FORECAST_ARTIFACT_ID"]),
+                              "actual_sha256":h.hexdigest(),"expected_sha256":pin,"sha256_match":h.hexdigest()==pin})
+              else:
+                items.append({"name":name,"artifact_id":int(os.environ["GREEK_ARTIFACT_ID"] if name=="greek" else os.environ["FORECAST_ARTIFACT_ID"]),
+                              "actual_sha256":None,"expected_sha256":pin,"sha256_match":False,"file_missing":True})
+          d={"schema_version":1,"mode":"INPUT_HASH_RECEIPT_ONLY",
+             "workflow_run_id":os.environ["GITHUB_RUN_ID"],"workflow_commit":os.environ["GITHUB_SHA"],
+             "approved_code_commit":os.environ["APPROVED_DEVELOPER_COMMIT"],"artifacts":items,
+             "external_market_source_requests":False,"model_fitted":False,"holdout_metrics_computed":False,
+             "option_pnl_run":False,"strategy_promotion":False}
+          Path(sys.argv[1]).write_text(json.dumps(d,indent=2,sort_keys=True)+"\\n")
+          PY
+
+      - name: Upload aggregate-only preflight receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-schema-preflight-report
+          path: |
+            ${{ runner.temp }}/phase8p-preflight/phase8p-schema-preflight-report.json
+            ${{ runner.temp }}/phase8p-preflight/input-receipt.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Preserve only encrypted Greek cache, delete temporary forecast and developer plaintext/worktree
+        if: always()
+        run: |
+          set +e
+          git worktree remove --force "${RUNNER_TEMP}/phase8p-preflight/developer-code"
+          rm -f "${RUNNER_TEMP}/phase8p-preflight/phase7-ensemble-reference.zip"
+          rm -f "${RUNNER_TEMP}/phase8p-preflight/stdout.log" "${RUNNER_TEMP}/phase8p-preflight/stderr.log"
+          rm -f "${RUNNER_TEMP}/phase8p-preflight/greek-headers.txt" "${RUNNER_TEMP}/phase8p-preflight/forecast-headers.txt"
+          true
