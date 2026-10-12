@@ -150,3 +150,15 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 **Tester → Developer:** submit the one-use execution-authorization request, retaining all false flags for deduplication, model fit, holdout, external-source requests, data upload, option P&L and strategy promotion.
 **Developer → Tester:** independently review the request and only issue a one-use execution authorization if all exact pins and fail-closed safeguards are satisfied.
 
+
+
+## Phase 8P — one-use duplicate diagnostic (2026-10-12)
+
+- Independent code gate R4: PASS 29/29. Independent executor workflow R2: PASS 33/33.
+- Final one-use tester authorization was issued for nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133`, tied to the exact code/workflow/request/artifact pins. [Authorization report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_TESTER_R1_2026-10-12.md).
+- Developer run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed the gate, committed its nonce before source access and verified the encrypted ZIP digest. The real aggregate scan is running; no output accepted yet.
+- **No records dropped; no prediction model, holdout, P&L or strategy was tested.** An independent data-result gate is mandatory after the aggregate report.
+
+**Tester → Developer:** preserve one-use nonce and await the pinned report.
+**Developer → Tester:** submit report/hash for independent data-gate review before any next experiment.
+
