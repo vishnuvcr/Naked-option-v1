@@ -14,6 +14,7 @@ import math
 import sqlite3
 import sys
 import tempfile
+import time
 import zlib
 import zipfile
 from pathlib import Path
@@ -90,6 +91,7 @@ def scan_frames(
     parts_scanned = 0
     rows_scanned = 0
     option_rows_scanned = 0
+    started_at = time.monotonic()
 
     with tempfile.TemporaryDirectory(prefix="phase8p-duplicate-scan-") as temp_dir:
         db_path = Path(temp_dir) / "aggregate.sqlite3"
@@ -119,11 +121,17 @@ def scan_frames(
                     raise GateBlocked("DUPLICATE_DIAGNOSTIC_PART_SCHEMA_INVALID")
                 validate_greek_part_columns(list(frame.columns), columns)
                 rows_scanned += int(len(frame))
-                row_types = frame["row_type"].fillna("").astype(str).str.strip().str.upper()
-                options = frame.loc[row_types.eq("OPTION")]
+                # Iterate rows lazily. Avoid materializing a second DataFrame and a list
+                # of dictionaries for every encrypted part (the composite is ~9M rows).
+                names = list(frame.columns)
+                row_type_index = names.index("row_type")
                 connection.execute("BEGIN")
-                for record in options.to_dict("records"):
+                for values in frame.itertuples(index=False, name=None):
+                    row_type = values[row_type_index]
+                    if pd.isna(row_type) or str(row_type).strip().upper() != "OPTION":
+                        continue
                     option_rows_scanned += 1
+                    record = dict(zip(names, values))
                     row, valuation_epoch = _normalized_option_row(record)
                     key, signature = _economic_contract_key(row, valuation_epoch, signature_fields)
                     key_hash = _sha256_json(list(key))
@@ -175,6 +183,8 @@ def scan_frames(
                         "parts_scanned": int(parts_scanned),
                         "rows_scanned": int(rows_scanned),
                         "option_rows_scanned": int(option_rows_scanned),
+                        "elapsed_seconds": int(time.monotonic() - started_at),
+                        "temporary_database_bytes": int(db_path.stat().st_size if db_path.exists() else 0),
                     })
 
             duplicate_row = connection.execute(
@@ -315,11 +325,16 @@ def synthetic_self_test() -> dict[str, Any]:
     progress_events: list[dict[str, int]] = []
     result = scan_frames([first_part, second_part], manifest_columns, progress=progress_events.append)
     assert len(progress_events) == 2
-    assert progress_events[-1] == {
+    assert {
+        key: progress_events[-1][key]
+        for key in ("parts_scanned", "rows_scanned", "option_rows_scanned")
+    } == {
         "parts_scanned": 2,
         "rows_scanned": 6,
         "option_rows_scanned": 6,
     }
+    assert progress_events[-1]["elapsed_seconds"] >= 0
+    assert progress_events[-1]["temporary_database_bytes"] >= 0
     assert result["parts_scanned"] == 2
     assert result["option_rows_scanned"] == 6
     assert result["duplicate_contract_groups"] == 3
