@@ -664,3 +664,16 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - Added a narrow automatic push trigger to `.github/workflows/phase-08-long-option.yml` on the developer branch, commit `5de4a2c1626b5f2633c4e0565e84592297ad4b44`, preserving the manual/reusable triggers and existing empirical gates.
 - Attempted to verify the Actions run; the available commit-run endpoint returned no runs because it only returns pull-request-triggered runs. Run status remains unverified.
 - No empirical option P&L generated. Next: verify the hosted run and continue the point-in-time option-panel and separate diagnostic-authorization gates.
+
+## 2026-10-12 — User confirmed continuation of strategy testing
+
+- User message: “Ok proceed”.
+- Re-read the Phase 8 frozen manifest, data plan, cost schedule, runner, source-audit/reconciliation scripts, developer workflow and tester readiness report.
+- Verified that the accepted forecast artifact supplies 10 panels and 50,555 rows but explicitly does not authorize empirical option execution. All 4,800 option configurations remain subject to the point-in-time contract-panel gate; no empirical P&L metrics were generated in this step.
+- The automatic workflow trigger commit is `5de4a2c1626b5f2633c4e0565e84592297ad4b44`. Available connector lookup returned no run records because it exposes only PR-triggered runs. Workflow execution remains unverified.
+- Updated tester-branch trigger review request in commit `53fd02a02ac97d5a19a0085603ce4af8999e1a34`; no tester decision has been assumed.
+- Next step: independently verify trigger behavior and hosted run, then progress the source/contract-panel audit and duplicate-data gate. No strategy performance claim is accepted.
+
+**Developer → Tester:** review exact workflow blob and verify push/manual/reusable trigger separation and gate integrity.
+**Tester → Developer:** report exact PASS/REQUEST_CHANGES evidence; keep empirical authorization false until separate data and execution gates pass.
+
