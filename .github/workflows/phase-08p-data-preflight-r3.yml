@@ -1,0 +1,188 @@
+name: Phase 8P R3 encrypted data preflight
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - 'scripts/preflight_prediction_dataset_r3.py'
+      - 'scripts/test_preflight_prediction_dataset_r3.py'
+      - 'scripts/decrypt_nifty_1m_composite.py'
+      - 'scripts/validate_phase8_cached_composite_bundle.py'
+      - 'requirements-composite.txt'
+      - 'research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json'
+      - 'research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json'
+      - 'research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json'
+      - 'research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json'
+      - 'research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json'
+      - '.github/workflows/phase-08p-data-preflight-r3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: phase-08p-r3-data-preflight
+  cancel-in-progress: false
+
+jobs:
+  encrypted-source-and-data-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out exact triggering source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Run encrypted verification, temporary decrypt and aggregate preflight
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/r3-prediction-preflight"
+          LOG="research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt"
+          mkdir -p "$WORK/unpacked" "$WORK/plain-parts" research/gates
+          echo "source_commit=$(git rev-parse HEAD)" > "$LOG"
+          echo "stage=WORKSPACE_READY" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+
+          echo "stage=ARTIFACT_METADATA" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857" \
+            -o "$WORK/artifact-metadata.json"
+          python - "$WORK/artifact-metadata.json" <<'PY' >> "$LOG"
+          import json, sys
+          obj=json.load(open(sys.argv[1],encoding="utf-8"))
+          expected={"id":11698879857,"size_in_bytes":231076122,
+                    "digest":"sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b",
+                    "expired":False}
+          for key,value in expected.items():
+              if obj.get(key)!=value:
+                  raise SystemExit(f"ARTIFACT_METADATA_BLOCKED: {key} expected={value!r} actual={obj.get(key)!r}")
+          print(json.dumps({k:obj.get(k) for k in ("id","name","size_in_bytes","digest","expired","created_at","expires_at")},sort_keys=True))
+          PY
+
+          echo "stage=ARTIFACT_DOWNLOAD" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          curl -fL --retry 3 --retry-delay 2 \
+            -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip" \
+            -o "$WORK/source-artifact.zip" 2>&1 | tee -a "$LOG"
+          ACTUAL="$(sha256sum "$WORK/source-artifact.zip" | awk '{print $1}')"
+          test "$ACTUAL" = "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b"
+          test "$(stat -c '%s' "$WORK/source-artifact.zip")" -eq 231076122
+          unzip -q "$WORK/source-artifact.zip" -d "$WORK/unpacked"
+          echo "archive_sha256=$ACTUAL" >> "$LOG"
+
+          echo "stage=EMBEDDED_MANIFEST" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          count="$(find "$WORK/unpacked" -type f -name dataset_manifest.json | wc -l)"
+          test "$count" -eq 1
+          MANIFEST="$(find "$WORK/unpacked" -type f -name dataset_manifest.json -print -quit)"
+          test "$(stat -c '%s' "$MANIFEST")" -eq 34363
+          MHASH="$(sha256sum "$MANIFEST" | awk '{print $1}')"
+          test "$MHASH" = "da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f"
+          BUNDLE_DIR="$(dirname "$MANIFEST")"
+          echo "embedded_manifest_sha256=$MHASH" >> "$LOG"
+
+          echo "stage=ENCRYPTED_BUNDLE_VALIDATION" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          python scripts/validate_phase8_cached_composite_bundle.py \
+            --bundle-dir "$BUNDLE_DIR" \
+            --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json \
+            --output research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json \
+            2>&1 | tee -a "$LOG"
+
+          echo "stage=DEPENDENCIES" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          python -m pip install -r requirements-composite.txt 2>&1 | tee -a "$LOG"
+
+          echo "stage=TEMPORARY_DECRYPTION" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          python scripts/decrypt_nifty_1m_composite.py \
+            --input-dir "$BUNDLE_DIR" \
+            --output-dir "$WORK/plain-parts" \
+            --merge-output "$WORK/merged.csv.gz" 2>&1 | tee -a "$LOG"
+          test -s "$WORK/merged.csv.gz"
+
+          echo "stage=DATA_PREFLIGHT" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          if python scripts/preflight_prediction_dataset_r3.py \
+            --merged-gzip "$WORK/merged.csv.gz" \
+            --calendar research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json \
+            --preregistration research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json \
+            --output research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json \
+            > "$WORK/preflight-output.txt" 2>&1; then
+            rc=0
+          else
+            rc=$?
+          fi
+          cat "$WORK/preflight-output.txt" | tee -a "$LOG"
+          echo "$rc" > "$RUNNER_TEMP/r3-preflight-exit-code.txt"
+          echo "stage=DATA_PREFLIGHT_FINISHED" > "$RUNNER_TEMP/r3-preflight-stage.txt"
+          test "$rc" -eq 0
+
+      - name: Finalize safe attempt diagnostic
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          tmp=Path(os.environ.get("RUNNER_TEMP","/tmp"))
+          stage=tmp/"r3-preflight-stage.txt"
+          rc=tmp/"r3-preflight-exit-code.txt"
+          pre=Path("research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+          enc=Path("research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json")
+          report=json.loads(pre.read_text()) if pre.is_file() else None
+          attempt={
+            "schema_version":1,
+            "preflight":"phase-08p-r3-nifty-composite-data-preflight",
+            "stage_reached":stage.read_text().strip() if stage.is_file() else "WORKFLOW_INITIALIZATION_FAILED",
+            "data_preflight_exit_code":int(rc.read_text().strip()) if rc.is_file() else None,
+            "status":report.get("status") if report else "FAILED_BEFORE_DATA_PREFLIGHT",
+            "encrypted_bundle_report_sha256":hashlib.sha256(enc.read_bytes()).hexdigest() if enc.is_file() else None,
+            "data_preflight_report_sha256":hashlib.sha256(pre.read_bytes()).hexdigest() if pre.is_file() else None,
+            "raw_rows_retained":False,"raw_rows_emitted":False,"plaintext_uploaded":False,
+            "model_fitting_performed":False,"holdout_accessed":False
+          }
+          Path("research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json").write_text(json.dumps(attempt,sort_keys=True,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps(attempt,sort_keys=True,indent=2))
+          PY
+
+      - name: Upload aggregate-only diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-r3-aggregate-data-preflight
+          path: |
+            research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json
+            research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json
+            research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json
+            research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt
+          if-no-files-found: warn
+
+      - name: Remove plaintext and downloaded artifact bytes
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/r3-prediction-preflight"
+          rm -f "$RUNNER_TEMP/r3-preflight-stage.txt" "$RUNNER_TEMP/r3-preflight-exit-code.txt"
+
+      - name: Commit aggregate-only diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          for p in \
+            research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt; do
+            if [ -f "$p" ]; then git add "$p"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No aggregate diagnostics to commit."
+            exit 0
+          fi
+          git commit -m "Record R3 encrypted data and aggregate preflight results"
+          git push origin HEAD:phase-08-prediction-developer
