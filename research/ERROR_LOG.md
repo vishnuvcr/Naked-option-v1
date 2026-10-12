@@ -629,3 +629,10 @@
 - Impact: tests were skipped; no data accessed; no prediction metric produced. This is another non-evidence workflow configuration failure.
 - Correction: removed the nonessential literal phrase while retaining the exact PASS decision plus reviewed R3 scope blob SHA in commit 997bb235ed1d778d513227982fb00fa1e36384bd.
 - Prevention: use machine-decision fields or unique cryptographic identifiers for gate wiring, not natural-language sentence matching.
+
+
+## 2026-10-12 — Phase 8P synthetic spot-bar timing fixture failure
+- Workflow run [#38199407140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199407140), developer snapshot 70612dd8b6bd71c6aa3fc7b7a640eeac143ea28d, passed setup/dependencies and the exact scope guard, then failed an assertion in the synthetic spot feature test.
+- Root cause: the fixture queried timestamp_epoch + 70 minutes, which denotes the next source bar's start, while the tested feature API correctly keys decisions to a completed bar at start + 60 seconds. Expected ret_1 therefore referred to the wrong bar.
+- Correction: shifted the synthetic decision timestamp to timestamp_epoch + 71 minutes so it equals the 10:26 UTC-equivalent bar-end for the bar used in the assertion. Fix commit bc2e8d583e8c44d4dc0588fd784a6ee91ed75a6f.
+- Scientific/data impact: none; synthetic fixture only. No market artifact opened, no empirical model fitted.
