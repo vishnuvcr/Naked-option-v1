@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REG = ROOT / "research" / "registry"
 DATA_MANIFEST = ROOT / "research" / "data" / "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
 DATA_ARTIFACT_PIN = ROOT / "research" / "data" / "PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
-SESSION_CALENDAR = ROOT / "research" / "data" / "NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
+SESSION_CALENDAR_SOURCE = ROOT / "research" / "data" / "NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
+SESSION_CALENDAR = ROOT / "research" / "data" / "NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json"
 R2_CONFIG_MANIFEST = REG / "PREDICTION_CONFIG_MANIFEST_V2_R2.json"
 R2_REGISTRY_INDEX = REG / "PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
 R2_LABEL_MANIFEST = REG / "PREDICTION_LABEL_MANIFEST_V2_R2.json"
@@ -245,27 +246,53 @@ def label_record(label_id: str, horizon_value: int) -> dict[str, Any]:
     }
 
 def build_labels(r2_label_manifest: dict[str, Any]) -> dict[str, Any]:
+    if not SESSION_CALENDAR_SOURCE.is_file():
+        raise SystemExit("BLOCKED: official NSE holiday source snapshot is missing")
     if not SESSION_CALENDAR.is_file():
-        raise SystemExit("BLOCKED: official NSE equity session calendar snapshot is missing")
-    calendar = load_json(SESSION_CALENDAR)
-    if calendar.get("calendar_id") != "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3":
+        raise SystemExit("BLOCKED: generated daily NSE session calendar is missing")
+    source_calendar = load_json(SESSION_CALENDAR_SOURCE)
+    calendar_raw = SESSION_CALENDAR.read_bytes()
+    calendar = json.loads(calendar_raw.decode("utf-8"))
+    if source_calendar.get("calendar_id") != "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3" or calendar.get("calendar_id") != source_calendar.get("calendar_id"):
         raise SystemExit("BLOCKED: unexpected NSE exchange calendar identity")
-    if calendar.get("timezone") != "Asia/Kolkata" or calendar.get("date_bounds") != {"start": "2021-10-11", "end_inclusive": "2026-10-10"}:
-        raise SystemExit("BLOCKED: NSE exchange calendar date range/timezone does not match the frozen dataset")
-    sources = {int(x.get("year", 0)) for x in calendar.get("sources", []) if x.get("url") and x.get("circular")}
+    expected_bounds = {"start": "2021-10-11", "end_inclusive": "2026-10-10"}
+    if source_calendar.get("timezone") != "Asia/Kolkata" or source_calendar.get("date_bounds") != expected_bounds:
+        raise SystemExit("BLOCKED: NSE holiday-source range/timezone does not match the frozen dataset")
+    if calendar.get("timezone") != "Asia/Kolkata" or calendar.get("date_bounds") != expected_bounds:
+        raise SystemExit("BLOCKED: generated NSE session-calendar range/timezone does not match the frozen dataset")
+    sources = {int(x.get("year", 0)) for x in source_calendar.get("sources", []) if x.get("url") and x.get("circular")}
     if sources != {2021, 2022, 2023, 2024, 2025, 2026}:
-        raise SystemExit(f"BLOCKED: calendar must identify annual NSE capital-market circulars for 2021–2026; got {sorted(sources)}")
+        raise SystemExit(f"BLOCKED: holiday source must identify annual NSE capital-market circulars for 2021–2026; got {sorted(sources)}")
+    if calendar.get("source_calendar_sha256") != sha256(SESSION_CALENDAR_SOURCE.read_bytes()):
+        raise SystemExit("BLOCKED: generated daily session calendar was built from a different source snapshot")
+    calendar_days = calendar.get("calendar_day_rows")
+    if not isinstance(calendar_days, list) or len(calendar_days) != 1826 or calendar.get("day_count") != 1826:
+        raise SystemExit("BLOCKED: daily NSE session calendar must contain the exact 1,826-date frozen range")
+    day_map = {x.get("date"): x for x in calendar_days}
+    if len(day_map) != 1826 or len(day_map) != len(calendar_days):
+        raise SystemExit("BLOCKED: generated NSE session calendar has duplicate or invalid date keys")
+    if not any(x.get("date") == "2026-01-15" and x.get("date_reconciled_from_live_page") is True for x in source_calendar.get("supplements", [])):
+        raise SystemExit("BLOCKED: NSE special weekday closure on 2026-01-15 is missing from holiday supplements")
+    if not any(x.get("date") == "2026-08-26" and x.get("date_reconciled_from_live_page") is True for x in source_calendar.get("supplements", [])):
+        raise SystemExit("BLOCKED: NSE holiday on 2026-08-26 shown on the current official page is missing from supplements")
     holiday_dates = []
     for year in ("2021", "2022", "2023", "2024", "2025", "2026"):
-        entries = calendar.get("regular_session_holidays_by_year", {}).get(year)
+        entries = source_calendar.get("regular_session_holidays_by_year", {}).get(year)
         if not isinstance(entries, list) or not entries:
-            raise SystemExit(f"BLOCKED: NSE calendar has no regular-session holiday list for {year}")
+            raise SystemExit(f"BLOCKED: NSE holiday source has no regular-session holiday list for {year}")
         holiday_dates.extend(item.get("date") for item in entries)
-    supplements = calendar.get("supplements", [])
-    if not any(x.get("date") == "2026-01-15" and x.get("date_reconciled_from_live_page") is True for x in supplements):
-        raise SystemExit("BLOCKED: NSE special weekday closure on 2026-01-15 is missing from calendar supplements")
     if len(holiday_dates) != len(set(holiday_dates)):
-        raise SystemExit("BLOCKED: duplicate date in NSE regular-session holiday calendar")
+        raise SystemExit("BLOCKED: duplicate date in NSE regular-session holiday source")
+    # Every open weekend or declared holiday must have explicit special-session lineage.
+    specials = {x.get("date"): x for x in source_calendar.get("special_sessions", [])}
+    holiday_and_supplement_dates = set(holiday_dates) | {x.get("date") for x in source_calendar.get("supplements", [])}
+    for row in calendar_days:
+        if row.get("is_exchange_trading_session"):
+            if row.get("weekday") in ("Saturday", "Sunday") or row.get("date") in holiday_and_supplement_dates:
+                if row.get("date") not in specials:
+                    raise SystemExit(f"BLOCKED: non-regular open date lacks a source-pinned special-session rule: {row.get('date')}")
+            if row.get("intraday_label_eligible") and row.get("regular_hours_compatible") is not True:
+                raise SystemExit(f"BLOCKED: intraday-eligible session is not regular-hours compatible: {row.get('date')}")
     labels = [label_record(label_id, h) for label_id, h in INTRADAY_HORIZONS + POSITIONAL_HORIZONS]
     label_ids = {x["id"] for x in labels}
     assert label_ids == set(ALL_LABEL_IDS) and len(labels) == 10
@@ -290,8 +317,11 @@ def build_labels(r2_label_manifest: dict[str, Any]) -> dict[str, Any]:
             "session_calendar": "Use the official NSE Capital Market equities regular-session calendar snapshot pinned below before label generation; reconcile it against observed SPOT session dates and fail closed on contradictions or missing scheduled sessions.",
             "session_calendar_id": calendar["calendar_id"],
             "session_calendar_path": SESSION_CALENDAR.relative_to(ROOT).as_posix(),
-            "session_calendar_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR.read_bytes()),
-            "session_calendar_sha256": sha256(SESSION_CALENDAR.read_bytes()),
+            "session_calendar_git_blob_sha1": git_blob_sha1(calendar_raw),
+            "session_calendar_sha256": sha256(calendar_raw),
+            "session_calendar_source_path": SESSION_CALENDAR_SOURCE.relative_to(ROOT).as_posix(),
+            "session_calendar_source_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR_SOURCE.read_bytes()),
+            "session_calendar_source_sha256": sha256(SESSION_CALENDAR_SOURCE.read_bytes()),
             "regular_session_open": calendar["regular_session"]["open"],
             "regular_session_close": calendar["regular_session"]["close"],
             "decision_time": "Every predictor value must be available at or before the recorded decision timestamp; option/derived predictors must use publication/availability timestamps when distinct from event timestamps.",
@@ -442,6 +472,9 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["scope"]["session_calendar_path"] = SESSION_CALENDAR.relative_to(ROOT).as_posix()
     p["scope"]["session_calendar_git_blob_sha1"] = git_blob_sha1(SESSION_CALENDAR.read_bytes())
     p["scope"]["session_calendar_sha256"] = sha256(SESSION_CALENDAR.read_bytes())
+    p["scope"]["session_calendar_source_path"] = SESSION_CALENDAR_SOURCE.relative_to(ROOT).as_posix()
+    p["scope"]["session_calendar_source_git_blob_sha1"] = git_blob_sha1(SESSION_CALENDAR_SOURCE.read_bytes())
+    p["scope"]["session_calendar_source_sha256"] = sha256(SESSION_CALENDAR_SOURCE.read_bytes())
     p["scope"]["session_calendar_id"] = load_json(SESSION_CALENDAR)["calendar_id"]
     p["scope"]["regular_session_open"] = load_json(SESSION_CALENDAR)["regular_session"]["open"]
     p["scope"]["regular_session_close"] = load_json(SESSION_CALENDAR)["regular_session"]["close"]
@@ -704,6 +737,8 @@ def main() -> int:
             "data_manifest_git_blob_sha1": git_blob_sha1(DATA_MANIFEST.read_bytes()),
             "session_calendar_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR.read_bytes()),
             "session_calendar_sha256": sha256(SESSION_CALENDAR.read_bytes()),
+            "session_calendar_source_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR_SOURCE.read_bytes()),
+            "session_calendar_source_sha256": sha256(SESSION_CALENDAR_SOURCE.read_bytes()),
             "data_artifact_pin_git_blob_sha1": git_blob_sha1(DATA_ARTIFACT_PIN.read_bytes()),
             "current_derived_artifact_id": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["artifact_id"],
             "current_derived_artifact_archive_sha256": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["archive_sha256"],
