@@ -15,6 +15,7 @@ REQUIRED_FILES = [
 REQUIRED_PIPELINE_FUNCTIONS = [
     "verify_pinned_artifact_identity",
     "build_option_feature_frame",
+    "build_daily_spot_features",
     "align_features_to_prediction_panel",
     "run_prediction_study",
     "write_aggregate_only_report",
@@ -96,6 +97,22 @@ def main():
         "delta_imbalance":a["delta_imbalance"],"oi_put_call_ratio":a["oi_put_call_ratio"],
         "iv_skew_put_minus_call":a["iv_skew_put_minus_call"]}})
     if not math_ok: failures.append("FEATURE_SIGN_OR_RATIO_ARITHMETIC_FAILURE")
+    # A composite contains SPOT rows with NaN Greek offsets. Snapshot selection must
+    # ignore those rows and apply the exact timestamp rule to OPTION rows only.
+    base_epoch=pd.Timestamp("2025-01-02T04:00:00Z").timestamp()
+    mixed_rows=[
+        {"row_type":"OPTION","timestamp_epoch":base_epoch,"greek_valuation_offset_seconds":60,"id":"option"},
+        {"row_type":"SPOT","timestamp_epoch":base_epoch,"greek_valuation_offset_seconds":float("nan"),"id":"spot"},
+    ]
+    try:
+        selected=mod.exact_snapshot_rows(mixed_rows,pd.Timestamp(base_epoch+60,unit="s",tz="UTC"))
+        mixed_snapshot_ok=([row.get("id") for row in selected]==["option"])
+        mixed_snapshot_error=None
+    except Exception as exc:
+        mixed_snapshot_ok=False
+        mixed_snapshot_error=f"{type(exc).__name__}:{exc}"
+    checks.append({"check":"mixed_OPTION_SPOT_exact_snapshot","pass":bool(mixed_snapshot_ok),"error":mixed_snapshot_error})
+    if not mixed_snapshot_ok: failures.append("EXACT_SNAPSHOT_REJECTS_SPOT_ROWS_WITH_NAN_GREEK_OFFSET")
     y=np.array([0.,1.]*40); p0=np.where(y==1,.55,.45); p1=np.where(y==1,.70,.30)
     stats=mod.paired_brier_bootstrap(y,p0,p1,20,reps=99,seed=42)
     signed_ok=bool(stats["mean_brier_improvement"]>0 and abs(stats["mean_brier_improvement"]-(np.mean((p0-y)**2)-np.mean((p1-y)**2)))<1e-12)
