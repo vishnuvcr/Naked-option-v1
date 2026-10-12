@@ -1081,6 +1081,388 @@ def align_features_to_prediction_panel(
     return out
 
 
+def _walk_forward_predict_core(
+    y, target_end, decision_time, block_index, x_spot, x_augmented, layer,
+    minimum_training_rows: int = 1000,
+) -> dict[str, Any]:
+    """Internal model core. Production entry points must call enforce_fit_gate first."""
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.exceptions import ConvergenceWarning
+    from sklearn.impute import SimpleImputer
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+    y = np.asarray(y, dtype=float)
+    target_end = pd.to_datetime(target_end, errors="raise", utc=True)
+    decision_time = pd.to_datetime(decision_time, errors="raise", utc=True)
+    blocks = np.asarray(block_index, dtype=int)
+    if not (len(y) == len(target_end) == len(decision_time) == len(blocks) == len(x_spot) == len(x_augmented)):
+        raise GateBlocked("PANEL_TARGET_FEATURE_LENGTH_MISMATCH")
+    if decision_time.isna().any() or not decision_time.is_monotonic_increasing or decision_time.has_duplicates:
+        raise GateBlocked("DECISION_TIME_ORDER_INVALID")
+    finite_y = np.isfinite(y)
+    if np.any(finite_y & target_end.isna()):
+        raise GateBlocked("FINITE_LABEL_WITHOUT_TARGET_END")
+    if not np.isin(y[finite_y], [0., 1.]).all():
+        raise GateBlocked("LABEL_NOT_BINARY_0_1")
+    if len(blocks) == 0 or np.any(blocks < 0) or not np.array_equal(np.unique(blocks), np.arange(len(np.unique(blocks)))):
+        raise GateBlocked("BLOCK_INDEX_NOT_CONTIGUOUS")
+    if np.any(np.diff(blocks) < 0):
+        raise GateBlocked("BLOCK_INDEX_NOT_MONOTONE_WITH_DECISION_TIME")
+    for b in np.unique(blocks):
+        positions = np.flatnonzero(blocks == b)
+        if int(positions[-1] - positions[0] + 1) != len(positions):
+            raise GateBlocked("BLOCK_INDEX_REAPPEARS_AFTER_LATER_BLOCK")
+    if not x_spot.index.equals(pd.RangeIndex(len(y))) or not x_augmented.index.equals(pd.RangeIndex(len(y))):
+        raise GateBlocked("FEATURES_NOT_ROW_ALIGNED_TO_FROZEN_PANEL")
+    if minimum_training_rows < 1:
+        raise GateBlocked("MINIMUM_TRAINING_ROWS_INVALID")
+    specs = {
+        "logistic": lambda: Pipeline([
+            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+            ("scaler", StandardScaler()),
+            ("model", LogisticRegression(penalty="l2", C=1.0, solver="liblinear",
+                class_weight=None, max_iter=1000, tol=1e-4, random_state=SEED)),
+        ]),
+        "hist_gradient_boosting": lambda: Pipeline([
+            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+            ("model", HistGradientBoostingClassifier(max_iter=200, learning_rate=0.03,
+                max_leaf_nodes=15, min_samples_leaf=30, l2_regularization=0.0,
+                max_bins=255, early_stopping=False, class_weight=None, random_state=SEED)),
+        ]),
+    }
+    outputs = {}
+    for model_name, factory in specs.items():
+        p_spot = np.full(len(y), np.nan)
+        p_augmented = np.full(len(y), np.nan)
+        fit_blocks = 0
+        blocked_blocks = []
+        for b in np.unique(blocks):
+            test = np.flatnonzero(blocks == b)
+            if not len(test):
+                continue
+            cutoff = decision_time[test[0]]
+            train = np.flatnonzero((blocks < b) & finite_y & (target_end < cutoff))
+            if len(train) < minimum_training_rows:
+                blocked_blocks.append({"block": int(b), "reason": "INSUFFICIENT_MATURE_TRAIN_ROWS",
+                                       "n_train": int(len(train))})
+                continue
+            if len(np.unique(y[train])) < 2:
+                raise GateBlocked(f"SINGLE_CLASS_TRAINING_BLOCK:{model_name}:{int(b)}")
+            models = []
+            try:
+                for features in (x_spot, x_augmented):
+                    model = factory()
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("error", ConvergenceWarning)
+                        model.fit(features.iloc[train], y[train].astype(int))
+                    models.append(model)
+                p0 = models[0].predict_proba(x_spot.iloc[test])[:, 1]
+                p1 = models[1].predict_proba(x_augmented.iloc[test])[:, 1]
+            except Exception as exc:
+                raise GateBlocked(f"MODEL_FIT_OR_CONVERGENCE_FAILED:{model_name}:BLOCK{int(b)}:{type(exc).__name__}") from exc
+            if not (np.isfinite(p0).all() and np.isfinite(p1).all()):
+                raise GateBlocked(f"NONFINITE_PREDICTION:{model_name}:{int(b)}")
+            p_spot[test] = p0
+            p_augmented[test] = p1
+            fit_blocks += 1
+        outputs[model_name] = {
+            "p_spot": p_spot,
+            "p_augmented": p_augmented,
+            "fit_blocks": int(fit_blocks),
+            "blocked_blocks": blocked_blocks,
+        }
+    return outputs
+
+
+def walk_forward_predict(
+    y, target_end, decision_time, block_index, x_spot, x_augmented, layer,
+    authorization_bundle_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Authorized production wrapper; caller booleans and arbitrary dicts are not accepted."""
+    enforce_fit_gate(authorization_bundle_path)
+    return _walk_forward_predict_core(
+        y, target_end, decision_time, block_index, x_spot, x_augmented, layer,
+        minimum_training_rows=1000,
+    )
+
+
+def write_aggregate_only_report(report: Mapping[str, Any], path: str | Path) -> dict[str, Any]:
+    """Write only scalar aggregate results and hashes; reject row-level/raw payloads."""
+    forbidden = {
+        "raw_rows", "contract_rows", "option_contracts", "prediction_vector",
+        "feature_matrix", "raw_predictions", "raw_features", "decrypted_csv",
+        "per_contract_details", "option_rows_data", "spot_rows_data",
+    }
+    def walk(value, location="report"):
+        if isinstance(value, (pd.DataFrame, pd.Series, np.ndarray)):
+            raise GateBlocked("AGGREGATE_REPORT_CONTAINS_RAW_ARRAY:" + location)
+        if isinstance(value, Mapping):
+            for key, child in value.items():
+                if str(key).lower() in forbidden:
+                    raise GateBlocked("AGGREGATE_REPORT_FORBIDDEN_FIELD:" + str(key))
+                walk(child, location + "." + str(key))
+        elif isinstance(value, (list, tuple)):
+            for i, child in enumerate(value):
+                walk(child, f"{location}[{i}]")
+        elif isinstance(value, np.generic):
+            walk(value.item(), location)
+        elif not (value is None or isinstance(value, (str, bool, int, float))):
+            raise GateBlocked("AGGREGATE_REPORT_UNSUPPORTED_VALUE:" + location)
+    walk(report)
+    payload = json.dumps(report, indent=2, sort_keys=True, allow_nan=False)
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(payload + "\n", encoding="utf-8")
+    return {"path": str(target), "sha256": sha256_file(target), "bytes": target.stat().st_size}
+
+
+def _flatten_spot_frames(daily_features: pd.DataFrame, intraday_features: pd.DataFrame) -> pd.DataFrame:
+    frames = [frame for frame in (daily_features, intraday_features) if frame is not None and not frame.empty]
+    if not frames:
+        raise GateBlocked("NO_SPOT_FEATURE_ROWS_BUILT")
+    combined = pd.concat(frames, ignore_index=True, sort=False)
+    epochs = _feature_epoch_column(combined)
+    combined["_phase8p_feature_epoch"] = epochs // 1_000_000_000
+    out = []
+    for _, group in combined.groupby("_phase8p_feature_epoch", sort=True, dropna=False):
+        if len(group) > 1:
+            cols = [c for c in SPOT_FEATURE_COLUMNS + ["spot_exact_bar_missing"] if c in group]
+            first = group.iloc[0][cols]
+            for _, row in group.iloc[1:].iterrows():
+                for col in cols:
+                    a, b = first[col], row[col]
+                    if pd.isna(a) and pd.isna(b):
+                        continue
+                    if pd.isna(a) != pd.isna(b) or (not pd.isna(a) and not np.isclose(float(a), float(b), rtol=0, atol=1e-12)):
+                        raise GateBlocked("DAILY_INTRADAY_SPOT_FEATURES_DISAGREE_AT_SHARED_CLOSE")
+            out.append(group.iloc[0])
+        else:
+            out.append(group.iloc[0])
+    merged = pd.DataFrame(out).drop(columns=["_phase8p_feature_epoch"], errors="ignore").reset_index(drop=True)
+    merged["decision_timestamp_utc"] = pd.to_datetime(merged["decision_timestamp_utc"], utc=True)
+    return merged.sort_values("decision_timestamp_utc").reset_index(drop=True)
+
+
+def _panel_key(layer: str, horizon: int) -> str:
+    return f"{layer}:H{int(horizon)}"
+
+
+def _numeric_features_for_frame(frame: pd.DataFrame, names: Sequence[str]) -> pd.DataFrame:
+    missing = [name for name in names if name not in frame.columns]
+    if missing:
+        # Missing registered Greek fields are explicit missing features; no alternate field is substituted.
+        frame = frame.copy()
+        for name in missing:
+            frame[name] = np.nan
+    out = frame[list(names)].copy().reset_index(drop=True)
+    for column in out:
+        out[column] = pd.to_numeric(out[column], errors="coerce")
+    return out
+
+
+def _run_prediction_study_authorized(
+    panels: Mapping[str, pd.DataFrame],
+    spot_rows: pd.DataFrame,
+    greek_features: pd.DataFrame,
+    spot_features: pd.DataFrame,
+    panel_file_sha256: Mapping[str, str],
+    authorization: Mapping[str, Any],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    preflight = authorization["preflight"]
+    if set(panels) != {_panel_key(layer, h) for layer, hs in EXPECTED_HORIZONS.items() for h in hs}:
+        raise GateBlocked("RUN_REQUIRES_ALL_10_FROZEN_PANELS")
+    expected_panel_hashes = preflight.get("panel_file_sha256", {})
+    if not isinstance(expected_panel_hashes, Mapping) or dict(expected_panel_hashes) != dict(panel_file_sha256):
+        raise GateBlocked("PANEL_FILE_HASHES_DIFFER_FROM_TESTER_APPROVED_PREFLIGHT")
+    holdout = preflight.get("holdout_exclusion_proof", {})
+    cutoff_by_layer = holdout.get("cutoff_by_layer")
+    if not isinstance(cutoff_by_layer, Mapping) or set(cutoff_by_layer) != {"daily", "intraday"}:
+        raise GateBlocked("TESTER_PREFLIGHT_HAS_NO_VALID_HOLDOUT_CUTOFF")
+    cell_records = []
+    valid_inference_cells = []
+    source_timestamps = pd.to_numeric(spot_rows["timestamp_epoch"], errors="coerce").to_numpy(float)
+    source_timestamps = np.where(source_timestamps > 1e12, np.floor(source_timestamps / 1000), source_timestamps)
+    source_timestamps = pd.to_datetime(source_timestamps[np.isfinite(source_timestamps)], unit="s", utc=True).sort_values()
+    for layer, horizons in EXPECTED_HORIZONS.items():
+        for horizon in horizons:
+            key = _panel_key(layer, horizon)
+            panel = panels[key]
+            aligned = align_features_to_prediction_panel(
+                panel, spot_features, greek_features, layer,
+                source_timestamps=source_timestamps if layer == "intraday" else None,
+            )
+            decision_time = pd.DatetimeIndex(pd.to_datetime(aligned["decision_timestamp_utc"], utc=True))
+            target_end = pd.DatetimeIndex(pd.to_datetime(aligned["target_end_timestamp_utc"], utc=True))
+            cutoff_value = cutoff_by_layer.get(layer)
+            cutoff = daily_close_timestamp(cutoff_value) if layer == "daily" else pd.Timestamp(cutoff_value)
+            if cutoff.tzinfo is None:
+                raise GateBlocked("HOLDOUT_CUTOFF_MUST_BE_TIMEZONE_AWARE")
+            cutoff = cutoff.tz_convert("UTC")
+            y_all = pd.to_numeric(aligned["label_direction"], errors="coerce").to_numpy(float)
+            base_eligible = np.isfinite(y_all) & target_end.notna().to_numpy()
+            development = base_eligible & (decision_time.asi8 < cutoff.value) & (target_end.asi8 < cutoff.value)
+            eligible_n = int(development.sum())
+            spot_ok = pd.to_numeric(aligned["spot_exact_bar_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+            greek_ok = pd.to_numeric(aligned["greek_exact_snapshot_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+            joined = development & spot_ok & greek_ok
+            match_n = int(joined.sum())
+            match_rate = float(match_n / eligible_n) if eligible_n else 0.0
+            old_blocks = pd.to_numeric(aligned["block_index"], errors="coerce").to_numpy(int)
+            reasons = []
+            if match_rate < 0.60:
+                reasons.append("EXACT_FEATURE_JOIN_BELOW_60_PERCENT")
+            if match_n < 1:
+                reasons.append("NO_EXACT_PAIRED_FEATURE_ROWS")
+            if eligible_n < 1:
+                reasons.append("NO_DEVELOPMENT_ROWS_AFTER_HOLDOUT_EXCLUSION")
+            if len(np.unique(old_blocks[development])) < 20:
+                reasons.append("FEWER_THAN_20_CHRONOLOGICAL_DEVELOPMENT_BLOCKS")
+            if reasons:
+                cell_records.append({
+                    "layer": layer, "horizon": int(horizon), "status": "BLOCKED_DATA",
+                    "source_panel_rows": int(len(panel)), "development_labeled_rows": eligible_n,
+                    "exact_paired_feature_rows": match_n, "exact_join_rate": match_rate,
+                    "chronological_development_blocks": int(len(np.unique(old_blocks[development]))),
+                    "reasons": reasons,
+                })
+                continue
+            selected_positions = np.flatnonzero(joined)
+            aligned_selected = aligned.iloc[selected_positions].copy().reset_index(drop=True)
+            old_selected_blocks = old_blocks[selected_positions]
+            ordered_block_ids = sorted(np.unique(old_selected_blocks).tolist())
+            block_map = {old: new for new, old in enumerate(ordered_block_ids)}
+            new_blocks = np.asarray([block_map[int(b)] for b in old_selected_blocks], dtype=int)
+            if np.any(np.diff(new_blocks) < 0):
+                raise GateBlocked(f"BLOCK_ID_TIME_ORDER_FAILURE:{key}")
+            x0 = _numeric_features_for_frame(aligned_selected, SPOT_FEATURE_COLUMNS)
+            x0.index = pd.RangeIndex(len(x0))
+            greek_numeric = [c for c in GREEK_FEATURE_COLUMNS + [
+                "greek_exact_snapshot_missing", "n_option_rows_exact_snapshot"
+            ] if c in aligned_selected.columns]
+            greek_numeric.extend(sorted(c for c in aligned_selected.columns
+                                        if c.startswith(("greek_status_fraction_", "iv_source_fraction_", "expiry_source_fraction_"))
+                                        and c not in greek_numeric))
+            x1 = pd.concat([x0.reset_index(drop=True),
+                            _numeric_features_for_frame(aligned_selected, greek_numeric)], axis=1)
+            x1.index = pd.RangeIndex(len(x1))
+            if x1.columns.duplicated().any():
+                raise GateBlocked("AUGMENTED_FEATURE_COLUMNS_DUPLICATED")
+            y = pd.to_numeric(aligned_selected["label_direction"], errors="raise").to_numpy(float)
+            ends = pd.to_datetime(aligned_selected["target_end_timestamp_utc"], utc=True)
+            dts = pd.to_datetime(aligned_selected["decision_timestamp_utc"], utc=True)
+            prediction = _walk_forward_predict_core(
+                y, ends, dts, new_blocks, x0, x1, layer, minimum_training_rows=1000
+            )
+            cell_successes = []
+            for model_name, model_result in prediction.items():
+                p0, p1 = model_result["p_spot"], model_result["p_augmented"]
+                paired = np.isfinite(p0) & np.isfinite(p1) & np.isfinite(y)
+                n_oos = int(paired.sum())
+                n_test_blocks = int(len(np.unique(new_blocks[paired]))) if paired.any() else 0
+                record = {
+                    "layer": layer, "horizon": int(horizon), "model": model_name,
+                    "status": "PASS" if n_oos >= 500 and n_test_blocks >= 20 and model_result["fit_blocks"] >= 20 else "BLOCKED_DATA",
+                    "source_panel_rows": int(len(panel)), "development_labeled_rows": eligible_n,
+                    "exact_paired_feature_rows": match_n, "exact_join_rate": match_rate,
+                    "paired_oos_rows": n_oos, "paired_oos_blocks": n_test_blocks,
+                    "fit_blocks": int(model_result["fit_blocks"]),
+                    "blocked_blocks": model_result["blocked_blocks"],
+                }
+                if record["status"] == "PASS":
+                    metrics = paired_metrics(y[paired], p0[paired], p1[paired])
+                    original_positions = aligned_selected.loc[paired, "source_row_index"].astype(int).to_numpy()
+                    boot = paired_brier_bootstrap(
+                        y[paired], p0[paired], p1[paired], 20 if layer == "daily" else 60,
+                        reps=BOOTSTRAP_REPS, seed=SEED, population_n=len(panel),
+                        row_positions=original_positions,
+                    )
+                    record["metrics"] = metrics
+                    record["inference"] = boot
+                    cell_successes.append(record)
+                cell_records.append(record)
+            if len(cell_successes) != 2:
+                # Holm correction is over all 20 predeclared comparisons: a failed cell blocks the family inference.
+                pass
+
+    expected_cells = 20
+    if len(cell_records) != expected_cells:
+        raise GateBlocked(f"INCOMPLETE_MODEL_HORIZON_GRID:{len(cell_records)}")
+    all_pass = all(cell.get("status") == "PASS" for cell in cell_records)
+    if all_pass:
+        raw_p = [float(cell["inference"]["raw_p_value"]) for cell in cell_records]
+        adjusted = holm_adjust(raw_p)
+        for cell, p_adj in zip(cell_records, adjusted):
+            cell["inference"]["holm_adjusted_p_value"] = float(p_adj)
+        inference_status = "COMPLETE_20_TEST_HOLM"
+    else:
+        inference_status = "BLOCKED_INCOMPLETE_20_TEST_FAMILY"
+        for cell in cell_records:
+            if "inference" in cell:
+                cell["inference"]["holm_adjusted_p_value"] = None
+    report = {
+        "schema_version": 1,
+        "study": "PHASE8P_GREEK_INCREMENTAL_PREDICTION",
+        "status": "PASS_METRICS_READY_FOR_INDEPENDENT_TESTER_REVIEW" if all_pass else "BLOCKED_DATA_OR_INFERENCE",
+        "scope": "prediction_only",
+        "input_artifacts": preflight.get("input_artifacts"),
+        "developer_commit": authorization.get("developer_commit"),
+        "authorization_bundle_sha256": authorization.get("authorization_bundle_sha256"),
+        "preflight_report_sha256": authorization.get("preflight_report_sha256"),
+        "panel_file_sha256": dict(panel_file_sha256),
+        "model_family": ["L2_LOGISTIC_LIBLINEAR_C1", "HIST_GRADIENT_BOOSTING_FIXED"],
+        "primary_metric": "mean_Brier_spot_only_minus_Brier_spot_plus_Greek",
+        "multiple_testing": {"method": "Holm_step_down", "family_size": 20, "status": inference_status},
+        "cells": cell_records,
+        "empirical_option_pnl_run": False,
+        "holdout_accessed": False,
+        "strategy_promotion": False,
+        "commercial_use": False,
+    }
+    return report
+
+
+def run_prediction_study(
+    panels: Mapping[str, pd.DataFrame],
+    option_parts: Iterable[pd.DataFrame],
+    *,
+    spot_rows: pd.DataFrame | None = None,
+    panel_file_sha256: Mapping[str, str],
+    authorization_bundle_path: str | Path,
+    output_path: str | Path,
+) -> dict[str, Any]:
+    """Full fixed 20-comparison prediction runner; production authorization is mandatory."""
+    authorization = enforce_fit_gate(authorization_bundle_path)
+    unique_decisions = []
+    daily_dates = []
+    intraday_times = []
+    for key, panel in panels.items():
+        layer = str(panel["layer"].iloc[0])
+        times = canonical_panel_timestamps(panel, layer)
+        unique_decisions.extend(times.tolist())
+        if layer == "daily":
+            daily_dates.extend(panel["decision_timestamp"].tolist())
+        else:
+            intraday_times.extend(times.tolist())
+    unique_decisions = pd.DatetimeIndex(unique_decisions).drop_duplicates().sort_values()
+    spot_sink: list[pd.DataFrame] = []
+    greek_features = build_option_feature_frame(option_parts, unique_decisions, spot_sink if spot_rows is None else None)
+    if spot_rows is None:
+        if not spot_sink:
+            raise GateBlocked("ENCRYPTED_COMPOSITE_CONTAINED_NO_SPOT_ROWS")
+        spot_rows = pd.concat(spot_sink, ignore_index=True)
+    daily_features = build_daily_spot_features(spot_rows, sorted(set(pd.Timestamp(x).normalize() for x in daily_dates))) if daily_dates else pd.DataFrame()
+    intraday_features = build_spot_features(spot_rows, pd.DatetimeIndex(intraday_times).drop_duplicates().sort_values()) if intraday_times else pd.DataFrame()
+    spot_features = _flatten_spot_frames(daily_features, intraday_features)
+    report = _run_prediction_study_authorized(
+        panels, spot_rows, greek_features, spot_features, panel_file_sha256,
+        authorization, output_path,
+    )
+    receipt = write_aggregate_only_report(report, output_path)
+    report["aggregate_report_receipt"] = receipt
+    return report
+
+
 def synthetic_self_test() -> dict[str, Any]:
     rows=[]
     for i in range(5):
