@@ -1463,6 +1463,443 @@ def run_prediction_study(
     return report
 
 
+def _sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _git_bytes(ref: str, path: str) -> bytes:
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(_repo_root()), "show", f"{ref}:{path}"],
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise GateBlocked(f"FROZEN_SOURCE_FILE_UNAVAILABLE:{ref}:{path}") from exc
+
+
+def _verify_frozen_label_sources(manifest: Mapping[str, Any]) -> dict[str, Any]:
+    proof = {}
+    code_files = manifest.get("code_files", {})
+    for layer, path in (
+        ("daily", "scripts/run_phase3_daily_baselines.py"),
+        ("intraday", "scripts/run_phase3_intraday_baselines.py"),
+    ):
+        actual_blob = _git_blob_sha1(FROZEN_PHASE7_COMMIT, path)
+        if actual_blob != FROZEN_LABEL_SOURCE_BLOBS[layer]:
+            raise GateBlocked("FROZEN_LABEL_SOURCE_BLOB_MISMATCH:" + layer)
+        content = _git_bytes(FROZEN_PHASE7_COMMIT, path)
+        actual_sha256 = _sha256_bytes(content)
+        manifest_record = code_files.get(path, {})
+        expected_sha256 = manifest_record.get("sha256") if isinstance(manifest_record, Mapping) else None
+        if not expected_sha256 or actual_sha256 != expected_sha256:
+            raise GateBlocked("FROZEN_LABEL_SOURCE_SHA256_NOT_RECONCILED_TO_PANEL_MANIFEST:" + layer)
+        text = content.decode("utf-8")
+        if layer == "daily" and 'future=np.log(df["close"].shift(-h)/df["close"])' not in text:
+            raise GateBlocked("FROZEN_DAILY_LABEL_RULE_CHANGED")
+        if layer == "intraday" and (
+            "future_target=idx+pd.Timedelta(minutes=h)" not in text
+            or "future_pos=indexer.get_indexer(future_target)" not in text
+        ):
+            raise GateBlocked("FROZEN_INTRADAY_LABEL_RULE_CHANGED")
+        proof[layer] = {
+            "source_path": path,
+            "source_commit": FROZEN_PHASE7_COMMIT,
+            "source_blob_sha1": actual_blob,
+            "source_sha256": actual_sha256,
+        }
+    return {
+        "daily_label_source_blob_sha1": proof["daily"]["source_blob_sha1"],
+        "intraday_label_source_blob_sha1": proof["intraday"]["source_blob_sha1"],
+        "daily_rule": "close.shift(-H)",
+        "intraday_rule": "exact timestamp + H minutes",
+        "source_files": proof,
+        "target_end_checks_passed": False,
+    }
+
+
+def verify_code_gate_for_preflight() -> dict[str, Any]:
+    """Verify tester approvals for schema-only data inspection without allowing model fit."""
+    env = ("PHASE8P_CODE_DECISION_REF", "PHASE8P_CODE_DECISION_PATH", "PHASE8P_CODE_DECISION_BLOB_SHA1")
+    if any(not os.environ.get(key) for key in env):
+        raise GateBlocked("INDEPENDENT_CODE_GATE_PIN_MISSING")
+    ref, path, expected_blob = (os.environ[key] for key in env)
+    if _git_blob_sha1(ref, path) != expected_blob:
+        raise GateBlocked("INDEPENDENT_CODE_GATE_BLOB_MISMATCH")
+    try:
+        decision = json.loads(_git_text(ref, path))
+    except json.JSONDecodeError as exc:
+        raise GateBlocked("INDEPENDENT_CODE_GATE_DECISION_INVALID") from exc
+    current = subprocess.check_output(["git", "-C", str(_repo_root()), "rev-parse", "HEAD"], text=True).strip()
+    if decision.get("decision") != "PASS_FOR_CODE_ONLY" or decision.get("developer_commit") != current:
+        raise GateBlocked("INDEPENDENT_CODE_GATE_NOT_APPROVED_FOR_CURRENT_COMMIT")
+    reviewed = decision.get("reviewed_blobs", {})
+    for path in (
+        "scripts/phase8p_greek_prediction.py",
+        "scripts/test_phase8p_greek_prediction.py",
+        ".github/workflows/phase8p-greek-prediction.yml",
+        "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md",
+    ):
+        expected = reviewed.get(path)
+        actual = _git_blob_sha1(current, path)
+        if not expected or expected != actual:
+            raise GateBlocked("INDEPENDENT_CODE_GATE_FILE_MISMATCH:" + path)
+    # The approved R3 research scope and daily timestamp amendment are fixed immutable reviews.
+    scope_ref = "refs/remotes/origin/phase-08-prediction-tester"
+    if _git_blob_sha1(scope_ref, "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md") != "798008657afe0757c54c9aa7dc5eeb1fade3faf5":
+        raise GateBlocked("SCOPE_REVIEW_BLOB_MISMATCH")
+    if _git_blob_sha1(scope_ref, "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_TESTER_R2_2026-10-12.md") != "d0f6ad6803c16051bd897f3074682281b3e4c3a0":
+        raise GateBlocked("DAILY_TIMESTAMP_AMENDMENT_REVIEW_BLOB_MISMATCH")
+    if _git_blob_sha1(scope_ref, "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_DECISION_R2_2026-10-12.json") != "c154ab22dbf3fe244c6ff2010b6ea60a30538308":
+        raise GateBlocked("DAILY_TIMESTAMP_AMENDMENT_DECISION_BLOB_MISMATCH")
+    return {"developer_commit": current, "code_decision": decision, "code_decision_blob_sha1": expected_blob}
+
+
+def load_frozen_forecast_panels(artifact_zip_path: str | Path, observed_artifact_id: int):
+    """Load the exact frozen Run #994 panels only after the caller has passed the proper gate."""
+    receipt = verify_pinned_artifact_identity(artifact_zip_path, "forecast", observed_artifact_id)
+    with zipfile.ZipFile(artifact_zip_path, "r") as archive:
+        names = archive.namelist()
+        manifest_names = [name for name in names if name.endswith("phase7_reference_manifest.json")]
+        aggregate_names = [name for name in names if name.endswith("phase7_ensemble_results.json")]
+        if len(manifest_names) != 1 or len(aggregate_names) != 1:
+            raise GateBlocked("FROZEN_FORECAST_MANIFEST_OR_AGGREGATE_MISSING_OR_DUPLICATE")
+        manifest_bytes = archive.read(manifest_names[0])
+        aggregate_bytes = archive.read(aggregate_names[0])
+        manifest_sha = _sha256_bytes(manifest_bytes)
+        if manifest_sha != PINNED_ARTIFACTS["forecast"]["manifest_sha256"]:
+            raise GateBlocked("FROZEN_FORECAST_MANIFEST_SHA256_MISMATCH")
+        if _sha256_bytes(aggregate_bytes) != PINNED_ARTIFACTS["forecast"]["aggregate_sha256"]:
+            raise GateBlocked("FROZEN_FORECAST_AGGREGATE_SHA256_MISMATCH")
+        try:
+            manifest = json.loads(manifest_bytes)
+        except json.JSONDecodeError as exc:
+            raise GateBlocked("FROZEN_FORECAST_MANIFEST_JSON_INVALID") from exc
+        if (manifest.get("status") != "COMPLETE" or manifest.get("schema_version") != 1
+                or manifest.get("commit") != FROZEN_PHASE7_COMMIT
+                or manifest.get("seed") != SEED
+                or manifest.get("protocol") != "research/phase7/PHASE7_METHOD_SPEC.md"):
+            raise GateBlocked("FROZEN_FORECAST_MANIFEST_CONTRACT_MISMATCH")
+        if len(manifest.get("prediction_panels", [])) != 10:
+            raise GateBlocked("FROZEN_FORECAST_PANEL_COUNT_MISMATCH")
+        panels: dict[str, pd.DataFrame] = {}
+        panel_hashes: dict[str, str] = {}
+        records = {(str(row.get("layer")), int(row.get("horizon"))): row
+                   for row in manifest["prediction_panels"]}
+        expected_grid = {(layer, h) for layer, hs in EXPECTED_HORIZONS.items() for h in hs}
+        if set(records) != expected_grid:
+            raise GateBlocked("FROZEN_FORECAST_LAYER_HORIZON_GRID_MISMATCH")
+        for layer, horizon in sorted(expected_grid):
+            base_name = f"phase7_predictions_{layer}_H{horizon}.parquet"
+            matches = [name for name in names if name.endswith("/" + base_name) or name == base_name]
+            if len(matches) != 1:
+                raise GateBlocked("FROZEN_PANEL_FILE_MISSING_OR_DUPLICATE:" + base_name)
+            raw = archive.read(matches[0])
+            digest = _sha256_bytes(raw)
+            record = records[(layer, horizon)]
+            if digest != record.get("sha256"):
+                raise GateBlocked("FROZEN_PANEL_FILE_SHA256_MISMATCH:" + base_name)
+            try:
+                frame = pd.read_parquet(io.BytesIO(raw))
+            except Exception as exc:
+                raise GateBlocked("FROZEN_PANEL_PARQUET_UNREADABLE:" + base_name) from exc
+            if len(frame) != int(record.get("rows", -1)) or record.get("columns") != list(frame.columns):
+                raise GateBlocked("FROZEN_PANEL_SCHEMA_OR_ROWS_MISMATCH:" + base_name)
+            validate_panel_frame(frame, layer, horizon)
+            key = _panel_key(layer, horizon)
+            panels[key] = frame
+            panel_hashes[key] = digest
+        manifest["manifest_sha256"] = manifest_sha
+        manifest["aggregate_sha256"] = _sha256_bytes(aggregate_bytes)
+        return panels, manifest, panel_hashes, receipt
+
+
+def _derive_key_from_hf_token(token: str) -> bytes:
+    from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+    if not isinstance(token, str) or len(token.strip()) < 16:
+        raise GateBlocked("HF_TOKEN_MISSING_OR_TOO_SHORT_FOR_CACHE_DECRYPTION")
+    return Scrypt(
+        salt=b"Naked-option-v1-HF-TOKEN-DERIVATION-v1",
+        length=32, n=2**14, r=8, p=1,
+    ).derive(token.encode())
+
+
+def iter_encrypted_composite_parts(artifact_zip_path: str | Path) -> Iterable[pd.DataFrame]:
+    """Yield authenticated CSV frames directly from the encrypted cached artifact in memory.
+
+    The official entry points call this only after their code/preflight authorization check.
+    No decrypted plaintext file or intermediate data artifact is written to disk.
+    """
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    token = os.environ.get("HF_TOKEN", "")
+    key = _derive_key_from_hf_token(token)
+    with zipfile.ZipFile(artifact_zip_path, "r") as archive:
+        names = archive.namelist()
+        manifest_names = [name for name in names if name.endswith("dataset_manifest.json")]
+        if len(manifest_names) != 1:
+            raise GateBlocked("GREEK_DATASET_MANIFEST_MISSING_OR_DUPLICATE")
+        manifest = json.loads(archive.read(manifest_names[0]))
+        if manifest.get("source_license") != "CC-BY-NC-4.0: non-commercial research only":
+            raise GateBlocked("GREEK_DATASET_LICENSE_RESTRICTION_MISMATCH")
+        if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
+            raise GateBlocked("GREEK_DATASET_ENCRYPTION_MARKER_MISSING")
+        parts = manifest.get("parts", [])
+        if len(parts) != 61:
+            raise GateBlocked("GREEK_DATASET_PART_COUNT_MISMATCH")
+        expected_rows = 0
+        for part_number, part in enumerate(parts):
+            if not isinstance(part, Mapping) or not isinstance(part.get("row_count"), int):
+                raise GateBlocked(f"GREEK_DATASET_PART_ROW_COUNT_INVALID:{part_number}")
+            expected_rows += int(part["row_count"])
+        if expected_rows != 8_999_865 or manifest.get("rows_preserved") != expected_rows:
+            raise GateBlocked("GREEK_DATASET_ROW_TOTAL_MISMATCH")
+        total_rows = 0
+        for part_number, part in enumerate(parts):
+            filename = str(part.get("file", ""))
+            matches = [name for name in names if name.endswith("/" + filename) or name == filename]
+            if len(matches) != 1:
+                raise GateBlocked("GREEK_ENCRYPTED_PART_MISSING_OR_DUPLICATE:" + filename)
+            raw = archive.read(matches[0])
+            if _sha256_bytes(raw) != part.get("encrypted_sha256"):
+                raise GateBlocked("GREEK_ENCRYPTED_PART_SHA256_MISMATCH:" + filename)
+            if not raw.startswith(b"N1C1") or len(raw) < 32:
+                raise GateBlocked("GREEK_ENCRYPTED_PART_HEADER_INVALID:" + filename)
+            try:
+                plain_gzip = AESGCM(key).decrypt(raw[4:16], raw[16:], b"Naked-option-v1:NIFTY-1m-composite:v1")
+            except Exception as exc:
+                raise GateBlocked("GREEK_ENCRYPTED_PART_AUTHENTICATION_FAILED:" + filename) from exc
+            if _sha256_bytes(plain_gzip) != part.get("plain_gzip_sha256"):
+                raise GateBlocked("GREEK_DECRYPTED_PART_SHA256_MISMATCH:" + filename)
+            try:
+                frame = pd.read_csv(io.BytesIO(plain_gzip), compression="gzip", low_memory=False)
+            except Exception as exc:
+                raise GateBlocked("GREEK_DECRYPTED_PART_CSV_INVALID:" + filename) from exc
+            if len(frame) != int(part["row_count"]):
+                raise GateBlocked("GREEK_DECRYPTED_PART_ROW_COUNT_MISMATCH:" + filename)
+            total_rows += len(frame)
+            yield frame
+        if total_rows != expected_rows:
+            raise GateBlocked(f"GREEK_DATASET_TOTAL_ROWS_MISMATCH:{total_rows}:{expected_rows}")
+
+
+def _derive_holdout_proof_from_frozen_manifest(manifest: Mapping[str, Any]) -> dict[str, Any] | None:
+    """Accept only a holdout contract explicitly embedded in the pinned immutable manifest."""
+    contract = manifest.get("holdout_exclusion_contract")
+    if not isinstance(contract, Mapping):
+        return None
+    mask_sha = str(contract.get("mask_sha256", ""))
+    cutoffs = contract.get("cutoff_by_layer")
+    if (contract.get("proof") != "VERIFIED"
+            or len(mask_sha) != 64
+            or not isinstance(cutoffs, Mapping)
+            or set(cutoffs) != {"daily", "intraday"}
+            or contract.get("source_artifact_id") != PINNED_ARTIFACTS["forecast"]["artifact_id"]
+            or contract.get("source_run_id") != manifest.get("run_id")):
+        return None
+    return {
+        "proof": "VERIFIED",
+        "mask_sha256": mask_sha,
+        "cutoff_by_layer": dict(cutoffs),
+        "source_manifest_sha256": manifest.get("manifest_sha256"),
+        "source_manifest_commit": manifest.get("commit"),
+        "source_artifact_id": contract.get("source_artifact_id"),
+        "source_run_id": contract.get("source_run_id"),
+        "proof_method": contract.get("proof_method"),
+    }
+
+
+def _build_features_for_panels(panels: Mapping[str, pd.DataFrame], spot_rows: pd.DataFrame,
+                               option_parts: Iterable[pd.DataFrame]):
+    all_daily_dates = []
+    all_intraday_times = []
+    all_decisions = []
+    for key, panel in panels.items():
+        layer = str(panel["layer"].iloc[0])
+        times = canonical_panel_timestamps(panel, layer)
+        all_decisions.extend(times.tolist())
+        if layer == "daily":
+            all_daily_dates.extend(panel["decision_timestamp"].tolist())
+        else:
+            all_intraday_times.extend(times.tolist())
+    all_decisions = pd.DatetimeIndex(all_decisions).drop_duplicates().sort_values()
+    greek_features = build_option_feature_frame(option_parts, all_decisions)
+    daily_features = build_daily_spot_features(
+        spot_rows, sorted(set(pd.Timestamp(x).normalize() for x in all_daily_dates))
+    ) if all_daily_dates else pd.DataFrame()
+    intraday_features = build_spot_features(
+        spot_rows, pd.DatetimeIndex(all_intraday_times).drop_duplicates().sort_values()
+    ) if all_intraday_times else pd.DataFrame()
+    spot_features = _flatten_spot_frames(daily_features, intraday_features)
+    source_epochs = pd.to_numeric(spot_rows["timestamp_epoch"], errors="coerce").to_numpy(float)
+    source_epochs = np.where(source_epochs > 1e12, np.floor(source_epochs / 1000.0), source_epochs)
+    source_epochs = source_epochs[np.isfinite(source_epochs)]
+    source_timestamps = pd.to_datetime(source_epochs, unit="s", utc=True).sort_values()
+    aligned = {}
+    target_end_by_panel = {}
+    coverage = {}
+    for key, panel in panels.items():
+        layer = str(panel["layer"].iloc[0])
+        aligned_panel = align_features_to_prediction_panel(
+            panel, spot_features, greek_features, layer,
+            source_timestamps=source_timestamps if layer == "intraday" else None,
+        )
+        aligned[key] = aligned_panel
+        target_end_by_panel[key] = aligned_panel["target_end_timestamp_utc"].tolist()
+        y = pd.to_numeric(aligned_panel["label_direction"], errors="coerce").to_numpy(float)
+        label_mask = np.isfinite(y)
+        spot_ok = pd.to_numeric(aligned_panel["spot_exact_bar_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+        greek_ok = pd.to_numeric(aligned_panel["greek_exact_snapshot_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+        eligible_n = int(label_mask.sum())
+        exact_n = int((label_mask & spot_ok & greek_ok).sum())
+        coverage[key] = {
+            "panel_rows": int(len(panel)), "labeled_rows": eligible_n,
+            "exact_spot_rows": int((label_mask & spot_ok).sum()),
+            "exact_greek_snapshot_rows": int((label_mask & greek_ok).sum()),
+            "exact_paired_feature_rows": exact_n,
+            "exact_join_rate": float(exact_n / eligible_n) if eligible_n else 0.0,
+            "chronological_blocks": int(aligned_panel["block_index"].nunique()),
+        }
+    return greek_features, spot_features, aligned, target_end_by_panel, coverage
+
+
+def run_schema_preflight_from_artifacts(
+    greek_zip_path: str | Path, observed_greek_artifact_id: int,
+    forecast_zip_path: str | Path, observed_forecast_artifact_id: int,
+    output_path: str | Path,
+) -> dict[str, Any]:
+    """Schema-only preflight. It requires the independent code PASS before opening data."""
+    code_receipt = verify_code_gate_for_preflight()
+    greek_receipt = verify_pinned_artifact_identity(greek_zip_path, "greek", observed_greek_artifact_id)
+    panels, manifest, panel_hashes, forecast_receipt = load_frozen_forecast_panels(
+        forecast_zip_path, observed_forecast_artifact_id
+    )
+    # Only this schema/coverage function is allowed to decrypt for data verification before fitting.
+    spot_sink: list[pd.DataFrame] = []
+    decisions = []
+    daily_dates = []
+    intraday_times = []
+    for panel in panels.values():
+        layer = str(panel["layer"].iloc[0])
+        times = canonical_panel_timestamps(panel, layer)
+        decisions.extend(times.tolist())
+        if layer == "daily":
+            daily_dates.extend(panel["decision_timestamp"].tolist())
+        else:
+            intraday_times.extend(times.tolist())
+    unique_decisions = pd.DatetimeIndex(decisions).drop_duplicates().sort_values()
+    # Build exact Greek snapshots and capture SPOT rows in the same streaming pass.
+    greek_features = build_option_feature_frame(iter_encrypted_composite_parts(greek_zip_path), unique_decisions, spot_sink)
+    if not spot_sink:
+        raise GateBlocked("SCHEMA_PREFLIGHT_FOUND_NO_SPOT_ROWS")
+    spot_rows = pd.concat(spot_sink, ignore_index=True)
+    daily_features = build_daily_spot_features(
+        spot_rows, sorted(set(pd.Timestamp(x).normalize() for x in daily_dates))
+    )
+    intraday_features = build_spot_features(
+        spot_rows, pd.DatetimeIndex(intraday_times).drop_duplicates().sort_values()
+    )
+    spot_features = _flatten_spot_frames(daily_features, intraday_features)
+    source_epochs = pd.to_numeric(spot_rows["timestamp_epoch"], errors="coerce").to_numpy(float)
+    source_epochs = np.where(source_epochs > 1e12, np.floor(source_epochs / 1000.0), source_epochs)
+    source_epochs = source_epochs[np.isfinite(source_epochs)]
+    source_timestamps = pd.to_datetime(source_epochs, unit="s", utc=True).sort_values()
+    aligned = {}
+    target_end = {}
+    coverage = {}
+    for key, panel in panels.items():
+        layer = str(panel["layer"].iloc[0])
+        a = align_features_to_prediction_panel(
+            panel, spot_features, greek_features, layer,
+            source_timestamps=source_timestamps if layer == "intraday" else None,
+        )
+        aligned[key] = a
+        target_end[key] = a["target_end_timestamp_utc"].tolist()
+        y = pd.to_numeric(a["label_direction"], errors="coerce").to_numpy(float)
+        finite = np.isfinite(y)
+        spot_ok = pd.to_numeric(a["spot_exact_bar_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+        greek_ok = pd.to_numeric(a["greek_exact_snapshot_missing"], errors="coerce").fillna(1).to_numpy(int) == 0
+        n_labels = int(finite.sum())
+        n_join = int((finite & spot_ok & greek_ok).sum())
+        coverage[key] = {
+            "panel_rows": int(len(a)), "finite_label_rows": n_labels,
+            "exact_spot_rows": int((finite & spot_ok).sum()),
+            "exact_greek_snapshot_rows": int((finite & greek_ok).sum()),
+            "exact_paired_feature_rows": n_join,
+            "exact_join_rate": float(n_join / n_labels) if n_labels else 0.0,
+            "chronological_blocks": int(a["block_index"].nunique()),
+        }
+    target_proof = _verify_frozen_label_sources(manifest)
+    all_target_checks = True
+    for key, a in aligned.items():
+        y = pd.to_numeric(a["label_direction"], errors="coerce").to_numpy(float)
+        ends = pd.DatetimeIndex(pd.to_datetime(a["target_end_timestamp_utc"], errors="coerce", utc=True))
+        decisions = pd.DatetimeIndex(pd.to_datetime(a["decision_timestamp_utc"], errors="coerce", utc=True))
+        future = pd.to_numeric(a["future_return"], errors="coerce").to_numpy(float)
+        finite = np.isfinite(y)
+        if np.any(finite & ends.isna()) or np.any(finite & (ends.asi8 <= decisions.asi8)):
+            all_target_checks = False
+        valid = finite & np.isfinite(future) & (future != 0)
+        if not np.array_equal(y[valid].astype(int), (future[valid] > 0).astype(int)):
+            all_target_checks = False
+    target_proof["target_end_checks_passed"] = bool(all_target_checks)
+    holdout_proof = _derive_holdout_proof_from_frozen_manifest(manifest)
+    receipts = {"greek": greek_receipt, "forecast": forecast_receipt}
+    decision = preflight_contract(
+        manifest, list(panels.values()),
+        artifact_receipts=receipts,
+        target_maturity_proof=target_proof,
+        holdout_exclusion_proof=holdout_proof,
+        target_end_by_panel=target_end,
+        panel_file_sha256=panel_hashes,
+    )
+    # Coverage and sample-size gates are deterministic data gates, not model results.
+    for key, item in coverage.items():
+        if item["exact_join_rate"] < 0.60:
+            decision["reasons"].append(f"EXACT_FEATURE_JOIN_BELOW_60_PERCENT:{key}")
+        if item["chronological_blocks"] < 20:
+            decision["reasons"].append(f"FEWER_THAN_20_CHRONOLOGICAL_BLOCKS:{key}")
+    decision["coverage_by_panel"] = coverage
+    decision["spot_feature_frame_rows"] = int(len(spot_features))
+    decision["greek_feature_frame_rows"] = int(len(greek_features))
+    decision["feature_grid_is_partial"] = True
+    decision["greek_source_revision"] = GREEK_SOURCE_PIN["revision"]
+    decision["greek_source_license"] = GREEK_SOURCE_PIN["license"]
+    decision["code_gate_developer_commit"] = code_receipt["developer_commit"]
+    decision["model_fit_authorized"] = False
+    decision["holdout_access_authorized"] = False
+    decision["option_pnl_authorized"] = False
+    decision["strategy_promotion_authorized"] = False
+    decision["reasons"] = sorted(set(decision["reasons"]))
+    if decision["reasons"]:
+        decision["status"] = "BLOCKED"
+    receipt = write_aggregate_only_report(decision, output_path)
+    decision["preflight_report_receipt"] = receipt
+    return decision
+
+
+def run_prediction_study_from_artifacts(
+    greek_zip_path: str | Path, observed_greek_artifact_id: int,
+    forecast_zip_path: str | Path, observed_forecast_artifact_id: int,
+    authorization_bundle_path: str | Path, output_path: str | Path,
+) -> dict[str, Any]:
+    """Full production path. Authorization is verified before opening either input ZIP."""
+    authorization = enforce_fit_gate(authorization_bundle_path)
+    greek_receipt = verify_pinned_artifact_identity(greek_zip_path, "greek", observed_greek_artifact_id)
+    panels, manifest, panel_hashes, forecast_receipt = load_frozen_forecast_panels(
+        forecast_zip_path, observed_forecast_artifact_id
+    )
+    for name, receipt in (("greek", greek_receipt), ("forecast", forecast_receipt)):
+        approved = authorization["preflight"].get("input_artifacts", {}).get(name, {})
+        if receipt["artifact_id"] != approved.get("artifact_id") or receipt["sha256"] != approved.get("sha256"):
+            raise GateBlocked("RUN_ARTIFACT_DIFFERS_FROM_TESTER_APPROVED_PREFLIGHT:" + name)
+    if dict(panel_hashes) != dict(authorization["preflight"].get("panel_file_sha256", {})):
+        raise GateBlocked("RUN_PANEL_HASHES_DIFFER_FROM_TESTER_APPROVED_PREFLIGHT")
+    return run_prediction_study(
+        panels, iter_encrypted_composite_parts(greek_zip_path),
+        panel_file_sha256=panel_hashes, authorization_bundle_path=authorization_bundle_path,
+        output_path=output_path,
+    )
+
+
 def synthetic_self_test() -> dict[str, Any]:
     rows=[]
     for i in range(5):
