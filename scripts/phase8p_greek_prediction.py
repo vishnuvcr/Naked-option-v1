@@ -1058,25 +1058,35 @@ def build_option_feature_frame(
     decision_timestamps,
     spot_rows_sink: list[pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
-    """Aggregate exact-time Greek snapshots while only retaining matching OPTION rows.
+    """Build one row per economic contract/time, only after strict duplicate comparison.
 
-    Each input DataFrame may contain both OPTION and SPOT records from one authenticated
-    encrypted monthly part. Non-option records are copied to the optional spot sink and
-    never subjected to Greek-offset validation.
+    The encrypted source rows remain untouched. Exact repeats that differ only in the
+    four reviewed collection-provenance fields are canonicalized in memory; any
+    difference in the economic signature yields BLOCKED and aggregate diagnostics.
     """
     decisions = pd.DatetimeIndex(pd.to_datetime(list(decision_timestamps), errors="raise", utc=True))
     if decisions.has_duplicates:
         decisions = decisions.drop_duplicates().sort_values()
     requested = set((decisions.asi8 // 1_000_000_000).tolist())
     groups: dict[int, list[dict[str, Any]]] = {}
-    seen_contracts: set[tuple[Any, ...]] = set()
+    seen_contracts: dict[tuple[Any, ...], dict[str, Any]] = {}
+    duplicate_keys: set[tuple[Any, ...]] = set()
+    identical_repeat_keys: set[tuple[Any, ...]] = set()
+    conflicting_keys: set[tuple[Any, ...]] = set()
+    conflicting_fields: set[str] = set()
     option_rows_scanned = 0
-    option_rows_exact = 0
-    contract_key_fields = ("timestamp_epoch", "expiry_date", "expiry_flag",
-                           "expiry_code", "returned_strike", "option_type")
+    raw_option_rows_exact = 0
+    duplicate_extra_records = 0
+    identical_repeat_records = 0
+    conflicting_repeat_records = 0
+
     for part_number, frame in enumerate(option_parts):
         if not isinstance(frame, pd.DataFrame) or "row_type" not in frame:
             raise GateBlocked(f"COMPOSITE_PART_SCHEMA_INVALID:{part_number}")
+        frame_columns = list(frame.columns)
+        if (len(frame_columns) != len(set(frame_columns))
+                or set(frame_columns) != EXPECTED_GREEK_DATA_COLUMNS):
+            raise GateBlocked("GREEK_PART_COLUMN_SET_DOES_NOT_MATCH_FROZEN_CONTRACT")
         types = frame["row_type"].fillna("").astype(str).str.upper()
         spots = frame.loc[types.eq("SPOT")].copy()
         if spot_rows_sink is not None and not spots.empty:
@@ -1084,15 +1094,14 @@ def build_option_feature_frame(
         options = frame.loc[types.eq("OPTION")].copy()
         if options.empty:
             continue
-        required = {"timestamp_epoch", "greek_valuation_offset_seconds", *contract_key_fields}
-        missing = required - set(options.columns)
-        if missing:
-            raise GateBlocked("OPTION_PART_REQUIRED_FIELDS_MISSING:" + ",".join(sorted(missing)))
+
         start = pd.to_numeric(options["timestamp_epoch"], errors="coerce").to_numpy(float)
         offset = pd.to_numeric(options["greek_valuation_offset_seconds"], errors="coerce").to_numpy(float)
         if np.any(~np.isfinite(start)) or np.any(~np.isfinite(offset)):
             raise GateBlocked(f"OPTION_TIMESTAMP_OR_VALUATION_OFFSET_MISSING:PART{part_number}")
         start = np.where(start > 1e12, np.floor(start / 1000.0), start)
+        if np.any(start != np.floor(start)):
+            raise GateBlocked(f"OPTION_TIMESTAMP_EPOCH_NOT_INTEGER_SECONDS:PART{part_number}")
         if np.any(~np.isclose(offset, 60.0, rtol=0.0, atol=1e-9)):
             raise GateBlocked(f"UNREGISTERED_GREEK_VALUATION_OFFSET:PART{part_number}")
         valuation = start + offset
@@ -1100,25 +1109,91 @@ def build_option_feature_frame(
         option_rows_scanned += len(options)
         if not exact.any():
             continue
+
         selected = options.loc[exact].copy()
+        selected["timestamp_epoch"] = start[exact].astype(np.int64)
         selected["_phase8p_start_epoch_seconds"] = start[exact].astype(np.int64)
         selected["_phase8p_valuation_epoch_seconds"] = valuation[exact].astype(np.int64)
-        # Detect duplicate contract-time rows across and within monthly parts before aggregation.
+        # Normalize only the already-registered side aliases used by the CE/PE feature block.
+        normalized_sides = [_normalize_contract_option_side(x) for x in selected["option_type"].tolist()]
+        if any(x is None for x in normalized_sides):
+            raise GateBlocked("CONTRACT_DUPLICATE_OPTION_SIDE_UNRECOGNIZED")
+        selected["option_type"] = normalized_sides
+        raw_option_rows_exact += len(selected)
+
         for row in selected.to_dict("records"):
-            key_values = []
-            for field in contract_key_fields:
-                value = row.get(field)
-                if value is None or (isinstance(value, float) and not np.isfinite(value)):
-                    key_values.append("MISSING" if field != "timestamp_epoch" else None)
-                else:
-                    key_values.append(str(value))
-            key = tuple(key_values)
-            if key in seen_contracts:
-                raise GateBlocked("DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS")
-            seen_contracts.add(key)
             epoch = int(row["_phase8p_valuation_epoch_seconds"])
-            groups.setdefault(epoch, []).append(row)
-            option_rows_exact += 1
+            key, signature = _economic_contract_key(row, epoch)
+            signature_sha = _contract_signature_digest(signature)
+            provenance_sha = _provenance_fingerprint(row)
+            previous = seen_contracts.get(key)
+            if previous is None:
+                group_rows = groups.setdefault(epoch, [])
+                group_index = len(group_rows)
+                group_rows.append(row)
+                seen_contracts[key] = {
+                    "signature": signature,
+                    "signature_sha256": signature_sha,
+                    "representative_provenance_sha256": provenance_sha,
+                    "epoch": epoch,
+                    "group_index": group_index,
+                }
+                continue
+
+            duplicate_keys.add(key)
+            duplicate_extra_records += 1
+            old_signature = previous["signature"]
+            different = [
+                field for field in CONTRACT_SIGNATURE_FIELDS
+                if old_signature.get(field) != signature.get(field)
+            ]
+            if different:
+                conflicting_keys.add(key)
+                conflicting_repeat_records += 1
+                conflicting_fields.update(different)
+                # Do not choose or combine a conflicting contract observation.
+                continue
+
+            identical_repeat_keys.add(key)
+            identical_repeat_records += 1
+            # All economic fields are equal. Choose provenance deterministically, not by row order.
+            if provenance_sha < previous["representative_provenance_sha256"]:
+                groups[previous["epoch"]][previous["group_index"]] = row
+                previous["representative_provenance_sha256"] = provenance_sha
+
+    spec = {
+        "policy_version": CONTRACT_DUPLICATE_POLICY_VERSION,
+        "key": ["underlying", "greek_valuation_epoch_seconds", "normalized_expiry_date",
+                "returned_strike", "normalized_option_type"],
+        "signature_fields": list(CONTRACT_SIGNATURE_FIELDS),
+        "allowed_provenance_variance_fields": list(ALLOWED_CONTRACT_PROVENANCE_VARIANCE),
+        "exact_numeric_equality": True,
+        "row_order_independent_representative": True,
+    }
+    spec_sha = _duplicate_summary_sha256(spec)
+    duplicate_summary = {
+        "policy_version": CONTRACT_DUPLICATE_POLICY_VERSION,
+        "canonicalization_spec_sha256": spec_sha,
+        "option_rows_scanned": int(option_rows_scanned),
+        "raw_option_rows_at_requested_valuation_instants": int(raw_option_rows_exact),
+        "unique_economic_contract_keys": int(len(seen_contracts)),
+        "duplicate_contract_groups": int(len(duplicate_keys)),
+        "duplicate_extra_records": int(duplicate_extra_records),
+        "identical_duplicate_groups_excluding_conflicts": int(len(identical_repeat_keys - conflicting_keys)),
+        "identical_duplicate_extra_records": int(identical_repeat_records),
+        "conflicting_duplicate_groups": int(len(conflicting_keys)),
+        "conflicting_duplicate_extra_records": int(conflicting_repeat_records),
+        "conflicting_signature_fields": sorted(conflicting_fields),
+        "row_order_independent": True,
+        "raw_contract_values_emitted": False,
+        "plaintext_uploaded": False,
+    }
+    duplicate_summary["diagnostic_sha256"] = _duplicate_summary_sha256(duplicate_summary)
+
+    if conflicting_keys:
+        exc = GateBlocked("DUPLICATE_CONTRACT_INPUTS_CONFLICT")
+        setattr(exc, "economic_duplicate_diagnostic", duplicate_summary)
+        raise exc
 
     records = []
     decision_seconds = (decisions.asi8 // 1_000_000_000).astype(np.int64)
@@ -1164,18 +1239,22 @@ def build_option_feature_frame(
                 clean = "".join(ch if ch.isalnum() else "_" for ch in str(label)).strip("_")
                 flat[f"{prefix}_{clean}"] = float(proportion)
         records.append(flat)
+
     result = pd.DataFrame(records)
     if result.empty:
-        return pd.DataFrame(columns=["decision_timestamp_utc", "decision_epoch_seconds", "greek_exact_snapshot_missing"])
+        result = pd.DataFrame(columns=["decision_timestamp_utc", "decision_epoch_seconds", "greek_exact_snapshot_missing"])
     if result["decision_epoch_seconds"].duplicated().any():
         raise GateBlocked("OPTION_FEATURE_FRAME_HAS_DUPLICATE_DECISION_TIME")
+    result.attrs["economic_duplicate_summary"] = duplicate_summary
     result.attrs["coverage"] = {
         "requested_decision_instants": int(len(result)),
         "exact_snapshot_instants": int((result["greek_exact_snapshot_missing"] == 0).sum()),
         "missing_exact_snapshot_instants": int((result["greek_exact_snapshot_missing"] == 1).sum()),
         "option_rows_scanned": int(option_rows_scanned),
-        "option_rows_at_exact_requested_instants": int(option_rows_exact),
-        "coverage_unit": "exact Greek valuation instant (start timestamp + recorded 60 seconds)",
+        "raw_option_rows_at_exact_requested_instants": int(raw_option_rows_exact),
+        "unique_economic_contract_rows_at_exact_requested_instants": int(len(seen_contracts)),
+        "duplicate_economic_contract_extra_records": int(duplicate_extra_records),
+        "coverage_unit": "unique economic contracts at exact Greek valuation instants (start timestamp + recorded 60 seconds)",
         "grid_limitation": "PARTIAL_GRID_NOT_FULL_EXCHANGE_CHAIN",
     }
     return result
