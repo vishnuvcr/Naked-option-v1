@@ -345,11 +345,8 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
             spot = float(spot)
         except Exception:
             spot = float("nan")
-        if not np.isfinite(spot) or spot <= 0:
-            try:
-                spot = float(row.get("nifty_close"))
-            except Exception:
-                spot = float("nan")
+        # Do not fall back to nifty_close: it is the close of this minute
+        # bar and can be later than the option-open entry timestamp.
         strike = float(row["returned_strike"])
         moneyness = abs(math.log(strike / spot)) if np.isfinite(spot) and spot > 0 and strike > 0 else float("inf")
         delta_available = delta_method != "MONEYNESS_FALLBACK" and np.isfinite(delta)
