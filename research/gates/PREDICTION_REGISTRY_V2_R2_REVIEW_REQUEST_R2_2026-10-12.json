@@ -57,8 +57,8 @@
   },
   "tested_source_blobs": {
     "scripts/repair_method_contrast_statements.py": "bdb986bcc20c82f21dd05fbfad6ce19071463dfe",
-    "scripts/test_repair_method_contrast_statements.py": "8b7e7a20d8b3b1f89c0f98aebfa92f5f3c3cbb31",
-    "scripts/pin_prediction_preregistration_sources.py": "7f5b6f38d3f75bce6b1ccf48e9706eebfe2e52e4",
+    "scripts/test_repair_method_contrast_statements.py": "c888b531246b376f37fa63426924d6bb3264373c",
+    "scripts/pin_prediction_preregistration_sources.py": "40f21d6a7bb8de16f4f3f8179d7d9da549f99ed5",
     "scripts/audit_prediction_registry_shards.py": "f62a733a7e5782fee027932e69fe836d14b65eb5",
     "scripts/build_prediction_compatibility_matrix.py": "ccb70a73e0c2c46dd652810e3cfad1d4d8ac04f2",
     "scripts/prediction_statistics.py": "3b36b21ed3d7c47a6b58e5f95c6b6f6861e0c776",
