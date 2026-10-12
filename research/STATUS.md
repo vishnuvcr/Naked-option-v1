@@ -3,17 +3,11 @@
 ## Phase 8P R2 current checkpoint — 2026-10-13
 
 - Developer correction submission: [T2 bootstrap / T3 horizon-scope report](gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
-- The moving-block bootstrap now fails closed on a single-valued resampling distribution; confidence limits and p-value are null with an explicit non-identifiable status. Regression coverage was changed accordingly. Hosted test result remains unverified.
-- R2 is a two-target synthetic/design pilot only. Full horizon coverage (5/15/30/60/120 minutes; +1/+2/+3/+5/+10 sessions) remains mandatory before any empirical fit, method ranking, or selection.
-- No market data/model/holdout/option P&L was accessed or generated in this correction step.
-
-
-## Phase 8P R2 current checkpoint — 2026-10-13
-
-- Developer correction submission: [T2 bootstrap / T3 horizon-scope report](gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
 - The moving-block bootstrap now fails closed on a single-valued resampling distribution; CI and p-value are null with an explicit non-identifiable status. Regression coverage was changed accordingly. Hosted test result remains unverified.
 - R2 is a two-target synthetic/design pilot only. Full horizon coverage (5/15/30/60/120 minutes; +1/+2/+3/+5/+10 sessions) remains mandatory before any empirical fit, method ranking, or selection.
 - No market data/model/holdout/option P&L was accessed or generated in this correction step.
+
+
 
 | Phase | Status | Gate |
 |---|---|---|
@@ -31,7 +25,7 @@
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
 
 ## Phase 5 current state
 
