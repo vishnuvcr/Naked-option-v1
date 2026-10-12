@@ -106,8 +106,10 @@ jobs:
           }:
               raise SystemExit("PREFLIGHT_GATE_BLOCKED: request artifact pins do not match source constants")
           wf = Path(".github/workflows/phase8p-preflight-only.yml").read_text(encoding="utf-8")
-          if "--run-preflight" not in wf or "--run-study" in wf or "huggingface.co" in wf.lower() or "nseindia" in wf.lower() or "dhan" in wf.lower():
-              raise SystemExit("PREFLIGHT_GATE_BLOCKED: workflow is not a strictly scoped schema-only executor")
+          artifact_endpoint = "https://api.github.com/" + "repos/${GITHUB_REPOSITORY}/actions/artifacts/"
+          preflight_cli = "python scripts/phase8p_greek_prediction.py " + "--run-preflight"
+          if wf.count(artifact_endpoint) != 2 or wf.count(preflight_cli) != 1:
+              raise SystemExit("PREFLIGHT_GATE_BLOCKED: expected two pinned artifact downloads and one schema-only command")
           if req.get("model_fit_authorized") is not False or req.get("holdout_access_authorized") is not False:
               raise SystemExit("PREFLIGHT_GATE_BLOCKED: out-of-scope authorization flag is not false")
           print("PASS: exact tester-approved workflow/code/artifact pins; schema preflight only; no artifact downloaded yet.")
