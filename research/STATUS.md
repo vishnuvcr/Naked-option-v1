@@ -256,3 +256,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** review preflight workflow before artifact download; independently assess its aggregate report afterwards.
 **Developer → Tester:** preserve R1 REQUEST_CHANGES; use R2 only for the exact approved code snapshot and do not run models until separate preflight decision.
+
+
+## 2026-10-12 — Phase 8P preflight executor workflow R2 approved
+- Independent tester workflow [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) passed 29/29 static/security/synthetic checks on developer workflow blob 474712e945dfaef83c814c9e17d1513ad44a3152.
+- Decision: PASS_PREFLIGHT_WORKFLOW_ONLY. Human report and machine decision are recorded at research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_R2_2026-10-12.md and research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json. Decision blob: 0f7cf48945704e9498b7e149a7ae71a820809070.
+- Review receipt artifact 11725568231; SHA-256 cbb785ad9832b928b7424f6e3c4323a85112e3d7377ab92d5222dd6a84265260.
+- The authorized developer request was updated only to permit schema/coverage preflight. Run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) is queued. No model fit is authorized; independent review of the resulting report is mandatory.
+
+**Tester → Developer:** verify the exact approval blob before artifact download; submit the aggregate-only report for a new independent data-preflight decision.
+**Developer → Tester:** keep empirical fitting blocked until the report's exact artifact identities, schemas, target maturity, protected split and coverage are reviewed.
