@@ -708,3 +708,15 @@
 ## 2026-10-13 — Post-results-only tester cadence adopted
 
 The research protocol now defers independent tester review until the planned result bundle is acquired, frozen and indexed. Developer-side technical checks and corrections continue throughout execution. The tester workflow requires a formal result-acquisition request and verifies its pinned manifest/artifact hashes. The R2 registry remains a synthetic/design pilot; the next development work is the full ten-horizon registry and subsequent planned result-acquisition runs. No result or model is accepted or selected by this cadence amendment.
+
+
+## 2026-10-13 — Phase 8P R3 complete-horizon registry development
+
+- Added `scripts/build_prediction_horizon_registry_r3.py` and `scripts/test_prediction_horizon_registry_r3.py` to extend the unchanged R2 design pilot to the complete ten-horizon prediction universe.
+- Planned R3 universe: 1,000 method definitions; ten labels (intraday 5/15/30/60/120 minutes and positional +1/+2/+3/+5/+10 sessions); 40,000 configurations; 4,000 configurations per label; 400 configuration shards of 100 records.
+- The builder is registry/protocol-only: it does not decrypt or open market data, fit estimators, access an untouched holdout, or select methods. It preserves the R2 artifacts and creates separately versioned R3 manifests and shards.
+- Added horizon-specific target maturity and purge/embargo definitions. The R3 registry gate remains blocked until developer-side registry QA and encrypted-data preflight validate actual timestamps/session calendar, target coverage, sample/class support, and feature availability.
+- Observed an R2 per-record digest ambiguity: a pinned R2 shard passed exact-byte SHA-256/count/ID-range validation, but the first row's declared config_sha256 differed from SHA-256 of the canonical compact configuration object. The algorithm used to generate the R2 per-record field is undocumented. R3 now preserves this legacy value as source_r2_config_sha256 and computes its own config_sha256 under a declared canonical JSON rule; this is explicitly recorded in the R3 manifest/report and covered by developer tests.
+- Added R3 build/test steps to the established developer registry CI. The hosted R3 outputs are not yet visible through the available repository file/status interface; no build or unit-test pass is claimed yet. Do not begin empirical fitting until the R3 artifacts actually exist and developer-side QA/data preflight pass.
+- Per the user's review-cadence instruction, no interim tester review is requested. The independent tester will receive one consolidated frozen bundle after the planned prediction results have been acquired.
+
