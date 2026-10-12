@@ -611,7 +611,7 @@ def enforce_fit_gate(authorization_bundle_path: str | Path | None = None) -> dic
     amendment_text, amendment_doc = _read_and_verify_tester_evidence(
         bundle.get("daily_time_amendment_approval"), "DAILY_TIME_AMENDMENT", current_commit
     )
-    if bundle["daily_time_amendment_approval"].get("blob_sha1") != "090f51e892055d6fb717d3f43e153d0ac47b24df":
+    if bundle["daily_time_amendment_approval"].get("blob_sha1") != "d0f6ad6803c16051bd897f3074682281b3e4c3a0":
         raise GateBlocked("DAILY_TIME_AMENDMENT_REVIEW_BLOB_MISMATCH")
     if "PASS — SCOPE AMENDMENT ONLY, WITH RESTRICTIONS" not in amendment_text:
         raise GateBlocked("DAILY_TIME_AMENDMENT_NOT_PASS")
@@ -622,7 +622,7 @@ def enforce_fit_gate(authorization_bundle_path: str | Path | None = None) -> dic
     ).strip()
     if proposal_blob != "265c6696466b1999371cb4581baf20fbe950d3f1":
         raise GateBlocked("DAILY_TIME_AMENDMENT_PROPOSAL_BLOB_MISMATCH")
-    if not isinstance(amendment_doc, str) or "cash-close" not in amendment_doc.lower():
+    if not isinstance(amendment_doc, str) or "cash-session close" not in amendment_doc.lower():
         raise GateBlocked("DAILY_TIME_AMENDMENT_REVIEW_CONTENT_INVALID")
 
     code_text, code_doc = _read_and_verify_tester_evidence(
