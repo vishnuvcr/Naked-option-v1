@@ -11,6 +11,7 @@
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
+| Phase 8P Prediction registry gate | DATA INTEGRITY + SYNTHETIC PLUMBING PASSED; SCIENTIFIC GATE BLOCKED | 1,000 methods / 8,000 configs verified; 426 conditional, 574 blocked, 0 empirically eligible; tester REQUEST CHANGES |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -1040,3 +1041,14 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Small-shard layout: 40 method shards × 25 methods; 80 config shards × 100 configurations. The shard index records each file path, byte count, row count, first/last ID and SHA-256. Exact-file SHA-256 and index verification passed.
 - Unit tests: 8/8 existing shard tests; 5/5 new re-sharding tests; SHA-256 known vector passed. The broad test-discovery attempt also failed because it imported unrelated repository tests needing pandas/numpy; the workflow was corrected to run only its two targeted, dependency-free test modules. This failure is logged and is not represented as a successful run.
 - **Scope:** data-integrity subgate only. Independent tester report still REQUEST CHANGES; compatibility matrix, meaningful distinctness, fully frozen statistical preregistration, and synthetic restart/resource test remain mandatory. No empirical fitting or holdout access.
+
+
+## Phase 8P prediction registry — 2026-10-12
+
+- **Registry file/count/hash/index integrity: PASSED in hosted CI.** The canonical committed layout is 40 method shards × 25 records and 80 configuration shards × 100 records. Exact-file SHA-256, byte counts, ID ranges, numeric part order, all master records and index reconciliation pass.
+- **Compatibility matrix generated:** 1,000 method rows, 426 conditional “allow in principle,” 574 blocked, 1,000 unique semantic fingerprints, no duplicate fingerprints/triples, and **0 rows authorized for empirical fitting**. “Allow in principle” is design screening only and still requires family/operator adapter tests and tester approval.
+- **Machine-readable preregistration and label manifest are drafts:** label flat tolerance, missingness/eligibility, 8 expanding chronological outer windows, 3 inner windows, purge/embargo, 10,000-replicate paired five-session block bootstrap, BY FDR q=0.05, deterministic seeds and source blob pins are specified and tested, but remain unapproved until independent review.
+- **Synthetic orchestration: PASSED.** Hosted run [38251707853](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38251707853) processed 64,000 synthetic tasks with zero errors. 27,264 rows were synthetic mock-only; 36,736 were blocked by compatibility. This is not market-data access, actual model fitting, or predictive evidence. Restart/replay/failure-injection tests passed.
+- **Resource estimate:** assumption-based budget ~1,173 serial CPU-hours for 109,056 hypothetical fit calls at 3,408 design-compatible configs × 8 outer folds × 4 fits. Per-family figures are assumptions, not measured estimator runtimes. Benchmark calibration is still needed.
+- Reports: [synthetic run report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md), [machine-readable report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json), [compatibility matrix](research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md), [preregistration](research/registry/PREDICTION_PREREGISTRATION_V2_R2.json), and [shard index](research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json).
+- **Gate:** independent tester decision remains REQUEST CHANGES until the current commit and exact artifacts are reviewed. No empirical fitting, strategy selection, or untouched-holdout access.
