@@ -27,6 +27,8 @@ D07 now uses chronological training-only calibration for its base-probability st
 
 ## Canonical documents
 
+- [R2 statistical metrics and inference implementation](scripts/prediction_statistics.py)
+- [R2 statistical regression tests](scripts/test_prediction_statistics.py)
 - [R2 row-level compatibility matrix (machine-readable)](research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json)
 - [R2 preregistration (draft)](research/registry/PREDICTION_PREREGISTRATION_V2_R2.json)
 - [R2 label manifest (draft)](research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json)
@@ -464,3 +466,8 @@ Status: hosted data-integrity result is verified; independent tester decision re
 - Synthetic pipeline report: [Markdown](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md) and [JSON](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json). Run 38251707853 processed 64,000 synthetic tasks, no errors, and restart/failure-injection tests passed. No market data, actual model fit or holdout used.
 - Current repair and clean-verifier runs passed at commit 09420408e52cc8d9a2f75b2273ec879593c4b149: [repair](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351950), [clean audit](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351923).
 - Estimated ~1,173 serial CPU-hours is assumption-based only. A measured representative estimator benchmark is still missing. Scientific gate remains REQUEST CHANGES.
+
+
+- Statistical utilities: [implementation](scripts/prediction_statistics.py) and [regression tests](scripts/test_prediction_statistics.py). The hosted statistical test workflow passed: [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987).
+- CI now verifies it checked out the exact triggering commit SHA rather than a moving branch name. Pinned synthetic run [38253120700](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253120700) passed; subsequent workflow includes the statistical tests as well.
+- Git source pins are explicitly named Git blob SHA-1; file content SHA-256 digests remain separately declared. Scientific gate remains tester REQUEST CHANGES; model fitting and holdout access remain blocked.
