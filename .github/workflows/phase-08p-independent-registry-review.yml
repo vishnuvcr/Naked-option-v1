@@ -5,6 +5,7 @@ on:
     branches: [phase-08-prediction-tester]
     paths:
       - 'scripts/independent_prediction_registry_audit_r2.py'
+      - 'research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R3_2026-10-13.json'
       - '.github/workflows/phase-08p-independent-registry-review.yml'
   workflow_dispatch:
 
@@ -20,11 +21,38 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: tester
-      - name: Check out submitted developer snapshot
+      - name: Read exact developer source pin from tester-owned request snapshot
+        id: source_pin
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          request = json.loads(Path("tester/research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R3_2026-10-13.json").read_text(encoding="utf-8"))
+          sha = request.get("tested_source_commit", "")
+          if len(sha) != 40 or any(ch not in "0123456789abcdef" for ch in sha):
+              raise SystemExit(f"invalid pinned developer source commit: {sha!r}")
+          print(f"sha={sha}")
+          PY
+      - name: Check out exact pinned developer source snapshot
         uses: actions/checkout@v4
         with:
-          ref: phase-08-prediction-developer
+          ref: ${{ steps.source_pin.outputs.sha }}
           path: developer
+      - name: Verify exact commit and source blob pins
+        shell: bash
+        run: |
+          test "$(git -C developer rev-parse HEAD)" = "${{ steps.source_pin.outputs.sha }}"
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          request = json.loads(Path("tester/research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R3_2026-10-13.json").read_text(encoding="utf-8"))
+          for path, expected in request.get("changed_source_blobs", {}).items():
+              actual = subprocess.check_output(["git", "-C", "developer", "rev-parse", f"HEAD:{path}"], text=True).strip()
+              if actual != expected:
+                  raise SystemExit(f"source blob pin mismatch for {path}: expected={expected}, actual={actual}")
+          print("Exact developer commit and changed-source blob pins: PASS")
+          PY
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
