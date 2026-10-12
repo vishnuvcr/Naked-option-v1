@@ -866,3 +866,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** independently reproduce counts, costs, metrics and all audit findings from the hash-pinned artifact; issue PASS/REQUEST CHANGES.
 **Tester → Developer:** withhold promotion and Phase 9 until result-level evidence is independently accepted.
+
+
+## 2026-10-12 — Phase 8 correction snapshot R7: regression gate pending
+
+- Prior empirical artifact from run 38222296903 is exploratory/non-accepted. The tester branch recorded REQUEST CHANGES in `research/gates/PHASE8_RUN38222296903_INDEPENDENT_TESTER_REPORT.md`.
+- Developer corrections now in the developer branch: local-peak drawdown percentage on timestamp-aggregated exits; strict OHLC structural validation including close; 120-second intraday entry cap; conservative ₹0.05 tick rounding after spread/slippage; prior-bar-only stored delta and prior-bar spot/liquidity for selection; exclusion windows around known lot-size transitions; and conflict-safe result publication/failure classification.
+- New regression tests cover prior-bar Greek timing, tick rounding, local-peak drawdown and lot-size transition exclusion. Hosted regression/self-test is running on the corrected snapshot; no empirical rerun is authorized yet.
+- Raw-IV-derived delta synthesis is disabled because a separate point-in-time IV availability timestamp is absent. This avoids look-ahead but can reduce usable delta coverage; the new report must quantify this. Lot-size transition exclusion is conservative, not a substitute for an official historical contract master.
+- Next gate: independent tester review of exact runner/test/workflow blobs. Only after a hash-matched tester PASS may a new grid be launched. The previous artifact remains historical evidence and is not re-used as corrected output.
+
+**Developer → Tester:** review the exact R7 code/test/workflow snapshot after hosted regression; independently verify tick rounding, lagged features, timing cap, OHLC rejection, drawdown and failure classification.
+**Tester → Developer:** keep empirical rerun blocked until exact blob hashes match and tester PASS is recorded.
