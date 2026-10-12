@@ -949,3 +949,10 @@
 - Fresh run `38241647992` passed all 8 unit tests and the SHA-256 known-vector check after fixture correction commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`.
 - Earlier run `38241558360` remains documented as failed 7/8 because its fixture's shard-count expectation was inconsistent; this was corrected and the new run is green.
 - CI success is not independent tester approval or scientific validity. No registry shards or empirical prediction outputs were generated.
+
+## 2026-10-12 — R2 registry integrity audit found blockers
+
+- Hosted audit run [38242604842](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38242604842) failed on the committed registry files after the utility unit tests passed.
+- Method master registry lists 1,000 entries, but only 11 method shards × 50 records = 550 entries are committed. The 450 IDs beginning `PM0551` are missing from the shards.
+- Config shard files each contain the manifest-declared 2,000 records, and the combined set has 8,000 unique IDs. However, all four manifest `sha256` values mismatch the raw file, canonical JSON root, and canonical LF-delimited canonical record stream. The hash contract is ambiguous or incorrect; do not silently rewrite the expected hashes before determining the intended canonical rule.
+- Workflow/audit code intentionally returns non-zero on these defects. Utility tests passed, but the registry integrity gate did not. No scientific execution is authorized.
