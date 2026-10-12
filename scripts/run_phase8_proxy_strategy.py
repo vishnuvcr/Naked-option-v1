@@ -127,13 +127,13 @@ def plan_exit_epoch(decision: int, layer: str, horizon: int, sessions: list[str]
 
 def normalise_option_type(values: pd.Series) -> pd.Series:
     aliases = {"CALL": "CE", "C": "CE", "PUT": "PE", "P": "PE"}
-    return values.astype(str).str.replace("\\ufeff", "", regex=False).str.strip().str.upper().replace(aliases)
+    return values.astype(str).str.replace("\ufeff", "", regex=False).str.strip().str.upper().replace(aliases)
 
 
 def normalise_row_type(values: pd.Series) -> pd.Series:
     # Collector-partition CSV exports can preserve incidental whitespace or BOM
     # characters in categorical fields. Normalize the tag before exact matching.
-    return values.astype(str).str.replace("\\ufeff", "", regex=False).str.strip().str.upper()
+    return values.astype(str).str.replace("\ufeff", "", regex=False).str.strip().str.upper()
 
 
 def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
@@ -179,7 +179,7 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
     before = len(options)
     has_time = options["timestamp_epoch"].notna()
     has_strike = options["returned_strike"].notna()
-    valid_expiry = options["expiry_key"].str.match(r"^\\d{4}-\\d{2}-\\d{2}$", na=False)
+    valid_expiry = options["expiry_key"].str.match(r"^\d{4}-\d{2}-\d{2}$", na=False)
     valid_side = options["option_type"].isin(["CE", "PE"])
     diagnostics["option_rows_missing_timestamp"] = int((~has_time).sum())
     diagnostics["option_rows_missing_strike"] = int((~has_strike).sum())
