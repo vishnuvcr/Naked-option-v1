@@ -30,3 +30,10 @@ The small-shard integrity fix is hosted-CI verified. The compatibility builder g
 The synthetic dry run processed all 8,000 configs × 8 outer folds (64,000 rows), with 27,264 synthetic mock rows, 36,736 compatibility-blocked rows and zero logged errors. Restart byte-identity and failure-injection logging passed. This is not prediction evidence. Estimated 1,173 serial CPU-hours is a planning assumption, not measured estimator performance.
 
 Clean repair and registry-verification workflows passed at commit 09420408e52cc8d9a2f75b2273ec879593c4b149. Reports are in research/gates/. Independent tester review is still pending/REQUEST CHANGES; do not perform empirical fits or access the untouched holdout.
+
+
+## Latest continuation — 2026-10-12
+
+In addition to the passing 8,000-config registry integrity audit and the successful pinned synthetic orchestration, the developer added executable statistical utilities for binary log loss, Brier score, balanced accuracy, calibration intercept/slope, a paired five-session moving-block bootstrap and Benjamini–Yekutieli FDR. Regression workflow 38253421987 passed. The SHA-naming inconsistency was corrected (Git blob object IDs are SHA-1, while content digests remain SHA-256), and all three registry/synthetic workflows now check out and assert the exact triggering SHA.
+
+Pinned full synthetic run 38253120700 passed, with no real data/model fitting/holdout. A newer full run is configured to include statistical test cases; its final result must be recorded before the artifact is considered final. Scientific tester decision remains REQUEST CHANGES.
