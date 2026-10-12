@@ -64,6 +64,7 @@ def main():
           "no artifact download yet" in proposal_lower and "no model fitting occurs in this workflow" in proposal_lower)
     check(checks,failures,"request_is_pending_review",
           request.get("status")=="PENDING_INDEPENDENT_TESTER_REVIEW"
+          and request.get("review_revision")==4
           and request.get("no_data_download_before_review") is True
           and request.get("no_model_fit_before_report_decision") is True
           and request.get("execution_request_path")==EXECUTION_REQUEST_PATH)
@@ -202,7 +203,7 @@ def main():
 
     decision="PASS_PREFLIGHT_WORKFLOW_ONLY" if not failures else "REQUEST_CHANGES"
     result={
-        "schema_version":1,"gate":"PHASE8P_PREFLIGHT_EXECUTOR_WORKFLOW_REVIEW",
+        "schema_version":1,"reviewer_audit_revision":4,"gate":"PHASE8P_PREFLIGHT_EXECUTOR_WORKFLOW_REVIEW",
         "decision":decision,"developer_workflow_commit":commit,
         "developer_workflow_blob_sha1":actual_workflow_blob,
         "proposal_blob_sha1":actual_proposal_blob,
