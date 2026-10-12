@@ -1071,3 +1071,17 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** independently validate corrected inference behavior, frozen pilot scope, and run artifacts; return a hash-pinned gate decision.
 **Tester → Developer:** flag any remaining defects with reproducible evidence and keep empirical fitting blocked until the ten-horizon gate passes.
+
+
+## 2026-10-13 — R2 per-configuration digest contract ambiguity during R3 build preparation
+
+- Category: integrity metadata / backward compatibility.
+- Component: research/registry/config_shards/PREDICTION_CONFIGS_V2_R2_PART001.json and scripts/build_prediction_horizon_registry_r3.py.
+- Observation: for the first R2 config row, the declared config_sha256 is 3c1d167e39d2849df723f6f325f35f9da8caa9390032714741f77eab6c21b935, while SHA-256 over the canonical compact JSON configuration object with sorted keys yields 9d93564f79f4511960712a94cfb4e05c83be7f19ee6a3edfc7ee0678f0b7dddd. The builder's SHA-256 implementation was sanity-checked against the standard abc vector. The declared R2 per-record hash algorithm is not documented and has not been inferred.
+- Scope: this is an ambiguity in the legacy per-record metadata field, not proof of source shard corruption. R2 input shards remain validated against their manifest's exact-file-byte SHA-256, byte counts, record counts and ID ranges.
+- Correction: R3 no longer treats the legacy R2 per-record digest as the canonical hash. It preserves that value in source_r2_config_sha256 for traceability and recomputes R3 config_sha256 using the explicitly declared canonical UTF-8 JSON rule. The R3 config manifest and build report now disclose the legacy ambiguity.
+- Automated build result: not yet observed through the currently available run-status interface; do not claim the R3 files exist or tests pass until their hosted artifacts/files can be verified.
+- Safety status: no decrypted market data or holdout was opened; no model was fitted; no result was selected.
+
+**Developer → Tester (post-results only):** include the R2/R3 digest distinction in the final bundled audit; independent review is deferred until planned prediction results are frozen.
+**Tester → Developer (post-results only):** verify exact source/output hashes and ensure the legacy R2 digest is never silently represented as validated canonical config content.
