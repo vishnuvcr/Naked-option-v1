@@ -679,3 +679,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review only the exact workflow blob 474712e945dfaef83c814c9e17d1513ad44a3152 and its R2 request binding; no data download is requested yet.
 **Tester → Developer:** do not change R2 execution status to authorized unless the exact workflow review passes; independently review the resulting preflight report before any fitting.
+
+
+## 2026-10-12 — Phase 8P schema-only preflight authorized and queued
+- Independent tester approved the exact preflight executor workflow: [report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_R2_2026-10-12.md), [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json), decision blob 0f7cf48945704e9498b7e149a7ae71a820809070.
+- Review run [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798): 29/29 checks passed. Receipt artifact [11725568231](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798/artifacts/11725568231).
+- Updated execution request R2 from PENDING_INDEPENDENT_WORKFLOW_REVIEW to AUTHORIZED_TO_RUN_SCHEMA_PREFLIGHT_ONLY and pinned the exact tester decision path/blob. Current request blob: 28d2474194cc5be15332ecbc494fb510eb5e4cc5.
+- Schema-only run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) is queued. It may download only the two pinned existing artifacts after verifying the full gate. It cannot fit a model or inspect holdout metrics.
+- Current gate: **SCOPE PASS; CODE PASS_FOR_CODE_ONLY; WORKFLOW PASS; SCHEMA PREFLIGHT RUN PENDING; MODEL FIT BLOCKED.**
+
+**Developer → Tester:** review the exact preflight report/hash once run #38202961271 finishes; decide PASS or BLOCKED on target contract, holdout exclusion, timestamp joins and coverage.
+**Tester → Developer:** no empirical fit unless a separate tester decision accepts the exact preflight report.
