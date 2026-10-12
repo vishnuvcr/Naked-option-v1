@@ -92,8 +92,8 @@ jobs:
     env:
       PHASE7_ARTIFACT_ID: '11638738288'
       PHASE7_ARTIFACT_SHA256: '3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9'
-      OPTION_ARTIFACT_ID: '11698879857'
-      OPTION_ARTIFACT_SHA256: '40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b'
+      OPTION_ARTIFACT_ID: '11723198817'
+      OPTION_ARTIFACT_SHA256: 'e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -117,7 +117,7 @@ jobs:
           unzip -q "$RUNNER_TEMP/phase7-reference.zip" -d "$RUNNER_TEMP/phase7-reference"
           test -s "$RUNNER_TEMP/phase7-reference/phase7_reference/phase7_reference_manifest.json"
           test -s "$RUNNER_TEMP/phase7-reference/phase7_ensemble_results.json"
-      - name: Restore the existing option composite by ID and SHA
+      - name: Restore the already-enriched option composite by ID and SHA
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -137,7 +137,7 @@ jobs:
           cp "$manifest" "$input_dir/dataset_manifest.json"
           while IFS= read -r -d '' part; do cp "$part" "$input_dir/"; done < <(find "$(dirname "$manifest")" -maxdepth 1 -type f -name '*.csv.gz.enc' -print0)
           test "$(find "$input_dir" -maxdepth 1 -type f -name '*.csv.gz.enc' | wc -l)" -eq 61
-      - name: Decrypt existing parts only
+      - name: Decrypt the existing expiry-enriched parts only
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
