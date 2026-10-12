@@ -83,6 +83,23 @@ class PredictionPreregistrationTests(unittest.TestCase):
         self.assertEqual(self.p["sample_eligibility"]["target_pair_missing_fraction_max"], 0.01)
         self.assertEqual(self.p["sample_eligibility"]["feature_column_missing_fraction_max"], 0.2)
 
+
+    def test_r2_pilot_scope_cannot_authorize_empirical_fitting_or_selection(self):
+        amendment = self.p["scope_amendment_2026_10_13"]
+        self.assertEqual(amendment["status"], "PILOT_ONLY_NOT_EXHAUSTIVE")
+        self.assertEqual(amendment["included_target_labels"], ["INTRA_30M_UP_DOWN", "POS_1D_UP_DOWN"])
+        self.assertTrue(amendment["no_empirical_fit_authorized_by_this_amendment"])
+        self.assertTrue(amendment["no_pilot_result_may_select_or_rank_methods"])
+        self.assertEqual(
+            amendment["required_horizon_labels"]["intraday"],
+            ["INTRA_5M_UP_DOWN", "INTRA_15M_UP_DOWN", "INTRA_30M_UP_DOWN", "INTRA_60M_UP_DOWN", "INTRA_120M_UP_DOWN"],
+        )
+        self.assertEqual(
+            amendment["required_horizon_labels"]["positional"],
+            ["POS_1D_UP_DOWN", "POS_2D_UP_DOWN", "POS_3D_UP_DOWN", "POS_5D_UP_DOWN", "POS_10D_UP_DOWN"],
+        )
+        self.assertIn("PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE", amendment["required_next_gate"])
+
     def test_multiple_testing_and_bootstrap_are_explicit(self):
         mult = self.p["metrics_and_inference"]["multiplicity"]
         boot = self.p["metrics_and_inference"]["bootstrap"]
