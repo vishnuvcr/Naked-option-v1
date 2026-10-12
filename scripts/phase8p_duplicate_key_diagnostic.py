@@ -312,7 +312,14 @@ def synthetic_self_test() -> dict[str, Any]:
 
     first_part = pd.DataFrame([full_base, conflicting_base, seconds_row], columns=columns)
     second_part = pd.DataFrame([exact, conflicting, millis_row], columns=columns)
-    result = scan_frames([first_part, second_part], manifest_columns)
+    progress_events: list[dict[str, int]] = []
+    result = scan_frames([first_part, second_part], manifest_columns, progress=progress_events.append)
+    assert len(progress_events) == 2
+    assert progress_events[-1] == {
+        "parts_scanned": 2,
+        "rows_scanned": 6,
+        "option_rows_scanned": 6,
+    }
     assert result["parts_scanned"] == 2
     assert result["option_rows_scanned"] == 6
     assert result["duplicate_contract_groups"] == 3
@@ -375,6 +382,8 @@ def synthetic_self_test() -> dict[str, Any]:
         "seconds_milliseconds_timestamp_normalization": "PASS",
         "ordered_header_fail_closed": "PASS",
         "no_deduplication_or_raw_output": "PASS",
+        "disk_backed_aggregation": "PASS",
+        "per_part_progress_reporting": "PASS",
         "real_artifact_opened": False,
         "model_fitted": False,
     }
