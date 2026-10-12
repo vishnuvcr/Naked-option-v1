@@ -1,0 +1,57 @@
+name: Phase 8P Duplicate-Key Diagnostic — Synthetic Code Gate
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - "scripts/phase8p_duplicate_key_diagnostic.py"
+      - "scripts/test_phase8p_duplicate_key_diagnostic.py"
+      - ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml"
+  workflow_dispatch:
+    inputs:
+      run_synthetic_tests:
+        description: "Run synthetic-only duplicate diagnostic tests; no real data access"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    if: ${{ github.event_name == 'push' || inputs.run_synthetic_tests == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact developer snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2
+      - name: Run diagnostic synthetic fixtures only
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_duplicate_key_diagnostic.py --self-test | tee "${RUNNER_TEMP}/duplicate-diagnostic-self-test.json"
+          python scripts/test_phase8p_duplicate_key_diagnostic.py
+          sha256sum scripts/phase8p_duplicate_key_diagnostic.py scripts/test_phase8p_duplicate_key_diagnostic.py > "${RUNNER_TEMP}/duplicate-diagnostic-source-sha256.txt"
+          cat "${RUNNER_TEMP}/duplicate-diagnostic-source-sha256.txt"
+      - name: Upload synthetic-only receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-duplicate-diagnostic-synthetic-gate
+          path: |
+            ${{ runner.temp }}/duplicate-diagnostic-self-test.json
+            ${{ runner.temp }}/duplicate-diagnostic-source-sha256.txt
+          if-no-files-found: warn
+          retention-days: 30
