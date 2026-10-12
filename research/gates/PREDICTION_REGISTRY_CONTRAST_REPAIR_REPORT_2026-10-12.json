@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "title": "Method Contrast Repair and Synthetic Revalidation",
+  "date": "2026-10-12",
+  "status": "PASS_REGISTRY_REPAIR_AND_SYNTHETIC_PLUMBING_ONLY",
+  "source_commit": "877b7baf3aafb309021dfc621f7e98406b5532ee",
+  "repair_workflow": {
+    "run_id": 38255852834,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852834",
+    "conclusion": "success"
+  },
+  "contrast_unit_workflow": {
+    "run_id": 38255666293,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255666293",
+    "conclusion": "success"
+  },
+  "clean_registry_workflow": {
+    "run_id": 38255852565,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852565",
+    "conclusion": "success"
+  },
+  "synthetic_workflow": {
+    "run_id": 38255852608,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852608",
+    "conclusion": "success",
+    "artifact_id": 11749737651
+  },
+  "synthetic_result": {
+    "tasks": 64000,
+    "synthetic_mock_only": 27264,
+    "blocked_compatibility": 36736,
+    "runtime_exception_rows": 0,
+    "error_jsonl_rows": 0,
+    "result_sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b",
+    "market_data_opened": false,
+    "model_fitting_performed": false,
+    "holdout_accessed": false
+  },
+  "registry": {
+    "methods": 1000,
+    "method_shards": 40,
+    "methods_per_shard": 25,
+    "configurations": 8000,
+    "config_shards": 80,
+    "configs_per_shard": 100,
+    "compatibility_allow_in_principle": 426,
+    "compatibility_block": 574,
+    "empirically_eligible": 0,
+    "semantic_fingerprints_unique": 1000,
+    "index_git_blob_sha1": "1adfbdee7076d20f03a582355d5075ebb4159948",
+    "matrix_git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971"
+  },
+  "repair_summary": "Each method now identifies a deterministic nearest method and lists the exact semantic fields and values that differ. This corrects misleading generic prose; it does not itself establish scientific validity or authorize fitting.",
+  "statistical_tests": {
+    "test_count": 10,
+    "result": "PASS"
+  },
+  "resource_estimate": {
+    "status": "ASSUMPTION_BASED_NOT_BENCHMARKED",
+    "hypothetical_fit_calls": 109056,
+    "assumed_serial_cpu_hours": 1173.33
+  },
+  "gate": {
+    "registry_integrity": "PASS",
+    "synthetic_orchestration": "PASS",
+    "independent_scientific_review": "PENDING",
+    "empirical_fitting": "NOT_AUTHORIZED",
+    "untouched_holdout_access": "NOT_AUTHORIZED"
+  }
+}
