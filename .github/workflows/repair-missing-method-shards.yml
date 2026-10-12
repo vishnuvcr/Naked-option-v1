@@ -6,6 +6,7 @@ on:
       - phase-08-prediction-developer
     paths:
       - "scripts/generate_missing_method_shards.py"
+      - "scripts/pin_config_shard_file_hashes.py"
       - ".github/workflows/repair-missing-method-shards.yml"
   workflow_dispatch:
 
@@ -24,16 +25,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Generate absent shards only
+      - name: Generate absent method shards without overwriting existing shards
         run: python scripts/generate_missing_method_shards.py
-      - name: Commit generated shards
+      - name: Pin config shard hashes to exact file bytes
+        run: python scripts/pin_config_shard_file_hashes.py
+      - name: Commit generated shards and manifest hash repair
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/registry/method_shards/METHODS_V2_R2_PART*.json
+          git add research/registry/method_shards/METHODS_V2_R2_PART*.json research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json
           if git diff --cached --quiet; then
-            echo "No missing method shards; no commit required."
+            echo "No registry repair changes required."
             exit 0
           fi
-          git commit -m "Generate missing R2 method registry shards"
+          git commit -m "Repair R2 method shards and config integrity hashes"
           git push origin HEAD:phase-08-prediction-developer
