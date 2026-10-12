@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8_GREEK_ENRICHMENT_R3",
+  "request_id": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12",
+  "created_at": "2026-10-12",
+  "developer_snapshot_sha": "f556c7b44088f18551453c36f78e8d5de7fe141e",
+  "supersedes_request": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12",
+  "approved_scope_requested": "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE",
+  "reviewed_blobs": {
+    "scripts/enrich_nifty_composite_greeks.py": "9f1f6a8121105e00ec46a0b1105f40767dae70d5",
+    "scripts/test_enrich_nifty_composite_greeks.py": "23d16e5ae04bfd4d3fe5fc5206441fdc1f14cb9b",
+    ".github/workflows/phase8-greek-enrichment.yml": "5f17b94913d2da8fb58c705f6e7ed4d9776efdef",
+    "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R3_2026-10-12.md": "4a9a8650297115a9610fe323c77734e3d17f905a"
+  },
+  "prior_test_evidence": {
+    "r2_tester_run_id": 38194602133,
+    "r2_developer_run_id": 38194592152,
+    "r2_developer_snapshot_sha": "6ebb54bdbbc7ed0198d23d0b555aea547a127f9f",
+    "r2_terminal_error": "ValueError: row count changed: source=None output=8999865",
+    "r2_artifact_uploaded": false,
+    "terminal_gate": "R2 failed row-count validation; validation and upload skipped. No enriched dataset delivered."
+  },
+  "rationale_for_r3": [
+    "The cached encrypted source manifest defines row_count for each of its 61 parts but has no top-level rows_preserved field.",
+    "R1 and R2 both reached 8,999,865 transformed output rows but failed at the final comparison because the code used absent manifest.get('rows_preserved'), yielding None.",
+    "R3 makes the validated sum of per-part row_count fields the expected row total, and if a top-level rows_preserved value exists it must match the sum.",
+    "R3 rejects missing, nonnumeric, fractional, negative, or inconsistent row counts and asserts 8,999,865 rows from exactly 61 parts before any HF source request.",
+    "R3 adds developer regression fixtures and an independently implemented tester audit for manifest row-count behavior."
+  ],
+  "tester_must_independently_verify": [
+    "The developer snapshot SHA and exact four reviewed blob hashes are pinned and match.",
+    "Run the developer synthetic suite in a detached isolated worktree.",
+    "Independently compute the per-part count sum for valid manifests without a top-level total and with a matching top-level total.",
+    "Reject mismatching aggregate totals, missing row_count fields, fractional values, negative values, nonnumeric values, and empty/missing part lists.",
+    "Verify cached bundle preflight requires exactly 61 parts and 8,999,865 total rows before HF metadata/spot fetch; no external source request occurs before this exact R3 PASS decision.",
+    "Retest exact-timestamp spot matching with second-resolution timezone-aware datetimes, exact-match-only field fill, and non-overwrite of valid original spot values.",
+    "Audit timestamp +60 second bar-close valuation and time-to-expiry conversion.",
+    "Independently validate Black-Scholes IV inversion, Greek signs/units, finite differences, invalid premium rejection.",
+    "Check output schema expectations: all 8,999,865 source rows and 61 partitions preserved; encryption and no-plaintext checks remain mandatory; no artifact acceptance without terminal coverage/hash validation."
+  ],
+  "restrictions": {
+    "hf_public_spot_fetch_authorized_requested": true,
+    "hf_public_expiry_filelist_authorized_requested": true,
+    "dhan_api_requests_authorized": false,
+    "empirical_option_pnl_authorized": false,
+    "holdout_access_authorized": false,
+    "strategy_promotion_authorized": false,
+    "plaintext_upload_authorized": false,
+    "commercial_use_authorized": false,
+    "source_license": "CC-BY-NC-4.0; non-commercial research only",
+    "source_grid_status": "PARTIAL_GRID",
+    "completeness_claim": "Do not claim all exchange-listed NIFTY strikes/contracts are present."
+  },
+  "reviewer_instructions": {
+    "developer": "Do not change the four reviewed blobs during review. A changed snapshot requires a fresh request and decision. Do not run data enrichment before a PASS decision pins this exact head.",
+    "tester": "Issue PASS_WITH_SCOPED_RESTRICTIONS only after exact four-blob pins and both test suites pass for snapshot f556c7b44088f18551453c36f78e8d5de7fe141e; otherwise REQUEST_CHANGES. Dhan, P&L, holdout, strategy promotion, commercial use, and plaintext upload remain prohibited."
+  },
+  "test_attempt": 3
+}
