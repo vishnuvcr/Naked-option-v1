@@ -45,7 +45,65 @@ def main():
             pass
         else:
             raise AssertionError("invalid authorization state was accepted")
-    print("PASS: Phase 8P synthetic tests; real artifacts untouched; no model fit")
+    # Exact Greek valuation timestamp means source bar epoch + stored offset equals decision UTC.
+    base = pd.Timestamp("2025-01-02T04:00:00Z").timestamp()
+    snap_rows = [
+        {"timestamp_epoch": base-60, "greek_valuation_offset_seconds": 60, "id":"exact"},
+        {"timestamp_epoch": base-120, "greek_valuation_offset_seconds": 60, "id":"stale"},
+        {"timestamp_epoch": base, "greek_valuation_offset_seconds": 60, "id":"future"},
+    ]
+    exact = m.exact_snapshot_rows(snap_rows, pd.Timestamp(base, unit="s", tz="UTC"))
+    assert [r["id"] for r in exact] == ["exact"]
+
+    # Frozen label-end adapters match the Phase 3 source rules: daily row shift(-H)
+    # and intraday exact timestamp+H-minute lookup.
+    daily = m.daily_target_end_dates(["2025-01-02","2025-01-03"], 
+                                     ["2025-01-02","2025-01-03","2025-01-06","2025-01-07"], 2)
+    assert str(daily[0].date()) == "2025-01-06" and str(daily[1].date()) == "2025-01-07"
+    intrats = pd.date_range("2025-01-02T04:00:00Z", periods=5, freq="min")
+    ends = m.intraday_target_end_timestamps([intrats[0],intrats[1]], intrats, 2)
+    assert ends[0] == intrats[2] and ends[1] == intrats[3]
+
+    # Synthetic per-minute spot data; the first row of a new session must not
+    # manufacture a one-minute cross-session return.
+    t0 = pd.Timestamp("2025-01-02T09:15:00", tz="Asia/Kolkata").timestamp()
+    t1 = pd.Timestamp("2025-01-03T09:15:00", tz="Asia/Kolkata").timestamp()
+    spot_rows = []
+    for session, start in (("2025-01-02", t0), ("2025-01-03", t1)):
+        for k in range(130):
+            spot_rows.append({"timestamp_epoch":start+k*60, "session_date":session,
+                              "nifty_close":22000.0 + k + (0 if session=="2025-01-02" else 500)})
+    spot = pd.DataFrame(spot_rows)
+    feats = m.build_spot_features(spot, [
+        pd.Timestamp(t0+60*70, unit="s", tz="UTC"),
+        pd.Timestamp(t1+60, unit="s", tz="UTC")])
+    assert feats.loc[0,"spot_exact_bar_missing"] == 0
+    assert abs(feats.loc[0,"ret_1"] - np.log(22070.0/22069.0)) < 1e-10
+    assert np.isnan(feats.loc[1,"ret_1"]), "session gap must not be used as one-minute return"
+
+    # Exercise both fixed model arms on synthetic data only and ensure same test rows.
+    rng = np.random.default_rng(42)
+    n = 1200
+    decisions = pd.date_range("2025-01-01T04:00:00Z", periods=n, freq="min")
+    rawx = rng.normal(size=(n,3))
+    labels = ((rawx[:,0] + 0.35*rawx[:,1] + rng.normal(0,0.6,n)) > 0).astype(float)
+    x0 = pd.DataFrame(rawx[:,:2], columns=["ret_1","rv20"])
+    x1 = pd.DataFrame(rawx, columns=["ret_1","rv20","call_delta_median"])
+    target_end = decisions + pd.Timedelta(minutes=1)
+    blocks = np.repeat(np.arange(30),40)
+    approved = {"status":"PASS","model_fit_authorized":True,"holdout_access_authorized":False,
+                "option_pnl_authorized":False,"strategy_promotion_authorized":False}
+    predicted = m.walk_forward_predict(labels,target_end,decisions,blocks,x0,x1,"intraday",
+                                       minimum_training_rows=100,scope_approved=True,
+                                       code_approved=True,preflight=approved)
+    for key,result in predicted.items():
+        assert result["fit_blocks"] >= 20, (key,result["fit_blocks"])
+        assert np.array_equal(np.isfinite(result["p_spot"]),np.isfinite(result["p_augmented"])), key
+        mask=np.isfinite(result["p_spot"])
+        assert mask.sum() >= 500, (key,int(mask.sum()))
+
+    # Scope-approved synthetic fit does not mean real input authority.
+    print("PASS: Phase 8P synthetic tests; synthetic model smoke-test only; real artifacts untouched")
 
 if __name__ == "__main__":
     main()
