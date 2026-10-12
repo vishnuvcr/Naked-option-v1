@@ -23,7 +23,8 @@
     "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
     "config_manifest_git_blob_sha1": "cde05748ae534e612948137b7ddf97466d795a25",
     "registry_index_git_blob_sha1": "1adfbdee7076d20f03a582355d5075ebb4159948",
-    "compatibility_matrix_git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971"
+    "compatibility_matrix_git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971",
+    "empirical_execution_gate": "BLOCKED_PENDING_HORIZON_COMPLETE_REGISTRY_GATE"
   },
   "labels": {
     "INTRA_30M_UP_DOWN": {
