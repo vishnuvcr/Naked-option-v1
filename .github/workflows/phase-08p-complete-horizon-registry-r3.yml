@@ -106,10 +106,25 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
-          git add research/registry/config_shards_r3             research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json             research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json             research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json             research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
+          git add research/registry/config_shards_r3 research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
           if git diff --cached --quiet; then
             echo "R3 registry outputs are already current; no generated-output commit is needed."
             exit 0
           fi
           git commit -m "Build complete ten-horizon prediction registry R3"
+          git push origin HEAD:phase-08-prediction-developer
+
+      - name: Commit developer error diagnostics if build or tests fail
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          git add research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
+          if git diff --cached --quiet; then
+            echo "No new failure diagnostics to commit."
+            exit 0
+          fi
+          git commit -m "Log developer R3 registry build/test failure"
           git push origin HEAD:phase-08-prediction-developer
