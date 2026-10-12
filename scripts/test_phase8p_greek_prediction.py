@@ -127,33 +127,83 @@ def main():
     else:
         raise AssertionError("option row missing valuation offset was accepted")
 
-    # One mixed composite chunk must build exact Greek features and separately retain SPOT rows.
+    # Manifest-bound schema fixture: full required semantics plus an unmodeled extra column.
+    source_epoch = int(base - 60)
+    timestamp_utc = pd.Timestamp(source_epoch, unit="s", tz="UTC").isoformat()
+    timestamp_ist = pd.Timestamp(source_epoch, unit="s", tz="UTC").tz_convert("Asia/Kolkata").isoformat()
+
+    def make_option_row(strike, side, delta_value, gamma_value, theta_value, vega_value, iv_value, oi, volume):
+        return {
+            "row_type":"OPTION", "underlying":"NIFTY 50", "timestamp_epoch":source_epoch,
+            "timestamp_utc":timestamp_utc, "timestamp_ist":timestamp_ist, "session_date":"2025-01-02",
+            "expiry_date":"2025-01-07", "expiry_mapping_source":"HF_EXPIRY_PARTITION_FILELIST_PROXY",
+            "expiry_flag":"WEEK", "expiry_code":0, "returned_strike":strike, "option_type":side,
+            "time_to_expiry_years":5/365, "greek_valuation_offset_seconds":60,
+            "risk_free_rate_decimal":0.06, "risk_free_rate_source":"SYNTHETIC_FIXED",
+            "dividend_yield_decimal":0.01, "dividend_yield_source":"SYNTHETIC_FIXED",
+            "greek_assumption":"SYNTHETIC", "option_open":100.0, "option_high":101.0,
+            "option_low":99.0, "option_close":100.0, "option_volume":volume,
+            "open_interest":oi, "implied_volatility":iv_value, "rolling_spot":25000.0,
+            "nifty_open":24999.0, "nifty_high":25010.0, "nifty_low":24990.0,
+            "nifty_close":25000.0, "nifty_volume":100000.0, "spot_join_status":"EXACT",
+            "spot_valuation_source":"SYNTHETIC_EXACT", "source_provider":"SYNTHETIC",
+            "source_endpoint":"fixture", "cache_status":"FIXTURE",
+            "greek_implied_volatility":iv_value, "greek_iv_source":"IV_INVERTED_FROM_OPTION_CLOSE",
+            "delta":delta_value, "gamma":gamma_value, "theta_per_day":theta_value,
+            "vega_per_1pct_iv":vega_value, "rho_per_1pct_rate":0.01,
+            "greek_model":"BLACK_SCHOLES_SYNTHETIC",
+            "greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV", "data_quality_flags":"",
+            "source_request_id":f"request-{side}-{strike}", "requested_relative_strike":0,
+            "request_scope_sha256":"scope-a", "response_sha256":"response-a",
+            "synthetic_unmodeled_column":"kept-in-signature",
+            # Legacy spelling intentionally present as an extra manifest column.
+            "volume":volume,
+        }
+
     option_rows = []
     for i in range(5):
-        option_rows.append({
-            "row_type":"OPTION","timestamp_epoch":base-60,
-            "greek_valuation_offset_seconds":60,"expiry_date":"2025-01-07",
-            "expiry_flag":"WEEK","expiry_code":0,"returned_strike":25000+i*50,
-            "option_type":"CE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV",
-            "delta":.60+i*.01,"gamma":.02,"theta_per_day":-1.,
-            "vega_per_1pct_iv":.4,"greek_implied_volatility":.20,
-            "open_interest":100,"volume":10,"greek_iv_source":"IV_INVERTED_FROM_OPTION_CLOSE",
-            "expiry_mapping_source":"HF_EXPIRY_PARTITION_FILELIST_PROXY","data_quality_flags":"",
-        })
-        option_rows.append({
-            "row_type":"OPTION","timestamp_epoch":base-60,
-            "greek_valuation_offset_seconds":60,"expiry_date":"2025-01-07",
-            "expiry_flag":"WEEK","expiry_code":0,"returned_strike":25000+i*50,
-            "option_type":"PE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV",
-            "delta":-.40-i*.01,"gamma":.025,"theta_per_day":-.8,
-            "vega_per_1pct_iv":.45,"greek_implied_volatility":.25,
-            "open_interest":200,"volume":20,"greek_iv_source":"IV_INVERTED_FROM_OPTION_CLOSE",
-            "expiry_mapping_source":"HF_EXPIRY_PARTITION_FILELIST_PROXY","data_quality_flags":"",
-        })
+        option_rows.append(make_option_row(25000+i*50, "CE", .60+i*.01, .02, -1., .4, .20, 100, 10))
+        option_rows.append(make_option_row(25000+i*50, "PE", -.40-i*.01, .025, -.8, .45, .25, 200, 20))
     spot_row = {
-        "row_type":"SPOT","timestamp_epoch":base-60,"greek_valuation_offset_seconds":np.nan,
-        "session_date":"2025-01-02","nifty_close":25000.0,
+        "row_type":"SPOT", "underlying":"NIFTY 50", "timestamp_epoch":source_epoch,
+        "timestamp_utc":timestamp_utc, "timestamp_ist":timestamp_ist,
+        "greek_valuation_offset_seconds":np.nan, "session_date":"2025-01-02",
+        "nifty_close":25000.0,
     }
+
+    # The dynamic schema comes from the manifest column list, not a developer-authored constant.
+    fixture_columns = list(pd.DataFrame(option_rows + [spot_row]).columns)
+    assert tuple(fixture_columns) == m.validate_greek_manifest_columns(fixture_columns)
+    m.validate_greek_part_columns(fixture_columns, tuple(fixture_columns))
+    try:
+        m.validate_greek_manifest_columns([c for c in fixture_columns if c != "option_close"])
+    except m.GateBlocked as exc:
+        assert "GREEK_MANIFEST_REQUIRED_COLUMNS_MISSING" in str(exc)
+    else:
+        raise AssertionError("manifest missing required column was accepted")
+    try:
+        m.validate_greek_part_columns(fixture_columns[::-1], tuple(fixture_columns))
+    except m.GateBlocked as exc:
+        assert "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST" in str(exc)
+    else:
+        raise AssertionError("reordered part header was accepted")
+
+    # Provenance-only variations canonicalize deterministically; an unknown extra signature field conflicts.
+    seed_row = dict(option_rows[0], source_request_id="request-A", requested_relative_strike=0,
+                    request_scope_sha256="scope-A", response_sha256="response-A")
+    second_provenance = dict(seed_row, source_request_id="request-B", requested_relative_strike=1,
+                             request_scope_sha256="scope-B", response_sha256="response-B")
+    dedup_frame = m.build_option_feature_frame([pd.DataFrame([seed_row, second_provenance])], [decision])
+    assert dedup_frame.loc[0,"n_call"] == 1
+    conflict_a = dict(seed_row, synthetic_unmodeled_column="extra-value-A")
+    conflict_b = dict(seed_row, synthetic_unmodeled_column="extra-value-B")
+    try:
+        m.build_option_feature_frame([pd.DataFrame([conflict_a, conflict_b])], [decision])
+    except m.GateBlocked as exc:
+        diag = getattr(exc, "economic_duplicate_diagnostic", {})
+        assert "synthetic_unmodeled_column" in diag.get("conflicting_signature_fields", [])
+    else:
+        raise AssertionError("conflicting unknown manifest column was silently ignored")
     spot_sink = []
     greek_frame = m.build_option_feature_frame(
         [pd.DataFrame(option_rows+[spot_row])], [decision], spot_sink
