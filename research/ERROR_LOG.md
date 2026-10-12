@@ -202,3 +202,16 @@
 
 **Tester → Developer:** preserve both infrastructure failures in the history; do not treat them as a rejection of the diagnostic code. Submit a separately pinned diagnostic-only authorization request.
 **Developer → Tester:** wait for independent authorization review before invoking the real encrypted reader.
+
+## 2026-10-12 — R4 independent duplicate-diagnostic review retries
+
+- Scope: tester-only gate orchestration/static fixture audit. No real artifact access or decryption occurred.
+- Run [#38205280084](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205280084): the first push from the updated tester audit occurred before the workflow request path had been changed from R3 to R4. It audited the wrong (old R3) request and reported widespread pin mismatches. **Non-evidence for the R4 code snapshot.** The workflow path and artifact label were then corrected.
+- Run [#38205378764](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205378764): exact R4 developer commit was checked out; 28/29 checks passed. The only failure was an over-literal static fixture assertion which expected an error code to appear in the test file, though the test validates the exception's attached diagnostic fields.
+- Run [#38205429386](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205429386): same exact commit and same 28/29 outcome. After adjusting the exception assertion, the remaining mismatch was that the audit expected a longer phrase than the synthetic fixture actually uses.
+- Corrections on tester branch: workflow request path now pins `PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json`; artifact label is R4. Audit checks now reflect actual R4 test behavior and source wording rather than requiring an un-emitted literal.
+- The next run [#38205506563](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563) is in progress when this entry is written; no code verdict has been made yet.
+- Preserved scope boundary: the review uses a detached worktree at exact developer commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`, runs static/synthetic tests only, and is not allowed to download/decrypt artifact 11723198817.
+
+**Tester → Developer:** preserve this retry history as reviewer-harness mistakes, not empirical evidence or an implementation rejection. Wait for the pinned R4 gate decision.
+**Developer → Tester:** continue only the isolated R4 review; do not run real artifact or fit a model before further separate gate approvals.
