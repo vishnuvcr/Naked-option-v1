@@ -1046,3 +1046,15 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Added `scripts/shard_prediction_compatibility_matrix.py`, `scripts/test_shard_prediction_compatibility_matrix.py`, and 40 committed 25-row JSON shards with a SHA-256/byte-count/record-count/ID-range index.
 - CI run 38299233992 passed: 4 new shard tests; exact reassembly against the full matrix; index hash and byte checks; deterministic regeneration; existing preregistration, statistical, compatibility and registry audit tests. The run pushed generated artifacts at commit `503af0a4c6af98aec2c2a41b633cedc50df75d34`.
 - Scope: improves independent inspectability only. Does not establish scientific validity/distinctness or authorize model fitting. No real market data was opened.
+
+## 2026-10-13 — Phase 8P R2 tester findings T2/T3 and developer correction
+
+- Category: statistical inference / protocol scope / test evidence.
+- T2 source defect: paired_moving_block_bootstrap used a percentile CI and plus-one p-value even when every bootstrap estimate was identical. In a fold exactly as long as its block, only one admissible moving block exists; constant deltas also force a single-valued resampling distribution. The prior test asserted a zero-width CI and the smallest p-value.
+- Correction committed on the developer branch: if the sorted bootstrap estimates have only one unique value, the function preserves the observed mean descriptively and returns ci_low=null, ci_high=null, raw_two_sided_p_value_centered_bootstrap=null, and inferential_status=NON_IDENTIFIABLE_DEGENERATE_RESAMPLING; otherwise it marks inferential status OK. Tests now include constant positive, constant zero, and one-admissible-block cases.
+- T3 scope correction: the committed R2 configuration set defines only 30-minute intraday and +1-session positional targets. It is now explicitly marked as a two-target synthetic/design pilot, not exhaustive coverage. Empirical fitting and pilot-based ranking are prohibited until an independently approved complete-horizon registry covers 5/15/30/60/120-minute and +1/+2/+3/+5/+10-session targets, including horizon-specific target maturity, purge/embargo, and fold-end rules.
+- Correction package: research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md. Tester re-review requested; approval is not assumed.
+- Hosted test status for the newest correction is not yet verified. No market data, model fit, holdout, option P&L, or strategy selection was used.
+
+**Developer → Tester:** independently validate corrected inference behavior, frozen pilot scope, and run artifacts; return a hash-pinned gate decision.
+**Tester → Developer:** flag any remaining defects with reproducible evidence and keep empirical fitting blocked until the ten-horizon gate passes.
