@@ -860,3 +860,10 @@ A subsequent clean-audit test failed only because its assertion did not match th
 ### 2026-10-12 — Statistical utility and reproducibility gates
 
 Implemented preregistered log-loss/Brier/balanced-accuracy metrics, calibration intercept/slope, five-session paired moving-block bootstrap and BY FDR adjustment utilities. Tests passed in hosted run [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987). Corrected a mislabeled Git blob SHA-1 field convention and pinned all relevant workflows to the exact triggering commit; the pinned synthetic run [38253120700](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253120700) succeeded. No real data or fitted models were used. The independent scientific gate remains REQUEST CHANGES.
+
+
+### 2026-10-12 — Pinned synthetic and statistical gate results
+
+Latest full run [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894) is PASS at exact source SHA `d6ab3298f42367de9b0101cdedf477165b20d31f`; workflow checked out `${{ github.sha }}` and asserted it matched `GITHUB_SHA`. It ran the synthetic checkpoint/restart/error tests plus statistical utility tests and completed all 64,000 synthetic tasks. The downloaded summary verifies zero error rows and no market data/model fit/holdout use.
+
+Statistics implementation and tests are committed: `scripts/prediction_statistics.py` and `scripts/test_prediction_statistics.py`. The independent scientific registry gate is still REQUEST CHANGES, and actual estimator resource use is still unbenchmarked. No empirical predictions have been run.
