@@ -93,6 +93,9 @@ def aggregate_option_snapshot(rows: Sequence[Mapping[str, Any]]) -> dict[str, An
                 label = str(r.get(col, "")) or "MISSING"
                 counts[label] = counts.get(label, 0) + 1
         out[outkey] = counts
+        denom = sum(counts.values())
+        out[outkey + "_fractions"] = ({k: v / denom for k, v in counts.items()} if denom else {})
+    out["n_option_rows_for_provenance"] = sum(str(r.get("row_type", "")).upper() == "OPTION" for r in rows)
     return out
 
 def validate_panel_frame(frame: pd.DataFrame, layer: str, horizon: int) -> dict[str, Any]:
@@ -233,6 +236,8 @@ def paired_metrics(y, p_spot, p_augmented) -> dict[str, Any]:
     for key, fun in (("roc_auc", roc_auc_score), ("pr_auc", average_precision_score)):
         out[key + "_spot_only"] = float(fun(y, p0)) if len(np.unique(y)) == 2 else None
         out[key + "_spot_plus_greek"] = float(fun(y, p1)) if len(np.unique(y)) == 2 else None
+    out["calibration_spot_only"] = calibration_intercept_slope(y, p0)
+    out["calibration_spot_plus_greek"] = calibration_intercept_slope(y, p1)
     return out
 
 def enforce_fit_gate(scope_approved: bool, code_approved: bool, preflight: Mapping[str, Any]) -> None:
@@ -244,6 +249,204 @@ def enforce_fit_gate(scope_approved: bool, code_approved: bool, preflight: Mappi
         raise GateBlocked("HOLDOUT_MUST_REMAIN_CLOSED")
     if preflight.get("option_pnl_authorized") is not False or preflight.get("strategy_promotion_authorized") is not False:
         raise GateBlocked("OUT_OF_SCOPE_AUTHORIZATION_FLAG")
+
+def calibration_intercept_slope(y, p):
+    """Fit diagnostic calibration of observed labels on prediction logits."""
+    y, p = np.asarray(y, float), np.asarray(p, float)
+    if len(y) != len(p) or len(y) < 10 or not (np.isfinite(y).all() and np.isfinite(p).all()):
+        return {"intercept": None, "slope": None}
+    if len(np.unique(y)) != 2:
+        return {"intercept": None, "slope": None}
+    p = np.clip(p, 1e-6, 1 - 1e-6)
+    logit = np.log(p / (1 - p)).reshape(-1, 1)
+    model = LogisticRegression(penalty="l2", C=1e6, solver="lbfgs", max_iter=1000, random_state=SEED)
+    model.fit(logit, y.astype(int))
+    return {"intercept": float(model.intercept_[0]), "slope": float(model.coef_[0, 0])}
+
+def exact_snapshot_rows(rows, decision_timestamp):
+    """Keep only option rows whose timestamp_epoch + declared offset equals decision UTC."""
+    decision = pd.Timestamp(decision_timestamp)
+    if decision.tzinfo is None:
+        raise GateBlocked("DECISION_TIMESTAMP_MUST_BE_TIMEZONE_AWARE")
+    decision_epoch = decision.tz_convert("UTC").timestamp()
+    result = []
+    for row in rows:
+        start = number(row.get("timestamp_epoch"))
+        offset = number(row.get("greek_valuation_offset_seconds"))
+        if not np.isfinite(start) or not np.isfinite(offset):
+            raise GateBlocked("GREEK_VALUATION_TIMESTAMP_FIELDS_MISSING")
+        # Raw timestamp_epoch can be seconds or milliseconds; use the same safe threshold
+        # as the approved enrichment implementation, then apply its recorded valuation offset.
+        if start > 1e12:
+            start = math.floor(start / 1000.0)
+        valuation = start + offset
+        if math.isclose(valuation, decision_epoch, rel_tol=0.0, abs_tol=1e-6):
+            result.append(row)
+    return result
+
+def daily_target_end_dates(decision_dates, source_dates, horizon):
+    """Reproduce the frozen daily make_label shift(-H) row relationship."""
+    src = pd.DatetimeIndex(pd.to_datetime(source_dates, errors="raise")).normalize()
+    if src.has_duplicates or not src.is_monotonic_increasing:
+        raise GateBlocked("DAILY_SOURCE_DATES_MUST_BE_UNIQUE_AND_SORTED")
+    lookup = {stamp: i for i, stamp in enumerate(src)}
+    result = []
+    for raw in decision_dates:
+        stamp = pd.Timestamp(raw)
+        if stamp.tzinfo is not None:
+            raise GateBlocked("DAILY_DATE_HAS_UNEXPECTED_TIMEZONE")
+        stamp = stamp.normalize()
+        pos = lookup.get(stamp)
+        target = src[pos + int(horizon)] if pos is not None and pos + int(horizon) < len(src) else pd.NaT
+        result.append(target)
+    return pd.DatetimeIndex(result)
+
+def intraday_target_end_timestamps(decision_timestamps, source_timestamps, horizon):
+    """Reproduce the frozen intraday label's exact timestamp + H-minute lookup."""
+    src = pd.DatetimeIndex(pd.to_datetime(source_timestamps, utc=True, errors="raise"))
+    if src.has_duplicates or not src.is_monotonic_increasing:
+        raise GateBlocked("INTRADAY_SOURCE_TIMESTAMPS_MUST_BE_UNIQUE_AND_SORTED")
+    available = set(src.asi8.tolist())
+    out = []
+    for raw in decision_timestamps:
+        decision = pd.Timestamp(raw)
+        if decision.tzinfo is None:
+            raise GateBlocked("INTRADAY_DECISION_TIMESTAMP_MUST_BE_TIMEZONE_AWARE")
+        target = decision.tz_convert("UTC") + pd.Timedelta(minutes=int(horizon))
+        out.append(target if target.value in available else pd.NaT)
+    return pd.DatetimeIndex(out)
+
+def build_spot_features(spot_rows, decision_timestamps, daily=False):
+    """Build fixed backward-only spot features; no interpolation or cross-session minute lags."""
+    required = {"timestamp_epoch", "session_date", "nifty_close"}
+    if required - set(spot_rows.columns):
+        raise GateBlocked("SPOT_SCHEMA_MISSING:" + ",".join(sorted(required - set(spot_rows.columns))))
+    spot = spot_rows.copy()
+    spot["timestamp_epoch"] = pd.to_numeric(spot["timestamp_epoch"], errors="coerce")
+    spot["nifty_close"] = pd.to_numeric(spot["nifty_close"], errors="coerce")
+    spot = spot[np.isfinite(spot["timestamp_epoch"]) & np.isfinite(spot["nifty_close"]) & (spot["nifty_close"] > 0)].copy()
+    spot["timestamp_epoch"] = np.where(spot["timestamp_epoch"] > 1e12,
+                                       np.floor(spot["timestamp_epoch"] / 1000), spot["timestamp_epoch"])
+    spot["bar_end_epoch"] = spot["timestamp_epoch"] + 60
+    spot["session_date"] = pd.to_datetime(spot["session_date"], errors="coerce").dt.normalize()
+    spot = spot.dropna(subset=["session_date"]).sort_values("bar_end_epoch").drop_duplicates("bar_end_epoch", keep="last").reset_index(drop=True)
+    if spot.empty:
+        raise GateBlocked("NO_VALID_SPOT_BARS")
+    ends = spot["bar_end_epoch"].to_numpy(float)
+    closes = spot["nifty_close"].to_numpy(float)
+    sessions = spot["session_date"].to_numpy()
+    logc = np.log(closes)
+    ret = np.full(len(spot), np.nan)
+    for i in range(1, len(spot)):
+        if ends[i] - ends[i-1] == 60 and sessions[i] == sessions[i-1]:
+            ret[i] = logc[i] - logc[i-1]
+    session_closes = spot.groupby("session_date", sort=True).tail(1).sort_values("session_date")
+    session_dates = session_closes["session_date"].to_numpy()
+    session_prices = session_closes["nifty_close"].to_numpy(float)
+    ret_by_date = {pd.Timestamp(d): j for j, d in enumerate(session_dates)}
+    output = []
+    for raw in decision_timestamps:
+        decision = pd.Timestamp(raw)
+        if decision.tzinfo is None:
+            raise GateBlocked("DECISION_TIMESTAMP_MUST_BE_TIMEZONE_AWARE_FOR_SPOT_FEATURES")
+        epoch = decision.tz_convert("UTC").timestamp()
+        i = int(np.searchsorted(ends, epoch, side="right") - 1)
+        row = {"decision_timestamp_utc": decision.tz_convert("UTC").isoformat()}
+        if i < 0 or abs(ends[i] - epoch) > 1e-6:
+            # Same timestamp grid is required; do not use nearest/as-of bars.
+            row["spot_exact_bar_missing"] = 1
+            for name in ("ret_1", "ret_5", "ret_15", "ret_30", "ret_60", "rv20", "rv60", "previous_session_return"):
+                row[name] = math.nan
+            output.append(row)
+            continue
+        row["spot_exact_bar_missing"] = 0
+        for lag in (1, 5, 15, 30, 60):
+            j = i - lag
+            if j >= 0 and sessions[j] == sessions[i] and np.all(np.diff(ends[j:i+1]) == 60):
+                row[f"ret_{lag}"] = float(logc[i] - logc[j])
+            else:
+                row[f"ret_{lag}"] = math.nan
+        for window in (20, 60):
+            vals = ret[max(0, i-window+1):i+1]
+            row[f"rv{window}"] = float(np.std(vals, ddof=1)) if len(vals) == window and np.isfinite(vals).all() else math.nan
+        today = pd.Timestamp(sessions[i])
+        prev = np.flatnonzero(session_dates < today)
+        if len(prev) >= 2 and session_prices[prev[-2]] > 0 and session_prices[prev[-1]] > 0:
+            row["previous_session_return"] = float(np.log(session_prices[prev[-1]] / session_prices[prev[-2]]))
+        else:
+            row["previous_session_return"] = math.nan
+        output.append(row)
+    return pd.DataFrame(output)
+
+def walk_forward_predict(y, target_end, decision_time, block_index, x_spot, x_augmented,
+                         layer, minimum_training_rows=1000, scope_approved=False,
+                         code_approved=False, preflight=None):
+    """Fit the two frozen models only after the explicit independent gate is satisfied.
+
+    This function has no external-data path. The caller supplies already-matched, audited
+    frames and a tester-approved preflight receipt. Missing/ambiguous target-end values block.
+    """
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.impute import SimpleImputer
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+    enforce_fit_gate(scope_approved, code_approved, preflight or {})
+    y = np.asarray(y, float)
+    target_end = pd.to_datetime(target_end, errors="raise", utc=(layer == "intraday"))
+    decision_time = pd.to_datetime(decision_time, errors="raise", utc=(layer == "intraday"))
+    blocks = np.asarray(block_index, dtype=int)
+    if not (len(y) == len(target_end) == len(decision_time) == len(blocks) == len(x_spot) == len(x_augmented)):
+        raise GateBlocked("PANEL_TARGET_FEATURE_LENGTH_MISMATCH")
+    if target_end.isna().any() or decision_time.isna().any():
+        raise GateBlocked("TARGET_END_OR_DECISION_TIME_UNPROVEN")
+    if not np.isin(y[np.isfinite(y)], [0., 1.]).all():
+        raise GateBlocked("LABEL_NOT_BINARY_0_1")
+    if not np.array_equal(np.unique(blocks), np.arange(len(np.unique(blocks)))):
+        raise GateBlocked("BLOCK_INDEX_NOT_CONTIGUOUS")
+    if not x_spot.index.equals(pd.RangeIndex(len(y))) or not x_augmented.index.equals(pd.RangeIndex(len(y))):
+        raise GateBlocked("FEATURES_NOT_ROW_ALIGNED_TO_FROZEN_PANEL")
+    specs = {
+        "logistic": lambda: Pipeline([
+            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+            ("scaler", StandardScaler()),
+            ("model", LogisticRegression(penalty="l2", C=1.0, solver="liblinear",
+                class_weight=None, max_iter=1000, tol=1e-4, random_state=SEED)),
+        ]),
+        "hist_gradient_boosting": lambda: Pipeline([
+            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+            ("model", HistGradientBoostingClassifier(max_iter=200, learning_rate=0.03,
+                max_leaf_nodes=15, min_samples_leaf=30, l2_regularization=0.0,
+                max_bins=255, early_stopping=False, class_weight=None, random_state=SEED)),
+        ]),
+    }
+    outputs = {}
+    unique_blocks = np.unique(blocks)
+    for model_name, factory in specs.items():
+        outputs[model_name] = {"p_spot": np.full(len(y), np.nan), "p_augmented": np.full(len(y), np.nan),
+                               "fit_blocks": 0, "blocked_blocks": []}
+        for b in unique_blocks:
+            test = np.flatnonzero(blocks == b)
+            if not len(test): continue
+            cutoff = decision_time[test[0]]
+            train = np.flatnonzero((blocks < b) & np.isfinite(y) & (target_end < cutoff))
+            if len(train) < minimum_training_rows:
+                outputs[model_name]["blocked_blocks"].append({"block": int(b), "reason": "INSUFFICIENT_MATURE_TRAIN_ROWS", "n_train": int(len(train))})
+                continue
+            if len(np.unique(y[train])) < 2:
+                raise GateBlocked(f"SINGLE_CLASS_TRAINING_BLOCK:{model_name}:{b}")
+            models = []
+            for features in (x_spot, x_augmented):
+                model = factory()
+                model.fit(features.iloc[train], y[train].astype(int))
+                models.append(model)
+            p0 = models[0].predict_proba(x_spot.iloc[test])[:, 1]
+            p1 = models[1].predict_proba(x_augmented.iloc[test])[:, 1]
+            if not (np.isfinite(p0).all() and np.isfinite(p1).all()):
+                raise GateBlocked(f"NONFINITE_PREDICTION:{model_name}:{b}")
+            outputs[model_name]["p_spot"][test] = p0
+            outputs[model_name]["p_augmented"][test] = p1
+            outputs[model_name]["fit_blocks"] += 1
+    return outputs
 
 def synthetic_self_test() -> dict[str, Any]:
     rows=[]
