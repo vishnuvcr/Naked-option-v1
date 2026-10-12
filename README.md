@@ -1,3 +1,12 @@
+## Tester review cadence update — 2026-10-13
+
+- Per the latest user instruction, **independent review is deferred until the full planned results bundle is acquired, frozen and indexed**. Do not conduct tester reviews for each development step or intermediate commit.
+- The tester workflow is dormant until `research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` is committed with `results_acquired: true`, a pinned developer commit, and a result-bundle manifest with artifact SHA-256 hashes. The manual run button is for that same post-acquisition event only.
+- Earlier R2 `REQUEST CHANGES` artifacts remain historical evidence. T2/T3 source findings were addressed on the developer branch; they are not an instruction to perform repeated step-by-step reviews under the new policy.
+- [Cadence policy](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md) · [Tester workflow](.github/workflows/phase-08p-independent-registry-review.yml).
+
+---
+
 ## Phase 8P R2 tester continuation — 2026-10-13
 
 - Developer submitted T2 bootstrap and T3 target-scope corrections. Source inspection indicates the bootstrap now withholds inferential output for a single-valued resampling distribution; R2 is explicitly a non-empirical two-target pilot.
