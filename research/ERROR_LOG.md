@@ -911,3 +911,13 @@
 - Corrected understanding: the original large method registry is retrievable by GitHub blob SHA, while the ordinary file-content adapter returns empty content; this indicates an adapter/auditability constraint, not proof of corruption.
 - Added draft preregistration and compatibility-gate specification. Exact sample eligibility and bootstrap/multiplicity settings remain blocked pending freeze and independent review.
 - No empirical fitting or holdout access authorized.
+
+
+## 2026-10-12 — Prediction registry sharding remediation (tooling not yet run)
+- Category: reproducibility/tooling
+- Component: Phase 8 prediction registry R2 shard generation.
+- Prior symptom: bulk shard-generation attempt exceeded the connected tool's call limit; no shard outputs were confirmed.
+- Remediation: added `scripts/shard_prediction_registry.py` and `scripts/test_shard_prediction_registry.py` to provide bounded JSONL shards, per-shard byte/count/ID-range/SHA-256 indexes, SHA-256 known-vector check, and tamper/duplicate-ID regression tests.
+- Current state: code committed, but neither utility nor tests have been executed in a hosted workflow; generated shards are not claimed to exist. Tester review requested in issue #25.
+- Impact: registry gate remains blocked; no empirical fitting, holdout access, or scientific claims authorized.
+- Prevention: tester must inspect and approve the exact code; hosted tests must pass; then all shard files and hashes must be generated and independently re-verified before the registry gate can be reconsidered.
