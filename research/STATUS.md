@@ -755,3 +755,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** independently review R5 scope and later exact code/workflow hashes; reject any reuse of the consumed R1 nonce.
 **Tester → Developer:** return a written R5 review and exact gate requirements; no real-data access until fresh independent approvals and final one-use authorization.
+
+
+## 2026-10-12 — R5 exact-code independent review resumed
+
+- Developer pinned the R5 runtime snapshot in `research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R5_2026-10-12.json`: code snapshot `916ff866a5290e38203cff3ea2fa30d77a229d18`, diagnostic blob `2e4a47c7453768c66759a5167028aac9eb12568d`; authorization flags remain closed.
+- The prior tester run [#38208463708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208463708) returned REQUEST_CHANGES (29/30). All source pins and synthetic suites passed; its static audit failed with an unexpanded `ValueError`, and no real artifact was accessed or decrypted.
+- Tester-owned audit was updated to validate the current disk-backed scan/progress callback and correct the scan-function delimiter. A fresh independent review is running: [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622). At this checkpoint its conclusion is pending; do not infer a pass.
+- R5 synthetic workflow [#38208731140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208731140) and protocol check [#38208731426](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208731426) passed. These are synthetic/protocol evidence only.
+- Real-data diagnostic remains unauthorized. The consumed R1 nonce is not reused. No duplicate counts, prediction metrics, or strategy/P&L results have been accepted.
+
+**Developer → Tester:** complete the independent review of the exact pinned R5 commit, report each failed assertion explicitly, and keep all real-data/model/holdout permissions false.
+**Tester → Developer:** issue the exact-code gate decision and evidence; if any assertion fails, identify the precise check and required correction. No authorization until code and executor reviews pass.
