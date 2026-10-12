@@ -301,7 +301,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
         return report
 
     # Assign calendar session IDs and derive transient daily close prices.
-    by_session_index={r["exchange_session_index"]:r for r in calendar_rows if r.get("is_exchange_trading_session")}
+    by_session_index={r["prediction_session_index"]:r for r in calendar_rows if r.get("prediction_session_index") is not None}
     regular_close_time=time.fromisoformat(cal["regular_session"]["close"])
     regular_open_time=time.fromisoformat(cal["regular_session"]["open"])
     daily_close={}
@@ -321,7 +321,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
         if bar_time not in ("15:29","15:30"):
             nonstandard_closes.append(d)
             continue
-        daily_close[dayrow["exchange_session_index"]]=(d,price,dt)
+        daily_close[dayrow["prediction_session_index"]]=(d,price,dt)
     report["session_close_time_frequency"]=dict(close_time_counts)
     report["nonstandard_session_close_count"]=len(nonstandard_closes)
     report["nonstandard_session_close_sample"]=nonstandard_closes[:30]
