@@ -4,11 +4,11 @@
 
 ## Pinned execution
 
-- Developer branch commit used by the successful, commit-pinned full run: `d6ab3298f42367de9b0101cdedf477165b20d31f`.
+- Developer branch commit used by the successful, commit-pinned full run: `6d4787348d7b0b794e210026ceddcea19192eccc`.
 - GitHub Actions run: [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308).
 - Workflow: `.github/workflows/prediction-registry-synthetic-dryrun.yml`.
 - The committed dataset manifest explicitly says `encrypted_only=true`. The workflow verifies metadata and hashes but does not decrypt or open market data.
-- Full result artifact: GitHub Actions artifact `r2-prediction-synthetic-dryrun`, ID `11749307748`, including `results.jsonl`, `summary.json`, `checkpoint.json`, and empty `errors.jsonl`.
+- Full result artifact: GitHub Actions artifact `r2-prediction-synthetic-dryrun`, ID `11749635242`, including `results.jsonl`, `summary.json`, `checkpoint.json`, and empty `errors.jsonl`.
 
 ## Execution counts
 
