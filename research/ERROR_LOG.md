@@ -636,3 +636,12 @@
 - Root cause: the fixture queried timestamp_epoch + 70 minutes, which denotes the next source bar's start, while the tested feature API correctly keys decisions to a completed bar at start + 60 seconds. Expected ret_1 therefore referred to the wrong bar.
 - Correction: shifted the synthetic decision timestamp to timestamp_epoch + 71 minutes so it equals the 10:26 UTC-equivalent bar-end for the bar used in the assertion. Fix commit bc2e8d583e8c44d4dc0588fd784a6ee91ed75a6f.
 - Scientific/data impact: none; synthetic fixture only. No market artifact opened, no empirical model fitted.
+
+
+## 2026-10-12 — Phase 8P independent code gate REQUEST_CHANGES
+- Submitted developer snapshot: `16cb5d266c6312aeeea07ebd61fbbcd589a8281d`; module blob `2e69fff59e694e7fb06111c3af5a8ad5e03ac746`; test blob `a7bc842d63e07c1041c98f7de83d9a6f78c4be43`.
+- Developer synthetic workflow [#38199456531](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531) passed, but this is synthetic-only, not an empirical validation.
+- Independent tester workflow [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) reviewed exact pinned hashes and returned **REQUEST_CHANGES** (9/13 checks passed). Tester receipt artifact [11724953413](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955/artifacts/11724953413).
+- Findings: incomplete end-to-end runner and artifact-bound output; caller-controlled fit authorization; missing monotone chronological block validation; exact snapshot helper errors on SPOT rows with NaN Greek offsets; missing daily feature/timestamp contract; preflight identity and label/holdout proofs not cryptographically bound.
+- Root causes and exact required changes are recorded in [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md). This does not invalidate or modify the accepted R3 Greek data artifact.
+- Disposition: preserve the reviewed R1 code snapshot and all failed CI attempts; do not download/decrypt either real artifact, fit empirical models, access holdout, or proceed to P&L until developer fixes and tester approval.
