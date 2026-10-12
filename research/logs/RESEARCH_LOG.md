@@ -720,3 +720,8 @@ The research protocol now defers independent tester review until the planned res
 - Added R3 build/test steps to the established developer registry CI. The hosted R3 outputs are not yet visible through the available repository file/status interface; no build or unit-test pass is claimed yet. Do not begin empirical fitting until the R3 artifacts actually exist and developer-side QA/data preflight pass.
 - Per the user's review-cadence instruction, no interim tester review is requested. The independent tester will receive one consolidated frozen bundle after the planned prediction results have been acquired.
 
+
+
+## 2026-10-13 — R3 build attempt 1 and contract-string correction
+
+The established developer registry CI executed the R3 builder at source commit `4dba2efb4e245a7b17afee59d1c66574515eef3b` and failed closed before generating outputs because the builder's `HASH_RULE` wording did not exactly match the R2 config manifest. The log and attempt JSON are committed on the developer branch. The exact string was corrected in commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83`; the next automatic run is pending verification. No data/model/holdout access occurred.
