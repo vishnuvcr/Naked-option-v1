@@ -75,7 +75,7 @@ def main():
                               "nifty_close":22000.0 + k + (0 if session=="2025-01-02" else 500)})
     spot = pd.DataFrame(spot_rows)
     feats = m.build_spot_features(spot, [
-        pd.Timestamp(t0+60*70, unit="s", tz="UTC"),
+        pd.Timestamp(t0+60*71, unit="s", tz="UTC"),
         pd.Timestamp(t1+60, unit="s", tz="UTC")])
     assert feats.loc[0,"spot_exact_bar_missing"] == 0
     assert abs(feats.loc[0,"ret_1"] - np.log(22070.0/22069.0)) < 1e-10
