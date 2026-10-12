@@ -1,12 +1,12 @@
-# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R4)
+# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R5)
 
 STATUS: PASS — OHLC PROXY BACKTEST AUTHORIZED
 
 Developer branch: phase-08-prediction-developer
-Reviewed code commit: e0d905071694aaa36ced63e190f2f6d4167cdf75
-Runner blob SHA: 7e5a289187e1216768f7ba73dc92b74a82bf7788
-Synthetic test blob SHA: 462aeb6364893af7678c691b9d45e114275d20ac
-Workflow blob SHA: 074103e635a1c9b829a8f2794c512b0ee424d067
+Reviewed code commit: 3b235ef095e230eab2113fadf06b6d5da1b57c9e
+Runner blob SHA: fcb1f6592c62f113cc64edb6be39047e92d5f967
+Synthetic test blob SHA: 27c6b3227b57223f0877fd0d1236c455c73d440a
+Workflow blob SHA: a3c80e65e14de9a06f366f5c6dfd640152abf37e
 
 ## Independent review and change rationale
 
@@ -36,3 +36,11 @@ PASS for one hosted attempt using these exact runner/test/workflow blobs, after 
 - Regression tests cover stored-delta timing and exclude current-bar close fallback. The empirical job is gated behind a fresh pass of this exact runner/test snapshot and the independent tester report.
 - Statistical acceptance remains exploratory; no historical winner is automatically promoted. The enriched expiry mapping remains a proxy and the output must remain Q1/OHLC proxy.
 - Workflow concurrency is now isolated as `phase-08-proxy-strategy-asof-v2` so the corrected run can proceed while the superseded diagnostic run may still be active. This does not grant permission to accept the superseded output.
+
+
+## R5 vectorized exit review
+
+- The trigger rules remain X1 take-profit at 150% of entry premium, X2 stop at 65%, and X3 trailing stop at 75% of the highest prior observed bar. X3 does not test a trailing stop on the entry bar because no prior trailing high exists.
+- The vectorized scan uses the first qualifying OHLC bar in timestamp order. A stop gap uses the lower of stop level and bar open when open is positive; invalid high/low bars are not allowed to trigger or update the trailing high. If no trigger occurs before the frozen schedule, the scheduled exit open is used.
+- Two new synthetic tests cover scheduled-time fallback and invalid bars in trailing-stop evaluation. The R5 run is authorised only if the hosted regression confirms these exact blobs pass.
+- R3 and R4 runs remain diagnostic/non-accepted if they finish; R3 has the documented delta look-ahead and R4 uses the slower, loop-based exit scan. Only a result-level audit can accept R5 metrics.
