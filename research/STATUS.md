@@ -326,3 +326,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** finish only the authorized duplicate scan and publish the pinned aggregate result.
 **Developer → Tester:** review run report and digest before any feature preflight or model fitting.
+
+
+## Phase 8P — real duplicate diagnostic R1 failed technically (2026-10-12)
+
+- Developer run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed its one-use authorization gate, consumed the nonce before source access, restored the cached encrypted ZIP and verified the pinned source hash.
+- The diagnostic step terminated with exit code 143 and GitHub runner-shutdown message after approximately 12 minutes. No sanitized aggregate report or output artifact was produced.
+- Decision: **NO DATA RESULT / NO MODEL AUTHORIZATION**. This is a technical runner failure, not evidence about duplicate frequency or market predictability. The consumed nonce R1 is not reusable.
+- The developer must submit a new exact executor revision and request with a new nonce; the tester must independently approve the workflow/request and then issue a separate one-use execution authorization before data access. Preserve run R1 and its failure log.
+
+**Tester → Developer:** submit a fresh, exact one-use executor revision; do not reuse R1 nonce or infer data findings.
+**Developer → Tester:** keep all model/holdout/P&L/strategy gates closed until the new aggregate report is independently accepted.
