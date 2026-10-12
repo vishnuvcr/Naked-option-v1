@@ -1,0 +1,39 @@
+name: Repair Missing R2 Method Shards
+
+on:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/generate_missing_method_shards.py"
+      - ".github/workflows/repair-missing-method-shards.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-08-prediction-developer
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate absent shards only
+        run: python scripts/generate_missing_method_shards.py
+      - name: Commit generated shards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/registry/method_shards/METHODS_V2_R2_PART*.json
+          if git diff --cached --quiet; then
+            echo "No missing method shards; no commit required."
+            exit 0
+          fi
+          git commit -m "Generate missing R2 method registry shards"
+          git push origin HEAD:phase-08-prediction-developer
