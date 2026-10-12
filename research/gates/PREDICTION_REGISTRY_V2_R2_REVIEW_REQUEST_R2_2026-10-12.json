@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "gate": "PREDICTION_REGISTRY_V2_R2_INDEPENDENT_REVIEW",
+  "status": "REQUESTED_NOT_APPROVED",
+  "requested_at": "2026-10-12",
+  "developer_branch": "phase-08-prediction-developer",
+  "reviewed_snapshot_commit": "b04b2541ea80cdb8b80d703b27ef778f4b7c425b",
+  "tested_source_commit": "877b7baf3aafb309021dfc621f7e98406b5532ee",
+  "review_artifacts": {
+    "contrast_repair_report": "research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_REPORT_2026-10-12.json",
+    "contrast_repair_report_blob_sha1": "b6e992ce7922a4b168ea0101687e7ce4d71b9e01",
+    "synthetic_report": "research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json",
+    "synthetic_report_blob_sha1": "9b2aa5e113706cf7d70f75a3372830daca5a3683",
+    "synthetic_report_is_historical": true,
+    "note": "The canonical synthetic report predates contrast repair; use the contrast-repair supplement for latest run 38255852608."
+  },
+  "ci": {
+    "contrast_repair_run": {
+      "id": 38255666293,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255666293",
+      "conclusion": "success"
+    },
+    "repair_audit_run": {
+      "id": 38255852834,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852834",
+      "conclusion": "success"
+    },
+    "clean_registry_run": {
+      "id": 38255852565,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852565",
+      "conclusion": "success"
+    },
+    "synthetic_run": {
+      "id": 38255852608,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38255852608",
+      "conclusion": "success",
+      "artifact_id": 11749737651,
+      "result_sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b"
+    }
+  },
+  "registry": {
+    "methods": 1000,
+    "method_shards": 40,
+    "method_shard_size": 25,
+    "configs": 8000,
+    "config_shards": 80,
+    "config_shard_size": 100,
+    "allow_in_principle": 426,
+    "blocked": 574,
+    "empirically_eligible": 0,
+    "unique_semantic_fingerprints": 1000,
+    "shard_index_git_blob_sha1": "1adfbdee7076d20f03a582355d5075ebb4159948",
+    "compatibility_matrix_markdown_blob_sha1": "1bdc3fe435b228098f2c35137e71b24e24eb1482",
+    "config_manifest_git_blob_sha1": "cde05748ae534e612948137b7ddf97466d795a25",
+    "preregistration_git_blob_sha1": "5095f9cc0dcca8567df7aa14ffacf88f42fc0038",
+    "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc"
+  },
+  "tested_source_blobs": {
+    "scripts/repair_method_contrast_statements.py": "bdb986bcc20c82f21dd05fbfad6ce19071463dfe",
+    "scripts/test_repair_method_contrast_statements.py": "8b7e7a20d8b3b1f89c0f98aebfa92f5f3c3cbb31",
+    "scripts/pin_prediction_preregistration_sources.py": "7f5b6f38d3f75bce6b1ccf48e9706eebfe2e52e4",
+    "scripts/audit_prediction_registry_shards.py": "f62a733a7e5782fee027932e69fe836d14b65eb5",
+    "scripts/build_prediction_compatibility_matrix.py": "ccb70a73e0c2c46dd652810e3cfad1d4d8ac04f2",
+    "scripts/prediction_statistics.py": "3b36b21ed3d7c47a6b58e5f95c6b6f6861e0c776",
+    "scripts/test_prediction_statistics.py": "5512c48863442c2cf835b7a3c018aabd8a5b5164",
+    "scripts/test_prediction_preregistration.py": "6502c5b427965ec18fdda9d2dd59d4b3f6d4db4a",
+    "scripts/prediction_registry_synthetic_dryrun.py": "202d75dbf69135a6291d76bfcc156189e5e217b2"
+  },
+  "synthetic_results": {
+    "tasks": 64000,
+    "synthetic_mock_only": 27264,
+    "blocked_compatibility": 36736,
+    "error_rows": 0,
+    "market_data_opened": false,
+    "model_fitting_performed": false,
+    "holdout_accessed": false,
+    "statistical_test_count": 10,
+    "statistical_tests": "PASS"
+  },
+  "review_questions": [
+    "Independently recompute all method/config shard hashes, byte counts, ID ranges, master equality and index linkage.",
+    "Verify each nearest_neighbor_method_id is the deterministic minimum-distance peer under the registered semantic fields and each contrast lists exactly the differing field values.",
+    "Determine whether semantic fingerprints and the 426 conditional rows represent scientifically meaningful distinctions rather than only a unique Cartesian encoding.",
+    "Check family/operator compatibility rationales and family-specific output/calibration/uncertainty contracts.",
+    "Independently verify label definitions, flat tolerance, session boundaries, sample eligibility, chronological folds, target-maturity purge and embargo.",
+    "Check log-loss/Brier/calibration formulas, paired five-session moving-block bootstrap CI and p-value, BY FDR math, and multiplicity grouping.",
+    "Assess synthetic restart/failure evidence and resource estimates; ~109056 fit calls / 1173.33 CPU-hours remain unbenchmarked assumptions.",
+    "Return a hash-pinned PASS or REQUEST CHANGES on tester branch. No empirical fitting, data decryption or holdout access is authorized by this request."
+  ],
+  "prohibited_until_pass": [
+    "empirical model fitting",
+    "outer-fold model selection",
+    "strategy selection",
+    "decryption/reading encrypted market data",
+    "untouched holdout access"
+  ]
+}
