@@ -15,7 +15,18 @@
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-07
+Last updated: 2026-10-12
+
+## Phase 8P prediction sub-study — 2026-10-12 current state
+
+- Duplicate-diagnostic **code-only gate: PASS** for developer commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`; independent tester workflow [#38204532045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204532045) passed 19/19 checks.
+- Immutable tester report: [PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R1_2026-10-12.md](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R1_2026-10-12.md); machine decision: [PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json).
+- Tester workflow defects (stale R2 request path; then redundant same-path copy) were corrected on this tester branch and logged. The failed runs remain non-evidence.
+- **Real-data diagnostic remains BLOCKED / NOT AUTHORIZED.** No encrypted artifact was accessed or decrypted by the code gate; no duplicate report, feature fit, holdout read, option P&L or strategy promotion occurred.
+- Next step: developer submits a separate one-use diagnostic authorization request that pins the exact approved code/test snapshot, this tester decision, encrypted artifact ID/digest, output schema and no-replay policy. Independent review of that authorization is required before any artifact access. The data gate must then be independently reviewed again.
+
+**Tester → Developer:** preserve the code-only PASS and submit the separate diagnostic authorization request; do not run the encrypted artifact scan before that gate passes.
+**Developer → Tester:** review only the exact one-use authorization request when submitted; after an authorized run, independently inspect its aggregate report and report hash.
 
 ## Phase 5 current state
 
