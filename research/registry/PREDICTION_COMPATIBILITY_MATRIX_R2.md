@@ -2,7 +2,7 @@
 
 **Status: DRAFT / BLOCKED. This document does not authorize empirical fitting.**
 
-- Source shard index SHA-256: `6c176404d72ca11c540a8bae442affcbd8f1841de63e480d5a13e7467d2e9445`
+- Source shard index SHA-256: `84af57bfc156d70fc4471f6daa21d7d222a7e093ae5d711e3fdaaaeed3b30661`
 - Row-level records: 1000
 - Compatibility-level allow-in-principle (conditional on adapter implementation/tests): 426
 - Blocked by current compatibility/design deficiencies: 574

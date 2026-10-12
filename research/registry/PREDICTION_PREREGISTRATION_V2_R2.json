@@ -22,8 +22,8 @@
     "data_manifest_git_blob_sha1": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
     "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
     "config_manifest_git_blob_sha1": "cde05748ae534e612948137b7ddf97466d795a25",
-    "registry_index_git_blob_sha1": "8782e66f90d00fa93c2690dccaf85e0f53144f2b",
-    "compatibility_matrix_git_blob_sha1": "d57c3610c6dbba042ee3a13ebf31936f4007b5bc"
+    "registry_index_git_blob_sha1": "1adfbdee7076d20f03a582355d5075ebb4159948",
+    "compatibility_matrix_git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971"
   },
   "labels": {
     "INTRA_30M_UP_DOWN": {
@@ -31,7 +31,7 @@
       "label_horizon_minutes": 30,
       "session_rule": "decision and horizon-end timestamps must both lie inside the same official trading session; no overnight carry",
       "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
-      "flat_tolerance_abs_simple_return": 1e-8,
+      "flat_tolerance_abs_simple_return": 1e-08,
       "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
       "eligible_timestamp_range": [
         "2021-10-11",
@@ -43,7 +43,7 @@
       "label_horizon": "one complete exchange session",
       "session_rule": "one target per exchange session at the registered close decision time; only the next official session close supplies the target",
       "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
-      "flat_tolerance_abs_simple_return": 1e-8,
+      "flat_tolerance_abs_simple_return": 1e-08,
       "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
       "eligible_timestamp_range": [
         "2021-10-11",
@@ -160,7 +160,7 @@
     "inner_validation": "Use deterministic expanding inner chronological folds contained wholly in the current outer training window. Each inner validation fold has one-session purge and embargo; no random row split.",
     "hyperparameters": "Only the frozen configuration fields in the committed config shard may be used; no ad-hoc tuning or model-family substitution.",
     "probability_calibration": "Native probabilities when family contract proves semantics; otherwise train-only Platt calibration on predictions made out-of-fold within inner chronological folds. No outer-validation targets used to fit or choose calibration.",
-    "probability_clipping_epsilon": 0.000001,
+    "probability_clipping_epsilon": 1e-06,
     "prevalence_baseline": "Training-fold positive prevalence with fixed Jeffreys smoothing p=(n_positive+0.5)/(n_train+1), then clip to [1e-6,1-1e-6]; baseline is scored on exactly the same common evaluation rows as candidate.",
     "deterministic_seed": 2026101208
   },
