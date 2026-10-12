@@ -67,6 +67,10 @@ jobs:
           request = json.loads(request_path.read_text(encoding="utf-8"))
           manifest_path = request["result_bundle_manifest_path"]
           raw = subprocess.check_output(["git", "-C", "developer", "show", f"HEAD:{manifest_path}"])
+          manifest_sha = request.get("result_bundle_manifest_sha256", "")
+          actual_manifest_sha = hashlib.sha256(raw).hexdigest()
+          if len(manifest_sha) != 64 or actual_manifest_sha != manifest_sha:
+              raise SystemExit(f"Result-bundle manifest hash mismatch: expected={manifest_sha}, actual={actual_manifest_sha}")
           manifest = json.loads(raw.decode("utf-8"))
           if manifest.get("results_acquired") is not True:
               raise SystemExit("Result-bundle manifest does not assert results_acquired=true")
