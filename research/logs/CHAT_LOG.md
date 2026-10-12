@@ -207,3 +207,13 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** dataset delivery remains pending independent artifact verification.
 **Developer → Tester:** keep P&L, holdout and strategy promotion blocked until artifact review is complete.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow 38197110523)
+- Developer run 38195812828; artifact 11723198817; decision REQUEST_CHANGES.
+- Artifact ZIP SHA-256: 
+- Coverage summary: {"expiry_mapping_source_counts": null, "greek_rows_with_delta": null, "greek_status_counts": null, "hf_revision": null, "iv_source_counts": null, "option_rows": null, "option_rows_missing_spot": null, "option_rows_unmapped_expiry": null, "parts": null, "rows_preserved": null, "source_license": null, "spot_field_values_filled": null, "spot_rows": null, "status": null}
+- Findings: Artifact download/hash/CRC: HTTPError: HTTP Error 401: Server failed to authenticate the request. Please refer to the information in the www-authenticate header.
+
+**Developer → Tester:** correct discrepancies before resubmitting.
+**Tester → Developer:** reject artifact delivery.

@@ -135,3 +135,10 @@
 - This does not validate or invalidate the artifact; delivery remains pending.
 - Correction: replace the complicated embedded workflow with a minimal workflow and standalone Python orchestrator; retrigger revision 2 without changing the immutable artifact pins.
 - Prevention: verify CI job creation and terminal test evidence before recording an independent decision; a failed run with zero jobs is a blocker.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow 38197110523)
+- Category: independent artifact audit.
+- Decision: REQUEST_CHANGES.
+- Findings: Artifact download/hash/CRC: HTTPError: HTTP Error 401: Server failed to authenticate the request. Please refer to the information in the www-authenticate header.
+- No dataset accepted and no downstream gate opened.

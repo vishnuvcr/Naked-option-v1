@@ -1,0 +1,31 @@
+{
+  "artifact_id": 11723198817,
+  "artifact_name": "nifty-1m-greeks-enriched-r3",
+  "artifact_sha256": "",
+  "artifact_size_bytes": 1610370340,
+  "audit_gate_status": "SKIPPED",
+  "audit_result": {},
+  "decision": "REQUEST_CHANGES",
+  "developer_run_id": 38195812828,
+  "developer_snapshot_sha": "f556c7b44088f18551453c36f78e8d5de7fe141e",
+  "download_gate_status": "FAIL",
+  "findings": [
+    "Artifact download/hash/CRC: HTTPError: HTTP Error 401: Server failed to authenticate the request. Please refer to the information in the www-authenticate header."
+  ],
+  "gate": "PHASE8_GREEK_ENRICHMENT_ARTIFACT_R1",
+  "restrictions": {
+    "commercial_use_authorized": false,
+    "dhan_api_requests_authorized": false,
+    "empirical_option_pnl_authorized": false,
+    "holdout_access_authorized": false,
+    "plaintext_upload_authorized": false,
+    "source_grid_status": "PARTIAL_GRID",
+    "source_license": "CC-BY-NC-4.0; non-commercial research only",
+    "strategy_promotion_authorized": false
+  },
+  "reviewed_at_utc": "2026-10-12T02:46:38.558177+00:00",
+  "schema_version": 1,
+  "source_gate_status": "PASS",
+  "synthetic_test_status": "PASS",
+  "tester_workflow_run_id": "38197110523"
+}

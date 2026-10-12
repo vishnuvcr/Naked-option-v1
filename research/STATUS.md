@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | **R3 DEVELOPER ARTIFACT UPLOADED — INDEPENDENT ARTIFACT GATE PENDING** | Artifact 11723198817 from run #38195812828; tester workflow must verify ZIP digest, encrypted files, row totals and Greek coverage before acceptance |
+| Phase 8 Long-option execution | **ARTIFACT AUDIT REQUEST CHANGES — DELIVERY NOT ACCEPTED** | Tester-owned decision REQUEST_CHANGES; see PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -218,3 +218,9 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Runs #38196504082, #38196604819, #38196664518 and #38196699993 failed before creating any jobs; no independent artifact audit or decision was produced. This is a workflow orchestration failure, not a dataset validation result.
 - Replaced the layered inline workflow with a compact workflow calling `scripts/run_phase8_greek_artifact_tester.py`, which validates the exact approved R3 code decision and artifact identity/digest, executes synthetic rejection tests, downloads and hashes the ZIP, checks archive CRC, performs the actual ZIP/manifest/coverage audit, and writes the tester decision and logs.
 - Request revision 2 retriggers the same exact immutable artifact (developer run 38195812828, artifact 11723198817, ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`). Artifact review remains pending until the new workflow produces an actual decision.
+
+## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow 38197110523)
+- Decision: REQUEST_CHANGES.
+- Developer run 38195812828; artifact ID 11723198817.
+- Artifact not accepted; see tester report findings.
+- Trading/economic gates remain blocked.
