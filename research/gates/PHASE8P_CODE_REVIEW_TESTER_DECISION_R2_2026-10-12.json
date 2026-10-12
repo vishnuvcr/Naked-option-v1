@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "gate": "PHASE8P_INDEPENDENT_CODE_REVIEW",
+  "decision": "PASS_FOR_CODE_ONLY",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+  "reviewed_blobs": {
+    "scripts/phase8p_greek_prediction.py": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
+    "scripts/test_phase8p_greek_prediction.py": "4681c8e34aab1edae44f70ffad455741799d7075",
+    ".github/workflows/phase8p-greek-prediction.yml": "9ba46f5563de564b22de088fea5e59cf48792655",
+    "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md": "018500722f88f5fb100a2e24afc3d5d97394631e",
+    "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md": "265c6696466b1999371cb4581baf20fbe950d3f1"
+  },
+  "developer_synthetic_run": {
+    "run_id": 38201417381,
+    "artifact_id": 11725102315,
+    "artifact_sha256": "6c3c812f0eafff90e09fffb9dba0a9bf4915c3b2fdbe144452a1f2dcbc18ad7e",
+    "conclusion": "success"
+  },
+  "independent_tester_run": {
+    "run_id": 38201657383,
+    "artifact_id": 11725607739,
+    "artifact_sha256": "e0ab96d0fc70233f29ea5a2d3a896ef31f5c06e5ec3b67ca79ae8b35b4a387df",
+    "checks_passed": 16,
+    "checks_total": 16,
+    "conclusion": "success"
+  },
+  "tester_report_path": "research/gates/PHASE8P_CODE_REVIEW_TESTER_R2_2026-10-12.md",
+  "tester_report_blob_sha1": "ff8ae975a6b2ee3dd0303c280dca3d2e8fd18a64",
+  "real_artifacts_opened": false,
+  "empirical_model_fitted": false,
+  "new_source_calls": false,
+  "holdout_accessed": false,
+  "option_pnl_run": false,
+  "strategy_promotion": false,
+  "scope": "CODE_GATE_ONLY; NEXT_ALLOWED_STAGE_SCHEMA_COVERAGE_PREFLIGHT",
+  "restrictions": [
+    "exact approved snapshot only",
+    "only two pinned artifacts may be downloaded in separately tester-reviewed preflight",
+    "no model fitting before a separate preflight PASS",
+    "no holdout access",
+    "no P&L or strategy promotion"
+  ]
+}
