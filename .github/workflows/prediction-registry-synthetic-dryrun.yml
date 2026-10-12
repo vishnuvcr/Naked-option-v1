@@ -7,6 +7,8 @@ on:
     paths:
       - "scripts/prediction_registry_synthetic_dryrun.py"
       - "scripts/test_prediction_registry_synthetic_dryrun.py"
+      - "scripts/prediction_statistics.py"
+      - "scripts/test_prediction_statistics.py"
       - "research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json"
       - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
@@ -42,6 +44,8 @@ jobs:
           python-version: "3.11"
       - name: Verify deterministic interruption, restart and error logging
         run: python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
+      - name: Verify preregistered statistics utilities
+        run: python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
       - name: Run full 8000-configuration x 8-fold synthetic orchestration sweep
         shell: bash
         run: |
