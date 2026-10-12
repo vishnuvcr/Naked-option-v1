@@ -127,6 +127,54 @@ def test_stop_gap_uses_worse_open_not_unfillable_stop_level():
     assert result["exit_epoch"] == 160
 
 
+def test_close_valued_greek_delta_is_not_used_before_valuation_time():
+    entry_epoch = int(pd.Timestamp("2024-01-02 10:00:00", tz=runner.IST).timestamp())
+    row = pd.Series({
+        "timestamp_epoch": entry_epoch,
+        "greek_valuation_offset_seconds": 60.0,
+        "delta": 0.80,
+        "rolling_spot": 100.0,
+        "nifty_close": 100.0,
+        "returned_strike": 100.0,
+        "implied_volatility": 0.20,
+        "time_to_expiry_years": 99.0,
+        "expiry_key": "2024-06-27",
+        "risk_free_rate_decimal": 0.0,
+        "dividend_yield_decimal": 0.0,
+        "option_type": "CE",
+    })
+    value_early, method_early = runner.resolve_delta(row, entry_epoch)
+    assert method_early == "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
+    assert value_early < 0.80
+    value_on_time, method_on_time = runner.resolve_delta(row, entry_epoch + 60)
+    assert method_on_time == "OBSERVED_DELTA_ASOF"
+    assert abs(value_on_time - 0.80) < 1e-12
+
+
+def test_contract_selection_does_not_use_current_bar_close_for_spot_fallback():
+    options = pd.DataFrame([
+        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": 500,
+         "expiry_session_idx": 4, "option_open": 10.0, "returned_strike": 110.0,
+         "rolling_spot": np.nan, "nifty_close": 100.0, "delta": 0.7,
+         "greek_valuation_offset_seconds": 60.0, "implied_volatility": 0.2,
+         "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0,
+         "expiry_key": "2024-01-05", "contract_code": 0},
+        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": 500,
+         "expiry_session_idx": 4, "option_open": 11.0, "returned_strike": 100.0,
+         "rolling_spot": np.nan, "nifty_close": 100.0, "delta": 0.7,
+         "greek_valuation_offset_seconds": 60.0, "implied_volatility": 0.2,
+         "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0,
+         "expiry_key": "2024-01-05", "contract_code": 1},
+    ])
+    row = runner.select_contract(
+        options, np.array([0]), np.array([2]), {100: 0}, 100, 300, "CE",
+        0.50, "D1", 0, {}
+    )
+    # Without a point-in-time rolling spot, the selection must not use the
+    # same minute's future NIFTY close to prefer the ATM strike (code 1).
+    assert row == 0
+
+
 def test_row_type_normalization_tolerates_whitespace_and_bom():
     raw = pd.Series(["OPTION", " option ", "\ufeffOPTION", "SPOT", " spot "])
     normalized = runner.normalise_row_type(raw)
@@ -153,10 +201,12 @@ if __name__ == "__main__":
         test_take_profit_stop_and_trailing_exit_paths,
         test_intraday_horizon_after_close_is_skipped,
         test_stop_gap_uses_worse_open_not_unfillable_stop_level,
+        test_close_valued_greek_delta_is_not_used_before_valuation_time,
+        test_contract_selection_does_not_use_current_bar_close_for_spot_fallback,
         test_row_type_normalization_tolerates_whitespace_and_bom,
         test_proxy_cost_scenarios_get_more_conservative,
     ]
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 8 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 10 Phase 8 proxy-strategy synthetic tests")
