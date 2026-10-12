@@ -98,3 +98,12 @@
 - Correction: workflow commit 26bcbaaf35696cb6ce3c424cda48075042d953c9 builds the report from a list of Python strings so every source line remains inside the YAML run-block. The request commit then triggered a properly named workflow.
 - Verification: isolated tester workflow run #38168820750 passed blob-pin validation, developer synthetic tests and 162 independent CE/PE formula cases; tester report and machine decision were committed successfully to phase-08-tester.
 - Impact: no source-data request was made during the invalid-workflow attempts.
+
+
+## 2026-10-12 — Duplicate Phase 8 R2 tester workflow triggered on the same request
+- Category: tester workflow control / duplicate execution.
+- Component: `.github/workflows/phase8-greek-enrichment-tester-r2.yml`.
+- Symptom: run [38194602150](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602150) was triggered alongside canonical tester run [38194602133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602133). The duplicate workflow retained an R1 scope-request path while the R2 request was active, so its pin gate failed and its synthetic/formula audits were skipped. Its attempt to write the same decision/report paths then failed. 
+- Impact: no source-data request was made by the duplicate run. The canonical R2 workflow independently passed the exact four-blob pins, developer synthetic suite and 162-case independent Black-Scholes audit; its machine decision is the only accepted decision. The duplicate failure does not supersede that decision.
+- Correction: removed the duplicate `.github/workflows/phase8-greek-enrichment-tester-r2.yml` from `phase-08-tester`; retain `.github/workflows/phase8-greek-enrichment-tester.yml` as the sole canonical workflow for the R2 request path.
+- Prevention: one canonical tester workflow per gate/request; audit workflow trigger paths and unique decision/report write ownership before pushing a request.
