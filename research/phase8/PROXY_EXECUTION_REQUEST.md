@@ -32,3 +32,11 @@ Rerun authorization: R2 — 2026-10-12. Use the corrected tester-approved runner
 - Corrected exact code blobs are the runner, tests, and workflow recorded in tester R4 at research/gates/PHASE8_PROXY_STRATEGY_TESTER.md on phase-08-prediction-tester.
 - Regression and exact-blob gate passed in run 38221310213. This request triggers the first empirical run on the as-of corrected runner, against the same pinned enriched option artifact 11723198817 and saved Run #994 forecasts.
 - Use the same frozen 4,800-config grid and C0-C3 costs. No new data acquisition, no bid/ask prerequisite, no forecast refit, and no automatic promotion.
+
+
+## R5 vectorized as-of-corrected run — 2026-10-12
+
+- The exact R5 runner/test/workflow blob set is approved in tester gate `research/gates/PHASE8_PROXY_STRATEGY_TESTER.md` on `phase-08-prediction-tester`.
+- Hosted run 38222175404 passed compilation, all 12 synthetic tests, runner self-test, and exact tester gate. It did not run the empirical job because this was the regression-only trigger.
+- Launch the finite 4,800-config × four-scenario proxy grid using the already-existing expiry-enriched option artifact 11723198817 and frozen Run #994 forecast artifact 11638738288. All previous runs that used the loop-based trigger scan are superseded diagnostics; the R3 stored-delta lookahead run is NON-ACCEPTED.
+- No new market-data acquisition, no bid/ask prerequisite, no refit, and no promotion based solely on historical ranking.
