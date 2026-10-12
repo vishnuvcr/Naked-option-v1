@@ -9,7 +9,7 @@
   "proposal_path": "research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md",
   "proposal_blob_sha1": "267cc3fba9d2e5a8313be5efb60879d27586d529",
   "execution_request_path": "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json",
-  "execution_request_blob_sha1": "PENDING_CONTENTS_BLOB_SHA1",
+  "execution_request_blob_sha1": "2c41f402b413af84394cfe39c284164dce0b4e2c",
   "approved_code_snapshot": {
     "commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
     "module_blob_sha1": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
