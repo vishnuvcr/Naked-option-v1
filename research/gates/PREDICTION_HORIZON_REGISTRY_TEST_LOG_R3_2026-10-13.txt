@@ -24,6 +24,6 @@ Traceback (most recent call last):
 KeyError: 'sources'
 
 ----------------------------------------------------------------------
-Ran 6 tests in 1.637s
+Ran 6 tests in 1.007s
 
 FAILED (errors=2)
