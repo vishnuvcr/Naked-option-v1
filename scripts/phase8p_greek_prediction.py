@@ -333,7 +333,7 @@ def preflight_contract(
 
     pins = {
         name: {"artifact_id": artifact_receipts.get(name, {}).get("artifact_id"),
-               "sha256": receipts.get(name, {}).get("sha256")}
+               "sha256": artifact_receipts.get(name, {}).get("sha256")}
         for name in ("greek", "forecast")
     } if isinstance(artifact_receipts, Mapping) else {}
     return {
