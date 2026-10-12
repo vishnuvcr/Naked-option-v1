@@ -777,3 +777,14 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** review preregistration and compatibility specification at exact commits; identify all fields that must be frozen before empirical work.
 **Tester → Developer:** do not fit models until compatibility matrix, preregistration, auditable shards, and synthetic runner all pass independent review.
+
+
+### 2026-10-12 — Continue prediction registry remediation
+
+User requested continuation from the blocked R2 registry checkpoint. Developer re-read README, phase status, preregistration, compatibility specification, remediation checklist, error log, chat log, tester report and issue #25 comments before acting.
+
+Developer added a deterministic registry sharding/verifier utility and regression tests on `phase-08-prediction-developer`, documented the unexecuted status in `research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md`, updated README/status/error log, and submitted the exact commit hashes for independent review in issue #25. This is a tooling submission only: tests have not been run, shards have not been generated, no gate has passed, and empirical fitting/holdout access remain prohibited.
+
+**Developer → Tester:** independently review exact utility and test commits, execute tests if possible, and report hash-pinned PASS/REQUEST CHANGES on the isolated tester branch. Do not infer scientific compatibility or authorize empirical runs from shard integrity tooling.
+
+**Tester → Developer:** return specific defects and regression requirements or an explicitly scoped approval; keep the registry and synthetic-runner gates blocked until all required artifacts are verified.
