@@ -16,6 +16,6 @@
     "2025-10-21"
   ],
   "source_calendar_sha256": "45cb278887e640d8ce114abbb503c8b619aa6159eb023c60814985a0e90eee51",
-  "generated_calendar_sha256": "47a669d606ffa183b19c5263bcdb31da1573d547028cdc75bfdd9f98ca49f792",
-  "output_git_blob_sha1": "0d519cad63a6547f767ef3270298e48d9f70bef9"
+  "generated_calendar_sha256": "fd7e9ee5ac871d343d9987549e16b433de59dd351fe1e69febd2e9b8c0e3f5fd",
+  "output_git_blob_sha1": "db376c3c2c8ec2d2cb9cccee9c6e5048cac77ccc"
 }
