@@ -309,3 +309,11 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 **Developer → Tester:** independently review R5 scope and later exact code/workflow hashes; reject any reuse of the consumed R1 nonce.
 **Tester → Developer:** return a written R5 review and exact gate requirements; no real-data access until fresh independent approvals and final one-use authorization.
+
+
+## Latest research status — 2026-10-12
+- **Phase 8P remains blocked at duplicate-contract diagnostics.** No accepted duplicate counts, prediction metrics, or profitable strategy/P&L results exist from the current real-data attempt.
+- R5 synthetic gate [#38208731140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208731140) and protocol check [#38208731426](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208731426) passed.
+- Previous independent code review [#38208463708](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38208463708) returned REQUEST_CHANGES (29/30) due only to a static-audit ValueError. The tester-owned audit has been revised; fresh review [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622) is pending.
+- Exact R5 review request: [PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R5](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R5_2026-10-12.json). Runtime amendment: [R5 runtime amendment](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_RUNTIME_AMENDMENT_R5_2026-10-12.md). Status: [research/STATUS.md](research/STATUS.md). Errors: [research/ERROR_LOG.md](research/ERROR_LOG.md). Chat/run log: [research/logs/CHAT_LOG.md](research/logs/CHAT_LOG.md).
+- Real-data access, decryption, deduplication, model fitting, holdout access, external market requests, option P&L and strategy promotion remain unauthorized. The consumed R1 nonce must not be reused.
