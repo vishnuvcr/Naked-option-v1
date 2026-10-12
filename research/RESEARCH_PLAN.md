@@ -78,6 +78,10 @@ Lock strategy and parameters. Run a later untouched dataset and/or live paper sl
 ### Phase 11 — Final synthesis
 Research manuscript, full methods, data provenance, all null findings, winning/failed candidates, risk analysis, limitations and future research.
 
+## Phase 8P scope addendum — 2026-10-13
+
+The full research target scope in Phase 3 is unchanged: intraday horizons 5/15/30/60/120 minutes and positional horizons +1/+2/+3/+5/+10 exchange sessions remain mandatory before final cross-horizon conclusions or method ranking. The current R2 registry has only two labels (30-minute intraday and +1-session positional) and is therefore reclassified as a bounded synthetic/design pilot, not an exhaustive horizon grid. The pilot validates method identity, family/operator compatibility, statistical utilities, artifact integrity and synthetic workflow behavior only; it authorizes no empirical fitting and no method selection. A distinct PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE must freeze all ten label definitions, horizon-specific maturity/purge/embargo/sample eligibility, regenerate and hash-pin the full configuration manifest and shards, and receive independent tester PASS before any empirical model fitting begins. No pilot output may be used to rank or select methods.
+
 ## 6. Promotion criteria
 
 A candidate can reach final review only if it has:
