@@ -497,3 +497,11 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** independently audit the manifest-row contract and the pre-fetch 8,999,865-row guard in the exact R3 snapshot, together with the existing timestamp and Greek-formula tests.
 **Tester → Developer:** issue PASS only after exact four-blob pins and both developer/independent test suites pass; otherwise REQUEST_CHANGES. Keep source requests blocked until that recorded decision exists.
+
+
+## 2026-10-12 — R3 tester PASS; exact-snapshot enrichment retry started
+- R3 independent tester [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) completed successfully for exact developer SHA `f556c7b44088f18551453c36f78e8d5de7fe141e`; exact four blob pins, developer suite, 162 independent Black–Scholes cases and manifest count auditing passed. Decision is PASS_WITH_SCOPED_RESTRICTIONS.
+- Restarted exact developer workflow [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828), job `114638526789`, after the decision existed on `phase-08-tester`. Await terminal result; no new metrics/artifact accepted yet.
+
+**Developer → Tester:** inspect final encrypted artifact, coverage and all integrity checks before accepting data delivery.
+**Tester → Developer:** code-only R3 PASS authorizes only the scoped HF source fetch; reject delivery until 61 parts / 8,999,865 rows / hashes / no-plaintext checks pass.

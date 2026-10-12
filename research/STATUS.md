@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **BLOCKED — R2 TERMINAL ROW-COUNT FAILURE; R3 TESTER REVIEW PENDING** | R1/R2 reached 8,999,865 output rows but were rejected because top-level `rows_preserved` is absent in the cached manifest. R3 derives the expected total from 61 per-part counts and preflights before HF calls. No artifact published, no P&L or strategy promotion |
+| Phase 8 Long-option execution | **R3 TESTER PASS — ENRICHMENT RETRIAL RUNNING** | Exact snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e` independently passed R3 gate; hosted retry of run #38195812828 attempt 2 is now running. Final data coverage/hash/encryption gate still pending; no artifact accepted yet |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -611,3 +611,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - R3 changes the expected-row-count calculation to sum per-part counts, rejects malformed/inconsistent declared totals, adds synthetic cases, adds an early preflight requiring 8,999,865 rows before any HF request, and versions output paths/dataset ID to R3.
 - R3 has **not yet received independent tester approval**. The developer workflow must remain blocked at the exact-snapshot gate until the R3 decision is recorded on `phase-08-tester`.
 - Scope remains HF public spot/expiry metadata only; no Dhan API, empirical option P&L, holdout, strategy promotion, commercial use or plaintext output is authorized.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment R3 tester gate passed; data retry active
+- Exact developer snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e` received **PASS_WITH_SCOPED_RESTRICTIONS** in tester workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109). Exact four blob hashes passed; developer synthetic suite passed; independent tester audit passed 162 CE/PE formula/finite-difference cases and 2 valid / 4 invalid manifest row-count cases.
+- Tester machine decision: [R3 JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json); human review: [R3 report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R3_2026-10-12.md).
+- Exact-snapshot developer workflow [#38195812828, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) was restarted after the decision was committed. The run has begun but has not yet reported terminal coverage or artifact upload.
+- R3 fixes the R2 terminal `source=None output=8999865` row-count error. Input expected rows are derived from all 61 manifest parts; the preflight must confirm 8,999,865 rows before new HF requests.
+- No result is delivered until row count, all encrypted hashes, 61 part files, and no-plaintext conditions pass. No Dhan API, option P&L, holdout, promotion, commercial use or plaintext publication is authorized; input remains PARTIAL_GRID; source is CC-BY-NC-4.0 non-commercial only.

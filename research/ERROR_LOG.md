@@ -595,3 +595,10 @@
 - Root cause: the source bundle manifest has per-part integer `row_count` fields but lacks top-level `rows_preserved`; the developer used the absent top-level field as the aggregate truth.
 - Correction in R3: sum all per-part row counts, reject malformed/fractional/negative values and any inconsistent top-level total, compare the sum with 8,999,865 before any HF request and after output generation, add regression tests, and update coverage reporting to identify the aggregation method.
 - Prevention: source schema inspection and manifest-contract fixtures are mandatory before a large hosted calculation. Tester must independently review the exact R3 snapshot before any data request.
+
+
+## 2026-10-12 — R3 independent reviewer passed row-count contract correction
+- Category: gate-resolution / validation confirmation.
+- Tester workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) passed exact four-file pins, developer synthetic tests, and independent Greek and manifest-count suites. The tester recorded 162 formula cases, 2 valid row-count cases and 4 rejected invalid cases.
+- Scope of pass is code-only authorization for HF public spot/expiry enrichment of the cached partial grid; it is not acceptance of an enriched dataset and does not authorize Dhan, P&L, holdout, strategy promotion, commercial use or plaintext uploads.
+- The R3 developer retry is running. Keep this gate open until terminal data/encryption/hash/row-preservation validation is passed.
