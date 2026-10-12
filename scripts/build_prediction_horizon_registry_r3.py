@@ -294,6 +294,7 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
         "Independent tester review is deferred until all planned prediction results are acquired and frozen."
     )
     p["scope"]["prohibited_until_gate_passes"] = [
+        "empirical model fitting before developer-side ten-horizon registry QA and data preflight pass",
         "selection using outer-validation results",
         "strategy selection",
         "untouched-holdout access",
