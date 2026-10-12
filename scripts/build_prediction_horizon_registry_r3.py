@@ -53,6 +53,12 @@ POSITIONAL_HORIZONS = [
 ALL_LABEL_IDS = [x[0] for x in INTRADAY_HORIZONS + POSITIONAL_HORIZONS]
 HASH_RULE = "SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including final newline"
 CONFIG_DIGEST_RULE = "SHA-256 over canonical UTF-8 JSON of the configuration object using sorted keys and compact separators, without a trailing newline"
+METHOD_SEMANTIC_FIELDS = (
+    "algorithm_family", "architecture_or_decision_function", "learning_objective",
+    "input_representation", "feature_construction", "inference_operator",
+    "inference_definition", "target_family", "probability_adapter",
+    "survival_mapping", "causal_information_policy",
+)
 
 def json_bytes(value: Any) -> bytes:
     return (json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
@@ -132,6 +138,77 @@ def load_r2_configs() -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, A
         raise SystemExit(f"BLOCKED: unexpected R2 input labels: {sorted(source_labels)}")
     if idx.get("configuration_record_count") != BASE_CONFIG_COUNT or idx.get("method_record_count") != METHOD_COUNT:
         raise SystemExit("BLOCKED: R2 registry index aggregate counts differ from the frozen source")
+
+    # Independently validate the complete method-shard chain and compatibility matrix
+    # before carrying the method IDs into the expanded horizon grid.
+    method_master_obj = load_json(METHOD_MASTER)
+    if isinstance(method_master_obj, list):
+        master_methods = method_master_obj
+    else:
+        method_arrays = [method_master_obj.get(k) for k in ("methods", "method_registry", "registry") if isinstance(method_master_obj.get(k), list)]
+        if len(method_arrays) != 1:
+            raise SystemExit("BLOCKED: canonical method master must contain exactly one method array")
+        master_methods = method_arrays[0]
+    master_by_id = {m.get("method_id"): m for m in master_methods if isinstance(m, dict)}
+    if len(master_methods) != METHOD_COUNT or len(master_by_id) != METHOD_COUNT or set(master_by_id) != {f"PM{i:04d}" for i in range(1, METHOD_COUNT + 1)}:
+        raise SystemExit("BLOCKED: canonical method master does not have the exact 1,000 unique method IDs")
+
+    method_entries = idx.get("method_shards")
+    if not isinstance(method_entries, list) or len(method_entries) != 40:
+        raise SystemExit("BLOCKED: R2 registry index must declare 40 method shards")
+    shard_method_ids: set[str] = set()
+    for entry in sorted(method_entries, key=lambda x: x.get("part", 0)):
+        rel = entry.get("path")
+        if not isinstance(rel, str) or Path(rel).is_absolute() or ".." in Path(rel).parts:
+            raise SystemExit(f"BLOCKED: invalid method shard path {rel!r}")
+        path = ROOT / rel
+        if not path.is_file():
+            raise SystemExit(f"BLOCKED: method shard missing: {rel}")
+        raw = path.read_bytes()
+        if sha256(raw) != entry.get("sha256") or len(raw) != entry.get("byte_count"):
+            raise SystemExit(f"BLOCKED: method shard hash/byte-count mismatch: {rel}")
+        obj = json.loads(raw.decode("utf-8"))
+        rows = obj.get("methods") if isinstance(obj, dict) else None
+        if not isinstance(rows, list) or len(rows) != 25 or len(rows) != entry.get("record_count"):
+            raise SystemExit(f"BLOCKED: method shard row count mismatch: {rel}")
+        ids = [m.get("method_id") for m in rows]
+        if ids[0] != entry.get("first_id") or ids[-1] != entry.get("last_id"):
+            raise SystemExit(f"BLOCKED: method shard ID-range mismatch: {rel}")
+        for m in rows:
+            mid = m.get("method_id")
+            if mid in shard_method_ids or mid not in master_by_id:
+                raise SystemExit(f"BLOCKED: invalid/duplicate method shard ID {mid!r}")
+            if m != master_by_id[mid]:
+                raise SystemExit(f"BLOCKED: method shard/master record mismatch: {mid}")
+            shard_method_ids.add(mid)
+    if shard_method_ids != set(master_by_id):
+        raise SystemExit("BLOCKED: method shards do not reconstruct the complete canonical method master")
+
+    matrix = load_json(MATRIX)
+    matrix_rows = matrix.get("rows") if isinstance(matrix, dict) else None
+    if not isinstance(matrix_rows, list) or len(matrix_rows) != METHOD_COUNT:
+        raise SystemExit("BLOCKED: compatibility matrix must contain exactly 1,000 method rows")
+    matrix_by_id = {r.get("method_id"): r for r in matrix_rows if isinstance(r, dict)}
+    if len(matrix_by_id) != METHOD_COUNT or set(matrix_by_id) != set(master_by_id):
+        raise SystemExit("BLOCKED: compatibility matrix and method master IDs differ")
+    fingerprints: set[str] = set()
+    for mid, method in master_by_id.items():
+        semantic = {k: method.get(k) for k in METHOD_SEMANTIC_FIELDS}
+        fp = sha256(canonical_bytes(semantic))
+        row = matrix_by_id[mid]
+        if row.get("semantic_fingerprint_sha256") != fp:
+            raise SystemExit(f"BLOCKED: compatibility semantic fingerprint does not match source method {mid}")
+        fingerprints.add(fp)
+        if row.get("eligible_for_empirical_fitting") is not False:
+            raise SystemExit(f"BLOCKED: compatibility matrix improperly authorizes empirical fit for {mid}")
+    if len(fingerprints) != METHOD_COUNT:
+        raise SystemExit("BLOCKED: duplicate method semantic fingerprints in the frozen compatibility matrix")
+
+    method_ids = set(master_by_id)
+    for record in all_configs:
+        cfg = record["configuration"]
+        if record.get("method_id") not in method_ids or cfg.get("method_id") != record.get("method_id"):
+            raise SystemExit(f"BLOCKED: config/method linkage mismatch for {record.get('config_id')}")
     return all_configs, manifest, idx
 
 def label_record(label_id: str, horizon_value: int) -> dict[str, Any]:
