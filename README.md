@@ -469,5 +469,10 @@ Status: hosted data-integrity result is verified; independent tester decision re
 
 
 - Statistical utilities: [implementation](scripts/prediction_statistics.py) and [regression tests](scripts/test_prediction_statistics.py). The hosted statistical test workflow passed: [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987).
-- CI now verifies it checked out the exact triggering commit SHA rather than a moving branch name. Pinned synthetic run [38253120700](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253120700) passed; subsequent workflow includes the statistical tests as well.
+- CI now verifies it checked out the exact triggering commit SHA rather than a moving branch name. Pinned synthetic run [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894) passed; subsequent workflow includes the statistical tests as well.
 - Git source pins are explicitly named Git blob SHA-1; file content SHA-256 digests remain separately declared. Scientific gate remains tester REQUEST CHANGES; model fitting and holdout access remain blocked.
+
+
+- The latest full synthetic dry run is now pinned to its triggering commit: [run 38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894), source SHA d6ab3298f42367de9b0101cdedf477165b20d31f. Its run passed the exact-checkout assertion, synthetic restart/error tests, statistical utility tests, and 64,000-task sweep. Summary: 27,264 mock-only rows; 36,736 compatibility-blocked rows; zero runtime error rows; no actual model fit/data/holdout. [Full report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md).
+- Statistical utilities and regression tests: [implementation](scripts/prediction_statistics.py), [tests](scripts/test_prediction_statistics.py); hosted test run [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987) passed.
+- Source pins are now unambiguously called Git blob SHA-1; raw file SHA-256 hashes are separately recorded. The registry's independent scientific tester gate remains REQUEST CHANGES.
