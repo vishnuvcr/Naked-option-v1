@@ -687,3 +687,10 @@
 - The original repaired input artifact 11698879857 leaves expiry_date blank. Instead of rebuilding or validating market data, the developer switched the runner workflow to the already-existing expiry-enriched artifact 11723198817 from run 38195812828, with pinned SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736.
 - Its expiry field uses the existing HF expiry-partition file-list and Tuesday-rule proxy. This is explicitly not an official point-in-time contract master. No new market data acquisition, bid/ask requirement, or model refit is introduced.
 - Result: FAILED_NO_METRICS; this is runtime/input-artifact non-evidence, not a strategy return result.
+
+
+## 2026-10-12 — Phase 8 OHLC proxy strategy Run 38221391371
+
+- Status: COMPLETE_PROXY_BACKTEST; simulated trades: 1596680.
+- C3-positive configurations with at least 30 trades: 2.
+- No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.

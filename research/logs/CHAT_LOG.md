@@ -695,3 +695,9 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - To use already-existing data, the developer switched to the previously generated expiry-enriched artifact 11723198817 from run 38195812828, pinned by SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736. This same composite has expiry values inferred by the repository's existing enrichment pipeline; no new market prices are collected.
 - Tester R3 approved the exact current runner/test/workflow blobs and scoped use of this artifact. It remains a Q1/OHLC proxy with an expiry-mapping caveat; no bid/ask gate.
 - Failed runs are preserved as non-evidence; success requires an output artifact and a distinct tester result review.
+
+
+## 2026-10-12 — User directed strategy testing without bid/ask validation
+
+- OHLC proxy run 38221391371: status COMPLETE_PROXY_BACKTEST; trades 1596680; C3-positive configs with >=30 trades 2.
+- No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.

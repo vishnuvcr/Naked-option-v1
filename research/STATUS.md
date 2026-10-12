@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **R3 INPUT SELECTED — OHLC PROXY RERUN PENDING** | 4,800 configs × four cost scenarios; use existing expiry-enriched artifact 11723198817; Q1 proxy only |
+| Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
