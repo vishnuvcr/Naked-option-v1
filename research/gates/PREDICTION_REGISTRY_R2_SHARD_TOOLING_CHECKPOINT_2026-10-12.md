@@ -33,3 +33,10 @@ Status: **IMPLEMENTED, NOT YET EXECUTED OR TESTER-APPROVED**.
 **Developer → Tester:** review the implementation and tests at the exact commit above. Check path resolution, canonical byte definitions, duplicate IDs, malformed records, hash/count/range verification, and failure behavior. Do not approve scientific validity or empirical execution from this utility alone.
 
 **Tester → Developer:** report a hash-pinned PASS/REQUEST CHANGES. If code-level concerns exist, name exact file/line and required regression. No empirical fitting or holdout access until all registry and runner gates pass.
+
+
+## CI result update — 2026-10-12
+
+- Hosted GitHub Actions run [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039) completed successfully on workflow commit `8fd619332155ba8cd68614c5a96a9ab81de37433`.
+- Four unit tests passed (0.072 seconds): SHA-256 known vector, shard round-trip/tamper detection, duplicate-ID rejection, and ambiguous-input rejection. The workflow's independent SHA-256 known-vector step also passed.
+- This is developer CI evidence only; independent tester review is still requested. No method/config shards have been generated. Scientific compatibility, label/statistical freeze and synthetic restart/resource gates remain unresolved; empirical fitting and holdout access remain prohibited.
