@@ -17,6 +17,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 REG = ROOT / "research" / "registry"
 DATA_MANIFEST = ROOT / "research" / "data" / "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
+DATA_ARTIFACT_PIN = ROOT / "research" / "data" / "PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
 R2_CONFIG_MANIFEST = REG / "PREDICTION_CONFIG_MANIFEST_V2_R2.json"
 R2_REGISTRY_INDEX = REG / "PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
 R2_LABEL_MANIFEST = REG / "PREDICTION_LABEL_MANIFEST_V2_R2.json"
@@ -355,6 +356,26 @@ def make_manifest(config_shards: list[dict[str, Any]], label_manifest: dict[str,
 def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[str, Any],
                           registry_index: dict[str, Any], source_prereg: dict[str, Any]) -> dict[str, Any]:
     p = json.loads(json.dumps(source_prereg))
+    data_pin = load_json(DATA_ARTIFACT_PIN)
+    data_manifest_blob = git_blob_sha1(DATA_MANIFEST.read_bytes())
+    if data_pin.get("dataset_id") != p.get("scope", {}).get("dataset_id", data_pin.get("dataset_id")):
+        # Older preregistration versions may not repeat dataset_id; in that case
+        # the pin must still agree with the canonical derived-manifest source below.
+        source_dataset_id = load_json(DATA_MANIFEST).get("dataset_id")
+        if data_pin.get("dataset_id") != source_dataset_id:
+            raise SystemExit("BLOCKED: R3 encrypted-artifact pin dataset ID mismatch")
+    if data_pin.get("source_manifest", {}).get("git_blob_sha1") != data_manifest_blob:
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin does not identify the exact derived-data manifest")
+    if data_pin.get("source_manifest", {}).get("part_hashes_match_current_derived_artifact") is not True:
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin does not confirm the current artifact part hashes")
+    if data_pin.get("verified_summary", {}).get("encrypted_members_checked") != 61 or data_pin.get("verified_summary", {}).get("encrypted_member_hash_or_size_mismatches") != 0:
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin part-integrity summary is invalid")
+    if data_pin.get("verified_summary", {}).get("declared_part_row_count_sum") != 8999865:
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin aggregate row count does not match the frozen source")
+    if data_pin.get("ancestor_lineage", {}).get("ancestor_artifact_id") != load_json(DATA_MANIFEST).get("parent_artifact_id"):
+        raise SystemExit("BLOCKED: R3 artifact pin ancestor ID conflicts with the data manifest")
+    if data_pin.get("ancestor_lineage", {}).get("ancestor_artifact_sha256") != load_json(DATA_MANIFEST).get("parent_artifact_sha256"):
+        raise SystemExit("BLOCKED: R3 artifact pin ancestor SHA-256 conflicts with the data manifest")
     # Preserve R2's historical pilot restriction as superseded history instead of
     # carrying a contradictory live root-level amendment into the complete R3 scope.
     prior_pilot = p.pop("scope_amendment_2026_10_13", None)
@@ -391,6 +412,12 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["scope"]["source_dataset_is_encrypted_only"] = True
     p["scope"]["source_row_count_from_manifest"] = 8999865
     p["scope"]["data_manifest_git_blob_sha1"] = git_blob_sha1(DATA_MANIFEST.read_bytes())
+    p["scope"]["derived_encrypted_artifact_pin_path"] = DATA_ARTIFACT_PIN.relative_to(ROOT).as_posix()
+    p["scope"]["derived_encrypted_artifact_pin_git_blob_sha1"] = git_blob_sha1(DATA_ARTIFACT_PIN.read_bytes())
+    p["scope"]["current_derived_artifact_id"] = data_pin["current_derived_artifact"]["artifact_id"]
+    p["scope"]["current_derived_artifact_run_id"] = data_pin["current_derived_artifact"]["workflow_run_id"]
+    p["scope"]["current_derived_artifact_archive_sha256"] = data_pin["current_derived_artifact"]["archive_sha256"]
+    p["scope"]["current_derived_embedded_manifest_sha256"] = data_pin["current_derived_artifact"]["embedded_manifest_sha256"]
     p["scope"]["label_manifest_path"] = LABEL_OUT.relative_to(ROOT).as_posix()
     p["scope"]["label_manifest_git_blob_sha1"] = git_blob_sha1(json_bytes(label_manifest))
     p["scope"]["config_manifest_path"] = CONFIG_MANIFEST_OUT.relative_to(ROOT).as_posix()
@@ -620,6 +647,9 @@ def main() -> int:
             "r2_label_manifest_git_blob_sha1": git_blob_sha1(R2_LABEL_MANIFEST.read_bytes()),
             "r2_preregistration_git_blob_sha1": git_blob_sha1(R2_PREREG.read_bytes()),
             "data_manifest_git_blob_sha1": git_blob_sha1(DATA_MANIFEST.read_bytes()),
+            "data_artifact_pin_git_blob_sha1": git_blob_sha1(DATA_ARTIFACT_PIN.read_bytes()),
+            "current_derived_artifact_id": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["artifact_id"],
+            "current_derived_artifact_archive_sha256": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["archive_sha256"],
             "compatibility_matrix_git_blob_sha1": git_blob_sha1(MATRIX.read_bytes()),
             "r2_config_record_digest_rule": "UNDECLARED_LEGACY_FIELD; exact source shard bytes are verified instead",
             "r3_config_record_digest_rule": CONFIG_DIGEST_RULE,
