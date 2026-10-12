@@ -1030,3 +1030,13 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Added deterministic re-sharding tooling targeting 40 method shards × 25 methods and 80 config shards × 100 configs. The transformation validates existing method records against the master and validates old configuration-shard exact-byte digests, counts, first/last IDs, and global ID uniqueness before rewriting. It creates a machine-readable index containing path, byte count, record count, ID range, and SHA-256 for every shard.
 - The repair workflow is configured to run the transformation, all test_*.py unit tests, and strict audit before committing; it also uploads a JSON audit report. Its hosted outcome has not yet been verified in this checkpoint.
 - Next gate: obtain and inspect the hosted audit artifact, confirm the generated small shards/index are committed and hash-reproducible, then request a new independent tester decision. Compatibility, label/statistics preregistration, and synthetic restart/resource gates remain outstanding.
+
+
+## 2026-10-12 — R2 registry shard integrity verified; science gate still blocked
+
+- Canonical shard output was committed by the automated developer workflow at commit 33f041a7aa2f047ea3fc78cd00e54089fe4510fe.
+- Repair workflow [38249556690](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38249556690) passed after legacy duplicate-shard handling was restricted to record-identical copies of the canonical master.
+- Separate clean-branch verification [38249716356](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38249716356) passed on commit 058a61fcefe08346dbaa05bb1b0ca232ee1ff552. The JSON report contains 1,000 method records/1,000 unique IDs, 8,000 configuration records/8,000 unique IDs, 80 config shards and an empty errors array.
+- Small-shard layout: 40 method shards × 25 methods; 80 config shards × 100 configurations. The shard index records each file path, byte count, row count, first/last ID and SHA-256. Exact-file SHA-256 and index verification passed.
+- Unit tests: 8/8 existing shard tests; 5/5 new re-sharding tests; SHA-256 known vector passed. The broad test-discovery attempt also failed because it imported unrelated repository tests needing pandas/numpy; the workflow was corrected to run only its two targeted, dependency-free test modules. This failure is logged and is not represented as a successful run.
+- **Scope:** data-integrity subgate only. Independent tester report still REQUEST CHANGES; compatibility matrix, meaningful distinctness, fully frozen statistical preregistration, and synthetic restart/resource test remain mandatory. No empirical fitting or holdout access.
