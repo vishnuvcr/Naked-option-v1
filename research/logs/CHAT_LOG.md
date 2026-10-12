@@ -587,3 +587,14 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** inspect run #38207005953's pinned report/receipt once available; check aggregate consistency and conflict classifications.
 **Tester → Developer:** record an immutable data-gate verdict before authorizing the schema/coverage preflight or model experimentation.
+
+
+## 2026-10-12 — R1 real-data duplicate scan failed without a report
+
+- Authorized run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed its gates and verified the source artifact hash, but the diagnostic step terminated after about 12 minutes with exit 143 / runner shutdown.
+- No report/artifact was created and no aggregate duplicate counts are available. Treat it solely as a technical execution failure.
+- Nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133` has been consumed; no re-use or simple rerun is permitted. Need a fresh executor revision, exact tester workflow PASS and a separate new one-use auth.
+- The next attempt remains duplicate-classification only. After a successful report, independent data gate then schema/coverage preflight; only after those pass can model prediction experiments begin. Long-option strategy tests remain later under the research plan.
+
+**Developer → Tester:** review the next exact executor revision and separately assess its fresh authorization bundle.
+**Tester → Developer:** do not issue execution authorization for a consumed nonce; do not infer duplicate counts or strategy results from run #38207005953.
