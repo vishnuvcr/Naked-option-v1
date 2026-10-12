@@ -1038,3 +1038,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Re-read developer status, error log, README, chat log, continuation checkpoint, and tester branch/report before continuing.
 - Confirmed refreshed review request R2 pins contrast repair and current matrix/index/preregistration blobs. Latest linked runs 38255666293, 38255852834, 38255852565, and 38255852608 are reported successful.
 - No new runtime error identified in this step. Existing scientific gate remains REQUEST CHANGES; no empirical fitting, decryption, or holdout access. Contrast-text correction does not establish scientific distinctness.
+
+
+## 2026-10-13 — Compatibility matrix artifact-access blocker addressed
+
+- Previous tester report T1 identified that the full compatibility matrix was too large to inspect independently via the GitHub file API.
+- Added `scripts/shard_prediction_compatibility_matrix.py`, `scripts/test_shard_prediction_compatibility_matrix.py`, and 40 committed 25-row JSON shards with a SHA-256/byte-count/record-count/ID-range index.
+- CI run 38299233992 passed: 4 new shard tests; exact reassembly against the full matrix; index hash and byte checks; deterministic regeneration; existing preregistration, statistical, compatibility and registry audit tests. The run pushed generated artifacts at commit `503af0a4c6af98aec2c2a41b633cedc50df75d34`.
+- Scope: improves independent inspectability only. Does not establish scientific validity/distinctness or authorize model fitting. No real market data was opened.
