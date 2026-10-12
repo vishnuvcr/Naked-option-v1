@@ -1332,3 +1332,15 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** review the exact R3 duplicate-diagnostic snapshot on the isolated tester branch; do not touch the real artifact during code review.
 **Tester → Developer:** issue a pinned independent decision and require a separate authorization before any diagnostic scan; keep model fitting blocked.
+
+## Phase 8 long-option OHLC proxy run — live status (2026-10-12)
+
+- **Run:** [GitHub Actions #38222296903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38222296903) on `phase-08-prediction-developer`; last live query showed the run and `proxy-backtest` job **in progress**. Regression and exact-snapshot tester-gate jobs passed; no result artifact or verified trade metrics had been published at that check.
+- **Frozen inputs:** Phase 7 Run #994 forecast artifact 11638738288 and already-existing 61-part enriched option artifact 11723198817. No new market-data acquisition or forecast refit is part of this run.
+- **Frozen grid:** 4,800 configurations × four friction scenarios (C0–C3), including synthetic spread/slippage and dated brokerage/statutory charges. Execution quality is Q1/OHLC proxy, **not quote-executable**.
+- **Pre-run code gate:** [independent tester R6 approval](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8_PROXY_STRATEGY_TESTER.md).
+- **Result audit preparation:** [developer audit handoff R1](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8_PROXY_RESULTS_AUDIT_HANDOFF_R1_2026-10-12.md) records a pre-existing error in the maximum percentage drawdown formula and additional portfolio-overlap / duplicate-row audit risks. Treat percentage drawdown as unverified until corrected; this does not alter trade-level P&L or win/loss counts.
+- **Status rule:** no winner is selected or promoted from the pre-run gate. Wait for the actual run artifact, reconcile trade-level costs/P&L and submit the exact result snapshot to the independent tester before considering Phase 9.
+
+**Developer → Tester:** review the completed run artifact and ledger independently, including the pinned inputs, calculations, drawdown and overlap caveats; issue a hash-pinned result-level decision.
+**Tester → Developer:** do not promote a configuration or advance the phase until result metrics and limitations are accepted.
