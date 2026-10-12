@@ -85,7 +85,7 @@ jobs:
           exit 0
       - name: Download uploaded artifact ZIP and validate archive CRC
         id: download
-        if: env.SOURCE_GATE_STATUS == 'PASS'
+        if: steps.source.outputs.status == 'PASS'
         env:
           GH_TOKEN: ${{ github.token }}
           RUNNER_TEMP_DIR: ${{ runner.temp }}
@@ -125,7 +125,7 @@ jobs:
           exit 0
       - name: Audit encrypted dataset hashes, row totals, schema and coverage
         id: audit
-        if: env.DOWNLOAD_GATE_STATUS == 'PASS'
+        if: steps.download.outputs.download_status == 'PASS'
         env:
           RUNNER_TEMP_DIR: ${{ runner.temp }}
         run: |
