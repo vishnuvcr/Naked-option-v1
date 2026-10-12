@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_PREFLIGHT_EXECUTOR_WORKFLOW_REVIEW",
+  "decision": "PASS_PREFLIGHT_WORKFLOW_ONLY",
+  "reviewed_at": "2026-10-12",
+  "developer_workflow_commit": "55fa77de8e37815931cd331a862d1398bfead003",
+  "developer_workflow_path": ".github/workflows/phase8p-preflight-only.yml",
+  "developer_workflow_blob_sha1": "474712e945dfaef83c814c9e17d1513ad44a3152",
+  "proposal_blob_sha1": "267cc3fba9d2e5a8313be5efb60879d27586d529",
+  "review_request_blob_sha1": "8dc69825ad06dd2284a527d51ae756551ce3947a",
+  "execution_request_blob_sha1": "2c41f402b413af84394cfe39c284164dce0b4e2c",
+  "approved_developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+  "approved_module_blob_sha1": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
+  "approved_test_blob_sha1": "4681c8e34aab1edae44f70ffad455741799d7075",
+  "code_decision_blob_sha1": "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b",
+  "artifacts": {
+    "greek": {
+      "artifact_id": 11723198817,
+      "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+    },
+    "forecast": {
+      "artifact_id": 11638738288,
+      "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+    }
+  },
+  "workflow_run_id": 38202785798,
+  "checks_passed": 29,
+  "checks_total": 29,
+  "tester_audit_blob_sha1": "417a8c4d1eb49cf535edd20f7b57f74f6c77f62e",
+  "audit_receipt_artifact_id": 11725568231,
+  "audit_receipt_sha256": "cbb785ad9832b928b7424f6e3c4323a85112e3d7377ab92d5222dd6a84265260",
+  "real_artifacts_downloaded": false,
+  "real_artifacts_decrypted": false,
+  "model_fitted": false,
+  "holdout_accessed": false,
+  "market_source_requested": false,
+  "option_pnl_run": false,
+  "strategy_promotion": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "conditions": [
+    "Only schema/coverage preflight may run",
+    "Exact workflow/request/code/artifact pins must match before download",
+    "Separate tester approval of the exact preflight report is required before any model fit"
+  ]
+}
