@@ -806,3 +806,9 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 - First hosted run 38241541882 passed the earlier four-test snapshot. The new expanded test suite is run 38241558360; its final status is not yet verified.
 - Work remains developer-branch only. Tester branch was not modified. No shards, prediction fit, holdout access, or strategy results are claimed.
 - Next: verify expanded CI, update README/status/error log with final evidence, then submit the exact commit and logs for independent tester review. Registry gate remains blocked.
+
+## 2026-10-12 — Shard suite failure and correction
+
+- Expanded test run `38241558360` failed 7/8 because the malformed-index fixture expected a count mismatch while declaring a matching count. The exact failure was inspected from hosted logs.
+- Fixed the fixture expectation in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`; new hosted result must be checked.
+- The failure and correction are recorded; registry gate remains blocked. Tester branch unchanged.
