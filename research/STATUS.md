@@ -820,3 +820,16 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Developer → Tester:** review the exact trigger workflow blob, verify ordinary pushes cannot enable source/empirical jobs, and record the first hosted run ID/outcomes if accessible.
 **Tester → Developer:** issue PASS/REQUEST_CHANGES with exact evidence; do not authorize empirical P&L from trigger review alone.
 
+
+
+## 2026-10-12 — Tester handoff for fixed-contract panel and hosted regression evidence
+
+- Created tester issue [#21](https://github.com/vishnuvcr/Naked-option-v1/issues/21) requesting an independent audit of already-cached source artifacts for a valid point-in-time fixed-contract panel, independent recalculation of all pinned transaction costs, and review of the outstanding hosted regression-trigger evidence.
+- Re-read the independent readiness report and Phase 8 data plan. Tester decision remains **BLOCKED for empirical option P&L**. The frozen 4,800 configurations and four cost scenarios remain unchanged.
+- The source plan requires contract identity, effective-dated expiry/lot size, timestamps/provenance, duplicate classification, no-lookahead and quote-tier separation. Q1 OHLC-only rows may support sensitivity analysis only; they cannot be described as executable quote evidence.
+- No one-use duplicate scan was authorized or run; consumed R1 nonce must not be reused. No model fit, holdout access, empirical P&L, or strategy promotion occurred.
+- Hosted automatic-trigger execution remains **UNVERIFIED** because the available run lookup only exposes PR-triggered runs. No PASS/FAIL is inferred from an empty response.
+- Next gate: independent tester returns PASS/BLOCKED on existing-source panel feasibility and trigger evidence. If no valid panel is found, proceed only through the separately reviewed and authorized diagnostic path; do not bypass controls.
+
+**Developer → Tester:** review issue #21 independently and report exact source/blob hashes, field coverage, cost arithmetic and hosted run evidence.
+**Tester → Developer:** keep empirical P&L unauthorized until a fixed-contract panel and all independent gates pass.
