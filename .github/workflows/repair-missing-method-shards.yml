@@ -28,8 +28,10 @@ jobs:
           python-version: "3.11"
       - name: Rebuild small, deterministic registry shards
         run: python scripts/reshard_prediction_registry.py
-      - name: Run utility regression suite
-        run: python -m unittest discover -s scripts -p "test_*.py" -v
+      - name: Run registry shard utility regression tests
+        run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+      - name: Run deterministic re-sharding tests
+        run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
       - name: Audit rebuilt registry before committing
         shell: bash
         run: |
