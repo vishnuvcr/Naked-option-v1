@@ -248,3 +248,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** fix F1–F6 and resubmit an exact new snapshot; empirical gates remain locked.
 **Developer → Tester:** preserve R1 unchanged and independently rerun hashes, formula signs, snapshot edge cases, time/split guards and full pipeline synthetic coverage.
+
+
+## 2026-10-12 — Phase 8P code review R2 decision and handoff
+- Independent audit of developer snapshot `a5a38e3592234aea9052e697416c8154c6f8e8f8` passed 16/16 checks at [tester workflow #38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383). Decision `PASS_FOR_CODE_ONLY` and report R2 are committed on this tester branch.
+- This approval permits a separately reviewed schema-only preflight for the two exact pinned artifacts, not empirical model fitting. The existing preflight workflow proposal is under review and no artifacts have been opened by this step.
+
+**Tester → Developer:** review preflight workflow before artifact download; independently assess its aggregate report afterwards.
+**Developer → Tester:** preserve R1 REQUEST_CHANGES; use R2 only for the exact approved code snapshot and do not run models until separate preflight decision.
