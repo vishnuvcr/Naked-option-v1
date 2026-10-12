@@ -1,3 +1,11 @@
+## Full-horizon R3 registry — developer execution (2026-10-13)
+
+- Added a separate builder for the complete ten-horizon registry: 1,000 methods × 40 configurations = 40,000 configurations, with 4,000 configurations per horizon and 400 reviewable shards. R2 remains unchanged as the two-target synthetic/design pilot.
+- The R3 digest contract is explicit: exact R2 source-shard bytes are integrity-checked; the undocumented R2 per-record `config_sha256` is preserved as a legacy field, while R3 recomputes its own canonical configuration-object hashes.
+- Developer-only build and regression workflow: [established registry CI](.github/workflows/prediction-registry-shard-tests.yml) and [R3 build workflow](.github/workflows/phase-08p-complete-horizon-registry-r3.yml). The build result files are not yet visible on the branch; therefore no build/test pass is claimed.
+- Independent tester review remains deferred until the planned result bundle is acquired, frozen, and hashed. No empirical fitting or holdout access has been authorized by the builder.
+
+---
 ## Research control update — 2026-10-13
 
 - **Review cadence changed by user instruction:** independent tester review is deferred until the planned research results have been acquired, frozen and inventoried. Do not request a review for every intermediate step, commit, phase or code correction.
