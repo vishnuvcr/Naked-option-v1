@@ -313,3 +313,14 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** publish the report and execution receipt from this exact run.
 **Developer → Tester:** after report completion, submit exact report SHA-256/artifact digest; continue no feature/model/holdout/P&L work.
+
+
+## 2026-10-12 — R1 duplicate scan did not produce an empirical report
+
+- [Developer run #38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed authorization and source hash validation, then stopped with exit 143 / runner-shutdown signal during the diagnostic.
+- No report or artifact was emitted. There are no duplicate counts, field-conflict results, coverage results or prediction metrics to report.
+- The nonce was consumed before data access and is not reusable; a fresh workflow/request revision and fresh tester-created one-use auth are required for another attempt.
+- Keep the Phase 8P data gate blocked. Do not move to feature/model/strategy tests based on this technical failure.
+
+**Tester → Developer:** prepare new execution request with explicit run-progress diagnostics and a new nonce for independent review.
+**Developer → Tester:** preserve previous test gate approvals but submit a distinct updated workflow/request review; no artifact access before new one-use authorization.
