@@ -1317,3 +1317,18 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** review the new diagnostic code/tests before any further encrypted-data diagnostic.
 **Tester → Developer:** no model fitting until duplicate provenance and the schema preflight both pass.
+
+
+## Phase 8P update — Greek feature prediction study (2026-10-12)
+
+**Current status: independent duplicate-diagnostic code review pending; real-data feature preflight remains blocked; no new prediction model has been fitted.** This sub-study tests incremental prediction only and does not evaluate or promote trading strategies.
+
+- The R3 scope has tester approval for implementation only: [scope](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md) and [scope-only review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md).
+- The accepted encrypted Greek artifact remains immutable: [artifact](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828/artifacts/11723198817). It is a partial grid with model-estimated Greeks and CC-BY-NC-4.0 non-commercial research restrictions.
+- The first schema-only preflight was independently marked BLOCKED_DATA because duplicate option-contract/timestamp keys stopped the feature panel before coverage could be computed. No deduplication rule is accepted.
+- A hash/count-only duplicate diagnostic has passed synthetic CI [#38204164532](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204164532), but the independent code review workflow read an older request revision and did not review the submitted snapshot [#38204120560](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204120560). A tester-role handoff is tracked in [issue #20](https://github.com/vishnuvcr/Naked-option-v1/issues/20).
+- **No real duplicate scan is authorized yet.** The exact diagnostic code must pass independent review, then a separate diagnostic-only execution authorization must be approved. No model fit, holdout access, external market-data request, option P&L, brokerage/slippage simulation or strategy promotion has occurred in this sub-study.
+- Detailed, append-only state and error history: [developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/STATUS.md) · [developer error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/ERROR_LOG.md) · [tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/STATUS.md).
+
+**Developer → Tester:** review the exact R3 duplicate-diagnostic snapshot on the isolated tester branch; do not touch the real artifact during code review.
+**Tester → Developer:** issue a pinned independent decision and require a separate authorization before any diagnostic scan; keep model fitting blocked.
