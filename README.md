@@ -1,3 +1,12 @@
+## Phase 8P R2 tester continuation — 2026-10-13
+
+- Developer submitted T2 bootstrap and T3 target-scope corrections. Source inspection indicates the bootstrap now withholds inferential output for a single-valued resampling distribution; R2 is explicitly a non-empirical two-target pilot.
+- The tester audit script has been updated to test the corrected bootstrap contract and to treat the omitted eight horizons as a scoped note only when the non-empirical hard gate is present.
+- **Decision remains REQUEST CHANGES** until the hosted regression and complete shard/config/semantic audit artifact can be reviewed. No data, model, or holdout work is authorized.
+- [Tester continuation report](research/gates/PREDICTION_REGISTRY_R2_INDEPENDENT_AUDIT_CONTINUATION_2026-10-13.md) · [R3 tester decision](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_DECISION_R3_2026-10-13.json).
+
+---
+
 ## Latest Phase 8P R2 prediction-registry tester decision — 2026-10-13
 
 - **Decision: REQUEST CHANGES.** Empirical fitting, encrypted-data access, holdout access, option P&L and strategy promotion remain prohibited.
