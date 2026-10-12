@@ -657,3 +657,10 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - Attempted a shallow Git checkout of `phase-08-prediction-developer` to run the existing Phase 8 self-test locally.
 - The execution container could not resolve `github.com`; checkout failed before any source was obtained or test executed.
 - Logged as infrastructure/tooling failure in `research/ERROR_LOG.md`. No test result or empirical output claimed.
+
+
+## 2026-10-12 — User reiterated: start strategy testing soon
+- Re-read current Phase 8 status, data plan, frozen forecast manifest, long-option runner, workflow and independent tester readiness report.
+- Added a narrow automatic push trigger to `.github/workflows/phase-08-long-option.yml` on the developer branch, commit `5de4a2c1626b5f2633c4e0565e84592297ad4b44`, preserving the manual/reusable triggers and existing empirical gates.
+- Attempted to verify the Actions run; the available commit-run endpoint returned no runs because it only returns pull-request-triggered runs. Run status remains unverified.
+- No empirical option P&L generated. Next: verify the hosted run and continue the point-in-time option-panel and separate diagnostic-authorization gates.
