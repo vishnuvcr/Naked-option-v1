@@ -170,7 +170,7 @@ def main():
                   '"conflicting_signature_fields"', '"manifest_columns_sha256"',
               )))
         scan_start = diagnostic.index("def scan_frames(")
-        scan_end = diagnostic.index("\\ndef run_diagnostic(", scan_start)
+        scan_end = diagnostic.index("\ndef run_diagnostic(", scan_start)
         scan_source = diagnostic[scan_start:scan_end]
         check(checks, failures, "r5_disk_backed_scan_and_bounded_state",
               all(term in scan_source for term in (
