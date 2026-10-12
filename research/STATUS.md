@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **R3 TESTER PASS — ENRICHMENT RETRIAL RUNNING** | Exact snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e` independently passed R3 gate; hosted retry of run #38195812828 attempt 2 is now running. Final data coverage/hash/encryption gate still pending; no artifact accepted yet |
+| Phase 8 Long-option execution | **R3 DEVELOPER RUN PASSED — INDEPENDENT ARTIFACT REVIEW PENDING** | Run #38195812828 attempt 2 uploaded artifact 11723198817. 8,999,865 rows and 61 encrypted parts passed developer validation; independent tester must verify actual artifact and coverage before acceptance |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -619,3 +619,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Exact-snapshot developer workflow [#38195812828, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) was restarted after the decision was committed. The run has begun but has not yet reported terminal coverage or artifact upload.
 - R3 fixes the R2 terminal `source=None output=8999865` row-count error. Input expected rows are derived from all 61 manifest parts; the preflight must confirm 8,999,865 rows before new HF requests.
 - No result is delivered until row count, all encrypted hashes, 61 part files, and no-plaintext conditions pass. No Dhan API, option P&L, holdout, promotion, commercial use or plaintext publication is authorized; input remains PARTIAL_GRID; source is CC-BY-NC-4.0 non-commercial only.
+
+
+## 2026-10-12 — Phase 8 Greek enrichment R3 developer run completed
+- Developer run [#38195812828, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) completed successfully for exact approved SHA `f556c7b44088f18551453c36f78e8d5de7fe141e`.
+- Source-manifest preflight passed before HF fetch: the sum of the 61 per-part row counts was 8,999,865. Public HF NIFTY spot and expiry-partition metadata fetch passed.
+- Enrichment summary from the hosted log: 8,999,865 rows preserved; 61 encrypted monthly parts; 8,418,616 option rows have a Delta value; 0 option rows missing exact-timestamp spot; 0 rows unmapped under the expiry mapping rules. A zero unmapped count does not make the proxy an official point-in-time contract master.
+- Final developer gate passed row totals, encrypted-part hash checks and encrypted-only/no-plaintext validation. Output artifact [ID 11723198817](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828/artifacts/11723198817), name `nifty-1m-greeks-enriched-r3`, size 1,610,370,340 bytes; artifact ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
+- The separate tester-owned artifact gate is being prepared/requested. This artifact is **not yet accepted as delivered** until an independent download-level audit validates part hashes, the coverage report/count maps, source metadata/license and plaintext absence.
+- No Dhan API, option P&L, holdout, strategy promotion, commercial use or plaintext publication is authorized; input grid remains PARTIAL_GRID and HF source CC-BY-NC-4.0 is non-commercial only.

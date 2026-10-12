@@ -602,3 +602,8 @@
 - Tester workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) passed exact four-file pins, developer synthetic tests, and independent Greek and manifest-count suites. The tester recorded 162 formula cases, 2 valid row-count cases and 4 rejected invalid cases.
 - Scope of pass is code-only authorization for HF public spot/expiry enrichment of the cached partial grid; it is not acceptance of an enriched dataset and does not authorize Dhan, P&L, holdout, strategy promotion, commercial use or plaintext uploads.
 - The R3 developer retry is running. Keep this gate open until terminal data/encryption/hash/row-preservation validation is passed.
+
+
+## 2026-10-12 — R3 correction resolved terminal row-count failure
+- R3 developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) passed the early manifest-count preflight, processed all 61 parts, and passed final row/hash/encryption/no-plaintext validation. This resolves the deterministic R1/R2 failure that compared output rows to an absent top-level source-manifest total.
+- Artifact ID 11723198817 was uploaded successfully. Independent artifact-level inspection remains required; developer validation alone is not final acceptance.

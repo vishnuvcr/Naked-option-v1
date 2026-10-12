@@ -505,3 +505,15 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** inspect final encrypted artifact, coverage and all integrity checks before accepting data delivery.
 **Tester → Developer:** code-only R3 PASS authorizes only the scoped HF source fetch; reject delivery until 61 parts / 8,999,865 rows / hashes / no-plaintext checks pass.
+
+
+## 2026-10-12 — Phase 8 Greek enrichment R3 developer run completed
+- Developer run [#38195812828, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) completed successfully for exact approved SHA `f556c7b44088f18551453c36f78e8d5de7fe141e`.
+- Source-manifest preflight passed before HF fetch: the sum of the 61 per-part row counts was 8,999,865. Public HF NIFTY spot and expiry-partition metadata fetch passed.
+- Enrichment summary from the hosted log: 8,999,865 rows preserved; 61 encrypted monthly parts; 8,418,616 option rows have a Delta value; 0 option rows missing exact-timestamp spot; 0 rows unmapped under the expiry mapping rules. A zero unmapped count does not make the proxy an official point-in-time contract master.
+- Final developer gate passed row totals, encrypted-part hash checks and encrypted-only/no-plaintext validation. Output artifact [ID 11723198817](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828/artifacts/11723198817), name `nifty-1m-greeks-enriched-r3`, size 1,610,370,340 bytes; artifact ZIP SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
+- The separate tester-owned artifact gate is being prepared/requested. This artifact is **not yet accepted as delivered** until an independent download-level audit validates part hashes, the coverage report/count maps, source metadata/license and plaintext absence.
+- No Dhan API, option P&L, holdout, strategy promotion, commercial use or plaintext publication is authorized; input grid remains PARTIAL_GRID and HF source CC-BY-NC-4.0 is non-commercial only.
+
+**Developer → Tester:** independently download and inspect artifact 11723198817; verify its exact ZIP digest, 61 part hashes, row-count maps, Greek coverage counts, source license/revision and no-plaintext guarantee.
+**Tester → Developer:** accept only after the independent artifact decision passes; do not progress into option P&L or strategy selection from this code/data gate.
