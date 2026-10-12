@@ -921,3 +921,12 @@
 - Current state: code committed, but neither utility nor tests have been executed in a hosted workflow; generated shards are not claimed to exist. Tester review requested in issue #25.
 - Impact: registry gate remains blocked; no empirical fitting, holdout access, or scientific claims authorized.
 - Prevention: tester must inspect and approve the exact code; hosted tests must pass; then all shard files and hashes must be generated and independently re-verified before the registry gate can be reconsidered.
+
+
+## 2026-10-12 — Registry shard utility hosted regression passed
+- Category: CI/test verification
+- Component: `scripts/shard_prediction_registry.py`, its unit tests, and `.github/workflows/prediction-registry-shard-tests.yml`.
+- Hosted run: [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039), commit `8fd619332155ba8cd68614c5a96a9ab81de37433`.
+- Outcome: all four unit tests passed; standard SHA-256 known-vector check passed. No test failure was observed.
+- Impact: file-sharding utility behavior has initial developer CI evidence. This does not verify the actual registry files, scientific compatibility, semantic distinctness, label/statistical preregistration, or runner restart/resource behavior.
+- Disposition: independent tester review requested on issue #25. Registry gate remains blocked; no empirical fitting or holdout access.
