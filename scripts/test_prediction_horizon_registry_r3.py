@@ -139,6 +139,15 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual(label_counts, Counter({x: 4000 for x in build.ALL_LABEL_IDS}))
 
         # Preregistration pins must point to the exact committed artifacts.
+        data_pin = read_json(build.DATA_ARTIFACT_PIN)
+        self.assertEqual(data_pin["current_derived_artifact"]["artifact_id"], 11698879857)
+        self.assertEqual(data_pin["current_derived_artifact"]["archive_sha256"], "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b")
+        self.assertEqual(data_pin["verified_summary"]["encrypted_members_checked"], 61)
+        self.assertEqual(data_pin["verified_summary"]["encrypted_member_hash_or_size_mismatches"], 0)
+        self.assertFalse(data_pin["verified_summary"]["plaintext_decrypted"])
+        self.assertEqual(prereg["scope"]["derived_encrypted_artifact_pin_git_blob_sha1"], build.git_blob_sha1(build.DATA_ARTIFACT_PIN.read_bytes()))
+        self.assertEqual(prereg["scope"]["current_derived_artifact_id"], data_pin["current_derived_artifact"]["artifact_id"])
+        self.assertEqual(prereg["scope"]["current_derived_artifact_archive_sha256"], data_pin["current_derived_artifact"]["archive_sha256"])
         self.assertEqual(prereg["scope"]["label_manifest_git_blob_sha1"], build.git_blob_sha1(build.LABEL_OUT.read_bytes()))
         self.assertEqual(prereg["scope"]["config_manifest_git_blob_sha1"], build.git_blob_sha1(build.CONFIG_MANIFEST_OUT.read_bytes()))
         self.assertEqual(prereg["scope"]["registry_index_git_blob_sha1"], build.git_blob_sha1(build.REGISTRY_INDEX_OUT.read_bytes()))
