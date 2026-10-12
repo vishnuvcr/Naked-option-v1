@@ -102,7 +102,26 @@
     "purge_rule": "Exclude training examples whose label interval intersects the outer validation window; additionally remove the final complete exchange session immediately before each validation window from training.",
     "embargo_rule": "Exclude the first complete exchange session of each validation window from scored validation predictions. Apply a separate inner chronological purge/embargo around all tuning/calibration folds.",
     "horizon_end_rule": "Score a validation label only when its target endpoint is within the same registered validation window and within dataset date bounds.",
-    "final_untouched_holdout": "NOT INCLUDED in this registry sample; reserved for a separately authorized fresh-forward phase. Do not use these folds to tune after review."
+    "final_untouched_holdout": "NOT INCLUDED in this registry sample; reserved for a separately authorized fresh-forward phase. Do not use these folds to tune after review.",
+    "inner_validation": {
+      "fold_count": 3,
+      "split_policy": "Within each outer training window, sort eligible official exchange sessions and form three expanding inner folds with validation intervals at session-index quantiles [0.40, 0.60), [0.60, 0.80), and [0.80, 1.00). Each inner fold trains only on earlier sessions and applies the same one-session purge and embargo.",
+      "calibration": "Build training-only out-of-fold predictions from these three inner folds; fit calibrators and abstention/gating thresholds only on these out-of-fold predictions. Refit the final family estimator on the full eligible outer-training set after calibration choices are frozen.",
+      "minimum_inner_training_rows": {
+        "INTRA_30M_UP_DOWN": 10000,
+        "POS_1D_UP_DOWN": 150
+      },
+      "minimum_inner_validation_rows": {
+        "INTRA_30M_UP_DOWN": 1000,
+        "POS_1D_UP_DOWN": 30
+      },
+      "class_support_each_direction_minimum": {
+        "INTRA_30M_UP_DOWN": 100,
+        "POS_1D_UP_DOWN": 10
+      },
+      "deterministic_session_quantiles": true,
+      "if_any_inner_fold_fails": "Block that config/fold before fitting; do not silently change the split or use a random split."
+    }
   },
   "sample_eligibility": {
     "common_panel": "Within each label stratum and outer fold, all compatible candidates use the same decision rows. Feature values are imputed with training-fold-only statistics; do not silently drop rows candidate-by-candidate.",
@@ -166,7 +185,8 @@
       "seed": 2026101209,
       "confidence_level": 0.95,
       "confidence_interval": "percentile interval of paired mean log-loss improvement across replicates",
-      "raw_p_value": "center bootstrap replicates under the null by subtracting observed improvement; two-sided p=(1 + count(|centered_delta| >= |observed_delta|))/(B+1)"
+      "raw_p_value": "center bootstrap replicates under the null by subtracting observed improvement; two-sided p=(1 + count(|centered_delta| >= |observed_delta|))/(B+1)",
+      "resampling_unit": "exchange sessions within each outer validation fold; moving blocks never cross fold boundaries; each replicate resamples contiguous five-session blocks independently within each fold and reuses the same row indices for candidate and baseline."
     },
     "multiplicity": {
       "procedure": "Benjamini-Yekutieli false discovery rate",
@@ -177,8 +197,12 @@
         "POS_1D_UP_DOWN"
       ],
       "order_of_operations": "freeze eligible configuration membership, compute paired block-bootstrap raw p-values, apply BY within each label stratum, and report all configurations including rejected/blocked entries",
-      "no_repeated_holdout_tuning": true
-    }
+      "no_repeated_holdout_tuning": true,
+      "maximum_pre_registered_configurations_per_stratum": 1704,
+      "expected_compatible_method_count_before_data_eligibility": 426,
+      "count_basis": "Current draft matrix marks 426/1000 method rows ALLOW_IN_PRINCIPLE and every row remains execution-blocked. Four label-specific configurations per method imply an upper bound of 1704 hypotheses per label; actual BY family membership is frozen after pre-result compatibility/sample screening. Any matrix change before fitting requires a new hash-pinned preregistration/tester approval."
+    },
+    "primary_effect_direction": "positive baseline_log_loss - candidate_log_loss means candidate improves on baseline"
   },
   "output_and_failure_rules": {
     "one_result_row_per_config_fold_stratum": true,
