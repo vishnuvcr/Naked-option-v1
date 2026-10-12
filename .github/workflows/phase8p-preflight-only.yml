@@ -4,7 +4,7 @@ on:
   push:
     branches: [phase-08-prediction-developer]
     paths:
-      - "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R1_2026-10-12.json"
+      - "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json"
   workflow_dispatch:
     inputs:
       run_schema_preflight:
