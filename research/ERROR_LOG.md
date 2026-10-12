@@ -685,3 +685,15 @@
 - This is a tester workflow/revision-binding issue, not a developer test failure or a scientific finding. No real encrypted artifact was downloaded/decrypted by this code-review run; no model fit or deduplication occurred.
 - Developer synthetic run [#38204164532](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204164532) passed. Handoff recorded in [issue #20](https://github.com/vishnuvcr/Naked-option-v1/issues/20) so the isolated tester role can update its own workflow and independently review R3.
 - Gate remains closed until the tester issues a code decision and a distinct diagnostic authorization. Do not use R1/R2 or synthetic success as approval of the real-data diagnostic.
+
+
+## 2026-10-12 — One-use duplicate diagnostic execution R1 started
+
+- The previously logged executor request mismatches (runs #38205997072 and #38206009396) failed closed before artifact access and are superseded by workflow/request R2. They are not data evidence.
+- R2 executor workflow and request passed independent review: tester run [#38206600329](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206600329), 33/33; workflow blob `398063be2215dbed40c123521bf2868b0bcdb6a3`, workflow-review request blob `252536eb06b0bf0d4d6f10d00e802cd481b3a94b`, decision blob `8d39ad104c519b79bfe47f6731bac101a0798347`.
+- The separate execution authorization request blob `bfb186fba597acdd831f8d854471d9b6d0adde36` was reviewed and pinned. Final tester authorization blob `a9390a2a597bbfedaedcf792fe5f60c29361cc82`, issued `2026-10-12T05:12:44Z`, expires `2026-10-12T17:12:44Z`, `max_uses=1`, `single_use=true`.
+- Run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed the authorization gate, committed nonce before download, checked out the immutable approved code, restored the encrypted-artifact cache, and verified the artifact digest. The diagnostic command is still running; no result is accepted yet.
+- If the one-use run fails after nonce consumption, do not rerun it or reuse the nonce. Record the symbolic failure and seek a newly reviewed fix/new nonce authorization. No source rows have been intentionally emitted or uploaded.
+
+**Developer → Tester:** await run #38207005953's aggregate output and independently classify its report; no model execution.
+**Tester → Developer:** if the diagnostic completes, review output schema and digest; if it fails, approve only a reviewed technical correction and new nonce.
