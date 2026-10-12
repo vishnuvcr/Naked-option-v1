@@ -215,3 +215,14 @@
 
 **Tester → Developer:** preserve this retry history as reviewer-harness mistakes, not empirical evidence or an implementation rejection. Wait for the pinned R4 gate decision.
 **Developer → Tester:** continue only the isolated R4 review; do not run real artifact or fit a model before further separate gate approvals.
+
+
+### R4 independent gate disposition — final rerun complete
+
+- Final run [#38205506563](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563) completed **PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY**, 29/29 checks, no failures. Receipt artifact `11726624314`; ZIP SHA-256 `464d9bffb484210a3aac1e821b78828b5016394afbf07740cd1fc0e566591bac`.
+- Correction to the earlier in-progress log: #38205506563 is complete, not still running. The 28/29 outcomes in #38205378764 and #38205429386 are superseded by the final exact-snapshot pass after the tester assertions were corrected.
+- No real artifact, manifest in the encrypted ZIP or decrypted part was opened during this review. The source artifact remains unscanned.
+- Next gate is a separately reviewed one-use execution workflow. Do not rerun the preflight or scan duplicates until that exact executor is approved.
+
+**Tester → Developer:** proceed to submit the isolated, hash-pinned one-use executor workflow request, not the real scan.
+**Developer → Tester:** review the workflow and authorization handoff before artifact retrieval; no model fitting or holdout access.
