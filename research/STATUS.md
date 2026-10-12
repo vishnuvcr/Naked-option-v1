@@ -1099,3 +1099,8 @@ Corrected misleading method nearest-neighbor contrast statements. The registry n
 
 ### Resume checkpoint — 2026-10-13
 Latest repaired registry handoff is `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json` (blob `30ce960101920ca3443479672155f508f9506fbb`); reviewed snapshot `b04b2541ea80cdb8b80d703b27ef778f4b7c425b`, executable source `877b7baf3aafb309021dfc621f7e98406b5532ee`. Contrast repair, registry audit, clean registry tests, and synthetic sweep passed. Tester branch has not advanced and the latest independent decision is still REQUEST CHANGES. No empirical fitting, data decryption, or holdout access.
+
+
+### 2026-10-13 — Compatibility matrix made independently inspectable
+
+The previous tester blocker noted that the full compatibility matrix was too large to inspect reliably through the repository API. Added 40 committed compatibility JSON shards (25 rows each), a SHA-256/byte-count/ID-range index, and a reconstruction verifier. Registry CI [run 38299233992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992) passed the four new shard tests and the existing registry/statistical suites; it generated and committed the shards at `503af0a4c6af98aec2c2a41b633cedc50df75d34`. The matrix still records 426 conditional, 574 blocked, and zero empirically eligible rows. This addresses artifact accessibility only; the independent scientific gate remains REQUEST CHANGES.
