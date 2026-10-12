@@ -971,3 +971,12 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Outstanding preregistration fields: flat-return tolerance, fold dates, minimum training/validation rows and class support, missingness thresholds, bootstrap block length/seed, and multiplicity family grouping.
 - The method × representation × operator cross-product is not yet accepted as 1,000 valid distinct methods. Bulk shard creation was attempted but the tool call cap prevented confirmation of any shard writes. Do not claim shards exist.
 - Empirical prediction runs and untouched holdout access remain **NOT AUTHORIZED**.
+
+
+## 2026-10-12 — Prediction registry R2 continuation
+
+- Registry gate: **BLOCKED — independent tester REQUEST CHANGES remains in force**.
+- Developer added the auditable sharding/verifier utility and regression tests. They are submitted for independent review; not yet executed in hosted CI.
+- No shard outputs have been generated or verified; do not infer registry approval from the tooling commits.
+- Next gate: tester review of exact utility/test commits, then run tests, generate and verify small shards, complete compatibility and label/statistical preregistration, and pass synthetic restart/resource checks.
+- Empirical prediction fitting, strategy selection and untouched-holdout access remain **NOT AUTHORIZED**.
