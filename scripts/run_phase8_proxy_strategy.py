@@ -39,15 +39,15 @@ IST = "Asia/Kolkata"
 REQUIRED_OPTION_COLUMNS = [
     "row_type", "timestamp_epoch", "session_date", "returned_strike", "option_type",
     "option_open", "option_high", "option_low", "option_close", "expiry_date",
-    "time_to_expiry_years", "implied_volatility", "delta", "rolling_spot",
-    "nifty_close", "risk_free_rate_decimal", "dividend_yield_decimal",
-    "option_volume", "open_interest",
+    "time_to_expiry_years", "greek_valuation_offset_seconds", "implied_volatility",
+    "delta", "rolling_spot", "nifty_close", "risk_free_rate_decimal",
+    "dividend_yield_decimal", "option_volume", "open_interest",
 ]
 NUMERIC_COLUMNS = [
     "timestamp_epoch", "returned_strike", "option_open", "option_high", "option_low",
-    "option_close", "time_to_expiry_years", "implied_volatility", "delta", "rolling_spot",
-    "nifty_close", "risk_free_rate_decimal", "dividend_yield_decimal", "option_volume",
-    "open_interest",
+    "option_close", "time_to_expiry_years", "greek_valuation_offset_seconds",
+    "implied_volatility", "delta", "rolling_spot", "nifty_close",
+    "risk_free_rate_decimal", "dividend_yield_decimal", "option_volume", "open_interest",
 ]
 
 
@@ -250,38 +250,57 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
 
 
 def resolve_delta(row: pd.Series, decision_time: int) -> tuple[float, str]:
+    """Return only a delta usable at decision_time; never consume close-valued Greeks early."""
     observed = row.get("delta")
     try:
-        if np.isfinite(float(observed)) and abs(float(observed)) <= 1.0:
-            return abs(float(observed)), "OBSERVED_DELTA"
+        delta_value = float(observed)
+        offset_value = float(row.get("greek_valuation_offset_seconds"))
+        row_epoch = float(row.get("timestamp_epoch"))
+        if (
+            np.isfinite(delta_value)
+            and abs(delta_value) <= 1.0
+            and np.isfinite(offset_value)
+            and np.isfinite(row_epoch)
+            and row_epoch + offset_value <= float(decision_time)
+        ):
+            return abs(delta_value), "OBSERVED_DELTA_ASOF"
     except Exception:
+        # An absent/unknown valuation offset is not permission to use a stored Greek.
         pass
+
+    # The enriched Greek's time_to_expiry_years is calculated at the close
+    # (timestamp + greek_valuation_offset_seconds). Recompute T at the actual
+    # decision instant rather than reusing that later-valued quantity.
     spot = row.get("rolling_spot")
     try:
-        if not np.isfinite(float(spot)) or float(spot) <= 0:
-            spot = row.get("nifty_close")
         spot = float(spot)
         strike = float(row.get("returned_strike"))
         iv = float(row.get("implied_volatility"))
         if iv > 3:
             iv /= 100.0
-        t = float(row.get("time_to_expiry_years"))
-        if not np.isfinite(t) or t <= 0:
-            ex = pd.Timestamp(str(row.get("expiry_key")) + " 15:30:00", tz=IST)
-            t = max((ex.timestamp() - decision_time) / (365.0 * 86400.0), 1e-8)
+        expiry = str(row.get("expiry_key", row.get("expiry_date", "")))[:10]
+        expiry_ts = pd.Timestamp(expiry + " 15:30:00", tz=IST)
+        t = (expiry_ts.timestamp() - float(decision_time)) / (365.0 * 86400.0)
         rf = float(row.get("risk_free_rate_decimal"))
         if not np.isfinite(rf):
-            rf = 0.05
+            rf = 0.0
         q = float(row.get("dividend_yield_decimal"))
         if not np.isfinite(q):
             q = 0.0
-        if spot > 0 and strike > 0 and 0 < iv <= 5 and t > 0:
+        if (
+            np.isfinite(spot) and spot > 0
+            and np.isfinite(strike) and strike > 0
+            and np.isfinite(iv) and 0 < iv <= 5
+            and np.isfinite(t) and t > 0
+        ):
             d1 = (math.log(spot / strike) + (rf - q + 0.5 * iv * iv) * t) / (iv * math.sqrt(t))
             nd1 = 0.5 * (1.0 + math.erf(d1 / math.sqrt(2.0)))
-            ot = str(row.get("option_type", "")).upper()
-            signed = math.exp(-q * t) * nd1 if ot == "CE" else -math.exp(-q * t) * (1.0 - nd1)
+            ot = str(row.get("option_type", "")).strip().upper()
+            signed = math.exp(-q * t) * nd1 if ot in {"CE", "CALL", "C"} else (
+                -math.exp(-q * t) * (1.0 - nd1) if ot in {"PE", "PUT", "P"} else float("nan")
+            )
             if np.isfinite(signed) and abs(signed) <= 1:
-                return abs(signed), "BLACK_SCHOLES_DELTA"
+                return abs(signed), "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
     except Exception:
         pass
     return float("nan"), "MONEYNESS_FALLBACK"
@@ -459,6 +478,7 @@ def make_skeletons(events: list[dict], options: pd.DataFrame, sessions: list[str
         if lot_size <= 0:
             diagnostics["NO_LOT_SIZE_SCHEDULE"] += 1
             continue
+        selected_delta, delta_selection_method = resolve_delta(row, entry_epoch)
         skeletons.append({
             **event,
             "decision_epoch": decision,
@@ -472,7 +492,8 @@ def make_skeletons(events: list[dict], options: pd.DataFrame, sessions: list[str
             "expiry_key": str(row["expiry_key"]),
             "strike": float(row["returned_strike"]),
             "option_type": str(row["option_type"]),
-            "delta_used": float(abs(row["delta"])) if pd.notna(row["delta"]) else float("nan"),
+            "delta_used": float(selected_delta) if np.isfinite(selected_delta) else float("nan"),
+            "delta_selection_method": delta_selection_method,
             "delta_target": float(delta_target),
             "dte_bucket": dte_bucket,
             "lot_size": lot_size,
@@ -559,6 +580,8 @@ def build_trade(skel: dict, policy: str, exit_result: dict, options: pd.DataFram
         "exit_timestamp_ist": pd.Timestamp(exit_epoch, unit="s", tz="UTC").tz_convert(IST).isoformat(),
         "expiry_date": skel["expiry_key"], "strike": float(skel["strike"]),
         "option_type": skel["option_type"], "lot_size": lot_size,
+        "delta_used_for_selection": skel.get("delta_used", float("nan")),
+        "delta_selection_method": skel.get("delta_selection_method", "UNRECORDED"),
         "entry_ohlc_open": entry_base, "exit_proxy_base": exit_base,
         "exit_reason": exit_result["exit_reason"], "gross_pnl_rupees_before_friction": (exit_base - entry_base) * lot_size,
         "entry_premium_turnover": entry_base * lot_size,
