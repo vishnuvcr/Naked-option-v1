@@ -67,3 +67,10 @@ Status: **IMPLEMENTED, NOT YET EXECUTED OR TESTER-APPROVED**.
 
 **Developer → Tester:** review validator/test source at commit `1fe2a290cf933d349ece0691929ee65f669d2b9c` and hosted run `38241647992`; issue a scoped hash-pinned decision.
 **Tester → Developer:** report any code or test defects; do not clear scientific registry or fitting gates based on utility CI alone.
+
+## Actual registry audit result — 2026-10-12
+
+- Audit script `scripts/audit_prediction_registry_shards.py` added and run in hosted CI. The run is intentionally red: 550 method-shard rows versus 1,000 master rows; 450 method IDs are missing.
+- Config shard count/range checks show 8,000 unique records, but all four manifest digests match none of the raw-file, canonical-root, or canonical-record-stream encodings tested. Exact digest semantics are unresolved.
+- Details and blocker are recorded in `research/STATUS.md`, `research/ERROR_LOG.md`, and `research/gates/R2_AUDIT_BLOCKED_2026-10-12.md`.
+- No scientific gate cleared. The tester has been asked to independently review the audit; no fitting or holdout access.
