@@ -11,7 +11,6 @@
       "untouched-holdout access"
     ],
     "data_manifest_path": "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json",
-    "data_manifest_sha256_git_blob": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
     "dataset_id_range_claim": {
       "start": "2021-10-11",
       "end": "2026-10-10",
@@ -19,11 +18,12 @@
     },
     "source_dataset_is_encrypted_only": true,
     "source_row_count_from_manifest": 8999865,
-    "label_manifest_sha256_git_blob": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
-    "config_manifest_sha256_git_blob": "cde05748ae534e612948137b7ddf97466d795a25",
-    "registry_index_sha256_git_blob": "8782e66f90d00fa93c2690dccaf85e0f53144f2b",
-    "compatibility_matrix_sha256_git_blob": "d57c3610c6dbba042ee3a13ebf31936f4007b5bc",
-    "preregistration_note": "All pinned paths are reviewed inputs. Any file hash change requires regenerating and reviewing the preregistration before the synthetic runner can proceed; the runner never authorizes empirical access."
+    "preregistration_note": "All source pins are 40-character Git blob SHA-1 object IDs, not SHA-256 file digests. Exact content digests in the run report use SHA-256. Any pinned input change requires regenerating and reviewing this preregistration before the synthetic runner proceeds; no pin authorizes empirical access.",
+    "data_manifest_git_blob_sha1": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
+    "config_manifest_git_blob_sha1": "cde05748ae534e612948137b7ddf97466d795a25",
+    "registry_index_git_blob_sha1": "8782e66f90d00fa93c2690dccaf85e0f53144f2b",
+    "compatibility_matrix_git_blob_sha1": "d57c3610c6dbba042ee3a13ebf31936f4007b5bc"
   },
   "labels": {
     "INTRA_30M_UP_DOWN": {
