@@ -286,3 +286,14 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 **Developer → Tester:** review the exact run report/hash before allowing the schema preflight or model fit.
 **Tester → Developer:** record the independent data-gate decision; do not infer a PASS from a successful CI job alone.
+
+
+## Phase 8P duplicate diagnostic — R1 runner shutdown (2026-10-12)
+
+- [Run #38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed authorization and source hash verification, then failed during the aggregate scan after about 12 minutes with exit 143 / runner shutdown.
+- **No aggregate report or duplicate count was produced.** This is a technical execution failure, not a data or trading result.
+- The R1 nonce is permanently consumed; it cannot be reused. Next attempt requires a fresh exact executor revision and new independent one-use authorization. No feature/model/holdout/P&L/strategy testing has started.
+
+**Developer → Tester:** review the fresh executor and authorization; keep strategy testing blocked until the data gate is valid.
+**Tester → Developer:** preserve the failed R1 run as non-evidence and independently gate any new one-use attempt.
+
