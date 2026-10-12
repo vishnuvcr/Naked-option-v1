@@ -4,6 +4,8 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 
 ## Research status
 
+- Phase 8P prediction registry data-integrity subgate passed hosted CI on 2026-10-12: 1,000/1,000 unique methods and 8,000/8,000 unique configurations audited; 40 method shards × 25 records and 80 config shards × 100 records. The broader scientific registry gate remains BLOCKED / tester REQUEST CHANGES.
+
 - Phase 2 passed the independent tester gate with explicit source restrictions.
 - Phase 3 passed the independent tester gate with scoped data restrictions.
 - Phase 4 Family B passed with VWAP blocked for missing PIT-safe volume; Family C passed with C10/C11 blocked for missing PIT-safe feature layers.
@@ -61,7 +63,7 @@ Earlier Project artifacts reported a failed untouched-holdout next-day direction
 
 This is research and backtesting infrastructure, not a guarantee of profit or investment advice. Long options can lose 100% of the premium paid.
 
-## Latest research checkpoint — 2026-10-07
+## Latest research checkpoint — 2026-10-12
 
 - **Family D run #23:** completed successfully.
 - **Tester disposition:** PASS WITH SCOPED RESTRICTIONS.
@@ -436,3 +438,14 @@ The earlier sharding layout (50 methods per file and 2,000 configurations per fi
 - Automated repair workflow: .github/workflows/repair-missing-method-shards.yml that runs the transform, tests, and audit before committing and uploads a JSON report.
 
 Status: hosted outcome and new small-shard commit are not yet verified. Independent tester decision remains REQUEST CHANGES. Model fitting/holdout access remain blocked.
+
+
+### Latest Phase 8P prediction-registry status — 2026-10-12
+
+**Data integrity: VERIFIED by hosted CI. Scientific registry gate: BLOCKED pending independent tester.**
+
+- [Automated fine-grained re-shard run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38249556690): PASS.
+- [Separate clean-branch audit run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38249716356): PASS.
+- [Small-shard index](research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json): 40 method shards (25 rows each), 80 config shards (100 rows each), with file sizes/counts/ID ranges/SHA-256.
+- [Re-sharding tool](scripts/reshard_prediction_registry.py), [strict audit](scripts/audit_prediction_registry_shards.py), [targeted tests](scripts/test_reshard_prediction_registry.py), and [audit workflow](.github/workflows/prediction-registry-shard-tests.yml).
+- Reported counts: 1,000 master methods and 1,000 unique method IDs; 8,000 configs and 8,000 unique config IDs; audit errors empty. Existing independent tester decision remains REQUEST CHANGES on scientific distinctness/compatibility, frozen statistical plan and synthetic restart/resource evidence. No fitting or holdout access.
