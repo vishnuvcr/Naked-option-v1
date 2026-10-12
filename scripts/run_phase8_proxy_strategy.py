@@ -668,7 +668,9 @@ def build_trade(skel: dict, policy: str, exit_result: dict, options: pd.DataFram
             exit_trade_date=exit_date,
         )
         net = (exit_fill.price - entry_fill.price) * lot_size - fees.total
-        basis = max(entry_base * lot_size, 1e-9)
+        # Net return denominator includes the rounded entry premium plus all
+        # modeled round-trip costs; this is a conservative capital-at-risk proxy.
+        basis = max(entry_fill.price * lot_size + fees.total, 1e-9)
         row[f"{scenario}_entry_fill"] = entry_fill.price
         row[f"{scenario}_exit_fill"] = exit_fill.price
         row[f"{scenario}_brokerage_taxes_fees"] = fees.total
@@ -975,6 +977,7 @@ def run_proxy(reference_root: Path, parts_dir: Path, output_dir: Path) -> dict:
             "contract_selection_asof": "prior-bar stored delta only when greek valuation timestamp <= entry; no raw-IV recomputation; prior-bar spot, open-interest and volume used for fallback/tie-break",
             "intraday_entry_delay_cap_seconds": 120,
             "drawdown_method": "timestamp-aggregated realized P&L; max drawdown percentage uses local positive peak; undefined if no positive peak",
+            "net_return_denominator": "rounded entry premium turnover plus modeled round-trip fees; conservative capital-at-risk proxy",
             "lot_size_schedule": {
                 "expiry_before_2024-05-02": 50,
                 "expiry_2024-05-02_to_2024-11-25": 25,
