@@ -46,6 +46,7 @@ jobs:
           WORK="$RUNNER_TEMP/r3-prediction-preflight"
           LOG="research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt"
           mkdir -p "$WORK/unpacked" "$WORK/plain-parts" research/gates
+          rm -f research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json
           echo "source_commit=$(git rev-parse HEAD)" > "$LOG"
           echo "stage=WORKSPACE_READY" > "$RUNNER_TEMP/r3-preflight-stage.txt"
 
@@ -84,6 +85,7 @@ jobs:
           MHASH="$(sha256sum "$MANIFEST" | awk '{print $1}')"
           test "$MHASH" = "da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f"
           BUNDLE_DIR="$(dirname "$MANIFEST")"
+          echo "BUNDLE_DIR=$BUNDLE_DIR" >> "$GITHUB_ENV"
           echo "embedded_manifest_sha256=$MHASH" >> "$LOG"
 
           echo "stage=ENCRYPTED_BUNDLE_VALIDATION" > "$RUNNER_TEMP/r3-preflight-stage.txt"
