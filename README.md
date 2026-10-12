@@ -1,3 +1,12 @@
+## Latest Phase 8P correction checkpoint — 2026-10-13
+
+- Developer corrected the degenerate moving-block bootstrap: non-identifiable resamples now return null inferential outputs instead of a zero-width confidence interval/minimum p-value. Regression tests cover constant positive/zero deltas and a single-admissible-block fold.
+- R2 is explicitly a two-target synthetic/design pilot, not exhaustive horizon coverage. No empirical fitting or method ranking is authorized; the complete intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session registry gate is required first.
+- [Developer correction submission](research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
+- Latest tester decision remains REQUEST CHANGES until independent re-review. Hosted results for the newest source correction are not yet verified.
+- No market data was fitted, no holdout was accessed, and no prediction/strategy performance metric is accepted.
+
+---
 # NIFTY Naked-Option Direction Research
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
