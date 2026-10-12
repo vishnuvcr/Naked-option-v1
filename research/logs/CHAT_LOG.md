@@ -266,3 +266,14 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** use the archived decision only for the exact reviewed snapshot; submit a separate diagnostic execution authorization request.
 **Developer → Tester:** do not run data or model jobs until the separate request receives an independent PASS.
+
+## 2026-10-12 — R4 duplicate-diagnostic independent gate retry log
+
+- Submitted developer request: [R4 code-review request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json), pinned developer commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`.
+- Tester audit was upgraded on isolated branch to check the scope-only R4 approval, all six source/test/workflow blob pins, two synthetic test suites, schema/ordering/timestamp edge cases, no raw output/no deduplication, and no real artifact access.
+- R4 review attempt #38205280084 used the old R3 workflow binding because the audit push triggered before the workflow path was updated. It is non-evidence; workflow was corrected to R4.
+- Review attempts #38205378764 and #38205429386 reached the exact pinned R4 commit and passed 28/29 checks. The single failing check was a too-specific tester string assertion, not a failing synthetic test or an artifact finding. The assertions were corrected to align with the test's actual exception diagnostic and timestamp fixture wording.
+- Current retry when this entry was written: #38205506563. It must complete before a decision; the R4 reviewer report/decision will preserve the exact receipt. No encrypted artifact was accessed or decrypted; model fitting/holdout/P&L remain prohibited.
+
+**Tester → Developer:** wait for the pinned independent R4 code gate and preserve failures as test-harness issues unless an exact reproducible implementation finding is established.
+**Developer → Tester:** do not authorize execution against real data as part of a code-only gate.
