@@ -113,7 +113,9 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     fold_defs=prereg.get("chronological_validation",{}).get("fold_calendar_windows",[])
     if len(fold_defs)!=8:
         report["blockers"].append("PREREG_OUTER_FOLD_COUNT_NOT_EIGHT")
-    if report["blockers"]: raise PreflightBlocked("frozen calendar/preregistration validation failed")
+    if report["blockers"]:
+        report["status"]="BLOCKED_DATA_PREFLIGHT"
+        return report
 
     raw_archive_sha=sha256_file(merged_gzip)
     canonical_sha,canonical_bytes_count=decoded_sha256(merged_gzip)
@@ -133,7 +135,8 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     })
     if canonical_sha!=EXPECTED_CANONICAL_CSV_SHA256:
         report["blockers"].append("CANONICAL_DECODED_CSV_SHA256_MISMATCH")
-        raise PreflightBlocked("canonical decoded CSV digest differs from the immutable prior preflight pin")
+        report["status"]="BLOCKED_DATA_PREFLIGHT"
+        return report
 
     # Count-only schema and chronology scan. Prices/timestamps are used transiently in memory.
     row_counts=Counter(); blank_counts=Counter(); feature_blank_counts=Counter()
@@ -155,7 +158,8 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
             if not header or len(header)!=EXPECTED_COLUMNS or len(set(header))!=len(header):
                 report["blockers"].append("CSV_HEADER_MISSING_DUPLICATE_OR_WRONG_COLUMN_COUNT")
                 report["observed_header"]=header
-                raise PreflightBlocked("CSV header failed the frozen 47-column contract")
+                report["status"]="BLOCKED_DATA_PREFLIGHT"
+                return report
             all_columns=header
             indexes={name:i for i,name in enumerate(header)}
             missing_required=sorted(REQUIRED_COLUMNS-set(header))
@@ -163,13 +167,15 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
                 report["blockers"].append("CSV_REQUIRED_COLUMNS_MISSING")
                 report["missing_required_columns"]=missing_required
                 report["observed_header"]=header
-                raise PreflightBlocked("required key columns are missing")
+                report["status"]="BLOCKED_DATA_PREFLIGHT"
+                return report
             price_field,price_candidates=exact_close_column(header)
             if price_field is None:
                 report["blockers"].append("NO_UNAMBIGUOUS_SPOT_PRICE_FIELD")
                 report["candidate_price_columns_present"]=[]
                 report["observed_header"]=header
-                raise PreflightBlocked("no recognized close/price column for SPOT label targets")
+                report["status"]="BLOCKED_DATA_PREFLIGHT"
+                return report
             for row in reader:
                 total_rows+=1
                 if len(row)!=len(header):
@@ -241,7 +247,9 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
         report["blockers"].append("CSV_PARSE_ERROR")
         report["csv_parse_error_type"]=type(exc).__name__
         report["rows_read_before_csv_error"]=total_rows
-        raise PreflightBlocked("CSV parser failed") from None
+        report["rows_by_type_before_error"]=dict(sorted(row_counts.items()))
+        report["status"]="BLOCKED_DATA_PREFLIGHT"
+        return report
 
     report.update({
       "rows_read":total_rows,"columns":len(all_columns or []),
@@ -265,7 +273,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
       "off_session_spot_rows":off_session_spot_rows,
       "non_minute_spot_timestamps":non_minute_timestamps,
       "spot_identity_value_counts":{k:dict(v.most_common(20)) for k,v in spot_symbols.items()},
-      "last_bar_time_frequency":dict(actual_close_times.most_common(20))
+      "spot_bar_time_frequency":dict(actual_close_times.most_common(20))
     })
     if total_rows!=EXPECTED_DATA_ROWS: report["blockers"].append("ROW_COUNT_MISMATCH")
     if len(all_columns or [])!=EXPECTED_COLUMNS: report["blockers"].append("COLUMN_COUNT_MISMATCH")
@@ -285,7 +293,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     missing_regular_dates=sorted(set(eligible_expected_days)-set(spot_by_day))
     report["missing_regular_spot_session_dates_count"]=len(missing_regular_dates)
     report["missing_regular_spot_session_dates_sample"]=missing_regular_dates[:30]
-    missing_limit=max(1,int(0.01*len(eligible_expected_days)))
+    missing_limit=max(1,math.ceil(0.01*len(eligible_expected_days)))
     if len(missing_regular_dates)>missing_limit: report["blockers"].append("MISSING_REGULAR_SPOT_SESSIONS_EXCEED_LIMIT")
 
     if report["blockers"]:
@@ -373,7 +381,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
             else: m["down"]+=1; m["classifiable_rows"]+=1
 
     validation=[]
-    missing_limit_fraction=float(prereg.get("scope",{}).get("target_pair_missing_fraction_max",0.01))
+    missing_limit_fraction=float(sample_rules.get("target_pair_missing_fraction_max",0.01))
     sample_rules=prereg["sample_eligibility"]
     for label_id in label_horizons:
         for fold in folds:
