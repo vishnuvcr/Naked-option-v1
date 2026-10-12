@@ -1006,3 +1006,11 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Expanded test suite [run 38241647992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241647992) passed on commit [1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c): 8/8 unit tests and SHA-256 known vector passed.
 - Earlier expanded run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed 7/8 due to an incorrect fixture expectation; the correction and failure remain in the error log.
 - Independent tester review is still pending. No shards generated, no compatibility/distinctness gate cleared, and no fitting/holdout access authorized.
+
+## R2 committed registry integrity audit — 2026-10-12
+
+- Added `scripts/audit_prediction_registry_shards.py` and wired it into the registry utility workflow. Hosted run [38242604842](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38242604842) failed as expected on the first audit; expanded audit run on commit `4cb34d9b8babc92e2a545ae390bc52d68859303f` also found blockers.
+- Master method registry contains 1,000 entries, but committed method shards contain only 550 unique IDs (`PM0001`–`PM0550`); 450 master IDs (`PM0551` onward) are missing from the shard directory.
+- All four config-shard `sha256` values in `PREDICTION_CONFIG_MANIFEST_V2_R2.json` match neither raw file bytes nor the canonical JSON-root or canonical record-stream digests tested so far. This is a manifest/hash-definition mismatch until the intended digest rule is established.
+- Config shard count and ID uniqueness checks passed: 8,000 records and 8,000 unique IDs across the four files. This does not establish compatibility or scientific validity.
+- **Gate remains BLOCKED.** No model fitting or holdout access. Resolve the missing method shards and config hash semantics, then obtain independent tester review.
