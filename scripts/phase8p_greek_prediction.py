@@ -313,17 +313,18 @@ def preflight_contract(
                     errors="coerce",
                     utc=(layer == "intraday"),
                 )
-                if len(ends) != len(frame) or ends.isna().any():
+                if len(ends) != len(frame):
                     reasons.append(f"TARGET_END_VECTOR_INVALID:{layer}:H{horizon}")
                 else:
                     decision_utc = pd.DatetimeIndex([
                         daily_close_timestamp(x) if layer == "daily" else pd.Timestamp(x).tz_convert("UTC")
                         for x in decisions
                     ])
-                    if np.any(ends.asi8 <= decision_utc.asi8):
-                        reasons.append(f"TARGET_END_NOT_STRICTLY_AFTER_DECISION:{layer}:H{horizon}")
-                    if np.any(finite_y & ends.isna()):
+                    end_valid = ~ends.isna()
+                    if np.any(finite_y & ~end_valid):
                         reasons.append(f"FINITE_LABEL_WITHOUT_TARGET_END:{layer}:H{horizon}")
+                    if np.any(end_valid & (ends.asi8 <= decision_utc.asi8)):
+                        reasons.append(f"TARGET_END_NOT_STRICTLY_AFTER_DECISION:{layer}:H{horizon}")
             summaries.append(summary)
         except Exception as exc:
             reasons.append(f"PANEL_VALIDATION_FAILED:{type(exc).__name__}:{exc}")
