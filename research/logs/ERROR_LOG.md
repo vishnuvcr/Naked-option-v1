@@ -153,3 +153,9 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 6 | Reusable Phase 6 workflow used `hashFiles()` in job-level empirical `if` | GitHub Actions does not expose `hashFiles` in `jobs.<job_id>.if`; hosted run failed before a job could start | Replaced with typed `workflow_call` boolean authorization; caller detects tester approval; synced workflow to `main`; preserved failed run as non-evidence | Pending tester workflow re-review |
 
 | 2026-10-07 | 6 | Phase 6 workflow corrected after invalid job-level hashFiles gate | Prior hosted attempt failed before execution; tester requested typed workflow-call authorization and caller-side approval detection | Implemented and independently approved the workflow correction; failed run retained as non-evidence | Resolved; fresh run required |
+
+
+## 2026-10-12 — Phase 8P code gate R2 decision
+- Developer synthetic workflow [#38201417381](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201417381) passed for exact source snapshot `a5a38e3592234aea9052e697416c8154c6f8e8f8`.
+- Independent tester run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) failed because that revision recorded REQUEST_CHANGES and correctly failed its status gate. It is non-accepting history, not a data or science result. Corrected independent review [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) completed with 16/16 checks passing and `PASS_FOR_CODE_ONLY`.
+- The accepted scope is only the exact code/test blobs named in tester decision R2. Artifact inspection in a distinct schema-only gate is the next permitted step; no model fitting is authorized yet.
