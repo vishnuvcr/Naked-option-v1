@@ -106,7 +106,19 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual(len(history), 1)
         self.assertEqual(history[0]["status"], "SUPERSEDED_BY_COMPLETE_TEN_HORIZON_R3")
         self.assertFalse(prereg["gate"]["empirical_fitting_authorized_by_builder"])
-        self.assertEqual(prereg["metrics_and_inference"]["bootstrap"]["block_length_exchange_sessions"], 10)
+        bootstrap = prereg["metrics_and_inference"]["bootstrap"]
+        self.assertEqual(bootstrap["block_length_exchange_sessions"], 10)
+        self.assertIn("ten-session blocks", bootstrap["method"])
+        self.assertNotIn("five-session blocks", bootstrap["method"])
+        self.assertNotIn("one-session purge", prereg["chronological_validation"]["inner_validation"]["split_policy"])
+        self.assertIn("horizon-specific purge", prereg["fitting_and_calibration"]["inner_validation"])
+        labels_by_id = {item["id"]: item for item in labels["labels"]}
+        for label_id, h in build.POSITIONAL_HORIZONS:
+            self.assertEqual(labels_by_id[label_id]["label_horizon"], f"{h} complete following exchange sessions")
+            self.assertEqual(labels_by_id[label_id]["label_horizon_exchange_sessions"], h)
+        for label_id, minutes in build.INTRADAY_HORIZONS:
+            self.assertEqual(labels_by_id[label_id]["label_horizon_minutes"], minutes)
+            self.assertNotIn("label_horizon", labels_by_id[label_id])
         self.assertEqual(prereg["metrics_and_inference"]["multiplicity"]["stratum_families"], build.ALL_LABEL_IDS)
         self.assertTrue(prereg["scope"]["review_cadence"].startswith("Independent tester review is deferred"))
         self.assertEqual(report["configuration_count"], 40000)
