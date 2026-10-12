@@ -25,6 +25,7 @@ on:
       - "scripts/build_prediction_horizon_registry_r3.py"
       - "scripts/test_prediction_horizon_registry_r3.py"
       - "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
+      - "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
       - ".github/workflows/phase-08p-complete-horizon-registry-r3.yml"
       - "research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json"
       - "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json"
