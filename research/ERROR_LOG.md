@@ -1026,3 +1026,8 @@
 
 - Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json` with tested source commit `6d4787348d7b0b794e210026ceddcea19192eccc`, blob IDs for code/manifests/reports, run IDs 38254175308 / 38254175428 / 38254175326, output SHA-256, count summary and a checklist for an independent mathematical/scientific review.
 - The review request explicitly says 426 methods are only conditionally compatible in principle, 574 blocked, and zero empirically eligible. It prohibits fitting/holdout access pending a fresh independent PASS. It does not change the existing tester REQUEST CHANGES decision.
+
+
+## 2026-10-12 — Method contrast explanation defect
+
+A review of method shard examples found generic nearest-neighbor prose that did not accurately describe which semantic fields differed. Added a deterministic nearest-peer generator and regression tests, rebuilt method master/shards/index and compatibility matrix, and refreshed preregistration pins. CI passed: repair/audit 38255852834; clean registry 38255852565; synthetic sweep 38255852608. This correction improves auditability but does not certify scientific distinctness. See research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md.
