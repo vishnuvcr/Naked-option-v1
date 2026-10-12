@@ -423,7 +423,20 @@ def fill_price(
             raise ValueError("side must be BUY or SELL")
     else:
         raise ValueError("execution quality must be Q1 or Q2")
-    return Fill(price=float(px), quality=quality, timestamp=ts, basis=basis)
+
+    # Exchange tick rounding must be applied after spread and slippage:
+    # buyers round up, sellers round down. For a long-option sell fill, never
+    # assume a zero-price execution when a positive tick is required.
+    tick = float(tick_size)
+    if not np.isfinite(tick) or tick <= 0:
+        raise ValueError("tick_size must be finite and positive")
+    if side == "BUY":
+        px = math.ceil((float(px) / tick) - 1e-12) * tick
+    else:
+        px = math.floor((float(px) / tick) + 1e-12) * tick
+        px = max(tick, px)
+    px = round(float(px), 8)
+    return Fill(price=px, quality=quality, timestamp=ts, basis=basis)
 
 def break_even_log_return(
     option_type: str,
