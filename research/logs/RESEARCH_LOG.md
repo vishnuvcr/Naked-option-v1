@@ -725,3 +725,8 @@ The research protocol now defers independent tester review until the planned res
 ## 2026-10-13 — R3 build attempt 1 and contract-string correction
 
 The established developer registry CI executed the R3 builder at source commit `4dba2efb4e245a7b17afee59d1c66574515eef3b` and failed closed before generating outputs because the builder's `HASH_RULE` wording did not exactly match the R2 config manifest. The log and attempt JSON are committed on the developer branch. The exact string was corrected in commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83`; the next automatic run is pending verification. No data/model/holdout access occurred.
+
+
+## 2026-10-13 — R3 attempt 2 and exact shard-rule correction
+
+The follow-up attempt exposed that the previous fix still included trailing words (“if present”) absent from the source manifest. The exact R2 config-manifest blob `cde05748ae534e612948137b7ddf97466d795a25` states: `SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline`. Updated R3 to match byte-for-byte wording at commit `0eee4c7fec9acab16afbc2e23809d852b139aa6e`. The build must be reverified; outputs remain absent at this checkpoint.
