@@ -32,25 +32,26 @@ def test_signal_thresholds_and_lot_schedule():
 
 
 def test_select_contract_uses_direction_delta_and_dte_bucket():
+    future_expiry = int(pd.Timestamp("2024-01-05 15:30:00", tz=runner.IST).timestamp())
     options = pd.DataFrame([
-        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": 500,
+        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": future_expiry,
          "expiry_session_idx": 4, "option_open": 10.0, "returned_strike": 100.0,
          "rolling_spot": 100.0, "nifty_close": 100.0, "delta": 0.30,
-         "time_to_expiry_years": 0.01, "implied_volatility": 0.2,
-         "risk_free_rate_decimal": 0.05, "dividend_yield_decimal": 0.0,
-         "expiry_key": "2024-01-05", "contract_code": 0},
-        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": 500,
+         "greek_valuation_offset_seconds": 0.0, "time_to_expiry_years": 0.01,
+         "implied_volatility": 0.2, "risk_free_rate_decimal": 0.05,
+         "dividend_yield_decimal": 0.0, "expiry_key": "2024-01-05", "contract_code": 0},
+        {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": future_expiry,
          "expiry_session_idx": 4, "option_open": 11.0, "returned_strike": 101.0,
          "rolling_spot": 100.0, "nifty_close": 100.0, "delta": 0.49,
-         "time_to_expiry_years": 0.01, "implied_volatility": 0.2,
-         "risk_free_rate_decimal": 0.05, "dividend_yield_decimal": 0.0,
-         "expiry_key": "2024-01-05", "contract_code": 1},
-        {"timestamp_epoch": 100, "option_type": "PE", "expiry_epoch": 500,
+         "greek_valuation_offset_seconds": 0.0, "time_to_expiry_years": 0.01,
+         "implied_volatility": 0.2, "risk_free_rate_decimal": 0.05,
+         "dividend_yield_decimal": 0.0, "expiry_key": "2024-01-05", "contract_code": 1},
+        {"timestamp_epoch": 100, "option_type": "PE", "expiry_epoch": future_expiry,
          "expiry_session_idx": 4, "option_open": 9.0, "returned_strike": 100.0,
          "rolling_spot": 100.0, "nifty_close": 100.0, "delta": -0.50,
-         "time_to_expiry_years": 0.01, "implied_volatility": 0.2,
-         "risk_free_rate_decimal": 0.05, "dividend_yield_decimal": 0.0,
-         "expiry_key": "2024-01-05", "contract_code": 2},
+         "greek_valuation_offset_seconds": 0.0, "time_to_expiry_years": 0.01,
+         "implied_volatility": 0.2, "risk_free_rate_decimal": 0.05,
+         "dividend_yield_decimal": 0.0, "expiry_key": "2024-01-05", "contract_code": 2},
     ])
     row = runner.select_contract(
         options, np.array([0]), np.array([3]), {100: 0}, 100, 300, "CE",
@@ -183,6 +184,27 @@ def test_close_valued_greek_delta_is_not_used_before_valuation_time():
     assert abs(value_on_time - 0.80) < 1e-12
 
 
+def test_vectorized_delta_matches_pointwise_asof_rules():
+    entry_epoch = int(pd.Timestamp("2024-01-02 10:00:00", tz=runner.IST).timestamp())
+    rows = pd.DataFrame([
+        {"timestamp_epoch": entry_epoch, "greek_valuation_offset_seconds": 0.0,
+         "delta": 0.70, "rolling_spot": 100.0, "returned_strike": 100.0,
+         "implied_volatility": 0.20, "expiry_epoch": int(pd.Timestamp("2024-06-27 15:30:00", tz=runner.IST).timestamp()),
+         "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0, "option_type": "CE"},
+        {"timestamp_epoch": entry_epoch, "greek_valuation_offset_seconds": 60.0,
+         "delta": 0.80, "rolling_spot": 100.0, "returned_strike": 100.0,
+         "implied_volatility": 0.20, "expiry_epoch": int(pd.Timestamp("2024-06-27 15:30:00", tz=runner.IST).timestamp()),
+         "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0, "option_type": "CE"},
+    ])
+    vector_values, vector_methods = runner.resolve_deltas_vectorized(rows, entry_epoch)
+    pointwise = [runner.resolve_delta(rows.iloc[i], entry_epoch) for i in range(len(rows))]
+    assert vector_methods[0] == "OBSERVED_DELTA_ASOF"
+    assert abs(vector_values[0] - 0.70) < 1e-12
+    assert vector_methods[1] == "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
+    assert abs(vector_values[1] - pointwise[1][0]) < 1e-10
+    assert vector_methods.tolist() == [pointwise[0][1], pointwise[1][1]]
+
+
 def test_contract_selection_does_not_use_current_bar_close_for_spot_fallback():
     options = pd.DataFrame([
         {"timestamp_epoch": 100, "option_type": "CE", "expiry_epoch": 500,
@@ -236,6 +258,7 @@ if __name__ == "__main__":
         test_vectorized_exit_falls_back_to_scheduled_price_when_no_trigger,
         test_vectorized_trailing_exit_ignores_invalid_bar_and_uses_prior_high,
         test_close_valued_greek_delta_is_not_used_before_valuation_time,
+        test_vectorized_delta_matches_pointwise_asof_rules,
         test_contract_selection_does_not_use_current_bar_close_for_spot_fallback,
         test_row_type_normalization_tolerates_whitespace_and_bom,
         test_proxy_cost_scenarios_get_more_conservative,
@@ -243,4 +266,4 @@ if __name__ == "__main__":
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 12 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 13 Phase 8 proxy-strategy synthetic tests")
