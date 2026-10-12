@@ -1,0 +1,63 @@
+{
+  "approved_scope": "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE",
+  "commercial_use_authorized": false,
+  "decision": "PASS_WITH_SCOPED_RESTRICTIONS",
+  "developer_snapshot_sha": "f556c7b44088f18551453c36f78e8d5de7fe141e",
+  "developer_suite_exit_code": "0",
+  "dhan_api_requests_authorized": false,
+  "empirical_option_pnl_authorized": false,
+  "findings": [],
+  "gate": "PHASE8_GREEK_ENRICHMENT_R3",
+  "hf_public_expiry_filelist_authorized": true,
+  "hf_public_spot_fetch_authorized": true,
+  "holdout_access_authorized": false,
+  "independent_suite_exit_code": "0",
+  "independent_test_summary": {
+    "checks": [
+      "IV inversion for CE and PE across spot/moneyness/tenor/volatility grid",
+      "delta bounds and signs",
+      "positive gamma and vega, negative theta under r=q=0",
+      "call/put rho signs",
+      "finite-difference delta/gamma and vega-per-1%-unit comparisons",
+      "invalid option price rejection",
+      "source-manifest per-part count sum when aggregate key is absent",
+      "reject malformed, fractional, negative and inconsistent manifest counts"
+    ],
+    "independent_reference": "Black-Scholes closed-form implementation using math.erf; not copied from developer module",
+    "manifest_row_count_audit": {
+      "invalid_cases_rejected": 4,
+      "reference": "independent sum of per-part row_count values; top-level declared total checked only when present",
+      "status": "PASS",
+      "valid_cases": 2
+    },
+    "scope_exclusions": [
+      "no source-data request",
+      "no token access",
+      "no historical P&L",
+      "no holdout",
+      "no strategy promotion"
+    ],
+    "status": "PASS",
+    "synthetic_contract_cases": 162,
+    "test_kind": "independent_formula_and_finite_difference_and_manifest_row_count_audit"
+  },
+  "limitations": [
+    "This gate only covers HF public expiry-filelist plus exact-timestamp NIFTY spot enrichment of the cached partial grid.",
+    "It does not establish complete exchange-listed strike coverage or official point-in-time expiry master validation.",
+    "Greeks are model estimates with zero-rate and zero-dividend proxies and IV inversion/labelled fallback, not historical vendor-observed Greeks.",
+    "The HF source licence is CC-BY-NC-4.0; non-commercial research only.",
+    "No Dhan request, option P&L, holdout, strategy promotion or plaintext artifact publication is permitted."
+  ],
+  "pin_check_status": "PASS",
+  "plaintext_upload_authorized": false,
+  "reviewed_at_utc": "2026-10-12T02:28:34.496535+00:00",
+  "reviewed_blobs": {
+    ".github/workflows/phase8-greek-enrichment.yml": "5f17b94913d2da8fb58c705f6e7ed4d9776efdef",
+    "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R3_2026-10-12.md": "4a9a8650297115a9610fe323c77734e3d17f905a",
+    "scripts/enrich_nifty_composite_greeks.py": "9f1f6a8121105e00ec46a0b1105f40767dae70d5",
+    "scripts/test_enrich_nifty_composite_greeks.py": "23d16e5ae04bfd4d3fe5fc5206441fdc1f14cb9b"
+  },
+  "schema_version": 1,
+  "strategy_promotion_authorized": false,
+  "tester_workflow_run_id": "38195900109"
+}
