@@ -558,3 +558,7 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - Corrected the mismatch between the R2 execution-request push trigger and the R1 path read by the workflow. Created a separate pending R2 execution request and R2 workflow-review packet, with no data-download or model-fit authorization.
 - Independent tester review first passed 28/29 checks; only a case-sensitive text check failed. Tester-side audit was normalized to lowercase and a replacement run is pending.
 - No new research data were opened, no models fitted, and no prediction results are available from Phase 8P yet.
+
+
+## 2026-10-12 — R2 schema-only preflight authorized
+- Independent tester passed the preflight executor workflow gate 29/29. The exact R2 execution request now pins the tester decision and permits only schema/coverage preflight. Run #38202961271 is queued; no model fitting is authorized.
