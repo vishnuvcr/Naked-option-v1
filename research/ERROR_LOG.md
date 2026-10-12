@@ -963,3 +963,12 @@
 - Added scripts/generate_missing_method_shards.py, which requires exactly 1,000 ordered unique master IDs (PM0001–PM1000), generates only absent 50-record shards, and fails closed if an existing shard differs from its canonical master slice.
 - Added scripts/pin_config_shard_file_hashes.py and an explicit exact-file-byte SHA-256 contract in the config manifest. Digests are regenerated from the committed shard bytes only after count, unique-ID, and first/last-ID checks pass. This changes the integrity-hash definition transparently; it does not establish scientific validity.
 - Automated workflow committed the generated shard set and updated manifest. The full audit run and independent tester report remain required before the gate can pass.
+
+
+## 2026-10-12 — R2 audit ordering defect and fine-grained resharding
+- Category: integrity checker logic / reproducibility
+- Component: scripts/audit_prediction_registry_shards.py
+- Symptom: old checker sorted shard filenames lexicographically, so PART10 appeared before PART2; this could report incorrect part metadata and did not match a human/numeric part order.
+- Root cause: path strings were sorted rather than extracting the numeric part suffix. The old shard sizes (50 methods/file and 2,000 configs/file) also did not meet the tester's recommended maximum audit chunk sizes (25 and 100).
+- Correction: audit now extracts numeric suffixes, checks contiguous part numbering, validates every method file against its exact master slice, enforces exact-file SHA-256 and byte counts for configurations, and compares a recomputed per-shard index. New reshard utility rebuilds 40 method shards of 25 records and 80 config shards of 100 records after validating source integrity.
+- Status: source/workflow changes committed to the developer branch; hosted run result and generated artifact commit are not yet independently verified. Tester decision remains REQUEST CHANGES; no fitting/holdout access.
