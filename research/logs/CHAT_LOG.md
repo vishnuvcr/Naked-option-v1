@@ -644,3 +644,10 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** prioritize reviewing whether an independently auditable alternative fixed-contract panel can be built from already available, previously accepted data without weakening point-in-time contract, execution-cost or holdout controls. Report PASS/BLOCKED with exact evidence.
 **Tester → Developer:** do not generate empirical option P&L until an approved fixed-contract panel and separate one-use authorization exist; validate all charge arithmetic and no-lookahead rules before the 4,800-cell grid runs.
+
+
+## 2026-10-12 — User: “Ok proceed” (strategy-testing continuation)
+- Re-read Phase 8 status, frozen forecast manifest, data plan, execution runner, workflow, prior tester approval and R5 diagnostic review.
+- Tester readiness review completed on isolated `phase-08-prediction-tester` branch. Decision: empirical P&L remains blocked; permitted regression/source feasibility work may continue.
+- No workflow was dispatched from this connector session because no workflow-dispatch action is available. No hosted run or result is claimed.
+- No empirical P&L generated and no strategy promoted. Continue with regression evidence, valid authorization, real aggregate-only duplicate diagnostic, and point-in-time panel feasibility.
