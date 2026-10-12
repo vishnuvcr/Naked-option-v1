@@ -110,6 +110,16 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     day_map={x["date"]:x for x in calendar_rows}
     if len(day_map)!=len(calendar_rows):
         report["blockers"].append("SESSION_CALENDAR_DUPLICATE_DATES")
+    if any("prediction_session_index" not in row for row in calendar_rows):
+        report["blockers"].append("SESSION_CALENDAR_PREDICTION_INDEX_MISSING")
+    else:
+        prediction_rows=[row for row in calendar_rows if row.get("prediction_session_index") is not None]
+        prediction_indexes=[row["prediction_session_index"] for row in prediction_rows]
+        if prediction_indexes!=list(range(1,len(prediction_indexes)+1)):
+            report["blockers"].append("SESSION_CALENDAR_PREDICTION_INDEX_NOT_CONTIGUOUS")
+        expected_prediction_rows=[row for row in calendar_rows if row.get("is_exchange_trading_session") and row.get("positional_label_eligible")]
+        if len(prediction_rows)!=len(expected_prediction_rows) or cal.get("prediction_session_count")!=len(prediction_rows):
+            report["blockers"].append("SESSION_CALENDAR_PREDICTION_INDEX_COUNT_MISMATCH")
     fold_defs=prereg.get("chronological_validation",{}).get("fold_calendar_windows",[])
     if len(fold_defs)!=8:
         report["blockers"].append("PREREG_OUTER_FOLD_COUNT_NOT_EIGHT")
