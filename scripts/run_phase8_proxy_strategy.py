@@ -355,8 +355,13 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
     candidate_indices = np.arange(lo, hi, dtype=np.int64)[mask]
     candidate_rows = options.iloc[candidate_indices]
     deltas, delta_methods = resolve_deltas_vectorized(candidate_rows, int(entry_epoch))
-    spots = pd.to_numeric(candidate_rows["_lag_rolling_spot"], errors="coerce").to_numpy(dtype=float)
-    strikes = pd.to_numeric(candidate_rows["returned_strike"], errors="coerce").to_numpy(dtype=float)
+    def candidate_numeric(column: str) -> np.ndarray:
+        if column not in candidate_rows:
+            return np.full(len(candidate_rows), np.nan, dtype=float)
+        return pd.to_numeric(candidate_rows[column], errors="coerce").to_numpy(dtype=float)
+
+    spots = candidate_numeric("_lag_rolling_spot")
+    strikes = candidate_numeric("returned_strike")
     with np.errstate(divide="ignore", invalid="ignore"):
         moneyness = np.abs(np.log(strikes / spots))
     moneyness = np.where(np.isfinite(moneyness), moneyness, np.inf)
@@ -367,8 +372,8 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
     delta_error = np.where(delta_available, np.abs(deltas - float(delta_target)), np.inf)
     # Liquidity inputs are lagged one observed bar; current-bar volume/OI may
     # not be available when the entry is placed at this bar's open.
-    lag_volume = pd.to_numeric(candidate_rows["_lag_option_volume"], errors="coerce").to_numpy(dtype=float)
-    lag_oi = pd.to_numeric(candidate_rows["_lag_open_interest"], errors="coerce").to_numpy(dtype=float)
+    lag_volume = candidate_numeric("_lag_option_volume")
+    lag_oi = candidate_numeric("_lag_open_interest")
     lag_volume = np.where(np.isfinite(lag_volume) & (lag_volume >= 0), lag_volume, -np.inf)
     lag_oi = np.where(np.isfinite(lag_oi) & (lag_oi >= 0), lag_oi, -np.inf)
     contract_codes = candidate_rows["contract_code"].to_numpy(dtype=np.int64)
