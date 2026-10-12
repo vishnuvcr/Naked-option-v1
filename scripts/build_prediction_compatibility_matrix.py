@@ -103,6 +103,10 @@ def load_methods() -> tuple[list[dict[str, Any]], str]:
             if not isinstance(method_id, str) or method_id in seen_ids:
                 raise SystemExit(f"BLOCKED: invalid/duplicate method ID {method_id!r}")
             seen_ids.add(method_id)
+            if record.get("algorithm_family") not in FAMILY_CONTRACTS:
+                raise SystemExit(f"BLOCKED: unknown family contract in {method_id}: {record.get('algorithm_family')!r}")
+            if record.get("inference_operator") not in OPERATOR_CONTRACTS:
+                raise SystemExit(f"BLOCKED: unknown operator contract in {method_id}: {record.get('inference_operator')!r}")
             methods.append(record)
     if len(methods) != 1000 or seen_ids != {f"PM{i:04d}" for i in range(1, 1001)}:
         raise SystemExit("BLOCKED: expected exact method IDs PM0001..PM1000")
@@ -172,6 +176,15 @@ def main() -> int:
         })
     duplicate_semantics = sorted(fp for fp, n in semantic_counts.items() if n > 1)
     duplicate_triples = [{"family": f, "representation": r, "operator": o, "count": n} for (f, r, o), n in triples.items() if n > 1]
+    duplicate_semantics_set = set(duplicate_semantics)
+    duplicate_triples_set = {(x["family"], x["representation"], x["operator"]) for x in duplicate_triples}
+    for row in rows:
+        triple = (row["algorithm_family"], row["input_representation"], row["inference_operator"])
+        if row["semantic_fingerprint_sha256"] in duplicate_semantics_set or triple in duplicate_triples_set:
+            row["compatibility_decision"] = "BLOCK"
+            row["decision_code"] = "BLOCKED_DUPLICATE_SEMANTIC_DEFINITION"
+            row["rationale"] = "Semantic fingerprint or family × representation × operator triple is duplicated; this record cannot be counted as a distinct method."
+            row["required_tests"] = sorted(set(row["required_tests"] + ["SEMANTIC_DISTINCTNESS_UNIQUENESS_TEST"]))
     allow = sum(r["compatibility_decision"] == "ALLOW_IN_PRINCIPLE" for r in rows)
     blocked = len(rows) - allow
     family_counts = dict(sorted(Counter(r["algorithm_family"] for r in rows).items()))
