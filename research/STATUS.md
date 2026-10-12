@@ -994,3 +994,9 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Initial hosted run [38241541882](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241541882) passed the four-test suite from the validator commit, but did not include the expanded tests added immediately afterward. Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) is pending verification.
 - Utility hardening covers malformed index handling, stable IDs, empty explicit lists, canonical JSONL, final newline, and unsafe shard paths.
 - **Registry remains BLOCKED:** actual method/config shards not generated; compatibility/distinctness and statistical preregistration unresolved; no fitting or holdout access authorized.
+
+## Shard validator regression status — 2026-10-12
+
+- Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed: 7/8 passed; the failure was an incorrect fixture expectation for shard_count mismatch.
+- Fixture corrected in [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c). Fresh CI is required and its result is not yet verified.
+- Registry remains BLOCKED; no shards or empirical results.
