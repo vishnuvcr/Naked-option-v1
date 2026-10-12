@@ -477,3 +477,13 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 **Developer → Tester:** independently validate the eventual uploaded encrypted dataset and coverage report; reject unless the exact snapshot, all 61 part hashes, 8,999,865-row preservation and no-plaintext condition pass, and report Greek coverage/missingness honestly.
 
 **Tester → Developer:** continue only from the approved snapshot; do not treat in-progress status or synthetic tests as dataset delivery; preserve partial-grid, expiry-proxy and CC-BY-NC non-commercial restrictions.
+
+
+## 2026-10-12 — Phase 8 R2 continued live monitoring
+- Main README refreshed to identify R2 (not the stale R1 run) as the current Greek-enrichment gate. Its top banner links the exact tester decision and role-owned status/error/chat logs.
+- The developer workflow [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) continues to report step 10 (enrich and re-encrypt 61 monthly parts) as `in_progress`; validation and artifact upload remain pending. Artifact listing currently has zero artifacts for this run.
+- Fetching live job logs returned `BlobNotFound` while the step remained active; this was logged as infrastructure visibility only in `research/ERROR_LOG.md`. It is not evidence of workflow failure or success.
+- No output coverage counts, Greek coverage result, or dataset delivery is accepted before the terminal row/hash/encryption/no-plaintext checks pass.
+
+**Developer → Tester:** independently accept or reject only after terminal artifact and coverage validation is available.
+**Tester → Developer:** keep the gate blocked for delivery while step 10 is active; do not infer metrics from missing live logs.
