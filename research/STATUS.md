@@ -1074,5 +1074,9 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 
 - Hosted run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at exact source commit `6d4787348d7b0b794e210026ceddcea19192eccc`. The workflow asserts checkout SHA equals GITHUB_SHA.
 - The full sweep processed 64,000 synthetic config×fold tasks, returned 27,264 SYNTHETIC_MOCK_ONLY and 36,736 BLOCKED_COMPATIBILITY rows, zero exceptions/error-log rows, and result SHA-256 `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`. Artifact ID 11749635242.
-- Statistical utility tests included in the same run passed (8 tests): metrics, calibration intercept/slope, deterministic paired moving-block bootstrap, BY-FDR values, strict integer label/parameter types, and missing-class calibration guard. Registry integrity and full repair suites also passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`.
+- Statistical utility tests included in the same run passed (10 tests): metrics, calibration intercept/slope, deterministic paired moving-block bootstrap, BY-FDR values, strict integer label/parameter types, missing-class calibration guard, and additional degenerate-input cases. Registry integrity and full repair suites also passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`.
 - No actual market dataset opened, no empirical model fitting, no holdout access. Resource estimate remains assumptions rather than a measured estimator benchmark. Scientific registry gate remains pending tester review.
+
+
+### Statistical test-count correction — 2026-10-12
+The latest pinned full run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) reports `Ran 10 tests` in the current `scripts/test_prediction_statistics.py`, not eight. The machine-readable synthetic report now records 10. Earlier eight-test counts referred to an earlier version of that file.
