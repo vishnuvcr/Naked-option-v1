@@ -252,3 +252,17 @@ No scientific or protocol change was made during this checkpoint.
 ## 2026-10-12 — Independent tester blocked Phase 8P data preflight
 - Exact aggregate preflight report reviewed; decision BLOCKED_DATA because of DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Input ZIP hashes matched; coverage panel count remained zero.
 - No raw/decrypted rows were uploaded and no model/holdout/P&L work occurred. Next action is a separate hash/count-only duplicate diagnostic with synthetic tests and independent code review.
+
+
+## 2026-10-12 — Phase 8P duplicate-diagnostic code review R1 (tester handoff)
+
+- Resumed from developer issue [#20](https://github.com/vishnuvcr/Naked-option-v1/issues/20) and checked the current research plan, README, status/error/chat logs, exact R3 request, developer source/test/workflow snapshot and prior tester gate history.
+- Corrected tester workflow request binding to R3 (commit `675625e9fd1e1ea83c39bdd670d4a5eee7378079`); first rerun exposed the redundant same-path copy defect. Removed that copy in tester commit `5413bc6eb9970eaeba1a1a63cdafbaffc7443a4c`.
+- Independent tester run [#38204532045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204532045) passed **19/19 checks** on developer commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`. Developer synthetic run [#38204164532](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204164532) also passed.
+- Decision: **PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY**. Report: [PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R1_2026-10-12.md](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R1_2026-10-12.md). Machine decision: [PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json).
+- Tester artifact `11726911040` ZIP SHA-256: `2c30e354268a4f9dacfb62edf13c2423f3c0c9f7c0ca0cbcbffa480ddf9b1c99`.
+- Crucial boundary: only pinned source code and synthetic fixtures were checked. **No encrypted artifact was accessed/decrypted, no actual duplicate classification report exists, no deduplication occurred and no model was fitted.**
+- Next action: developer submits separate one-use authorization for the hash/count-only real artifact diagnostic; tester must independently validate that request before the scan. After execution, only aggregate data may be reported, and its exact hash/classifications require another independent gate.
+
+**Tester → Developer:** use the archived decision only for the exact reviewed snapshot; submit a separate diagnostic execution authorization request.
+**Developer → Tester:** do not run data or model jobs until the separate request receives an independent PASS.
