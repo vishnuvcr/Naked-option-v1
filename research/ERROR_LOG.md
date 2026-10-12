@@ -187,3 +187,18 @@
 - Symbolic blocker: DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. This indicates repeated keys under the current key tuple; it does not prove rows are identical. No silent deduplication is allowed.
 - Report archive: artifact 11726646000, SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92. Tester decision is BLOCKED_DATA; no model fit or holdout access.
 - Next: hash/count-only classification of identical vs conflicting duplicates with synthetic tests, independent code gate, then rerun the schema-only preflight.
+
+
+## 2026-10-12 — Phase 8P duplicate-diagnostic tester workflow failure cycle
+
+- Category: tester workflow / gate orchestration.
+- Exact developer request: `PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R3_2026-10-12.json`, developer commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`.
+- First symptom: tester run [#38204120560](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204120560) stopped at request loading because the workflow still referenced the R2 request file rather than R3. No developer-code checks ran.
+- First correction: tester workflow commit `675625e9fd1e1ea83c39bdd670d4a5eee7378079` pinned the R3 request and changed the artifact name to R3.
+- Second symptom: run [#38204512622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204512622) loaded R3 successfully but failed because `cp "$REQUEST" "${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json"` copied a file onto itself; review again did not run. This was a tester-workflow defect, not a developer diagnostic failure.
+- Second correction: tester workflow commit `5413bc6eb9970eaeba1a1a63cdafbaffc7443a4c` removed the redundant copy.
+- Final verification: isolated tester run [#38204532045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204532045) passed all 19 checks; receipt artifact `11726911040`, ZIP digest `sha256:2c30e354268a4f9dacfb62edf13c2423f3c0c9f7c0ca0cbcbffa480ddf9b1c99`. Tester report and decision are archived under `research/gates/`.
+- Disposition: both failed workflow runs remain **NON-EVIDENCE**. The code-only duplicate-diagnostic gate is PASS. Real artifact access/decryption and diagnostic execution are still **not authorized**; separate one-use authorization is mandatory.
+
+**Tester → Developer:** preserve both infrastructure failures in the history; do not treat them as a rejection of the diagnostic code. Submit a separately pinned diagnostic-only authorization request.
+**Developer → Tester:** wait for independent authorization review before invoking the real encrypted reader.
