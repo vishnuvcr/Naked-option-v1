@@ -114,3 +114,8 @@
 - Hosted run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) ended with `ValueError: row count changed: source=None output=8999865`; the row/hash validation and upload steps were skipped.
 - Root cause: cached manifest did not provide top-level `rows_preserved`, although per-part `row_count` values were available. R1 experienced the same terminal failure. R2 was therefore non-evidence for data delivery.
 - R3 requires per-part row-count summation, checks optional top-level total consistency, includes independent malformed-count regression cases, and adds a pre-HF guard for exactly 8,999,865 rows. No data request is approved under R3 until the exact snapshot receives a PASS decision.
+
+
+## 2026-10-12 — R3 row-count correction independently accepted (code gate only)
+- The independent R3 workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) passed exact snapshot/blob pins, developer synthetic tests, 162 independently implemented Greek formula cases, and per-part manifest row-count checks.
+- Decision: PASS_WITH_SCOPED_RESTRICTIONS for code-only snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e`. It authorizes only a rerun of the narrowly scoped HF enrichment after the exact gate; no enriched artifact was part of the review and no P&L/holdout/promotion is authorized.

@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | **BLOCKED — R2 FAILED ROW-COUNT GATE; R3 INDEPENDENT REVIEW PENDING** | Tester accepts no R1/R2 artifact. R3 fixes the absent top-level count key using per-part counts and adds independent schema audit + pre-HF guard |
+| Phase 8 Long-option execution | **R3 CODE-ONLY GATE PASSED — DELIVERY AUDIT PENDING** | Exact developer snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e` passed code review. Developer run #38195812828 attempt 2 is in progress; no enriched data artifact accepted |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -193,3 +193,10 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - R2 is rejected as a dataset-delivery attempt: terminal row-count error, no validation and no artifact. The previous R2 formula pass is not acceptance of the dataset and must not authorize R3.
 - The canonical tester workflow has been changed to R3 paths, and the independent audit now independently checks valid/invalid per-part row count manifest cases. R3 request/decision/report will be committed only after confirming the exact candidate hashes.
 - No HF data requests or enrichment are permitted for the current developer candidate until the R3 decision matches the exact pinned snapshot.
+
+
+## 2026-10-12 — Phase 8 Greek enrichment R3 exact-snapshot decision
+- Canonical tester workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) succeeded. Exact candidate SHA and four developer blob hashes passed. Developer synthetic tests passed. Independent suite passed 162 CE/PE Black-Scholes / finite-difference cases and separately passed manifest-count auditing (2 valid fixtures; 4 invalid fixtures rejected).
+- Decision: **PASS_WITH_SCOPED_RESTRICTIONS** for developer snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e`: [machine JSON](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json) · [review report](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R3_2026-10-12.md).
+- This is a code/source-access gate only, not acceptance of a dataset. Developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) is running after the decision. Tester must separately inspect any terminal encrypted artifact and its coverage report.
+- Restrictions unchanged: no Dhan API, historical option P&L, holdout, strategy promotion, commercial use or plaintext publication; the HF partial grid and CC-BY-NC-4.0 research-only licensing limitations remain.

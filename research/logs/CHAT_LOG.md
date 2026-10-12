@@ -171,3 +171,11 @@ No scientific or protocol change was made during this checkpoint.
 - The R3 implementation candidate includes the manifest row-count correction and a follow-up workflow hardening commit; candidate snapshot is `f556c7b44088f18551453c36f78e8d5de7fe141e`.
 - Updated the tester status/chat references from the intermediate core commit to the final candidate snapshot. The four exact developer blob hashes will be recorded in `PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12.json`.
 - The tester request is not yet committed; therefore the R3 review has not yet started and the developer enrichment gate must remain blocked.
+
+
+## 2026-10-12 — Tester R3 decision and delivery boundary
+- R3 run [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) passed exact snapshot pins, developer suite, 162 independent Greek/math cases, and manifest sum tests (2 valid; 4 malformed/mismatching rejected). Decision/report committed as `PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json` and `...REVIEW_R3...md`.
+- Developer retry of exact SHA `f556c7b44088f18551453c36f78e8d5de7fe141e` started in run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828). Still pending terminal validation and independent delivery audit; no dataset accepted yet.
+
+**Tester → Developer:** verify the actual coverage report and all encrypted-part hashes/row counts before calling delivery complete.
+**Developer → Tester:** code PASS only enables the scoped source/enrichment run; do not start P&L/holdout/strategy gates without a separate tester authorization.
