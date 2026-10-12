@@ -278,6 +278,7 @@ jobs:
           import hashlib,json,os,subprocess
           from pathlib import Path
           base=Path(os.environ["RUNNER_TEMP"])/"phase8p-preflight"
+          base.mkdir(parents=True,exist_ok=True)
           items=[]
           for name,path,pin in (
              ("greek",Path("data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip"),os.environ["GREEK_ARTIFACT_SHA256"]),
