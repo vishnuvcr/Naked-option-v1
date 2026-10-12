@@ -969,6 +969,13 @@ def build_option_feature_frame(
             "greek_status_counts_fractions": {}, "iv_source_counts_fractions": {},
             "expiry_source_counts_fractions": {},
         }
+        if rows:
+            summary["n_option_rows_for_provenance"] = int(len(rows))
+            for count_key in ("greek_status_counts", "iv_source_counts", "expiry_source_counts"):
+                counts = summary.get(count_key, {})
+                summary[count_key + "_fractions"] = {
+                    str(label): float(count / len(rows)) for label, count in counts.items()
+                }
         flat: dict[str, Any] = {
             "decision_timestamp_utc": pd.Timestamp(int(epoch), unit="s", tz="UTC").isoformat(),
             "decision_epoch_seconds": int(epoch),
@@ -1221,8 +1228,10 @@ def _flatten_spot_frames(daily_features: pd.DataFrame, intraday_features: pd.Dat
     if not frames:
         raise GateBlocked("NO_SPOT_FEATURE_ROWS_BUILT")
     combined = pd.concat(frames, ignore_index=True, sort=False)
-    epochs = _feature_epoch_column(combined)
-    combined["_phase8p_feature_epoch"] = epochs // 1_000_000_000
+    if "decision_timestamp_utc" not in combined:
+        raise GateBlocked("SPOT_FEATURE_DECISION_TIMESTAMP_MISSING")
+    timestamps = pd.DatetimeIndex(pd.to_datetime(combined["decision_timestamp_utc"], errors="raise", utc=True))
+    combined["_phase8p_feature_epoch"] = timestamps.asi8 // 1_000_000_000
     out = []
     for _, group in combined.groupby("_phase8p_feature_epoch", sort=True, dropna=False):
         if len(group) > 1:
@@ -1640,6 +1649,21 @@ def iter_encrypted_composite_parts(artifact_zip_path: str | Path) -> Iterable[pd
         manifest = json.loads(archive.read(manifest_names[0]))
         if manifest.get("source_license") != "CC-BY-NC-4.0: non-commercial research only":
             raise GateBlocked("GREEK_DATASET_LICENSE_RESTRICTION_MISMATCH")
+        if manifest.get("dataset_id") != "NIFTY_1M_DHAN_HF_SPOT_GREEKS_ENRICHED_R3":
+            raise GateBlocked("GREEK_DATASET_ID_MISMATCH")
+        if manifest.get("source_artifact_id") != GREEK_SOURCE_PIN["source_artifact_id"] or manifest.get("source_run_id") != GREEK_SOURCE_PIN["source_run_id"]:
+            raise GateBlocked("GREEK_SOURCE_CACHE_ARTIFACT_LINEAGE_MISMATCH")
+        metadata_names = [name for name in names if name.endswith("source_metadata.json")]
+        if len(metadata_names) != 1:
+            raise GateBlocked("GREEK_HF_SOURCE_METADATA_MISSING_OR_DUPLICATE")
+        metadata_bytes = archive.read(metadata_names[0])
+        metadata_text = metadata_bytes.decode("utf-8", errors="strict")
+        for required_source_identity in (
+            GREEK_SOURCE_PIN["revision"], GREEK_SOURCE_PIN["license"],
+            "thetrademarkk/india-index-options-1m",
+        ):
+            if required_source_identity not in metadata_text:
+                raise GateBlocked("GREEK_HF_SOURCE_METADATA_IDENTITY_MISMATCH")
         if manifest.get("download_bundle_contains_encrypted_data_only") is not True:
             raise GateBlocked("GREEK_DATASET_ENCRYPTION_MARKER_MISSING")
         parts = manifest.get("parts", [])
