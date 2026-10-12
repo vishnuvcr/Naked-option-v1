@@ -61,6 +61,14 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual(len({x["config_id"] for x in expanded}), 40000)
         self.assertEqual(Counter(x["configuration"]["label_id"] for x in expanded), Counter({x: 4000 for x in build.ALL_LABEL_IDS}))
         self.assertEqual(set(Counter(x["method_id"] for x in expanded).values()), {40})
+        # The ambiguous legacy R2 digest is preserved for traceability, while the
+        # new R3 digest uses one explicit canonical configuration-object rule.
+        for row in expanded:
+            self.assertRegex(row["source_r2_config_sha256"], r"^[0-9a-f]{64}$")
+            self.assertEqual(
+                row["config_sha256"],
+                hashlib.sha256(build.canonical_bytes(row["configuration"])).hexdigest(),
+            )
         for row in expanded[::1000]:
             self.assertEqual(
                 row["config_sha256"],
@@ -85,6 +93,7 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual({x["id"] for x in labels["labels"]}, set(build.ALL_LABEL_IDS))
         self.assertEqual(manifest["configuration_count"], 40000)
         self.assertEqual(manifest["shard_count"], 400)
+        self.assertIn("R2 per-record config_sha256 algorithm is undeclared", manifest["source_r2_config_digest_note"])
         self.assertEqual(len(manifest["config_shards"]), 400)
         self.assertEqual(index["method_record_count"], 1000)
         self.assertEqual(index["configuration_record_count"], 40000)
