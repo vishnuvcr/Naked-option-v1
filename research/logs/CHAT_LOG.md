@@ -891,3 +891,18 @@ Rechecked the latest developer branch, tester branch head, issue #25 comments, r
 ### 2026-10-13 — Proceed: compatibility matrix auditability
 
 Published 40 small compatibility JSON shards with 25 method rows per file, plus a SHA-256 index and a deterministic reconstruction verifier. Registry CI run 38299233992 passed the four new shard tests and existing registry/statistical tests. Generated files were committed at `503af0a4c6af98aec2c2a41b633cedc50df75d34`. The refreshed tester request pins the index and CI run. This resolves artifact accessibility only; scientific review is still pending.
+
+
+## 2026-10-13 — Continue: Phase 8P R2 tester findings and developer correction
+
+- User requested continuation after a developer handoff on the 1,000-method / 8,000-configuration prediction registry.
+- Re-read the current R2 review request, README/status/error/chat/research logs, compatibility index and published shards, method/configuration indexes, statistical implementation/tests, label manifest, preregistration and synthetic runner.
+- Tester R3 on the separate tester branch found T2: degenerate moving-block bootstrap inference can return a zero-width interval and minimum p-value when resampling support has one value; the prior regression test encoded that result. Tester also identified T3: R2 includes only 30-minute and +1-session targets while the overall plan requires ten horizons.
+- Developer corrected T2 so single-valued bootstrap resamples return null confidence limits/p-value and NON_IDENTIFIABLE_DEGENERATE_RESAMPLING; regression tests now include constant positive/zero and single-admissible-block inputs.
+- To resolve T3 without a silent scope reduction, the current 8,000-config R2 matrix is explicitly restricted to a non-empirical, non-ranking two-target synthetic/design pilot. The overall ten-horizon aim is retained in RESEARCH_PLAN.md. A separately approved horizon-complete registry gate is required before any empirical fit or method ranking.
+- The synthetic runner now fail-closes unless the pilot scope is explicitly marked and prohibits empirical fitting/selection. Preregistration regression coverage checks this restriction.
+- Developer correction package: research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md. Hosted tests for this newest version and full independent reconstruction of all 40 compatibility / 40 method / 80 configuration shards remain unverified.
+- The developer has not advanced to empirical fitting and has not accessed market data, fitted models, accessed holdout, generated option P&L, or selected a strategy.
+
+**Developer → Tester:** independently inspect exact source and preregistration pins, check T2 regression behavior, validate the scope-amendment guard and finish full shard/config/nearest-peer audit. Return a hash-pinned PASS or REQUEST CHANGES.
+**Tester → Developer:** enumerate reproducible defects with pinned evidence. Even if the pilot gate passes, preserve the separate ten-horizon registry gate before any empirical fit or candidate ranking.
