@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_WAKEUP",
+  "trigger_reason": "Final tester-created one-use authorization is present; request exactly one pinned aggregate-only duplicate diagnostic run.",
+  "execution_nonce": "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133",
+  "executor_workflow_blob_sha1": "398063be2215dbed40c123521bf2868b0bcdb6a3",
+  "executor_workflow_review_request_blob_sha1": "252536eb06b0bf0d4d6f10d00e802cd481b3a94b",
+  "workflow_approval_decision_blob_sha1": "8d39ad104c519b79bfe47f6731bac101a0798347",
+  "execution_authorization_request_blob_sha1": "bfb186fba597acdd831f8d854471d9b6d0adde36",
+  "execution_authorization_decision_blob_sha1": "a9390a2a597bbfedaedcf792fe5f60c29361cc82",
+  "r4_code_decision_blob_sha1": "469fe821a1f735051a9db0ea2a02f14881922dfc",
+  "r4_scope_decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+  "approved_developer_code_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850",
+  "source_artifact_id": 11723198817,
+  "source_artifact_sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
+  "intended_operation": "one-use encrypted-source duplicate classification, aggregate output only",
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "deduplication_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false
+}
