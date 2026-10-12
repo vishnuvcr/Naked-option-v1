@@ -29,9 +29,19 @@ jobs:
       - name: Rebuild small, deterministic registry shards
         run: python scripts/reshard_prediction_registry.py
       - name: Run utility regression suite
-        run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+        run: python -m unittest discover -s scripts -p "test_*.py" -v
       - name: Audit rebuilt registry before committing
-        run: python scripts/audit_prediction_registry_shards.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/audit_prediction_registry_shards.py | tee /tmp/r2-registry-audit.json
+      - name: Upload machine-readable audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-registry-integrity-audit
+          path: /tmp/r2-registry-audit.json
+          if-no-files-found: warn
       - name: Commit verified registry data artifacts
         run: |
           git config user.name "github-actions[bot]"
