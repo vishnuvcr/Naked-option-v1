@@ -678,3 +678,10 @@
 - Independent tester reviewed report artifact 11726646000 (SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92) and issued BLOCKED_DATA. The input artifact hashes matched, but feature coverage is uncomputed (0 panels).
 - Root cause remains unresolved: repeated keys may be identical duplicate records or conflicting observations. Do not remove/aggregate them without evidence and a reviewed rule.
 - Next: create a new diagnostic-only code/test snapshot that reports counts and hashes of repeated keys, exact-row hashes and conflicting-row counts without exposing raw data; pass independent code review before rerunning on encrypted data.
+
+
+## 2026-10-12 — Duplicate diagnostic tester workflow read stale request revision
+- Tester run [#38204120560](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204120560) failed at “Fetch exact developer code review request” because the tester-owned workflow reads the R2 request and the request-status gate stopped before static/synthetic audit. The developer had submitted R3 at commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`.
+- This is a tester workflow/revision-binding issue, not a developer test failure or a scientific finding. No real encrypted artifact was downloaded/decrypted by this code-review run; no model fit or deduplication occurred.
+- Developer synthetic run [#38204164532](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204164532) passed. Handoff recorded in [issue #20](https://github.com/vishnuvcr/Naked-option-v1/issues/20) so the isolated tester role can update its own workflow and independently review R3.
+- Gate remains closed until the tester issues a code decision and a distinct diagnostic authorization. Do not use R1/R2 or synthetic success as approval of the real-data diagnostic.
