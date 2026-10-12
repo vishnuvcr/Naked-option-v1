@@ -175,6 +175,10 @@ def main():
               and "PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY" in workflow_text
               and "PASS_ONE_TIME_DUPLICATE_DIAGNOSTIC_EXECUTION_ONLY" in workflow_text
               and "execution_authorization_granted" in workflow_text)
+        check(checks, failures, "R2_workflow_approval_path_matches_request_contract",
+              req["execution_authorization_contract"]["workflow_approval_decision_path"]
+              == "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json"
+              and req["execution_authorization_contract"]["workflow_approval_decision_path"] in workflow_text)
         check(checks, failures, "separate_execution_authorization_request_is_pinned",
               req["execution_authorization_contract"]["one_use_execution_authorization_path"] in workflow_text
               and "EXECUTION_AUTH_REQUEST_PATH" in workflow_text
