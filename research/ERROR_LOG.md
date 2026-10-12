@@ -776,3 +776,12 @@
 - Impact: no local regression was executed from a checked-out repository in this session; no test result is inferred.
 - Disposition: preserve as infrastructure failure, not scientific evidence. Repository updates were made through the GitHub connector. Hosted workflow execution still needs a supported dispatch/trigger path.
 - Prevention: before retrying, use an available GitHub Actions trigger or an execution environment with network/checkout capability; do not claim a run until a workflow run ID and result exist.
+
+
+## 2026-10-12 — Actions run visibility unavailable after trigger commit
+- Category: infrastructure/tooling
+- Component: GitHub Actions run verification via connector
+- Symptom: `fetch_commit_workflow_runs` for commit `5de4a2c1626b5f2633c4e0565e84592297ad4b44` returned no runs; this endpoint filters to pull-request-triggered runs and cannot confirm the push-triggered Phase 8 run.
+- Impact: hosted run status is unverified in this session. No workflow success or test outcome is claimed.
+- Disposition: workflow trigger commit is recorded; obtain run ID and inspect jobs/artifacts through a supported Actions-run listing/inspection path before accepting evidence.
+- Prevention: do not infer workflow completion from a commit alone.
