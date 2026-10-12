@@ -906,3 +906,20 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 **Developer → Tester:** independently inspect exact source and preregistration pins, check T2 regression behavior, validate the scope-amendment guard and finish full shard/config/nearest-peer audit. Return a hash-pinned PASS or REQUEST CHANGES.
 **Tester → Developer:** enumerate reproducible defects with pinned evidence. Even if the pilot gate passes, preserve the separate ten-horizon registry gate before any empirical fit or candidate ranking.
+
+
+## 2026-10-13 — User changed tester review cadence
+
+### User instruction
+“No tester review at each step! Tester to review only after the results acquirement!”
+
+### Applied policy
+- Independent tester review is deferred until the planned research results have been acquired, frozen, and indexed.
+- Developer-side unit tests, schema/integrity validation, data-quality checks, leakage checks, and statistical assertions continue during execution. These are not tester reviews.
+- The plan, README, status and governance policy were updated. The tester workflow no longer triggers for intermediate audit-script/workflow edits or R2 request drafts; it triggers on the formal post-results review request, while retaining a manual run button for that same milestone.
+- The prior R2 tester REQUEST CHANGES findings remain archived as historical findings and motivated the bootstrap correction and horizon-scope clarification. They are not used as an instruction to interrupt every new step under this revised cadence.
+- The 8,000-config R2 registry remains synthetic/design-only. The developer's work now proceeds toward a developer-validated full ten-horizon registry, planned empirical result acquisition, complete failure/null-result preservation, and one consolidated tester review after the bundle is frozen.
+- No tester approval is claimed under this update; no prediction performance conclusion is added by this policy change.
+
+**Developer → Tester (post-results only):** wait for a formal acquired-results request with pinned source and artifact hashes; review the full result bundle in one consolidated pass.
+**Tester → Developer (after results acquired):** issue a hash-pinned decision with reproducible defects and the exact artifacts needing correction/reruns.
