@@ -1,5 +1,13 @@
 # Research Status
 
+## Phase 8P R2 independent review continuation — 2026-10-13
+
+- Tester decision remains **REQUEST CHANGES** pending observed hosted regression results and a complete read-only audit artifact.
+- Source review of the developer correction finds T2/T3 responses directionally adequate: degenerate bootstrap inference is now null/non-identifiable, and the R2 two-target scope is blocked from empirical fitting/selection pending the separate ten-horizon gate.
+- The tester audit script was corrected to validate the new bootstrap response and to distinguish an explicitly gated pilot from a silent horizon omission. New hosted output has not yet been reviewed.
+- No market-data access, empirical fit, holdout access, option P&L, or method ranking is authorized.
+
+
 ## Phase 8P prediction registry gate — 2026-10-13
 
 - **Tester decision: REQUEST CHANGES.** See [R3 independent review](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REVIEW_R3_2026-10-13.md) and [machine decision](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_DECISION_R3_2026-10-13.json).
