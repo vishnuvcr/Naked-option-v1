@@ -186,7 +186,7 @@ def main():
           all(term in core_test for term in (
               "single_timestamp_columns", "synthetic_unmodeled_column",
               "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST",
-              "DUPLICATE_CONTRACT_INPUTS_CONFLICT",
+              "economic_duplicate_diagnostic", "conflicting_signature_fields",
           )) and all(term in diagnostic for term in (
               "seconds_milliseconds_timestamp_normalization", "permuted =",
               "timestamp text disagreeing with the source epoch",
