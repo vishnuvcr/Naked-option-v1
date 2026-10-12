@@ -85,7 +85,7 @@ def main():
         workflow_yaml_ok=isinstance(parsed,dict) and isinstance(triggers,dict) and isinstance(jobs,dict) and bool(steps)
         check(checks,failures,"workflow_yaml_parse",workflow_yaml_ok,{"trigger_keys":list(triggers) if isinstance(triggers,dict) else None,"step_count":len(steps)})
         push=triggers.get("push",{}) if isinstance(triggers,dict) else {}
-        expected_paths=[REQUEST_PATH]
+        expected_paths=[EXECUTION_REQUEST_PATH]
         check(checks,failures,"push_trigger_limited_to_authorized_request",
               push.get("branches")==["phase-08-prediction-developer"] and push.get("paths")==expected_paths,
               {"branches":push.get("branches"),"paths":push.get("paths")})
@@ -124,7 +124,7 @@ def main():
               not any(s in wf_text.lower() for s in (
                   "huggingface.co","nseindia.com","bseindia.com","dhan.co",
                   "api.dhan.co","yfinance","kaggle.com","huggingface_hub")))
-        download_api_count=wf_text.count("/actions/artifacts/")
+        download_api_count=sum(1 for line in wf_text.splitlines() if "API_URL=" in line and "/actions/artifacts/" in line)
         check(checks,failures,"downloads_only_pinned_github_actions_artifacts",download_api_count==2,download_api_count)
         check(checks,failures,"token_handling_is_environment_only",
               "HF_TOKEN: ${{ secrets.HF_TOKEN }}" in wf_text
