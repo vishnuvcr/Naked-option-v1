@@ -767,3 +767,12 @@
 - Evidence: independent tester report `research/gates/PHASE8_STRATEGY_TESTING_READINESS_TESTER_2026-10-12.md` on `phase-08-prediction-tester`.
 - Disposition: keep empirical authorization false; run only approved synthetic regressions/source feasibility and the aggregate-only duplicate diagnostic after a valid separate one-use authorization is present.
 - Prevention: do not treat prediction forecasts, OHLC proxies or model-estimated Greeks as executable option quotes; require point-in-time contract identity, expiry/lot-size joins, provenance, duplicate audit and causally valid execution prices.
+
+
+## 2026-10-12 — Local checkout unavailable in execution container
+- Category: infrastructure/tooling
+- Component: repository checkout for local Phase 8 regression execution
+- Symptom: `git clone --depth 1 --branch phase-08-prediction-developer https://github.com/vishnuvcr/Naked-option-v1.git /tmp/naked-option-v1` failed with `Could not resolve host: github.com`.
+- Impact: no local regression was executed from a checked-out repository in this session; no test result is inferred.
+- Disposition: preserve as infrastructure failure, not scientific evidence. Repository updates were made through the GitHub connector. Hosted workflow execution still needs a supported dispatch/trigger path.
+- Prevention: before retrying, use an available GitHub Actions trigger or an execution environment with network/checkout capability; do not claim a run until a workflow run ID and result exist.
