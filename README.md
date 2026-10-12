@@ -1,3 +1,21 @@
+## 2026-10-12 — R3 Greek-enriched dataset independently accepted
+
+**Tester decision: PASS_WITH_SCOPED_RESTRICTIONS.** [Independent tester run #38197317740](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38197317740) downloaded the artifact and passed ZIP SHA-256, archive CRC, encrypted-part hashes, row totals, coverage-map consistency, schema, source metadata and no-plaintext checks.
+
+- **Artifact:** [nifty-1m-greeks-enriched-r3 (ID 11723198817)](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828/artifacts/11723198817)
+- **ZIP SHA-256:** `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`
+- **Rows:** 8,999,865 preserved = 8,490,723 option + 509,142 spot; 61 encrypted monthly parts.
+- **Greek coverage:** 8,418,616 option rows with Delta; 49,873 invalid-IV rows; 22,234 rows flagged by source as non-trading-session; 0 exact-time spot misses; 0 expiry rows unresolved under current mapping rules; 19,746 spot-field values filled.
+- **Expiry limitation:** 7,715,704 rows use a Hugging Face expiry-file-list proxy and 775,019 use a Tuesday-rule proxy—not a verified official point-in-time contract master. Zero unmapped rows does not prove official expiry correctness.
+- **Greek limitation:** Greeks are Black–Scholes estimates, not historical vendor observations. IV was inverted from close for 8,404,270 rows; 36,580 used a labelled source-IV fallback; 49,873 had invalid IV. Risk-free rate and dividend yield use (r=0, q=0) proxies.
+- **Source restriction:** Hugging Face revision `0f4800e43e6f96cec0794369d78eb4d3c4211ef5`; CC-BY-NC-4.0, non-commercial research only. The dataset remains `PARTIAL_GRID`, not a full listed-contract universe.
+- **Not authorized by this gate:** Dhan API requests, empirical option P&L, holdout access, strategy promotion, commercial use or plaintext publication.
+
+Links: [Tester decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_DECISION_R1_2026-10-12.json) · [Tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md) · [Audit script](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-tester/scripts/phase8_greek_artifact_audit.py)
+
+**Developer → Tester:** preserve the accepted artifact and its stated limitations; any changes require a new immutable snapshot and review.
+**Tester → Developer:** accept the integrity/coverage gate only; keep P&L, holdout and strategy promotion blocked until separate gates pass.
+
 ## 2026-10-12 — Phase 8 Greek enrichment R3 uploaded; tester artifact audit pending
 
 - R2 failed on the missing top-level manifest row total and did not upload a dataset. R3 corrected the row-count contract and independently passed the code gate.
