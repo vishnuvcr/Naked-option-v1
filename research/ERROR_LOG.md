@@ -874,3 +874,12 @@
 **Developer → Tester:** complete issue #23 review on the tester branch, hash-pin the proposal, and return a reproducible PASS/REQUEST CHANGES.
 
 **Tester → Developer:** no registry expansion or empirical batch until the independent decision is committed.
+
+
+## 2026-10-12 — Registry V2 draft validation pending
+
+- The first local SHA-256 implementation used an incorrect round-constant derivation. This was detected by the standard `abc` test vector before registry review. The registry and configuration manifest were regenerated with the corrected SHA-256 implementation and the corrected files were committed as `2195173c4cea8146034ab90c14299370dfa88889` and `76908596a4dc21b1c0b0aa9ba78f88089744e6bc`.
+- The standard SHA-256 test vector now returns `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`.
+- The corrected manifest has not yet been independently verified end-to-end. Treat all method counts, fingerprints and config hashes as provisional until tester issue #24 passes.
+- The 1,000 generated combinations may include scientifically incompatible or weakly differentiated algorithm/operator pairs. This is explicitly assigned to independent semantic review; no empirical run is authorized.
+- Status: OPEN — tester registry gate pending.
