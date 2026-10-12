@@ -157,6 +157,8 @@ def scan_frames(frames) -> dict[str, Any]:
         "normalized_key_semantics": normalized,
         "normalization_only_duplicate_groups": max(0, normalized["duplicate_key_groups"] - raw["duplicate_key_groups"]),
         "diagnostic_scope": "HASH_AND_COUNT_ONLY_NO_DEDUPLICATION",
+        "deduplication_performed": False,
+        "raw_keys_or_rows_emitted": False,
     }
 
 def run_diagnostic(greek_zip: Path, artifact_id: int, output: Path) -> dict[str, Any]:
