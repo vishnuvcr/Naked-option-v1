@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import random
 import statistics
+from numbers import Integral, Real
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -21,11 +22,11 @@ def _validate_binary_inputs(y_true: Sequence[int], probabilities: Sequence[float
     y: list[int] = []
     p: list[float] = []
     for value in y_true:
-        if isinstance(value, bool) or value not in (0, 1):
-            raise ValueError("binary labels must be integer 0 or 1 (bool is not accepted)")
+        if isinstance(value, bool) or not isinstance(value, Integral) or value not in (0, 1):
+            raise ValueError("binary labels must be integer 0 or 1 (bool and float labels are not accepted)")
         y.append(int(value))
     for value in probabilities:
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)):
+        if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(float(value)):
             raise ValueError("probabilities must be finite numeric values")
         if not 0.0 <= float(value) <= 1.0:
             raise ValueError("probabilities must be in [0, 1]")
@@ -86,8 +87,10 @@ def calibration_intercept_slope(
     evaluation predictions only for measurement, never used to recalibrate those predictions.
     """
     y, p = _validate_binary_inputs(y_true, probabilities)
-    if max_iterations < 1 or tolerance <= 0:
-        raise ValueError("max_iterations must be positive and tolerance must be positive")
+    if set(y) != {0, 1}:
+        raise ValueError("calibration intercept/slope requires both binary classes")
+    if isinstance(max_iterations, bool) or not isinstance(max_iterations, Integral) or max_iterations < 1 or tolerance <= 0:
+        raise ValueError("max_iterations must be a positive integer and tolerance must be positive")
     x = [_logit(pi) for pi in p]
     intercept, slope = 0.0, 1.0
     ridge = 1e-10
@@ -161,10 +164,15 @@ def paired_moving_block_bootstrap(
     """
     if not fold_session_deltas or any(not fold for fold in fold_session_deltas):
         raise ValueError("at least one non-empty outer-fold session-delta sequence is required")
-    if isinstance(block_length, bool) or block_length < 1:
+    if isinstance(block_length, bool) or not isinstance(block_length, Integral) or block_length < 1:
         raise ValueError("block_length must be a positive integer")
-    if isinstance(replicates, bool) or replicates < 1:
+    if isinstance(replicates, bool) or not isinstance(replicates, Integral) or replicates < 1:
         raise ValueError("replicates must be a positive integer")
+    if isinstance(seed, bool) or not isinstance(seed, Integral):
+        raise ValueError("seed must be an integer")
+    block_length = int(block_length)
+    replicates = int(replicates)
+    seed = int(seed)
     if not 0.0 < confidence_level < 1.0:
         raise ValueError("confidence_level must be in (0, 1)")
     folds: list[list[float]] = []
