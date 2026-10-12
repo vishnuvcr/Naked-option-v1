@@ -415,3 +415,13 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - [Run 38241647992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241647992) passed all 8 regression tests plus the SHA-256 known-vector check on [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c).
 - Earlier failed run and its fixture correction remain documented in [Error Log](research/ERROR_LOG.md).
 - This is tooling-only. Independent tester decision pending; actual shards, compatibility review, frozen statistical settings and empirical fitting remain blocked.
+
+
+### R2 registry repair — 2026-10-12
+
+The developer branch now includes an automated, fail-closed repair workflow and utilities:
+- Guarded missing-method shard generator: scripts/generate_missing_method_shards.py
+- Config file-byte hash pinning utility: scripts/pin_config_shard_file_hashes.py
+- Repair workflow: .github/workflows/repair-missing-method-shards.yml
+
+The workflow fills only missing method shards after verifying the canonical master and updates config SHA-256 values using the documented exact-file-byte rule. Existing shards are never silently overwritten. The registry remains pending full integrity CI and independent tester review; no prediction results are promoted.
