@@ -173,15 +173,31 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
     prereg_raw = PREREG_PATH.read_bytes()
     prereg = json.loads(prereg_raw.decode("utf-8"))
     data_manifest_raw = DATA_MANIFEST_PATH.read_bytes()
-    expected_manifest_blob = prereg.get("scope", {}).get("data_manifest_sha256_git_blob")
+    scope = prereg.get("scope", {})
     actual_manifest_blob = git_blob_sha1(data_manifest_raw)
-    if expected_manifest_blob != actual_manifest_blob:
-        raise SystemExit(f"BLOCKED: pinned data-manifest Git blob hash mismatch: {actual_manifest_blob}")
+    pinned_inputs = {
+        "data_manifest_sha256_git_blob": actual_manifest_blob,
+        "label_manifest_sha256_git_blob": git_blob_sha1((REGISTRY / "PREDICTION_LABEL_MANIFEST_V2_R2.json").read_bytes()),
+        "config_manifest_sha256_git_blob": git_blob_sha1((REGISTRY / "PREDICTION_CONFIG_MANIFEST_V2_R2.json").read_bytes()),
+        "registry_index_sha256_git_blob": git_blob_sha1(idx_raw),
+        "compatibility_matrix_sha256_git_blob": git_blob_sha1(matrix_raw),
+    }
+    for key, actual in pinned_inputs.items():
+        if scope.get(key) != actual:
+            raise SystemExit(f"BLOCKED: preregistration source pin mismatch for {key}: expected={scope.get(key)} actual={actual}")
     data_manifest = json.loads(data_manifest_raw.decode("utf-8"))
     if data_manifest.get("encrypted_only") is not True:
         raise SystemExit("BLOCKED: data manifest does not declare encrypted_only=true")
     if data_manifest.get("rows_preserved") != 8999865:
         raise SystemExit("BLOCKED: pinned data manifest row count changed; preregistration must be reviewed")
+    label_manifest = json.loads((REGISTRY / "PREDICTION_LABEL_MANIFEST_V2_R2.json").read_text(encoding="utf-8"))
+    prereg_flat = [prereg.get("labels", {}).get(label, {}).get("flat_tolerance_abs_simple_return") for label in LABEL_IDS]
+    label_flat = [label_manifest.get("return_convention", {}).get("flat_tolerance_abs_simple_return")]
+    if len(set(prereg_flat)) != 1 or prereg_flat[0] != label_flat[0]:
+        raise SystemExit("BLOCKED: label-manifest flat tolerance and preregistration disagree")
+    config_manifest = json.loads((REGISTRY / "PREDICTION_CONFIG_MANIFEST_V2_R2.json").read_text(encoding="utf-8"))
+    if config_manifest.get("configuration_count") != 8000 or len(config_manifest.get("config_shards", [])) != 80:
+        raise SystemExit("BLOCKED: pinned config manifest count/shard layout changed")
     if idx.get("method_record_count") != 1000 or idx.get("configuration_record_count") != 8000:
         raise SystemExit("BLOCKED: shard index has unexpected total counts")
     matrix_body = dict(matrix)
@@ -225,7 +241,7 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
         "method_index_sha256": sha256_bytes(idx_raw),
         "compatibility_matrix_sha256": sha256_bytes(matrix_raw),
         "preregistration_sha256": sha256_bytes(prereg_raw),
-        "data_manifest_git_blob_sha1": actual_manifest_blob,
+        "source_git_blob_pins": pinned_inputs,
         "data_manifest_raw_sha256": sha256_bytes(data_manifest_raw),
         "method_count": 1000,
         "configuration_count": 8000,
