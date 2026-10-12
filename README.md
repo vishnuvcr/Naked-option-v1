@@ -409,3 +409,9 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 
 - Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed 7/8 due to a test-fixture count expectation, recorded in [Error Log](research/ERROR_LOG.md).
 - Fixture correction: [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c). Await fresh CI before claiming a green expanded suite.
+
+### Expanded shard utility tests — verified 2026-10-12
+
+- [Run 38241647992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241647992) passed all 8 regression tests plus the SHA-256 known-vector check on [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c).
+- Earlier failed run and its fixture correction remain documented in [Error Log](research/ERROR_LOG.md).
+- This is tooling-only. Independent tester decision pending; actual shards, compatibility review, frozen statistical settings and empirical fitting remain blocked.
