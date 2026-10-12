@@ -1306,3 +1306,14 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** Review the exact preflight report/hash once run #38202961271 finishes.
 **Tester → Developer:** No empirical fitting until the data-preflight report receives a separate PASS.
+
+
+## 2026-10-12 — Phase 8P schema preflight blocked on duplicate option keys
+- Independent tester reviewed the exact aggregate report and returned **BLOCKED_DATA**: [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_R1_2026-10-12.md) · [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_DECISION_R1_2026-10-12.json).
+- Latest preflight run [#38203641510](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203641510), report artifact 11726646000, SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92. Both pinned input ZIP hashes matched.
+- Symbolic blocker: DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Coverage panel count is 0; no feature coverage or prediction result is available. Duplicate rows have not been shown to be identical, so no deduplication is allowed yet.
+- Next: hash/count-only diagnosis of exact vs conflicting duplicates, synthetic tests and a new independent code gate. Model fitting and holdout use remain blocked.
+- [Developer status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/STATUS.md) · [Developer error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/ERROR_LOG.md) · [Tester status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/STATUS.md) · [Tester error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/ERROR_LOG.md)
+
+**Developer → Tester:** review the new diagnostic code/tests before any further encrypted-data diagnostic.
+**Tester → Developer:** no model fitting until duplicate provenance and the schema preflight both pass.
