@@ -10,12 +10,12 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **R3 ARTIFACT ACCEPTED — ECONOMIC TESTING BLOCKED** | Independent tester #38197317740 passed exact artifact ZIP, 61 encrypted part hashes, row totals, coverage maps and no-plaintext checks. P&L/holdout/strategy gates remain blocked |
+| Phase 8 Long-option execution | **R3 INPUT SELECTED — OHLC PROXY RERUN PENDING** | 4,800 configs × four cost scenarios; use existing expiry-enriched artifact 11723198817; Q1 proxy only |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-11
+Last updated: 2026-10-12
 
 ## Phase 5 current state
 
@@ -833,3 +833,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review issue #21 independently and report exact source/blob hashes, field coverage, cost arithmetic and hosted run evidence.
 **Tester → Developer:** keep empirical P&L unauthorized until a fixed-contract panel and all independent gates pass.
+
+
+## 2026-10-12 — Phase 8 OHLC proxy correction checkpoint
+
+- Hosted proxy run 38219967649 failed closed before any trade metrics: all 8,490,723 OPTION rows in the original repaired composite had unusable/blank expiry text; timestamps, strikes and option sides were populated.
+- No P&L, win rate, drawdown or strategy result exists from that attempt. Full diagnosis is recorded in research/ERROR_LOG.md.
+- The repository already contains the enriched version of the same 61-part composite: workflow run 38195812828, artifact 11723198817, SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736. Its expiry mapping is a file-list/rule proxy, not a point-in-time exchange master.
+- Tester R3 has approved use of this existing artifact for one frozen-grid Q1/OHLC proxy attempt. No new data collection and no bid/ask prerequisite.
+- Next action: execute the same 4,800 configurations × four cost scenarios and independently review results; prior failed attempts are non-evidence.
