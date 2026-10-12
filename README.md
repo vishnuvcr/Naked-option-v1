@@ -360,3 +360,13 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - The trigger is intended for protocol, regression, immutable forecast artifact verification and forecast reconstruction. Existing empirical jobs still require explicit authorization and data gates.
 - The Actions run ID/outcome is not yet confirmed through the available connector; no successful run is claimed. See [research status](research/STATUS.md), [error log](research/ERROR_LOG.md) and [chat log](research/logs/CHAT_LOG.md).
 - No empirical P&L or strategy performance metrics have been generated. The next gate remains verified hosted execution plus an approved point-in-time option panel and separate diagnostic authorization.
+
+## Phase 8 current checkpoint — 2026-10-12
+
+- Frozen forecast input: Run #994, 10 panels / 50,555 rows; empirical option execution remains explicitly unauthorized.
+- Frozen option universe: 4,800 configurations × four cost scenarios; Paytm Money charges, date-effective statutory charges, spreads and slippage remain included.
+- Automatic Phase 8 push trigger committed at [`5de4a2c`](https://github.com/vishnuvcr/Naked-option-v1/commit/5de4a2c1626b5f2633c4e0565e84592297ad4b44). The available connector cannot list push-triggered runs, so the first hosted run and outcomes are **unverified**.
+- Independent trigger review request: [tester request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8_HOSTED_REGRESSION_TRIGGER_REVIEW_REQUEST_2026-10-12.md). No tester approval is inferred.
+- Empirical P&L remains blocked pending the point-in-time fixed-contract panel, duplicate-data result acceptance and separate one-use authorization.
+- Detailed status: [research/STATUS.md](research/STATUS.md); errors/observability: [research/ERROR_LOG.md](research/ERROR_LOG.md); conversation decision log: [research/logs/CHAT_LOG.md](research/logs/CHAT_LOG.md); Phase 8 data requirements: [PHASE8_DATA_PLAN.md](research/phase8/PHASE8_DATA_PLAN.md).
+
