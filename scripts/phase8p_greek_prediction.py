@@ -61,6 +61,44 @@ GREEK_FEATURE_COLUMNS = [
 ]
 
 VALID_GREEK_STATUS = {"GREEKS_ESTIMATED_FROM_INVERTED_IV", "GREEKS_ESTIMATED_FROM_SOURCE_IV_FALLBACK"}
+
+# Exact encrypted-artifact schema and frozen contract canonicalization, scope amendment R3.
+CONTRACT_KEY_FIELDS = (
+    "underlying", "normalized_expiry_date", "returned_strike", "normalized_option_type",
+)
+CONTRACT_SIGNATURE_FIELDS = (
+    "row_type", "underlying", "timestamp_epoch", "timestamp_utc", "timestamp_ist",
+    "session_date", "expiry_flag", "expiry_code", "returned_strike", "option_type",
+    "expiry_date", "expiry_mapping_source", "time_to_expiry_years",
+    "greek_valuation_offset_seconds", "risk_free_rate_decimal", "risk_free_rate_source",
+    "dividend_yield_decimal", "dividend_yield_source", "greek_assumption",
+    "option_open", "option_high", "option_low", "option_close", "option_volume",
+    "open_interest", "implied_volatility", "rolling_spot", "nifty_open", "nifty_high",
+    "nifty_low", "nifty_close", "nifty_volume", "spot_join_status",
+    "spot_valuation_source", "source_provider", "source_endpoint", "cache_status",
+    "greek_implied_volatility", "greek_iv_source", "delta", "gamma", "theta_per_day",
+    "vega_per_1pct_iv", "vega_per_1pct_rate", "rho_per_1pct_rate", "greek_model",
+    "greek_status", "data_quality_flags",
+)
+ALLOWED_CONTRACT_PROVENANCE_VARIANCE = (
+    "source_request_id", "requested_relative_strike", "request_scope_sha256", "response_sha256",
+)
+EXPECTED_GREEK_DATA_COLUMNS = frozenset(
+    set(CONTRACT_SIGNATURE_FIELDS) | set(ALLOWED_CONTRACT_PROVENANCE_VARIANCE)
+)
+CONTRACT_NUMERIC_FIELDS = frozenset({
+    "timestamp_epoch", "expiry_code", "returned_strike", "time_to_expiry_years",
+    "greek_valuation_offset_seconds", "risk_free_rate_decimal", "dividend_yield_decimal",
+    "option_open", "option_high", "option_low", "option_close", "option_volume",
+    "open_interest", "implied_volatility", "rolling_spot", "nifty_open", "nifty_high",
+    "nifty_low", "nifty_close", "nifty_volume", "greek_implied_volatility", "delta",
+    "gamma", "theta_per_day", "vega_per_1pct_iv", "vega_per_1pct_rate", "rho_per_1pct_rate",
+    "requested_relative_strike",
+})
+CONTRACT_TIMESTAMP_FIELDS = frozenset({"timestamp_utc", "timestamp_ist"})
+CONTRACT_DATE_FIELDS = frozenset({"expiry_date", "session_date"})
+CONTRACT_CATEGORICAL_UPPER_FIELDS = frozenset({"row_type", "underlying", "option_type"})
+CONTRACT_DUPLICATE_POLICY_VERSION = "PHASE8P_ECONOMIC_CONTRACT_DEDUP_R3"
 PANEL_REQUIRED = {"layer", "horizon", "source_row_index", "decision_timestamp",
                   "label_direction", "future_return", "block_index",
                   *{f"P{i:02d}" for i in range(1, 11)}}
@@ -889,6 +927,130 @@ def _feature_epoch_column(frame: pd.DataFrame, name: str = "decision_timestamp_u
     if ts.has_duplicates or not ts.is_monotonic_increasing:
         raise GateBlocked("FEATURE_DECISION_TIMESTAMPS_DUPLICATE_OR_UNSORTED")
     return ts.asi8
+
+
+
+def _contract_missing(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    try:
+        flag = pd.isna(value)
+        return bool(flag) if np.isscalar(flag) else False
+    except (TypeError, ValueError):
+        return False
+
+
+def _normalize_contract_option_side(value: Any) -> str | None:
+    if _contract_missing(value):
+        return None
+    side = str(value).strip().upper()
+    if side in {"CE", "CALL", "C"}:
+        return "CE"
+    if side in {"PE", "PUT", "P"}:
+        return "PE"
+    return None
+
+
+def _canonical_contract_value(field: str, value: Any) -> Any:
+    """Return a stable scalar for duplicate comparisons; never return market data in diagnostics."""
+    if _contract_missing(value):
+        return None
+    if field in CONTRACT_TIMESTAMP_FIELDS:
+        try:
+            ts = pd.Timestamp(value)
+            if pd.isna(ts):
+                raise ValueError("missing timestamp")
+            if ts.tzinfo is None:
+                ts = ts.tz_localize("Asia/Kolkata" if field == "timestamp_ist" else "UTC")
+            else:
+                ts = ts.tz_convert("UTC")
+            return int(ts.tz_convert("UTC").value // 1_000_000_000)
+        except Exception as exc:
+            raise GateBlocked("CONTRACT_DUPLICATE_TIMESTAMP_FIELD_UNPARSEABLE:" + field) from exc
+    if field in CONTRACT_DATE_FIELDS:
+        try:
+            ts = pd.Timestamp(value)
+            if pd.isna(ts):
+                raise ValueError("missing date")
+            if ts.tzinfo is not None:
+                ts = ts.tz_convert("UTC")
+            return ts.date().isoformat()
+        except Exception as exc:
+            raise GateBlocked("CONTRACT_DUPLICATE_DATE_FIELD_UNPARSEABLE:" + field) from exc
+    if field == "option_type":
+        side = _normalize_contract_option_side(value)
+        if side is None:
+            raise GateBlocked("CONTRACT_DUPLICATE_OPTION_SIDE_UNRECOGNIZED")
+        return side
+    if field in CONTRACT_CATEGORICAL_UPPER_FIELDS:
+        return str(value).strip().upper()
+    if field in CONTRACT_NUMERIC_FIELDS:
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError, OverflowError) as exc:
+            # Expiry codes can be source-defined strings; keep their exact normalized text
+            # when the source schema supplies a nonnumeric code.
+            if field == "expiry_code":
+                return str(value).strip()
+            raise GateBlocked("CONTRACT_DUPLICATE_NUMERIC_FIELD_UNPARSEABLE:" + field) from exc
+        if not math.isfinite(numeric):
+            raise GateBlocked("CONTRACT_DUPLICATE_NUMERIC_FIELD_NONFINITE:" + field)
+        return 0.0 if numeric == 0.0 else float(numeric)
+    return str(value).strip()
+
+
+def _contract_signature_map(row: Mapping[str, Any]) -> dict[str, Any]:
+    missing = [field for field in CONTRACT_SIGNATURE_FIELDS if field not in row]
+    if missing:
+        raise GateBlocked("CONTRACT_DUPLICATE_SIGNATURE_FIELD_MISSING:" + ",".join(missing))
+    signature = {field: _canonical_contract_value(field, row.get(field)) for field in CONTRACT_SIGNATURE_FIELDS}
+    # The UTC/IST text must describe the same source-bar start as timestamp_epoch.
+    start = number(row.get("timestamp_epoch"))
+    if not np.isfinite(start):
+        raise GateBlocked("CONTRACT_DUPLICATE_SOURCE_EPOCH_INVALID")
+    if start > 1e12:
+        start = math.floor(start / 1000.0)
+    start_epoch = int(start)
+    for field in CONTRACT_TIMESTAMP_FIELDS:
+        observed = signature[field]
+        if observed is None or observed != start_epoch:
+            raise GateBlocked("CONTRACT_DUPLICATE_TIMESTAMP_FIELDS_DISAGREE:" + field)
+    return signature
+
+
+def _economic_contract_key(row: Mapping[str, Any], valuation_epoch_seconds: int) -> tuple[Any, ...]:
+    signature = _contract_signature_map(row)
+    underlying = signature.get("underlying")
+    expiry = signature.get("expiry_date")
+    strike = signature.get("returned_strike")
+    side = signature.get("option_type")
+    if underlying in (None, "") or expiry is None or strike is None or strike <= 0 or side not in {"CE", "PE"}:
+        raise GateBlocked("DUPLICATE_CONTRACT_KEY_FIELD_MISSING_OR_INVALID")
+    offset = signature.get("greek_valuation_offset_seconds")
+    if offset is None or not math.isclose(float(offset), 60.0, rel_tol=0.0, abs_tol=1e-9):
+        raise GateBlocked("UNREGISTERED_GREEK_VALUATION_OFFSET")
+    return (underlying, int(valuation_epoch_seconds), expiry, float(strike), side), signature
+
+
+def _provenance_fingerprint(row: Mapping[str, Any]) -> str:
+    values = {
+        field: _canonical_contract_value(field, row.get(field))
+        for field in ALLOWED_CONTRACT_PROVENANCE_VARIANCE
+    }
+    payload = json.dumps(values, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _contract_signature_digest(signature: Mapping[str, Any]) -> str:
+    payload = json.dumps(signature, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _duplicate_summary_sha256(summary: Mapping[str, Any]) -> str:
+    payload = json.dumps(summary, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def build_option_feature_frame(
