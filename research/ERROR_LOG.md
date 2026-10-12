@@ -622,3 +622,10 @@
 - Impact: the synthetic suite did not run; no real artifacts were opened, and no scientific result was produced. The guard failed closed as intended.
 - Correction: aligned the text assertion with the actual tester report wording in workflow commit 809f2664cee7d87d8bac3c162f38b77d0a58b38d. Replacement run [#38199152061](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199152061) is underway.
 - Prevention: scope-review linkage checks should rely on pinned reviewer blob hashes and machine decision fields wherever available, rather than brittle prose snippets alone.
+
+
+## 2026-10-12 — Phase 8P scope guard second wording mismatch
+- Workflow run [#38199152061](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199152061), snapshot 809f2664cee7d87d8bac3c162f38b77d0a58b38d, passed setup and dependency installation but failed at the tester-scope text guard. The report records a scoped restriction and does not contain the incidental sentence the workflow expected.
+- Impact: tests were skipped; no data accessed; no prediction metric produced. This is another non-evidence workflow configuration failure.
+- Correction: removed the nonessential literal phrase while retaining the exact PASS decision plus reviewed R3 scope blob SHA in commit 997bb235ed1d778d513227982fb00fa1e36384bd.
+- Prevention: use machine-decision fields or unique cryptographic identifiers for gate wiring, not natural-language sentence matching.
