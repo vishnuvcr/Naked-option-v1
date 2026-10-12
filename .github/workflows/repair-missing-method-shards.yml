@@ -6,6 +6,9 @@ on:
       - phase-08-prediction-developer
     paths:
       - "scripts/reshard_prediction_registry.py"
+      - "scripts/build_prediction_compatibility_matrix.py"
+      - "scripts/test_prediction_compatibility_matrix.py"
+      - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - ".github/workflows/repair-missing-method-shards.yml"
   workflow_dispatch:
 
@@ -28,10 +31,14 @@ jobs:
           python-version: "3.11"
       - name: Rebuild small, deterministic registry shards
         run: python scripts/reshard_prediction_registry.py
+      - name: Build row-level compatibility matrix
+        run: python scripts/build_prediction_compatibility_matrix.py
       - name: Run registry shard utility regression tests
         run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
       - name: Run deterministic re-sharding tests
         run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
+      - name: Run compatibility matrix unit tests
+        run: python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
       - name: Audit rebuilt registry before committing
         shell: bash
         run: |
@@ -48,7 +55,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A research/registry/method_shards research/registry/config_shards research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json
+          git add -A research/registry/method_shards research/registry/config_shards research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_PREREGISTRATION_V2_R2.json
           if git diff --cached --quiet; then
             echo "No registry artifacts changed."
             exit 0
