@@ -1,0 +1,139 @@
+name: Phase 8P Independent Schema Preflight Data Review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - ".github/workflows/phase8p-preflight-data-review.yml"
+  workflow_dispatch:
+    inputs:
+      run_data_review:
+        description: "Review only the pinned aggregate preflight report; no market input access"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-preflight-report-review:
+    if: ${{ github.event_name == 'push' || inputs.run_data_review == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PREFLIGHT_ARTIFACT_ID: "11726646000"
+      PREFLIGHT_ARTIFACT_SHA256: "b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92"
+      PREFLIGHT_RUN_ID: "38203641510"
+    steps:
+      - name: Checkout isolated tester branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Download and hash-check only the aggregate preflight report
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/phase8p-data-review"
+          HEADERS="${RUNNER_TEMP}/phase8p-data-review/headers.txt"
+          ZIP="${RUNNER_TEMP}/phase8p-data-review/preflight-report.zip"
+          URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PREFLIGHT_ARTIFACT_ID}/zip"
+          STATUS="$(curl --silent --show-error --max-time 60 -D "$HEADERS" -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "$URL")"
+          if [ "$STATUS" != "302" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "307" ]; then
+            echo "REPORT_DOWNLOAD_BLOCKED: GitHub artifact API returned HTTP $STATUS"
+            exit 1
+          fi
+          LOCATION="$(python - "$HEADERS" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="utf-8",errors="replace").read().splitlines()
+          values=[x.split(":",1)[1].strip() for x in lines if x.lower().startswith("location:")]
+          if not values: raise SystemExit("Missing artifact redirect")
+          print(values[-1])
+          PY
+          )"
+          curl --fail --silent --show-error --location --retry 2 --retry-all-errors --connect-timeout 20 --max-time 180 "$LOCATION" --output "$ZIP"
+          ACTUAL="$(sha256sum "$ZIP" | awk '{print $1}')"
+          if [ "$ACTUAL" != "$PREFLIGHT_ARTIFACT_SHA256" ]; then
+            echo "REPORT_SHA256_MISMATCH: expected=$PREFLIGHT_ARTIFACT_SHA256 actual=$ACTUAL"
+            exit 1
+          fi
+          mkdir "${RUNNER_TEMP}/phase8p-data-review/extracted"
+          unzip -q "$ZIP" -d "${RUNNER_TEMP}/phase8p-data-review/extracted"
+          find "${RUNNER_TEMP}/phase8p-data-review/extracted" -maxdepth 2 -type f -printf '%f\n' | sort
+
+      - name: Independently parse aggregate report and issue data gate only
+        run: |
+          set -euo pipefail
+          python - "${RUNNER_TEMP}/phase8p-data-review/extracted" "${RUNNER_TEMP}/phase8p-data-review/decision.json" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          files=list(root.rglob("*.json"))
+          parsed={}
+          for p in files:
+            try:
+              d=json.loads(p.read_text(encoding="utf-8"))
+              if "mode" in d and ("status" in d or "workflow_run_id" in d):
+                parsed[p.name]=d
+            except Exception:
+              continue
+          reports=[(n,d) for n,d in parsed.items() if d.get("mode")=="SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT"]
+          receipts=[(n,d) for n,d in parsed.items() if d.get("mode")=="INPUT_HASH_RECEIPT_ONLY"]
+          if len(reports)!=1 or len(receipts)!=1:
+            raise SystemExit("DATA_REVIEW_BLOCKED: expected exactly one preflight report and one input receipt")
+          report_name,report=reports[0]
+          receipt_name,receipt=receipts[0]
+          reasons=report.get("reasons",[])
+          coverage=report.get("coverage_by_panel",{})
+          items=receipt.get("artifacts",[])
+          hash_ok=(len(items)==2 and all(x.get("sha256_match") is True for x in items))
+          status=report.get("status")
+          decision="PASS_PREFLIGHT_DATA_ONLY" if status=="PASS" and not report.get("runtime_preflight_failure") and hash_ok and len(coverage)==10 else "BLOCKED_DATA"
+          out={
+            "schema_version":1,
+            "gate":"PHASE8P_INDEPENDENT_PREFLIGHT_DATA_REVIEW",
+            "decision":decision,
+            "source_run_id":int(__import__("os").environ["PREFLIGHT_RUN_ID"]),
+            "preflight_artifact_id":int(__import__("os").environ["PREFLIGHT_ARTIFACT_ID"]),
+            "preflight_artifact_sha256":__import__("os").environ["PREFLIGHT_ARTIFACT_SHA256"],
+            "report_file":report_name,
+            "report_status":status,
+            "runtime_preflight_failure":report.get("runtime_preflight_failure",False),
+            "failure_category":report.get("failure_category"),
+            "failure_code":report.get("failure_code"),
+            "reasons":reasons,
+            "coverage_panel_count":len(coverage),
+            "coverage_by_panel":coverage,
+            "input_receipt_file":receipt_name,
+            "input_artifact_hashes_match":hash_ok,
+            "input_artifact_receipts":items,
+            "model_fitted":False,
+            "holdout_accessed":False,
+            "external_market_source_requested":False,
+            "option_pnl_run":False,
+            "strategy_promotion":False,
+            "model_fit_authorized":False,
+            "holdout_access_authorized":False,
+          }
+          Path(sys.argv[2]).write_text(json.dumps(out,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          print(json.dumps({
+            "decision":decision,"report_status":status,
+            "runtime_preflight_failure":out["runtime_preflight_failure"],
+            "failure_category":out["failure_category"],"failure_code":out["failure_code"],
+            "reasons":reasons,"coverage_panel_count":len(coverage),
+            "input_artifact_hashes_match":hash_ok,"model_fitted":False
+          },sort_keys=True))
+          PY
+
+      - name: Upload independent data-gate receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-independent-preflight-data-review
+          path: ${{ runner.temp }}/phase8p-data-review/decision.json
+          if-no-files-found: warn
+          retention-days: 90
