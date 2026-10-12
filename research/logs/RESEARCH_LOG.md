@@ -679,3 +679,11 @@
 - Inspection found that each moving-block bootstrap replicate rebuilt a Python list containing every possible overlapping block. The sampler now draws the same block-start indices directly, preserving the same fixed-seed indices and all frozen statistical settings while avoiding repeated allocation.
 - Regression tests compare the optimized sampler bit-for-bit against the legacy implementation for representative daily/intraday sizes and edge cases. Hosted regression jobs passed; independent tester report `PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md` is PASS WITH SCOPED RESTRICTIONS.
 - Separate code and test commits triggered additional empirical workflow attempts while Run #852 was still active. This orchestration mistake is recorded in the error log. No artifact or scientific result is accepted; one completed artifact must pass independent audit before Phase 8 can advance.
+
+## 2026-10-12 — Phase 8 proxy run 38219967649 stopped on empty expiry field
+
+- The runner processed all 8,999,865 input rows: 8,490,723 OPTION rows and 509,142 SPOT rows.
+- All 8,490,723 option rows had expiry text that could not be parsed as YYYY-MM-DD; zero lacked timestamp, strike, or recognized option side. The run intentionally stopped before producing any P&L.
+- The original repaired input artifact 11698879857 leaves expiry_date blank. Instead of rebuilding or validating market data, the developer switched the runner workflow to the already-existing expiry-enriched artifact 11723198817 from run 38195812828, with pinned SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736.
+- Its expiry field uses the existing HF expiry-partition file-list and Tuesday-rule proxy. This is explicitly not an official point-in-time contract master. No new market data acquisition, bid/ask requirement, or model refit is introduced.
+- Result: FAILED_NO_METRICS; this is runtime/input-artifact non-evidence, not a strategy return result.
