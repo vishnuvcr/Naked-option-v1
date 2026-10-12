@@ -87,7 +87,7 @@ def main():
                        "gamma":.01,"theta_per_day":-1,"vega_per_1pct_iv":.2,"greek_implied_volatility":.25,
                        "open_interest":200,"volume":20})
     a=mod.aggregate_option_snapshot(sample)
-    math_ok=(abs(a["call_delta_median"]-.62)<1e-12 and abs(a["put_delta_median"]+.42)<1e-12
+    math_ok=bool(abs(a["call_delta_median"]-.62)<1e-12 and abs(a["put_delta_median"]+.42)<1e-12
              and abs(a["delta_imbalance"]-.20)<1e-12
              and abs(a["oi_put_call_ratio"]-2)<1e-12
              and abs(a["iv_skew_put_minus_call"]-.05)<1e-12)
@@ -98,7 +98,7 @@ def main():
     if not math_ok: failures.append("FEATURE_SIGN_OR_RATIO_ARITHMETIC_FAILURE")
     y=np.array([0.,1.]*40); p0=np.where(y==1,.55,.45); p1=np.where(y==1,.70,.30)
     stats=mod.paired_brier_bootstrap(y,p0,p1,20,reps=99,seed=42)
-    signed_ok=stats["mean_brier_improvement"]>0 and abs(stats["mean_brier_improvement"]-(np.mean((p0-y)**2)-np.mean((p1-y)**2)))<1e-12
+    signed_ok=bool(stats["mean_brier_improvement"]>0 and abs(stats["mean_brier_improvement"]-(np.mean((p0-y)**2)-np.mean((p1-y)**2)))<1e-12)
     checks.append({"check":"independent_paired_brier_sign","pass":signed_ok,"mean_improvement":stats["mean_brier_improvement"],"raw_p":stats["raw_p_value"]})
     if not signed_ok: failures.append("PAIRED_BRIER_SIGN_OR_NUMERICAL_FAILURE")
     holm=mod.holm_adjust([.01,.04,.03,.002])
