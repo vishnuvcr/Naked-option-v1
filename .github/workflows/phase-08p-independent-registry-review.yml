@@ -1,0 +1,40 @@
+name: Phase 8P independent registry review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - 'scripts/independent_prediction_registry_audit_r2.py'
+      - '.github/workflows/phase-08p-independent-registry-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-read-only-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out tester branch
+        uses: actions/checkout@v4
+        with:
+          path: tester
+      - name: Check out submitted developer snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: phase-08-prediction-developer
+          path: developer
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run independent read-only audit
+        run: python tester/scripts/independent_prediction_registry_audit_r2.py --developer-root developer --output prediction-registry-independent-audit.json
+      - name: Upload machine-readable audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-independent-registry-audit
+          path: prediction-registry-independent-audit.json
+          if-no-files-found: warn
