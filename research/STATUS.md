@@ -699,3 +699,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review workflow blob b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5 and its two repairs; no artifact download is requested during review.
 **Tester → Developer:** after exact workflow PASS, run only schema preflight and inspect its new symbolic blocker/coverage report; keep fitting blocked.
+
+
+## 2026-10-12 — Phase 8P preflight data gate BLOCKED
+- The approved schema-only workflow completed its security/cleanup path, but its report was BLOCKED before feature coverage could be computed. Latest developer run [#38203641510](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203641510); aggregate report artifact [11726646000](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203641510/artifacts/11726646000), ZIP SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92.
+- Independent tester decision: [BLOCKED_DATA report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_R1_2026-10-12.md) and [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_DECISION_R1_2026-10-12.json).
+- Exact symbolic blocker: DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Coverage panel count is zero. The current gate does not classify whether the repeated keys have identical or conflicting row contents.
+- No model was fitted, no holdout metrics were computed/accessed, and no external market source or economic/strategy test was run. Do not silently deduplicate.
+- Next developer step: implement hash/count-only duplicate classification and synthetic tests in a new exact code snapshot; independent code review is mandatory before another data run.
+
+**Developer → Tester:** preserve the BLOCKED_DATA decision; review the new diagnostic code/test hashes before any diagnostic touches the encrypted artifact.
+**Tester → Developer:** require proof that exact and conflicting duplicates are distinguished and no row is silently dropped; keep empirical fitting blocked.
