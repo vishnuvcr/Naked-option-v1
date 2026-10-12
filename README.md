@@ -389,3 +389,10 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Method compatibility, semantic distinctness, frozen label/sample/statistical settings, and synthetic restart/resource evidence remain unresolved. Empirical fitting and untouched-holdout access remain prohibited.
 
 - Added automatic/manual CI test workflow `.github/workflows/prediction-registry-shard-tests.yml` (commit `8fd619332155ba8cd68614c5a96a9ab81de37433`). Its hosted outcome is pending independent verification; registry gate remains blocked.
+
+
+## 2026-10-12 — Registry utility CI verified
+
+- [GitHub Actions run 38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039) passed on the developer branch: four unit tests passed and the SHA-256 known-vector check passed.
+- This is tooling-only evidence; the independent tester has been asked to inspect the exact code/logs. No shards have yet been generated and the registry gate remains blocked.
+- See [tooling checkpoint](research/gates/PREDICTION_REGISTRY_R2_SHARD_TOOLING_CHECKPOINT_2026-10-12.md) and [issue #25](https://github.com/vishnuvcr/Naked-option-v1/issues/25).
