@@ -354,3 +354,18 @@ The user said “Continue” following the developer handoff that exposed the 40
 
 **Tester → Developer:** T2/T3 source changes appear adequate, but keep REQUEST CHANGES until the hosted test suite and complete audit artifact can be accepted.
 **Developer → Tester:** submit reproducible evidence for any remaining defects; no empirical work until the complete ten-horizon gate independently passes.
+
+
+## 2026-10-13 — User changed tester review cadence
+
+### User instruction
+“No tester review at each step! Tester to review only after the results acquirement!”
+
+### Tester operating state
+- The tester will not continue step-by-step reviews while the developer is executing the finite research plan.
+- Historical R2 findings and their source commits remain preserved; no new tester verdict is issued merely to acknowledge every intervening developer correction.
+- The workflow has been changed to wait for `research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json`, which must assert `results_acquired=true`, pin the exact developer commit, and reference a result-bundle manifest whose artifacts have SHA-256 pins.
+- Developer-side checks continue under the developer role. The independent tester will perform one consolidated review only after the planned result-acquisition bundle has been frozen.
+
+**Tester → Developer (post-results only):** submit the complete frozen result bundle, including unsuccessful/null runs, source pins, manifests, and conclusions.
+**Developer → Tester (after results acquisition):** independently validate the acquired outputs and report any reproducible defects in one hash-pinned submission.
