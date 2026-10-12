@@ -730,3 +730,8 @@ The established developer registry CI executed the R3 builder at source commit `
 ## 2026-10-13 — R3 attempt 2 and exact shard-rule correction
 
 The follow-up attempt exposed that the previous fix still included trailing words (“if present”) absent from the source manifest. The exact R2 config-manifest blob `cde05748ae534e612948137b7ddf97466d795a25` states: `SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline`. Updated R3 to match byte-for-byte wording at commit `0eee4c7fec9acab16afbc2e23809d852b139aa6e`. The build must be reverified; outputs remain absent at this checkpoint.
+
+
+## 2026-10-13 — Exact derived dataset archive reconciled
+
+The current derived encrypted dataset is artifact 11698879857 from run 38131641336, outer ZIP SHA-256 `40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b`. Its embedded manifest SHA-256 is `da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f`. A local encrypted-member-only audit verified all 61 monthly part files (sizes and hashes) and 8,999,865 declared rows with zero mismatches. The artifact manifest's `derived_from` references ancestor artifact 11696937921; that ancestor's ZIP digest is not the current derived archive digest. The initial part mismatch was caused by accidentally comparing the ancestor artifact and is corrected in the error log. No decryption/model fit/holdout access occurred.
