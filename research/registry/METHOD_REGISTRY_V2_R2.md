@@ -10,6 +10,6 @@
 - Probability output uses native probabilities where available and otherwise training-fold-only Platt scaling fitted within inner chronological training folds. Survival methods map cause-specific hazards to directional cumulative incidence.
 - Every method and config is NOT_RUN. The registry is not accepted until the tester verifies uniqueness, compatibility, label rules, hashes, full shard coverage and resource feasibility.
 
-**Developer → Tester:** independently validate method distinctness, all 16,000 configurations, hash integrity, probability calibration compatibility, label rules and resource budget. No empirical fitting.
+**Developer → Tester:** independently validate method distinctness, all 8,000 configurations, hash integrity, probability calibration compatibility, label rules and resource budget. No empirical fitting.
 
 **Tester → Developer:** hash-pinned PASS/REQUEST CHANGES. Empirical batches remain blocked until the registry, manifest and synthetic runner gates pass.
