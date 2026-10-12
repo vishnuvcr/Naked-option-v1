@@ -233,6 +233,19 @@ def synthetic_self_test() -> dict[str, Any]:
     assert result["conflicting_signature_duplicate_groups"] == 1
     assert result["conflicting_signature_fields"] == ["option_close"]
 
+    # Classification must be invariant to part order and row order.
+    permuted = scan_frames([second_part.iloc[::-1], first_part.iloc[::-1]], manifest_columns)
+    assert permuted == result
+
+    # Any timestamp representation present in the schema must match the source epoch.
+    bad_timestamp = dict(full_base, timestamp_utc=pd.Timestamp(epoch + 60, unit="s", tz="UTC").isoformat())
+    try:
+        scan_frames([pd.DataFrame([bad_timestamp], columns=columns)], manifest_columns)
+    except GateBlocked as exc:
+        assert "CONTRACT_DUPLICATE_TIMESTAMP_FIELDS_DISAGREE:timestamp_utc" in str(exc)
+    else:
+        raise AssertionError("timestamp text disagreeing with the epoch was accepted")
+
     try:
         validate_greek_manifest_columns([column for column in columns if column != "option_close"])
     except GateBlocked as exc:
@@ -246,6 +259,13 @@ def synthetic_self_test() -> dict[str, Any]:
         assert "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST" in str(exc)
     else:
         raise AssertionError("reordered part header was accepted")
+
+    try:
+        scan_frames([first_part.assign(extra_unmanifested_column=1)], manifest_columns)
+    except GateBlocked as exc:
+        assert "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST" in str(exc)
+    else:
+        raise AssertionError("extra unmanifested column was accepted")
 
     try:
         scan_frames([pd.DataFrame([{"row_type": "OPTION"}])], manifest_columns)
