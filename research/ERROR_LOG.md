@@ -1015,3 +1015,8 @@
 - Latest code hardening now explicitly rejects float-valued binary labels, requires both classes for calibration intercept/slope, and requires integer bootstrap length/replicate count/seed. The 8-test statistical suite passed inside the synthetic run, and full registry audit/re-sharding workflows passed.
 - The runner output is deterministic toy-probability data only. It provides no evidence about real-market predictability or strategy returns.
 - Resource estimates (~109,056 hypothetical fit calls / ~1,173 CPU-hours) remain assumption-based. Scientific tester gate remains REQUEST CHANGES / awaiting new independent review; no empirical fitting or holdout access.
+
+
+## 2026-10-12 — Test count in latest synthetic report corrected
+
+- During final artifact audit, the latest `scripts/test_prediction_statistics.py` was found to contain 10 test methods. The pinned full run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) log confirms `Ran 10 tests` and `OK`. A draft summary still said 8, reflecting an earlier version of the suite. Updated the machine-readable report and status/checkpoint references to 10. Older 8-test counts for earlier commits remain historically correct.
