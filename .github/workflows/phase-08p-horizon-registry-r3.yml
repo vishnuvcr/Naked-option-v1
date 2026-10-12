@@ -13,6 +13,8 @@ on:
       - 'research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json'
       - 'research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json'
       - 'research/registry/PREDICTION_PREREGISTRATION_V2_R2.json'
+      - 'research/registry/METHOD_REGISTRY_V2_R2.json'
+      - 'research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json'
       - 'research/registry/config_shards/**'
       - '.github/workflows/phase-08p-horizon-registry-r3.yml'
   workflow_dispatch:
