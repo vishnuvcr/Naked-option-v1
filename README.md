@@ -425,3 +425,14 @@ The developer branch now includes an automated, fail-closed repair workflow and 
 - Repair workflow: .github/workflows/repair-missing-method-shards.yml
 
 The workflow fills only missing method shards after verifying the canonical master and updates config SHA-256 values using the documented exact-file-byte rule. Existing shards are never silently overwritten. The registry remains pending full integrity CI and independent tester review; no prediction results are promoted.
+
+
+### R2 registry fine-grained auditability — 2026-10-12
+
+The earlier sharding layout (50 methods per file and 2,000 configurations per file) was too coarse for the independent audit requirement. The developer branch now includes:
+- Deterministic re-sharding tool: scripts/reshard_prediction_registry.py targeting 40 method shards × 25 methods and 80 config shards × 100 configs.
+- Strict registry auditor: scripts/audit_prediction_registry_shards.py that uses numeric shard order, checks full method records against the master, validates exact-file SHA-256 and byte counts, and verifies the index.
+- Re-sharding unit tests: scripts/test_reshard_prediction_registry.py.
+- Automated repair workflow: .github/workflows/repair-missing-method-shards.yml that runs the transform, tests, and audit before committing and uploads a JSON report.
+
+Status: hosted outcome and new small-shard commit are not yet verified. Independent tester decision remains REQUEST CHANGES. Model fitting/holdout access remain blocked.
