@@ -110,6 +110,8 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertEqual(prereg["metrics_and_inference"]["multiplicity"]["stratum_families"], build.ALL_LABEL_IDS)
         self.assertTrue(prereg["scope"]["review_cadence"].startswith("Independent tester review is deferred"))
         self.assertEqual(report["configuration_count"], 40000)
+        self.assertEqual(report["source"]["r2_config_record_digest_rule"], "UNDECLARED_LEGACY_FIELD; exact source shard bytes are verified instead")
+        self.assertTrue(manifest["config_digest_rule"].startswith("SHA-256 over canonical UTF-8 JSON"))
         self.assertFalse(report["empirical_fitting_performed"])
         self.assertFalse(report["market_data_opened"])
         self.assertFalse(report["holdout_accessed"])
