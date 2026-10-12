@@ -1,0 +1,65 @@
+{
+  "run_id": 38222296903,
+  "run_commit": "368a3d19e615f8ea09a2006b6b709fc66d8946e3",
+  "artifact_id": 11736907952,
+  "artifact_zip_sha256": "07ede4908c9a49e78de9a3aec711ac514de78f16437a825a063b6d4eb0902d54",
+  "status": "COMPLETE_PROXY_BACKTEST",
+  "workflow_status": "failure_during_result_publication_rebase",
+  "workflow_failure_is_not_computation_failure": true,
+  "configurations": 4800,
+  "summary_rows": 19200,
+  "trade_ledger_rows_per_cost_scenario": 1596680,
+  "cost_scenarios": ["C0", "C1", "C2", "C3"],
+  "execution_quality": "Q1_OHLC_PROXY",
+  "quote_executable": false,
+  "strategy_promotion_authorized": false,
+  "input_artifacts": {
+    "phase7_forecast": {
+      "artifact_id": 11638738288,
+      "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+    },
+    "expiry_enriched_options": {
+      "artifact_id": 11723198817,
+      "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+    }
+  },
+  "C3_candidates_with_at_least_30_trades_and_positive_net_pnl": [
+    {
+      "config_id": "daily-H2-P05-D0.40-D3-X0",
+      "trades": 72,
+      "net_pnl_rupees": 2398.864591412461,
+      "win_rate_pct": 47.22222222222222,
+      "average_return_pct": 62.177033159057956,
+      "median_return_pct": -4.739051163852381,
+      "profit_factor": 1.024255104621689,
+      "bh_screen_q": 0.3990090230084534
+    },
+    {
+      "config_id": "intraday-H120-P02-D0.40-D1-X2",
+      "trades": 220,
+      "net_pnl_rupees": 836.6578044051139,
+      "win_rate_pct": 16.818181818181817,
+      "average_return_pct": -23.052713835953057,
+      "median_return_pct": -54.574538555036156,
+      "profit_factor": 1.0153594284148215,
+      "bh_screen_q": 0.036484050883025865
+    }
+  ],
+  "key_unresolved_audit_items": [
+    "maximum drawdown percentage formula defect",
+    "raw implied-volatility point-in-time provenance unresolved; all ledger rows use BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY",
+    "widespread off-tick fills relative to INR 0.05 tick",
+    "OHLC structural consistency audit not yet demonstrated",
+    "registered contemporaneous-liquidity tie-break omitted from contract ranking",
+    "expiry mapping and lot-size transition values remain proxies"
+  ],
+  "tester_gate": {
+    "status": "PENDING",
+    "issue": "https://github.com/vishnuvcr/Naked-option-v1/issues/22"
+  },
+  "notes": [
+    "C0-C3 per-trade net P&L monotonicity check: zero violations in developer-side scan.",
+    "Do not sum results across configurations as portfolio P&L.",
+    "IID t-tests and BH values are screening diagnostics, not confirmatory significance."
+  ]
+}
