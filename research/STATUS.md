@@ -354,3 +354,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** submit a fresh, exact one-use executor revision; do not reuse R1 nonce or infer data findings.
 **Developer → Tester:** keep all model/holdout/P&L/strategy gates closed until the new aggregate report is independently accepted.
+
+
+## Review cadence amended by user — 2026-10-13
+
+- Independent tester review is deferred until the planned research results are acquired, frozen, and indexed. The tester branch will not issue per-step scientific reviews.
+- The existing R2 R3 REQUEST CHANGES record remains in the historical audit trail; it does not trigger another review before the results bundle exists.
+- The tester workflow triggers only on the formal acquired-results request and verifies the exact source commit, changed-source blob IDs, and the result-bundle manifest hashes. A manual dispatch remains available for that post-acquisition gate.
+- The tester role is dormant until the developer submits the complete bundle. See [cadence policy](governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md).
