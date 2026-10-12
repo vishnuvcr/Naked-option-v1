@@ -108,3 +108,10 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - Fixed the prior diagnostic JSON serialization issue and report-link path. Hosted provenance workflow [38129159707](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38129159707) completed successfully and verified plaintext cleanup.
 - Latest developer snapshot for the repair workflow passed offline tests [38130180603](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180603) and protocol check [38130180863](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38130180863). Tester report is on the isolated tester branch; actual derived output still requires runtime validation.
 - No new source requests, model fitting/scoring, holdout access or strategy/P&L tests were performed.
+
+
+## 2026-10-12 — Resume: Greek-feature incremental prediction code gate
+- User requested resume from the accepted R3 Greek-enriched dataset. The research scope stayed prediction-only; no strategy/P&L work was started.
+- The R3 scope R1/R2 versions were returned for changes; scope R3 was approved by the isolated tester for implementation and synthetic tests only.
+- Developer synthetic workflow [#38199456531](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531) passed. Independent tester [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) returned REQUEST_CHANGES (9/13 checks passed) for incomplete pipeline, weak authorization binding, missing block ordering validation, mixed-row timestamp handling, missing daily feature path, and insufficient preflight artifact proof.
+- Main README/status and branch error/chat logs updated. Accepted R3 dataset unchanged. Empirical artifact access/fitting remains blocked.
