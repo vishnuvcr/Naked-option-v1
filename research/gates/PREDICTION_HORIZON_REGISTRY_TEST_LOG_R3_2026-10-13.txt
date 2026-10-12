@@ -15,6 +15,6 @@ Traceback (most recent call last):
 KeyError: 'label_horizon'
 
 ----------------------------------------------------------------------
-Ran 6 tests in 1.582s
+Ran 6 tests in 1.641s
 
 FAILED (errors=1)
