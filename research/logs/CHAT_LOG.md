@@ -819,3 +819,11 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 - Previous failed run `38241558360` is retained as a transparent correction trail. The issue was a test fixture declaring one shard while asserting a mismatch; corrected fixture now declares two.
 - Updated checkpoint/status/error log and requested independent tester review in issue #25. Tester branch was not modified.
 - Actual shards are not generated until independent code review; scientific compatibility and preregistration remain blocked. No fitting or holdout access.
+
+## 2026-10-12 — Proceed: audit committed R2 method/config shards
+
+- Added `scripts/audit_prediction_registry_shards.py` and wired the audit into the shard workflow on the developer branch.
+- Hosted audit found 550 method shard records versus 1,000 in the master registry; 450 method IDs are missing from the shard directory.
+- Four config shards contain 8,000 unique IDs and match their declared per-shard record counts/ranges, but the manifest SHA-256 values match none of the three checked encodings (raw file, canonical root JSON, canonical records joined with LF). Hash semantics remain unresolved.
+- The CI run is correctly red because the registry data fails integrity checks. The 8 utility tests and SHA-256 known vector still pass; those results are not registry approval.
+- Next: clarify and test the config digest rule; prepare missing method-shard regeneration from the committed master registry; preserve the failure evidence; resubmit exact outputs for independent tester review. No fitting/holdout access.
