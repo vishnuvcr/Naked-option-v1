@@ -42,6 +42,10 @@
 
 ## Latest status — 2026-10-12
 
-- Exact-source synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at `6d4787348d7b0b794e210026ceddcea19192eccc`; statistical suite 8/8 and 64,000-task synthetic orchestration pass; zero errors. Artifact ID 11749635242.
+- Exact-source synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at `6d4787348d7b0b794e210026ceddcea19192eccc`; statistical suite 10/10 and 64,000-task synthetic orchestration pass; zero errors. Artifact ID 11749635242.
 - Source index/manifests and synthetic report are hash pinned; compatibility matrix still marks 426 conditional in principle, 574 blocked, 0 authorized for fitting.
 - Independent tester review required; no empirical data access or fitting until a new tester PASS.
+
+
+### Statistical test-count correction
+The current suite has ten tests; the latest pinned run log confirms all 10 passed. Earlier counts of 8 referred to a prior revision. Report and checkpoint were corrected accordingly.
