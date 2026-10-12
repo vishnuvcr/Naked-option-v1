@@ -1,16 +1,16 @@
 # Independent tester review — Phase 8 Greek enrichment R1
 
-Decision: **REQUEST_CHANGES**
+Decision: **PASS_WITH_SCOPED_RESTRICTIONS**
 
-Exact developer snapshot: 5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6
+Exact developer snapshot: 6ebb54bdbbc7ed0198d23d0b555aea547a127f9f
 
-Tester workflow run: 38169349391
+Tester workflow run: 38194602133
 
-Pin check: FAIL
+Pin check: PASS
 
-Developer synthetic suite exit: not executed
+Developer synthetic suite exit: 0
 
-Independent formula audit exit: not executed
+Independent formula audit exit: 0
 
 ## Scope reviewed
 
@@ -18,17 +18,15 @@ The tester checked the exact source blobs for enrichment implementation, develop
 
 ## Findings
 
-- Exact source blob or developer commit pin check failed: reviewed_blobs set does not equal required four files
-- Developer synthetic suite did not pass; inspect retained log.
-- Independent formula audit did not pass; inspect retained log.
+- No mathematical or synthetic integrity blocker was detected within this limited gate.
 
 ## Developer test output
 
-Not executed.
+PASS: IV inversion, Greek signs, finite-difference delta/gamma, invalid premium, expiry calendar, row-preserving synthetic enrichment
 
 ## Independent test output
 
-Not executed.
+{"checks": ["IV inversion for CE and PE across spot/moneyness/tenor/volatility grid", "delta bounds and signs", "positive gamma and vega, negative theta under r=q=0", "call/put rho signs", "finite-difference delta/gamma and vega-per-1%-unit comparisons", "invalid option price rejection"], "independent_reference": "Black-Scholes closed-form implementation using math.erf; not copied from developer module", "scope_exclusions": ["no source-data request", "no token access", "no historical P&L", "no holdout", "no strategy promotion"], "status": "PASS", "synthetic_contract_cases": 162, "test_kind": "independent_formula_and_finite_difference_audit"}
 
 ## Restrictions
 
@@ -41,4 +39,4 @@ Not executed.
 
 **Developer → Tester:** this decision applies only to the exact commit and blobs above; any code change needs another review.
 
-**Tester → Developer:** repair the findings and submit a new exact-snapshot tester request; do not retrieve market data.
+**Tester → Developer:** proceed with narrowly scoped HF enrichment and keep all execution/strategy gates blocked.
