@@ -1,0 +1,100 @@
+name: Phase 8P Independent Preflight Workflow Review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - "scripts/phase8p_preflight_workflow_audit.py"
+      - ".github/workflows/phase8p-preflight-workflow-review.yml"
+  workflow_dispatch:
+    inputs:
+      run_independent_review:
+        description: "Run isolated static and synthetic-only review; never open market artifacts"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  independent-workflow-review:
+    if: ${{ github.event_name == 'push' || inputs.run_independent_review == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout tester-owned audit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Fetch pending developer review request and exact snapshot
+        id: snapshot
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
+          REQUEST="${RUNNER_TEMP}/phase8p-preflight-workflow-review-request-r2.json"
+          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json > "$REQUEST"
+          python - "$REQUEST" <<'PY'
+          import json, os, subprocess, sys
+          from pathlib import Path
+          p=Path(sys.argv[1])
+          r=json.loads(p.read_text(encoding="utf-8"))
+          if r.get("status") != "PENDING_INDEPENDENT_TESTER_REVIEW":
+              raise SystemExit("REVIEW_BLOCKED: request is not pending tester review")
+          sha=r.get("developer_workflow_commit","")
+          if len(sha)!=40:
+              raise SystemExit("REVIEW_BLOCKED: exact developer snapshot missing")
+          subprocess.check_call(["git","cat-file","-e",sha+"^{commit}"])
+          Path(os.environ["GITHUB_OUTPUT"]).open("a").write("developer_sha="+sha+"\n")
+          print("Review request is pending; exact developer snapshot pinned.")
+          PY
+          cp "$REQUEST" "${RUNNER_TEMP}/phase8p-review-request.json"
+
+      - name: Set up independent reviewer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned audit dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2 pyyaml==6.0.2 pyarrow==17.0.0 cryptography==43.0.3
+
+      - name: Checkout exact developer snapshot in isolated worktree
+        env:
+          DEV_SHA: ${{ steps.snapshot.outputs.developer_sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-developer-review" "${DEV_SHA}"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-developer-review" rev-parse HEAD)" = "${DEV_SHA}"
+
+      - name: Run independent static and synthetic-only audit
+        id: audit
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_preflight_workflow_audit.py \
+            --developer-root "${RUNNER_TEMP}/phase8p-developer-review" \
+            --request "${RUNNER_TEMP}/phase8p-review-request.json" \
+            --out "${RUNNER_TEMP}/phase8p-preflight-workflow-review.json" | tee "${RUNNER_TEMP}/phase8p-preflight-workflow-summary.json"
+
+      - name: Upload independent review receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-preflight-workflow-review-r2
+          path: |
+            ${{ runner.temp }}/phase8p-preflight-workflow-review.json
+            ${{ runner.temp }}/phase8p-preflight-workflow-summary.json
+            ${{ runner.temp }}/phase8p-review-request.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail workflow when tester requests changes
+        if: ${{ steps.audit.outcome == 'failure' }}
+        run: |
+          echo "Tester decision is REQUEST_CHANGES; no market artifact was downloaded."
+          exit 1
