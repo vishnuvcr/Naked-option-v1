@@ -175,6 +175,9 @@ def main():
     fixture_columns = list(pd.DataFrame(option_rows + [spot_row]).columns)
     assert tuple(fixture_columns) == m.validate_greek_manifest_columns(fixture_columns)
     m.validate_greek_part_columns(fixture_columns, tuple(fixture_columns))
+    # A manifest with one source timestamp representation is valid; absent columns are not synthesized.
+    single_timestamp_columns = [c for c in fixture_columns if c != "timestamp_ist"]
+    assert tuple(single_timestamp_columns) == m.validate_greek_manifest_columns(single_timestamp_columns)
     try:
         m.validate_greek_manifest_columns([c for c in fixture_columns if c != "option_close"])
     except m.GateBlocked as exc:
