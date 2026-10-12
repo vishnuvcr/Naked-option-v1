@@ -11,6 +11,10 @@ spec.loader.exec_module(m)
 def main():
     r=m.synthetic_self_test()
     assert r["status"]=="PASS"
+    assert r["exact_duplicate_case"]=="PASS"
+    assert r["conflicting_duplicate_case"]=="PASS"
+    assert r["timestamp_normalization_case"]=="PASS"
+    assert r["no_deduplication"]=="PASS"
     assert r["real_artifact_opened"] is False
     assert r["raw_data_emitted"] is False
 
@@ -22,6 +26,7 @@ def main():
     b=dict(a,close=100.01)
     out=m.scan_frames([pd.DataFrame([a]),pd.DataFrame([b])])
     assert out["raw_key_semantics"]["duplicate_key_groups"]==1
+    assert out["raw_key_semantics"]["exact_full_row_duplicate_groups"]==0
     assert out["raw_key_semantics"]["conflicting_full_row_duplicate_groups"]==1
     assert out["deduplication_performed"] is False
     assert out["raw_keys_or_rows_emitted"] is False
