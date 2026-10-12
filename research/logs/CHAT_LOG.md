@@ -766,3 +766,14 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** verify the next small-shard registry commit and preregistration independently; block if any hash/count/compatibility test fails.
 **Tester → Developer:** remediate all listed blockers and submit exact commit SHA before asking for the next gate.
+
+
+## 2026-10-12 — User said “Ok proceed”; preregistration and compatibility gate
+- Added draft research/registry/PREDICTION_PREREGISTRATION_V1.json (commit 6879350db837d867e8afbe333e7e70c382079111). Unfrozen fields are marked NOT_FROZEN_BLOCKED rather than guessed.
+- Added conservative compatibility-gate specification research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md (commit d60406579ea87ab9aa6d1603916ab84140a3ff0e). All combinations remain unreviewed/blocked until row-level compatibility decisions and tests exist.
+- Added continuation log research/gates/PREDICTION_REGISTRY_V2_R2_CONTINUATION_LOG_2026-10-12.md (commit 2770a395cc9a378e6ef9f0cdd0a23f815ca0820c).
+- Clarification: GitHub blob retrieval can read the large source JSON; ordinary file fetch did not expose it. A bulk shard creation attempt exceeded the tool-call cap before any writes were confirmed. No shard files are claimed to exist.
+- No empirical fitting or holdout access. Registry gate remains REQUEST CHANGES.
+
+**Developer → Tester:** review preregistration and compatibility specification at exact commits; identify all fields that must be frozen before empirical work.
+**Tester → Developer:** do not fit models until compatibility matrix, preregistration, auditable shards, and synthetic runner all pass independent review.
