@@ -637,6 +637,34 @@ def build_trade(skel: dict, policy: str, exit_result: dict, options: pd.DataFram
     return row
 
 
+
+def drawdown_stats(pnl: np.ndarray, exit_timestamps: np.ndarray) -> dict:
+    """Timestamp-aggregated realized-P&L drawdown; percent uses the local prior peak."""
+    frame = pd.DataFrame({
+        "exit_timestamp_ist": np.asarray(exit_timestamps, dtype=str),
+        "pnl": np.asarray(pnl, dtype=float),
+    })
+    by_exit = frame.groupby("exit_timestamp_ist", sort=True, as_index=False)["pnl"].sum()
+    equity = by_exit["pnl"].to_numpy(dtype=float).cumsum()
+    peaks = np.maximum.accumulate(np.r_[0.0, equity])[1:]
+    drawdowns = peaks - equity
+    if not len(drawdowns):
+        return {"max_dd": 0.0, "max_dd_pct": float("nan"), "peak_time": "", "trough_time": ""}
+    trough_idx = int(np.argmax(drawdowns))
+    max_dd = float(drawdowns[trough_idx])
+    local_peak = float(peaks[trough_idx])
+    max_dd_pct = 100.0 * max_dd / local_peak if local_peak > 0 else float("nan")
+    peak_idx = int(np.argmax(np.r_[0.0, equity[:trough_idx + 1]]))
+    peak_time = "" if peak_idx == 0 else str(by_exit.iloc[peak_idx - 1]["exit_timestamp_ist"])
+    trough_time = str(by_exit.iloc[trough_idx]["exit_timestamp_ist"])
+    return {
+        "max_dd": max_dd,
+        "max_dd_pct": max_dd_pct,
+        "peak_time": peak_time,
+        "trough_time": trough_time,
+    }
+
+
 def summarise_trades(trades: pd.DataFrame, grid: list[dict]) -> pd.DataFrame:
     if trades.empty:
         trade_groups = {}
@@ -673,21 +701,13 @@ def summarise_trades(trades: pd.DataFrame, grid: list[dict]) -> pd.DataFrame:
             losses = pnl < 0
             gross_win = float(pnl[wins].sum()) if wins.any() else 0.0
             gross_loss = float(-pnl[losses].sum()) if losses.any() else 0.0
-            # Drawdown is calculated on timestamp-aggregated realized P&L so
-            # simultaneous exits do not create artificial ordering-dependent DD.
-            exits = group["exit_timestamp_ist"].astype(str).to_numpy()
-            dd_frame = pd.DataFrame({"exit_timestamp_ist": exits, "pnl": pnl})
-            by_exit = dd_frame.groupby("exit_timestamp_ist", sort=True, as_index=False)["pnl"].sum()
-            equity = by_exit["pnl"].to_numpy(dtype=float).cumsum()
-            peaks = np.maximum.accumulate(np.r_[0.0, equity])[1:]
-            dd = peaks - equity
-            dd_idx = int(np.argmax(dd)) if len(dd) else 0
-            max_dd = float(dd[dd_idx]) if len(dd) else 0.0
-            local_peak = float(peaks[dd_idx]) if len(peaks) else 0.0
-            max_dd_pct = (100.0 * max_dd / local_peak) if local_peak > 0 else float("nan")
-            peak_idx = int(np.argmax(np.r_[0.0, equity[:dd_idx + 1]]))
-            peak_time = "" if peak_idx == 0 else str(by_exit.iloc[min(peak_idx - 1, len(by_exit)-1)]["exit_timestamp_ist"])
-            trough_time = str(by_exit.iloc[dd_idx]["exit_timestamp_ist"]) if len(by_exit) else ""
+            dd_stats = drawdown_stats(
+                pnl, group["exit_timestamp_ist"].astype(str).to_numpy()
+            )
+            max_dd = dd_stats["max_dd"]
+            max_dd_pct = dd_stats["max_dd_pct"]
+            peak_time = dd_stats["peak_time"]
+            trough_time = dd_stats["trough_time"]
             try:
                 pvalue = float(ttest_1samp(returns, popmean=0.0, nan_policy="omit").pvalue) if len(returns) >= 2 else float("nan")
             except Exception:
