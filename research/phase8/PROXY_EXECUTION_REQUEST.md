@@ -24,3 +24,11 @@ Rerun authorization: R2 — 2026-10-12. Use the corrected tester-approved runner
 - Keep the immutable Phase 7 Run #994 forecast artifact and all 4,800 configurations × four friction scenarios unchanged.
 - Do not acquire new market data, request bid/ask, refit forecasts or promote the best result automatically.
 - If the runner fails again, the workflow records only sanitized aggregate diagnostics, updates research logs and preserves a failure artifact; fix the implementation autonomously and resubmit exact blobs for tester review.
+
+
+## R4 as-of correction rerun — 2026-10-12
+
+- Previous run 38220714996 uses a pre-correction snapshot and is explicitly NON-ACCEPTED due to one-minute lookahead in stored Greek delta selection.
+- Corrected exact code blobs are the runner, tests, and workflow recorded in tester R4 at research/gates/PHASE8_PROXY_STRATEGY_TESTER.md on phase-08-prediction-tester.
+- Regression and exact-blob gate passed in run 38221310213. This request triggers the first empirical run on the as-of corrected runner, against the same pinned enriched option artifact 11723198817 and saved Run #994 forecasts.
+- Use the same frozen 4,800-config grid and C0-C3 costs. No new data acquisition, no bid/ask prerequisite, no forecast refit, and no automatic promotion.
