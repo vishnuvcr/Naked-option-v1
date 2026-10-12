@@ -867,3 +867,8 @@ Implemented preregistered log-loss/Brier/balanced-accuracy metrics, calibration 
 Latest full run [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894) is PASS at exact source SHA `d6ab3298f42367de9b0101cdedf477165b20d31f`; workflow checked out `${{ github.sha }}` and asserted it matched `GITHUB_SHA`. It ran the synthetic checkpoint/restart/error tests plus statistical utility tests and completed all 64,000 synthetic tasks. The downloaded summary verifies zero error rows and no market data/model fit/holdout use.
 
 Statistics implementation and tests are committed: `scripts/prediction_statistics.py` and `scripts/test_prediction_statistics.py`. The independent scientific registry gate is still REQUEST CHANGES, and actual estimator resource use is still unbenchmarked. No empirical predictions have been run.
+
+
+### 2026-10-12 — Latest strict-input synthetic result
+
+Run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) succeeded on the exact triggering source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`. It passed strict statistical utility tests and the 64,000-task synthetic orchestration; output digest is `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`, artifact ID 11749635242. No real market data, model fitting or untouched holdout was used.
