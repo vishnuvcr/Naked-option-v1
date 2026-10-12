@@ -278,6 +278,17 @@ def make_manifest(config_shards: list[dict[str, Any]], label_manifest: dict[str,
 def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[str, Any],
                           registry_index: dict[str, Any], source_prereg: dict[str, Any]) -> dict[str, Any]:
     p = json.loads(json.dumps(source_prereg))
+    # Preserve R2's historical pilot restriction as superseded history instead of
+    # carrying a contradictory live root-level amendment into the complete R3 scope.
+    prior_pilot = p.pop("scope_amendment_2026_10_13", None)
+    if prior_pilot is not None:
+        p.setdefault("historical_scope_amendments", []).append({
+            "amendment_id": "scope_amendment_2026_10_13",
+            "status": "SUPERSEDED_BY_COMPLETE_TEN_HORIZON_R3",
+            "superseded_on": "2026-10-13",
+            "note": "The R2 two-target synthetic/design pilot restriction is historical. R3 reuses the R2 base design but defines all ten required horizons; this history object does not authorize fitting. R3's own developer registry/data-preflight gate remains controlling.",
+            "original_amendment": prior_pilot,
+        })
     p["schema_version"] = "prediction-preregistration-v3-r3"
     p["date"] = "2026-10-13"
     p["status"] = "FROZEN_TEN_HORIZON_REGISTRY_DEVELOPER_VALIDATION_PENDING_NO_EMPIRICAL_RESULTS"
