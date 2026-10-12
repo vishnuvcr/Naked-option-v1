@@ -57,7 +57,7 @@ jobs:
           from pathlib import Path
           def git(*args):
               return subprocess.check_output(["git", *args], text=True).strip()
-          req_path = "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R1_2026-10-12.json"
+          req_path = "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json"
           req = json.loads(Path(req_path).read_text(encoding="utf-8"))
           if req.get("status") != "AUTHORIZED_TO_RUN_SCHEMA_PREFLIGHT_ONLY":
               raise SystemExit("PREFLIGHT_GATE_BLOCKED: request is not tester-authorized")
