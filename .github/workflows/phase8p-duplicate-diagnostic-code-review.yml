@@ -1,0 +1,98 @@
+name: Phase 8P Independent Duplicate Diagnostic Code Review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - "scripts/phase8p_duplicate_diagnostic_audit.py"
+      - ".github/workflows/phase8p-duplicate-diagnostic-code-review.yml"
+  workflow_dispatch:
+    inputs:
+      run_code_review:
+        description: "Run independent synthetic-only duplicate diagnostic code review"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  independent-code-review:
+    if: ${{ github.event_name == 'push' || inputs.run_code_review == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout tester-owned audit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Fetch exact developer code review request
+        id: request
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
+          REQUEST="${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json"
+          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R2_2026-10-12.json > "$REQUEST"
+          python - "$REQUEST" <<'PY'
+          import json,os,subprocess,sys
+          from pathlib import Path
+          req=json.loads(Path(sys.argv[1]).read_text())
+          if req.get("status")!="PENDING_INDEPENDENT_TESTER_REVIEW":
+              raise SystemExit("CODE_REVIEW_BLOCKED: request not pending")
+          commit=req.get("developer_commit","")
+          if len(commit)!=40: raise SystemExit("CODE_REVIEW_BLOCKED: commit pin missing")
+          subprocess.check_call(["git","cat-file","-e",commit+"^{commit}"])
+          Path(os.environ["GITHUB_OUTPUT"]).open("a").write("developer_sha="+commit+"\n")
+          print("Pinned exact developer diagnostic snapshot.")
+          PY
+          cp "$REQUEST" "${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json"
+
+      - name: Set up independent reviewer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned synthetic-review dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2 pyyaml==6.0.2
+
+      - name: Checkout exact developer snapshot in isolated worktree
+        env:
+          DEV_SHA: ${{ steps.request.outputs.developer_sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-duplicate-developer" "${DEV_SHA}"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-duplicate-developer" rev-parse HEAD)" = "${DEV_SHA}"
+
+      - name: Run independent static and synthetic-only code gate
+        id: audit
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_duplicate_diagnostic_audit.py \
+            --developer-root "${RUNNER_TEMP}/phase8p-duplicate-developer" \
+            --request "${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json" \
+            --out "${RUNNER_TEMP}/phase8p-duplicate-diagnostic-code-review.json" | tee "${RUNNER_TEMP}/phase8p-duplicate-diagnostic-code-summary.json"
+
+      - name: Upload independent code review receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-duplicate-diagnostic-code-review-r2
+          path: |
+            ${{ runner.temp }}/phase8p-duplicate-diagnostic-code-review.json
+            ${{ runner.temp }}/phase8p-duplicate-diagnostic-code-summary.json
+            ${{ runner.temp }}/phase8p-duplicate-code-review-request.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail workflow when tester requests changes
+        if: ${{ steps.audit.outcome == 'failure' }}
+        run: |
+          echo "Independent code review returned REQUEST_CHANGES. No real artifact was accessed."
+          exit 1
