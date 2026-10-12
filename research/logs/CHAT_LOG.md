@@ -115,3 +115,8 @@ The isolated tester branch has issued [PHASE7_P10_DIAGNOSTIC_INVARIANT_TESTER.md
 - The R3 scope R1/R2 versions were returned for changes; scope R3 was approved by the isolated tester for implementation and synthetic tests only.
 - Developer synthetic workflow [#38199456531](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531) passed. Independent tester [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) returned REQUEST_CHANGES (9/13 checks passed) for incomplete pipeline, weak authorization binding, missing block ordering validation, mixed-row timestamp handling, missing daily feature path, and insufficient preflight artifact proof.
 - Main README/status and branch error/chat logs updated. Accepted R3 dataset unchanged. Empirical artifact access/fitting remains blocked.
+
+
+## 2026-10-12 — Resume: Phase 8P schema preflight underway
+- The exact preflight executor workflow received tester PASS_PREFLIGHT_WORKFLOW_ONLY (29/29 checks). The execution request now authorizes only the schema/coverage preflight.
+- Run #38202961271 is active at the pinned Greek-artifact verification/download step. Model fitting remains blocked until a separate tester decision accepts the resulting report.
