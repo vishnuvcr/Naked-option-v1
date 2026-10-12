@@ -1068,3 +1068,11 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Summary: 27,264 `SYNTHETIC_MOCK_ONLY`, 36,736 `BLOCKED_COMPATIBILITY`, no runtime exceptions, 0 error JSONL rows, no market dataset opened, no fitted models, no holdout access. Result SHA-256: `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`.
 - Hosted stats utility suite separately passed in [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987); re-shard/compatibility/prereg/statistics repair suite passed in [38253444528](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253444528). Files in `research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.*` now reference the exact-commit run and include the corrected Git blob SHA-1 pin keys.
 - Resource estimates remain assumption-based (~1,173 serial CPU-hours and 109,056 hypothetical fit calls), not measured model-estimator runtimes. No empirical fitting is authorized pending independent tester review.
+
+
+## Phase 8P latest hardened synthetic run — 2026-10-12
+
+- Hosted run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at exact source commit `6d4787348d7b0b794e210026ceddcea19192eccc`. The workflow asserts checkout SHA equals GITHUB_SHA.
+- The full sweep processed 64,000 synthetic config×fold tasks, returned 27,264 SYNTHETIC_MOCK_ONLY and 36,736 BLOCKED_COMPATIBILITY rows, zero exceptions/error-log rows, and result SHA-256 `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`. Artifact ID 11749635242.
+- Statistical utility tests included in the same run passed (8 tests): metrics, calibration intercept/slope, deterministic paired moving-block bootstrap, BY-FDR values, strict integer label/parameter types, and missing-class calibration guard. Registry integrity and full repair suites also passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`.
+- No actual market dataset opened, no empirical model fitting, no holdout access. Resource estimate remains assumptions rather than a measured estimator benchmark. Scientific registry gate remains pending tester review.
