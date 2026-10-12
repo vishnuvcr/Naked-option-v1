@@ -50,9 +50,13 @@ class NSESessionCalendarR3Tests(unittest.TestCase):
                 self.assertTrue(row["positional_label_eligible"])
             if row["is_exchange_trading_session"] and row["weekday"] in ("Saturday","Sunday"):
                 special=specials[row["date"]]
-                self.assertTrue(special["regular_hours_compatible"])
-                self.assertTrue(row["intraday_label_eligible"])
-                self.assertTrue(row["positional_label_eligible"])
+                self.assertEqual(row["regular_hours_compatible"], special["regular_hours_compatible"])
+                if special["regular_hours_compatible"]:
+                    self.assertTrue(row["intraday_label_eligible"])
+                    self.assertTrue(row["positional_label_eligible"])
+                else:
+                    self.assertFalse(row["intraday_label_eligible"])
+                    self.assertFalse(row["positional_label_eligible"])
 
     def test_reconciled_2026_closures_are_closed(self):
         for d in ("2026-01-15","2026-08-26"):
