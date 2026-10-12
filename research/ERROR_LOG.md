@@ -828,3 +828,15 @@
 - Correction: amended resolve_delta to use a stored delta only if timestamp_epoch + greek_valuation_offset_seconds <= decision time; otherwise it recalculates a Black–Scholes ranking delta from the row's rolling_spot, source IV, and expiry as of decision time. It no longer uses the precomputed close-valued time_to_expiry_years. Contract moneyness fallback no longer uses current-minute `nifty_close` when the bar-entry price is its open.
 - Regression: new synthetic tests verify the stored Greek cannot be used before its valuation timestamp and no current-bar close fallback is used. Fresh exact-blob regression and independent tester approval are required before another empirical run.
 - No new data were acquired, no bid/ask requirement was added, and no results from the affected run are accepted.
+
+
+## 2026-10-12 — Phase 8 run 38222296903 result-publication rebase failure
+
+- **Classification:** Git/repository publication failure after the numerical grid produced result files; not a numerical backtest failure.
+- **Evidence:** Actions log shows the results commit was created locally, then `git pull --rebase origin phase-08-prediction-developer` conflicted in `README.md`, `research/logs/CHAT_LOG.md`, and `research/logs/RESEARCH_LOG.md`. The rebase retry then failed because a `.git/rebase-merge` directory already existed. The run artifact [11736907952](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38222296903/artifacts/11736907952) was nevertheless uploaded successfully.
+- **Important contradiction:** the workflow's subsequent failure handler wrote `research/results/phase8-proxy-failures/run-38222296903.json` with `FAILED_NO_METRICS` and `no_performance_metrics_generated=true`, even though the uploaded run report declares `COMPLETE_PROXY_BACKTEST` and contains summary/ledger metrics. Do not treat the failure-handler record as evidence that no metrics exist; correct this workflow behavior in a separately tester-reviewed patch.
+- **Recovery:** preliminary artifact review was saved to `research/results/phase8-proxy-run-38222296903/DEVELOPER_PRELIMINARY_AUDIT.md`; tester result-level review requested in [Issue #22](https://github.com/vishnuvcr/Naked-option-v1/issues/22). README and STATUS were updated with artifact status. Do not rerun the expensive grid merely to resolve the publish conflict.
+- **Result status:** exploratory metrics exist but are **not accepted**. Raw-IV as-of provenance, ₹0.05 tick rounding, drawdown-percentage calculation, OHLC integrity and the contract-selection liquidity tie-break require independent review/correction.
+
+**Developer → Tester:** verify the artifact and publication-failure diagnosis independently, and audit the metrics before any promotion.
+**Tester → Developer:** keep Phase 9 blocked; request a new exact-snapshot gate for any code correction or rerun.
