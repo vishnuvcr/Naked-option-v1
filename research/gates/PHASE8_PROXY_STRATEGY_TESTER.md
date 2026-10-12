@@ -1,12 +1,12 @@
-# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R3)
+# Phase 8 OHLC Proxy Strategy — Independent Tester Gate (R4)
 
 STATUS: PASS — OHLC PROXY BACKTEST AUTHORIZED
 
 Developer branch: phase-08-prediction-developer
-Reviewed code commit: 39980ad09438e6070026cb4778b597bb7d59a15e
-Runner blob SHA: 1689a00b16813795ec5256158ee10c27a92bcc1a
-Synthetic test blob SHA: a128d48d2fc41851bd54a9e9c32d4809cc6a8ba2
-Workflow blob SHA: e6ada53ad0070106b54888117c551fa0037ad10a
+Reviewed code commit: e0d905071694aaa36ced63e190f2f6d4167cdf75
+Runner blob SHA: 7e5a289187e1216768f7ba73dc92b74a82bf7788
+Synthetic test blob SHA: 462aeb6364893af7678c691b9d45e114275d20ac
+Workflow blob SHA: 074103e635a1c9b829a8f2794c512b0ee424d067
 
 ## Independent review and change rationale
 
@@ -27,3 +27,12 @@ PASS for one hosted attempt using these exact runner/test/workflow blobs, after 
 **Tester → Developer:** run these exact blobs, preserve the existing artifacts, publish the full grid and trade ledger, and record any runtime failure with safe aggregate diagnostics. Do not alter the model, cost scenarios, or grid after seeing results.
 
 **Developer → Tester:** independently audit result counts, source pins, timestamp/entry ordering, contract-expiry/lot-size caveats, fills/cost arithmetic, P&L signs, win/loss metrics and drawdowns. Return a result-level PASS/REQUEST CHANGES. Do not demand bid/ask.
+
+
+## R4 look-ahead review and additional limitations
+
+- The previous R3 run 38220714996 may be completing on the pre-correction snapshot. Regardless of whether it produces tables, it is **NON-ACCEPTED** because it selected contracts using a stored delta derived with `greek_valuation_offset_seconds=60` while entering at the bar open. Do not promote or use it as valid performance evidence.
+- The runner now accepts stored delta only where timestamp_epoch + greek_valuation_offset_seconds <= entry/decision time. Otherwise it recomputes a ranking delta from rolling_spot + source IV and expiry remaining at the entry timestamp; it does not reuse the close-valued time_to_expiry_years. Current minute nifty_close is no longer used for moneyness fallback when entry is at option_open.
+- Regression tests cover stored-delta timing and exclude current-bar close fallback. The empirical job is gated behind a fresh pass of this exact runner/test snapshot and the independent tester report.
+- Statistical acceptance remains exploratory; no historical winner is automatically promoted. The enriched expiry mapping remains a proxy and the output must remain Q1/OHLC proxy.
+- Workflow concurrency is now isolated as `phase-08-proxy-strategy-asof-v2` so the corrected run can proceed while the superseded diagnostic run may still be active. This does not grant permission to accept the superseded output.
