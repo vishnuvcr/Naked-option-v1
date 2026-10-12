@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_PREFLIGHT_EXECUTOR_WORKFLOW_REVIEW",
+  "review_scope": "STATIC_WORKFLOW_AND_SECURITY_CHECKS_ONLY",
+  "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
+  "developer_workflow_commit": "37e8068acd7c6092d91757b4022ac12c3a0b6a76",
+  "developer_workflow_path": ".github/workflows/phase8p-preflight-only.yml",
+  "developer_workflow_blob_sha1": "a48d28402fcb3575689d06f6bbb7a5bb31324df4",
+  "proposal_path": "research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md",
+  "proposal_blob_sha1": "267cc3fba9d2e5a8313be5efb60879d27586d529",
+  "approved_code_snapshot": {
+    "commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+    "module_blob_sha1": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
+    "test_blob_sha1": "4681c8e34aab1edae44f70ffad455741799d7075",
+    "code_tester_decision_path": "research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R2_2026-10-12.json",
+    "code_tester_decision_blob_sha1": "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b",
+    "code_gate_decision": "PASS_FOR_CODE_ONLY"
+  },
+  "scope_review": {
+    "path": "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md",
+    "blob_sha1": "798008657afe0757c54c9aa7dc5eeb1fade3faf5"
+  },
+  "daily_timestamp_amendment": {
+    "proposal_blob_sha1": "265c6696466b1999371cb4581baf20fbe950d3f1",
+    "tester_review_blob_sha1": "d0f6ad6803c16051bd897f3074682281b3e4c3a0",
+    "tester_decision_blob_sha1": "c154ab22dbf3fe244c6ff2010b6ea60a30538308",
+    "convention": "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST"
+  },
+  "artifacts": {
+    "greek": {
+      "artifact_id": 11723198817,
+      "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+    },
+    "forecast": {
+      "artifact_id": 11638738288,
+      "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+    }
+  },
+  "assertions": {
+    "schema_preflight_only": true,
+    "model_fit_authorized": false,
+    "holdout_access_authorized": false,
+    "external_market_source_requests_authorized": false,
+    "option_pnl_authorized": false,
+    "strategy_promotion_authorized": false,
+    "upload_raw_data_authorized": false
+  },
+  "review_questions": [
+    "Confirm the exact reviewed workflow/proposal blob hashes and fixed artifact IDs/digests.",
+    "Confirm fail-closed execution: no download until the exact tester workflow decision/blob is verified.",
+    "Confirm only the exact GitHub Actions artifact API is used and no external market data source is called.",
+    "Confirm HF_TOKEN is only passed as an environment secret for decryption and is never logged or committed.",
+    "Confirm only the encrypted Greek ZIP is cached, the forecast archive stays ephemeral, and raw rows/features/keys are not uploaded.",
+    "Confirm the executed command is --run-preflight only and model fit/holdout/P&L/strategy authorization remains false.",
+    "Confirm the report is aggregate-only, runtime failures are sanitized, and temporary forecast/log files are deleted."
+  ],
+  "no_data_download_before_review": true,
+  "no_model_fit_before_report_decision": true,
+  "no_holdout_access": true
+}
