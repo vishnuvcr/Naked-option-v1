@@ -703,3 +703,8 @@
 - Addressed tester T3 by formalizing R2 as a two-target synthetic/design pilot only; the full ten-horizon scope remains mandatory before empirical fitting or method selection. The runner now checks and enforces that pilot-only boundary.
 - Submitted research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md for independent re-review.
 - No market data opened, no estimator fit, no holdout accessed. The hosted regression result and full independent artifact audit remain outstanding.
+
+
+## 2026-10-13 — Post-results-only tester cadence adopted
+
+The research protocol now defers independent tester review until the planned result bundle is acquired, frozen and indexed. Developer-side technical checks and corrections continue throughout execution. The tester workflow requires a formal result-acquisition request and verifies its pinned manifest/artifact hashes. The R2 registry remains a synthetic/design pilot; the next development work is the full ten-horizon registry and subsequent planned result-acquisition runs. No result or model is accepted or selected by this cadence amendment.
