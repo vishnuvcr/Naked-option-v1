@@ -677,3 +677,13 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 **Developer → Tester:** review exact workflow blob and verify push/manual/reusable trigger separation and gate integrity.
 **Tester → Developer:** report exact PASS/REQUEST_CHANGES evidence; keep empirical authorization false until separate data and execution gates pass.
 
+
+
+## 2026-10-12 — User said “Resume” / “Proceed”: Phase 8 proxy rerun
+
+- User reiterated that strategy testing should proceed on already collected OHLC data and not require bid/ask.
+- Hosted run 38218646184 failed before metrics because the option time index was empty; its run is non-evidence. The exact runner error and correction are recorded in `research/ERROR_LOG.md`.
+- Developer corrected runtime handling, normalized row tags/expiry text, added aggregate-only counters and a clear no-eligible-row error; hosted regression run 38219833960 passed.
+- Independent tester gate R2 on `phase-08-prediction-tester` authorized one attempt on runner/test/workflow blobs pinned in that report.
+- Rerun 38219967649 uses the same existing Phase 7 Run #994 forecast archive and existing 61-part option composite. No new market-data acquisition or bid/ask source is requested.
+- Decision logs record outcomes and fixes only, not private chain-of-thought.
