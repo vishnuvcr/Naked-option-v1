@@ -53,7 +53,7 @@ jobs:
           required = [
               "PASS — SCOPE ONLY, WITH RESTRICTIONS",
               "018500722f88f5fb100a2e24afc3d5d97394631e",
-              "No data artifact was decrypted",
+              "No data artifact was downloaded/decrypted",
               "separate hosted preflight",
           ]
           missing = [term for term in required if term not in raw]
