@@ -1,0 +1,40 @@
+{
+  "schema_version": "phase8p-derived-encrypted-dataset-artifact-pin-v1",
+  "date": "2026-10-13",
+  "status": "ENCRYPTED_ARCHIVE_AND_ALL_PARTS_VERIFIED_NO_DECRYPTION",
+  "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+  "current_derived_artifact": {
+    "repository": "vishnuvcr/Naked-option-v1",
+    "artifact_id": 11698879857,
+    "workflow_run_id": 38131641336,
+    "archive_sha256": "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b",
+    "embedded_manifest_path": "_temp/repair-derived-encrypted/dataset_manifest.json",
+    "embedded_manifest_sha256": "da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f",
+    "embedded_manifest_bytes": 34363
+  },
+  "ancestor_lineage": {
+    "ancestor_artifact_id": 11696937921,
+    "ancestor_workflow_run_id": 38126168547,
+    "ancestor_artifact_sha256": "5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b",
+    "note": "These are the embedded manifest's derived_from ancestor fields, not the outer ZIP identity for current derived artifact 11698879857."
+  },
+  "source_manifest": {
+    "path": "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json",
+    "git_blob_sha1": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "declared_part_count": 61,
+    "part_hashes_match_current_derived_artifact": true
+  },
+  "verified_summary": {
+    "encrypted_members_checked": 61,
+    "encrypted_member_hash_or_size_mismatches": 0,
+    "declared_part_row_count_sum": 8999865,
+    "row_count_by_month_sum": 8999865,
+    "source_row_count_options": 8490723,
+    "source_row_count_spot": 509142,
+    "encrypted_payload_only": true,
+    "plaintext_decrypted": false,
+    "model_fitting_performed": false,
+    "holdout_accessed": false
+  },
+  "required_next_step": "Developer data-preflight workflow must download artifact 11698879857 by immutable artifact ID, verify archive SHA-256 and embedded manifest SHA-256, verify all 61 encrypted part hashes/sizes/row counts, then decrypt only into temporary runner storage using the pinned HF_TOKEN-derived AES-256-GCM procedure, validate canonical decoded CSV SHA-256, row/column/type/date/session schema, and delete plaintext on every exit path before empirical fitting."
+}
