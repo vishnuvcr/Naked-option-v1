@@ -43,7 +43,7 @@ Paper-method coverage is **not exhaustive**: the registry contains 112 method ca
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | BLOCKED | Paytm Money/cost/execution gate |
+| Phase 8 Long-option execution | **R3 ARTIFACT ACCEPTED — ECONOMIC TESTING BLOCKED** | Independent tester #38197317740 passed ZIP, encrypted-part hashes, row totals, coverage maps and no-plaintext checks; see README current status and tester report |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -363,3 +363,9 @@ The independent static review accepts developer commit 39e964d's P10 diagnostic 
 
 **Developer → Tester:** Final export gate is recorded; keep the data/model/holdout/strategy permissions unchanged.
 **Tester → Developer:** Confirm no plaintext/private-key material enters public repository history in subsequent changes.
+
+
+## 2026-10-12 — R3 Greek-enriched artifact accepted
+- Independent tester run #38197317740 passed the actual uploaded bundle audit. Decision PASS_WITH_SCOPED_RESTRICTIONS.
+- Artifact 11723198817; 8,999,865 rows; 61 encrypted parts; 8,418,616 option rows with Delta; 49,873 invalid-IV rows; 22,234 source-flagged non-trading-session rows; zero exact-time spot misses; zero expiry rows unresolved under proxy rules.
+- Limitations: PARTIAL_GRID, expiry mapping proxies, model Greeks with r=0/q=0 proxies, CC-BY-NC-4.0 non-commercial only. No P&L, holdout or strategy promotion authorized.
