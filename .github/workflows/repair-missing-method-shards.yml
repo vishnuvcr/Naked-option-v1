@@ -1,12 +1,11 @@
-name: Repair Missing R2 Method Shards
+name: Repair and Re-shard R2 Prediction Registry
 
 on:
   push:
     branches:
       - phase-08-prediction-developer
     paths:
-      - "scripts/generate_missing_method_shards.py"
-      - "scripts/pin_config_shard_file_hashes.py"
+      - "scripts/reshard_prediction_registry.py"
       - ".github/workflows/repair-missing-method-shards.yml"
   workflow_dispatch:
 
@@ -14,29 +13,33 @@ permissions:
   contents: write
 
 jobs:
-  generate:
+  reshard-and-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout developer branch
+        uses: actions/checkout@v4
         with:
           ref: phase-08-prediction-developer
           persist-credentials: true
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Generate absent method shards without overwriting existing shards
-        run: python scripts/generate_missing_method_shards.py
-      - name: Pin config shard hashes to exact file bytes
-        run: python scripts/pin_config_shard_file_hashes.py
-      - name: Commit generated shards and manifest hash repair
+      - name: Rebuild small, deterministic registry shards
+        run: python scripts/reshard_prediction_registry.py
+      - name: Run utility regression suite
+        run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+      - name: Audit rebuilt registry before committing
+        run: python scripts/audit_prediction_registry_shards.py
+      - name: Commit verified registry data artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/registry/method_shards/METHODS_V2_R2_PART*.json research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json
+          git add -A research/registry/method_shards research/registry/config_shards research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json
           if git diff --cached --quiet; then
-            echo "No registry repair changes required."
+            echo "No registry artifacts changed."
             exit 0
           fi
-          git commit -m "Repair R2 method shards and config integrity hashes"
+          git commit -m "Reshard R2 registry for independent auditability"
           git push origin HEAD:phase-08-prediction-developer
