@@ -785,3 +785,12 @@
 - Impact: hosted run status is unverified in this session. No workflow success or test outcome is claimed.
 - Disposition: workflow trigger commit is recorded; obtain run ID and inspect jobs/artifacts through a supported Actions-run listing/inspection path before accepting evidence.
 - Prevention: do not infer workflow completion from a commit alone.
+
+## 2026-10-12 — Phase 8 automatic-trigger run could not be verified
+- Category: tooling/observability limitation
+- Component: GitHub Actions workflow run lookup for commit `5de4a2c1626b5f2633c4e0565e84592297ad4b44`.
+- Symptom: `fetch_commit_workflow_runs` returned an empty list; the connector documentation says it filters to pull-request-triggered runs only and returns the first page.
+- Impact: cannot determine whether the push-triggered Phase 8 workflow started, nor inspect its job outcomes/artifacts using the currently exposed connector. No PASS/FAIL conclusion is justified.
+- Classification: visibility limitation, not evidence of a workflow failure and not evidence of success.
+- Mitigation: refreshed the tester review request with the exact workflow blob and explicit request for independent hosted run evidence. Do not repeatedly modify the workflow merely to manufacture a run record; keep the existing empirical/data gates closed.
+
