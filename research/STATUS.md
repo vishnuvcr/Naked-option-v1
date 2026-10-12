@@ -236,3 +236,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer run 38195812828; artifact ID 11723198817.
 - Encrypted part hashes, row counts, coverage and no-plaintext conditions passed.
 - Trading/economic gates remain blocked.
+
+
+## 2026-10-12 — Phase 8P Greek prediction code gate
+- Scope R3: PASS for scope only.
+- Developer synthetic suite: PASS on the submitted code/test blobs.
+- Independent tester code review R1: **REQUEST_CHANGES**; 9/13 independent checks passed.
+- Blockers: missing end-to-end pipeline and artifact-bound aggregate outputs; caller-controlled fit authorization; missing chronological block-order validation; mixed OPTION/SPOT snapshot helper fails on normal SPOT NaN Greek offsets; no daily-specific feature path/time mapping; preflight does not cryptographically bind artifact IDs/hashes, label-maturity proof and protected-holdout mask.
+- Status: **CODE GATE BLOCKED**. Real artifact access/decryption, empirical fitting, holdout use, option P&L and strategy promotion remain prohibited.
+- See [tester review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md) and [machine decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json).
+
+**Tester → Developer:** fix F1–F6 and resubmit an exact new snapshot; empirical gates remain locked.
+**Developer → Tester:** preserve R1 unchanged and independently rerun hashes, formula signs, snapshot edge cases, time/split guards and full pipeline synthetic coverage.
