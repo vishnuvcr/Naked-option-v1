@@ -239,6 +239,18 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
     options["expiry_epoch"] = options["expiry_key"].map(expiry_epoch_cache).fillna(0).astype(np.int64)
     options.sort_values(["timestamp_epoch", "contract_code"], kind="mergesort", inplace=True)
     options.reset_index(drop=True, inplace=True)
+    # Entry occurs at the current bar open. Selection may use only the last
+    # observation from each contract, whose timestamped fields are available
+    # no later than the entry time; current-bar close-valued data are excluded.
+    for source_col, lag_col in (
+        ("delta", "_lag_delta"),
+        ("timestamp_epoch", "_lag_timestamp_epoch"),
+        ("greek_valuation_offset_seconds", "_lag_greek_valuation_offset_seconds"),
+        ("rolling_spot", "_lag_rolling_spot"),
+        ("option_volume", "_lag_option_volume"),
+        ("open_interest", "_lag_open_interest"),
+    ):
+        options[lag_col] = options.groupby("contract_code", sort=False)[source_col].shift(1)
     times = options["timestamp_epoch"].to_numpy(dtype=np.int64)
     unique_times, starts = np.unique(times, return_index=True)
     ends = np.r_[starts[1:], len(options)].astype(np.int64)
@@ -313,7 +325,7 @@ def resolve_delta(row: pd.Series, decision_time: int) -> tuple[float, str]:
 
 
 def resolve_deltas_vectorized(rows: pd.DataFrame, decision_time: int) -> tuple[np.ndarray, np.ndarray]:
-    """Fast array equivalent of resolve_delta; never uses later-valued stored Greeks."""
+    """Use only lagged, explicitly timestamped Greeks; never infer IV availability."""
     n = len(rows)
     values = np.full(n, np.nan, dtype=float)
     methods = np.full(n, "MONEYNESS_FALLBACK", dtype=object)
@@ -323,51 +335,16 @@ def resolve_deltas_vectorized(rows: pd.DataFrame, decision_time: int) -> tuple[n
             return np.full(n, np.nan, dtype=float)
         return pd.to_numeric(rows[column], errors="coerce").to_numpy(dtype=float)
 
-    observed = numeric("delta")
-    row_epoch = numeric("timestamp_epoch")
-    offset = numeric("greek_valuation_offset_seconds")
+    observed = numeric("_lag_delta")
+    row_epoch = numeric("_lag_timestamp_epoch")
+    offset = numeric("_lag_greek_valuation_offset_seconds")
     asof = (
         np.isfinite(observed) & (np.abs(observed) <= 1.0)
         & np.isfinite(row_epoch) & np.isfinite(offset)
         & ((row_epoch + offset) <= float(decision_time))
     )
     values[asof] = np.abs(observed[asof])
-    methods[asof] = "OBSERVED_DELTA_ASOF"
-
-    spot = numeric("rolling_spot")
-    strike = numeric("returned_strike")
-    iv = numeric("implied_volatility")
-    iv = np.where(iv > 3.0, iv / 100.0, iv)
-    expiry_epoch = numeric("expiry_epoch")
-    t = (expiry_epoch - float(decision_time)) / (365.0 * 86400.0)
-    rf = numeric("risk_free_rate_decimal")
-    q = numeric("dividend_yield_decimal")
-    rf = np.where(np.isfinite(rf), rf, 0.0)
-    q = np.where(np.isfinite(q), q, 0.0)
-    option_type = rows["option_type"].astype(str).str.strip().str.upper().to_numpy()
-    need_bs = ~asof
-    valid_bs = (
-        need_bs & np.isfinite(spot) & (spot > 0)
-        & np.isfinite(strike) & (strike > 0)
-        & np.isfinite(iv) & (iv > 0) & (iv <= 5.0)
-        & np.isfinite(t) & (t > 0)
-    )
-    if valid_bs.any():
-        ids = np.flatnonzero(valid_bs)
-        d1 = (
-            np.log(spot[ids] / strike[ids])
-            + (rf[ids] - q[ids] + 0.5 * iv[ids] * iv[ids]) * t[ids]
-        ) / (iv[ids] * np.sqrt(t[ids]))
-        nd = ndtr(d1)
-        is_call = np.isin(option_type[ids], ["CE", "CALL", "C"])
-        is_put = np.isin(option_type[ids], ["PE", "PUT", "P"])
-        signed = np.full(len(ids), np.nan, dtype=float)
-        signed[is_call] = np.exp(-q[ids[is_call]] * t[ids[is_call]]) * nd[is_call]
-        signed[is_put] = -np.exp(-q[ids[is_put]] * t[ids[is_put]]) * (1.0 - nd[is_put])
-        valid_delta = np.isfinite(signed) & (np.abs(signed) <= 1.0)
-        valid_ids = ids[valid_delta]
-        values[valid_ids] = np.abs(signed[valid_delta])
-        methods[valid_ids] = "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
+    methods[asof] = "OBSERVED_DELTA_PRIOR_BAR_ASOF"
     return values, methods
 
 
@@ -402,7 +379,7 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
     candidate_indices = np.arange(lo, hi, dtype=np.int64)[mask]
     candidate_rows = options.iloc[candidate_indices]
     deltas, delta_methods = resolve_deltas_vectorized(candidate_rows, int(entry_epoch))
-    spots = pd.to_numeric(candidate_rows["rolling_spot"], errors="coerce").to_numpy(dtype=float)
+    spots = pd.to_numeric(candidate_rows["_lag_rolling_spot"], errors="coerce").to_numpy(dtype=float)
     strikes = pd.to_numeric(candidate_rows["returned_strike"], errors="coerce").to_numpy(dtype=float)
     with np.errstate(divide="ignore", invalid="ignore"):
         moneyness = np.abs(np.log(strikes / spots))
@@ -412,15 +389,20 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
     delta_available = (delta_methods != "MONEYNESS_FALLBACK") & np.isfinite(deltas)
     priority = np.where(delta_available, 0, 1)
     delta_error = np.where(delta_available, np.abs(deltas - float(delta_target)), np.inf)
+    # Liquidity inputs are lagged one observed bar; current-bar volume/OI may
+    # not be available when the entry is placed at this bar's open.
+    lag_volume = pd.to_numeric(candidate_rows["_lag_option_volume"], errors="coerce").to_numpy(dtype=float)
+    lag_oi = pd.to_numeric(candidate_rows["_lag_open_interest"], errors="coerce").to_numpy(dtype=float)
+    lag_volume = np.where(np.isfinite(lag_volume) & (lag_volume >= 0), lag_volume, -np.inf)
+    lag_oi = np.where(np.isfinite(lag_oi) & (lag_oi >= 0), lag_oi, -np.inf)
     contract_codes = candidate_rows["contract_code"].to_numpy(dtype=np.int64)
     global_indices = candidate_rows.index.to_numpy(dtype=np.int64)
 
-    # np.lexsort uses the final key as primary, matching the prior stable
-    # selection order: availability, delta error, moneyness, strike distance,
-    # contract code, then original row position.
+    # Ranking: as-of delta availability, delta-target error, higher lagged OI,
+    # higher lagged volume, moneyness, strike distance, contract code, row order.
     order = np.lexsort((
         global_indices, contract_codes, strike_distance, moneyness,
-        delta_error, priority,
+        -lag_volume, -lag_oi, delta_error, priority,
     ))
     best = int(global_indices[int(order[0])]) if len(order) else None
     candidate_cache[key] = best
