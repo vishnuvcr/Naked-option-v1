@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 EXPECTED = {
-    "workflow_blob": "474712e945dfaef83c814c9e17d1513ad44a3152",
+    "workflow_blob": "b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5",
     "proposal_blob": "267cc3fba9d2e5a8313be5efb60879d27586d529",
     "code_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
     "module_blob": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
