@@ -7,6 +7,8 @@ on:
     paths:
       - "scripts/shard_prediction_registry.py"
       - "scripts/test_shard_prediction_registry.py"
+      - "scripts/reshard_prediction_registry.py"
+      - "scripts/test_reshard_prediction_registry.py"
       - "scripts/audit_prediction_registry_shards.py"
       - "research/registry/**"
       - ".github/workflows/prediction-registry-shard-tests.yml"
@@ -16,18 +18,22 @@ permissions:
   contents: read
 
 jobs:
-  shard-utility-tests:
+  registry-integrity:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: Checkout committed developer artifacts
         uses: actions/checkout@v4
+        with:
+          ref: phase-08-prediction-developer
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Run isolated registry shard tests
+      - name: Test shard utility
         run: python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+      - name: Test deterministic re-sharder
+        run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
       - name: Verify standard SHA-256 vector
         run: |
           python - <<'PY'
@@ -37,6 +43,15 @@ jobs:
           assert actual == expected, (actual, expected)
           print("SHA-256 known vector: PASS")
           PY
-
-      - name: Audit committed R2 registry shards
-        run: python scripts/audit_prediction_registry_shards.py
+      - name: Audit committed R2 registry shards and index
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/audit_prediction_registry_shards.py | tee /tmp/r2-registry-audit.json
+      - name: Upload machine-readable audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-registry-integrity-audit-independent-run
+          path: /tmp/r2-registry-audit.json
+          if-no-files-found: warn
