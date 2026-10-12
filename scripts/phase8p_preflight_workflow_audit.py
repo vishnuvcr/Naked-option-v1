@@ -150,7 +150,7 @@ def main():
         check(checks,failures,"workflow_has_no_model_fit_authorization",
               "model_fit_authorized:false" not in wf_text.lower()
               and "model_fit_authorized" in wf_text
-              and "model_fit_authorized is not False" in wf_text)
+              and "req.get(\"model_fit_authorized\") is not False" in wf_text)
     except Exception as exc:
         failures.append("WORKFLOW_STRUCTURE_PARSE_ERROR:"+type(exc).__name__)
         checks.append({"check":"workflow_structure_parse","pass":False,"detail":type(exc).__name__+":"+str(exc)[:200]})
