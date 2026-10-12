@@ -127,7 +127,13 @@ def plan_exit_epoch(decision: int, layer: str, horizon: int, sessions: list[str]
 
 def normalise_option_type(values: pd.Series) -> pd.Series:
     aliases = {"CALL": "CE", "C": "CE", "PUT": "PE", "P": "PE"}
-    return values.astype(str).str.strip().str.upper().replace(aliases)
+    return values.astype(str).str.replace("\\ufeff", "", regex=False).str.strip().str.upper().replace(aliases)
+
+
+def normalise_row_type(values: pd.Series) -> pd.Series:
+    # Collector-partition CSV exports can preserve incidental whitespace or BOM
+    # characters in categorical fields. Normalize the tag before exact matching.
+    return values.astype(str).str.replace("\\ufeff", "", regex=False).str.strip().str.upper()
 
 
 def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
@@ -143,16 +149,20 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
                                  low_memory=False):
             if "session_date" in chunk:
                 sessions_seen.update(
-                    chunk["session_date"].dropna().astype(str).str.slice(0, 10).tolist()
+                    chunk["session_date"].dropna().astype(str).str.strip().str.slice(0, 10).tolist()
                 )
             diagnostics["source_rows_read"] += len(chunk)
-            rows = chunk[chunk["row_type"].astype(str).str.upper() == "OPTION"].copy()
+            row_types = normalise_row_type(chunk["row_type"])
+            diagnostics["rows_tagged_option"] += int((row_types == "OPTION").sum())
+            diagnostics["rows_tagged_spot"] += int((row_types == "SPOT").sum())
+            diagnostics["rows_tagged_other"] += int((~row_types.isin(["OPTION", "SPOT"])).sum())
+            rows = chunk[row_types == "OPTION"].copy()
             diagnostics["option_rows_read"] += len(rows)
             if rows.empty:
                 continue
             for col in NUMERIC_COLUMNS:
                 rows[col] = pd.to_numeric(rows[col], errors="coerce")
-            rows["expiry_key"] = rows["expiry_date"].fillna("").astype(str).str.slice(0, 10)
+            rows["expiry_key"] = rows["expiry_date"].fillna("").astype(str).str.strip().str.slice(0, 10)
             rows["option_type"] = normalise_option_type(rows["option_type"])
             # Deterministic key ordering only. Duplicate observations are not an
             # input gate and are retained; stable source order breaks exact ties.
@@ -164,16 +174,26 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
             )
             frames.append(rows)
     if not frames:
-        raise ValueError("No OPTION rows were available to the proxy backtest.")
+        raise ValueError("NO_OPTION_ROWS: no monthly rows were loaded; proxy metrics not produced.")
     options = pd.concat(frames, ignore_index=True)
     before = len(options)
-    options = options[
-        options["timestamp_epoch"].notna()
-        & options["returned_strike"].notna()
-        & options["expiry_key"].str.match(r"^\d{4}-\d{2}-\d{2}$")
-        & options["option_type"].isin(["CE", "PE"])
-    ].copy()
-    diagnostics["rows_skipped_missing_key_fields"] = int(before - len(options))
+    has_time = options["timestamp_epoch"].notna()
+    has_strike = options["returned_strike"].notna()
+    valid_expiry = options["expiry_key"].str.match(r"^\\d{4}-\\d{2}-\\d{2}$", na=False)
+    valid_side = options["option_type"].isin(["CE", "PE"])
+    diagnostics["option_rows_missing_timestamp"] = int((~has_time).sum())
+    diagnostics["option_rows_missing_strike"] = int((~has_strike).sum())
+    diagnostics["option_rows_invalid_expiry_text"] = int((~valid_expiry).sum())
+    diagnostics["option_rows_unknown_side"] = int((~valid_side).sum())
+    key_ok = has_time & has_strike & valid_expiry & valid_side
+    diagnostics["rows_skipped_missing_key_fields"] = int((~key_ok).sum())
+    options = options[key_ok].copy()
+    if options.empty:
+        raise ValueError(
+            "NO_USABLE_OPTION_KEYS: "
+            + json.dumps({k: int(v) for k, v in diagnostics.items()}, sort_keys=True)
+            + "; proxy metrics not produced."
+        )
     # Q1 proxy fills require usable observed OHLC. This is row eligibility for
     # calculating a trade, not a source-validation gate that stops the study.
     ohlc_ok = (
@@ -186,6 +206,12 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
     )
     diagnostics["rows_skipped_unusable_ohlc"] = int((~ohlc_ok).sum())
     options = options[ohlc_ok].copy()
+    if options.empty:
+        raise ValueError(
+            "NO_USABLE_OPTION_OHLC: "
+            + json.dumps({k: int(v) for k, v in diagnostics.items()}, sort_keys=True)
+            + "; proxy metrics not produced."
+        )
     options["timestamp_epoch"] = options["timestamp_epoch"].astype(np.int64)
     options["contract_code"], contract_names = pd.factorize(options["contract_key"], sort=True)
     sessions = sorted(x for x in sessions_seen if x and x != "nan")
