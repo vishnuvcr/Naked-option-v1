@@ -701,3 +701,19 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 - OHLC proxy run 38221391371: status COMPLETE_PROXY_BACKTEST; trades 1596680; C3-positive configs with >=30 trades 2.
 - No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.
+
+
+## 2026-10-12 — User reasserted the 1,000+ prediction-method requirement
+
+### User correction and developer acknowledgement
+- User asked whether the original requirement was to test at least 1,000+ prediction methods and every configuration in each strategy.
+- Repository check: the existing method registry lists 112 named entries (A–J families). Prior batches cover subsets of that registry; available records do not establish completion of 1,000 distinct prediction methods.
+- The recently completed Phase 8 run #38229793041 is an option-execution proxy sweep of 4,800 configurations and four cost scenarios, not a 1,000-method prediction sweep. It does not satisfy this research requirement.
+- Current priority is corrected to prediction-first. Do not select a trading strategy, enter Phase 9, or use the Phase 8 proxy leaderboard to select predictors while prediction coverage remains incomplete.
+- A formal amendment proposal was committed to the developer branch at `research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_PROPOSAL_R1_2026-10-12.md`, commit `65dd011139e62ff17289c4a29a94602e92ef9fe3`.
+- The proposal asks for at least 1,000 substantively distinct method definitions and a separate, finite exhaustive configuration manifest. A mere parameter change, seed, fold or horizon cannot be counted as a new method. “Every configuration” will mean every configuration enumerated in the frozen finite manifest, since literal infinite parameter spaces cannot be exhausted.
+- This is logged as an open research-scope compliance issue until independently reviewed and closed. No private chain-of-thought is recorded; this file records visible instructions, decisions, status and outcomes only.
+
+**Developer → Tester:** Independently review proposal R1, method-counting rules, finite configuration manifest, and gate dependencies; no empirical fitting or holdout access during review.
+
+**Tester → Developer:** PASS/REQUEST CHANGES on the isolated tester branch, hash pinned; do not authorize registry generation/run until the proposal is accepted.
