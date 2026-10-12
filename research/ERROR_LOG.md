@@ -607,3 +607,11 @@
 ## 2026-10-12 — R3 correction resolved terminal row-count failure
 - R3 developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) passed the early manifest-count preflight, processed all 61 parts, and passed final row/hash/encryption/no-plaintext validation. This resolves the deterministic R1/R2 failure that compared output rows to an absent top-level source-manifest total.
 - Artifact ID 11723198817 was uploaded successfully. Independent artifact-level inspection remains required; developer validation alone is not final acceptance.
+
+
+## 2026-10-12 — Phase 8P synthetic workflow setup configuration failure
+- Workflow run: [#38199051778](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199051778), developer snapshot 38100a11c3033fa63b4cea5dec693c7670e6cbe0.
+- Symptom: actions/setup-python failed before installing dependencies or executing tests with “No file ... matched to requirements.txt or pyproject.toml” because the workflow had pip caching enabled in a repository with no recognized dependency manifest.
+- Impact: no synthetic test executed; no dataset opened/decrypted; no model fitting or empirical result. This run is non-evidence.
+- Correction: removed the cache: pip setting while preserving explicitly pinned dependency versions. Updated workflow commit 35b712cdd1999a5aa5a64c98b8a3dbc807bea9a4; automatic replacement run [#38199087844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199087844) is pending/completing.
+- Prevention: require each new isolated workflow to be exercised through setup, tests, and uploaded receipt before treating it as passing. Failed workflow attempts remain in this append-only log.
