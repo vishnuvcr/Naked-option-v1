@@ -1,0 +1,68 @@
+name: Phase 8P Independent One-Use Diagnostic Executor Review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - "scripts/phase8p_duplicate_diagnostic_execution_audit.py"
+      - ".github/workflows/phase8p-duplicate-diagnostic-execution-review.yml"
+  workflow_dispatch:
+    inputs:
+      run_static_review:
+        description: "Run isolated static review only; never accesses the real artifact"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8p-duplicate-executor-review
+  cancel-in-progress: false
+
+jobs:
+  independent-executor-review:
+    if: ${{ github.event_name == 'push' || inputs.run_static_review == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout tester-owned audit snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch exact developer and tester refs
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
+          git fetch --no-tags origin phase-08-prediction-tester:refs/remotes/origin/phase-08-prediction-tester
+
+      - name: Set up independent reviewer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install only static review dependency
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pyyaml==6.0.2
+
+      - name: Run static two-gate executor audit (no data access)
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_duplicate_diagnostic_execution_audit.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --out "${RUNNER_TEMP}/phase8p-executor-workflow-audit.json" \
+            --safe-noop-run-id 38206043280
+
+      - name: Upload static review receipt only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-duplicate-executor-workflow-review
+          path: ${{ runner.temp }}/phase8p-executor-workflow-audit.json
+          if-no-files-found: warn
+          retention-days: 90
