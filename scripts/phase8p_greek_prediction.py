@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prediction-only Greek feature-study utilities. No network or data access."""
 from __future__ import annotations
-import argparse, hashlib, io, json, math, os, subprocess, zipfile
+import argparse, hashlib, io, json, math, os, subprocess, warnings, zipfile
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
@@ -1925,67 +1925,189 @@ def run_prediction_study_from_artifacts(
 
 
 def synthetic_self_test() -> dict[str, Any]:
-    rows=[]
+    """Purely synthetic formula/gate tests; no artifact, secret, or network access."""
+    rows = []
     for i in range(5):
-        rows.append({"row_type":"OPTION","option_type":"CE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV",
-            "delta":.6+i*.01,"gamma":.02,"theta_per_day":-1.,"vega_per_1pct_iv":.4,
-            "greek_implied_volatility":.20,"open_interest":100,"volume":10,
-            "greek_iv_source":"IV_INVERTED_FROM_OPTION_CLOSE","expiry_mapping_source":"HF_EXPIRY_PARTITION_FILELIST_PROXY"})
-        rows.append({"row_type":"OPTION","option_type":"PE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV",
-            "delta":-.4-i*.01,"gamma":.025,"theta_per_day":-.8,"vega_per_1pct_iv":.45,
-            "greek_implied_volatility":.25,"open_interest":200,"volume":20,
-            "greek_iv_source":"IV_INVERTED_FROM_OPTION_CLOSE","expiry_mapping_source":"HF_EXPIRY_PARTITION_FILELIST_PROXY"})
-    rows += [{"row_type":"OPTION","option_type":"CE","greek_status":"IV_INPUT_INVALID","delta":.9,
-              "open_interest":1e9,"volume":1e9},
-             {"row_type":"OPTION","option_type":"PE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV","delta":-.9,
-              "open_interest":200,"volume":20,"data_quality_flags":"SOURCE_FLAGGED_NON_TRADING_SESSION"}]
-    a=aggregate_option_snapshot(rows)
-    assert abs(a["call_delta_median"]-.62)<1e-12 and abs(a["put_delta_median"]+.42)<1e-12
-    assert abs(a["delta_imbalance"]-.20)<1e-12 and abs(a["iv_skew_put_minus_call"]-.05)<1e-12
-    assert abs(a["oi_put_call_ratio"]-2)<1e-12 and abs(a["volume_put_call_ratio"]-2)<1e-12
+        rows.append({
+            "row_type": "OPTION", "option_type": "CE",
+            "greek_status": "GREEKS_ESTIMATED_FROM_INVERTED_IV",
+            "delta": .60 + i*.01, "gamma": .02, "theta_per_day": -1.,
+            "vega_per_1pct_iv": .4, "greek_implied_volatility": .20,
+            "open_interest": 100, "volume": 10,
+            "greek_iv_source": "IV_INVERTED_FROM_OPTION_CLOSE",
+            "expiry_mapping_source": "HF_EXPIRY_PARTITION_FILELIST_PROXY",
+        })
+        rows.append({
+            "row_type": "OPTION", "option_type": "PE",
+            "greek_status": "GREEKS_ESTIMATED_FROM_INVERTED_IV",
+            "delta": -.40 - i*.01, "gamma": .025, "theta_per_day": -.8,
+            "vega_per_1pct_iv": .45, "greek_implied_volatility": .25,
+            "open_interest": 200, "volume": 20,
+            "greek_iv_source": "IV_INVERTED_FROM_OPTION_CLOSE",
+            "expiry_mapping_source": "HF_EXPIRY_PARTITION_FILELIST_PROXY",
+        })
+    rows += [
+        {"row_type":"OPTION","option_type":"CE","greek_status":"IV_INPUT_INVALID",
+         "delta":.9,"open_interest":1e9,"volume":1e9},
+        {"row_type":"OPTION","option_type":"PE","greek_status":"GREEKS_ESTIMATED_FROM_INVERTED_IV",
+         "delta":-.9,"open_interest":200,"volume":20,"data_quality_flags":"SOURCE_FLAGGED_NON_TRADING_SESSION"},
+    ]
+    a = aggregate_option_snapshot(rows)
+    assert abs(a["call_delta_median"] - .62) < 1e-12
+    assert abs(a["put_delta_median"] + .42) < 1e-12
+    assert abs(a["delta_imbalance"] - .20) < 1e-12
+    assert abs(a["iv_skew_put_minus_call"] - .05) < 1e-12
+    assert abs(a["oi_put_call_ratio"] - 2) < 1e-12
+    assert abs(a["volume_put_call_ratio"] - 2) < 1e-12
     assert math.isnan(aggregate_option_snapshot(rows[:8])["call_delta_median"])
-    zeros=[dict(r,open_interest=0,volume=0) for r in rows[:10]]
-    assert aggregate_option_snapshot(zeros)["oi_put_call_ratio_status"]=="NONPOSITIVE_CALL_DENOMINATOR"
-    frame=pd.DataFrame({"layer":["intraday"]*4,"horizon":[5]*4,"source_row_index":range(4),
-       "decision_timestamp":pd.date_range("2025-01-01T04:00:00Z",periods=4,freq="h"),
-       "label_direction":[0,1,0,1],"future_return":[-.01,.02,-.03,.04],"block_index":[0,0,1,1],
-       **{f"P{i:02d}":[.4,.6,.45,.55] for i in range(1,11)}})
-    assert validate_panel_frame(frame,"intraday",5)["rows"]==4
-    d=preflight_contract({"status":"COMPLETE","schema_version":1,"run_id":994,"commit":"abc"},[frame])
-    assert d["status"]=="BLOCKED" and not d["model_fit_authorized"]
-    assert "PROTECTED_HOLDOUT_EXCLUSION_NOT_PROVEN_BY_FROZEN_MANIFEST" in d["reasons"]
-    assert "TARGET_END_AND_LABEL_MATURITY_RULE_NOT_PROVEN_BY_FROZEN_MANIFEST" in d["reasons"]
-    for bad, reason in ((frame.drop(columns=["future_return"]),"PANEL_SCHEMA_MISSING"),
-                        (frame.assign(source_row_index=[0,1,1,3]),"SOURCE_ROW_INDEX_NOT_ZERO_BASED_SEQUENCE"),
-                        (frame.assign(label_direction=[0,2,0,1]),"LABEL_NOT_BINARY_0_1"),
-                        (frame.assign(block_index=[0,2,2,2]),"BLOCK_INDEX_NOT_CONTIGUOUS_FROM_ZERO")):
-        try: validate_panel_frame(bad,"intraday",5)
-        except GateBlocked as e: assert reason in str(e), str(e)
-        else: raise AssertionError("invalid panel accepted: "+reason)
-    y=np.asarray([0,1]*60,dtype=float); p0=np.where(y==1,.55,.45); p1=np.where(y==1,.70,.30)
-    assert paired_brier_bootstrap(y,p0,p1,20,reps=99)["mean_brier_improvement"]>0
-    m=paired_metrics(y,p0,p1)
-    assert m["mean_brier_improvement"]>0 and m["brier_spot_plus_greek"]<m["brier_spot_only"]
-    assert abs(holm_adjust([.01,.04,.03,.002])[3]-.008)<1e-12
-    try: enforce_fit_gate(True,True,{"status":"BLOCKED","model_fit_authorized":False,
-        "holdout_access_authorized":False,"option_pnl_authorized":False,"strategy_promotion_authorized":False})
-    except GateBlocked: pass
-    else: raise AssertionError("blocked preflight accepted")
-    return {"status":"PASS","mode":"SYNTHETIC_ONLY","feature_math":"PASS","panel_fail_closed":"PASS",
-            "bootstrap_holm":"PASS","real_artifacts_opened":False,"model_fitted":False}
+    zeros = [dict(r, open_interest=0, volume=0) for r in rows[:10]]
+    assert aggregate_option_snapshot(zeros)["oi_put_call_ratio_status"] == "NONPOSITIVE_CALL_DENOMINATOR"
+
+    # Mixed snapshots must ignore SPOT rows before checking OPTION-only Greek offsets.
+    base_epoch = pd.Timestamp("2025-01-02T04:00:00Z").timestamp()
+    mixed = [
+        {"row_type":"OPTION","timestamp_epoch":base_epoch-60,"greek_valuation_offset_seconds":60,"id":"exact"},
+        {"row_type":"SPOT","timestamp_epoch":base_epoch-60,"greek_valuation_offset_seconds":np.nan,"id":"spot"},
+        {"row_type":"OPTION","timestamp_epoch":base_epoch-120,"greek_valuation_offset_seconds":60,"id":"stale"},
+        {"row_type":"OPTION","timestamp_epoch":base_epoch,"greek_valuation_offset_seconds":60,"id":"future"},
+    ]
+    exact = exact_snapshot_rows(mixed, pd.Timestamp(base_epoch, unit="s", tz="UTC"))
+    assert [r["id"] for r in exact] == ["exact"]
+    try:
+        exact_snapshot_rows([{"row_type":"OPTION","timestamp_epoch":base_epoch,"greek_valuation_offset_seconds":np.nan}],
+                            pd.Timestamp(base_epoch, unit="s", tz="UTC"))
+    except GateBlocked as exc:
+        assert "OPTION_GREEK_VALUATION_TIMESTAMP_FIELDS_MISSING" in str(exc)
+    else:
+        raise AssertionError("option row missing a Greek valuation offset was accepted")
+
+    # Panel schema/order and protected holdout proof fail closed by default.
+    frame = pd.DataFrame({
+        "layer":["intraday"]*4, "horizon":[5]*4, "source_row_index":range(4),
+        "decision_timestamp":pd.date_range("2025-01-01T04:00:00Z", periods=4, freq="h"),
+        "label_direction":[0,1,0,1], "future_return":[-.01,.02,-.03,.04],
+        "block_index":[0,0,1,1],
+        **{f"P{i:02d}":[.4,.6,.45,.55] for i in range(1,11)},
+    })
+    assert validate_panel_frame(frame, "intraday", 5)["rows"] == 4
+    try:
+        validate_panel_frame(frame.assign(block_index=[0,1,0,1]), "intraday", 5)
+    except GateBlocked as exc:
+        assert "BLOCK_INDEX_NOT_MONOTONE_WITH_DECISION_TIME" in str(exc)
+    else:
+        raise AssertionError("reordered chronological block ids were accepted")
+    d = preflight_contract({"status":"COMPLETE","schema_version":1,"run_id":37957677656,
+                            "commit":FROZEN_PHASE7_COMMIT,
+                            "protocol":"research/phase7/PHASE7_METHOD_SPEC.md","seed":42}, [frame])
+    assert d["status"] == "BLOCKED" and d["model_fit_authorized"] is False
+    assert "PINNED_ARTIFACT_RECEIPTS_MISSING_OR_INCOMPLETE" in d["reasons"]
+    assert "TARGET_END_AND_LABEL_MATURITY_PROOF_MISSING" in d["reasons"]
+    assert "PROTECTED_HOLDOUT_EXCLUSION_PROOF_MISSING" in d["reasons"]
+
+    # Daily date-only decision convention and H-trading-row target arithmetic.
+    daily_close = daily_close_timestamp("2025-01-02")
+    assert daily_close == pd.Timestamp("2025-01-02T10:00:00Z")
+    daily_ends = daily_target_end_dates(
+        ["2025-01-02","2025-01-03","2025-01-06"],
+        ["2025-01-02","2025-01-03","2025-01-06"], 1,
+    )
+    assert str(daily_ends[0].date()) == "2025-01-03"
+    assert str(daily_ends[1].date()) == "2025-01-06"
+    assert pd.isna(daily_ends[2])
+
+    y = np.asarray([0,1] * 60, dtype=float)
+    p0 = np.where(y == 1, .55, .45)
+    p1 = np.where(y == 1, .70, .30)
+    boot = paired_brier_bootstrap(y,p0,p1,20,reps=99,seed=42)
+    assert boot["mean_brier_improvement"] > 0
+    gap_boot = paired_brier_bootstrap(
+        y[:40], p0[:40], p1[:40], 10, reps=20, seed=42,
+        population_n=80, row_positions=np.arange(0,80,2),
+    )
+    assert gap_boot["population_n"] == 80 and gap_boot["original_panel_positions_used"] is True
+    metrics = paired_metrics(y,p0,p1)
+    assert metrics["mean_brier_improvement"] > 0
+    assert metrics["brier_spot_plus_greek"] < metrics["brier_spot_only"]
+    assert np.allclose(holm_adjust([.01,.04,.03,.002]), [.03,.06,.06,.008], atol=1e-12)
+    try:
+        enforce_fit_gate()
+    except GateBlocked as exc:
+        assert "AUTHORIZATION_BUNDLE_PATH_REQUIRED" in str(exc)
+    else:
+        raise AssertionError("fit gate accepted absent tester authorization")
+
+    # Verify target-end lookup follows exact source timestamps only.
+    intrats = pd.date_range("2025-01-02T04:00:00Z", periods=5, freq="min")
+    ends = intraday_target_end_timestamps([intrats[0],intrats[1]], intrats, 2)
+    assert ends[0] == intrats[2] and ends[1] == intrats[3]
+    return {
+        "status":"PASS", "mode":"SYNTHETIC_ONLY",
+        "feature_math":"PASS", "panel_fail_closed":"PASS",
+        "bootstrap_holm":"PASS", "timestamp_contracts":"PASS",
+        "authorization_default":"BLOCKED",
+        "real_artifacts_opened":False, "empirical_model_fitted":False,
+        "option_pnl_run":False, "holdout_accessed":False,
+    }
+
 
 def main():
-    ap=argparse.ArgumentParser()
-    ap.add_argument("--self-test",action="store_true")
-    ap.add_argument("--validate-decision",type=Path,help="Check that a schema decision does not authorize fitting")
-    args=ap.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--validate-decision", type=Path,
+                    help="Check that a schema decision cannot self-authorize model fitting")
+    ap.add_argument("--run-preflight", action="store_true",
+                    help="Run schema/coverage-only preflight; exact independent code PASS is required")
+    ap.add_argument("--run-study", action="store_true",
+                    help="Run prediction-only models; complete scope/code/preflight authorization is required")
+    ap.add_argument("--greek-zip", type=Path)
+    ap.add_argument("--forecast-zip", type=Path)
+    ap.add_argument("--greek-artifact-id", type=int)
+    ap.add_argument("--forecast-artifact-id", type=int)
+    ap.add_argument("--authorization-bundle", type=Path)
+    ap.add_argument("--output", type=Path)
+    args = ap.parse_args()
     if args.self_test:
-        print(json.dumps(synthetic_self_test(),sort_keys=True)); return
+        print(json.dumps(synthetic_self_test(), sort_keys=True))
+        return
     if args.validate_decision:
-        d=json.loads(args.validate_decision.read_text())
-        if d.get("model_fit_authorized") is not False:
+        decision = json.loads(args.validate_decision.read_text(encoding="utf-8"))
+        if decision.get("model_fit_authorized") is not False:
             raise GateBlocked("SCHEMA_PREFLIGHT_CANNOT_AUTHORIZE_MODEL_FITTING")
-        print(json.dumps({"status":d.get("status"),"model_fit_authorized":False,"reasons":d.get("reasons",[])},sort_keys=True)); return
-    ap.error("use --self-test or --validate-decision; production data access is workflow-gated")
+        print(json.dumps({"status":decision.get("status"),"model_fit_authorized":False,
+                          "reasons":decision.get("reasons",[])}, sort_keys=True))
+        return
+    if args.run_preflight:
+        required = [args.greek_zip, args.forecast_zip, args.greek_artifact_id,
+                    args.forecast_artifact_id, args.output]
+        if any(x is None for x in required):
+            ap.error("--run-preflight requires both zip paths, both artifact IDs and --output")
+        report = run_schema_preflight_from_artifacts(
+            args.greek_zip, args.greek_artifact_id,
+            args.forecast_zip, args.forecast_artifact_id,
+            args.output,
+        )
+        print(json.dumps({"status":report["status"],"mode":report["mode"],
+                          "reasons":report["reasons"],
+                          "model_fit_authorized":False,
+                          "report_sha256":report.get("preflight_report_receipt",{}).get("sha256")}, sort_keys=True))
+        return
+    if args.run_study:
+        required = [args.greek_zip, args.forecast_zip, args.greek_artifact_id,
+                    args.forecast_artifact_id, args.authorization_bundle, args.output]
+        if any(x is None for x in required):
+            ap.error("--run-study requires both zip paths, both artifact IDs, --authorization-bundle and --output")
+        report = run_prediction_study_from_artifacts(
+            args.greek_zip, args.greek_artifact_id,
+            args.forecast_zip, args.forecast_artifact_id,
+            args.authorization_bundle, args.output,
+        )
+        print(json.dumps({"status":report["status"],
+                          "cells":len(report["cells"]),
+                          "multiple_testing":report["multiple_testing"],
+                          "holdout_accessed":False,"option_pnl_run":False,
+                          "strategy_promotion":False}, sort_keys=True))
+        return
+    ap.error("use --self-test, --validate-decision, --run-preflight, or --run-study")
+
 
 if __name__=="__main__": main()
