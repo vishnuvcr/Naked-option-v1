@@ -198,110 +198,68 @@ jobs:
           run_id=os.environ["GITHUB_RUN_ID"]
           publish=Path("research/results")/("phase8-proxy-run-"+run_id)
           data=json.loads((publish/"phase8_proxy_strategy_run_report.json").read_text())
-          readme=Path("README.md")
-          old=readme.read_text(encoding="utf-8")
-          marker="## Latest Phase 8 OHLC proxy strategy run"
-          section=(
-              f"\n\n{marker} — Run {run_id}\n\n"
-              f"- **Status:** {data['status']} (Q1/OHLC proxy, not quote-executable).\n"
-              f"- **Trades simulated:** {data['trade_count']:,}; 4,800 configurations × 4 cost scenarios.\n"
-              f"- **Candidates positive under C3 with at least 30 trades:** {data['configurations_with_30_plus_trades_positive_c3']}.\n"
-              f"- **Report:** [full run report](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_run_report.json)\n"
-              f"- **Grid:** [all rows](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_summary.csv)\n"
-              f"- **Worst-cost candidates:** [C3 top 50](research/results/phase8-proxy-run-{run_id}/phase8_proxy_top_50_worst_cost_scenario.csv)\n"
-          )
-          if marker in old:
-              old=old[:old.index(marker)-2].rstrip()
-          readme.write_text(old+section,encoding="utf-8")
-          status=Path("research/STATUS.md")
-          lines=status.read_text(encoding="utf-8").splitlines()
-          for i,line in enumerate(lines):
-              if line.startswith("| Phase 8 Long-option execution |"):
-                  state="COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING" if data["status"]=="COMPLETE_PROXY_BACKTEST" else data["status"]
-                  lines[i]=f"| Phase 8 Long-option execution | {state} | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |"
-                  break
-          status.write_text("\n".join(lines)+"\n",encoding="utf-8")
-          with Path("research/logs/RESEARCH_LOG.md").open("a",encoding="utf-8") as f:
-              f.write(f"\n\n## {datetime.date.today().isoformat()} — Phase 8 OHLC proxy strategy Run {run_id}\n\n")
-              f.write(f"- Status: {data['status']}; simulated trades: {data['trade_count']}.\n")
-              f.write(f"- C3-positive configurations with at least 30 trades: {data['configurations_with_30_plus_trades_positive_c3']}.\n")
-              f.write("- No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.\n")
-          with Path("research/logs/CHAT_LOG.md").open("a",encoding="utf-8") as f:
-              f.write(f"\n\n## {datetime.date.today().isoformat()} — User directed strategy testing without bid/ask validation\n\n")
-              f.write(f"- OHLC proxy run {run_id}: status {data['status']}; trades {data['trade_count']}; C3-positive configs with >=30 trades {data['configurations_with_30_plus_trades_positive_c3']}.\n")
-              f.write("- No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.\n")
+          # Publish only this run's unique result directory. Shared README/status/log
+          # edits are maintained separately to avoid concurrent workflow rebase conflicts.
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$publish" README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md
+          git add "$publish"
           git commit -m "Publish Phase 8 OHLC proxy results for run ${GITHUB_RUN_ID}"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
+
       - name: Record sanitized runtime failure in the repository
         if: failure()
         shell: bash
         run: |
           set -euo pipefail
-          error_file="$RUNNER_TEMP/phase8-proxy-results/phase8_proxy_strategy_error.log"
+          result_dir="$RUNNER_TEMP/phase8-proxy-results"
+          report="$result_dir/phase8_proxy_strategy_run_report.json"
+          summary="$result_dir/phase8_proxy_strategy_summary.csv"
+          ledger="$result_dir/phase8_proxy_trade_ledger.csv.gz"
+          error_file="$result_dir/phase8_proxy_strategy_error.log"
           if [[ ! -s "$error_file" ]]; then
-            printf '%s\n' 'ERROR_LOG_UNAVAILABLE: inspect the GitHub Actions job logs for the failed step.' > "$error_file"
+            printf '%s\n' 'ERROR_LOG_UNAVAILABLE: inspect GitHub Actions job logs.' > "$error_file"
           fi
           mkdir -p "research/results/phase8-proxy-failures"
           python - <<'PY'
           from pathlib import Path
-          import datetime, json, os
+          import json, os
           run_id=os.environ["GITHUB_RUN_ID"]
-          error_file=Path(os.environ["RUNNER_TEMP"])/"phase8-proxy-results"/"phase8_proxy_strategy_error.log"
-          error=error_file.read_text(encoding="utf-8",errors="replace")[:12000]
+          temp=Path(os.environ["RUNNER_TEMP"])/"phase8-proxy-results"
+          report=temp/"phase8_proxy_strategy_run_report.json"
+          summary=temp/"phase8_proxy_strategy_summary.csv"
+          ledger=temp/"phase8_proxy_trade_ledger.csv.gz"
+          error_file=temp/"phase8_proxy_strategy_error.log"
+          metrics_exist=report.is_file() and summary.is_file() and ledger.is_file()
+          report_status=None
+          if report.is_file():
+              try:
+                  report_status=json.loads(report.read_text(encoding="utf-8")).get("status")
+              except Exception:
+                  report_status="REPORT_UNREADABLE"
           record={
-            "status":"FAILED_NO_METRICS",
+            "status":"PUBLISH_FAILED_WITH_METRICS" if metrics_exist else "FAILED_NO_METRICS",
             "run_id":int(run_id),
             "execution_quality":"Q1_OHLC_PROXY",
             "forecast_artifact_id":11638738288,
             "option_artifact_id":11723198817,
-            "no_performance_metrics_generated":True,
-            "sanitized_runtime_error":error,
+            "metrics_artifacts_present":metrics_exist,
+            "report_status":report_status,
+            "no_performance_metrics_generated":not metrics_exist,
+            "sanitized_runtime_error":error_file.read_text(encoding="utf-8",errors="replace")[:12000],
             "raw_market_rows_or_values_logged":False,
           }
           out=Path("research/results/phase8-proxy-failures")/("run-"+run_id+".json")
           out.write_text(json.dumps(record,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-          log=Path("research/ERROR_LOG.md")
-          with log.open("a",encoding="utf-8") as f:
-            f.write(f"\n\n## {datetime.date.today().isoformat()} — Phase 8 OHLC proxy run {run_id} failed\n")
-            f.write("- Status: FAILED_NO_METRICS. No trades or strategy metrics were accepted.\n")
-            f.write(f"- Sanitized diagnostic: research/results/phase8-proxy-failures/run-{run_id}.json.\n")
-            f.write("- The backtest reused the pinned forecast and expiry-enriched composite artifacts; no market-data rows or raw values were written to this log.\n")
-          status=Path("research/STATUS.md")
-          lines=status.read_text(encoding="utf-8").splitlines()
-          for i,line in enumerate(lines):
-            if line.startswith("| Phase 8 Long-option execution |"):
-              lines[i]=f"| Phase 8 Long-option execution | FAILED RUN — NO METRICS; RERUN REQUIRED | Existing data reused; error log: research/results/phase8-proxy-failures/run-{run_id}.json |"
-              break
-          status.write_text("\n".join(lines)+"\n",encoding="utf-8")
-          readme=Path("README.md")
-          old=readme.read_text(encoding="utf-8")
-          marker="## Latest Phase 8 OHLC proxy strategy run"
-          section=(
-            f"\n\n{marker} — Run {run_id}\n\n"
-            "- **Status:** FAILED_NO_METRICS. The run generated no strategy performance metrics; this is not a no-profit result.\n"
-            f"- **Diagnostic:** research/results/phase8-proxy-failures/run-{run_id}.json\n"
-            "- **Next:** correct the parser/runtime issue and rerun the same frozen inputs; no bid/ask gate.\n"
-          )
-          if marker in old: old=old[:old.index(marker)-2].rstrip()
-          readme.write_text(old+section,encoding="utf-8")
-          with Path("research/logs/RESEARCH_LOG.md").open("a",encoding="utf-8") as f:
-            f.write(f"\n\n## {datetime.date.today().isoformat()} — Phase 8 proxy failure run {run_id}\n")
-            f.write("- No performance metrics were generated. Sanitized diagnostic preserved in research/results/phase8-proxy-failures/run-"+run_id+".json.\n")
-          with Path("research/logs/CHAT_LOG.md").open("a",encoding="utf-8") as f:
-            f.write(f"\n\n## {datetime.date.today().isoformat()} — Phase 8 proxy runtime failure {run_id}\n")
-            f.write("- The OHLC backtest failed before generating metrics. This is recorded as non-evidence; no new data were collected and no bid/ask gate was added.\n")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/results/phase8-proxy-failures research/ERROR_LOG.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md README.md
-          git commit -m "Record Phase 8 proxy runtime failure run ${GITHUB_RUN_ID}"
+          git add "research/results/phase8-proxy-failures/run-${GITHUB_RUN_ID}.json"
+          git commit -m "Record Phase 8 publication failure run ${GITHUB_RUN_ID}"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
+
       - name: Upload full proxy artifact with trade ledger
         if: always()
         uses: actions/upload-artifact@v4
