@@ -276,6 +276,17 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["date"] = "2026-10-13"
     p["status"] = "FROZEN_TEN_HORIZON_REGISTRY_DEVELOPER_VALIDATION_PENDING_NO_EMPIRICAL_RESULTS"
     p["scope"]["objective"] = "NIFTY 50 directional probability prediction at the complete frozen ten-horizon scope; no option strategy selection in this prediction sub-study."
+    p["scope"]["research_horizons"] = {
+        "intraday_minutes": [5, 15, 30, 60, 120],
+        "positional_exchange_sessions": [1, 2, 3, 5, 10],
+    }
+    p["scope"]["method_count"] = METHOD_COUNT
+    p["scope"]["configuration_count"] = CONFIG_COUNT
+    p["scope"]["preregistration_note"] = (
+        "R3 freezes the complete ten-horizon prediction scope before empirical metrics are computed. "
+        "The encrypted dataset must pass the developer-side data preflight and exact-pinned registry tests before fitting. "
+        "Independent tester review is deferred until all planned prediction results are acquired and frozen."
+    )
     p["scope"]["prohibited_until_gate_passes"] = [
         "selection using outer-validation results",
         "strategy selection",
