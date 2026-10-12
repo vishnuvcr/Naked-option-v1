@@ -180,3 +180,10 @@
 - Review attempt [#38202735979](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202735979) initially returned REQUEST_CHANGES (28/29) because the tester's own proposal status assertion was case-sensitive. This was corrected in tester audit commit 08ce9d3a5b7ccb5142e6bf7809a73f8735a2ea88.
 - Replacement review [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) passed 29/29 checks and issued PASS_PREFLIGHT_WORKFLOW_ONLY. The first failure remains historical; it was not a developer security issue or empirical result.
 - The exact approval decision blob is 0f7cf48945704e9498b7e149a7ae71a820809070. It authorizes only one schema/coverage preflight. The subsequent preflight-data review remains mandatory.
+
+
+## 2026-10-12 — Phase 8P preflight report R1 data-integrity blocker
+- Independent review [#38203737398](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203737398) verified the preflight report archive digest and the two pinned input ZIP hashes. The preflight itself was BLOCKED before a coverage table could be produced.
+- Symbolic blocker: DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. This indicates repeated keys under the current key tuple; it does not prove rows are identical. No silent deduplication is allowed.
+- Report archive: artifact 11726646000, SHA-256 b12cf1a2f9bc4b20d01aa39df6c74f16898ee454f8e16cb29455e816d8d3ae92. Tester decision is BLOCKED_DATA; no model fit or holdout access.
+- Next: hash/count-only classification of identical vs conflicting duplicates with synthetic tests, independent code gate, then rerun the schema-only preflight.
