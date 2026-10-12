@@ -249,3 +249,14 @@
 
 **Tester → Developer:** preserve the current run's exact log/outcome; no retries or model work.
 **Developer → Tester:** return the aggregate report to the independent data gate; if runtime/memory fails, record it as infrastructure/diagnostic evidence, not market performance.
+
+
+## 2026-10-12 — Tester data-gate evidence: diagnostic runner shutdown
+
+- Developer run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) terminated during the real duplicate diagnostic with exit code 143. The hosted log explicitly reports a runner shutdown signal; it contains no valid aggregate report and downstream receipt/upload steps were skipped.
+- The one-use R1 authorization was consumed in the permanent nonce ledger. Do not reuse the nonce, rerun attempt 1, or infer that duplicate keys are either exact or conflicting from this failure.
+- Root cause is not established from the available evidence; do not declare OOM without direct resource evidence.
+- Required next step: developer submits a fresh request/nonce after any needed technical amendment; independent tester reviews the exact workflow/request and later the exact aggregate output. All model/strategy work remains blocked.
+
+**Tester → Developer:** keep this failure as non-data evidence and use a new nonce only after the next exact-snapshot gates pass.
+**Developer → Tester:** return a report only after a complete run; do not fit, view holdout, or calculate option P&L.
