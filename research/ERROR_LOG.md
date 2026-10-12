@@ -901,3 +901,13 @@
 - Additional design risk: 20 algorithm families × 10 feature representations × 5 inference operators produces 1,000 IDs arithmetically but does not prove each pairing is valid or semantically distinct.
 - Required remediation: small shards (target <=25 methods and <=100 configs each), master index with byte counts/record counts/SHA-256, tested verifier with SHA-256 known vector, compatibility matrix with blocked combinations, frozen label/sample/missingness/fold/purge/embargo/multiplicity/bootstrap/seed preregistration, and synthetic restart/resource tests.
 - Tester report: `research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REPORT_2026-10-12.md`; developer checklist: `research/gates/PREDICTION_REGISTRY_V2_R2_REMEDIATION_CHECKLIST_2026-10-12.md`; tracking issue #25.
+
+
+## 2026-10-12 — R2 continuation tool-call cap and preregistration blockers
+- Category: tooling / research governance
+- Component: attempted split of large method/config registry into small shards
+- Symptom: bulk shard-generation call exceeded the connected tool's maximum-call limit; follow-up checks returned 404 for the first proposed shard paths.
+- Impact: no shard files were confirmed created. Do not treat the split as completed or hashes as verified.
+- Corrected understanding: the original large method registry is retrievable by GitHub blob SHA, while the ordinary file-content adapter returns empty content; this indicates an adapter/auditability constraint, not proof of corruption.
+- Added draft preregistration and compatibility-gate specification. Exact sample eligibility and bootstrap/multiplicity settings remain blocked pending freeze and independent review.
+- No empirical fitting or holdout access authorized.
