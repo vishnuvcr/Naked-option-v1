@@ -1,0 +1,92 @@
+name: Phase 8P Independent Greek Prediction Code Review
+
+on:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - "scripts/phase8p_independent_code_audit.py"
+      - ".github/workflows/phase8p-independent-code-review.yml"
+  workflow_dispatch:
+    inputs:
+      run_independent_review:
+        description: "Run isolated code/hash/synthetic review only; never open real data"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  independent-code-review:
+    if: ${{ github.event_name == 'push' || inputs.run_independent_review == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout isolated tester branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Fetch exact submitted developer snapshot
+        id: snapshot
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
+          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json > "${RUNNER_TEMP}/phase8p-code-review-request.json"
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          request=json.loads(Path(os.environ["RUNNER_TEMP"]+"/phase8p-code-review-request.json").read_text())
+          sha=request["developer_commit"]
+          subprocess.check_call(["git","cat-file","-e",sha+"^{commit}"])
+          print("DEVELOPER_SNAPSHOT="+sha)
+          Path(os.environ["GITHUB_OUTPUT"]).open("a").write("developer_sha="+sha+"\n")
+          PY
+
+      - name: Set up reviewer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned independent test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2
+
+      - name: Checkout developer snapshot into isolated worktree
+        env:
+          DEV_SHA: ${{ steps.snapshot.outputs.developer_sha }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-developer" "${DEV_SHA}"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-developer" rev-parse HEAD)" = "${DEV_SHA}"
+          cp "${RUNNER_TEMP}/phase8p-code-review-request.json" "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json"
+
+      - name: Run independent formulas, hashes and synthetic-only tests
+        id: audit
+        continue-on-error: true
+        run: |
+          python scripts/phase8p_independent_code_audit.py \
+            --developer-root "${RUNNER_TEMP}/phase8p-developer" \
+            --request "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json" \
+            --out "${RUNNER_TEMP}/phase8p-independent-code-review.json" | tee "${RUNNER_TEMP}/phase8p-independent-summary.json"
+
+      - name: Upload independent code-review receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-independent-code-review-r1
+          path: |
+            ${{ runner.temp }}/phase8p-independent-code-review.json
+            ${{ runner.temp }}/phase8p-independent-summary.json
+            ${{ runner.temp }}/phase8p-code-review-request.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail workflow when tester requests changes
+        if: ${{ steps.audit.outcome == 'failure' }}
+        run: |
+          echo "Tester decision is REQUEST_CHANGES; no real data or model run is permitted."
+          exit 1
