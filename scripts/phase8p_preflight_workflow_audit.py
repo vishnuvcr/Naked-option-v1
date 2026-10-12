@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 EXPECTED = {
-    "workflow_blob": "15e330467f60df5dc00e502b37bea70b9720b421",
+    "workflow_blob": "474712e945dfaef83c814c9e17d1513ad44a3152",
     "proposal_blob": "267cc3fba9d2e5a8313be5efb60879d27586d529",
     "code_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
     "module_blob": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
@@ -17,7 +17,7 @@ EXPECTED = {
     "forecast_id": 11638738288,
     "forecast_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
 }
-REVIEW_REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json"
+REVIEW_REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json"
 EXECUTION_REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json"
 WORKFLOW_PATH = ".github/workflows/phase8p-preflight-only.yml"
 PROPOSAL_PATH = "research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md"
@@ -64,7 +64,18 @@ def main():
     check(checks,failures,"request_is_pending_review",
           request.get("status")=="PENDING_INDEPENDENT_TESTER_REVIEW"
           and request.get("no_data_download_before_review") is True
-          and request.get("no_model_fit_before_report_decision") is True)
+          and request.get("no_model_fit_before_report_decision") is True
+          and request.get("execution_request_path")==EXECUTION_REQUEST_PATH)
+    execution_request = json.loads(run_git(root, "show", commit + ":" + EXECUTION_REQUEST_PATH))
+    check(checks,failures,"execution_request_is_pending_and_fail_closed",
+          execution_request.get("status")=="PENDING_INDEPENDENT_WORKFLOW_REVIEW"
+          and execution_request.get("workflow_blob_sha1")==EXPECTED["workflow_blob"]
+          and execution_request.get("model_fit_authorized") is False
+          and execution_request.get("holdout_access_authorized") is False)
+    check(checks,failures,"workflow_reads_the_triggered_execution_request",
+          'req_path = "' + EXECUTION_REQUEST_PATH + '"' in wf_text)
+    check(checks,failures,"review_request_pins_execution_request_blob",
+          request.get("execution_request_blob_sha1")==blob(root,commit,EXECUTION_REQUEST_PATH))
     approved=request.get("approved_code_snapshot",{})
     check(checks,failures,"approved_code_snapshot_pins",
           approved.get("commit")==EXPECTED["code_commit"]
