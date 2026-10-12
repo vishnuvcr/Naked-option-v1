@@ -275,3 +275,14 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - The moving-block bootstrap sampler was optimized to draw the same block-start indices directly, avoiding repeated construction of every possible block. The frozen scientific specification, random seed, block lengths, 500 replications and candidate formulas are unchanged.
 - Independent tester report: [PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md](research/gates/PHASE7_BOOTSTRAP_ALLOCATION_TESTER.md) = PASS WITH SCOPED RESTRICTIONS. Hosted regression jobs passed; empirical results remain unaccepted.
 - Separate implementation and test commits triggered additional empirical workflow attempts while Run #852 was still reported active. This orchestration issue is recorded in [the error log](research/ERROR_LOG.md). No Phase 8 grid is authorized; reconcile run status and audit a complete immutable artifact before progressing.
+
+## Phase 8P duplicate data gate — 2026-10-12
+
+- R4 code review: PASS 29/29; [tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md).
+- R2 executor workflow review: PASS 33/33; [tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_R2_2026-10-12.md).
+- Separate tester-created one-use execution authorization: PASS for the exact R4 code commit and artifact digest; [authorization report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_TESTER_R1_2026-10-12.md).
+- Real-data diagnostic run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) has passed authorization, consumed its nonce before data access, restored the cache and verified the pinned encrypted source ZIP. Aggregate scan is currently running.
+- No output has been accepted yet. **Strategy/model testing remains blocked until the aggregate duplicate report is independently accepted; no deduplication, feature fit, holdout, option P&L or strategy promotion is authorized.**
+
+**Developer → Tester:** review the exact run report/hash before allowing the schema preflight or model fit.
+**Tester → Developer:** record the independent data-gate decision; do not infer a PASS from a successful CI job alone.
