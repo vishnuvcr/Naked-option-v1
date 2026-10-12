@@ -11,7 +11,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -66,7 +66,7 @@ def build_index(source: Path, out_dir: Path, records: list[dict[str, Any]],
         name = f"{kind}_{start // shard_size + 1:04d}.jsonl"
         (out_dir / name).write_bytes(payload)
         entries.append({
-            "path": str((out_dir / name).as_posix()),
+            "path": name,
             "record_count": len(chunk),
             "byte_length": len(payload),
             "first_id": record_id(chunk[0]),
@@ -96,9 +96,7 @@ def verify_index(index_path: Path) -> list[str]:
     total = 0
     seen_ids: set[str] = set()
     for entry in index.get("shards", []):
-        path = Path(entry["path"])
-        if not path.is_absolute():
-            path = index_path.parent.parent / path
+        path = index_path.parent / entry["path"]
         if not path.exists():
             errors.append(f"missing shard: {entry['path']}")
             continue
