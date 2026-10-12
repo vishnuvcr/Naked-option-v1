@@ -301,3 +301,17 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** preserve this exact code-only PASS and historical failed runs; submit the separate one-use executor workflow/request for tester review. Do not open the artifact.
 **Developer → Tester:** independently check authorization ordering, artifact identity, scope flags, output redaction, no-replay and immutable report hashing; reject any workflow that can access the artifact before the approval gate.
+
+
+## Phase 8P duplicate executor workflow R1 — independent tester PASS (2026-10-12)
+
+- Decision: **PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY** for workflow blob `e1832072723a46a2688af83eb0346207325069a0` and developer request blob `fa3ae648d9da23649ad3db62c28456c032069a06`.
+- Tester run [#38206319754](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754): **31/31 checks passed**, no failures. Receipt artifact [11727591616](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754/artifacts/11727591616), ZIP SHA-256 `3009787cfb7abf9f04ca2abf695d1ffabbd9c77e26e2fe0b9303beda48f56d11`.
+- [Tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_R1_2026-10-12.md) and [machine decision](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R1_2026-10-12.json) pin exact workflow/request, R4 code and scope decisions, and the review receipt.
+- Safe no-op checks [#38205955895](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205955895) (request absent) and [#38206043280](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206043280) (independent workflow approval absent) completed without cache restore, artifact download, nonce consumption or diagnostic execution.
+- Initial fail-closed request-schema errors #38205997072 and #38206009396 remain documented; request schema was corrected and the safe no-op path reverified.
+- **Real artifact access/decryption is still blocked.** Workflow-only approval is distinct from the required one-use execution authorization. No duplicate counts, model fit, holdout, option P&L or strategy outcome exists.
+- Next: developer submits a distinct one-use execution-authorization request; tester independently reviews it and only then can create the short-lived, max-use-1 authorization file. The first subsequent executor run must record the nonce in the permanent ledger before any cache/download.
+
+**Tester → Developer:** preserve this exact workflow-only PASS; submit the separate one-use execution authorization request. No artifact access yet.
+**Developer → Tester:** pin this decision/report, exact workflow/request, R4 code/scope and artifact identity in the one-use request; leave execution permissions closed in that request.
