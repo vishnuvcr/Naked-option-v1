@@ -834,3 +834,8 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 User instructed: “Resolve the issue.” Developer added a guarded shard generator and workflow on phase-08-prediction-developer. The generator validates the 1,000-method master and ordered PM0001–PM1000 IDs, refuses to overwrite any existing shard unless it exactly matches the master slice, and creates only absent 50-record shards.
 
 The workflow also establishes a transparent config-shard hash contract: SHA-256 over exact committed file bytes (UTF-8 JSON bytes, including a final newline if present). Before pinning each digest, it checks the declared record count, unique IDs, and first/last IDs. The manifest has now changed to this explicit rule. This is an integrity metadata repair, not a scientific result. The integrity audit and independent tester decision remain mandatory; no model fitting or holdout access is authorized.
+
+
+### 2026-10-12 — Developer continuation: fine-grained registry auditability
+
+User instruction: “Ok proceed”. Continued Phase 8 registry repair on phase-08-prediction-developer only. Added scripts/reshard_prediction_registry.py, strict numeric-order/full-record/index verifier changes in scripts/audit_prediction_registry_shards.py, and helper regression tests in scripts/test_reshard_prediction_registry.py. Updated the repair workflow to test, audit before commit, and upload a JSON audit artifact. Posted a scoped handoff to independent tester issue #25. No empirical model fitting was run and no holdout was accessed. Hosted outcome remains unverified; existing independent tester decision remains REQUEST CHANGES.
