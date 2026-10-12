@@ -380,3 +380,11 @@ The independent static review accepts developer commit 39e964d's P10 diagnostic 
 - Independent tester run #38197317740 passed the actual uploaded bundle audit. Decision PASS_WITH_SCOPED_RESTRICTIONS.
 - Artifact 11723198817; 8,999,865 rows; 61 encrypted parts; 8,418,616 option rows with Delta; 49,873 invalid-IV rows; 22,234 source-flagged non-trading-session rows; zero exact-time spot misses; zero expiry rows unresolved under proxy rules.
 - Limitations: PARTIAL_GRID, expiry mapping proxies, model Greeks with r=0/q=0 proxies, CC-BY-NC-4.0 non-commercial only. No P&L, holdout or strategy promotion authorized.
+
+
+## 2026-10-12 — Phase 8P prediction-only Greek feature study: schema preflight running
+- Prediction study scope R3 passed a scope-only independent review; implementation code R2 passed its independent code-only gate (16/16 checks). Neither approval authorized model fitting.
+- The isolated tester approved the preflight executor workflow R2 for one schema/coverage-only run: [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_R2_2026-10-12.md), [decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json). Review run [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) passed 29/29 checks.
+- The exact R2 execution request is now authorized only for schema/coverage preflight and pins tester decision blob 0f7cf48945704e9498b7e149a7ae71a820809070. Hosted run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) is in progress at the pinned Greek-artifact verification/download step.
+- No Phase 8P prediction model has been fitted and no incremental predictive result exists. No holdout metrics, option P&L, strategy testing, new market-source requests or promotion are authorized.
+- Next gate: tester must independently inspect the exact preflight report and decide whether timestamp alignment, label maturity, protected split and coverage are proven. If not, record BLOCKED_DATA; do not fit.
