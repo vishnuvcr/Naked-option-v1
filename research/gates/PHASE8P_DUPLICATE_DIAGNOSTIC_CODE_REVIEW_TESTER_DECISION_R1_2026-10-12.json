@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW",
+  "decision": "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY",
+  "review_date": "2026-10-12",
+  "tester_branch": "phase-08-prediction-tester",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_commit": "aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f",
+  "request_path": "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R3_2026-10-12.json",
+  "request_blob_sha1": "d2c4993315987523b569e122a3949967b87263e5",
+  "reviewed_blobs": {
+    "scripts/phase8p_duplicate_key_diagnostic.py": "3427c48dcd86207dbe0a22d41da15ffa1a59fa43",
+    "scripts/test_phase8p_duplicate_key_diagnostic.py": "c1f3d1f86e728fc0a3ee3b28dcd58264767fb3b1",
+    ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml": "08cbb1519666d25186b684c000a1df478ad3329d",
+    "scripts/phase8p_greek_prediction.py": "410e1995d6093b959d4334ed678a588c146af5c2"
+  },
+  "developer_synthetic_run": {
+    "run_id": 38204164532,
+    "artifact_id": 11726546815,
+    "receipt_sha256": "79efe7183c8f7e95dbc4d0930e534e94522af3b7c16bf12b876f5b3a453847ff",
+    "conclusion": "success"
+  },
+  "tester_review_run": {
+    "run_id": 38204532045,
+    "artifact_id": 11726911040,
+    "artifact_zip_sha256": "2c30e354268a4f9dacfb62edf13c2423f3c0c9f7c0ca0cbcbffa480ddf9b1c99",
+    "checks_passed": 19,
+    "checks_total": 19,
+    "conclusion": "success",
+    "workflow_fix_commit": "5413bc6eb9970eaeba1a1a63cdafbaffc7443a4c"
+  },
+  "failed_tester_runs": [
+    {
+      "run_id": 38204120560,
+      "reason": "stale R2 request path; audit did not start"
+    },
+    {
+      "run_id": 38204512622,
+      "reason": "redundant same-path cp; audit did not start"
+    }
+  ],
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "checks_passed": 19,
+  "checks_total": 19,
+  "findings": [],
+  "limitations": [
+    "Synthetic/code-only evidence; actual encrypted artifact was not accessed",
+    "Full-run runtime and peak-memory behavior have not been measured",
+    "Separate one-use diagnostic authorization is required"
+  ],
+  "real_artifact_accessed": false,
+  "real_artifact_decrypted": false,
+  "real_diagnostic_authorized": false,
+  "model_fitted": false,
+  "holdout_accessed": false,
+  "external_market_source_requested": false,
+  "raw_or_decrypted_data_uploaded": false,
+  "deduplication_performed": false,
+  "deduplication_authorized": false,
+  "model_fit_authorized": false,
+  "option_pnl_run": false,
+  "strategy_promotion": false
+}
