@@ -729,3 +729,17 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 **Developer → Tester:** complete issue #23 review on the tester branch, hash-pin the proposal, and return a reproducible PASS/REQUEST CHANGES.
 
 **Tester → Developer:** no registry expansion or empirical batch until the independent decision is committed.
+
+
+## 2026-10-12 — User said “Proceed”: amendment and registry work
+
+- Re-read the developer R1 proposal, developer/tester status and the open tester gate. Issue #23 had no tester response, so the protocol gate was executed as an explicit independent review rather than assuming approval.
+- Tester issued REQUEST CHANGES for R1: operational method identity, finite config completeness, pre-frozen multiple testing, resource/restart contract, and strict historical-result counting were missing.
+- Developer created R2; independent tester reviewed exact blob `96b8b3d34fe7f038795247da007ba40ed704a60d` and issued PASS WITH SCOPED RESTRICTIONS. This permits registry preparation only, not empirical fitting.
+- Generated draft METHOD_REGISTRY_V2_R1 with 1,000 method records and 2,000 configuration records. Corrected an initially faulty SHA-256 helper after its standard-vector self-test failed; regenerated registry/config manifest with a corrected implementation and standard vector pass.
+- Independent registry review requested in issue #24. No models were fitted, no market data were opened for this registry step, and no untouched holdout was accessed.
+- Next: tester independently verifies unique fingerprints, semantic distinctness, compatible operators, all config hashes/parent links, data/PIT requirements and resource budget. Only after registry approval may the developer build the synthetic-only runner gate; empirical execution remains separately blocked.
+
+**Developer → Tester:** audit R2 registry/config files against exact commits and report PASS/REQUEST CHANGES.
+
+**Tester → Developer:** no model runs until the registry and execution implementation both pass independent gates.
