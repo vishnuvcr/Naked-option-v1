@@ -57,7 +57,7 @@ jobs:
           try:
               raw = subprocess.check_output(["git", "show", "origin/phase-08-tester:" + path], text=True)
           except subprocess.CalledProcessError:
-              raise SystemExit("TESTER_GATE_BLOCKED: no R1 decision on phase-08-tester; no market-data request made")
+              raise SystemExit("TESTER_GATE_BLOCKED: no R2 decision on phase-08-tester; no market-data request made")
           d = json.loads(raw)
           if d.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
               raise SystemExit("TESTER_GATE_BLOCKED: decision is not PASS_WITH_SCOPED_RESTRICTIONS")
@@ -86,7 +86,7 @@ jobs:
               "scripts/enrich_nifty_composite_greeks.py",
               "scripts/test_enrich_nifty_composite_greeks.py",
               ".github/workflows/phase8-greek-enrichment.yml",
-              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R1_2026-10-12.md",
+              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md",
           }
           if set(d.get("reviewed_blobs", {})) != must_review:
               raise SystemExit("TESTER_GATE_BLOCKED: reviewed_blobs does not equal the required file set")
