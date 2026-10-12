@@ -54,8 +54,9 @@ GREEK_FEATURE_COLUMNS = [
     "call_iv_median", "put_iv_median", "iv_skew_put_minus_call",
     "oi_put_call_ratio", "volume_put_call_ratio",
     "oi_put_call_ratio_denominator_invalid", "volume_put_call_ratio_denominator_invalid",
-    "oi_put_valid_n", "oi_put_call_ratio_call_valid_n",
-    "volume_put_valid_n", "volume_put_call_ratio_call_valid_n",
+    "oi_put_call_ratio_missing_side_observations", "volume_put_call_ratio_missing_side_observations",
+    "oi_put_call_ratio_put_valid_n", "oi_put_call_ratio_call_valid_n",
+    "volume_put_call_ratio_put_valid_n", "volume_put_call_ratio_call_valid_n",
     "n_option_rows_for_provenance",
 ]
 
@@ -173,6 +174,12 @@ def validate_panel_frame(frame: pd.DataFrame, layer: str, horizon: int) -> dict[
     uniq = np.unique(bi.astype(int))
     if not np.array_equal(uniq, np.arange(len(uniq))):
         raise GateBlocked("BLOCK_INDEX_NOT_CONTIGUOUS_FROM_ZERO")
+    if np.any(np.diff(bi.astype(int)) < 0):
+        raise GateBlocked("BLOCK_INDEX_NOT_MONOTONE_WITH_DECISION_TIME")
+    for block_id in uniq:
+        positions = np.flatnonzero(bi.astype(int) == block_id)
+        if len(positions) and int(positions[-1] - positions[0] + 1) != len(positions):
+            raise GateBlocked("BLOCK_INDEX_REAPPEARS_AFTER_LATER_BLOCK")
     return {"layer": layer, "horizon": int(horizon), "rows": len(frame),
             "finite_label_rows": int(np.isfinite(y).sum()),
             "missing_label_rows": int((~np.isfinite(y)).sum()),
@@ -360,8 +367,18 @@ def moving_block_indices(n: int, block_len: int, rng: np.random.Generator) -> np
         raise AssertionError("bootstrap index length mismatch")
     return idx
 
-def paired_brier_bootstrap(y, p_spot, p_augmented, block_len: int,
-                           reps: int = BOOTSTRAP_REPS, seed: int = SEED) -> dict[str, Any]:
+def paired_brier_bootstrap(
+    y, p_spot, p_augmented, block_len: int,
+    reps: int = BOOTSTRAP_REPS, seed: int = SEED,
+    population_n: int | None = None,
+    row_positions: Sequence[int] | None = None,
+) -> dict[str, Any]:
+    """Paired, null-centred one-sided moving-block bootstrap.
+
+    Optional row_positions preserve the original panel's time grid when exact feature
+    joins are missing. Blocks are resampled on original panel positions; only
+    prespecified matched rows contribute paired loss differences.
+    """
     y, p0, p1 = (np.asarray(v, dtype=float) for v in (y, p_spot, p_augmented))
     if not (len(y) == len(p0) == len(p1)) or not len(y):
         raise ValueError("paired arrays must have identical non-zero length")
@@ -372,18 +389,53 @@ def paired_brier_bootstrap(y, p_spot, p_augmented, block_len: int,
     d = (p0 - y) ** 2 - (p1 - y) ** 2
     observed = float(d.mean())
     null_d = d - observed
+    if row_positions is None:
+        positions = np.arange(len(d), dtype=np.int64)
+        pop_n = len(d) if population_n is None else int(population_n)
+        if pop_n != len(d):
+            raise ValueError("population_n requires explicit original row_positions")
+    else:
+        positions = np.asarray(row_positions, dtype=np.int64)
+        pop_n = int(population_n) if population_n is not None else (int(positions.max()) + 1 if len(positions) else 0)
+        if len(positions) != len(d) or pop_n < len(d) or np.any(positions < 0) or np.any(positions >= pop_n):
+            raise ValueError("row_positions must align to paired rows and fit inside population_n")
+        if len(np.unique(positions)) != len(positions) or np.any(np.diff(positions) <= 0):
+            raise ValueError("row_positions must be unique and strictly chronological")
+    if pop_n <= 0 or block_len <= 0 or reps <= 0:
+        raise ValueError("population_n, block_len and reps must be positive")
+    position_to_d = {int(position): i for i, position in enumerate(positions)}
     rng = np.random.default_rng(seed)
-    boot = np.asarray([float(null_d[moving_block_indices(len(d), block_len, rng)].mean())
-                       for _ in range(int(reps))])
-    if not np.isfinite(boot).all():
-        raise ValueError("non-finite bootstrap statistic blocks inference")
+    boot_stats = []
+    for _ in range(int(reps)):
+        sampled_positions = moving_block_indices(pop_n, block_len, rng)
+        selected_d = [null_d[position_to_d[int(position)]]
+                      for position in sampled_positions if int(position) in position_to_d]
+        if not selected_d:
+            raise ValueError("bootstrap resample contains no paired rows; inference blocked")
+        stat = float(np.mean(selected_d))
+        if not np.isfinite(stat):
+            raise ValueError("non-finite bootstrap statistic blocks inference")
+        boot_stats.append(stat)
+    boot = np.asarray(boot_stats, dtype=float)
     exceed = int(np.sum(boot >= observed))
-    return {"n": len(y), "mean_brier_improvement": observed,
-            "null_hypothesis": "H0: E[Brier_spot_only - Brier_spot_plus_greek] <= 0",
-            "alternative": "H1: mean paired Brier improvement > 0",
-            "block_length": min(block_len, len(y)), "bootstrap_reps": int(reps), "seed": int(seed),
-            "null_centered": True, "one_sided": True, "raw_p_value": (1 + exceed) / (reps + 1),
-            "bootstrap_exceedances": exceed, "minimum_attainable_p_value": 1 / (reps + 1)}
+    return {
+        "n": len(y),
+        "population_n": pop_n,
+        "matched_rows": len(y),
+        "mean_brier_improvement": observed,
+        "null_hypothesis": "H0: E[Brier_spot_only - Brier_spot_plus_greek] <= 0",
+        "alternative": "H1: mean paired Brier improvement > 0",
+        "block_length": min(int(block_len), pop_n),
+        "bootstrap_reps": int(reps),
+        "seed": int(seed),
+        "null_centered": True,
+        "one_sided": True,
+        "original_panel_positions_used": row_positions is not None,
+        "raw_p_value": (1 + exceed) / (int(reps) + 1),
+        "bootstrap_exceedances": exceed,
+        "minimum_attainable_p_value": 1 / (int(reps) + 1),
+    }
+
 
 def holm_adjust(p_values: Sequence[float]) -> list[float]:
     p = np.asarray(p_values, dtype=float)
@@ -694,7 +746,9 @@ def build_option_feature_frame(
                 continue
             if isinstance(value, str):
                 if key.endswith("_status"):
-                    flat[key + "_denominator_invalid"] = int(value != "VALID")
+                    base = key[:-len("_status")]
+                    flat[base + "_denominator_invalid"] = int(value != "VALID")
+                    flat[base + "_missing_side_observations"] = int(value == "MISSING_VALID_SIDE_OBSERVATIONS")
                 continue
             flat[key] = value
         for summary_key, prefix in (
