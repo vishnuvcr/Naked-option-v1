@@ -190,25 +190,26 @@ def synthetic_self_test() -> dict[str, Any]:
         "option_type":"CE", "close":100.0, "delta":0.5,
     }
     exact = dict(base)
-    conflict = dict(base, close=101.0)
+    conflict_base = dict(base, returned_strike=25050.0)
+    conflict = dict(conflict_base, close=101.0)
     seconds_ms = dict(base, timestamp_epoch=1760000000000)
     spot = {"row_type":"SPOT","timestamp_epoch":1760000000,"expiry_date":None,
             "expiry_flag":None,"expiry_code":None,"returned_strike":None,"option_type":None,
             "close":25000.0,"delta":None}
     result = scan_frames([
-        pd.DataFrame([base, spot]),
+        pd.DataFrame([base, conflict_base, spot]),
         pd.DataFrame([exact, conflict, seconds_ms]),
     ])
     raw = result["raw_key_semantics"]
     norm = result["normalized_key_semantics"]
-    assert raw["duplicate_key_groups"] == 1
+    assert raw["duplicate_key_groups"] == 2
     assert raw["duplicate_extra_rows"] == 2
     assert raw["exact_full_row_duplicate_groups"] == 1
-    assert raw["conflicting_full_row_duplicate_groups"] == 0
+    assert raw["conflicting_full_row_duplicate_groups"] == 1
     assert norm["duplicate_key_groups"] == 2
-    assert norm["exact_full_row_duplicate_groups"] == 1
-    assert norm["conflicting_full_row_duplicate_groups"] == 1
-    assert result["parts_scanned"] == 2 and result["option_rows_scanned"] == 4
+    assert norm["exact_full_row_duplicate_groups"] == 0
+    assert norm["conflicting_full_row_duplicate_groups"] == 2
+    assert result["parts_scanned"] == 2 and result["option_rows_scanned"] == 5
     assert result["deduplication_performed"] is False
     try:
         scan_frames([pd.DataFrame([{"row_type":"OPTION"}])])
