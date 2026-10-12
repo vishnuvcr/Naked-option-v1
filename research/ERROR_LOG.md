@@ -930,3 +930,10 @@
 - Outcome: all four unit tests passed; standard SHA-256 known-vector check passed. No test failure was observed.
 - Impact: file-sharding utility behavior has initial developer CI evidence. This does not verify the actual registry files, scientific compatibility, semantic distinctness, label/statistical preregistration, or runner restart/resource behavior.
 - Disposition: independent tester review requested on issue #25. Registry gate remains blocked; no empirical fitting or holdout access.
+
+## 2026-10-12 — Prediction shard utility hardening
+
+- Review found defensive-validation gaps in the first shard utility: malformed indexes could raise uncaught errors, source paths could include machine-specific absolute paths, explicit empty lists could not be inferred, and canonical JSONL/final-LF/path-safety checks were incomplete.
+- Corrected in validator commit 9c6db727656d351742e3f2a93a7d8c6e3508aa8b; expanded regression tests committed as 49c60997b12aeb71a93a891b3c895cd6a34445b9.
+- Workflow run 38241541882 passed, but it tested the four-test file as it existed at that commit. Do not treat it as evidence for the later expanded suite. The expanded suite is being checked in run 38241558360.
+- No scientific registry gate was passed and no method/config shards or empirical results were produced.
