@@ -576,3 +576,14 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 ## 2026-10-12 — Phase 8P data-preflight gate blocked
 - Tester independently reviewed the latest aggregate report and confirmed BLOCKED_DATA due to DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Input ZIP digests matched; no coverage table was produced.
 - The next step is duplicate-key provenance diagnosis with hashes/counts only, synthetic edge cases and a new independent code gate. No model fitting or holdout access is permitted.
+
+
+## 2026-10-12 — Resumed research; first authorized real-data diagnostic started
+
+- User requested resume and asked why strategy testing had not started. The immediate blocker remained duplicate economic contract/timestamp rows, previously causing zero feature panels.
+- R4 duplicate diagnostic code passed 29/29 independent checks; separate R2 executor workflow passed 33/33 checks. The final one-use authorization was separately issued on the tester branch with a 12-hour window, exact workflow/request/code/artifact pins, and all non-diagnostic permissions false.
+- Developer run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed the gate, consumed the permanent nonce ledger entry before artifact access, restored the cached encrypted source and verified its pinned digest. The real aggregate-only diagnostic is in progress.
+- This is the first real-data step since the duplicate blocker; strategy testing and model fitting remain prohibited until the aggregate duplicate report passes a new independent tester data gate.
+
+**Developer → Tester:** inspect run #38207005953's pinned report/receipt once available; check aggregate consistency and conflict classifications.
+**Tester → Developer:** record an immutable data-gate verdict before authorizing the schema/coverage preflight or model experimentation.
