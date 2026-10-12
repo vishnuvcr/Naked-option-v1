@@ -1000,3 +1000,9 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed: 7/8 passed; the failure was an incorrect fixture expectation for shard_count mismatch.
 - Fixture corrected in [commit 1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c). Fresh CI is required and its result is not yet verified.
 - Registry remains BLOCKED; no shards or empirical results.
+
+## Prediction registry shard utility CI — 2026-10-12
+
+- Expanded test suite [run 38241647992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241647992) passed on commit [1fe2a29](https://github.com/vishnuvcr/Naked-option-v1/commit/1fe2a290cf933d349ece0691929ee65f669d2b9c): 8/8 unit tests and SHA-256 known vector passed.
+- Earlier expanded run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) failed 7/8 due to an incorrect fixture expectation; the correction and failure remain in the error log.
+- Independent tester review is still pending. No shards generated, no compatibility/distinctness gate cleared, and no fitting/holdout access authorized.
