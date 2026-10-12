@@ -19,13 +19,17 @@ class PredictionStatisticsTests(unittest.TestCase):
         self.assertAlmostEqual(stats.balanced_accuracy(y, p), 0.5, places=12)
 
     def test_probability_and_label_validation_fail_closed(self):
-        for y, p in [([0, 2], [0.2, 0.8]), ([False, True], [0.2, 0.8]), ([0], [0.2, 0.8]), ([0, 1], [0.2, float("nan")]), ([0, 1], [0.2, 1.1])]:
+        for y, p in [([0, 2], [0.2, 0.8]), ([False, True], [0.2, 0.8]), ([0.0, 1.0], [0.2, 0.8]), ([0], [0.2, 0.8]), ([0, 1], [0.2, float("nan")]), ([0, 1], [0.2, 1.1])]:
             with self.subTest(y=y, p=p), self.assertRaises(ValueError):
                 stats.binary_log_loss(y, p)
 
     def test_balanced_accuracy_requires_both_classes(self):
         with self.assertRaises(ValueError):
             stats.balanced_accuracy([1, 1], [0.7, 0.8])
+
+    def test_calibration_requires_both_classes(self):
+        with self.assertRaises(ValueError):
+            stats.calibration_intercept_slope([1, 1, 1], [0.6, 0.7, 0.8])
 
     def test_calibration_intercept_slope_recovers_identity_mapping(self):
         # Replicated predictions are deliberately not all identical; labels approximate the supplied probability.
@@ -73,6 +77,12 @@ class PredictionStatisticsTests(unittest.TestCase):
         self.assertAlmostEqual(adjusted[1], 0.041666666666666664)
         self.assertAlmostEqual(adjusted[2], 0.1111111111111111)
         self.assertAlmostEqual(adjusted[3], 0.4166666666666667)
+
+    def test_bootstrap_requires_integer_parameters(self):
+        folds = [[0.01, 0.02, 0.03, 0.04, 0.05]]
+        for kwargs in ({"block_length": 2.5}, {"replicates": 10.5}, {"seed": 1.5}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                stats.paired_moving_block_bootstrap(folds, **kwargs)
 
     def test_by_invalid_values_and_empty_family(self):
         self.assertEqual(stats.benjamini_yekutieli({}), {})
