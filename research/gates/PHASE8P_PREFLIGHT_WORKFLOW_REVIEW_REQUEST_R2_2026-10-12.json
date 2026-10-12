@@ -3,7 +3,7 @@
   "gate": "PHASE8P_PREFLIGHT_EXECUTOR_WORKFLOW_REVIEW",
   "review_scope": "STATIC_WORKFLOW_AND_SECURITY_CHECKS_ONLY",
   "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
-  "developer_workflow_commit": "24ce332c5d2baae90086fce497f649d1f0a9f3db",
+  "developer_workflow_commit": "f6ef63b8754d5eddafa32288092ce8bd508bb06b",
   "developer_workflow_path": ".github/workflows/phase8p-preflight-only.yml",
   "developer_workflow_blob_sha1": "b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5",
   "proposal_path": "research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md",
@@ -57,6 +57,6 @@
   "no_data_download_before_review": true,
   "no_model_fit_before_report_decision": true,
   "no_holdout_access": true,
-  "review_revision": 3,
+  "review_revision": 4,
   "execution_request_status": "PENDING_INDEPENDENT_WORKFLOW_REVIEW"
 }
