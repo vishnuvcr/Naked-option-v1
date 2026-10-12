@@ -62,7 +62,7 @@ class PredictionPreregistrationTests(unittest.TestCase):
         self.assertTrue(self.d["encrypted_only"])
         self.assertEqual(self.d["rows_preserved"], 8999865)
         self.assertTrue(self.p["scope"]["source_dataset_is_encrypted_only"])
-        self.assertFalse(self.p["output_and_failure_rules"]["holdout_protection"] is False)
+        self.assertIn("No untouched holdout access", self.p["output_and_failure_rules"]["holdout_protection"])
 
     def test_all_eight_outer_calendar_windows_are_fixed_and_contiguous(self):
         folds = self.p["chronological_validation"]["fold_calendar_windows"]
