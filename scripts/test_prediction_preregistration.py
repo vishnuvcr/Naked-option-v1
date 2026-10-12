@@ -86,6 +86,7 @@ class PredictionPreregistrationTests(unittest.TestCase):
 
     def test_r2_pilot_scope_cannot_authorize_empirical_fitting_or_selection(self):
         amendment = self.p["scope_amendment_2026_10_13"]
+        self.assertEqual(self.p["scope"]["empirical_execution_gate"], "BLOCKED_PENDING_HORIZON_COMPLETE_REGISTRY_GATE")
         self.assertEqual(amendment["status"], "PILOT_ONLY_NOT_EXHAUSTIVE")
         self.assertEqual(amendment["included_target_labels"], ["INTRA_30M_UP_DOWN", "POS_1D_UP_DOWN"])
         self.assertTrue(amendment["no_empirical_fit_authorized_by_this_amendment"])
