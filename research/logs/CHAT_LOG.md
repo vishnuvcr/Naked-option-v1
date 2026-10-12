@@ -944,3 +944,12 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 - Exact root cause: `HASH_RULE` omitted “any ... if present” from the already-frozen R2 manifest contract string. Corrected the builder literal to match the R2 manifest exactly in commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83`. This is a wording correction only; no integrity validation was bypassed.
 - R3 outputs do not yet exist. The rerun against the corrected source has not been observed yet.
 - Tester cadence remains post-results-only. No tester review requested at this intermediate correction, and no market data/model/holdout work occurred.
+
+
+## 2026-10-13 — R3 build attempt 2 exposed exact-text mismatch
+
+- The R3 builder ran at source `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83` but failed with the same manifest contract guard.
+- Re-fetched the R2 config manifest rather than relying on an earlier transcription. Its exact rule is `SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline`.
+- Corrected the builder from “including any final newline if present” to the exact committed text in `0eee4c7fec9acab16afbc2e23809d852b139aa6e`. This second failed attempt is logged; no integrity guard was bypassed.
+- R3 outputs and tests are still pending. No empirical fitting or tester review occurred.
+
