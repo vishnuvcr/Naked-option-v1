@@ -937,3 +937,9 @@
 - Corrected in validator commit 9c6db727656d351742e3f2a93a7d8c6e3508aa8b; expanded regression tests committed as 49c60997b12aeb71a93a891b3c895cd6a34445b9.
 - Workflow run 38241541882 passed, but it tested the four-test file as it existed at that commit. Do not treat it as evidence for the later expanded suite. The expanded suite is being checked in run 38241558360.
 - No scientific registry gate was passed and no method/config shards or empirical results were produced.
+
+## 2026-10-12 — Shard adversarial suite first attempt failed
+
+- Run `38241558360` failed with 7/8 tests passing. The failing assertion expected `shard_count mismatch`, but the fixture declared shard_count=1 and contained exactly one entry; therefore that particular assertion was invalid.
+- Corrected the test fixture to declare shard_count=2 in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`. Await fresh CI before claiming success.
+- This is a test-fixture defect; no scientific result and no registry gate clearance.
