@@ -634,3 +634,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Tester workflow #38197317740 passed actual artifact review: exact ZIP digest, CRC, 61 encrypted part hashes, row totals, coverage maps, schema/source metadata and no-plaintext conditions.
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS. Artifact ID 11723198817; SHA-256 `e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736`.
 - The dataset remains PARTIAL_GRID with proxy expiry mapping and estimated Greeks; CC-BY-NC-4.0 non-commercial only. No P&L, holdout or strategy promotion authorized.
+
+
+## 2026-10-12 — Phase 8P prediction-only feature study started
+- Scope R3 was independently approved on the isolated tester branch for implementation and synthetic-only regression testing only. The accepted scope file SHA-1 is 018500722f88f5fb100a2e24afc3d5d97394631e.
+- Developer implementation commits: module scripts/phase8p_greek_prediction.py (commit 3dbe47b6688ef264fe5bd14b0da065079f15fd19), synthetic tests scripts/test_phase8p_greek_prediction.py (commit f9651a927bba31168bb878615bf57096a3ad29ff), workflow .github/workflows/phase8p-greek-prediction.yml (initial commit 38100a11c3033fa63b4cea5dec693c7670e6cbe0; repaired in commit 35b712cdd1999a5aa5a64c98b8a3dbc807bea9a4).
+- Failed CI attempt: run 38199051778 failed before tests at setup-python because pip cache was enabled without a requirements.txt/pyproject.toml. This is workflow configuration only; no code test, dataset, or scientific result was produced. Corrected by removing cache: pip; automatic rerun 38199087844 is executing.
+- The script provides synthetic tests for signed Delta arithmetic, minimum side coverage, put/call ratios and zero denominators, panel schema/order/label/block checks, missing holdout/target-maturity fail-closed behavior, paired Brier sign, deterministic block bootstrap, Holm adjustment and refusal to fit without explicit tester/preflight authorization.
+- No real artifact was downloaded/decrypted; no model fitted; no new source request, holdout access, P&L or strategy test occurred.
+- Current gate: **SCOPE PASS; SYNTHETIC CODE GATE PENDING; DATA PREFLIGHT/FITTING BLOCKED.**
+
+**Developer → Tester:** review the exact developer code/test/workflow hashes only after the synthetic workflow completes; no data access is requested at this gate.
+**Tester → Developer:** retain the initial CI setup failure as an error-log entry and keep the empirical gate blocked until a separate tester code decision and preflight decision pass.
