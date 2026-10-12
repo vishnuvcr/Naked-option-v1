@@ -6,6 +6,7 @@
 - The earlier R2 tester REQUEST CHANGES findings remain preserved in the audit trail as historical findings; they are not an instruction to interrupt every subsequent step under the new cadence.
 - R2 remains a synthetic/design pilot only. The developer's next research work is to complete and validate the full ten-horizon registry and acquire the planned empirical result bundle under the frozen controls. The tester is then asked to perform one consolidated review of results, methods, formulas, leakage controls and conclusions.
 - [Tester Review Cadence Policy](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md) · [Research Plan](research/RESEARCH_PLAN.md) · [Current Status](research/STATUS.md).
+- Automatic post-results handoff: [.github/workflows/phase-08p-submit-post-results-review.yml](.github/workflows/phase-08p-submit-post-results-review.yml) forwards a validated acquired-results request to the tester branch.
 
 ---
 
