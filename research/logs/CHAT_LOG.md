@@ -517,3 +517,8 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** independently download and inspect artifact 11723198817; verify its exact ZIP digest, 61 part hashes, row-count maps, Greek coverage counts, source license/revision and no-plaintext guarantee.
 **Tester → Developer:** accept only after the independent artifact decision passes; do not progress into option P&L or strategy selection from this code/data gate.
+
+
+## 2026-10-12 — Scope gate wording repair during Phase 8P CI
+- The second synthetic workflow attempt, [#38199087844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199087844), stopped at the reviewer-scope assertion because a literal expected sentence did not match the review report's valid equivalent wording. This was a workflow-guard text mismatch, not a scope denial or research result.
+- Updated the assertion to the tester report's actual wording and triggered run [#38199152061](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199152061). No real data was downloaded/decrypted and no model fitted.
