@@ -1,0 +1,93 @@
+{
+  "schema_version": 2,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_R4",
+  "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
+  "review_scope": "STATIC_AND_SYNTHETIC_ONLY_NO_REAL_ARTIFACT_ACCESS",
+  "developer_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850",
+  "implementation": {
+    "core_module_path": "scripts/phase8p_greek_prediction.py",
+    "core_module_blob_sha1": "3358381d64b3e675e49687fa5d34df44d8a9c984",
+    "core_test_path": "scripts/test_phase8p_greek_prediction.py",
+    "core_test_blob_sha1": "198e731e9e5f5dd011370cd6f656fe27e97c6ca5",
+    "core_synthetic_workflow_path": ".github/workflows/phase8p-greek-prediction.yml",
+    "core_synthetic_workflow_blob_sha1": "5d413bc4a0d6fb63c89775a153af33f270853b8f",
+    "diagnostic_path": "scripts/phase8p_duplicate_key_diagnostic.py",
+    "diagnostic_blob_sha1": "6e4484cc5893bae27966c2b8d7561c2435e00023",
+    "diagnostic_test_path": "scripts/test_phase8p_duplicate_key_diagnostic.py",
+    "diagnostic_test_blob_sha1": "232de27ff2c26a4ad228ae179d8ec5565ac97eeb",
+    "diagnostic_synthetic_workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml",
+    "diagnostic_synthetic_workflow_blob_sha1": "08cbb1519666d25186b684c000a1df478ad3329d"
+  },
+  "scope_approval": {
+    "proposal_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT_R4_2026-10-12.md",
+    "proposal_blob_sha1": "1ea9bca882b53fd2853829137aba2d521023b3bd",
+    "tester_decision_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json",
+    "tester_decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+    "tester_report_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_TESTER_R2_2026-10-12.md",
+    "tester_report_blob_sha1": "3305ed3a2a6617441c9ccaf73764d9edf0e53b5f",
+    "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS"
+  },
+  "synthetic_evidence": {
+    "core_run": {
+      "run_id": 38205169093,
+      "conclusion": "success",
+      "developer_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850"
+    },
+    "diagnostic_run": {
+      "run_id": 38205127423,
+      "conclusion": "success",
+      "diagnostic_blob_sha1": "6e4484cc5893bae27966c2b8d7561c2435e00023",
+      "diagnostic_test_blob_sha1": "232de27ff2c26a4ad228ae179d8ec5565ac97eeb"
+    }
+  },
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "diagnostic_contract": {
+    "schema_source": "columns list inside the pinned dataset_manifest.json",
+    "column_reconciliation": "each decrypted part must match the manifest column list exactly, in order, before rows are processed",
+    "required_timestamp_semantics": "at least one of timestamp_utc or timestamp_ist must be in the schema; every present timestamp text field must match timestamp_epoch",
+    "economic_key_fields": [
+      "underlying",
+      "greek_valuation_epoch_seconds",
+      "normalized_expiry_date",
+      "returned_strike",
+      "normalized_option_type"
+    ],
+    "valuation_offset_seconds": 60,
+    "signature": "every manifest column except the four explicitly approved collection-provenance fields when present",
+    "allowed_provenance_variance_fields": [
+      "source_request_id",
+      "requested_relative_strike",
+      "request_scope_sha256",
+      "response_sha256"
+    ],
+    "reporting": "aggregate counts, schema/signature hashes, conflicting field names; no raw keys, rows, identifiers, prices, features, labels, or decrypted tables",
+    "deduplication": false,
+    "model_fit": false,
+    "holdout_access": false,
+    "external_source_requests": false
+  },
+  "required_checks": [
+    "Verify exact developer commit and all six source/test/workflow blob hashes",
+    "Verify exact tester R4 scope decision/report blobs and scope-only flags",
+    "Run the core module self-test and full core synthetic test suite on the pinned developer worktree",
+    "Run diagnostic self-test and diagnostic regression suite on the pinned developer worktree",
+    "Verify required manifest column checks, conditional UTC/IST schema semantics, ordered part-header equality, and missing/extra/reordered header rejection",
+    "Verify every actual manifest column is included in signature except the four permitted provenance variance fields",
+    "Verify seconds/milliseconds normalization, provenance-only duplicates, conflicting value detection including an unknown extra column, and row/part-order invariance",
+    "Static scan for network/source imports, plaintext/raw row output and any deduplication in the diagnostic",
+    "Verify artifact identity/hash checking occurs before manifest inspection and before encrypted-part iteration",
+    "Verify no real artifact is downloaded or decrypted during the review workflow"
+  ],
+  "real_artifact_access_authorized": false,
+  "real_artifact_decryption_authorized": false,
+  "real_diagnostic_authorized": false,
+  "deduplication_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false
+}
