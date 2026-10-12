@@ -1,0 +1,140 @@
+source_commit=745e239f2d4b7770846b552f4ec247ca844814e6
+{"created_at": "2026-10-11T10:33:30Z", "digest": "sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b", "expired": false, "expires_at": "2027-01-09T10:21:09Z", "id": 11698879857, "name": "nifty-1m-derived-repaired-r2-38126168547", "size_in_bytes": 231076122}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0  220M    0  302k    0     0   462k      0  0:08:08 --:--:--  0:08:08  462k  6  220M    6 13.3M    0     0  8291k      0  0:00:27  0:00:01  0:00:26 13.1M 21  220M   21 46.3M    0     0  17.4M      0  0:00:12  0:00:02  0:00:10 23.0M 39  220M   39 87.0M    0     0  23.8M      0  0:00:09  0:00:03  0:00:06 29.0M 61  220M   61  136M    0     0  29.2M      0  0:00:07  0:00:04  0:00:03 33.9M 87  220M   87  192M    0     0  34.0M      0  0:00:06  0:00:05  0:00:01 38.4M100  220M  100  220M    0     0  36.2M      0  0:00:06  0:00:06 --:--:-- 46.6M
+archive_sha256=40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b
+embedded_manifest_sha256=da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f
+{
+  "all_encrypted_part_hashes_match": true,
+  "all_names_and_sizes_match": true,
+  "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+  "encrypted_part_count": 61,
+  "expected_data_rows": 8999865,
+  "manifest_path": "/home/runner/work/_temp/r3-prediction-preflight/unpacked/_temp/repair-derived-encrypted/dataset_manifest.json",
+  "market_rows_read": false,
+  "plaintext_opened": false,
+  "status": "PASS_ENCRYPTED_BUNDLE_INTEGRITY",
+  "verified_encrypted_bytes": 230974583
+}
+Defaulting to user installation because normal site-packages is not writeable
+Collecting cryptography==45.0.7 (from -r requirements-composite.txt (line 1))
+  Downloading cryptography-45.0.7-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting cffi>=1.14 (from cryptography==45.0.7->-r requirements-composite.txt (line 1))
+  Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+Collecting pycparser (from cffi>=1.14->cryptography==45.0.7->-r requirements-composite.txt (line 1))
+  Downloading pycparser-3.11-py3-none-any.whl.metadata (8.2 kB)
+Downloading cryptography-45.0.7-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 105.7 MB/s eta 0:00:00
+Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 78.2 MB/s eta 0:00:00
+Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 19.6 MB/s eta 0:00:00
+Installing collected packages: pycparser, cffi, cryptography
+Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
+{"decrypted_parts": 61, "merged_data_rows": 8999865, "merged_output": "/home/runner/work/_temp/r3-prediction-preflight/merged.csv.gz", "output_dir": "/home/runner/work/_temp/r3-prediction-preflight/plain-parts", "source_artifact_plaintext_rows_were_never_published": true}
+{
+  "blank_counts": {
+    "invalid_spot_price": 12
+  },
+  "blockers": [
+    "SPOT_ROWS_ON_CLOSED_OR_UNMAPPED_DATES",
+    "SPOT_ROWS_OUTSIDE_DECLARED_REGULAR_SESSION",
+    "MISSING_OR_INVALID_SPOT_CLOSE_PRICES"
+  ],
+  "calendar_path": "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+  "canonical_hash_matches": true,
+  "canonical_uncompressed_bytes": 4747892392,
+  "canonical_uncompressed_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "chosen_spot_price_field": "nifty_close",
+  "columns": 47,
+  "duplicate_spot_timestamp_rows": 0,
+  "expected_canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "expected_columns": 47,
+  "expected_row_type_counts": {
+    "OPTION": 8490723,
+    "SPOT": 509142
+  },
+  "expected_rows": 8999865,
+  "feature_blank_fraction_over_all_rows": {
+    "expiry_date": 1.0,
+    "expiry_mapping_source": 1.0,
+    "option_close": 0.05657218191606207,
+    "option_type": 0.05657218191606207,
+    "returned_strike": 0.05657218191606207,
+    "time_to_expiry_years": 1.0
+  },
+  "fieldwise_identical_duplicate_candidates": 0,
+  "holdout_accessed": false,
+  "input_name": "merged.csv.gz",
+  "malformed_timestamps": 0,
+  "market_rows_examined": true,
+  "merged_gzip_sha256": "b5f2dccb8204f529708f7f81f8d7d03c2401adf4e240493947e3a7d49aa7536e",
+  "missing_regular_spot_session_dates_count": 4,
+  "missing_regular_spot_session_dates_sample": [
+    "2023-06-29",
+    "2024-01-22",
+    "2024-05-20",
+    "2024-11-20"
+  ],
+  "model_fitting_performed": false,
+  "non_minute_spot_timestamps": 0,
+  "off_session_spot_rows": 44710,
+  "option_blank_counts": {
+    "expiry_date": 8490723,
+    "expiry_mapping_source": 8490723,
+    "time_to_expiry_years": 8490723
+  },
+  "option_rows": 8490723,
+  "plaintext_uploaded": false,
+  "preflight": "phase-08p-r3-nifty-composite-data-preflight",
+  "preregistration_git_blob_sha1": null,
+  "preregistration_path": "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json",
+  "raw_rows_emitted": false,
+  "raw_rows_retained": false,
+  "recognized_price_candidates": [
+    "nifty_close"
+  ],
+  "row_width_errors": 0,
+  "rows_by_type": {
+    "OPTION": 8490723,
+    "SPOT": 509142
+  },
+  "rows_read": 8999865,
+  "schema_version": 1,
+  "session_calendar_sha256": "fd7e9ee5ac871d343d9987549e16b433de59dd351fe1e69febd2e9b8c0e3f5fd",
+  "session_calendar_source_sha256": "45cb278887e640d8ce114abbb503c8b619aa6159eb023c60814985a0e90eee51",
+  "spot_bar_time_frequency": {
+    "09:16": 1232,
+    "09:17": 1232,
+    "09:18": 1232,
+    "09:19": 1232,
+    "09:20": 1232,
+    "09:21": 1232,
+    "09:22": 1232,
+    "09:23": 1232,
+    "09:24": 1232,
+    "09:25": 1232,
+    "09:26": 1232,
+    "09:27": 1232,
+    "09:28": 1232,
+    "09:29": 1232,
+    "09:30": 1232,
+    "09:31": 1232,
+    "09:32": 1232,
+    "09:33": 1232,
+    "09:34": 1232,
+    "09:35": 1232
+  },
+  "spot_day_count": 1237,
+  "spot_timestamp_rows_unique": 506790,
+  "status": "BLOCKED_DATA_PREFLIGHT",
+  "timestamp_max_local": "2026-10-09T15:39:00+05:30",
+  "timestamp_min_local": "2021-10-11T09:16:00+05:30",
+  "timestamp_out_of_range_rows": 0,
+  "timestamp_unit_counts": {
+    "seconds": 8999865
+  },
+  "warnings": []
+}
