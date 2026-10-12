@@ -852,3 +852,13 @@
 
 **Developer → Tester:** check this fix log against current code and exact hosted tests; request changes if any risk remains.
 **Tester → Developer:** do not start the corrected empirical grid until the exact code/test/workflow snapshot passes independent review.
+
+
+## 2026-10-12 — Research scope compliance issue: 1,000+ prediction methods not yet covered
+
+- **Issue:** The current frozen `research/METHOD_REGISTRY.md` has 112 named entries, not 1,000+ distinct prediction methods.
+- **Issue:** Phase 8 run #38229793041 contains 4,800 option-execution configurations (× four cost scenarios); this cannot be represented as 1,000 prediction methods.
+- **Impact:** Prediction coverage requirement is unmet. Positive/negative Phase 8 option-P&L results cannot close this gap or authorize prediction-method selection.
+- **Action:** Created proposal `research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_PROPOSAL_R1_2026-10-12.md` (commit `65dd011139e62ff17289c4a29a94602e92ef9fe3`) for independent tester review. Existing frozen registry/protocol stays unchanged until approved.
+- **Preventive control:** New registry must contain ≥1,000 substantively distinct prediction-method definitions, record configuration counts separately, enumerate every configuration in a finite frozen manifest, preserve every null/failure/data-blocked result, and pass independent code and result gates before selection. Phase 8 results are not used to choose predictors.
+- **Status:** OPEN — awaiting independent tester review. No claim is made that the 1,000-method requirement is complete.
