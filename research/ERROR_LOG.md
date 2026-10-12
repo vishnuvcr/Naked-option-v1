@@ -883,3 +883,11 @@
 - The corrected manifest has not yet been independently verified end-to-end. Treat all method counts, fingerprints and config hashes as provisional until tester issue #24 passes.
 - The 1,000 generated combinations may include scientifically incompatible or weakly differentiated algorithm/operator pairs. This is explicitly assigned to independent semantic review; no empirical run is authorized.
 - Status: OPEN — tester registry gate pending.
+
+
+## 2026-10-12 — Registry V2 R2 gate pending
+
+- R1 tester blockers: shallow lookback-only config grid, unspecified probability adapter/decision compatibility, and missing exact label/sample eligibility details.
+- R2 draft adds family-specific complexity presets, label IDs, training-fold-only calibration, and a survival hazard-to-direction mapping; expected 8,000 configs across four 2,000-config shards.
+- Tooling returned empty content for several large JSON files during independent retrieval. This is an auditability issue, not evidence that content is corrupt. Tester issue #25 explicitly requests smaller shards if needed and prohibits PASS without reading/recomputing the actual contents.
+- Status: OPEN. No empirical fitting or holdout access. Do not represent the draft registry as tester-approved.
