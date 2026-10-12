@@ -878,3 +878,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review the exact R7 code/test/workflow snapshot after hosted regression; independently verify tick rounding, lagged features, timing cap, OHLC rejection, drawdown and failure classification.
 **Tester → Developer:** keep empirical rerun blocked until exact blob hashes match and tester PASS is recorded.
+
+
+## 2026-10-12 — R7 tester gate passed; corrected grid launched
+
+- Exact runner/test/workflow hashes passed hosted regression and runner self-test in run [38229662631](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38229662631). The independent tester updated the exact-blob gate on `phase-08-prediction-tester`.
+- Fresh finite grid [run 38229793041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38229793041) has passed its regression and exact tester-gate jobs; `proxy-backtest` is now in progress.
+- Run uses frozen forecast artifact 11638738288 and enriched options artifact 11723198817; no new data acquisition or forecast refit.
+- Await corrected report, summary and ledger. Previous run 38222296903 remains non-accepted; no strategy promotion or Phase 9 transition.
+- Conversation/action log: `research/logs/PHASE8_R7_CORRECTION_CHAT_LOG_2026-10-12.md`. Research details: `research/logs/PHASE8_R7_CORRECTION_RESEARCH_LOG_2026-10-12.md`.
+
+**Developer → Tester:** audit the new run artifact and reconcile every metric independently after upload.
+**Tester → Developer:** do not promote any configuration or advance Phase 9 until result-level PASS.
