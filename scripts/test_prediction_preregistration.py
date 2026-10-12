@@ -33,11 +33,11 @@ class PredictionPreregistrationTests(unittest.TestCase):
     def test_all_source_git_blob_hashes_are_pinned(self):
         pins = self.p["scope"]
         paths = {
-            "data_manifest_sha256_git_blob": DATA_MANIFEST,
-            "label_manifest_sha256_git_blob": LABEL,
-            "config_manifest_sha256_git_blob": CONFIG,
-            "registry_index_sha256_git_blob": INDEX,
-            "compatibility_matrix_sha256_git_blob": MATRIX,
+            "data_manifest_git_blob_sha1": DATA_MANIFEST,
+            "label_manifest_git_blob_sha1": LABEL,
+            "config_manifest_git_blob_sha1": CONFIG,
+            "registry_index_git_blob_sha1": INDEX,
+            "compatibility_matrix_git_blob_sha1": MATRIX,
         }
         for key, path in paths.items():
             with self.subTest(source=key):
