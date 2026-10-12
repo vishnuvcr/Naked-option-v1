@@ -49,3 +49,13 @@ The frozen proxy plan states that duplicate contract/timestamp observations are 
 - Maintain the declared expiry-mapping and lot-size limitations; do not label these results as quote-executable.
 
 **Developer → Tester:** independently verify each finding against the exact run snapshot; after artifacts appear, deliver a result-level PASS / REQUEST CHANGES report pinned to their hashes. Do not promote a strategy from the pre-run code gate alone.
+
+## R1 audit correction — refined overlap findings (2026-10-12)
+
+A deeper read of `run_proxy()` shows the runner maintains `last_exit` independently for each forecast cell × delta target × DTE bucket × exit policy and skips a signal when its decision timestamp is strictly earlier than that configuration's prior exit timestamp. Entries are also selected from a bar strictly after the decision timestamp. Therefore R3 above is too broad if interpreted as claiming that a single configuration necessarily holds overlapping positions.
+
+Refined requirement: the independent result audit must verify that the ledger's exit timestamps are strictly ordered within each configuration and reconcile the `OVERLAP_SKIPPED` counter. A configuration should be described as sequential one-lot trades if that check passes. It still should not be described as a capital-constrained multi-configuration portfolio or actual broker-executable account result: no cross-configuration capital-allocation model is part of this experiment.
+
+Similarly, R2 is a conditional assertion to verify rather than a proven result defect: the summary sorts per-configuration trades by exit timestamp; if the ledger confirms strictly ordered/unique exit timestamps within each config, equal-time row ordering cannot create an intra-configuration artificial drawdown. Test this invariant from the completed ledger. The independently verified R1 percentage-drawdown formula defect remains confirmed and unaffected by this clarification.
+
+**Developer → Tester:** apply these refinements in the result report; do not report a missing within-config overlap guard unless the completed ledger contradicts the runner logic.
