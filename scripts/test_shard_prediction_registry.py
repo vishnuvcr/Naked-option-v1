@@ -104,7 +104,7 @@ class RegistryShardTests(unittest.TestCase):
             bad.write_text(json.dumps({
                 "schema_version": "auditable-record-shards-v1",
                 "total_records": 0,
-                "shard_count": 1,
+                "shard_count": 2,
                 "shards": [{"path": "../outside.jsonl", "record_count": 0,
                             "byte_length": 0, "first_id": "", "last_id": "",
                             "sha256": hashlib.sha256(b"").hexdigest()}],
