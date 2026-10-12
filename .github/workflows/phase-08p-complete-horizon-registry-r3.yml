@@ -1,0 +1,86 @@
+name: Phase 8P full-horizon R3 registry build
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - 'scripts/build_prediction_horizon_registry_r3.py'
+      - 'scripts/test_prediction_horizon_registry_r3.py'
+      - '.github/workflows/phase-08p-complete-horizon-registry-r3.yml'
+      - 'research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json'
+      - 'research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json'
+      - 'research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json'
+      - 'research/registry/PREDICTION_PREREGISTRATION_V2_R2.json'
+      - 'research/registry/compatibility_shards/**'
+      - 'research/registry/config_shards/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08p-horizon-registry-r3
+  cancel-in-progress: false
+
+jobs:
+  build-and-validate-registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Assert exact triggering commit
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Pinned developer checkout: $(git rev-parse HEAD)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build complete ten-horizon registry (no data read / no model fit)
+        run: python scripts/build_prediction_horizon_registry_r3.py
+
+      - name: Run R3 registry integrity, horizon, hash and scope tests
+        run: python -m unittest discover -s scripts -p "test_prediction_horizon_registry_r3.py" -v
+
+      - name: Run statistical utility regressions
+        run: python -m unittest discover -s scripts -p "test_prediction_statistics.py" -v
+
+      - name: Confirm R2 pilot files were not altered
+        run: |
+          git diff --exit-code --             research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json             research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json             research/registry/PREDICTION_PREREGISTRATION_V2_R2.json             research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json             research/registry/config_shards             research/registry/compatibility_shards
+
+      - name: Save developer validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-horizon-registry-r3-developer-checks
+          path: |
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
+            research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json
+            research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json
+            research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json
+            research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json
+          if-no-files-found: warn
+
+      - name: Commit generated registry outputs
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          git add research/registry/config_shards_r3             research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json             research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json             research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json             research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json             research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
+          if git diff --cached --quiet; then
+            echo "R3 registry outputs are already current; no generated-output commit is needed."
+            exit 0
+          fi
+          git commit -m "Build complete ten-horizon prediction registry R3"
+          git push origin HEAD:phase-08-prediction-developer
