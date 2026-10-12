@@ -1,7 +1,7 @@
 # Phase 8 — OHLC Proxy Strategy Testing Plan
 
 Date: 2026-10-12
-Status: Tester-approved for one frozen-grid OHLC proxy run; execution run 38218646184 is in progress.
+Status: Tester R3 approved for one frozen-grid OHLC proxy run; expiry-enriched input rerun 38220714996 is in progress.
 Execution branch: phase-08-prediction-developer
 Independent tester branch: phase-08-prediction-tester
 Tester gate: research/gates/PHASE8_PROXY_STRATEGY_TESTER.md
@@ -13,7 +13,9 @@ Use the already-collected option OHLC composite and the immutable Phase 7 Run #9
 ## Frozen inputs
 
 - Forecast reference: Run 37957677656, artifact 11638738288, SHA-256 3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9.
-- Option/spot composite: Run 38131641336, artifact 11698879857, SHA-256 40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b.
+- Primary strategy input: existing expiry-enriched composite from Run 38195812828, artifact 11723198817, SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736. It derives from the already-collected 8,490,723-option/509,142-spot row composite; no new market-data acquisition is used.
+- Expiry mapping is inherited from the existing enrichment artifact: public expiry-partition file-list plus a weekly Tuesday-rule proxy after the latest listed expiry. It is not an official point-in-time exchange contract master and must remain a stated limitation.
+- The prior repaired artifact 11698879857 (Run 38131641336, SHA-256 40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b) was unsuitable for contract selection because all option rows had blank expiry_date. That failed attempt generated no metrics and is logged in research/ERROR_LOG.md.
 - Decryption uses the existing repository HF_TOKEN secret and the repository decryptor; decoded data exist only in ephemeral runner scratch.
 - Forecast models remain frozen. All 10 registered probability methods P01-P10 and the saved daily/intraday forecast panels are consumed as stored.
 
