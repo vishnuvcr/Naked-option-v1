@@ -788,3 +788,12 @@ Developer added a deterministic registry sharding/verifier utility and regressio
 **Developer → Tester:** independently review exact utility and test commits, execute tests if possible, and report hash-pinned PASS/REQUEST CHANGES on the isolated tester branch. Do not infer scientific compatibility or authorize empirical runs from shard integrity tooling.
 
 **Tester → Developer:** return specific defects and regression requirements or an explicitly scoped approval; keep the registry and synthetic-runner gates blocked until all required artifacts are verified.
+
+
+### 2026-10-12 — Registry utility CI verified
+
+Developer checked the hosted Actions result for the newly added shard utility workflow. Run [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039) completed successfully: all four unit tests passed and the SHA-256 known-vector step passed. The result was appended to the checkpoint, README, status and error log, and a request for independent tester review was added to issue #25. No shards have been generated, and no scientific/empirical gate is cleared.
+
+**Developer → Tester:** independently inspect the exact source, test file, workflow and hosted logs; issue a hash-pinned, scoped PASS/REQUEST CHANGES on the tester branch.
+
+**Tester → Developer:** review utility correctness only within its stated scope; do not infer scientific validity. Keep the registry and synthetic-runner gates blocked until the complete remediation evidence passes.
