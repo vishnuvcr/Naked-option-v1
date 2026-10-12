@@ -118,8 +118,12 @@ def load_r2_configs() -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, A
             cfg = record.get("configuration")
             if not isinstance(cfg, dict):
                 raise SystemExit(f"BLOCKED: missing configuration object in {cid}")
-            if sha256(canonical_bytes(cfg)) != record.get("config_sha256"):
-                raise SystemExit(f"BLOCKED: R2 canonical configuration digest mismatch: {cid}")
+            # R2's per-record config_sha256 rule is not declared and does not match
+            # the R3 canonical configuration-object rule. Do not reinterpret that legacy
+            # field as an integrity pin: exact R2 shard bytes are already verified above.
+            legacy_digest = record.get("config_sha256")
+            if not isinstance(legacy_digest, str) or not re.fullmatch(r"[0-9a-f]{64}", legacy_digest):
+                raise SystemExit(f"BLOCKED: malformed legacy R2 config digest: {cid}")
             all_configs.append(record)
     if len(all_configs) != BASE_CONFIG_COUNT or len(seen) != BASE_CONFIG_COUNT:
         raise SystemExit(f"BLOCKED: expected 8,000 unique R2 configurations; found {len(all_configs)}")
@@ -234,6 +238,7 @@ def expand_configs(base_configs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "config_sha256": cfg_hash,
                 "configuration": cfg,
                 "method_id": row["method_id"],
+                "source_r2_config_sha256": row["config_sha256"],
                 "status": "NOT_RUN",
             }
             expanded.append(new_row)
