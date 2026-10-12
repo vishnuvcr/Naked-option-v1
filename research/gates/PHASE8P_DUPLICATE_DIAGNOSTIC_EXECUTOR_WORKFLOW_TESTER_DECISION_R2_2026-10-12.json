@@ -70,5 +70,6 @@
   "external_market_source_requests_authorized": false,
   "raw_or_decrypted_data_upload_authorized": false,
   "option_pnl_authorized": false,
-  "strategy_promotion_authorized": false
+  "strategy_promotion_authorized": false,
+  "developer_workflow_blob_sha1": "398063be2215dbed40c123521bf2868b0bcdb6a3"
 }
