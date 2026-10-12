@@ -59,3 +59,11 @@ Refined requirement: the independent result audit must verify that the ledger's 
 Similarly, R2 is a conditional assertion to verify rather than a proven result defect: the summary sorts per-configuration trades by exit timestamp; if the ledger confirms strictly ordered/unique exit timestamps within each config, equal-time row ordering cannot create an intra-configuration artificial drawdown. Test this invariant from the completed ledger. The independently verified R1 percentage-drawdown formula defect remains confirmed and unaffected by this clarification.
 
 **Developer → Tester:** apply these refinements in the result report; do not report a missing within-config overlap guard unless the completed ledger contradicts the runner logic.
+
+## R5 — OHLC structural consistency is not validated (2026-10-12)
+
+Further code review found that `load_option_data()` filters for finite, positive `option_open`, `option_high`, and `option_low`, but does not enforce `option_high >= option_low`, `option_low <= option_open <= option_high`, or consistency with a finite `option_close`. The vectorized trigger simulator treats finite high/low values as valid. Its existing “invalid bar” regression case covers a NaN high, not structurally inconsistent positive OHLC values.
+
+This is an **unresolved data-integrity risk**, not proof that the frozen source has invalid OHLC rows. The current run is already executing the tester-approved snapshot and must not be altered mid-run. At result review, report that the artifact does not count structural OHLC violations. Before treating X1/X2/X3 trigger-policy results as dependable, either demonstrate with a narrowly scoped aggregate-only audit over the same cached rows that violations are absent (or immaterial), or submit a corrected validator and matching synthetic tests for independent review. Do not silently remove rows or change the frozen grid after seeing P&L.
+
+**Developer → Tester:** verify the OHLC data-integrity limitation and require a scoped evidence-based disposition; distinguish “not measured” from “zero invalid rows.”
