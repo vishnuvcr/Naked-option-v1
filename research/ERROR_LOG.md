@@ -1085,3 +1085,16 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester (post-results only):** include the R2/R3 digest distinction in the final bundled audit; independent review is deferred until planned prediction results are frozen.
 **Tester → Developer (post-results only):** verify exact source/output hashes and ensure the legacy R2 digest is never silently represented as validated canonical config content.
+
+
+## 2026-10-13 — R3 horizon-registry build attempt 1: manifest contract string mismatch
+
+- Category: deterministic build / input-contract validation.
+- Workflow source snapshot: `4dba2efb4e245a7b17afee59d1c66574515eef3b`.
+- Diagnostic: `research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt` contained `BLOCKED: R2 manifest does not use exact-file-byte SHA-256`; attempt record marked build exit code 1. No R3 outputs were generated.
+- Cause: the builder compared the R2 config manifest's `config_hash_rule` to text that omitted the words “any ... if present”. The actual R2 contract string was `SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline if present`.
+- Correction: changed the R3 `HASH_RULE` constant to match the frozen R2 manifest wording exactly (developer commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83`). No hash, input, or acceptance threshold was weakened.
+- Follow-up: the next automatic developer CI must run against the new commit; its result is not yet verified. This attempt opened no market data, did not fit a model, and did not access a holdout.
+
+**Developer → Tester (after results only):** include both the failed attempt and its correction in the final immutable result bundle.
+**Tester → Developer (after results only):** confirm failure preservation, exact hash contract, and repeatability during consolidated review.
