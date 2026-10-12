@@ -162,3 +162,14 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 **Tester → Developer:** preserve one-use nonce and await the pinned report.
 **Developer → Tester:** submit report/hash for independent data-gate review before any next experiment.
 
+
+
+## Phase 8P real-data duplicate diagnostic — no result (2026-10-12)
+
+- [Run #38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed authorization and source digest verification but ended with runner-shutdown exit code 143 during the aggregate scan.
+- **No aggregate report was produced.** Duplicate counts remain unknown; this is not a market-data finding or strategy result.
+- The R1 nonce is consumed. A fresh pinned executor/request and separate tester-created one-use authorization are required before a new scan. Prediction, holdout, P&L and strategy gates remain blocked.
+
+**Tester → Developer:** preserve R1, submit a new exact-snapshot executor and nonce; await independent review.
+**Developer → Tester:** do not reuse R1 and do not permit strategy testing without an accepted data gate.
+
