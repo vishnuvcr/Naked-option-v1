@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.stats import ttest_1samp
+from scipy.special import ndtr
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -306,6 +307,65 @@ def resolve_delta(row: pd.Series, decision_time: int) -> tuple[float, str]:
     return float("nan"), "MONEYNESS_FALLBACK"
 
 
+def resolve_deltas_vectorized(rows: pd.DataFrame, decision_time: int) -> tuple[np.ndarray, np.ndarray]:
+    """Fast array equivalent of resolve_delta; never uses later-valued stored Greeks."""
+    n = len(rows)
+    values = np.full(n, np.nan, dtype=float)
+    methods = np.full(n, "MONEYNESS_FALLBACK", dtype=object)
+
+    def numeric(column: str) -> np.ndarray:
+        if column not in rows:
+            return np.full(n, np.nan, dtype=float)
+        return pd.to_numeric(rows[column], errors="coerce").to_numpy(dtype=float)
+
+    observed = numeric("delta")
+    row_epoch = numeric("timestamp_epoch")
+    offset = numeric("greek_valuation_offset_seconds")
+    asof = (
+        np.isfinite(observed) & (np.abs(observed) <= 1.0)
+        & np.isfinite(row_epoch) & np.isfinite(offset)
+        & ((row_epoch + offset) <= float(decision_time))
+    )
+    values[asof] = np.abs(observed[asof])
+    methods[asof] = "OBSERVED_DELTA_ASOF"
+
+    spot = numeric("rolling_spot")
+    strike = numeric("returned_strike")
+    iv = numeric("implied_volatility")
+    iv = np.where(iv > 3.0, iv / 100.0, iv)
+    expiry_epoch = numeric("expiry_epoch")
+    t = (expiry_epoch - float(decision_time)) / (365.0 * 86400.0)
+    rf = numeric("risk_free_rate_decimal")
+    q = numeric("dividend_yield_decimal")
+    rf = np.where(np.isfinite(rf), rf, 0.0)
+    q = np.where(np.isfinite(q), q, 0.0)
+    option_type = rows["option_type"].astype(str).str.strip().str.upper().to_numpy()
+    need_bs = ~asof
+    valid_bs = (
+        need_bs & np.isfinite(spot) & (spot > 0)
+        & np.isfinite(strike) & (strike > 0)
+        & np.isfinite(iv) & (iv > 0) & (iv <= 5.0)
+        & np.isfinite(t) & (t > 0)
+    )
+    if valid_bs.any():
+        ids = np.flatnonzero(valid_bs)
+        d1 = (
+            np.log(spot[ids] / strike[ids])
+            + (rf[ids] - q[ids] + 0.5 * iv[ids] * iv[ids]) * t[ids]
+        ) / (iv[ids] * np.sqrt(t[ids]))
+        nd = ndtr(d1)
+        is_call = np.isin(option_type[ids], ["CE", "CALL", "C"])
+        is_put = np.isin(option_type[ids], ["PE", "PUT", "P"])
+        signed = np.full(len(ids), np.nan, dtype=float)
+        signed[is_call] = np.exp(-q[ids[is_call]] * t[ids[is_call]]) * nd[is_call]
+        signed[is_put] = -np.exp(-q[ids[is_put]] * t[ids[is_put]]) * (1.0 - nd[is_put])
+        valid_delta = np.isfinite(signed) & (np.abs(signed) <= 1.0)
+        valid_ids = ids[valid_delta]
+        values[valid_ids] = np.abs(signed[valid_delta])
+        methods[valid_ids] = "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
+    return values, methods
+
+
 def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
                     time_position: dict[int, int], entry_epoch: int, planned_exit: int,
                     direction: str, delta_target: float, dte_bucket: str,
@@ -336,27 +396,28 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
         return None
     candidate_indices = np.arange(lo, hi, dtype=np.int64)[mask]
     candidate_rows = options.iloc[candidate_indices]
-    best = None
-    best_key = None
-    for global_idx, (_, row) in zip(candidate_indices, candidate_rows.iterrows()):
-        delta, delta_method = resolve_delta(row, int(entry_epoch))
-        spot = row.get("rolling_spot")
-        try:
-            spot = float(spot)
-        except Exception:
-            spot = float("nan")
-        # Do not fall back to nifty_close: it is the close of this minute
-        # bar and can be later than the option-open entry timestamp.
-        strike = float(row["returned_strike"])
-        moneyness = abs(math.log(strike / spot)) if np.isfinite(spot) and spot > 0 and strike > 0 else float("inf")
-        delta_available = delta_method != "MONEYNESS_FALLBACK" and np.isfinite(delta)
-        priority = 0 if delta_available else 1
-        delta_error = abs(delta - float(delta_target)) if delta_available else float("inf")
-        strike_distance = abs(strike - spot) if np.isfinite(spot) else float("inf")
-        contract_code = int(row["contract_code"])
-        sort_key = (priority, delta_error, moneyness, strike_distance, contract_code, int(global_idx))
-        if best_key is None or sort_key < best_key:
-            best_key, best = sort_key, int(global_idx)
+    deltas, delta_methods = resolve_deltas_vectorized(candidate_rows, int(entry_epoch))
+    spots = pd.to_numeric(candidate_rows["rolling_spot"], errors="coerce").to_numpy(dtype=float)
+    strikes = pd.to_numeric(candidate_rows["returned_strike"], errors="coerce").to_numpy(dtype=float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        moneyness = np.abs(np.log(strikes / spots))
+    moneyness = np.where(np.isfinite(moneyness), moneyness, np.inf)
+    strike_distance = np.abs(strikes - spots)
+    strike_distance = np.where(np.isfinite(strike_distance), strike_distance, np.inf)
+    delta_available = (delta_methods != "MONEYNESS_FALLBACK") & np.isfinite(deltas)
+    priority = np.where(delta_available, 0, 1)
+    delta_error = np.where(delta_available, np.abs(deltas - float(delta_target)), np.inf)
+    contract_codes = candidate_rows["contract_code"].to_numpy(dtype=np.int64)
+    global_indices = candidate_rows.index.to_numpy(dtype=np.int64)
+
+    # np.lexsort uses the final key as primary, matching the prior stable
+    # selection order: availability, delta error, moneyness, strike distance,
+    # contract code, then original row position.
+    order = np.lexsort((
+        global_indices, contract_codes, strike_distance, moneyness,
+        delta_error, priority,
+    ))
+    best = int(global_indices[int(order[0])]) if len(order) else None
     candidate_cache[key] = best
     return best
 
