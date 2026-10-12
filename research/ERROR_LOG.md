@@ -148,3 +148,8 @@
 - Tester workflow run #38197110523: source run/commit/artifact identity gate PASS; synthetic audit fixtures PASS; artifact download gate FAIL with HTTP 401; actual ZIP audit SKIPPED; tester decision REQUEST_CHANGES.
 - Root cause: authenticated artifact API download request did not correctly handle GitHub's redirect to signed object storage. Corrected to separate API authentication from the signed-URL download. This defect must not be conflated with dataset integrity.
 - No dataset accepted and no economic/strategy gate opened.
+
+
+## 2026-10-12 — Resolution of artifact-download HTTP 401
+- Resolved in tester workflow [#38197317740](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38197317740). The corrected redirect handler downloaded the exact artifact and verified ZIP SHA-256, CRC, all encrypted part hashes, row totals, coverage maps and plaintext absence.
+- Final tester decision: PASS_WITH_SCOPED_RESTRICTIONS. The HTTP 401 was a CI downloader defect, not a dataset-integrity mismatch. Economic/strategy gates remain blocked.
