@@ -169,6 +169,22 @@ def main():
                   '"input_artifact_sha256"', '"option_rows_scanned"',
                   '"conflicting_signature_fields"', '"manifest_columns_sha256"',
               )))
+        scan_start = diagnostic.index("def scan_frames(")
+        scan_end = diagnostic.index("\\ndef run_diagnostic(", scan_start)
+        scan_source = diagnostic[scan_start:scan_end]
+        check(checks, failures, "r5_disk_backed_scan_and_bounded_state",
+              all(term in scan_source for term in (
+                  "sqlite3.connect", "tempfile.TemporaryDirectory", "CREATE TABLE entries",
+                  "PRAGMA cache_size=-65536", "zlib.compress", "connection.close()",
+              ))
+              and "groups: dict[str, dict[str, Any]]" not in scan_source
+              and "seen_contracts" not in scan_source)
+        check(checks, failures, "r5_progress_is_aggregate_only_and_flushed",
+              all(term in diagnostic for term in (
+                  "DUP_DIAG_PROGRESS", "file=sys.stderr", "flush=True", "progress(counters)",
+              ))
+              and "per_part_progress_reporting" in diagnostic_test
+              and "disk_backed_aggregation" in diagnostic_test)
     except Exception as exc:
         check(checks, failures, "diagnostic_static_audit", False, type(exc).__name__)
 
@@ -182,7 +198,7 @@ def main():
           "timestamp_fields = [field for field in CONTRACT_TIMESTAMP_FIELDS if field in signature]" in module
           and "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST" in module
           and "CONTRACT_DUPLICATE_VALUE_TYPE_UNSUPPORTED" in module)
-    check(checks, failures, "synthetic_tests_cover_r4_edge_cases",
+    check(checks, failures, "synthetic_tests_cover_manifest_and_duplicate_edge_cases",
           all(term in core_test for term in (
               "single_timestamp_columns", "synthetic_unmodeled_column",
               "GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST",
@@ -219,7 +235,7 @@ def main():
     decision = "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY" if not failures else "REQUEST_CHANGES"
     result = {
         "schema_version": 2,
-        "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_R4",
+        "gate": req.get("gate", "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW"),
         "decision": decision,
         "developer_commit": commit,
         "checks_passed": sum(bool(row["pass"]) for row in checks),
