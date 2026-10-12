@@ -1,1 +1,22 @@
-BLOCKED: generated daily NSE session calendar is missing
+{
+  "status": "BUILT_PENDING_DEVELOPER_TESTS_AND_DATA_PREFLIGHT",
+  "methods": 1000,
+  "configs": 40000,
+  "config_shards": 400,
+  "label_counts": {
+    "INTRA_120M_UP_DOWN": 4000,
+    "INTRA_15M_UP_DOWN": 4000,
+    "INTRA_30M_UP_DOWN": 4000,
+    "INTRA_5M_UP_DOWN": 4000,
+    "INTRA_60M_UP_DOWN": 4000,
+    "POS_10D_UP_DOWN": 4000,
+    "POS_1D_UP_DOWN": 4000,
+    "POS_2D_UP_DOWN": 4000,
+    "POS_3D_UP_DOWN": 4000,
+    "POS_5D_UP_DOWN": 4000
+  },
+  "empirical_fitting": false,
+  "market_data_opened": false,
+  "holdout_accessed": false,
+  "report": "research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json"
+}
