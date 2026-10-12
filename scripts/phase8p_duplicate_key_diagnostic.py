@@ -11,9 +11,13 @@ import argparse
 import hashlib
 import json
 import math
+import sqlite3
+import sys
+import tempfile
+import zlib
 import zipfile
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 import numpy as np
 import pandas as pd
@@ -68,61 +72,138 @@ def _normalized_option_row(row: Mapping[str, Any]) -> tuple[dict[str, Any], int]
     return clean, int(start) + 60
 
 
-def scan_frames(frames: Iterable[pd.DataFrame], manifest_columns: Iterable[str]) -> dict[str, Any]:
-    """Testable in-memory scan, using the exact manifest order and R4 economic signature."""
+def scan_frames(
+    frames: Iterable[pd.DataFrame],
+    manifest_columns: Iterable[str],
+    progress: Callable[[dict[str, int]], None] | None = None,
+) -> dict[str, Any]:
+    """Manifest-bound scan with disk-backed state; memory stays bounded by one source part.
+
+    Only key/signature hashes and a compressed first-signature representation are persisted
+    in a temporary SQLite database. The temporary database is always deleted and is never
+    included in the aggregate receipt.
+    """
     columns = validate_greek_manifest_columns(list(manifest_columns))
     signature_fields = tuple(
         field for field in columns if field not in ALLOWED_CONTRACT_PROVENANCE_VARIANCE
     )
-    groups: dict[str, dict[str, Any]] = {}
     parts_scanned = 0
     rows_scanned = 0
     option_rows_scanned = 0
 
-    for part_number, frame in enumerate(frames):
-        parts_scanned += 1
-        if not isinstance(frame, pd.DataFrame):
-            raise GateBlocked("DUPLICATE_DIAGNOSTIC_PART_SCHEMA_INVALID")
-        validate_greek_part_columns(list(frame.columns), columns)
-        rows_scanned += int(len(frame))
-        row_types = frame["row_type"].fillna("").astype(str).str.strip().str.upper()
-        options = frame.loc[row_types.eq("OPTION")]
-        for record in options.to_dict("records"):
-            option_rows_scanned += 1
-            row, valuation_epoch = _normalized_option_row(record)
-            key, signature = _economic_contract_key(row, valuation_epoch, signature_fields)
-            key_hash = _sha256_json(list(key))
-            signature_hash = _sha256_json(signature)
-            group = groups.get(key_hash)
-            if group is None:
-                groups[key_hash] = {
-                    "count": 1,
-                    "signature_hashes": {signature_hash},
-                    "first_signature": signature,
-                    "conflicting_signature_fields": set(),
-                    "part_numbers": {part_number},
-                }
-                continue
-            group["count"] += 1
-            group["signature_hashes"].add(signature_hash)
-            group["part_numbers"].add(part_number)
-            first_signature = group["first_signature"]
-            for field in signature_fields:
-                if first_signature.get(field) != signature.get(field):
-                    group["conflicting_signature_fields"].add(field)
+    with tempfile.TemporaryDirectory(prefix="phase8p-duplicate-scan-") as temp_dir:
+        db_path = Path(temp_dir) / "aggregate.sqlite3"
+        connection = sqlite3.connect(str(db_path))
+        try:
+            connection.execute("PRAGMA journal_mode=OFF")
+            connection.execute("PRAGMA synchronous=OFF")
+            connection.execute("PRAGMA temp_store=FILE")
+            connection.execute("PRAGMA cache_size=-65536")
+            connection.execute(
+                """CREATE TABLE entries (
+                    key_hash TEXT PRIMARY KEY,
+                    row_count INTEGER NOT NULL,
+                    signature_hash TEXT NOT NULL,
+                    signature_blob BLOB NOT NULL,
+                    first_part INTEGER NOT NULL,
+                    multi_part INTEGER NOT NULL DEFAULT 0,
+                    conflicting_fields TEXT NOT NULL DEFAULT '[]'
+                )"""
+            )
+            connection.execute("CREATE INDEX idx_entries_duplicate ON entries(row_count)")
+            connection.commit()
 
-    duplicate_groups = [group for group in groups.values() if group["count"] > 1]
-    identical_groups = [
-        group for group in duplicate_groups if len(group["signature_hashes"]) == 1
-    ]
-    conflicting_groups = [
-        group for group in duplicate_groups if len(group["signature_hashes"]) > 1
-    ]
-    conflict_fields = sorted({
-        field
-        for group in conflicting_groups
-        for field in group["conflicting_signature_fields"]
-    })
+            for part_number, frame in enumerate(frames):
+                parts_scanned += 1
+                if not isinstance(frame, pd.DataFrame):
+                    raise GateBlocked("DUPLICATE_DIAGNOSTIC_PART_SCHEMA_INVALID")
+                validate_greek_part_columns(list(frame.columns), columns)
+                rows_scanned += int(len(frame))
+                row_types = frame["row_type"].fillna("").astype(str).str.strip().str.upper()
+                options = frame.loc[row_types.eq("OPTION")]
+                connection.execute("BEGIN")
+                for record in options.to_dict("records"):
+                    option_rows_scanned += 1
+                    row, valuation_epoch = _normalized_option_row(record)
+                    key, signature = _economic_contract_key(row, valuation_epoch, signature_fields)
+                    key_hash = _sha256_json(list(key))
+                    signature_json = json.dumps(
+                        signature, sort_keys=True, separators=(",", ":"),
+                        ensure_ascii=True, allow_nan=False,
+                    )
+                    signature_hash = hashlib.sha256(signature_json.encode("utf-8")).hexdigest()
+                    signature_blob = zlib.compress(signature_json.encode("utf-8"), level=1)
+                    inserted = connection.execute(
+                        """INSERT OR IGNORE INTO entries
+                           (key_hash, row_count, signature_hash, signature_blob, first_part, multi_part, conflicting_fields)
+                           VALUES (?, 1, ?, ?, ?, 0, '[]')""",
+                        (key_hash, signature_hash, signature_blob, part_number),
+                    ).rowcount
+                    if inserted:
+                        continue
+
+                    previous = connection.execute(
+                        """SELECT row_count, signature_hash, signature_blob, first_part,
+                                  multi_part, conflicting_fields
+                           FROM entries WHERE key_hash=?""",
+                        (key_hash,),
+                    ).fetchone()
+                    if previous is None:
+                        raise GateBlocked("DUPLICATE_DIAGNOSTIC_SQLITE_LOOKUP_MISSING")
+                    old_count, old_hash, old_blob, first_part, old_multi_part, old_fields_json = previous
+                    multi_part = int(bool(old_multi_part) or int(first_part) != part_number)
+                    conflict_fields = set(json.loads(old_fields_json))
+                    if old_hash != signature_hash:
+                        try:
+                            old_signature = json.loads(zlib.decompress(old_blob).decode("utf-8"))
+                        except (zlib.error, UnicodeDecodeError, json.JSONDecodeError) as exc:
+                            raise GateBlocked("DUPLICATE_DIAGNOSTIC_STORED_SIGNATURE_INVALID") from exc
+                        for field in signature_fields:
+                            if old_signature.get(field) != signature.get(field):
+                                conflict_fields.add(field)
+                        if not conflict_fields:
+                            raise GateBlocked("DUPLICATE_DIAGNOSTIC_SIGNATURE_HASH_VALUE_MISMATCH")
+                    connection.execute(
+                        """UPDATE entries SET row_count=?, multi_part=?, conflicting_fields=?
+                           WHERE key_hash=?""",
+                        (int(old_count) + 1, multi_part, json.dumps(sorted(conflict_fields)), key_hash),
+                    )
+
+                connection.commit()
+                if progress is not None:
+                    progress({
+                        "parts_scanned": int(parts_scanned),
+                        "rows_scanned": int(rows_scanned),
+                        "option_rows_scanned": int(option_rows_scanned),
+                    })
+
+            duplicate_row = connection.execute(
+                """SELECT
+                     COUNT(*),
+                     COALESCE(SUM(row_count - 1), 0),
+                     COALESCE(SUM(CASE WHEN conflicting_fields='[]' THEN 1 ELSE 0 END), 0),
+                     COALESCE(SUM(CASE WHEN conflicting_fields='[]' THEN row_count - 1 ELSE 0 END), 0),
+                     COALESCE(SUM(CASE WHEN conflicting_fields!='[]' THEN 1 ELSE 0 END), 0),
+                     COALESCE(SUM(CASE WHEN conflicting_fields!='[]' THEN row_count - 1 ELSE 0 END), 0),
+                     COALESCE(SUM(CASE WHEN multi_part=1 THEN 1 ELSE 0 END), 0),
+                     COALESCE(SUM(CASE WHEN multi_part=0 THEN 1 ELSE 0 END), 0)
+                   FROM entries WHERE row_count > 1"""
+            ).fetchone()
+            (
+                duplicate_groups, duplicate_extra_rows,
+                identical_groups, identical_extra_rows,
+                conflicting_groups, conflicting_extra_rows,
+                spanning_groups, within_part_groups,
+            ) = (int(value) for value in duplicate_row)
+            conflict_fields: set[str] = set()
+            for (fields_json,) in connection.execute(
+                "SELECT conflicting_fields FROM entries WHERE row_count > 1 AND conflicting_fields!='[]'"
+            ):
+                conflict_fields.update(json.loads(fields_json))
+            unique_keys = int(connection.execute("SELECT COUNT(*) FROM entries").fetchone()[0])
+        finally:
+            connection.close()
+
     return {
         "parts_scanned": int(parts_scanned),
         "rows_scanned": int(rows_scanned),
@@ -131,16 +212,16 @@ def scan_frames(frames: Iterable[pd.DataFrame], manifest_columns: Iterable[str])
         "manifest_columns_sha256": _sha256_json(list(columns)),
         "signature_column_count": int(len(signature_fields)),
         "signature_columns_sha256": _sha256_json(list(signature_fields)),
-        "unique_economic_contract_keys": int(len(groups)),
-        "duplicate_contract_groups": int(len(duplicate_groups)),
-        "duplicate_extra_rows": int(sum(group["count"] - 1 for group in duplicate_groups)),
-        "identical_signature_duplicate_groups": int(len(identical_groups)),
-        "identical_signature_duplicate_extra_rows": int(sum(group["count"] - 1 for group in identical_groups)),
-        "conflicting_signature_duplicate_groups": int(len(conflicting_groups)),
-        "conflicting_signature_duplicate_extra_rows": int(sum(group["count"] - 1 for group in conflicting_groups)),
-        "conflicting_signature_fields": conflict_fields,
-        "groups_spanning_multiple_parts": int(sum(len(group["part_numbers"]) > 1 for group in duplicate_groups)),
-        "groups_within_one_part": int(sum(len(group["part_numbers"]) == 1 for group in duplicate_groups)),
+        "unique_economic_contract_keys": int(unique_keys),
+        "duplicate_contract_groups": duplicate_groups,
+        "duplicate_extra_rows": duplicate_extra_rows,
+        "identical_signature_duplicate_groups": identical_groups,
+        "identical_signature_duplicate_extra_rows": identical_extra_rows,
+        "conflicting_signature_duplicate_groups": conflicting_groups,
+        "conflicting_signature_duplicate_extra_rows": conflicting_extra_rows,
+        "conflicting_signature_fields": sorted(conflict_fields),
+        "groups_spanning_multiple_parts": spanning_groups,
+        "groups_within_one_part": within_part_groups,
         "economic_key_policy": [
             "underlying", "greek_valuation_epoch_seconds", "normalized_expiry_date",
             "returned_strike", "normalized_option_type",
@@ -152,12 +233,19 @@ def scan_frames(frames: Iterable[pd.DataFrame], manifest_columns: Iterable[str])
         "raw_or_decrypted_data_uploaded": False,
     }
 
-
 def run_diagnostic(greek_zip: Path, artifact_id: int, output: Path) -> dict[str, Any]:
     # Artifact identity is verified before even opening the ZIP for schema metadata.
     receipt = verify_pinned_artifact_identity(greek_zip, "greek", artifact_id)
     manifest_columns = read_manifest_columns(greek_zip)
-    scan = scan_frames(iter_encrypted_composite_parts(greek_zip), manifest_columns)
+    def progress(counters: dict[str, int]) -> None:
+        print(
+            "DUP_DIAG_PROGRESS "
+            + " ".join(f"{key}={value}" for key, value in sorted(counters.items())),
+            file=sys.stderr,
+            flush=True,
+        )
+
+    scan = scan_frames(iter_encrypted_composite_parts(greek_zip), manifest_columns, progress=progress)
     result = {
         "schema_version": 2,
         "gate": "PHASE8P_DUPLICATE_OPTION_KEY_DIAGNOSTIC_R4",
