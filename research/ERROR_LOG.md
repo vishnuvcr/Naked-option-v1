@@ -54,3 +54,9 @@ A GitHub Actions protocol/validator failure is an engineering or governance fail
 - Impact: that invocation alone did not establish a completed whole-file scan. It did not modify the source, gzip CSV, or exported rows.
 - Correction/verification: validated the final 999,865 rows in a separate adjacent segment with the C-engine CSV parser; the first segment's recorded progress had already parsed 8,000,000 rows without a schema error. Across the two consecutive segments all 8,999,865 data rows passed width validation (47 columns). Additionally, physical line count is exactly 8,999,866, gzip integrity passes, and the local CSV.GZ SHA-256 matches the hosted manifest.
 - Final output hashes and counts are recorded in the [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-07-tester/research/gates/OFFLINE_CSV_EXPORT_TESTER_REPORT_RUN_38133038676.md). No market-data request, model, holdout, or strategy test occurred.
+
+
+## 2026-10-12 — Phase 8P prediction code gate rejected
+- The exact code/test snapshot `16cb5d266c6312aeeea07ebd61fbbcd589a8281d` passed the developer synthetic CI, but the isolated tester workflow [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) returned REQUEST_CHANGES after 9/13 checks passed.
+- Findings and required corrections are documented in [the independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md). The synthetic green run is not empirical evidence.
+- No real input artifact was downloaded/decrypted; no empirical fit, source request, holdout access or option P&L was performed.
