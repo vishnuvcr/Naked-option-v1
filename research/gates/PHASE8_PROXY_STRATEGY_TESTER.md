@@ -3,10 +3,10 @@
 STATUS: PASS — OHLC PROXY BACKTEST AUTHORIZED
 
 Developer branch: phase-08-prediction-developer
-Reviewed code commit: a750a2921b157f4e9e2ffc47b6434cc363b2d48e
-Runner blob SHA: b26f86af76cedd63d3aff1cb6cb74fb9588eb7a5
-Synthetic test blob SHA: 768a9e38262af9d0e5aa657bc00414078158b89b
-Workflow blob SHA: 9a3c04e5b23e779de5964d9396a732f0fe262ffc
+Reviewed code commit: d5d665ea7ad5cb7d4234a256447c0a4d59ffe9d5
+Runner blob SHA: b776cf8d593aed7776a9d494b31679b4e827bd13
+Synthetic test blob SHA: 92b6ebbd8087277ca672c48cc64e0e6d1391978a
+Workflow blob SHA: b6cd0711b9167de32ccab9cffe604fe5a7841dfb
 
 ## Independent review and change rationale
 
@@ -52,3 +52,37 @@ PASS for one hosted attempt using these exact runner/test/workflow blobs, after 
 - Stored delta is used only if its valuation timestamp is no later than the entry timestamp. Otherwise the ranking delta is recomputed from source IV, rolling_spot and expiry remaining as of entry. Current-minute `nifty_close` and close-valued `time_to_expiry_years` are not used to rank the contract.
 - Test now compares vectorized calculations against the pointwise as-of function for both directly available and recalculated Greek rows. Exact R6 blobs are eligible for empirical execution only if the current hosted regression/self-test and tester gate pass.
 - The R5 vectorized-exit run and earlier R3/R4 runs are superseded diagnostics. The first empirical output eligible for result-level audit will be the new R6 run on these exact blobs.
+
+
+## R7 exact-snapshot independent code gate — 2026-10-12
+
+**Decision: PASS — OHLC PROXY BACKTEST AUTHORIZED for a fresh empirical run only.** This is code/workflow authorization, not acceptance of prior or future result metrics.
+
+Exact reviewed blobs:
+- Runner: `b776cf8d593aed7776a9d494b31679b4e827bd13`
+- Synthetic tests: `92b6ebbd8087277ca672c48cc64e0e6d1391978a`
+- Workflow: `b6cd0711b9167de32ccab9cffe604fe5a7841dfb`
+- Execution engine tick rounding: `d81e1f43e343b34b6932696c6257dca924dea126`
+
+Regression evidence: hosted run [38229662631](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38229662631) passed compilation, all synthetic tests and runner self-test on the exact runner/test/workflow blob set above.
+
+Independent code review:
+- Maximum percentage drawdown now uses timestamp-aggregated realized P&L and the local positive peak; percent is undefined when no positive peak exists.
+- OHLC validation requires finite, positive open/high/low/close and consistent high/low/open/close relationships; invalid bars are excluded and counted.
+- Intraday entry delay is capped at 120 seconds.
+- Simulated buys round up and sells round down to the ₹0.05 tick after spread/slippage; synthetic tests assert tick alignment and conservative direction.
+- Delta selection only consumes a prior-bar stored delta when its valuation timestamp is no later than entry. Raw-IV Black–Scholes synthesis is disabled because the input schema lacks an independent IV availability timestamp. Fallback spot, volume and open interest are lagged; same-timestamp duplicates are prevented from being treated as prior-bar inputs.
+- Liquidity tie-break uses lagged open interest and volume before moneyness and deterministic final ties.
+- Expiries in conservative windows after lot-size transitions are excluded. This reduces but does not fully replace an official historical listed-contract master; that limitation must remain explicit.
+- Duplicate contract-minute rows and conflicting OHLC groups are quantified in the run diagnostics rather than silently hidden.
+- Workflow publication now commits only the run-unique result directory or unique failure record. Failure status checks whether report, summary and ledger exist, preventing a publish conflict from falsely claiming no metrics were generated.
+- Return denominator is the rounded entry premium plus modeled round-trip costs. Paytm Money brokerage remains an explicitly documented historical fallback assumption, and Q1/OHLC execution is not quote-executable.
+
+Conditions on empirical review:
+1. This PASS does not authorize Phase 9 or strategy promotion.
+2. The new result artifact must reconcile ledger to summary, include the corrected metrics and report the data-quality/selection diagnostics.
+3. The independent tester must issue a separate result-level PASS/REQUEST CHANGES after the new artifact exists.
+4. Any subsequent runner/test/workflow blob change invalidates this approval.
+
+**Tester → Developer:** launch one fresh run only on these exact blobs, then submit the resulting artifact for a separate independent result-level gate.
+**Developer → Tester:** preserve your role; review the new result artifact independently and do not promote a configuration based on this code-gate PASS.
