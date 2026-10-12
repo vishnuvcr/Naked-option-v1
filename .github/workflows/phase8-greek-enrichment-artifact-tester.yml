@@ -56,7 +56,7 @@ jobs:
               if art.get("expired") is not False: raise ValueError("artifact expired or expiry unknown")
               if int(art.get("size_in_bytes",0))<=0: raise ValueError("artifact size is zero")
               values={"SOURCE_RUN_ID":rid,"SOURCE_ARTIFACT_ID":aid,"SOURCE_ARTIFACT_NAME":art["name"],
-                "DEVELOPER_SNAPSHOT_SHA":run["head_sha"],"EXPECTED_ROWS":int(req.get("expected_rows",8999865)),
+                "DEVELOPER_SNAPSHOT_SHA":run["head_sha"],"EXPECTED_ARTIFACT_ZIP_SHA256":req["artifact_zip_sha256"],"EXPECTED_ROWS":int(req.get("expected_rows",8999865)),
                 "EXPECTED_PARTS":int(req.get("expected_parts",61)),"EXPECTED_OPTION_ROWS":int(req.get("expected_option_rows",8490723)),
                 "EXPECTED_SPOT_ROWS":int(req.get("expected_spot_rows",509142)),
                 "SOURCE_CACHED_ARTIFACT_ID":int(req.get("source_cached_artifact_id",11698879857)),
@@ -107,10 +107,16 @@ jobs:
           fi
           if [ "$rc" -eq 0 ] && [ -s "$output" ]; then
             sha=$(sha256sum "$output" | cut -d ' ' -f 1)
-            echo "DOWNLOAD_GATE_STATUS=PASS" >> "$GITHUB_ENV"
             echo "BUNDLE_SHA256=$sha" >> "$GITHUB_ENV"
             echo "BUNDLE_PATH=$output" >> "$GITHUB_ENV"
-            echo "download_status=PASS" >> "$GITHUB_OUTPUT"
+            if [ "$sha" = "$EXPECTED_ARTIFACT_ZIP_SHA256" ]; then
+              echo "DOWNLOAD_GATE_STATUS=PASS" >> "$GITHUB_ENV"
+              echo "download_status=PASS" >> "$GITHUB_OUTPUT"
+            else
+              echo "DOWNLOAD_GATE_STATUS=FAIL" >> "$GITHUB_ENV"
+              echo "DOWNLOAD_GATE_FINDING=downloaded artifact ZIP digest differs from requested exact SHA-256" >> "$GITHUB_ENV"
+              echo "download_status=FAIL" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "DOWNLOAD_GATE_STATUS=FAIL" >> "$GITHUB_ENV"
             echo "DOWNLOAD_GATE_FINDING=artifact download or CRC validation failed" >> "$GITHUB_ENV"
