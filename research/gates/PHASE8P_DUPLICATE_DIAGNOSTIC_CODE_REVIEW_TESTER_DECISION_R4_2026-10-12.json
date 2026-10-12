@@ -7,7 +7,7 @@
   "developer_branch": "phase-08-prediction-developer",
   "developer_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850",
   "developer_request_path": "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json",
-  "developer_request_blob_sha1": "f4f1b46d2e8f7d7b222b9d6b19d7c27fbdd66524",
+  "developer_request_blob_sha1": "871bba497deae163dcbc89e57a6015b4e4e48a01",
   "reviewed_blobs": {
     "scripts/phase8p_greek_prediction.py": "3358381d64b3e675e49687fa5d34df44d8a9c984",
     "scripts/test_phase8p_greek_prediction.py": "198e731e9e5f5dd011370cd6f656fe27e97c6ca5",
