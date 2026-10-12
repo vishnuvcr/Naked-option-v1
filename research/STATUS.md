@@ -710,3 +710,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** preserve the BLOCKED_DATA decision; review the new diagnostic code/test hashes before any diagnostic touches the encrypted artifact.
 **Tester → Developer:** require proof that exact and conflicting duplicates are distinguished and no row is silently dropped; keep empirical fitting blocked.
+
+
+## 2026-10-12 — Duplicate-key diagnostic R3 synthetic pass; independent review wiring blocked
+- Developer synthetic workflow [#38204164532](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204164532) passed for the duplicate-key diagnostic on snapshot `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`. Separate core Phase 8P synthetic workflow [#38204161297](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204161297) also passed its synthetic-only checks.
+- Exact duplicate diagnostic review request R3: [request JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R3_2026-10-12.json), blob `d2c4993315987523b569e122a3949967b87263e5`; diagnostic blob `3427c48dcd86207dbe0a22d41da15ffa1a59fa43`; tests blob `c1f3d1f86e728fc0a3ee3b28dcd58264767fb3b1`; synthetic workflow blob `08cbb1519666d25186b684c000a1df478ad3329d`.
+- Independent tester workflow [#38204120560](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204120560) did not review the submitted R3 snapshot: the tester-owned workflow still reads the R2 request and stopped at its request-status check. No tester code decision was produced; no real artifact was touched by that review job.
+- Created [issue #20](https://github.com/vishnuvcr/Naked-option-v1/issues/20) as a tester-role handoff to update the isolated tester workflow to R3 and independently review the exact pinned snapshot. This does not change the tester branch or bypass its role.
+- Current gate: **SYNTHETIC PASS; INDEPENDENT CODE REVIEW PENDING; DUPLICATE DATA GATE BLOCKED; MODEL FIT BLOCKED.** The duplicate diagnostic must not run on the encrypted artifact until its exact code snapshot passes tester review and a separate diagnostic-only authorization is established.
+
+**Developer → Tester:** update the tester-owned request binding to R3 and independently audit the exact hashes; do not download/decrypt real data during the code gate.
+**Tester → Developer:** return immutable PASS/REQUEST_CHANGES and exact hashes; even on PASS, require separate diagnostic-only authorization before scanning the pinned encrypted artifact.
