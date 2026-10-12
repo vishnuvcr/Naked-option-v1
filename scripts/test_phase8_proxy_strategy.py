@@ -104,6 +104,29 @@ def test_take_profit_stop_and_trailing_exit_paths():
     assert result["exit_epoch"] == 160
 
 
+def test_intraday_horizon_after_close_is_skipped():
+    decision = int(pd.Timestamp("2024-01-02 15:00:00", tz=runner.IST).timestamp())
+    times = np.array([decision + 60, decision + 300], dtype=np.int64)
+    assert runner.plan_exit_epoch(decision, "intraday", 120, ["2024-01-02"], times) is None
+
+
+def test_stop_gap_uses_worse_open_not_unfillable_stop_level():
+    times = np.array([100, 160, 220], dtype=np.int64)
+    idxs = np.array([0, 1, 2], dtype=np.int64)
+    data = {
+        "times": times,
+        "option_open": np.array([100.0, 50.0, 80.0]),
+        "option_high": np.array([110.0, 70.0, 90.0]),
+        "option_low": np.array([90.0, 40.0, 70.0]),
+    }
+    skeleton = {"series_idx": idxs, "entry_series_pos": 0, "scheduled_series_pos": 2,
+                "entry_base": 100.0}
+    result = runner.simulate_exit(skeleton, "X2", pd.DataFrame(), data)
+    assert result["exit_reason"] == "STOP_LOSS"
+    assert result["exit_base"] == 50.0
+    assert result["exit_epoch"] == 160
+
+
 def test_proxy_cost_scenarios_get_more_conservative():
     base = 100.0
     net = []
@@ -122,6 +145,8 @@ if __name__ == "__main__":
         test_intraday_exit_planning_respects_horizon,
         test_daily_exit_planning_uses_next_sessions_close_window,
         test_take_profit_stop_and_trailing_exit_paths,
+        test_intraday_horizon_after_close_is_skipped,
+        test_stop_gap_uses_worse_open_not_unfillable_stop_level,
         test_proxy_cost_scenarios_get_more_conservative,
     ]
     for test in tests:
