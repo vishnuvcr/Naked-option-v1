@@ -1,0 +1,495 @@
+name: Phase 8P One-Use Duplicate Diagnostic Execution (Two Tester Gates)
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - ".github/workflows/phase8p-duplicate-diagnostic-execution.yml"
+      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json"
+      - "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_WAKEUP_R1_2026-10-12.json"
+  workflow_dispatch:
+    inputs:
+      run_one_use_diagnostic:
+        description: "Attempt the exact approved one-use diagnostic; missing/stale approval safely blocks before artifact retrieval"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: phase8p-duplicate-diagnostic-single-use
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: ${{ github.event_name == 'push' || inputs.run_one_use_diagnostic == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      DEVELOPER_BRANCH: phase-08-prediction-developer
+      TESTER_BRANCH: phase-08-prediction-tester
+      EXECUTION_REQUEST_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json
+      WORKFLOW_APPROVAL_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R1_2026-10-12.json
+      EXECUTION_AUTHORIZATION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_R1_2026-10-12.json
+      R4_CODE_DECISION_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R4_2026-10-12.json
+      R4_CODE_REPORT_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md
+      SCOPE_DECISION_PATH: research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json
+      NONCE_LEDGER_PATH: research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_NONCES.jsonl
+      GREEK_ARTIFACT_ID: "11723198817"
+      GREEK_ARTIFACT_SHA256: "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+      APPROVED_CODE_COMMIT: "8f8d513330d1cb064b4d3ffe9933f8e8014f2850"
+      APPROVED_CORE_MODULE_BLOB: "3358381d64b3e675e49687fa5d34df44d8a9c984"
+      APPROVED_DIAGNOSTIC_BLOB: "6e4484cc5893bae27966c2b8d7561c2435e00023"
+      APPROVED_DIAGNOSTIC_TEST_BLOB: "232de27ff2c26a4ad228ae179d8ec5565ac97eeb"
+
+    steps:
+      - name: Checkout only repository control files
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify independent R4 code decision and two-stage execution authorization before any data access
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          DISPATCH_RUN_ONE_USE: ${{ inputs.run_one_use_diagnostic }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "${DEVELOPER_BRANCH}:refs/remotes/origin/${DEVELOPER_BRANCH}"
+          git fetch --no-tags origin "${TESTER_BRANCH}:refs/remotes/origin/${TESTER_BRANCH}"
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          OUT = Path(os.environ["GITHUB_OUTPUT"])
+          def out(**fields):
+              with OUT.open("a", encoding="utf-8") as handle:
+                  for key, value in fields.items():
+                      handle.write(f"{key}={str(value).lower() if isinstance(value, bool) else value}\n")
+          def git(*args):
+              return subprocess.check_output(["git", *args], text=True, stderr=subprocess.DEVNULL).strip()
+          def show(ref, path):
+              return git("show", f"{ref}:{path}")
+          def blob(ref, path):
+              return git("rev-parse", f"{ref}:{path}")
+          def has_path(ref, path):
+              try:
+                  git("cat-file", "-e", f"{ref}:{path}")
+                  return True
+              except subprocess.CalledProcessError:
+                  return False
+          def no_op(reason):
+              print("SAFE_NOOP_BEFORE_ARTIFACT_ACCESS: " + reason)
+              out(run_authorized=False, no_op_reason=reason)
+              raise SystemExit(0)
+          def blocked(reason):
+              raise SystemExit("DUPLICATE_EXECUTION_BLOCKED_BEFORE_ARTIFACT_ACCESS: " + reason)
+
+          if int(os.environ.get("GITHUB_RUN_ATTEMPT", "1")) != 1:
+              blocked("workflow reruns are not allowed for a one-use authorization")
+          req_path = os.environ["EXECUTION_REQUEST_PATH"]
+          if not has_path("HEAD", req_path):
+              no_op("execution workflow review request is not present yet")
+          request_raw = show("HEAD", req_path)
+          request = json.loads(request_raw)
+          request_blob = blob("HEAD", req_path)
+          workflow_path = ".github/workflows/phase8p-duplicate-diagnostic-execution.yml"
+          workflow_blob = blob("HEAD", workflow_path)
+          remote = "refs/remotes/origin/" + os.environ["DEVELOPER_BRANCH"]
+          tester = "refs/remotes/origin/" + os.environ["TESTER_BRANCH"]
+          if blob(remote, workflow_path) != workflow_blob:
+              blocked("workflow changed after this run snapshot; review the current snapshot again")
+          if request.get("status") != "PENDING_INDEPENDENT_TESTER_REVIEW":
+              blocked("workflow-review request status changed unexpectedly")
+          if request.get("workflow_path") != workflow_path or request.get("workflow_blob_sha1") != workflow_blob:
+              blocked("exact workflow blob is not the one in the request")
+          if request.get("developer_code_commit") != os.environ["APPROVED_CODE_COMMIT"]:
+              blocked("developer code commit pin differs from the approved R4 snapshot")
+          if int(request.get("source_artifact", {}).get("artifact_id", -1)) != int(os.environ["GREEK_ARTIFACT_ID"]):
+              blocked("artifact id pin mismatch")
+          if request.get("source_artifact", {}).get("sha256") != os.environ["GREEK_ARTIFACT_SHA256"]:
+              blocked("artifact SHA-256 pin mismatch")
+          if request.get("execution_nonce") != "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133":
+              blocked("execution nonce not the exact frozen request nonce")
+          if request.get("real_artifact_access_authorized") is not False or request.get("real_artifact_decryption_authorized") is not False:
+              blocked("workflow-only request must not grant real artifact access")
+          if request.get("model_fit_authorized") is not False or request.get("holdout_access_authorized") is not False or request.get("option_pnl_authorized") is not False:
+              blocked("out-of-scope research authorization flag is not false")
+
+          code_decision_path = os.environ["R4_CODE_DECISION_PATH"]
+          scope_decision_path = os.environ["SCOPE_DECISION_PATH"]
+          for p in (code_decision_path, os.environ["R4_CODE_REPORT_PATH"], scope_decision_path):
+              if not has_path(tester, p):
+                  blocked("required tester decision/report is missing: " + p)
+          code_sha = blob(tester, code_decision_path)
+          scope_sha = blob(tester, scope_decision_path)
+          if code_sha != request.get("r4_code_decision_blob_sha1"):
+              blocked("R4 code decision blob differs from reviewed request")
+          if blob(tester, os.environ["R4_CODE_REPORT_PATH"]) != request.get("r4_code_report_blob_sha1"):
+              blocked("R4 code report blob differs from reviewed request")
+          if scope_sha != request.get("r4_scope_decision_blob_sha1"):
+              blocked("R4 scope decision blob differs from reviewed request")
+          code_decision = json.loads(show(tester, code_decision_path))
+          scope_decision = json.loads(show(tester, scope_decision_path))
+          if code_decision.get("decision") != "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY" or code_decision.get("developer_commit") != os.environ["APPROVED_CODE_COMMIT"]:
+              blocked("exact R4 code-only PASS absent")
+          if code_decision.get("real_artifact_accessed") is not False or code_decision.get("real_diagnostic_authorized") is not False or code_decision.get("model_fit_authorized") is not False:
+              blocked("R4 code-only decision has an unexpected permission")
+          if scope_decision.get("decision") != "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS" or scope_decision.get("real_artifact_access_authorized") is not False:
+              blocked("R4 scope decision is absent or overbroad")
+
+          # Missing workflow approval or missing one-use execution authorization is a safe no-op.
+          approval_path = os.environ["WORKFLOW_APPROVAL_PATH"]
+          if not has_path(tester, approval_path):
+              no_op("independent tester has not approved this exact execution workflow")
+          approval_blob = blob(tester, approval_path)
+          approval = json.loads(show(tester, approval_path))
+          if approval.get("decision") == "PENDING_INDEPENDENT_TESTER_REVIEW":
+              no_op("workflow review is pending")
+          if approval.get("decision") != "PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY":
+              blocked("tester did not issue the exact workflow-only PASS")
+          if approval.get("developer_workflow_blob_sha1") != workflow_blob or approval.get("executor_request_blob_sha1") != request_blob:
+              blocked("tester workflow PASS does not pin this exact workflow and request")
+          if approval.get("developer_code_commit") != os.environ["APPROVED_CODE_COMMIT"]:
+              blocked("workflow reviewer approved a different code snapshot")
+          if approval.get("r4_code_decision_blob_sha1") != code_sha or approval.get("r4_scope_decision_blob_sha1") != scope_sha:
+              blocked("workflow approval does not pin the tester's exact R4 decisions")
+          if approval.get("real_artifact_access_authorized") is not False or approval.get("execution_authorization_granted") is not False:
+              blocked("workflow-only PASS must not itself authorize execution")
+
+          auth_path = os.environ["EXECUTION_AUTHORIZATION_PATH"]
+          if not has_path(tester, auth_path):
+              no_op("separate one-use execution authorization has not been issued")
+          auth_blob = blob(tester, auth_path)
+          auth = json.loads(show(tester, auth_path))
+          if auth.get("decision") == "PENDING_ONE_TIME_EXECUTION_AUTHORIZATION":
+              no_op("one-use execution authorization is pending")
+          if auth.get("decision") != "PASS_ONE_TIME_DUPLICATE_DIAGNOSTIC_EXECUTION_ONLY":
+              blocked("one-use execution authorization was not approved")
+          now = datetime.now(timezone.utc)
+          expires = datetime.fromisoformat(str(auth.get("expires_at_utc", "")).replace("Z", "+00:00"))
+          issued = datetime.fromisoformat(str(auth.get("issued_at_utc", "")).replace("Z", "+00:00"))
+          if expires.tzinfo is None or issued.tzinfo is None or not (issued < expires and now < expires):
+              blocked("execution authorization expired or has invalid timestamps")
+          if (expires - issued).total_seconds() > 24 * 3600:
+              blocked("one-use authorization validity exceeds the 24-hour maximum")
+          exact_auth = {
+              "execution_nonce": request["execution_nonce"],
+              "executor_workflow_blob_sha1": workflow_blob,
+              "executor_request_blob_sha1": request_blob,
+              "workflow_approval_decision_blob_sha1": approval_blob,
+              "r4_code_decision_blob_sha1": code_sha,
+              "r4_scope_decision_blob_sha1": scope_sha,
+              "developer_code_commit": os.environ["APPROVED_CODE_COMMIT"],
+              "source_artifact_id": int(os.environ["GREEK_ARTIFACT_ID"]),
+              "source_artifact_sha256": os.environ["GREEK_ARTIFACT_SHA256"],
+              "max_uses": 1,
+              "real_artifact_access_authorized": True,
+              "real_artifact_decryption_authorized": True,
+              "real_diagnostic_authorized": True,
+              "deduplication_authorized": False,
+              "model_fit_authorized": False,
+              "holdout_access_authorized": False,
+              "external_market_source_requests_authorized": False,
+              "option_pnl_authorized": False,
+              "strategy_promotion_authorized": False,
+              "raw_or_decrypted_data_upload_authorized": False,
+          }
+          for key, expected in exact_auth.items():
+              if auth.get(key) != expected:
+                  blocked("one-use authorization pin/permission mismatch: " + key)
+
+          # Permanent Git ledger, not a short-lived Actions artifact, is the replay guard.
+          ledger_path = os.environ["NONCE_LEDGER_PATH"]
+          try:
+              ledger_raw = show(remote, ledger_path)
+          except subprocess.CalledProcessError:
+              ledger_raw = ""
+          consumed = []
+          for line in ledger_raw.splitlines():
+              if not line.strip():
+                  continue
+              row = json.loads(line)
+              consumed.append(row.get("execution_nonce"))
+          if request["execution_nonce"] in consumed:
+              blocked("execution nonce has already been consumed in the permanent developer ledger")
+          if not bool(auth.get("single_use", False)):
+              blocked("tester authorization did not mark the nonce single-use")
+
+          out(run_authorized=True, execution_nonce=request["execution_nonce"],
+              request_blob_sha1=request_blob, workflow_blob_sha1=workflow_blob,
+              workflow_approval_blob_sha1=approval_blob, execution_authorization_blob_sha1=auth_blob,
+              developer_code_commit=os.environ["APPROVED_CODE_COMMIT"],
+              source_artifact_id=os.environ["GREEK_ARTIFACT_ID"],
+              source_artifact_sha256=os.environ["GREEK_ARTIFACT_SHA256"],
+              ledger_path=ledger_path)
+          # Write only approval metadata to RUNNER_TEMP; never serialize input rows or token.
+          receipt = {
+              "schema_version": 1, "gate": "PHASE8P_DUPLICATE_EXECUTION_CONSUMPTION",
+              "execution_nonce": request["execution_nonce"],
+              "request_blob_sha1": request_blob, "workflow_blob_sha1": workflow_blob,
+              "workflow_approval_decision_blob_sha1": approval_blob,
+              "execution_authorization_decision_blob_sha1": auth_blob,
+              "r4_code_decision_blob_sha1": code_sha, "r4_scope_decision_blob_sha1": scope_sha,
+              "developer_code_commit": os.environ["APPROVED_CODE_COMMIT"],
+              "source_artifact_id": int(os.environ["GREEK_ARTIFACT_ID"]),
+              "source_artifact_sha256": os.environ["GREEK_ARTIFACT_SHA256"],
+              "consumed_by_run_id": os.environ["GITHUB_RUN_ID"],
+              "consumed_by_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "consumed_at_utc": now.isoformat(),
+              "real_artifact_access_authorized": True,
+              "real_diagnostic_authorized": True,
+              "deduplication_performed": False, "model_fitted": False,
+              "holdout_accessed": False, "option_pnl_run": False,
+          }
+          Path(os.environ["RUNNER_TEMP"], "phase8p-execution-nonce-receipt.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Commit the one-use nonce to the permanent developer ledger before downloading data
+        if: steps.gate.outputs.run_authorized == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          EXECUTION_NONCE: ${{ steps.gate.outputs.execution_nonce }}
+          LEDGER_PATH: ${{ steps.gate.outputs.ledger_path }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "${DEVELOPER_BRANCH}:refs/remotes/origin/${DEVELOPER_BRANCH}"
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-ledger-worktree" "refs/remotes/origin/${DEVELOPER_BRANCH}"
+          cd "${RUNNER_TEMP}/phase8p-ledger-worktree"
+          mkdir -p "$(dirname "$LEDGER_PATH")"
+          touch "$LEDGER_PATH"
+          if grep -Fq "\"execution_nonce\":\"$EXECUTION_NONCE\"" "$LEDGER_PATH"; then
+            echo "DUPLICATE_EXECUTION_BLOCKED: nonce already present in ledger"
+            exit 1
+          fi
+          python - "${RUNNER_TEMP}/phase8p-execution-nonce-receipt.json" "$LEDGER_PATH" <<'PY'
+          import json,sys
+          from pathlib import Path
+          receipt=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          Path(sys.argv[2]).open("a",encoding="utf-8").write(json.dumps(receipt,sort_keys=True,separators=(",",":"))+"\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$LEDGER_PATH"
+          git commit -m "Consume one-use Phase 8P duplicate diagnostic nonce"
+          git push origin HEAD:phase-08-prediction-developer
+          echo "One-use nonce committed to the permanent developer ledger before data retrieval."
+
+      - name: Set up Python after execution authorization
+        if: steps.gate.outputs.run_authorized == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned diagnostic dependencies after authorization
+        if: steps.gate.outputs.run_authorized == 'true'
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2 pyarrow==17.0.0 cryptography==43.0.3
+
+      - name: Restore cached encrypted Greek artifact after authorization
+        if: steps.gate.outputs.run_authorized == 'true'
+        id: greek-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
+          key: phase8p-greek-artifact-11723198817-e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
+
+      - name: Download or validate pinned encrypted Greek artifact
+        if: steps.gate.outputs.run_authorized == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/cache/phase8p-artifacts "${RUNNER_TEMP}/phase8p-diagnostic"
+          ZIP="data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip"
+          if [ ! -s "$ZIP" ]; then
+            HEADERS="${RUNNER_TEMP}/phase8p-diagnostic/greek-headers.txt"
+            API_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${GREEK_ARTIFACT_ID}/zip"
+            STATUS="$(curl --silent --show-error --max-time 60 -D "$HEADERS" -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "$API_URL")"
+            if [ "$STATUS" != "302" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "307" ]; then
+              echo "ARTIFACT_DOWNLOAD_BLOCKED: GitHub API returned HTTP $STATUS"
+              exit 1
+            fi
+            LOCATION="$(python - "$HEADERS" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="utf-8",errors="replace").read().splitlines()
+          locations=[line.split(":",1)[1].strip() for line in lines if line.lower().startswith("location:")]
+          if not locations: raise SystemExit("Missing GitHub artifact redirect location")
+          print(locations[-1])
+          PY
+          )"
+            curl --fail --silent --show-error --location --retry 3 --retry-all-errors --connect-timeout 30 --max-time 2400 "$LOCATION" --output "$ZIP"
+          fi
+          ACTUAL="$(sha256sum "$ZIP" | awk '{print $1}')"
+          if [ "$ACTUAL" != "$GREEK_ARTIFACT_SHA256" ]; then
+            echo "ARTIFACT_SHA256_MISMATCH: expected=$GREEK_ARTIFACT_SHA256 actual=$ACTUAL"
+            exit 1
+          fi
+          echo "Pinned encrypted Greek artifact identity verified."
+
+      - name: Save immutable encrypted Greek artifact cache
+        if: steps.gate.outputs.run_authorized == 'true' && steps.greek-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
+          key: phase8p-greek-artifact-11723198817-e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
+
+      - name: Check out exact approved diagnostic code in a detached worktree
+        if: steps.gate.outputs.run_authorized == 'true'
+        env:
+          DEV_SHA: ${{ steps.gate.outputs.developer_code_commit }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-diagnostic-code" "$DEV_SHA"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD)" = "$DEV_SHA"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_greek_prediction.py)" = "$APPROVED_CORE_MODULE_BLOB"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_BLOB"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/test_phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_TEST_BLOB"
+
+      - name: Run authorized aggregate-only duplicate diagnostic
+        if: steps.gate.outputs.run_authorized == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          ZIP: ${{ github.workspace }}/data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
+          REPORT_RAW: ${{ runner.temp }}/phase8p-diagnostic/raw-diagnostic-report.json
+          REPORT_SAFE: ${{ runner.temp }}/phase8p-diagnostic/duplicate-diagnostic-report.json
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/phase8p-diagnostic"
+          test -s "$ZIP"
+          set +e
+          (cd "${RUNNER_TEMP}/phase8p-diagnostic-code" && python scripts/phase8p_duplicate_key_diagnostic.py --greek-zip "$ZIP" --artifact-id "$GREEK_ARTIFACT_ID" --output "$REPORT_RAW") > "${RUNNER_TEMP}/phase8p-diagnostic/stdout.log" 2> "${RUNNER_TEMP}/phase8p-diagnostic/stderr.log"
+          RC=$?
+          set -e
+          python - "$REPORT_RAW" "$REPORT_SAFE" "$RC" "$GREEK_ARTIFACT_ID" "$GREEK_ARTIFACT_SHA256" "${RUNNER_TEMP}/phase8p-diagnostic/stderr.log" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          raw_path,safe_path,rc,artifact_id,artifact_sha,stderr_path=sys.argv[1:]
+          raw_path=Path(raw_path); safe_path=Path(safe_path); stderr=Path(stderr_path)
+          allowed={
+            "schema_version","gate","status","input_artifact_id","input_artifact_sha256","source_revision","source_license",
+            "parts_scanned","rows_scanned","option_rows_scanned","manifest_column_count","manifest_columns_sha256",
+            "signature_column_count","signature_columns_sha256","unique_economic_contract_keys","duplicate_contract_groups",
+            "duplicate_extra_rows","identical_signature_duplicate_groups","identical_signature_duplicate_extra_rows",
+            "conflicting_signature_duplicate_groups","conflicting_signature_duplicate_extra_rows","conflicting_signature_fields",
+            "groups_spanning_multiple_parts","groups_within_one_part","economic_key_policy","allowed_provenance_variance_fields",
+            "diagnostic_scope","deduplication_performed","raw_keys_or_rows_emitted","raw_or_decrypted_data_uploaded",
+            "model_fitted","holdout_accessed","external_market_source_requested","model_fit_authorized",
+            "strategy_promotion_authorized","option_pnl_run"
+          }
+          fail=None
+          raw_hash=hashlib.sha256(raw_path.read_bytes()).hexdigest() if raw_path.exists() else None
+          stderr_bytes=stderr.read_bytes() if stderr.exists() else b""
+          if int(rc)!=0 or not raw_path.is_file():
+              fail="DIAGNOSTIC_RUN_FAILED"
+          else:
+              try:
+                  d=json.loads(raw_path.read_text(encoding="utf-8"))
+              except Exception:
+                  d={}; fail="DIAGNOSTIC_REPORT_JSON_INVALID"
+              if fail is None and set(d) != allowed:
+                  fail="DIAGNOSTIC_REPORT_SCHEMA_MISMATCH"
+              if fail is None and (d.get("status")!="DIAGNOSTIC_COMPLETE" or
+                  d.get("input_artifact_id")!=int(artifact_id) or d.get("input_artifact_sha256")!=artifact_sha):
+                  fail="DIAGNOSTIC_REPORT_SOURCE_IDENTITY_MISMATCH"
+              false_flags=("deduplication_performed","raw_keys_or_rows_emitted","raw_or_decrypted_data_uploaded",
+                           "model_fitted","holdout_accessed","external_market_source_requested",
+                           "model_fit_authorized","strategy_promotion_authorized","option_pnl_run")
+              if fail is None and any(d.get(k) is not False for k in false_flags):
+                  fail="DIAGNOSTIC_REPORT_PERMISSION_FLAG_MISMATCH"
+              if fail is None and (not isinstance(d.get("conflicting_signature_fields"),list) or
+                  any(not isinstance(x,str) or len(x)>128 for x in d["conflicting_signature_fields"])):
+                  fail="DIAGNOSTIC_REPORT_CONFLICT_FIELDS_INVALID"
+              if fail is None:
+                  safe_path.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          raw_path.unlink(missing_ok=True)
+          if fail is not None:
+              code=fail
+              tail=stderr_bytes.decode("utf-8",errors="replace").splitlines()
+              if code=="DIAGNOSTIC_RUN_FAILED" and tail:
+                  candidate=tail[-1].split(":",1)[0].strip()
+                  if candidate and len(candidate)<=100 and all(ch.isupper() or ch.isdigit() or ch in "_-" for ch in candidate):
+                      code=candidate
+              safe={
+                "schema_version":1,"gate":"PHASE8P_DUPLICATE_OPTION_KEY_DIAGNOSTIC_R4",
+                "status":"BLOCKED","failure_code":code,
+                "input_artifact_id":int(artifact_id),"expected_artifact_sha256":artifact_sha,
+                "raw_report_sha256":raw_hash,
+                "stderr_sha256":hashlib.sha256(stderr_bytes).hexdigest(),
+                "model_fitted":False,"holdout_accessed":False,"deduplication_performed":False,
+                "raw_keys_or_rows_emitted":False,"raw_or_decrypted_data_uploaded":False,
+                "option_pnl_run":False,"strategy_promotion_authorized":False
+              }
+              safe_path.write_text(json.dumps(safe,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+              print(json.dumps({"status":"BLOCKED","failure_code":code,"raw_report_sha256":raw_hash},sort_keys=True))
+              raise SystemExit(1)
+          d=json.loads(safe_path.read_text(encoding="utf-8"))
+          print(json.dumps({"status":d["status"],"parts_scanned":d["parts_scanned"],
+            "option_rows_scanned":d["option_rows_scanned"],"duplicate_contract_groups":d["duplicate_contract_groups"],
+            "identical_signature_duplicate_groups":d["identical_signature_duplicate_groups"],
+            "conflicting_signature_duplicate_groups":d["conflicting_signature_duplicate_groups"],
+            "model_fitted":d["model_fitted"]},sort_keys=True))
+          PY
+
+      - name: Create hash-pinned aggregate execution receipt
+        if: always() && steps.gate.outputs.run_authorized == 'true'
+        env:
+          REQUEST_BLOB_SHA1: ${{ steps.gate.outputs.request_blob_sha1 }}
+          WORKFLOW_BLOB_SHA1: ${{ steps.gate.outputs.workflow_blob_sha1 }}
+          WORKFLOW_APPROVAL_BLOB_SHA1: ${{ steps.gate.outputs.workflow_approval_blob_sha1 }}
+          AUTHORIZATION_BLOB_SHA1: ${{ steps.gate.outputs.execution_authorization_blob_sha1 }}
+          DEVELOPER_CODE_COMMIT: ${{ steps.gate.outputs.developer_code_commit }}
+          EXECUTION_NONCE: ${{ steps.gate.outputs.execution_nonce }}
+        run: |
+          python - "${RUNNER_TEMP}/phase8p-diagnostic/duplicate-diagnostic-report.json" "${RUNNER_TEMP}/phase8p-diagnostic/execution-receipt.json" <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          report=Path(sys.argv[1]); output=Path(sys.argv[2])
+          report_sha=hashlib.sha256(report.read_bytes()).hexdigest() if report.is_file() else None
+          d={"schema_version":1,"gate":"PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_RECEIPT",
+             "workflow_run_id":os.environ["GITHUB_RUN_ID"],"workflow_run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),
+             "execution_nonce":os.environ["EXECUTION_NONCE"],"request_blob_sha1":os.environ["REQUEST_BLOB_SHA1"],
+             "workflow_blob_sha1":os.environ["WORKFLOW_BLOB_SHA1"],
+             "workflow_approval_decision_blob_sha1":os.environ["WORKFLOW_APPROVAL_BLOB_SHA1"],
+             "execution_authorization_decision_blob_sha1":os.environ["AUTHORIZATION_BLOB_SHA1"],
+             "developer_code_commit":os.environ["DEVELOPER_CODE_COMMIT"],
+             "report_sha256":report_sha,"report_present":report.is_file(),
+             "real_artifact_access_authorized":True,"deduplication_performed":False,
+             "model_fitted":False,"holdout_accessed":False,"option_pnl_run":False,
+             "strategy_promotion":False}
+          output.write_text(json.dumps(d,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          print(json.dumps({"report_present":d["report_present"],"report_sha256":report_sha,"model_fitted":False},sort_keys=True))
+          PY
+
+      - name: Upload only aggregate diagnostic report and receipts
+        if: always() && steps.gate.outputs.run_authorized == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-duplicate-diagnostic-results-${{ steps.gate.outputs.execution_nonce }}
+          path: |
+            ${{ runner.temp }}/phase8p-diagnostic/duplicate-diagnostic-report.json
+            ${{ runner.temp }}/phase8p-diagnostic/execution-receipt.json
+            ${{ runner.temp }}/phase8p-execution-nonce-receipt.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Remove local temporary plaintext, logs and isolated worktrees
+        if: always()
+        run: |
+          set +e
+          git worktree remove --force "${RUNNER_TEMP}/phase8p-diagnostic-code"
+          git worktree remove --force "${RUNNER_TEMP}/phase8p-ledger-worktree"
+          rm -f "${RUNNER_TEMP}/phase8p-diagnostic/raw-diagnostic-report.json"
+          rm -f "${RUNNER_TEMP}/phase8p-diagnostic/stdout.log" "${RUNNER_TEMP}/phase8p-diagnostic/stderr.log"
+          rm -f "${RUNNER_TEMP}/phase8p-diagnostic/greek-headers.txt"
+          true
