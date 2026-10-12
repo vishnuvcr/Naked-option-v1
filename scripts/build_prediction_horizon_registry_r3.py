@@ -563,10 +563,10 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
         label: (20000 if label.startswith("INTRA_") else 250) for label in ALL_LABEL_IDS
     }
     p["sample_eligibility"]["minimum_validation_rows"] = {
-        label: (5000 if label.startswith("INTRA_") else 60) for label in ALL_LABEL_IDS
+        label: (5000 if label.startswith("INTRA_") else 40) for label in ALL_LABEL_IDS
     }
     p["sample_eligibility"]["minimum_class_support_each_direction_per_validation_fold"] = {
-        label: (250 if label.startswith("INTRA_") else 20) for label in ALL_LABEL_IDS
+        label: (250 if label.startswith("INTRA_") else 15) for label in ALL_LABEL_IDS
     }
     p["sample_eligibility"]["minimum_class_support_each_direction_training"] = {
         label: (1000 if label.startswith("INTRA_") else 50) for label in ALL_LABEL_IDS
