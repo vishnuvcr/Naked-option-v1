@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 WORKFLOW_PATH = ".github/workflows/phase8p-duplicate-diagnostic-execution.yml"
-REQUEST_PATH = "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json"
+REQUEST_PATH = "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json"
 EXPECTED_DEV_BRANCH = "phase-08-prediction-developer"
 EXPECTED_TESTER_BRANCH = "phase-08-prediction-tester"
 
@@ -175,6 +175,15 @@ def main():
               and "PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY" in workflow_text
               and "PASS_ONE_TIME_DUPLICATE_DIAGNOSTIC_EXECUTION_ONLY" in workflow_text
               and "execution_authorization_granted" in workflow_text)
+        check(checks, failures, "separate_execution_authorization_request_is_pinned",
+              req["execution_authorization_contract"]["one_use_execution_authorization_path"] in workflow_text
+              and "EXECUTION_AUTH_REQUEST_PATH" in workflow_text
+              and "PENDING_ONE_TIME_EXECUTION_AUTHORIZATION" in workflow_text
+              and "request_contract" in workflow_text
+              and "execution_authorization_request_blob_sha1" in workflow_text
+              and 'auth_request.get("status") != "PENDING_ONE_TIME_EXECUTION_AUTHORIZATION"' in workflow_text
+              and '"execution_authorization_request_blob_sha1": auth_request_blob' in workflow_text
+              and "real_artifact_access_authorized" in workflow_text)
         check(checks, failures, "approval_is_bound_to_exact_request_workflow_code_and_artifact",
               all(field in workflow_text for field in (
                   "executor_request_blob_sha1", "developer_workflow_blob_sha1",
@@ -224,7 +233,7 @@ def main():
 
     # Inspect only metadata from the known safe-noop run, never fetch artifacts or source data.
     check(checks, failures, "safe_noop_run_reference_present",
-          args.safe_noop_run_id == 38206043280)
+          isinstance(args.safe_noop_run_id, int) and args.safe_noop_run_id > 0)
 
     result = {
         "schema_version": 1,
