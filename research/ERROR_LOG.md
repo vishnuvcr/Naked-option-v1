@@ -956,3 +956,10 @@
 - Method master registry lists 1,000 entries, but only 11 method shards × 50 records = 550 entries are committed. The 450 IDs beginning `PM0551` are missing from the shards.
 - Config shard files each contain the manifest-declared 2,000 records, and the combined set has 8,000 unique IDs. However, all four manifest `sha256` values mismatch the raw file, canonical JSON root, and canonical LF-delimited canonical record stream. The hash contract is ambiguous or incorrect; do not silently rewrite the expected hashes before determining the intended canonical rule.
 - Workflow/audit code intentionally returns non-zero on these defects. Utility tests passed, but the registry integrity gate did not. No scientific execution is authorized.
+
+
+## 2026-10-12 — R2 registry repair automation
+
+- Added scripts/generate_missing_method_shards.py, which requires exactly 1,000 ordered unique master IDs (PM0001–PM1000), generates only absent 50-record shards, and fails closed if an existing shard differs from its canonical master slice.
+- Added scripts/pin_config_shard_file_hashes.py and an explicit exact-file-byte SHA-256 contract in the config manifest. Digests are regenerated from the committed shard bytes only after count, unique-ID, and first/last-ID checks pass. This changes the integrity-hash definition transparently; it does not establish scientific validity.
+- Automated workflow committed the generated shard set and updated manifest. The full audit run and independent tester report remain required before the gate can pass.
