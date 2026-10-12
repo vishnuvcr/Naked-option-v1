@@ -1,0 +1,95 @@
+name: Submit acquired prediction results for consolidated tester review
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - 'research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  submit-post-results-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out developer snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: developer
+          fetch-depth: 0
+
+      - name: Validate result acquisition and all source/result hashes
+        working-directory: developer
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, re, subprocess
+          from pathlib import Path
+
+          request_path = Path("research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json")
+          if not request_path.is_file():
+              raise SystemExit("No acquired-results request exists; tester review must wait.")
+          request = json.loads(request_path.read_text(encoding="utf-8"))
+          if request.get("results_acquired") is not True:
+              raise SystemExit("Refusing tester submission before results_acquired=true.")
+          source = request.get("tested_source_commit", "")
+          if not re.fullmatch(r"[0-9a-f]{40}", source):
+              raise SystemExit("Request must pin an exact 40-character source commit.")
+          manifest_path = request.get("result_bundle_manifest_path", "")
+          manifest_pin = request.get("result_bundle_manifest_sha256", "")
+          if not manifest_path or not re.fullmatch(r"[0-9a-f]{64}", manifest_pin):
+              raise SystemExit("Request must pin the result-bundle manifest path and SHA-256.")
+          raw = subprocess.check_output(["git", "show", f"{source}:{manifest_path}"])
+          if hashlib.sha256(raw).hexdigest() != manifest_pin:
+              raise SystemExit("Result-bundle manifest SHA-256 does not match the request.")
+          manifest = json.loads(raw.decode("utf-8"))
+          if manifest.get("results_acquired") is not True:
+              raise SystemExit("Pinned manifest does not assert results_acquired=true.")
+          artifacts = manifest.get("artifacts", [])
+          if not artifacts:
+              raise SystemExit("Acquired result manifest has no artifacts.")
+          for item in artifacts:
+              path, expected = item.get("path", ""), item.get("sha256", "")
+              if not path or not re.fullmatch(r"[0-9a-f]{64}", expected):
+                  raise SystemExit(f"Invalid result artifact pin: {item!r}")
+              data = subprocess.check_output(["git", "show", f"{source}:{path}"])
+              if hashlib.sha256(data).hexdigest() != expected:
+                  raise SystemExit(f"Result artifact SHA-256 mismatch: {path}")
+          for path, expected in request.get("changed_source_blobs", {}).items():
+              if not re.fullmatch(r"[0-9a-f]{40}", expected):
+                  raise SystemExit(f"Invalid source blob pin for {path}")
+              actual = subprocess.check_output(["git", "rev-parse", f"{source}:{path}"], text=True).strip()
+              if actual != expected:
+                  raise SystemExit(f"Source blob pin mismatch for {path}: {actual} != {expected}")
+          print(f"Acquired-results request validated; {len(artifacts)} result artifacts pinned.")
+          PY
+
+      - name: Check out tester branch using workflow token
+        uses: actions/checkout@v4
+        with:
+          ref: phase-08-prediction-tester
+          token: ${{ secrets.GH_TOKEN }}
+          path: tester
+          fetch-depth: 0
+
+      - name: Submit request to tester branch to start post-results review
+        shell: bash
+        env:
+          REVIEWER_PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p tester/research/gates
+          cp developer/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json
+          git -C tester config user.name "Naked Option Research Automation"
+          git -C tester config user.email "research-automation@users.noreply.github.com"
+          git -C tester add research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json
+          if git -C tester diff --cached --quiet; then
+            echo "Identical result-review request already submitted; no duplicate commit."
+            exit 0
+          fi
+          git -C tester commit -m "Submit acquired prediction results for consolidated independent review"
+          git -C tester push origin HEAD:phase-08-prediction-tester
