@@ -4,6 +4,7 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 
 ## Research status
 
+- [Compatibility matrix review-shard index (40 files × 25 rows)](research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json)
 - Phase 8P prediction-registry artifact integrity passed hosted CI. Its 1,000-row compatibility screen marks 426 conditionally compatible in principle and 574 blocked, with zero empirical candidates authorized. The full 64,000-task synthetic workflow passed but uses mock probabilities only; no market data or model fitting was performed. [Synthetic report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md). The scientific tester gate remains REQUEST CHANGES.
 
 - Phase 8P prediction registry data-integrity subgate passed hosted CI on 2026-10-12: 1,000/1,000 unique methods and 8,000/8,000 unique configurations audited; 40 method shards × 25 records and 80 config shards × 100 records. The broader scientific registry gate remains BLOCKED / tester REQUEST CHANGES.
@@ -486,3 +487,7 @@ The pinned run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/action
 
 
 - Latest registry correction: [contrast repair log](research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md) and [refreshed independent review request](research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). Repair/audit and synthetic workflows passed; scientific review is still pending.
+
+
+### Phase 8P review artifacts — 2026-10-13
+The compatibility matrix now has 40 committed review shards with 25 rows each. [Registry CI run 38299233992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992) passed shard integrity and reconstruction tests. See the [refreshed tester request](research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). This is an accessibility fix, not scientific approval; no method is approved for empirical fitting.
