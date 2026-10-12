@@ -18,7 +18,12 @@
       "note": "Dates are from the committed dataset identifier. The manifest says encrypted_only=true; actual decrypted timestamp coverage has not been verified. Missing coverage fails closed; dates must not be shifted post-result."
     },
     "source_dataset_is_encrypted_only": true,
-    "source_row_count_from_manifest": 8999865
+    "source_row_count_from_manifest": 8999865,
+    "label_manifest_sha256_git_blob": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
+    "config_manifest_sha256_git_blob": "cde05748ae534e612948137b7ddf97466d795a25",
+    "registry_index_sha256_git_blob": "8782e66f90d00fa93c2690dccaf85e0f53144f2b",
+    "compatibility_matrix_sha256_git_blob": "d57c3610c6dbba042ee3a13ebf31936f4007b5bc",
+    "preregistration_note": "All pinned paths are reviewed inputs. Any file hash change requires regenerating and reviewing the preregistration before the synthetic runner can proceed; the runner never authorizes empirical access."
   },
   "labels": {
     "INTRA_30M_UP_DOWN": {
