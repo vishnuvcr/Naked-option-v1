@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_R4",
+  "decision": "PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY",
+  "review_date": "2026-10-12",
+  "tester_branch": "phase-08-prediction-tester",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850",
+  "developer_request_path": "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json",
+  "developer_request_blob_sha1": "f4f1b46d2e8f7d7b222b9d6b19d7c27fbdd66524",
+  "reviewed_blobs": {
+    "scripts/phase8p_greek_prediction.py": "3358381d64b3e675e49687fa5d34df44d8a9c984",
+    "scripts/test_phase8p_greek_prediction.py": "198e731e9e5f5dd011370cd6f656fe27e97c6ca5",
+    ".github/workflows/phase8p-greek-prediction.yml": "5d413bc4a0d6fb63c89775a153af33f270853b8f",
+    "scripts/phase8p_duplicate_key_diagnostic.py": "6e4484cc5893bae27966c2b8d7561c2435e00023",
+    "scripts/test_phase8p_duplicate_key_diagnostic.py": "232de27ff2c26a4ad228ae179d8ec5565ac97eeb",
+    ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml": "08cbb1519666d25186b684c000a1df478ad3329d"
+  },
+  "scope_approval": {
+    "proposal_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT_R4_2026-10-12.md",
+    "proposal_blob_sha1": "1ea9bca882b53fd2853829137aba2d521023b3bd",
+    "decision_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json",
+    "decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+    "report_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_TESTER_R2_2026-10-12.md",
+    "report_blob_sha1": "3305ed3a2a6617441c9ccaf73764d9edf0e53b5f",
+    "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS"
+  },
+  "synthetic_runs": {
+    "core": {
+      "run_id": 38205169093,
+      "conclusion": "success"
+    },
+    "diagnostic": {
+      "run_id": 38205127423,
+      "conclusion": "success"
+    },
+    "tester": {
+      "run_id": 38205506563,
+      "conclusion": "success",
+      "checks_passed": 29,
+      "checks_total": 29,
+      "artifact_id": 11726624314,
+      "artifact_zip_sha256": "464d9bffb484210a3aac1e821b78828b5016394afbf07740cd1fc0e566591bac"
+    }
+  },
+  "failed_runs": [
+    {
+      "run_id": 38205280084,
+      "category": "stale R3 request binding",
+      "disposition": "NON_EVIDENCE"
+    },
+    {
+      "run_id": 38205378764,
+      "category": "over-literal tester assertion",
+      "checks_passed": 28,
+      "checks_total": 29,
+      "disposition": "NON_EVIDENCE_AFTER_FIX"
+    },
+    {
+      "run_id": 38205429386,
+      "category": "over-literal timestamp fixture wording",
+      "checks_passed": 28,
+      "checks_total": 29,
+      "disposition": "NON_EVIDENCE_AFTER_FIX"
+    },
+    {
+      "run_id": 38204971703,
+      "category": "synthetic fixture mismatch",
+      "disposition": "SUPERSEDED_NON_EVIDENCE"
+    },
+    {
+      "run_id": 38205048202,
+      "category": "legacy test contract mismatch",
+      "disposition": "SUPERSEDED_NON_EVIDENCE"
+    }
+  ],
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "checks_passed": 29,
+  "checks_total": 29,
+  "findings": [],
+  "limitations": [
+    "Static and synthetic evidence only; no real artifact downloaded/opened/decrypted",
+    "A separate reviewed one-use executor workflow/request remains mandatory",
+    "Full scan runtime and peak memory are not measured"
+  ],
+  "real_artifact_accessed": false,
+  "real_artifact_decrypted": false,
+  "real_diagnostic_authorized": false,
+  "deduplication_performed": false,
+  "deduplication_authorized": false,
+  "model_fitted": false,
+  "model_fit_authorized": false,
+  "holdout_accessed": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "option_pnl_run": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion": false,
+  "strategy_promotion_authorized": false
+}
