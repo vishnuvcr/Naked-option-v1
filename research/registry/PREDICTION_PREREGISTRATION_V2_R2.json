@@ -1,0 +1,222 @@
+{
+  "schema_version": "prediction-preregistration-v2-r2",
+  "date": "2026-10-12",
+  "status": "DRAFT_INDEPENDENT_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
+  "scope": {
+    "objective": "NIFTY 50 direction prediction only",
+    "prohibited_until_gate_passes": [
+      "empirical model fitting",
+      "selection using outer validation results",
+      "strategy selection",
+      "untouched-holdout access"
+    ],
+    "data_manifest_path": "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json",
+    "data_manifest_sha256_git_blob": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+    "dataset_id_range_claim": {
+      "start": "2021-10-11",
+      "end": "2026-10-10",
+      "note": "Dates are from the committed dataset identifier. The manifest says encrypted_only=true; actual decrypted timestamp coverage has not been verified. Missing coverage fails closed; dates must not be shifted post-result."
+    },
+    "source_dataset_is_encrypted_only": true,
+    "source_row_count_from_manifest": 8999865
+  },
+  "labels": {
+    "INTRA_30M_UP_DOWN": {
+      "target": "direction of NIFTY spot simple return from forecast decision price to the price 30 minutes later",
+      "label_horizon_minutes": 30,
+      "session_rule": "decision and horizon-end timestamps must both lie inside the same official trading session; no overnight carry",
+      "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
+      "flat_tolerance_abs_simple_return": 1e-8,
+      "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
+      "eligible_timestamp_range": [
+        "2021-10-11",
+        "2026-10-10"
+      ]
+    },
+    "POS_1D_UP_DOWN": {
+      "target": "direction of next-trading-session close-to-close NIFTY spot return",
+      "label_horizon": "one complete exchange session",
+      "session_rule": "one target per exchange session at the registered close decision time; only the next official session close supplies the target",
+      "flat_rule": "exclude rows with absolute simple return <= 1e-8; count exclusions by fold and source",
+      "flat_tolerance_abs_simple_return": 1e-8,
+      "missing_target_rule": "exclude missing decision/target price rows and report count; gate BLOCK if >1.0% of session-eligible rows lack the target pair",
+      "eligible_timestamp_range": [
+        "2021-10-11",
+        "2026-10-10"
+      ]
+    }
+  },
+  "chronological_validation": {
+    "type": "expanding-window forward-only outer validation",
+    "calendar_range": [
+      "2021-10-11",
+      "2026-10-10"
+    ],
+    "first_outer_validation_start": "2023-01-01",
+    "fold_calendar_windows": [
+      {
+        "id": "F01",
+        "start": "2023-01-01",
+        "end_inclusive": "2023-06-30"
+      },
+      {
+        "id": "F02",
+        "start": "2023-07-01",
+        "end_inclusive": "2023-12-31"
+      },
+      {
+        "id": "F03",
+        "start": "2024-01-01",
+        "end_inclusive": "2024-06-30"
+      },
+      {
+        "id": "F04",
+        "start": "2024-07-01",
+        "end_inclusive": "2024-12-31"
+      },
+      {
+        "id": "F05",
+        "start": "2025-01-01",
+        "end_inclusive": "2025-06-30"
+      },
+      {
+        "id": "F06",
+        "start": "2025-07-01",
+        "end_inclusive": "2025-12-31"
+      },
+      {
+        "id": "F07",
+        "start": "2026-01-01",
+        "end_inclusive": "2026-06-30"
+      },
+      {
+        "id": "F08",
+        "start": "2026-07-01",
+        "end_inclusive": "2026-10-10"
+      }
+    ],
+    "session_interpretation": "Calendar boundaries above are fixed. Only actual official exchange sessions with eligible source rows count; no fold boundary may be shifted to improve sample size.",
+    "training": "for each fold, train on all eligible observations from 2021-10-11 up to the pre-validation boundary using an expanding window; previous validation periods may enter later folds' training only after their targets are fully known and all transformations are refit from scratch.",
+    "overlap_purge_sessions": 1,
+    "embargo_sessions": 1,
+    "purge_rule": "Exclude training examples whose label interval intersects the outer validation window; additionally remove the final complete exchange session immediately before each validation window from training.",
+    "embargo_rule": "Exclude the first complete exchange session of each validation window from scored validation predictions. Apply a separate inner chronological purge/embargo around all tuning/calibration folds.",
+    "horizon_end_rule": "Score a validation label only when its target endpoint is within the same registered validation window and within dataset date bounds.",
+    "final_untouched_holdout": "NOT INCLUDED in this registry sample; reserved for a separately authorized fresh-forward phase. Do not use these folds to tune after review."
+  },
+  "sample_eligibility": {
+    "common_panel": "Within each label stratum and outer fold, all compatible candidates use the same decision rows. Feature values are imputed with training-fold-only statistics; do not silently drop rows candidate-by-candidate.",
+    "timestamp_missing_fraction_max": 0,
+    "target_pair_missing_fraction_max": 0.01,
+    "feature_column_missing_fraction_max": 0.2,
+    "maximum_fraction_of_feature_columns_dropped_per_representation": 0.2,
+    "feature_missingness_rule": "Within each training fold, median-impute numeric features and add a missingness indicator using training rows only. If a feature exceeds 20% missingness or all values are missing, exclude it. If more than 20% of registered features in a representation are excluded, block that representation/configuration before fitting.",
+    "infinities": "convert +/- infinity to missing, then apply the registered training-only missingness rule; report counts",
+    "duplicates": "deduplicate only byte-identical (instrument, exchange timestamp, interval) rows; conflicting duplicates block the affected source/fold pending reconciliation",
+    "minimum_train_rows": {
+      "INTRA_30M_UP_DOWN": 20000,
+      "POS_1D_UP_DOWN": 250
+    },
+    "minimum_validation_rows": {
+      "INTRA_30M_UP_DOWN": 5000,
+      "POS_1D_UP_DOWN": 60
+    },
+    "minimum_class_support_each_direction_per_validation_fold": {
+      "INTRA_30M_UP_DOWN": 250,
+      "POS_1D_UP_DOWN": 20
+    },
+    "minimum_class_support_each_direction_training": {
+      "INTRA_30M_UP_DOWN": 1000,
+      "POS_1D_UP_DOWN": 50
+    },
+    "fail_closed": "If any fold/stratum fails row, class-support, coverage, timestamp or missingness minima, mark that fold/config BLOCKED_SAMPLE_ELIGIBILITY; do not relax rules or substitute a later date window."
+  },
+  "fitting_and_calibration": {
+    "preprocessing": "Fit imputation, scaling, feature selection, dimensionality reduction, regime thresholds, class priors and all target-dependent transforms on training rows only.",
+    "inner_validation": "Use deterministic expanding inner chronological folds contained wholly in the current outer training window. Each inner validation fold has one-session purge and embargo; no random row split.",
+    "hyperparameters": "Only the frozen configuration fields in the committed config shard may be used; no ad-hoc tuning or model-family substitution.",
+    "probability_calibration": "Native probabilities when family contract proves semantics; otherwise train-only Platt calibration on predictions made out-of-fold within inner chronological folds. No outer-validation targets used to fit or choose calibration.",
+    "probability_clipping_epsilon": 0.000001,
+    "prevalence_baseline": "Training-fold positive prevalence with fixed Jeffreys smoothing p=(n_positive+0.5)/(n_train+1), then clip to [1e-6,1-1e-6]; baseline is scored on exactly the same common evaluation rows as candidate.",
+    "deterministic_seed": 2026101208
+  },
+  "metrics_and_inference": {
+    "primary_metric": "out_of_sample_log_loss",
+    "primary_effect": "baseline_log_loss_minus_candidate_log_loss; positive values favor the candidate",
+    "secondary_metrics": [
+      "brier_score",
+      "balanced_accuracy",
+      "calibration_intercept",
+      "calibration_slope"
+    ],
+    "abstention_operator": {
+      "target_coverage": 0.8,
+      "cutoff_rule": "80th percentile of predictive Bernoulli entropy estimated from inner chronological training out-of-fold predictions; never estimate cutoff on outer validation data",
+      "required_reports": [
+        "outer_validation_coverage",
+        "selective_log_loss",
+        "full_sample_coverage",
+        "abstention_count"
+      ]
+    },
+    "bootstrap": {
+      "method": "paired moving-block bootstrap over exchange sessions; resample contiguous five-session blocks with replacement, applying the same resampled session indices to candidate and baseline",
+      "block_length_exchange_sessions": 5,
+      "replicates": 10000,
+      "seed": 2026101209,
+      "confidence_level": 0.95,
+      "confidence_interval": "percentile interval of paired mean log-loss improvement across replicates",
+      "raw_p_value": "center bootstrap replicates under the null by subtracting observed improvement; two-sided p=(1 + count(|centered_delta| >= |observed_delta|))/(B+1)"
+    },
+    "multiplicity": {
+      "procedure": "Benjamini-Yekutieli false discovery rate",
+      "q": 0.05,
+      "family_definition": "one fixed testing family per label stratum, comprising every pre-registered configuration that passes the pre-result compatibility and sample-eligibility gates for that label; family membership freezes before any outer-validation metric is computed",
+      "stratum_families": [
+        "INTRA_30M_UP_DOWN",
+        "POS_1D_UP_DOWN"
+      ],
+      "order_of_operations": "freeze eligible configuration membership, compute paired block-bootstrap raw p-values, apply BY within each label stratum, and report all configurations including rejected/blocked entries",
+      "no_repeated_holdout_tuning": true
+    }
+  },
+  "output_and_failure_rules": {
+    "one_result_row_per_config_fold_stratum": true,
+    "mandatory_fields": [
+      "config_id",
+      "method_id",
+      "label_id",
+      "fold_id",
+      "train_start",
+      "train_end",
+      "validation_start",
+      "validation_end",
+      "eligible_train_rows",
+      "eligible_validation_rows",
+      "positive_support",
+      "negative_support",
+      "feature_missingness",
+      "label_exclusion_count",
+      "baseline_log_loss",
+      "candidate_log_loss",
+      "log_loss_improvement",
+      "bootstrap_ci_lower",
+      "bootstrap_ci_upper",
+      "raw_p_value",
+      "by_adjusted_p_value",
+      "terminal_status",
+      "failure_reason"
+    ],
+    "required_terminal_statuses": [
+      "EXECUTED_AUDITED",
+      "BLOCKED_DATA",
+      "BLOCKED_GATE",
+      "FAILED_TECHNICAL",
+      "REJECTED_EMPIRICAL"
+    ],
+    "technical_failures": "Persist one JSONL record with config/fold/step/exception and traceback hash; do not retry with altered inputs silently.",
+    "encrypted_data": "This preregistration consumes only a dataset artifact whose decryption/access gate is separately authorized. The committed manifest currently declares encrypted_only=true; no decryption or row access is performed by this specification builder.",
+    "holdout_protection": "No untouched holdout path/secret is read or written by R2 tooling."
+  },
+  "gate": "DRAFT ONLY. These choices are frozen as a proposed protocol file for independent tester review. No empirical fitting until the tester independently approves this preregistration, the compatibility matrix, adapter tests and synthetic restart/resource evidence."
+}
