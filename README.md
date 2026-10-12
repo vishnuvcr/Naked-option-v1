@@ -136,3 +136,17 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 **Tester → Developer:** preserve the exact R4 code-only PASS and submit the pinned one-use executor workflow/request.
 **Developer → Tester:** independently verify the new executor before it can retrieve or decrypt the source artifact.
 
+
+
+## One-use duplicate diagnostic executor — workflow-only tester PASS (2026-10-12)
+
+- **Decision:** `PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY`, tester run [#38206319754](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754), **31/31 checks passed**.
+- [Tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_R1_2026-10-12.md) · [Machine decision](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R1_2026-10-12.json).
+- Receipt [11727591616](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754/artifacts/11727591616), ZIP SHA-256 `3009787cfb7abf9f04ca2abf695d1ffabbd9c77e26e2fe0b9303beda48f56d11`.
+- The approval covers only the exact executor workflow/request, not execution. Safe no-op runs #38205955895 and #38206043280 skipped cache restore/download; request-contract failures #38205997072/#38206009396 remain in the logs.
+- **Real artifact scan/decryption remains BLOCKED.** A distinct max-use-1, time-limited execution authorization must receive separate independent tester approval before the executor consumes its nonce or fetches the pinned ZIP.
+- See [current status](research/STATUS.md), [error log](research/ERROR_LOG.md) and [chat log](research/logs/CHAT_LOG.md).
+
+**Tester → Developer:** submit the one-use execution-authorization request, retaining all false flags for deduplication, model fit, holdout, external-source requests, data upload, option P&L and strategy promotion.
+**Developer → Tester:** independently review the request and only issue a one-use execution authorization if all exact pins and fail-closed safeguards are satisfied.
+
