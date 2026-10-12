@@ -522,3 +522,8 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 ## 2026-10-12 — Scope gate wording repair during Phase 8P CI
 - The second synthetic workflow attempt, [#38199087844](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199087844), stopped at the reviewer-scope assertion because a literal expected sentence did not match the review report's valid equivalent wording. This was a workflow-guard text mismatch, not a scope denial or research result.
 - Updated the assertion to the tester report's actual wording and triggered run [#38199152061](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199152061). No real data was downloaded/decrypted and no model fitted.
+
+
+### 2026-10-12 — Phase 8P reviewer guard hardening
+- Run #38199152061 failed closed on another literal-sentence mismatch: the workflow expected wording not present in the valid tester report. This was a guard defect, not a tester rejection.
+- The workflow now checks the independent PASS decision and exact reviewed scope hash, with no incidental explanatory sentence. Commit 997bb235ed1d778d513227982fb00fa1e36384bd; automatic retry triggered. No dataset was opened and no model trained.
