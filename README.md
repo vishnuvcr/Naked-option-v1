@@ -479,3 +479,7 @@ Status: hosted data-integrity result is verified; independent tester decision re
 
 
 - Latest hardened, pinned synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed: exact checkout pin, restart/error tests, 8 statistical tests, 64,000 synthetic tasks, empty error JSONL. Source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`; synthetic artifact `11749635242`; result SHA-256 `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`. No real fit/data/holdout access.
+
+
+### Latest strict-input statistical gate — 2026-10-12
+The pinned run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed the full 64,000-task synthetic orchestration, restart/error tests, and all 10 latest statistical regression tests. No real-market dataset was opened; no empirical fitting or holdout access occurred. [Updated synthetic report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md).
