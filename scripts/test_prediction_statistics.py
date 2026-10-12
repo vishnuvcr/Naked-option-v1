@@ -49,17 +49,33 @@ class PredictionStatisticsTests(unittest.TestCase):
         second = stats.paired_moving_block_bootstrap(folds, block_length=5, replicates=1000, seed=123)
         self.assertEqual(first, second)
         self.assertGreater(first["observed_mean_improvement"], 0)
+        self.assertEqual(first["inferential_status"], "OK")
+        self.assertGreater(first["bootstrap_unique_estimates"], 1)
         self.assertLessEqual(first["ci_low"], first["ci_high"])
         self.assertGreaterEqual(first["raw_two_sided_p_value_centered_bootstrap"], 1 / 1001)
         self.assertLessEqual(first["raw_two_sided_p_value_centered_bootstrap"], 1.0)
         self.assertEqual(first["fold_session_counts"], [10, 10])
 
-    def test_constant_positive_improvement_and_too_short_fold(self):
-        result = stats.paired_moving_block_bootstrap([[0.1] * 10], replicates=100, seed=9)
-        self.assertAlmostEqual(result["observed_mean_improvement"], 0.1)
-        self.assertAlmostEqual(result["ci_low"], 0.1)
-        self.assertAlmostEqual(result["ci_high"], 0.1)
-        self.assertEqual(result["raw_two_sided_p_value_centered_bootstrap"], 1 / 101)
+    def test_constant_positive_or_zero_improvement_is_non_identifiable(self):
+        for value in (0.1, 0.0):
+            with self.subTest(value=value):
+                result = stats.paired_moving_block_bootstrap([[value] * 10], replicates=100, seed=9)
+                self.assertAlmostEqual(result["observed_mean_improvement"], value)
+                self.assertEqual(result["inferential_status"], "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING")
+                self.assertIsNone(result["ci_low"])
+                self.assertIsNone(result["ci_high"])
+                self.assertIsNone(result["raw_two_sided_p_value_centered_bootstrap"])
+                self.assertEqual(result["bootstrap_unique_estimates"], 1)
+
+    def test_single_admissible_block_is_non_identifiable(self):
+        # n == block_length leaves exactly one admissible moving-block start.
+        result = stats.paired_moving_block_bootstrap([[0.01, 0.02, 0.03, 0.04, 0.05]], block_length=5, replicates=100, seed=9)
+        self.assertAlmostEqual(result["observed_mean_improvement"], 0.03)
+        self.assertEqual(result["inferential_status"], "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING")
+        self.assertIsNone(result["ci_low"])
+        self.assertIsNone(result["ci_high"])
+        self.assertIsNone(result["raw_two_sided_p_value_centered_bootstrap"])
+
         with self.assertRaises(ValueError):
             stats.paired_moving_block_bootstrap([[0.1] * 4], block_length=5)
 
