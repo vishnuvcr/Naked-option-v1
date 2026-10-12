@@ -159,6 +159,16 @@ def main():
         check(checks,failures,"forecast_zip_and_runtime_logs_deleted",
               "phase7-ensemble-reference.zip" in cleanup_run
               and "stdout.log" in cleanup_run and "stderr.log" in cleanup_run)
+        receipt_step=next((s for s in steps if s.get("name","")=="Create artifact/input receipt without raw rows or keys"),{})
+        receipt_run=str(receipt_step.get("run",""))
+        check(checks,failures,"input_receipt_imports_sys_and_writes_report",
+              "import hashlib,json,os,subprocess,sys" in receipt_run
+              and 'Path(sys.argv[1]).write_text' in receipt_run)
+        runtime_handler=wf_text[wf_text.find('if [ ! -s "$REPORT" ]'):wf_text.find('      - name: Create artifact/input receipt')]
+        check(checks,failures,"runtime_failure_report_has_safe_symbolic_code",
+              '"failure_code":safe_code' in runtime_handler
+              and '"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"' in runtime_handler
+              and '"stderr_sha256":hashlib.sha256(err).hexdigest()' in runtime_handler)
         check(checks,failures,"workflow_has_no_model_fit_authorization",
               "model_fit_authorized:false" not in wf_text.lower()
               and "model_fit_authorized" in wf_text
