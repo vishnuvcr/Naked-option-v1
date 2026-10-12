@@ -68,6 +68,7 @@ jobs:
         id: audit
         continue-on-error: true
         run: |
+          set -euo pipefail
           python scripts/phase8p_independent_code_audit.py \
             --developer-root "${RUNNER_TEMP}/phase8p-developer" \
             --request "${RUNNER_TEMP}/phase8p-developer/research/gates/PHASE8P_CODE_REVIEW_REQUEST_R1_2026-10-12.json" \
