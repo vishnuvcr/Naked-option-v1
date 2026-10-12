@@ -465,3 +465,15 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 **Developer → Tester:** verify final hosted output row counts, Greek status distribution, all encrypted part hashes, row preservation and source attribution before acceptance.
 
 **Tester → Developer:** accept only the exact reviewed output if validation/upload passes; keep strategy and execution gates closed and retain all data-quality restrictions.
+
+
+## 2026-10-12 — User resumed Phase 8 R2 Greek enrichment
+- User instruction: “Ok proceed”.
+- Independent canonical tester [#38194602133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602133) approved exact developer snapshot `6ebb54bdbbc7ed0198d23d0b555aea547a127f9f` with PASS_WITH_SCOPED_RESTRICTIONS after exact blob pins, developer synthetic suite, and 162 independent Black-Scholes / finite-difference CE/PE cases.
+- Developer workflow [#38194592152](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152), attempt 2, passed R2 authorization, cached encrypted archive checksum and HF spot/expiry retrieval. Enrichment/re-encryption of 61 parts was still in progress when this log was updated. No rows, coverage counts or output artifact are treated as accepted until terminal validations pass.
+- Duplicate tester workflow [#38194602150](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602150) was retired after a stale R1 gate path caused pin failure and skipped tests; no source request occurred. Developer and tester error logs document the defect and correction.
+- Scope restrictions remain: no Dhan API, empirical option P&L, holdout, strategy promotion, commercial use or plaintext upload.
+
+**Developer → Tester:** independently validate the eventual uploaded encrypted dataset and coverage report; reject unless the exact snapshot, all 61 part hashes, 8,999,865-row preservation and no-plaintext condition pass, and report Greek coverage/missingness honestly.
+
+**Tester → Developer:** continue only from the approved snapshot; do not treat in-progress status or synthetic tests as dataset delivery; preserve partial-grid, expiry-proxy and CC-BY-NC non-commercial restrictions.
