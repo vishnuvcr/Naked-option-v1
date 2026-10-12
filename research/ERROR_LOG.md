@@ -160,3 +160,10 @@
 - Corrected reviewer output booleans to native Python bools and enabled `set -euo pipefail` in the tester workflow. The corrected run [#38199795642](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199795642) correctly failed closed after issuing REQUEST_CHANGES; report receipt artifact 11724599450.
 - Follow-up independent review [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) completed the expanded audit and returned REQUEST_CHANGES, 9/13 checks passing; receipt artifact 11724953413. Decision report: [PHASE8P code review R1](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md).
 - No real market artifact was downloaded/decrypted; no empirical fit or holdout access occurred.
+
+
+## 2026-10-12 — Phase 8P code review R2 resolved
+- Reviewer workflow [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) audited exact developer commit `a5a38e3592234aea9052e697416c8154c6f8e8f8` and reported `PASS_FOR_CODE_ONLY`, 16/16 checks, zero findings. Receipt artifact 11725607739 SHA-256 `e0ab96d0fc70233f29ea5a2d3a896ef31f5c06e5ec3b67ca79ae8b35b4a387df`.
+- The immediately earlier run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) returned REQUEST_CHANGES and remains preserved as failed-gate history. The later run is the accepted R2 code-only decision.
+- No real input artifact was downloaded/decrypted; no model fitted; no holdout/P&L/strategy was accessed. Code PASS allows only a separate schema/coverage preflight.
+- Workflow review for the preflight executor is now a distinct pending gate. It is not part of the code-only PASS and must be reviewed before download.
