@@ -357,13 +357,12 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
                           registry_index: dict[str, Any], source_prereg: dict[str, Any]) -> dict[str, Any]:
     p = json.loads(json.dumps(source_prereg))
     data_pin = load_json(DATA_ARTIFACT_PIN)
+    source_data_manifest = load_json(DATA_MANIFEST)
     data_manifest_blob = git_blob_sha1(DATA_MANIFEST.read_bytes())
-    if data_pin.get("dataset_id") != p.get("scope", {}).get("dataset_id", data_pin.get("dataset_id")):
-        # Older preregistration versions may not repeat dataset_id; in that case
-        # the pin must still agree with the canonical derived-manifest source below.
-        source_dataset_id = load_json(DATA_MANIFEST).get("dataset_id")
-        if data_pin.get("dataset_id") != source_dataset_id:
-            raise SystemExit("BLOCKED: R3 encrypted-artifact pin dataset ID mismatch")
+    if data_pin.get("dataset_id") != source_data_manifest.get("dataset_id"):
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin dataset ID mismatch")
+    if data_pin.get("source_manifest", {}).get("path") != DATA_MANIFEST.relative_to(ROOT).as_posix():
+        raise SystemExit("BLOCKED: R3 encrypted-artifact pin references a different data manifest path")
     if data_pin.get("source_manifest", {}).get("git_blob_sha1") != data_manifest_blob:
         raise SystemExit("BLOCKED: R3 encrypted-artifact pin does not identify the exact derived-data manifest")
     if data_pin.get("source_manifest", {}).get("part_hashes_match_current_derived_artifact") is not True:
