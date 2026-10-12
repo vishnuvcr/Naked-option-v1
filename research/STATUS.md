@@ -288,3 +288,16 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** add a hash/count-only duplicate-key diagnostic and synthetic fixtures; do not silently drop duplicates.
 **Developer → Tester:** submit the exact diagnostic code/test snapshot for an independent code gate before using it on the encrypted input.
+
+
+## Phase 8P duplicate diagnostic R4 — independent code-only gate PASS (2026-10-12)
+
+- Decision: **PASS_FOR_DUPLICATE_DIAGNOSTIC_CODE_ONLY** for exact developer commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`.
+- Independent tester workflow [#38205506563](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563): **29/29 checks passed**. Receipt artifact [11726624314](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563/artifacts/11726624314), ZIP SHA-256 `464d9bffb484210a3aac1e821b78828b5016394afbf07740cd1fc0e566591bac`.
+- [R4 tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md) and [machine decision](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R4_2026-10-12.json) pin six exact source/test/workflow blobs and the scope-only amendment decision.
+- The R4 implementation binds schema to the artifact manifest, compares every present column except four allowed provenance fields, validates timestamp/header semantics, blocks conflicts, and emits aggregate-only diagnostics in synthetic tests. **No real artifact was accessed or decrypted.**
+- Retry runs #38205280084 (stale R3 workflow request) and #38205378764/#38205429386 (brittle static audit assertions) remain non-evidence. They are preserved in the error log; corrected run #38205506563 is authoritative for this code gate.
+- **Next gate: separate one-use execution workflow/request review.** It must pin this decision, exact code commit and hashes, artifact ID+digest, aggregate-only output schema, no-replay safeguards and disabled model/holdout/P&L flags. No real data access, feature preflight, model fitting, holdout review or strategy work is permitted until that workflow independently passes.
+
+**Tester → Developer:** preserve this exact code-only PASS and historical failed runs; submit the separate one-use executor workflow/request for tester review. Do not open the artifact.
+**Developer → Tester:** independently check authorization ordering, artifact identity, scope flags, output redaction, no-replay and immutable report hashing; reject any workflow that can access the artifact before the approval gate.
