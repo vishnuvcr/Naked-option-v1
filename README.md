@@ -387,3 +387,5 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - Code commits: utility `a0ce5b04346c50c81dd8fed9fdac9b3a5f3f4cce`; tests `57760230594c8829e8d816a156696b595084e8f6`; checkpoint `6d31c849f1c23f808d1cd35c085d6847b5ef5eae`.
 - Independent review requested in [issue #25](https://github.com/vishnuvcr/Naked-option-v1/issues/25). The utility and tests have **not yet been executed** in a hosted workflow; no generated shards are claimed and no gate has passed.
 - Method compatibility, semantic distinctness, frozen label/sample/statistical settings, and synthetic restart/resource evidence remain unresolved. Empirical fitting and untouched-holdout access remain prohibited.
+
+- Added automatic/manual CI test workflow `.github/workflows/prediction-registry-shard-tests.yml` (commit `8fd619332155ba8cd68614c5a96a9ab81de37433`). Its hosted outcome is pending independent verification; registry gate remains blocked.
