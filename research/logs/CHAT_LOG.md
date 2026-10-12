@@ -532,3 +532,13 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 ### 2026-10-12 — Synthetic timestamp fixture corrected
 - Phase 8P run #38199407140 caught a synthetic test that queried a source-bar start instead of its completed-bar end. The implementation's strict exact-time rule was retained; the fixture was shifted by one minute to the correct bar-end. Repair commit bc2e8d583e8c44d4dc0588fd784a6ee91ed75a6f.
 - No empirical data was opened and no real model trained. The corrected test suite reruns automatically.
+
+
+## 2026-10-12 — User said Resume: Phase 8P Greek prediction study
+- Re-read the main research plan, protocol, phase status, Phase 3 label protocol, Phase 7 frozen specification and saved-panel validator before continuing. The accepted R3 Greek dataset remains immutable and restricted to non-commercial research.
+- Added a new Phase 8P prediction-only scope. Tester requested two rounds of scope corrections and approved R3 for implementation/synthetic testing only.
+- Developer synthetic CI [#38199456531](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531) passed. Independent tester code review [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) returned REQUEST_CHANGES. No real data was downloaded/decrypted and no empirical model run occurred.
+- See [scope R3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md) and [tester R1 code review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md).
+
+**Developer → Tester:** R1 remediation must be reviewed only on exact new code/test hashes.
+**Tester → Developer:** empirical artifacts stay closed until the code gate and then schema-preflight gate both pass.
