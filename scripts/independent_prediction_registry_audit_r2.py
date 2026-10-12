@@ -86,7 +86,7 @@ def main():
     ap.add_argument("--developer-root", required=True, type=Path)
     ap.add_argument("--output", required=True, type=Path)
     args = ap.parse_args()
-    root, issues, warnings = args.developer_root.resolve(), [], []
+    root, issues, warnings, scope_notes = args.developer_root.resolve(), [], [], []
     reg = root / "research" / "registry"
 
     compat_index = read_json(reg / "PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json")
@@ -146,22 +146,53 @@ def main():
 
     label_manifest = read_json(reg / "PREDICTION_LABEL_MANIFEST_V2_R2.json")
     label_ids = {x.get("id") for x in label_manifest.get("labels", [])}
-    full_horizon_target_coverage = {"INTRA_5M_UP_DOWN","INTRA_15M_UP_DOWN","INTRA_30M_UP_DOWN","INTRA_60M_UP_DOWN","INTRA_120M_UP_DOWN","POS_1D_UP_DOWN","POS_2D_UP_DOWN","POS_3D_UP_DOWN","POS_5D_UP_DOWN","POS_10D_UP_DOWN"}
+    full_horizon_target_coverage = {
+        "INTRA_5M_UP_DOWN", "INTRA_15M_UP_DOWN", "INTRA_30M_UP_DOWN",
+        "INTRA_60M_UP_DOWN", "INTRA_120M_UP_DOWN",
+        "POS_1D_UP_DOWN", "POS_2D_UP_DOWN", "POS_3D_UP_DOWN",
+        "POS_5D_UP_DOWN", "POS_10D_UP_DOWN",
+    }
     missing_horizons = sorted(full_horizon_target_coverage - label_ids)
-    if missing_horizons:
-        warnings.append({"code":"PREDICTION_HORIZON_SCOPE_GAP","present_labels":sorted(label_ids),"missing_labels":missing_horizons,"basis":"earlier frozen research scope records intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session horizons"})
+    prereg = read_json(reg / "PREDICTION_PREREGISTRATION_V2_R2.json")
+    pilot = prereg.get("scope_amendment_2026_10_13", {})
+    expected_pilot_labels = {"INTRA_30M_UP_DOWN", "POS_1D_UP_DOWN"}
+    expected_intraday = ["INTRA_5M_UP_DOWN", "INTRA_15M_UP_DOWN", "INTRA_30M_UP_DOWN", "INTRA_60M_UP_DOWN", "INTRA_120M_UP_DOWN"]
+    expected_positional = ["POS_1D_UP_DOWN", "POS_2D_UP_DOWN", "POS_3D_UP_DOWN", "POS_5D_UP_DOWN", "POS_10D_UP_DOWN"]
+    pilot_gate_ok = (
+        pilot.get("status") == "PILOT_ONLY_NOT_EXHAUSTIVE"
+        and set(pilot.get("included_target_labels", [])) == expected_pilot_labels
+        and pilot.get("no_empirical_fit_authorized_by_this_amendment") is True
+        and pilot.get("no_pilot_result_may_select_or_rank_methods") is True
+        and pilot.get("required_horizon_labels", {}).get("intraday") == expected_intraday
+        and pilot.get("required_horizon_labels", {}).get("positional") == expected_positional
+        and prereg.get("scope", {}).get("empirical_execution_gate") == "BLOCKED_PENDING_HORIZON_COMPLETE_REGISTRY_GATE"
+        and label_ids == expected_pilot_labels
+    )
+    if not pilot_gate_ok:
+        issues.append({"code":"PILOT_SCOPE_AMENDMENT_MISSING_OR_INVALID","label_ids":sorted(label_ids),"pilot_scope_status":pilot.get("status")})
+    elif missing_horizons:
+        scope_notes.append({"code":"FULL_HORIZON_SCOPE_DEFERRED_BEHIND_HARD_GATE","missing_labels":missing_horizons,"gate":prereg.get("scope", {}).get("empirical_execution_gate"),"detail":"Accepted only as a synthetic/design pilot; no empirical fitting or method ranking is permitted until the ten-label registry passes its own independent gate."})
 
-    # Explicitly probe the preregistered bootstrap utility with an uninformative
-    # sample: a five-session fold resampled in five-session blocks has one support point.
+    # The one-admissible-block case must fail closed, not manufacture evidence.
     stats_path = root / "scripts" / "prediction_statistics.py"
     spec = importlib.util.spec_from_file_location("developer_prediction_statistics", stats_path)
     stats = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(stats)
-    degenerate = stats.paired_moving_block_bootstrap([[0.1] * 5], block_length=5, replicates=1000, seed=2026101209)
+    degenerate = stats.paired_moving_block_bootstrap([[0.01, 0.02, 0.03, 0.04, 0.05]], block_length=5, replicates=1000, seed=2026101209)
+    constant = stats.paired_moving_block_bootstrap([[0.1] * 10], block_length=5, replicates=1000, seed=2026101209)
     p_key = "raw_two_sided_p_value_centered_bootstrap"
-    degenerate_problem = degenerate.get("ci_low") == degenerate.get("ci_high") and degenerate.get(p_key, 1.0) < 0.05
-    if degenerate_problem:
-        warnings.append({"code":"BOOTSTRAP_DEGENERACY_FALSE_CERTAINTY","observed_improvement":degenerate.get("observed_mean_improvement"),"ci":[degenerate.get("ci_low"),degenerate.get("ci_high")],"p_value":degenerate.get(p_key),"fold_session_counts":degenerate.get("fold_session_counts"),"block_length":degenerate.get("block_length_exchange_sessions"),"detail":"A single admissible block makes every resample identical; p-value reaches the minimum and CI has zero width, so inferential output is non-identifiable and must fail closed."})
+    for name, sample in (("single_admissible_block", degenerate), ("constant_positive", constant)):
+        if not (
+            sample.get("inferential_status") == "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING"
+            and sample.get("ci_low") is None
+            and sample.get("ci_high") is None
+            and sample.get(p_key) is None
+            and sample.get("bootstrap_unique_estimates") == 1
+        ):
+            issues.append({"code":"BOOTSTRAP_DEGENERACY_GUARD_FAILED","case":name,"observed_improvement":sample.get("observed_mean_improvement"),"ci":[sample.get("ci_low"),sample.get("ci_high")],"p_value":sample.get(p_key),"inferential_status":sample.get("inferential_status")})
+    nondegenerate = stats.paired_moving_block_bootstrap([[0.01, 0.02, 0.04, 0.03, 0.08, 0.05, 0.09, 0.06, 0.07, 0.10]], block_length=5, replicates=1000, seed=2026101209)
+    if nondegenerate.get("inferential_status") != "OK" or nondegenerate.get("bootstrap_unique_estimates", 0) <= 1:
+        issues.append({"code":"BOOTSTRAP_NONDEGENERATE_CASE_FAILED","inferential_status":nondegenerate.get("inferential_status"),"unique_estimates":nondegenerate.get("bootstrap_unique_estimates")})
 
     result = {
         "schema_version":1,
@@ -179,6 +210,7 @@ def main():
         "all_hashes_bytecounts_rows_ids_pass":not any(any(k in x.get("code","") for k in ("SHA256","BYTE_COUNT","COUNT","FIRST_ID","LAST_ID","JSON_INVALID","SHARD_MISSING","DUPLICATE_OR_INVALID_ID")) for x in issues),
         "issues":issues,
         "warnings":warnings,
+        "scope_notes":scope_notes,
         "market_data_opened":False,
         "model_fitting_performed":False,
         "holdout_accessed":False,
