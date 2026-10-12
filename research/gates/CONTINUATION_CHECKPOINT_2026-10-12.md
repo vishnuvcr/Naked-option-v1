@@ -48,6 +48,10 @@ The hash metadata was corrected to distinguish Git blob SHA-1 IDs from raw-file 
 
 ## Latest continuation — 2026-10-12
 
-The hardened, exact-commit synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`, artifact ID `11749635242`. It processed 64,000 synthetic tasks with 27,264 mock-only rows, 36,736 compatibility-blocked rows, and zero errors. The statistical utility suite passed all 8 tests, including strict input-type and missing-class guards. Result SHA-256: `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`.
+The hardened, exact-commit synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`, artifact ID `11749635242`. It processed 64,000 synthetic tasks with 27,264 mock-only rows, 36,736 compatibility-blocked rows, and zero errors. The statistical utility suite passed all 10 tests, including strict input-type and missing-class guards. Result SHA-256: `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`.
 
 No market data, actual estimator fit or holdout was used. The resource budget remains assumption-based, not benchmarked. Independent scientific review is pending; fitting remains blocked.
+
+
+### Final test-count correction — 2026-10-12
+Run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) reports `Ran 10 tests` for the current statistical utility suite. The JSON report reflects 10; earlier 8-test counts refer to the older suite revision.
