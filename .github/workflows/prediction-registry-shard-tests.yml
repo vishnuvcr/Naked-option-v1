@@ -7,6 +7,8 @@ on:
     paths:
       - "scripts/shard_prediction_registry.py"
       - "scripts/test_shard_prediction_registry.py"
+      - "scripts/audit_prediction_registry_shards.py"
+      - "research/registry/**"
       - ".github/workflows/prediction-registry-shard-tests.yml"
   workflow_dispatch:
 
@@ -16,7 +18,7 @@ permissions:
 jobs:
   shard-utility-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,3 +37,6 @@ jobs:
           assert actual == expected, (actual, expected)
           print("SHA-256 known vector: PASS")
           PY
+
+      - name: Audit committed R2 registry shards
+        run: python scripts/audit_prediction_registry_shards.py
