@@ -200,6 +200,26 @@ def paired_moving_block_bootstrap(
         estimates.append(statistics.fmean(sampled_all))
 
     estimates.sort()
+    unique_estimates = len(set(estimates))
+    if unique_estimates == 1:
+        # A degenerate empirical resampling distribution cannot support a confidence
+        # interval or a significance test. Preserve the observed mean descriptively,
+        # but fail closed rather than returning a zero-width interval and minimum p-value.
+        return {
+            "observed_mean_improvement": observed,
+            "confidence_level": confidence_level,
+            "ci_low": None,
+            "ci_high": None,
+            "raw_two_sided_p_value_centered_bootstrap": None,
+            "block_length_exchange_sessions": block_length,
+            "replicates": replicates,
+            "seed": seed,
+            "fold_session_counts": [len(fold) for fold in folds],
+            "positive_favors_candidate": True,
+            "inferential_status": "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING",
+            "bootstrap_unique_estimates": unique_estimates,
+        }
+
     alpha = (1.0 - confidence_level) / 2.0
     ci_low = _percentile(estimates, alpha)
     ci_high = _percentile(estimates, 1.0 - alpha)
@@ -216,6 +236,8 @@ def paired_moving_block_bootstrap(
         "seed": seed,
         "fold_session_counts": [len(fold) for fold in folds],
         "positive_favors_candidate": True,
+        "inferential_status": "OK",
+        "bootstrap_unique_estimates": unique_estimates,
     }
 
 
