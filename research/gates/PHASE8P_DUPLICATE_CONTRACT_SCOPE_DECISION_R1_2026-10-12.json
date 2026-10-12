@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT",
+  "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS",
+  "reviewed_at": "2026-10-12",
+  "developer_amendment_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT_R3_2026-10-12.md",
+  "developer_amendment_blob_sha1": "6ea73c246a2cecd158e4bf8dbbd087befafcb89a",
+  "tester_report_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_TESTER_R1_2026-10-12.md",
+  "tester_report_blob_sha1": "7ed8430a13f38b0a5e487df2334ace69eaf5fde9",
+  "parent_scope_blob_sha1": "018500722f88f5fb100a2e24afc3d5d97394631e",
+  "preflight_runs": [
+    38203577299,
+    38203641510
+  ],
+  "exact_artifacts": {
+    "greek": {
+      "id": 11723198817,
+      "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+    },
+    "forecast": {
+      "id": 11638738288,
+      "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9"
+    }
+  },
+  "decision_scope": "SCOPE_AMENDMENT_ONLY; CODE_IMPLEMENTATION_AND_DATA_RUN_NOT_AUTHORIZED_BY_THIS_DECISION",
+  "data_access_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_source_requests_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false,
+  "findings": [
+    "Source-record duplicate key and economic-contract key are different concepts; prior source-record uniqueness PASS does not prove economic contract uniqueness.",
+    "No count of identical-versus-conflicting economic duplicates is accepted yet.",
+    "Exact duplicate rows may be collapsed only in memory after complete economic-signature equality; conflicts must remain BLOCKED."
+  ],
+  "requirements": [
+    "Exact reviewed schema column-set guard.",
+    "Canonical underlying, bar-end instant, expiry date, actual strike and option side key.",
+    "Compare all economically relevant prices, volumes, OI, spot, expiry, IV, Greeks, status, data quality, and source/cache fields.",
+    "Only source_request_id, requested_relative_strike, request_scope_sha256 and response_sha256 may differ for economically identical rows.",
+    "Deterministic row-order-invariant deduplication, aggregate duplicate counts, no raw rows/values.",
+    "Synthetic tests for identical duplicates, conflicting fields, key separation, malformed schemas, permutation invariance and no raw output.",
+    "New exact code-only tester review and re-pinned preflight workflow before the next artifact run."
+  ],
+  "artifacts_opened_during_review": false,
+  "real_duplicate_rows_examined_during_review": false,
+  "model_fitted": false,
+  "holdout_accessed": false
+}
