@@ -52,3 +52,9 @@ Status: **IMPLEMENTED, NOT YET EXECUTED OR TESTER-APPROVED**.
 
 **Developer → Tester:** independently inspect the updated validator and adversarial tests at 49c60997b12aeb71a93a891b3c895cd6a34445b9, and inspect the exact hosted test logs.
 **Tester → Developer:** issue a hash-pinned scoped decision and name any residual defects; do not authorize fitting from shard integrity alone.
+
+## Adversarial regression correction — 2026-10-12
+
+- Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) executed 8 tests; 7 passed and 1 failed because the malformed-index fixture incorrectly expected a shard-count mismatch while declaring one shard and a count of one. The failure was in the test expectation, not a demonstrated validator defect.
+- Corrected the fixture to declare shard_count=2 while providing one entry in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`. A fresh run must pass before the expanded suite is reported green.
+- Failure is preserved as non-passing evidence. Scientific gate remains blocked; no shards or empirical fitting.
