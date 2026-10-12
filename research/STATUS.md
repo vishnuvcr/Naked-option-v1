@@ -780,3 +780,16 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** independently verify the archived R5 code and R3 executor decisions, keep real-data permissions closed, and report if a supported authorization path exists without weakening the two-gate design.
 **Tester → Developer:** do not execute or access the artifact until a fresh exact-pinned one-use authorization is validly issued and all guards pass.
+
+
+## 2026-10-12 — User requested immediate strategy testing
+
+- Request: start strategy testing as soon as possible. The existing registered Phase 8 plan already defines 100 frozen forecast cells × 3 delta targets × 4 DTE buckets × 4 exit policies = 4,800 parent configurations, with four cost scenarios (19,200 scenario/configuration summaries expected).
+- Cost schedule is pinned at `data/reference/phase8_cost_schedule.json`: Paytm Money brokerage is modeled at ₹10 per executed F&O order with a documented ₹20 historical fallback, and date-effective STT, exchange transaction charges, IPFT, SEBI fees, stamp duty and GST are included. Q1 proxy spreads/slippage are stressed separately; Q1 must not be described as quote-executable.
+- The existing runner's input-gate matrix currently marks all 4,800 configurations `INELIGIBLE` because `POINT_IN_TIME_FIXED_CONTRACT_PANEL_NOT_YET_APPROVED`; it explicitly reports `pnl_generated=false` and `strategy_promotion_authorized=false`. The accepted forecast artifact alone is not enough to compute valid option P&L.
+- The R5 duplicate-diagnostic code and R3 executor workflow reviews have passed, but the separate one-use authorization request was not created (platform safety block). The duplicate scan has not run; the prior R1 nonce is consumed and cannot be reused.
+- Action now: preserve the frozen 4,800-cell strategy universe and cost model; do not silently bypass the point-in-time contract/data gate or label synthetic checks as strategy results. Resume empirical strategy execution immediately after the separate one-use diagnostic authorization and tester acceptance of the aggregate duplicate report, or after the independent tester approves a valid alternative fixed-contract panel using already available data.
+- No empirical strategy result or profit claim is made in this entry.
+
+**Developer → Tester:** prioritize reviewing whether an independently auditable alternative fixed-contract panel can be built from already available, previously accepted data without weakening point-in-time contract, execution-cost or holdout controls. Report PASS/BLOCKED with exact evidence.
+**Tester → Developer:** do not generate empirical option P&L until an approved fixed-contract panel and separate one-use authorization exist; validate all charge arithmetic and no-lookahead rules before the 4,800-cell grid runs.
