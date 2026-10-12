@@ -238,3 +238,14 @@
 
 **Tester → Developer:** keep the artifact gate closed; submit the exact one-use execution authorization bundle.
 **Developer → Tester:** independently validate every nonce, blob and artifact pin; do not authorize model fitting, deduplication, holdout, P&L or raw-data upload.
+
+
+## 2026-10-12 — R1 one-use duplicate diagnostic authorization issued
+
+- Execution authorization request blob `bfb186fba597acdd831f8d854471d9b6d0adde36` was checked against the approved R2 executor workflow blob `398063be2215dbed40c123521bf2868b0bcdb6a3`, R2 workflow-only decision `8d39ad104c519b79bfe47f6731bac101a0798347`, R4 code-only decision `469fe821a1f735051a9db0ea2a02f14881922dfc`, R4 scope-only decision `ee9fb7e4cc2030a532b358e450ca1e4f0325d91b`, approved code commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850), and source artifact ID/hash.
+- Tester authorized exactly one run: nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133`, issued 05:12:44 UTC, expiry 17:12:44 UTC; final authorization blob `a9390a2a597bbfedaedcf792fe5f60c29361cc82`.
+- Run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed the gate, wrote the permanent nonce ledger before download, verified source artifact SHA-256, and is still executing the duplicate scan. No result exists yet.
+- Do not rerun this nonce if the job fails. Any retry requires a reviewed technical change and a new one-use authorization.
+
+**Tester → Developer:** preserve the current run's exact log/outcome; no retries or model work.
+**Developer → Tester:** return the aggregate report to the independent data gate; if runtime/memory fails, record it as infrastructure/diagnostic evidence, not market performance.
