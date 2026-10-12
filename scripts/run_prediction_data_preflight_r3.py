@@ -200,6 +200,7 @@ def collect_spot_and_structure(csv_gz: Path, embedded_manifest_path: Path) -> di
     timestamp_parse_errors = 0
     epoch_text_mismatch = 0
     spot_rows_outside_regular_hours = 0
+    spot_regular_session_timestamp_count = 0
     date_field_mismatch = 0
     sample_rows = 0
 
@@ -248,10 +249,11 @@ def collect_spot_and_structure(csv_gz: Path, embedded_manifest_path: Path) -> di
                 timestamp_parse_errors += 1
                 continue
             all_spot_epochs.add(ts)
-            spot_timestamps_by_day[d].add(ts)
             if local.time() < SESSION_OPEN or local.time() > LAST_BAR_START:
                 spot_rows_outside_regular_hours += 1
                 continue
+            spot_regular_session_timestamp_count += 1
+            spot_timestamps_by_day[d].add(ts)
             close = finite_positive(row[index["nifty_close"]])
             raw_row_hash = hashlib.sha256(json.dumps(row, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
             if ts in row_by_epoch_digest:
@@ -300,7 +302,8 @@ def collect_spot_and_structure(csv_gz: Path, embedded_manifest_path: Path) -> di
         "row_types": dict(row_types),
         "row_width_errors": width_errors,
         "spot_row_count": sample_rows,
-        "spot_regular_session_timestamp_count": sum(len(v) for v in spot_timestamps_by_day.values()),
+        "spot_regular_session_timestamp_count": spot_regular_session_timestamp_count,
+        "spot_distinct_timestamp_count": len(all_spot_epochs),
         "spot_date_count": len(spot_sessions),
         "spot_session_date_min": min(spot_sessions).isoformat() if spot_sessions else None,
         "spot_session_date_max": max(spot_sessions).isoformat() if spot_sessions else None,
@@ -354,11 +357,12 @@ def positional_pair_counts(
     sessions: list[date],
     close_by_epoch: dict[int, float],
     conflicts: set[int],
+    horizon_sessions: int,
 ) -> dict[str, Any]:
     counts = Counter()
     for d in decision_dates:
         i = date_index[d]
-        target_i = i + _POSITIONAL_HORIZON
+        target_i = i + horizon_sessions
         if target_i >= len(sessions):
             counts["missing_pairs"] += 1
             continue
@@ -433,13 +437,12 @@ def evaluate_label_folds(
                 train_stats = pair_counts_for_timestamps(train_times, close_by_epoch, conflicts, horizon)
                 valid_stats = pair_counts_for_timestamps(valid_times, close_by_epoch, conflicts, horizon)
             else:
-                _POSITIONAL_HORIZON = int(meta["label_horizon_exchange_sessions"])
-                global _POSITIONAL_HORIZON
+                horizon_sessions = int(meta["label_horizon_exchange_sessions"])
                 train_idx_stop = max(0, start_index - int(meta["purge_exchange_sessions"]))
-                train_dates = [d for d in sessions[:train_idx_stop] if date_index[d] + _POSITIONAL_HORIZON < start_index]
-                valid_dates = [d for d in fold_dates if date_index[d] + _POSITIONAL_HORIZON <= end_index]
-                train_stats = positional_pair_counts(train_dates, date_index, sessions, close_by_epoch, conflicts)
-                valid_stats = positional_pair_counts(valid_dates, date_index, sessions, close_by_epoch, conflicts)
+                train_dates = [d for d in sessions[:train_idx_stop] if date_index[d] + horizon_sessions < start_index]
+                valid_dates = [d for d in fold_dates if date_index[d] + horizon_sessions <= end_index]
+                train_stats = positional_pair_counts(train_dates, date_index, sessions, close_by_epoch, conflicts, horizon_sessions)
+                valid_stats = positional_pair_counts(valid_dates, date_index, sessions, close_by_epoch, conflicts, horizon_sessions)
             train_rows = int(train_stats.get("scored_directional", 0))
             valid_rows = int(valid_stats.get("scored_directional", 0))
             reasons = []
