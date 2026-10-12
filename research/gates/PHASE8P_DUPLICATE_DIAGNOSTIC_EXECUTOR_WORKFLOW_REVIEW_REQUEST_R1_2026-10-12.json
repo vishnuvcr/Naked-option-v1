@@ -138,5 +138,8 @@
   "external_market_source_requests_authorized": false,
   "option_pnl_authorized": false,
   "strategy_promotion_authorized": false,
-  "execution_nonce": "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133"
+  "execution_nonce": "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133",
+  "r4_code_decision_blob_sha1": "469fe821a1f735051a9db0ea2a02f14881922dfc",
+  "r4_code_report_blob_sha1": "0a1ede135fa30477ea8e4cd1643d395eead49a10",
+  "r4_scope_decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b"
 }
