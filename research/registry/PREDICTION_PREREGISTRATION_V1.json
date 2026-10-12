@@ -1,0 +1,46 @@
+{
+  "schema_version": "prediction-preregistration-v1",
+  "status": "DRAFT_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
+  "created": "2026-10-12",
+  "scope": "prediction only; no option strategy selection; no untouched holdout access",
+  "primary_metric": "out_of_sample_log_loss",
+  "baseline": "training-fold-only prevalence probability, clipped only by a pre-registered numerical epsilon",
+  "secondary_metrics": ["brier_score", "balanced_accuracy", "calibration_intercept", "calibration_slope"],
+  "multiplicity": {
+    "procedure": "Benjamini-Yekutieli false-discovery-rate control",
+    "q": 0.05,
+    "family_definition": "must be frozen by tester-approved analysis plan before fitting",
+    "no_repeated_holdout_tuning": true
+  },
+  "uncertainty": {
+    "method": "paired_chronological_block_bootstrap",
+    "replicates": 10000,
+    "block_length": "NOT_FROZEN_BLOCKED",
+    "random_seed": "NOT_FROZEN_BLOCKED"
+  },
+  "labels": {
+    "INTRA_30M_UP_DOWN": {
+      "definition": "sign of NIFTY spot return over next 30 minutes, fully contained within same trading session",
+      "flat_return": "excluded from directional two-class metric; exclusion count reported",
+      "flat_tolerance": "NOT_FROZEN_BLOCKED"
+    },
+    "POS_1D_UP_DOWN": {
+      "definition": "sign of next-trading-session close-to-close NIFTY spot return",
+      "flat_return": "excluded from directional two-class metric; exclusion count reported",
+      "flat_tolerance": "NOT_FROZEN_BLOCKED"
+    }
+  },
+  "chronological_validation": {
+    "split_policy": "forward-only chronological folds",
+    "overlap_purge": "required",
+    "embargo": "required",
+    "fold_dates": "NOT_FROZEN_BLOCKED",
+    "minimum_train_rows": "NOT_FROZEN_BLOCKED",
+    "minimum_validation_rows": "NOT_FROZEN_BLOCKED",
+    "minimum_class_support_per_fold": "NOT_FROZEN_BLOCKED",
+    "missingness_thresholds": "NOT_FROZEN_BLOCKED"
+  },
+  "calibration": "fit only inside inner chronological training folds; never on validation/evaluation rows",
+  "data_policy": "features must be available by forecast decision time; no lookahead; source and timestamp provenance required",
+  "gate": "No empirical fitting until all NOT_FROZEN_BLOCKED fields are specified and independently approved."
+}
