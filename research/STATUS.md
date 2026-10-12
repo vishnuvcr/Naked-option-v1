@@ -743,3 +743,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** preserve run #38207005953 as failed technical evidence, not data evidence. Review the fresh executor revision and its new one-use request separately.
 **Tester → Developer:** reject reuse of the consumed nonce; do not authorize prediction features until a diagnostic report passes the data gate.
+
+
+## 2026-10-12 — Resume after R1 scan failure; R5 runtime amendment proposed
+
+- Rechecked current developer/tester branches, latest Actions runs, R1 execution logs, current status and error log before resuming.
+- R1 run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) ended after about 12 minutes with exit code 143 / hosted runner shutdown during the diagnostic. It emitted no aggregate report; the root cause is unconfirmed and must not be asserted to be OOM.
+- The R1 one-use nonce remains consumed and must not be reused. No duplicate counts or prediction/strategy results exist from that attempt.
+- Added [R5 runtime amendment](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_RUNTIME_AMENDMENT_R5_2026-10-12.md): proposed disk-backed staging, row streaming, safe progress telemetry, bounded execution diagnostics and guaranteed cleanup, while preserving the exact R4 duplicate semantics and aggregate-only output.
+- Next: implement R5 on developer branch; add/execute synthetic tests; obtain fresh independent exact-code and executor-workflow reviews; then request a new one-use authorization with a new nonce. The research remains blocked at the duplicate-data gate until the aggregate report is independently accepted. No feature/model/holdout/option P&L/strategy work.
+
+**Developer → Tester:** independently review R5 scope and later exact code/workflow hashes; reject any reuse of the consumed R1 nonce.
+**Tester → Developer:** return a written R5 review and exact gate requirements; no real-data access until fresh independent approvals and final one-use authorization.
