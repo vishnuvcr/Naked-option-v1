@@ -891,3 +891,13 @@
 - R2 draft adds family-specific complexity presets, label IDs, training-fold-only calibration, and a survival hazard-to-direction mapping; expected 8,000 configs across four 2,000-config shards.
 - Tooling returned empty content for several large JSON files during independent retrieval. This is an auditability issue, not evidence that content is corrupt. Tester issue #25 explicitly requests smaller shards if needed and prohibits PASS without reading/recomputing the actual contents.
 - Status: OPEN. No empirical fitting or holdout access. Do not represent the draft registry as tester-approved.
+
+
+## 2026-10-12 — Prediction registry V2 R2 auditability/design gate
+- Category: reproducibility / scientific design / tooling auditability
+- Component: `research/registry/METHOD_REGISTRY_V2_R2.json` and configuration shards
+- Symptom: connected GitHub fetch returned empty content for the large method registry and raw fetch rejected it as oversized/unsupported; independent audit could not recompute all method/config hashes or verify every parent relationship from accessible artifacts.
+- Impact: registry gate cannot pass. This is not proof of data corruption; it is failure to provide independently auditable artifacts. No empirical fitting or untouched holdout access permitted.
+- Additional design risk: 20 algorithm families × 10 feature representations × 5 inference operators produces 1,000 IDs arithmetically but does not prove each pairing is valid or semantically distinct.
+- Required remediation: small shards (target <=25 methods and <=100 configs each), master index with byte counts/record counts/SHA-256, tested verifier with SHA-256 known vector, compatibility matrix with blocked combinations, frozen label/sample/missingness/fold/purge/embargo/multiplicity/bootstrap/seed preregistration, and synthetic restart/resource tests.
+- Tester report: `research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REPORT_2026-10-12.md`; developer checklist: `research/gates/PREDICTION_REGISTRY_V2_R2_REMEDIATION_CHECKLIST_2026-10-12.md`; tracking issue #25.
