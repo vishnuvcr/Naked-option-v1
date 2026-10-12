@@ -1,3 +1,5 @@
+> **Research scope correction — 2026-10-12:** The current method registry contains 112 named entries, and the completed Phase 8 run (#38229793041) is a 4,800-configuration option-execution proxy sweep, not a 1,000-method prediction sweep. The explicit 1,000+ distinct prediction-method requirement is **not yet complete**. A formal amendment awaits independent tester review: [proposal](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_PROPOSAL_R1_2026-10-12.md). Until that gate passes, do not use Phase 8 proxy results to select prediction methods or promote a strategy.
+
 ## 2026-10-12 — Phase 8P Greek-feature prediction: independent code gate REQUEST_CHANGES
 
 The new prediction-only sub-study's scope R3 passed **scope review only** and the developer synthetic suite passed. The isolated tester then issued **REQUEST_CHANGES** on exact developer code snapshot `16cb5d266c6312aeeea07ebd61fbbcd589a8281d`. The code gate is not passed; **no real market artifact has been downloaded/decrypted and no empirical model fit occurred**.
