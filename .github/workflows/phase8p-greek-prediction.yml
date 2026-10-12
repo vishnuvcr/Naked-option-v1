@@ -1,0 +1,89 @@
+name: Phase 8P Greek Prediction — Synthetic Code Gate
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - "scripts/phase8p_greek_prediction.py"
+      - "scripts/test_phase8p_greek_prediction.py"
+      - ".github/workflows/phase8p-greek-prediction.yml"
+      - "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md"
+  workflow_dispatch:
+    inputs:
+      run_synthetic_tests:
+        description: "Run only synthetic tests; real data access remains separately gated"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-code-gate:
+    if: ${{ github.event_name == 'push' || inputs.run_synthetic_tests == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout immutable developer snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install pinned scientific dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2
+
+      - name: Verify exact tester-approved scope before code checks
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-tester:refs/remotes/origin/phase-08-prediction-tester
+          python - <<'PY'
+          import subprocess
+          branch = "origin/phase-08-prediction-tester"
+          review_path = "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md"
+          raw = subprocess.check_output(["git", "show", f"{branch}:{review_path}"], text=True)
+          required = [
+              "PASS — SCOPE ONLY, WITH RESTRICTIONS",
+              "018500722f88f5fb100a2e24afc3d5d97394631e",
+              "No data artifact was decrypted",
+              "separate hosted preflight",
+          ]
+          missing = [term for term in required if term not in raw]
+          if missing:
+              raise SystemExit("SCOPE_GATE_BLOCKED: tester R3 scope approval mismatch: " + repr(missing))
+          for path in (
+              "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R1_2026-10-12.md",
+              "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R2_2026-10-12.md",
+              "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md",
+          ):
+              subprocess.check_call(["git", "cat-file", "-e", f"HEAD:{path}"])
+          print("PASS: R3 scope approval exists; R1/R2/R3 history preserved; no artifacts opened.")
+          PY
+
+      - name: Run embedded synthetic-only checks
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_greek_prediction.py --self-test | tee "${RUNNER_TEMP}/phase8p-self-test.json"
+          python scripts/test_phase8p_greek_prediction.py
+          sha256sum scripts/phase8p_greek_prediction.py scripts/test_phase8p_greek_prediction.py > "${RUNNER_TEMP}/phase8p-source-sha256.txt"
+          cat "${RUNNER_TEMP}/phase8p-source-sha256.txt"
+
+      - name: Upload synthetic-only gate receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8p-synthetic-code-gate
+          path: |
+            ${{ runner.temp }}/phase8p-self-test.json
+            ${{ runner.temp }}/phase8p-source-sha256.txt
+          if-no-files-found: warn
+          retention-days: 30
