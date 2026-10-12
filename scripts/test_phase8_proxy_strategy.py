@@ -177,8 +177,8 @@ def test_close_valued_greek_delta_is_not_used_before_valuation_time():
         "option_type": "CE",
     })
     value_early, method_early = runner.resolve_delta(row, entry_epoch)
-    assert method_early == "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
-    assert value_early < 0.80
+    assert method_early == "MONEYNESS_FALLBACK_IV_UNVERIFIED"
+    assert np.isnan(value_early)
     value_on_time, method_on_time = runner.resolve_delta(row, entry_epoch + 60)
     assert method_on_time == "OBSERVED_DELTA_ASOF"
     assert abs(value_on_time - 0.80) < 1e-12
@@ -188,22 +188,26 @@ def test_vectorized_delta_matches_pointwise_asof_rules():
     entry_epoch = int(pd.Timestamp("2024-01-02 10:00:00", tz=runner.IST).timestamp())
     rows = pd.DataFrame([
         {"timestamp_epoch": entry_epoch, "greek_valuation_offset_seconds": 0.0,
-         "delta": 0.70, "rolling_spot": 100.0, "returned_strike": 100.0,
+         "delta": 0.70, "_lag_timestamp_epoch": entry_epoch - 60,
+         "_lag_greek_valuation_offset_seconds": 60.0, "_lag_delta": 0.69,
+         "rolling_spot": 100.0, "returned_strike": 100.0,
          "implied_volatility": 0.20, "expiry_epoch": int(pd.Timestamp("2024-06-27 15:30:00", tz=runner.IST).timestamp()),
          "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0,
          "expiry_key": "2024-06-27", "option_type": "CE"},
         {"timestamp_epoch": entry_epoch, "greek_valuation_offset_seconds": 60.0,
-         "delta": 0.80, "rolling_spot": 100.0, "returned_strike": 100.0,
+         "delta": 0.80, "_lag_timestamp_epoch": entry_epoch,
+         "_lag_greek_valuation_offset_seconds": 60.0, "_lag_delta": 0.80,
+         "rolling_spot": 100.0, "returned_strike": 100.0,
          "implied_volatility": 0.20, "expiry_epoch": int(pd.Timestamp("2024-06-27 15:30:00", tz=runner.IST).timestamp()),
          "risk_free_rate_decimal": 0.0, "dividend_yield_decimal": 0.0, "option_type": "CE"},
     ])
     vector_values, vector_methods = runner.resolve_deltas_vectorized(rows, entry_epoch)
     pointwise = [runner.resolve_delta(rows.iloc[i], entry_epoch) for i in range(len(rows))]
-    assert vector_methods[0] == "OBSERVED_DELTA_ASOF"
-    assert abs(vector_values[0] - 0.70) < 1e-12
-    assert vector_methods[1] == "BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY"
-    assert abs(vector_values[1] - pointwise[1][0]) < 1e-10
-    assert vector_methods.tolist() == [pointwise[0][1], pointwise[1][1]]
+    assert vector_methods[0] == "OBSERVED_DELTA_PRIOR_BAR_ASOF"
+    assert abs(vector_values[0] - 0.69) < 1e-12
+    assert vector_methods[1] == "MONEYNESS_FALLBACK"
+    assert np.isnan(vector_values[1])
+    assert pointwise[1][1] == "MONEYNESS_FALLBACK_IV_UNVERIFIED"
 
 
 def test_contract_selection_does_not_use_current_bar_close_for_spot_fallback():
@@ -236,6 +240,23 @@ def test_row_type_normalization_tolerates_whitespace_and_bom():
     assert normalized.tolist() == ["OPTION", "OPTION", "OPTION", "SPOT", "SPOT"]
 
 
+def test_drawdown_uses_local_peak_and_aggregates_same_timestamp():
+    pnl = np.array([100.0, -90.0, 1000.0, -10.0])
+    timestamps = np.array([
+        "2024-01-01T10:00:00", "2024-01-01T10:01:00",
+        "2024-01-01T10:02:00", "2024-01-01T10:03:00",
+    ])
+    result = runner.drawdown_stats(pnl, timestamps)
+    assert abs(result["max_dd"] - 90.0) < 1e-9
+    assert abs(result["max_dd_pct"] - 90.0) < 1e-9
+    assert result["peak_time"] == "2024-01-01T10:00:00"
+
+    same_time = runner.drawdown_stats(
+        np.array([100.0, -150.0, 100.0]),
+        np.array(["2024-01-01T10:00:00", "2024-01-01T10:00:00", "2024-01-01T10:01:00"]),
+    )
+    assert same_time["max_dd"] == 0.0
+
 def test_proxy_cost_scenarios_get_more_conservative():
     base = 100.0
     net = []
@@ -244,6 +265,14 @@ def test_proxy_cost_scenarios_get_more_conservative():
         sell = runner.engine.fill_price(110.0, "SELL", 160, "Q1", scenario, runner.TICK_SIZE)
         net.append(sell.price - buy.price)
     assert net[0] > net[1] > net[2] > net[3]
+    for scenario in runner.SCENARIOS:
+        for side, base_price in (("BUY", base), ("SELL", 110.0)):
+            fill = runner.engine.fill_price(base_price, side, 100, "Q1", scenario, runner.TICK_SIZE)
+            assert abs(fill.price / runner.TICK_SIZE - round(fill.price / runner.TICK_SIZE)) < 1e-8
+            if side == "BUY":
+                assert fill.price >= base_price
+            else:
+                assert fill.price <= base_price
 
 
 if __name__ == "__main__":
@@ -263,8 +292,9 @@ if __name__ == "__main__":
         test_contract_selection_does_not_use_current_bar_close_for_spot_fallback,
         test_row_type_normalization_tolerates_whitespace_and_bom,
         test_proxy_cost_scenarios_get_more_conservative,
+        test_drawdown_uses_local_peak_and_aggregates_same_timestamp,
     ]
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 13 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 16 Phase 8 proxy-strategy synthetic tests")
