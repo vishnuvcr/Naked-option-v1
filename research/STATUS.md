@@ -315,3 +315,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Tester → Developer:** preserve this exact workflow-only PASS; submit the separate one-use execution authorization request. No artifact access yet.
 **Developer → Tester:** pin this decision/report, exact workflow/request, R4 code/scope and artifact identity in the one-use request; leave execution permissions closed in that request.
+
+
+## Phase 8P — one-use duplicate diagnostic authorized and running (2026-10-12)
+
+- Tester code gate R4 remains PASS (29/29); executor workflow R2 remains PASS (33/33).
+- One-use execution authorization: [tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_TESTER_R1_2026-10-12.md) and [authorization JSON](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_R1_2026-10-12.json). Permission is limited to the pinned aggregate-only duplicate diagnostic.
+- Developer run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) passed authorization, consumed the nonce before data retrieval, restored cache and verified source ZIP hash. Its diagnostic step is currently running; no report/result has been accepted yet.
+- Model fit, holdout, deduplication, external source queries, option P&L and strategy promotion remain prohibited until an independent reviewer passes the exact output report.
+
+**Tester → Developer:** finish only the authorized duplicate scan and publish the pinned aggregate result.
+**Developer → Tester:** review run report and digest before any feature preflight or model fitting.
