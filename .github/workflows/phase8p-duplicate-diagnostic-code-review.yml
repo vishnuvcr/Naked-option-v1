@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
           git fetch --no-tags origin phase-08-prediction-developer:refs/remotes/origin/phase-08-prediction-developer
           REQUEST="${RUNNER_TEMP}/phase8p-duplicate-code-review-request.json"
-          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R3_2026-10-12.json > "$REQUEST"
+          git show origin/phase-08-prediction-developer:research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json > "$REQUEST"
           python - "$REQUEST" <<'PY'
           import json,os,subprocess,sys
           from pathlib import Path
@@ -82,7 +82,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase8p-duplicate-diagnostic-code-review-r3
+          name: phase8p-duplicate-diagnostic-code-review-r4
           path: |
             ${{ runner.temp }}/phase8p-duplicate-diagnostic-code-review.json
             ${{ runner.temp }}/phase8p-duplicate-diagnostic-code-summary.json
