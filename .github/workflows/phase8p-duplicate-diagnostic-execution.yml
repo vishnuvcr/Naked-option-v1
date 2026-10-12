@@ -266,10 +266,14 @@ jobs:
           cd "${RUNNER_TEMP}/phase8p-ledger-worktree"
           mkdir -p "$(dirname "$LEDGER_PATH")"
           touch "$LEDGER_PATH"
-          if grep -Fq "\"execution_nonce\":\"$EXECUTION_NONCE\"" "$LEDGER_PATH"; then
-            echo "DUPLICATE_EXECUTION_BLOCKED: nonce already present in ledger"
-            exit 1
-          fi
+          python - "$LEDGER_PATH" "$EXECUTION_NONCE" <<'PY'
+          import json,sys
+          from pathlib import Path
+          path,nonce=sys.argv[1:]
+          for line in Path(path).read_text(encoding="utf-8").splitlines():
+              if line.strip() and json.loads(line).get("execution_nonce")==nonce:
+                  raise SystemExit("DUPLICATE_EXECUTION_BLOCKED: nonce already present in ledger")
+          PY
           python - "${RUNNER_TEMP}/phase8p-execution-nonce-receipt.json" "$LEDGER_PATH" <<'PY'
           import json,sys
           from pathlib import Path
@@ -295,6 +299,18 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2 pyarrow==17.0.0 cryptography==43.0.3
+
+      - name: Check out exact approved diagnostic code in a detached worktree
+        if: steps.gate.outputs.run_authorized == 'true'
+        env:
+          DEV_SHA: ${{ steps.gate.outputs.developer_code_commit }}
+        run: |
+          set -euo pipefail
+          git worktree add --detach "${RUNNER_TEMP}/phase8p-diagnostic-code" "$DEV_SHA"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD)" = "$DEV_SHA"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_greek_prediction.py)" = "$APPROVED_CORE_MODULE_BLOB"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_BLOB"
+          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/test_phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_TEST_BLOB"
 
       - name: Restore cached encrypted Greek artifact after authorization
         if: steps.gate.outputs.run_authorized == 'true'
@@ -343,18 +359,6 @@ jobs:
         with:
           path: data/cache/phase8p-artifacts/nifty-1m-greeks-enriched-r3.zip
           key: phase8p-greek-artifact-11723198817-e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736
-
-      - name: Check out exact approved diagnostic code in a detached worktree
-        if: steps.gate.outputs.run_authorized == 'true'
-        env:
-          DEV_SHA: ${{ steps.gate.outputs.developer_code_commit }}
-        run: |
-          set -euo pipefail
-          git worktree add --detach "${RUNNER_TEMP}/phase8p-diagnostic-code" "$DEV_SHA"
-          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD)" = "$DEV_SHA"
-          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_greek_prediction.py)" = "$APPROVED_CORE_MODULE_BLOB"
-          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_BLOB"
-          test "$(git -C "${RUNNER_TEMP}/phase8p-diagnostic-code" rev-parse HEAD:scripts/test_phase8p_duplicate_key_diagnostic.py)" = "$APPROVED_DIAGNOSTIC_TEST_BLOB"
 
       - name: Run authorized aggregate-only duplicate diagnostic
         if: steps.gate.outputs.run_authorized == 'true'
