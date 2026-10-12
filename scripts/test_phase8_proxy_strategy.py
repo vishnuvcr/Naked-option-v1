@@ -127,6 +127,12 @@ def test_stop_gap_uses_worse_open_not_unfillable_stop_level():
     assert result["exit_epoch"] == 160
 
 
+def test_row_type_normalization_tolerates_whitespace_and_bom():
+    raw = pd.Series(["OPTION", " option ", "\ufeffOPTION", "SPOT", " spot "])
+    normalized = runner.normalise_row_type(raw)
+    assert normalized.tolist() == ["OPTION", "OPTION", "OPTION", "SPOT", "SPOT"]
+
+
 def test_proxy_cost_scenarios_get_more_conservative():
     base = 100.0
     net = []
@@ -147,9 +153,10 @@ if __name__ == "__main__":
         test_take_profit_stop_and_trailing_exit_paths,
         test_intraday_horizon_after_close_is_skipped,
         test_stop_gap_uses_worse_open_not_unfillable_stop_level,
+        test_row_type_normalization_tolerates_whitespace_and_bom,
         test_proxy_cost_scenarios_get_more_conservative,
     ]
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 7 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 8 Phase 8 proxy-strategy synthetic tests")
