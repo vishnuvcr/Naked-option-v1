@@ -872,3 +872,7 @@ Statistics implementation and tests are committed: `scripts/prediction_statistic
 ### 2026-10-12 — Latest strict-input synthetic result
 
 Run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) succeeded on the exact triggering source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`. It passed strict statistical utility tests and the 64,000-task synthetic orchestration; output digest is `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`, artifact ID 11749635242. No real market data, model fitting or untouched holdout was used.
+
+
+### 2026-10-12 — Final report count audit
+The latest full synthetic run's log confirms the hardened statistical suite ran 10 tests successfully (not 8, which described an earlier revision). The report/status/checkpoint now record 10 tests. Latest run remains synthetic-only, with no market data, model fit or holdout access.
