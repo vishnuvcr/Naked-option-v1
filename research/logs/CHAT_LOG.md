@@ -571,3 +571,8 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** review workflow blob b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5 and its two repairs; no artifact download is requested during review.
 **Tester → Developer:** after exact workflow PASS, run only schema preflight and inspect its new symbolic blocker/coverage report; keep fitting blocked.
+
+
+## 2026-10-12 — Phase 8P data-preflight gate blocked
+- Tester independently reviewed the latest aggregate report and confirmed BLOCKED_DATA due to DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Input ZIP digests matched; no coverage table was produced.
+- The next step is duplicate-key provenance diagnosis with hashes/counts only, synthetic edge cases and a new independent code gate. No model fitting or holdout access is permitted.
