@@ -731,3 +731,16 @@
 - All six source/test/workflow blob pins, scope-only authorization flags, core and diagnostic self-tests, regression suites, and source-artifact pin checks passed in that review. No real artifact was accessed/decrypted and no model was fitted.
 - Tester-owned audit was revised to recognize the current R5 disk-backed scan and aggregate progress callback, and its function-boundary delimiter was corrected. Fresh independent review [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622) is pending at log time.
 - Disposition: prior REQUEST_CHANGES remains historical evidence; the revised audit is not yet approved. Real-data execution remains blocked. Do not reuse R1 nonce.
+
+
+## 2026-10-12 — R5 code and executor workflow gates passed; execution remains blocked
+
+- Independent R5 diagnostic code review [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622): **PASS, 31/31 checks**. Tester decision/report archived on the tester branch as `PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R5_2026-10-12.json` and `PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R5_2026-10-12.md`. Receipt artifact 11729293640; SHA-256 `3f4b794969f8a83985e0a7447de7f47a743240338fa40717953e398ea3e7c8fd`.
+- Developer updated the executor workflow to pin the exact R5 code snapshot, new request path, R5 code-only decision, and a new nonce distinct from consumed R1. Workflow blob: `36a3be00afc571f42b79471dcd74f2ecc61435af`.
+- Independent executor review [#38211350078](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211350078): **PASS, 33/33 static checks**. Tester decision/report archived on the tester branch as `PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R3_2026-10-12.json` and `PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_R3_2026-10-12.md`. Receipt artifact 11729129559; SHA-256 `7c5a80e7d29a4bd68734805bfcc200d042d25e19f18a0eee4558b0eb825b72d1`.
+- Creating the next one-use authorization request was blocked by the platform's safety checks. No workaround was attempted and no authorization was issued. This is a blocker, not permission to execute.
+- The prior R1 nonce was consumed by run [#38207005953](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38207005953) and must never be reused. The new nonce is not consumed because no new execution occurred.
+- **Current result:** code gate PASS; executor workflow gate PASS; one-use execution authorization NOT ISSUED; no real-data diagnostic run; no aggregate duplicate report; no prediction metrics or strategy/P&L result accepted.
+
+**Developer → Tester:** independently verify the archived R5 code and R3 executor decisions, keep real-data permissions closed, and report if a supported authorization path exists without weakening the two-gate design.
+**Tester → Developer:** do not execute or access the artifact until a fresh exact-pinned one-use authorization is validly issued and all guards pass.
