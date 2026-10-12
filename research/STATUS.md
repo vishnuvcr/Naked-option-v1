@@ -183,6 +183,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 ## 2026-10-12 — Phase 8 R2 terminal failure and R3 review opened
 - Developer run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) failed at terminal row-count validation with `source=None output=8999865`. The final validation and upload were skipped; no enriched artifact was uploaded.
 - Root cause: input manifest lacked top-level `rows_preserved`; counts were available per part. R1 had failed at the same point and the R2 synthetic tests did not model this manifest schema.
-- Developer R3 snapshot [7bea94a81a491368041c822d76f2af7a983973da](https://github.com/vishnuvcr/Naked-option-v1/commit/7bea94a81a491368041c822d76f2af7a983973da) now sums part row counts, validates optional aggregate fields, adds fixtures for missing/matching/mismatching and malformed counts, and checks 8,999,865 rows before any external HF request.
+- Developer R3 snapshot [f556c7b44088f18551453c36f78e8d5de7fe141e](https://github.com/vishnuvcr/Naked-option-v1/commit/f556c7b44088f18551453c36f78e8d5de7fe141e) now sums part row counts, validates optional aggregate fields, adds fixtures for missing/matching/mismatching and malformed counts, and checks 8,999,865 rows before any external HF request.
 - Tester R3 workflow has been prepared to pin that exact snapshot and adds an independent count-sum audit alongside the 162-case independent Greek formula audit. R3 decision is not yet available; source access remains blocked until it is recorded.
 - Restrictions unchanged: no Dhan API, P&L, holdout, strategy promotion, commercial use or plaintext upload.
+
+
+## R3 exact-snapshot review preparation — 2026-10-12
+- Candidate developer head: `f556c7b44088f18551453c36f78e8d5de7fe141e`. Tester request will pin four exact blobs and test the final head, including the second commit that hardened the preflight environment handling.
+- R2 is rejected as a dataset-delivery attempt: terminal row-count error, no validation and no artifact. The previous R2 formula pass is not acceptance of the dataset and must not authorize R3.
+- The canonical tester workflow has been changed to R3 paths, and the independent audit now independently checks valid/invalid per-part row count manifest cases. R3 request/decision/report will be committed only after confirming the exact candidate hashes.
+- No HF data requests or enrichment are permitted for the current developer candidate until the R3 decision matches the exact pinned snapshot.

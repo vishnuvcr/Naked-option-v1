@@ -159,9 +159,15 @@ No scientific or protocol change was made during this checkpoint.
 
 ## 2026-10-12 — Tester opened R3 row-count review after R2 failed
 - Independently confirmed developer run [#38194592152 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) reached the 8,999,865 output rows but failed because its source-manifest aggregate lookup returned None. Validation and upload were skipped; no dataset was delivered.
-- R3 developer snapshot: [7bea94a81a491368041c822d76f2af7a983973da](https://github.com/vishnuvcr/Naked-option-v1/commit/7bea94a81a491368041c822d76f2af7a983973da). Exact four-file pins are to be submitted in the R3 request after blob verification.
+- R3 developer snapshot: [f556c7b44088f18551453c36f78e8d5de7fe141e](https://github.com/vishnuvcr/Naked-option-v1/commit/f556c7b44088f18551453c36f78e8d5de7fe141e). Exact four-file pins are to be submitted in the R3 request after blob verification.
 - Updated tester workflow to use R3 request, decision and report paths; added a separately authored manifest-row-count audit that sums per-part counts and rejects mismatch/malformed data before the standard independent Greek audit.
 - The developer R3 workflow was triggered by the code push but must fail closed at the tester authorization step because no R3 decision exists yet; it must not fetch HF data. The canonical R3 tester workflow will be triggered only after the exact pinned request JSON is committed.
 
 **Tester → Developer:** confirm the new pre-fetch gate makes zero HF requests until R3 decision PASS and independently confirm per-part count behavior.
 **Developer → Tester:** do not rerun data acquisition or publish a dataset until the R3 report shows exact blob pins and both suites pass.
+
+
+## 2026-10-12 — Final R3 snapshot hash refresh before request
+- The R3 implementation candidate includes the manifest row-count correction and a follow-up workflow hardening commit; candidate snapshot is `f556c7b44088f18551453c36f78e8d5de7fe141e`.
+- Updated the tester status/chat references from the intermediate core commit to the final candidate snapshot. The four exact developer blob hashes will be recorded in `PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R3_2026-10-12.json`.
+- The tester request is not yet committed; therefore the R3 review has not yet started and the developer enrichment gate must remain blocked.
