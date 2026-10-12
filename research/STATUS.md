@@ -1021,3 +1021,12 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Added a guarded generator that fills only absent method shards from the canonical 1,000-record master. Existing shards must exactly equal their master slice; existing mismatches stop the generator.
 - The developer-branch workflow generated the missing shards; spot checks confirm PART12 begins at PM0551 and PART20 contains the final master slice. The workflow also updated the config manifest to use a newly explicit, reproducible hash contract: SHA-256 of the exact committed shard file bytes.
 - The manifest now contains regenerated digests under that contract. The integrity workflow must still complete successfully, and the independent tester must review the exact resulting artifacts. No prediction fitting or holdout access is authorized.
+
+
+## 2026-10-12 — Fine-grained R2 registry auditability repair
+
+- The independent tester's REQUEST CHANGES remains the governing gate. No prediction fitting or untouched-holdout access is authorized.
+- Found an audit defect: lexicographic filename sorting would order PART10 before PART2. The audit was revised to parse and sort numeric shard suffixes, enforce contiguous parts, and compare every complete method-record slice to the canonical master.
+- Added deterministic re-sharding tooling targeting 40 method shards × 25 methods and 80 config shards × 100 configs. The transformation validates existing method records against the master and validates old configuration-shard exact-byte digests, counts, first/last IDs, and global ID uniqueness before rewriting. It creates a machine-readable index containing path, byte count, record count, ID range, and SHA-256 for every shard.
+- The repair workflow is configured to run the transformation, all test_*.py unit tests, and strict audit before committing; it also uploads a JSON audit report. Its hosted outcome has not yet been verified in this checkpoint.
+- Next gate: obtain and inspect the hosted audit artifact, confirm the generated small shards/index are committed and hash-reproducible, then request a new independent tester decision. Compatibility, label/statistics preregistration, and synthetic restart/resource gates remain outstanding.
