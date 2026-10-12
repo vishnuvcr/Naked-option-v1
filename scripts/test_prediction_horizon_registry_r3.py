@@ -140,6 +140,12 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
 
         # Preregistration pins must point to the exact committed artifacts.
         data_pin = read_json(build.DATA_ARTIFACT_PIN)
+        source_manifest = read_json(build.DATA_MANIFEST)
+        self.assertEqual(data_pin["dataset_id"], source_manifest["dataset_id"])
+        self.assertEqual(data_pin["source_manifest"]["path"], build.DATA_MANIFEST.relative_to(build.ROOT).as_posix())
+        self.assertEqual(data_pin["source_manifest"]["git_blob_sha1"], build.git_blob_sha1(build.DATA_MANIFEST.read_bytes()))
+        self.assertEqual(data_pin["ancestor_lineage"]["ancestor_artifact_id"], source_manifest["parent_artifact_id"])
+        self.assertEqual(data_pin["ancestor_lineage"]["ancestor_artifact_sha256"], source_manifest["parent_artifact_sha256"])
         self.assertEqual(data_pin["current_derived_artifact"]["artifact_id"], 11698879857)
         self.assertEqual(data_pin["current_derived_artifact"]["archive_sha256"], "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b")
         self.assertEqual(data_pin["verified_summary"]["encrypted_members_checked"], 61)
