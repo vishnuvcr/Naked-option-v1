@@ -1,7 +1,7 @@
 {
   "build_step_exit_code": 1,
   "builder": "scripts/build_prediction_horizon_registry_r3.py",
-  "source_commit": "c039b08ce20bc5f92abf06a333bc9c04e2a01a50",
+  "source_commit": "06bf39bcf72e5c9d161813d75f9465b7da66a6f8",
   "market_data_opened": false,
   "model_fitting_performed": false,
   "holdout_accessed": false
