@@ -332,7 +332,7 @@ def preflight_contract(
         reasons.append("PANEL_LAYER_HORIZON_GRID_MISMATCH")
 
     pins = {
-        name: {"artifact_id": receipts.get(name, {}).get("artifact_id"),
+        name: {"artifact_id": artifact_receipts.get(name, {}).get("artifact_id"),
                "sha256": receipts.get(name, {}).get("sha256")}
         for name in ("greek", "forecast")
     } if isinstance(artifact_receipts, Mapping) else {}
