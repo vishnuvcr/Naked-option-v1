@@ -51,20 +51,24 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
             build.safe_config_id_replace("CFG0001_POS_1D_UP_DOWN_20_REGULARIZED", "INTRA_30M_UP_DOWN", "INTRA_5M_UP_DOWN")
 
     def test_official_nse_calendar_is_complete_and_pinned(self):
+        source = read_json(build.SESSION_CALENDAR_SOURCE)
         calendar = read_json(build.SESSION_CALENDAR)
-        self.assertEqual(calendar["calendar_id"], "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3")
+        self.assertEqual(source["calendar_id"], "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3")
+        self.assertEqual(calendar["calendar_id"], source["calendar_id"])
         self.assertEqual(calendar["date_bounds"], {"start": "2021-10-11", "end_inclusive": "2026-10-10"})
         self.assertEqual(calendar["timezone"], "Asia/Kolkata")
-        self.assertEqual({int(x["year"]) for x in calendar["sources"]}, {2021, 2022, 2023, 2024, 2025, 2026})
+        self.assertEqual({int(x["year"]) for x in source["sources"]}, {2021, 2022, 2023, 2024, 2025, 2026})
         self.assertEqual(calendar["regular_session"]["open"], "09:15:00")
         self.assertEqual(calendar["regular_session"]["close"], "15:30:00")
         dates = []
         for year in ("2021", "2022", "2023", "2024", "2025", "2026"):
-            entries = calendar["regular_session_holidays_by_year"][year]
+            entries = source["regular_session_holidays_by_year"][year]
             self.assertGreater(len(entries), 0)
             dates.extend(item["date"] for item in entries)
         self.assertEqual(len(dates), len(set(dates)))
-        self.assertTrue(any(item.get("date") == "2026-01-15" for item in calendar["supplements"]))
+        self.assertTrue(any(item.get("date") == "2026-01-15" for item in source["supplements"]))
+        self.assertTrue(any(item.get("date") == "2026-08-26" for item in source["supplements"]))
+        self.assertEqual(calendar["source_calendar_sha256"], hashlib.sha256(build.SESSION_CALENDAR_SOURCE.read_bytes()).hexdigest())
         expected_blob = build.git_blob_sha1(build.SESSION_CALENDAR.read_bytes())
         self.assertEqual(build.LABEL_OUT.exists(), True)
         labels = read_json(build.LABEL_OUT)
@@ -146,12 +150,15 @@ class PredictionHorizonRegistryR3Tests(unittest.TestCase):
         self.assertNotIn("one-session purge", prereg["chronological_validation"]["inner_validation"]["split_policy"])
         self.assertIn("horizon-specific purge", prereg["fitting_and_calibration"]["inner_validation"])
         labels_by_id = {item["id"]: item for item in labels["labels"]}
+        prereg_labels_by_id = prereg["labels"]
         for label_id, h in build.POSITIONAL_HORIZONS:
-            self.assertEqual(labels_by_id[label_id]["label_horizon"], f"{h} complete following exchange sessions")
-            self.assertEqual(labels_by_id[label_id]["label_horizon_exchange_sessions"], h)
+            self.assertEqual(labels_by_id[label_id]["horizon_exchange_sessions"], h)
+            self.assertEqual(prereg_labels_by_id[label_id]["label_horizon"], f"{h} complete following exchange sessions")
+            self.assertEqual(prereg_labels_by_id[label_id]["label_horizon_exchange_sessions"], h)
         for label_id, minutes in build.INTRADAY_HORIZONS:
-            self.assertEqual(labels_by_id[label_id]["label_horizon_minutes"], minutes)
-            self.assertNotIn("label_horizon", labels_by_id[label_id])
+            self.assertEqual(labels_by_id[label_id]["horizon_minutes"], minutes)
+            self.assertEqual(prereg_labels_by_id[label_id]["label_horizon_minutes"], minutes)
+            self.assertNotIn("label_horizon", prereg_labels_by_id[label_id])
         self.assertEqual(prereg["metrics_and_inference"]["multiplicity"]["stratum_families"], build.ALL_LABEL_IDS)
         self.assertTrue(prereg["scope"]["review_cadence"].startswith("Independent tester review is deferred"))
         self.assertEqual(prereg["scope"]["session_calendar_path"], build.SESSION_CALENDAR.relative_to(ROOT).as_posix())
