@@ -21,3 +21,12 @@ The audit itself needed hardening: lexicographic order could place PART10 ahead 
 The automated re-sharding run and separate clean-branch registry audit both passed. The resulting small-shard index is committed. Reported: 1,000 methods/1,000 unique IDs, 8,000 configurations/8,000 unique IDs, 40 method shards of 25 records, 80 configuration shards of 100 records, and zero audit errors. Targeted tests passed 8/8 and 5/5; SHA-256 known-vector check passed.
 
 The integrity defect is resolved at the data-manifest layer only. The tester's REQUEST CHANGES remains in force for scientific compatibility/distinctness, complete machine-readable preregistration, and synthetic resource/restart evidence. No prediction fitting or untouched holdout access.
+
+
+## Latest continuation — 2026-10-12
+
+The small-shard integrity fix is hosted-CI verified. The compatibility builder generated 1,000 row-level method decisions: 426 ALLOW_IN_PRINCIPLE (conditional), 574 BLOCK, no duplicated semantic fingerprints or triples, and zero authorized empirical candidates. A machine-readable draft preregistration and explicit label rules now pin their source artifacts and statistical policy.
+
+The synthetic dry run processed all 8,000 configs × 8 outer folds (64,000 rows), with 27,264 synthetic mock rows, 36,736 compatibility-blocked rows and zero logged errors. Restart byte-identity and failure-injection logging passed. This is not prediction evidence. Estimated 1,173 serial CPU-hours is a planning assumption, not measured estimator performance.
+
+Clean repair and registry-verification workflows passed at commit 09420408e52cc8d9a2f75b2273ec879593c4b149. Reports are in research/gates/. Independent tester review is still pending/REQUEST CHANGES; do not perform empirical fits or access the untouched holdout.
