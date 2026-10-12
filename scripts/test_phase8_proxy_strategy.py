@@ -19,6 +19,15 @@ def test_grid_is_frozen_and_unique():
     assert len({row["cell_id"] for row in grid}) == 100
 
 
+def test_lot_size_transition_expiry_windows_are_excluded():
+    assert runner.lot_size_transition_uncertain("2024-05-30")
+    assert runner.lot_size_transition_uncertain("2024-12-10")
+    assert runner.lot_size_transition_uncertain("2026-01-20")
+    assert not runner.lot_size_transition_uncertain("2024-04-25")
+    assert not runner.lot_size_transition_uncertain("2025-03-01")
+    assert not runner.lot_size_transition_uncertain("2026-03-01")
+
+
 def test_signal_thresholds_and_lot_schedule():
     assert runner.engine.direction_from_probability(0.5001, "P01") == "CE"
     assert runner.engine.direction_from_probability(0.4999, "P01") == "PE"
@@ -279,6 +288,7 @@ if __name__ == "__main__":
     tests = [
         test_grid_is_frozen_and_unique,
         test_signal_thresholds_and_lot_schedule,
+        test_lot_size_transition_expiry_windows_are_excluded,
         test_select_contract_uses_direction_delta_and_dte_bucket,
         test_intraday_exit_planning_respects_horizon,
         test_daily_exit_planning_uses_next_sessions_close_window,
@@ -297,4 +307,4 @@ if __name__ == "__main__":
     for test in tests:
         test()
         print(f"PASS {test.__name__}")
-    print("PASS all 16 Phase 8 proxy-strategy synthetic tests")
+    print("PASS all 17 Phase 8 proxy-strategy synthetic tests")
