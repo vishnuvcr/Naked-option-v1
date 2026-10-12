@@ -87,7 +87,7 @@ jobs:
           path = Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json")
           state = json.loads(path.read_text(encoding="utf-8"))
           state["registry_test_exit_code"] = int(sys.argv[1])
-          path.write_text(json.dumps(state, indent=2) + "\\n", encoding="utf-8")
+          path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
           PY
           if [ "$rc" -ne 0 ]; then exit 1; fi
 
@@ -106,7 +106,7 @@ jobs:
           path = Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json")
           state = json.loads(path.read_text(encoding="utf-8"))
           state["statistical_test_exit_code"] = int(sys.argv[1])
-          path.write_text(json.dumps(state, indent=2) + "\\n", encoding="utf-8")
+          path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
           PY
           if [ "$rc" -ne 0 ]; then exit 1; fi
 
@@ -138,7 +138,7 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
-          git add research/registry/config_shards_r3 research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
+          git add research/registry/config_shards_r3 research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt
           if git diff --cached --quiet; then
             echo "R3 registry outputs are already current; no generated-output commit is needed."
             exit 0
@@ -153,7 +153,13 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
-          git add research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt
+          for p in \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json \
+            research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt \
+            research/gates/PREDICTION_HORIZON_STATISTICS_TEST_LOG_R3_2026-10-13.txt; do
+            if [ -f "$p" ]; then git add "$p"; fi
+          done
           if git diff --cached --quiet; then
             echo "No new failure diagnostics to commit."
             exit 0
