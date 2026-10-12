@@ -577,3 +577,11 @@
 - Impact: no source data request was made by the duplicate run; the independent canonical R2 gate passed and remains the only accepted decision.
 - Correction: deleted `.github/workflows/phase8-greek-enrichment-tester-r2.yml` from the tester role branch and recorded the correction in tester `STATUS.md`, `ERROR_LOG.md` and `logs/CHAT_LOG.md`.
 - Prevention: maintain a single canonical tester workflow for each gate request path and unique ownership for machine decision/report outputs.
+
+
+## 2026-10-12 — Phase 8 live Action logs unavailable while enrichment step remains active
+- Category: infrastructure/tooling visibility.
+- Component: GitHub Actions logs API for run [#38194592152](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152), job `114634512333`.
+- Symptom: the job-logs endpoint returned HTTP 404 `BlobNotFound` while the enrichment step was still reported `in_progress` by the job-steps API.
+- Impact: no scientific impact established. The run and current step remain reported as in progress; no output artifact or terminal coverage metric is available yet, so none is accepted.
+- Disposition: continue monitoring job-step state and use terminal logs/artifacts after the run completes. Do not infer success, failure, or a stall from the missing live log blob alone.
