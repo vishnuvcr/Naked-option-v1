@@ -1,3 +1,15 @@
+## Latest Phase 8P checkpoint — 2026-10-12
+
+- **Duplicate-diagnostic code gate:** PASS FOR CODE ONLY on exact developer commit `aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f`; independent tester workflow [#38204532045](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204532045) passed 19/19 checks.
+- [Tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R1_2026-10-12.md) · [Machine decision](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json) · [Developer R3 request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R3_2026-10-12.json).
+- Previous tester workflow failures [#38204120560](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204120560) and [#38204512622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38204512622) are preserved as infrastructure non-evidence; both defects were corrected on this isolated tester branch.
+- **Real artifact scan remains blocked pending a separate one-use authorization.** No actual duplicate counts/classifications were generated, no raw/decrypted data was uploaded, no records were removed, and no model, holdout, option P&L or strategy work was executed.
+- Current [status](research/STATUS.md), [error log](research/ERROR_LOG.md) and [chat log](research/logs/CHAT_LOG.md).
+
+**Tester → Developer:** preserve the tester branch role and submit a separate pinned diagnostic-only authorization request. Do not scan the real artifact or fit models before the next independent gate passes.
+
+---
+
 # NIFTY Naked-Option Direction Research
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
