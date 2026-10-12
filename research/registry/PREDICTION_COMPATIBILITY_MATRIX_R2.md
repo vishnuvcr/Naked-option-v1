@@ -1,32 +1,62 @@
-# R2 Compatibility Matrix — preliminary conservative gate
+# R2 Compatibility Matrix — row-level conservative audit
 
-Status: **DRAFT / BLOCKED**. This matrix is deliberately conservative: an empty/unknown compatibility cell is not permission to execute.
+**Status: DRAFT / BLOCKED. This document does not authorize empirical fitting.**
 
-## Required dimensions
-- Model family: 20 families in `METHOD_REGISTRY_V2_R2.json`
-- Feature representation: 10 representations in the registry
-- Inference operator: 5 operators in the registry
+- Source shard index SHA-256: `6c176404d72ca11c540a8bae442affcbd8f1841de63e480d5a13e7467d2e9445`
+- Row-level records: 1000
+- Compatibility-level allow-in-principle (conditional on adapter implementation/tests): 426
+- Blocked by current compatibility/design deficiencies: 574
+- Authorized for empirical fitting: **0**
+- Unique semantic fingerprints: 1000 / 1000
+- Duplicate semantic fingerprints: 0
+- Duplicate family × representation × operator triples: 0
 
-## Current decision
-All Cartesian-product combinations remain **UNREVIEWED / BLOCKED** until a row-level compatibility manifest defines:
-1. expected model output (score, probability, state posterior, hazard, or prediction set);
-2. training-only fit and calibration method;
-3. operator preconditions and threshold source;
-4. temporal validity assumptions;
-5. explicit ALLOW or BLOCK decision and reason;
-6. evidence/test ID proving the adapter contract.
+## Compatibility decision counts
 
-## Mandatory family-specific checks
-- `conformal_set_decision`: require a temporal calibration protocol and a documented validity argument; no default exchangeability assumption for time series.
-- `uncertainty_abstention`: define uncertainty measure, its training-only calibration, abstention coverage, and scoring treatment.
-- `cost_sensitive_threshold`: cost matrix and threshold must be frozen using training data only.
-- `probability_threshold`: verify calibrated probability semantics and a fixed threshold.
-- `survival_first_passage`: require a registered time-to-event estimand, censoring policy, cause-specific cumulative incidence implementation, and numerical tests. Do not apply generic classifiers' probability adapters by analogy.
-- `hidden_markov_model`, `markov_switching_logit`, and `bayesian_dynamic_logit`: verify state/posterior uncertainty output and avoid treating latent states as known labels.
-- All feature representations: verify input schema, timestamp availability, missingness behavior, and that each representation adds a documented causal transform rather than a name-only variant.
+- ALLOW_IN_PRINCIPLE: 426
+- BLOCK: 574
 
-## Count rule
-The registry may claim 1,000 eligible methods only after every included combination passes compatibility checks and the tester confirms meaningful distinction under the frozen fingerprint rule. Invalid pairings must be excluded, not counted to reach a target.
+## Operator counts
 
-## Tester gate
-No model fitting or holdout access. Tester must independently inspect the matrix and adapter tests at a pinned commit and issue PASS/REQUEST CHANGES.
+- conformal_set_decision: 200
+- cost_sensitive_threshold: 200
+- probability_threshold: 200
+- regime_gated_decision: 200
+- uncertainty_abstention: 200
+
+## Family counts
+
+- bayesian_dynamic_logit: 50
+- change_point_segment_model: 50
+- elastic_net_logistic: 50
+- extra_trees: 50
+- generalized_additive_model: 50
+- gradient_boosting: 50
+- hidden_markov_model: 50
+- histogram_gradient_boosting: 50
+- kernel_svm: 50
+- knn_density_ratio: 50
+- lda: 50
+- logistic_regression: 50
+- markov_switching_logit: 50
+- nearest_centroid: 50
+- probit_regression: 50
+- qda: 50
+- random_forest: 50
+- shallow_mlp: 50
+- survival_first_passage: 50
+- temporal_convolution_network: 50
+
+## Operator rules
+- `probability_threshold`: allow in principle only when family-specific directional probability semantics are explicit; test calibration in inner chronological folds.
+- `uncertainty_abstention`: predictive Bernoulli entropy, cut at inner-training 80th percentile to target 80% coverage; report selective log loss and coverage.
+- `regime_gated_decision`: allow in principle only with a causal filtered regime/segment posterior or the explicit entropy-regime representation; no smoothed/future-informed state.
+- `cost_sensitive_threshold`: blocked because no non-arbitrary asymmetric class-loss matrix is preregistered for this prediction-only phase.
+- `conformal_set_decision`: blocked until chronological/conformal validity assumptions, calibration split, target coverage and coverage tests are frozen.
+- `survival_first_passage`: all methods blocked until the fixed-horizon directional classification target is reconciled with event time, competing-risk incidence, censoring and no-event probability.
+
+## Execution is still prohibited
+Even rows marked `ALLOW_IN_PRINCIPLE` have `implementation_status=NOT_IMPLEMENTED_OR_TESTER_APPROVED` and `eligible_for_empirical_fitting=false`. Compatibility is a design screening only. The registry does **not** count all 1,000 Cartesian combinations as validated methods.
+
+## Family output contracts and row-level decisions
+The complete machine-readable matrix with each method's rationale, required test IDs, family output contract, semantic fingerprint and gate status is stored in `PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json`.
