@@ -687,3 +687,11 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 - Independent tester gate R2 on `phase-08-prediction-tester` authorized one attempt on runner/test/workflow blobs pinned in that report.
 - Rerun 38219967649 uses the same existing Phase 7 Run #994 forecast archive and existing 61-part option composite. No new market-data acquisition or bid/ask source is requested.
 - Decision logs record outcomes and fixes only, not private chain-of-thought.
+
+
+## 2026-10-12 — User said “Proceed”: expiry input correction
+
+- The OHLC proxy rerun reached the composite and failed closed because the repaired source artifact's expiry_date field was blank for every OPTION row. The sanitized error counts confirmed timestamps, strikes and sides were populated; no trades or P&L were produced.
+- To use already-existing data, the developer switched to the previously generated expiry-enriched artifact 11723198817 from run 38195812828, pinned by SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736. This same composite has expiry values inferred by the repository's existing enrichment pipeline; no new market prices are collected.
+- Tester R3 approved the exact current runner/test/workflow blobs and scoped use of this artifact. It remains a Q1/OHLC proxy with an expiry-mapping caveat; no bid/ask gate.
+- Failed runs are preserved as non-evidence; success requires an output artifact and a distinct tester result review.
