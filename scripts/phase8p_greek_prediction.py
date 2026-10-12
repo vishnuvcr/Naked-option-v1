@@ -83,9 +83,14 @@ CONTRACT_SIGNATURE_FIELDS = (
 ALLOWED_CONTRACT_PROVENANCE_VARIANCE = (
     "source_request_id", "requested_relative_strike", "request_scope_sha256", "response_sha256",
 )
-EXPECTED_GREEK_DATA_COLUMNS = frozenset(
-    set(CONTRACT_SIGNATURE_FIELDS) | set(ALLOWED_CONTRACT_PROVENANCE_VARIANCE)
-)
+CONTRACT_REQUIRED_MANIFEST_FIELDS = frozenset({
+    "row_type", "underlying", "timestamp_epoch", "expiry_date", "returned_strike", "option_type",
+    "expiry_flag", "expiry_code", "expiry_mapping_source", "data_quality_flags", "greek_status",
+    "option_close", "option_volume", "open_interest", "implied_volatility", "rolling_spot",
+    "nifty_close", "spot_join_status", "greek_valuation_offset_seconds", "time_to_expiry_years",
+    "risk_free_rate_decimal", "dividend_yield_decimal", "greek_implied_volatility", "greek_iv_source",
+    "delta", "gamma", "theta_per_day", "vega_per_1pct_iv", "rho_per_1pct_rate", "greek_model",
+})
 CONTRACT_NUMERIC_FIELDS = frozenset({
     "timestamp_epoch", "expiry_code", "returned_strike", "time_to_expiry_years",
     "greek_valuation_offset_seconds", "risk_free_rate_decimal", "dividend_yield_decimal",
@@ -105,6 +110,28 @@ PANEL_REQUIRED = {"layer", "horizon", "source_row_index", "decision_timestamp",
 
 class GateBlocked(RuntimeError):
     """A required scientific or data contract is missing or invalid."""
+
+
+def validate_greek_manifest_columns(columns: Any) -> tuple[str, ...]:
+    """Validate the immutable manifest's ordered source schema before processing rows."""
+    if not isinstance(columns, list) or not columns:
+        raise GateBlocked("GREEK_MANIFEST_COLUMNS_INVALID")
+    if any(not isinstance(col, str) or not col.strip() or col != col.strip() for col in columns):
+        raise GateBlocked("GREEK_MANIFEST_COLUMN_NAME_INVALID")
+    if len(columns) != len(set(columns)):
+        raise GateBlocked("GREEK_MANIFEST_COLUMNS_DUPLICATE")
+    missing = sorted(CONTRACT_REQUIRED_MANIFEST_FIELDS - set(columns))
+    if missing:
+        raise GateBlocked("GREEK_MANIFEST_REQUIRED_COLUMNS_MISSING:" + ",".join(missing))
+    if not ({"timestamp_utc", "timestamp_ist"} & set(columns)):
+        raise GateBlocked("GREEK_MANIFEST_TIMESTAMP_TEXT_FIELD_MISSING")
+    return tuple(columns)
+
+
+def validate_greek_part_columns(columns: Any, manifest_columns: tuple[str, ...]) -> None:
+    """Require exact ordered equality to the artifact manifest, including unknown columns."""
+    if not isinstance(columns, (list, tuple)) or list(columns) != list(manifest_columns):
+        raise GateBlocked("GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST")
 
 def sha256_file(path: str | Path) -> str:
     h = hashlib.sha256()
@@ -957,6 +984,8 @@ def _canonical_contract_value(field: str, value: Any) -> Any:
     """Return a stable scalar for duplicate comparisons; never return market data in diagnostics."""
     if _contract_missing(value):
         return None
+    if isinstance(value, (dict, list, tuple, set, bytes, bytearray)):
+        raise GateBlocked("CONTRACT_DUPLICATE_VALUE_TYPE_UNSUPPORTED:" + field)
     if field in CONTRACT_TIMESTAMP_FIELDS:
         try:
             ts = pd.Timestamp(value)
@@ -1001,27 +1030,40 @@ def _canonical_contract_value(field: str, value: Any) -> Any:
     return str(value).strip()
 
 
-def _contract_signature_map(row: Mapping[str, Any]) -> dict[str, Any]:
-    missing = [field for field in CONTRACT_SIGNATURE_FIELDS if field not in row]
+def _contract_signature_map(
+    row: Mapping[str, Any],
+    signature_fields: Iterable[str] | None = None,
+) -> dict[str, Any]:
+    fields = tuple(signature_fields if signature_fields is not None else CONTRACT_SIGNATURE_FIELDS)
+    missing = [field for field in fields if field not in row]
     if missing:
         raise GateBlocked("CONTRACT_DUPLICATE_SIGNATURE_FIELD_MISSING:" + ",".join(missing))
-    signature = {field: _canonical_contract_value(field, row.get(field)) for field in CONTRACT_SIGNATURE_FIELDS}
-    # The UTC/IST text must describe the same source-bar start as timestamp_epoch.
+    signature = {field: _canonical_contract_value(field, row.get(field)) for field in fields}
+    # Any timestamp text columns present in the actual manifest must agree with the source epoch.
     start = number(row.get("timestamp_epoch"))
     if not np.isfinite(start):
         raise GateBlocked("CONTRACT_DUPLICATE_SOURCE_EPOCH_INVALID")
     if start > 1e12:
         start = math.floor(start / 1000.0)
+    if start != math.floor(start):
+        raise GateBlocked("CONTRACT_DUPLICATE_SOURCE_EPOCH_NOT_INTEGER_SECONDS")
     start_epoch = int(start)
-    for field in CONTRACT_TIMESTAMP_FIELDS:
+    timestamp_fields = [field for field in CONTRACT_TIMESTAMP_FIELDS if field in signature]
+    if not timestamp_fields:
+        raise GateBlocked("GREEK_MANIFEST_TIMESTAMP_TEXT_FIELD_MISSING")
+    for field in timestamp_fields:
         observed = signature[field]
         if observed is None or observed != start_epoch:
             raise GateBlocked("CONTRACT_DUPLICATE_TIMESTAMP_FIELDS_DISAGREE:" + field)
     return signature
 
 
-def _economic_contract_key(row: Mapping[str, Any], valuation_epoch_seconds: int) -> tuple[Any, ...]:
-    signature = _contract_signature_map(row)
+def _economic_contract_key(
+    row: Mapping[str, Any],
+    valuation_epoch_seconds: int,
+    signature_fields: Iterable[str] | None = None,
+) -> tuple[Any, ...]:
+    signature = _contract_signature_map(row, signature_fields)
     underlying = signature.get("underlying")
     expiry = signature.get("expiry_date")
     strike = signature.get("returned_strike")
@@ -1068,6 +1110,8 @@ def build_option_feature_frame(
     if decisions.has_duplicates:
         decisions = decisions.drop_duplicates().sort_values()
     requested = set((decisions.asi8 // 1_000_000_000).tolist())
+    manifest_columns: tuple[str, ...] | None = None
+    signature_fields: tuple[str, ...] | None = None
     groups: dict[int, list[dict[str, Any]]] = {}
     seen_contracts: dict[tuple[Any, ...], dict[str, Any]] = {}
     duplicate_keys: set[tuple[Any, ...]] = set()
@@ -1084,9 +1128,17 @@ def build_option_feature_frame(
         if not isinstance(frame, pd.DataFrame) or "row_type" not in frame:
             raise GateBlocked(f"COMPOSITE_PART_SCHEMA_INVALID:{part_number}")
         frame_columns = list(frame.columns)
-        if (len(frame_columns) != len(set(frame_columns))
-                or set(frame_columns) != EXPECTED_GREEK_DATA_COLUMNS):
-            raise GateBlocked("GREEK_PART_COLUMN_SET_DOES_NOT_MATCH_FROZEN_CONTRACT")
+        if len(frame_columns) != len(set(frame_columns)):
+            raise GateBlocked("GREEK_PART_COLUMNS_DUPLICATE")
+        current_columns = validate_greek_manifest_columns(frame_columns)
+        if manifest_columns is None:
+            manifest_columns = current_columns
+            signature_fields = tuple(
+                field for field in manifest_columns
+                if field not in ALLOWED_CONTRACT_PROVENANCE_VARIANCE
+            )
+        elif current_columns != manifest_columns:
+            raise GateBlocked("GREEK_PART_ORDERED_COLUMNS_DO_NOT_MATCH_MANIFEST")
         types = frame["row_type"].fillna("").astype(str).str.upper()
         spots = frame.loc[types.eq("SPOT")].copy()
         if spot_rows_sink is not None and not spots.empty:
@@ -1123,7 +1175,9 @@ def build_option_feature_frame(
 
         for row in selected.to_dict("records"):
             epoch = int(row["_phase8p_valuation_epoch_seconds"])
-            key, signature = _economic_contract_key(row, epoch)
+            if signature_fields is None:
+                raise GateBlocked("GREEK_MANIFEST_SIGNATURE_FIELDS_UNAVAILABLE")
+            key, signature = _economic_contract_key(row, epoch, signature_fields)
             signature_sha = _contract_signature_digest(signature)
             provenance_sha = _provenance_fingerprint(row)
             previous = seen_contracts.get(key)
@@ -1144,7 +1198,7 @@ def build_option_feature_frame(
             duplicate_extra_records += 1
             old_signature = previous["signature"]
             different = [
-                field for field in CONTRACT_SIGNATURE_FIELDS
+                field for field in signature_fields
                 if old_signature.get(field) != signature.get(field)
             ]
             if different:
@@ -1165,7 +1219,9 @@ def build_option_feature_frame(
         "policy_version": CONTRACT_DUPLICATE_POLICY_VERSION,
         "key": ["underlying", "greek_valuation_epoch_seconds", "normalized_expiry_date",
                 "returned_strike", "normalized_option_type"],
-        "signature_fields": list(CONTRACT_SIGNATURE_FIELDS),
+        "manifest_column_count": len(manifest_columns or ()),
+        "manifest_columns_sha256": _duplicate_summary_sha256(list(manifest_columns or ())),
+        "signature_fields": list(signature_fields or ()),
         "allowed_provenance_variance_fields": list(ALLOWED_CONTRACT_PROVENANCE_VARIANCE),
         "exact_numeric_equality": True,
         "row_order_independent_representative": True,
@@ -1888,7 +1944,11 @@ def iter_encrypted_composite_parts(artifact_zip_path: str | Path) -> Iterable[pd
         manifest_names = [name for name in names if name.endswith("dataset_manifest.json")]
         if len(manifest_names) != 1:
             raise GateBlocked("GREEK_DATASET_MANIFEST_MISSING_OR_DUPLICATE")
-        manifest = json.loads(archive.read(manifest_names[0]))
+        try:
+            manifest = json.loads(archive.read(manifest_names[0]))
+        except json.JSONDecodeError as exc:
+            raise GateBlocked("GREEK_DATASET_MANIFEST_JSON_INVALID") from exc
+        manifest_columns = validate_greek_manifest_columns(manifest.get("columns"))
         if manifest.get("source_license") != "CC-BY-NC-4.0: non-commercial research only":
             raise GateBlocked("GREEK_DATASET_LICENSE_RESTRICTION_MISMATCH")
         if manifest.get("dataset_id") != "NIFTY_1M_DHAN_HF_SPOT_GREEKS_ENRICHED_R3":
@@ -1939,6 +1999,7 @@ def iter_encrypted_composite_parts(artifact_zip_path: str | Path) -> Iterable[pd
                 frame = pd.read_csv(io.BytesIO(plain_gzip), compression="gzip", low_memory=False)
             except Exception as exc:
                 raise GateBlocked("GREEK_DECRYPTED_PART_CSV_INVALID:" + filename) from exc
+            validate_greek_part_columns(list(frame.columns), manifest_columns)
             if len(frame) != int(part["row_count"]):
                 raise GateBlocked("GREEK_DECRYPTED_PART_ROW_COUNT_MISMATCH:" + filename)
             total_rows += len(frame)
