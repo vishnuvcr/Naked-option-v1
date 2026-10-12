@@ -669,3 +669,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** independently review the exact preflight workflow blob `a48d28402fcb3575689d06f6bbb7a5bb31324df4` and proposal `267cc3fba9d2e5a8313be5efb60879d27586d529`; do not approve any model fitting at this gate.
 **Tester → Developer:** only after a `PASS_PREFLIGHT_WORKFLOW_ONLY` decision on the exact workflow blob may the authorized execution request be written and artifact download begin. The resulting preflight report requires its own independent decision.
+
+## 2026-10-12 — Phase 8P preflight executor workflow R2 submitted
+- The R2 code-only gate remains accepted for the exact frozen code snapshot a5a38e3592234aea9052e697416c8154c6f8e8f8; no empirical fitting is authorized.
+- Static inspection found that the executor workflow was triggered by the R2 execution-request path but attempted to read the R1 request path. Corrected the workflow to read the same R2 request it is triggered by. The corrected exact workflow blob is 474712e945dfaef83c814c9e17d1513ad44a3152 in the review snapshot 55fa77de8e37815931cd331a862d1398bfead003.
+- Created R2 execution request with status PENDING_INDEPENDENT_WORKFLOW_REVIEW and every out-of-scope authorization flag false. Created an R2 review packet pinning the exact workflow, request blob, artifact IDs/digests and code-only decision.
+- Independent tester workflow [#38202735979](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202735979) returned REQUEST_CHANGES on 28/29 checks because of a case-sensitive tester audit text assertion. Tester fixed its own audit harness and rerun [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) is underway.
+- No market artifact downloaded/decrypted by Phase 8P; no model fitted; no holdout accessed; no source requests, option P&L or strategy promotion. The preflight workflow review remains PENDING and must pass before an execution request can be authorized.
+
+**Developer → Tester:** review only the exact workflow blob 474712e945dfaef83c814c9e17d1513ad44a3152 and its R2 request binding; no data download is requested yet.
+**Tester → Developer:** do not change R2 execution status to authorized unless the exact workflow review passes; independently review the resulting preflight report before any fitting.
