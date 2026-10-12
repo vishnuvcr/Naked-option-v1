@@ -943,6 +943,14 @@ def run_proxy(reference_root: Path, parts_dir: Path, output_dir: Path) -> dict:
             "proxy_spread_by_scenario": engine.PROXY_SPREAD,
             "incremental_slippage_by_scenario": engine.INCREMENTAL_SLIPPAGE,
             "tick_size_rupees": TICK_SIZE,
+            "fill_tick_rounding": "BUY=ceil_to_tick_after_spread_slippage; SELL=floor_to_tick_after_spread_slippage; SELL_FLOOR=one_tick",
+            "lot_size_transition_expiry_exclusion_windows": [
+                {"start": start, "end": end}
+                for start, end in LOT_SIZE_TRANSITION_EXPIRY_WINDOWS
+            ],
+            "contract_selection_asof": "prior-bar stored delta only when greek valuation timestamp <= entry; no raw-IV recomputation; prior-bar spot, open-interest and volume used for fallback/tie-break",
+            "intraday_entry_delay_cap_seconds": 120,
+            "drawdown_method": "timestamp-aggregated realized P&L; max drawdown percentage uses local positive peak; undefined if no positive peak",
             "lot_size_schedule": {
                 "expiry_before_2024-05-02": 50,
                 "expiry_2024-05-02_to_2024-11-25": 25,
