@@ -381,6 +381,11 @@ def make_skeletons(events: list[dict], options: pd.DataFrame, sessions: list[str
     skeletons = []
     for event in events:
         decision = int(event["decision_epoch"])
+        # A partial composite can contain no usable OPTION timestamps after
+        # row-type filtering. Treat that as zero eligible coverage, not a crash.
+        if len(unique_times) == 0:
+            diagnostics["NO_OVERLAPPING_OPTION_TIME"] += 1
+            continue
         entry_pos = int(np.searchsorted(unique_times, decision, side="right"))
         if decision < int(unique_times[0]) or entry_pos >= len(unique_times):
             diagnostics["NO_OVERLAPPING_OPTION_TIME"] += 1
