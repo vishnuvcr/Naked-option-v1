@@ -1,0 +1,90 @@
+name: R2 Prediction Registry Synthetic Dry Run
+
+on:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/prediction_registry_synthetic_dryrun.py"
+      - "scripts/test_prediction_registry_synthetic_dryrun.py"
+      - "research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json"
+      - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
+      - "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
+      - "research/registry/method_shards/**"
+      - "research/registry/config_shards/**"
+      - ".github/workflows/prediction-registry-synthetic-dryrun.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8-r2-synthetic-dryrun
+  cancel-in-progress: false
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout pinned developer artifacts
+        uses: actions/checkout@v4
+        with:
+          ref: phase-08-prediction-developer
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify deterministic interruption, restart and error logging
+        run: python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
+      - name: Run full 8000-configuration x 8-fold synthetic orchestration sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/r2-synthetic"
+          python scripts/prediction_registry_synthetic_dryrun.py \
+            --output "$RUNNER_TEMP/r2-synthetic/results.jsonl" \
+            --summary "$RUNNER_TEMP/r2-synthetic/summary.json" \
+            --checkpoint "$RUNNER_TEMP/r2-synthetic/checkpoint.json" \
+            --errors "$RUNNER_TEMP/r2-synthetic/errors.jsonl"
+      - name: Validate synthetic-only terminal summary
+        env:
+          SUMMARY_PATH: ${{ runner.temp }}/r2-synthetic/summary.json
+          ERROR_PATH: ${{ runner.temp }}/r2-synthetic/errors.jsonl
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          s = json.loads(Path(os.environ["SUMMARY_PATH"]).read_text())
+          assert s["status"] == "COMPLETE_SYNTHETIC_ONLY_NOT_SCIENTIFIC_EVIDENCE", s["status"]
+          assert s["tasks_total"] == 64000, s["tasks_total"]
+          assert s["result_rows"] == 64000, s["result_rows"]
+          assert s["market_data_opened"] is False
+          assert s["model_fitting_performed"] is False
+          assert s["holdout_accessed"] is False
+          assert s["scientific_evidence"] is False
+          assert sum(s["result_status_counts"].values()) == 64000
+          assert Path(os.environ["ERROR_PATH"]).read_text() == ""
+          print(json.dumps({
+              "tasks": s["tasks_total"],
+              "statuses": s["result_status_counts"],
+              "result_sha256": s["result_file_sha256"],
+              "estimated_serial_cpu_hours": s["resource_estimate"]["estimated_hypothetical_serial_cpu_hours"],
+              "estimated_fit_calls": s["resource_estimate"]["estimated_hypothetical_fit_calls"],
+              "single_worker_peak_memory_mib": s["resource_estimate"]["peak_single_worker_memory_mib"],
+              "scientific_evidence": s["scientific_evidence"],
+          }, indent=2))
+          PY
+      - name: Upload synthetic orchestration evidence and resource estimate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-prediction-synthetic-dryrun
+          path: |
+            ${{ runner.temp }}/r2-synthetic/results.jsonl
+            ${{ runner.temp }}/r2-synthetic/summary.json
+            ${{ runner.temp }}/r2-synthetic/checkpoint.json
+            ${{ runner.temp }}/r2-synthetic/errors.jsonl
+          if-no-files-found: warn
+          compression-level: 6
