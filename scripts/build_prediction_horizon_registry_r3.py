@@ -296,7 +296,8 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["scope"]["compatibility_matrix_git_blob_sha1"] = git_blob_sha1(MATRIX.read_bytes())
     p["scope"]["empirical_execution_gate"] = "BLOCKED_PENDING_DEVELOPER_DATA_PREFLIGHT_AND_TEN_HORIZON_REGISTRY_QA"
     p["scope"]["review_cadence"] = "Independent tester review is deferred until the complete planned result bundle is acquired, frozen, and hashed."
-    p["scope"]["r2_pilot_only"] = True
+    p["scope"]["r2_pilot_only"] = False
+    p["scope"]["r2_pilot_source_preserved"] = True
     p["scope"]["r2_pilot_output_may_select_or_rank_methods"] = False
 
     labels_obj = {}
