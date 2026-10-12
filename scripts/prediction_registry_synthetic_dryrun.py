@@ -172,6 +172,15 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
     matrix = json.loads(matrix_raw.decode("utf-8"))
     prereg_raw = PREREG_PATH.read_bytes()
     prereg = json.loads(prereg_raw.decode("utf-8"))
+    pilot_scope = prereg.get("scope_amendment_2026_10_13", {})
+    if pilot_scope.get("status") != "PILOT_ONLY_NOT_EXHAUSTIVE":
+        raise SystemExit("BLOCKED: R2 scope must be explicitly marked as a non-exhaustive pilot")
+    if pilot_scope.get("no_empirical_fit_authorized_by_this_amendment") is not True:
+        raise SystemExit("BLOCKED: R2 pilot scope amendment does not explicitly prohibit empirical fitting")
+    if pilot_scope.get("no_pilot_result_may_select_or_rank_methods") is not True:
+        raise SystemExit("BLOCKED: pilot results must not select or rank methods")
+    if set(pilot_scope.get("included_target_labels", [])) != set(LABEL_IDS):
+        raise SystemExit("BLOCKED: pilot target labels do not match the synthetic runner's frozen label IDs")
     data_manifest_raw = DATA_MANIFEST_PATH.read_bytes()
     scope = prereg.get("scope", {})
     actual_manifest_blob = git_blob_sha1(data_manifest_raw)
