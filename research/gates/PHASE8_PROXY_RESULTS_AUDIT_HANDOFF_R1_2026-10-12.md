@@ -98,3 +98,11 @@ The runner's `make_skeletons()` accepts an intraday entry when `entry_epoch - de
 This is a verified implementation/specification mismatch. Do not change or cancel the active hosted attempt. Once its ledger exists, calculate the intraday decision-to-entry delay distribution and count trades with a delay greater than 120 seconds. Those trades are not eligible under the frozen specification. Before accepting the affected cells or rerunning empirical execution, change the cap to the approved window, add exact boundary tests (120 seconds admitted, 180 seconds rejected), submit the updated runner/tests/workflow through a new exact-snapshot independent tester gate, and rerun the frozen grid if any outputs are affected. Do not simply relabel the five-minute extension after seeing results.
 
 **Developer → Tester:** report the accepted convention versus implementation mismatch and give the ledger-based count of trades outside the approved entry window; require REQUEST CHANGES for affected metrics.
+
+## R9 — Registered liquidity tie-break is absent from contract selection
+
+The frozen `PHASE8_METHOD_SPEC.md` says exact ties in absolute-delta selection are broken by higher contemporaneous liquidity before moneyness, strike distance and deterministic contract ID. The runner's `select_contract()` ranking instead sorts by delta-source priority, delta error, moneyness, strike distance, `contract_code` and original row index; `option_volume` and `open_interest` are loaded but not used in this ranking.
+
+This is a specification mismatch whose result impact depends on how often the higher-priority ranks tie. The current run must finish unchanged. In the output audit, quantify exact tie cases if the ledger/input diagnostics permit and mark the tie-break as nonconforming; before accepting this configuration universe for promotion, restore the registered liquidity tie-break using only liquidity values whose availability precedes the selection decision, or submit an explicit methodology amendment for independent tester approval. Do not use current-bar volume/OI values if they are only finalized at bar close.
+
+**Developer → Tester:** independently reconcile the code ranking with the frozen selection rule and decide whether this mismatch requires REQUEST CHANGES for the affected configurations.
