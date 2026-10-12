@@ -1,4 +1,4 @@
-name: Prediction Registry Shard Utility Tests
+name: Prediction Registry Shard Utility Tests and Full-Horizon R3 Build
 
 on:
   push:
