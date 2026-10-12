@@ -22,6 +22,15 @@ on:
       - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - "scripts/audit_prediction_registry_shards.py"
       - ".github/workflows/prediction-registry-shard-tests.yml"
+      - "scripts/build_prediction_horizon_registry_r3.py"
+      - "scripts/test_prediction_horizon_registry_r3.py"
+      - ".github/workflows/phase-08p-complete-horizon-registry-r3.yml"
+      - "research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json"
+      - "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
+      - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
+      - "research/registry/compatibility_shards/**"
+      - "research/registry/config_shards/**"
   workflow_dispatch:
 
 permissions:
@@ -109,3 +118,139 @@ jobs:
           name: r2-registry-integrity-audit-independent-run
           path: /tmp/r2-registry-audit.json
           if-no-files-found: warn
+
+  full-horizon-r3-registry:
+    needs: registry-integrity
+    if: success()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact triggering source commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert exact source commit
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "R3 registry source pin: $(git rev-parse HEAD)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build full ten-horizon registry without data access or fitting
+        shell: bash
+        run: |
+          set +e
+          mkdir -p research/gates
+          python scripts/build_prediction_horizon_registry_r3.py > /tmp/r3-build.log 2>&1
+          rc=$?
+          cat /tmp/r3-build.log
+          cp /tmp/r3-build.log research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt
+          python - "$rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json").write_text(
+              json.dumps({
+                  "build_step_exit_code": int(sys.argv[1]),
+                  "builder": "scripts/build_prediction_horizon_registry_r3.py",
+                  "source_commit": __import__("subprocess").check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                  "market_data_opened": False,
+                  "model_fitting_performed": False,
+                  "holdout_accessed": False
+              }, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          if [ "$rc" -ne 0 ]; then exit 1; fi
+
+      - name: Run complete horizon, integrity and provenance tests
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s scripts -p "test_prediction_horizon_registry_r3.py" -v > /tmp/r3-registry-tests.log 2>&1
+          rc=$?
+          cat /tmp/r3-registry-tests.log
+          cp /tmp/r3-registry-tests.log research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
+          python - "$rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          path = Path("research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json")
+          state = json.loads(path.read_text(encoding="utf-8"))
+          state["registry_test_exit_code"] = int(sys.argv[1])
+          path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+          PY
+          if [ "$rc" -ne 0 ]; then exit 1; fi
+
+      - name: Confirm R2 source pilot stayed unchanged
+        run: |
+          git diff --exit-code -- \
+            research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json \
+            research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json \
+            research/registry/PREDICTION_PREREGISTRATION_V2_R2.json \
+            research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json \
+            research/registry/config_shards \
+            research/registry/compatibility_shards
+
+      - name: Upload R3 developer diagnostics and manifests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-horizon-registry-r3-developer-checks
+          path: |
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json
+            research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
+            research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json
+            research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json
+            research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json
+            research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json
+          if-no-files-found: warn
+
+      - name: Commit generated R3 artifacts after successful validation
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          git add research/registry/config_shards_r3 \
+            research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json \
+            research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json \
+            research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json \
+            research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_REPORT_R3_2026-10-13.json \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json \
+            research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt
+          if git diff --cached --quiet; then
+            echo "R3 output is already current; no commit required."
+            exit 0
+          fi
+          git commit -m "Build and validate complete ten-horizon prediction registry R3"
+          git push origin HEAD:phase-08-prediction-developer
+
+      - name: Preserve R3 errors for developer repair
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          for p in \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_LOG_R3_2026-10-13.txt \
+            research/gates/PREDICTION_HORIZON_REGISTRY_BUILD_ATTEMPT_R3_2026-10-13.json \
+            research/gates/PREDICTION_HORIZON_REGISTRY_TEST_LOG_R3_2026-10-13.txt; do
+            if [ -f "$p" ]; then git add "$p"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No R3 diagnostics to commit."
+            exit 0
+          fi
+          git commit -m "Log developer R3 registry build/test failure"
+          git push origin HEAD:phase-08-prediction-developer
+
