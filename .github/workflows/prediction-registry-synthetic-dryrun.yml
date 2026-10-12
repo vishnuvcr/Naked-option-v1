@@ -30,7 +30,12 @@ jobs:
       - name: Checkout pinned developer artifacts
         uses: actions/checkout@v4
         with:
-          ref: phase-08-prediction-developer
+          ref: ${{ github.sha }}
+      - name: Assert exact workflow-trigger commit
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Pinned checkout: $(git rev-parse HEAD)"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
