@@ -946,3 +946,18 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Developer → Tester:** independently audit R2 content, fingerprints, semantic compatibility, labels and all 8,000 configs; report PASS/REQUEST CHANGES with hashes.
 
 **Tester → Developer:** if artifact size prevents audit, require smaller shards and re-review; do not authorize empirical runs.
+
+
+## 2026-10-12 prediction registry R2 gate update
+
+| Gate | Status | Evidence / next action |
+|---|---|---|
+| 1,000-method registry R2 | **BLOCKED — REQUEST CHANGES** | [Independent tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REPORT_2026-10-12.md) |
+| Artifact auditability | BLOCKED | Split method/config artifacts into small shards; independently recompute hashes and counts |
+| Scientific compatibility | BLOCKED | Add explicit algorithm × representation × operator compatibility matrix; count only valid, distinct methods |
+| Label/sample preregistration | BLOCKED | Freeze label tolerance, eligibility, missingness, folds, purge/embargo and class support |
+| Multiple-testing/bootstrap plan | BLOCKED | Executable, hash-pinned preregistration and deterministic tests required |
+| Synthetic runner gate | NOT YET PASSED | Add restart/checkpoint and resource/failure-log evidence |
+| Empirical prediction runs | **NOT AUTHORIZED** | Both registry and synthetic-runner gates must pass first |
+
+No strategy has been accepted based on the R2 registry or earlier proxy outputs.
