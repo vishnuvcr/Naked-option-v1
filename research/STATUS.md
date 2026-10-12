@@ -1,5 +1,14 @@
 # Research Status
 
+## Phase 8P prediction registry gate — 2026-10-13
+
+- **Tester decision: REQUEST CHANGES.** See [R3 independent review](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_REVIEW_R3_2026-10-13.md) and [machine decision](research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_DECISION_R3_2026-10-13.json).
+- T2: degenerate moving-block bootstrap inference is not identifiable when all bootstrap estimates coincide (including a fold with exactly one admissible block); the utility must fail closed instead of emitting the minimum p-value and zero-width interval.
+- T3: only two target labels are present; the full frozen set of intraday and positional horizons needs to be included or the registry scope must be formally narrowed before fitting.
+- The tester-owned audit script/workflow has been committed to check all method/configuration/compatibility shards and semantic linkage. The hosted audit result has not yet been observed; the full independent reconstruction is not signed off.
+- No market data, estimator, outer-fold selection or holdout was accessed.
+
+
 | Phase | Status | Gate |
 |---|---|---|
 | Phase 0 Governance/bootstrap | PASSED | tester report archived |
