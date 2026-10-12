@@ -1344,3 +1344,11 @@ Tester → Developer: Keep all empirical gates closed until those requirements p
 
 **Developer → Tester:** review the completed run artifact and ledger independently, including the pinned inputs, calculations, drawdown and overlap caveats; issue a hash-pinned result-level decision.
 **Tester → Developer:** do not promote a configuration or advance the phase until result metrics and limitations are accepted.
+
+
+## Phase 8 completed computation — run 38222296903 (2026-10-12)
+
+- **Computation:** completed; result artifact [11736907952](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38222296903/artifacts/11736907952) contains 4,800 configurations, 19,200 summary rows and 1,596,680 trade-ledger rows per cost scenario.
+- **Workflow:** overall failed during publication/rebase because concurrent changes conflicted in README.md and research log files. The grid did produce metrics; the generated failure-handler record incorrectly says `FAILED_NO_METRICS`. Treat that record as a publication-path error, not the truth about the artifact.
+- **Preliminary developer audit:** [DEVELOPER_PRELIMINARY_AUDIT.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/results/phase8-proxy-run-38222296903/DEVELOPER_PRELIMINARY_AUDIT.md).
+- **Independent tester request:** [Issue #22](https://github.com/vishnuvcr/Naked-option-v1/issues/22). The artifact remains Q1/OHLC proxy, not quote-executable; raw-IV provenance, tick rounding, drawdown percentage, OHLC integrity and contract tie-break issues remain unresolved. No strategy promotion or Phase 9 transition is authorized.
