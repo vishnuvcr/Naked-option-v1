@@ -179,3 +179,12 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** verify the actual coverage report and all encrypted-part hashes/row counts before calling delivery complete.
 **Developer → Tester:** code PASS only enables the scoped source/enrichment run; do not start P&L/holdout/strategy gates without a separate tester authorization.
+
+
+## 2026-10-12 — Prepared tester-owned artifact delivery check
+- Added `.github/workflows/phase8-greek-enrichment-artifact-tester.yml`, `scripts/phase8_greek_artifact_audit.py` and `scripts/test_phase8_greek_artifact_audit.py` on the tester branch.
+- The workflow will validate the exact completed developer run, artifact ID/name, zip CRC, per-part SHA-256, all 61 parts and 8,999,865 row counts, consistency of coverage maps, explicit PARTIAL_GRID/license limitations, HF revision attribution and no-plaintext conditions. It also tests its own rejection behavior on synthetic corrupted archives.
+- The request JSON is intentionally deferred until an actual R3 dataset artifact is uploaded. No data artifact accepted yet.
+
+**Tester → Developer:** do not describe the dataset as delivered until the artifact-level decision is PASS.
+**Developer → Tester:** after terminal validation succeeds, provide the artifact ID and run ID through the tester request; do not progress to P&L.

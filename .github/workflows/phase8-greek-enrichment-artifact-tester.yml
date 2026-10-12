@@ -1,0 +1,256 @@
+name: Phase 8 Greek Enrichment Artifact Independent Tester
+
+on:
+  push:
+    branches: [phase-08-tester]
+    paths:
+      - "research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REQUEST_R1_2026-10-12.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  independent-artifact-audit:
+    name: Verify uploaded R3 encrypted dataset independently
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout tester environment
+        uses: actions/checkout@v4
+        with:
+          ref: phase-08-tester
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate developer run and requested artifact
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request
+          from pathlib import Path
+          status="FAIL"; finding=""
+          def get_json(url,token):
+              req=urllib.request.Request(url,headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"})
+              with urllib.request.urlopen(req,timeout=30) as r: return json.loads(r.read())
+          try:
+              req=json.loads(Path("research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REQUEST_R1_2026-10-12.json").read_text())
+              if req.get("gate")!="PHASE8_GREEK_ENRICHMENT_ARTIFACT_R1": raise ValueError("wrong gate")
+              repo=os.environ["GITHUB_REPOSITORY"]; token=os.environ["GH_TOKEN"]
+              rid=int(req["developer_run_id"]); aid=int(req["artifact_id"])
+              run=get_json(f"https://api.github.com/repos/{repo}/actions/runs/{rid}",token)
+              if run.get("status")!="completed" or run.get("conclusion")!="success": raise ValueError("source run not completed successfully")
+              if run.get("head_branch")!="phase-08-developer": raise ValueError("source branch mismatch")
+              if run.get("head_sha")!=req.get("developer_snapshot_sha"): raise ValueError("exact developer SHA mismatch")
+              if run.get("path")!=".github/workflows/phase8-greek-enrichment.yml": raise ValueError("source workflow path mismatch")
+              listing=get_json(f"https://api.github.com/repos/{repo}/actions/runs/{rid}/artifacts?per_page=100",token)
+              matches=[a for a in listing.get("artifacts",[]) if int(a.get("id",-1))==aid]
+              if len(matches)!=1: raise ValueError("artifact ID not attached to this developer run")
+              art=matches[0]
+              if art.get("name")!=req.get("artifact_name"): raise ValueError("artifact name mismatch")
+              if art.get("expired") is not False: raise ValueError("artifact expired or expiry unknown")
+              if int(art.get("size_in_bytes",0))<=0: raise ValueError("artifact size is zero")
+              values={"SOURCE_RUN_ID":rid,"SOURCE_ARTIFACT_ID":aid,"SOURCE_ARTIFACT_NAME":art["name"],
+                "DEVELOPER_SNAPSHOT_SHA":run["head_sha"],"EXPECTED_ROWS":int(req.get("expected_rows",8999865)),
+                "EXPECTED_PARTS":int(req.get("expected_parts",61)),"EXPECTED_OPTION_ROWS":int(req.get("expected_option_rows",8490723)),
+                "EXPECTED_SPOT_ROWS":int(req.get("expected_spot_rows",509142)),
+                "SOURCE_CACHED_ARTIFACT_ID":int(req.get("source_cached_artifact_id",11698879857)),
+                "SOURCE_CACHED_RUN_ID":int(req.get("source_cached_run_id",38131641336))}
+              with open(os.environ["GITHUB_ENV"],"a") as f:
+                  for k,v in values.items(): f.write(f"{k}={v}\n")
+              status="PASS"
+              print(json.dumps({"source_gate":"PASS","run_id":rid,"developer_sha":run["head_sha"],"artifact_id":aid,"artifact_name":art["name"],"size_in_bytes":art["size_in_bytes"]},sort_keys=True))
+          except Exception as exc:
+              finding=f"{type(exc).__name__}: {exc}".replace("\n"," ")
+              print(json.dumps({"source_gate":"FAIL","finding":finding},sort_keys=True))
+          with open(os.environ["GITHUB_ENV"],"a") as f:
+              f.write(f"SOURCE_GATE_STATUS={status}\n"); f.write("SOURCE_GATE_FINDING="+finding.replace("%","%25").replace("\n"," ")+"\n")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f: f.write(f"status={status}\n")
+          PY
+      - name: Run independent synthetic artifact audit tests
+        id: synthetic
+        continue-on-error: true
+        run: |
+          set +e
+          python scripts/test_phase8_greek_artifact_audit.py
+          rc=$?
+          if [ "$rc" -eq 0 ]; then status=PASS; else status=FAIL; fi
+          echo "SYNTHETIC_TEST_STATUS=$status" >> "$GITHUB_ENV"
+          echo "synthetic_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Download uploaded artifact ZIP and validate archive CRC
+        id: download
+        if: env.SOURCE_GATE_STATUS == 'PASS'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          set +e
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip"
+          output="${RUNNER_TEMP_DIR}/phase8-greek-enrichment-r3.zip"
+          curl --fail --location --silent --show-error --retry 3 --retry-all-errors \
+            -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "${url}" -o "${output}"
+          rc=$?
+          if [ "$rc" -eq 0 ]; then
+            python - "${output}" <<'PY'
+          import sys,zipfile
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              bad=z.testzip()
+              if bad: raise SystemExit("ZIP CRC failure: "+bad)
+          PY
+            rc=$?
+          fi
+          if [ "$rc" -eq 0 ] && [ -s "$output" ]; then
+            sha=$(sha256sum "$output" | cut -d ' ' -f 1)
+            echo "DOWNLOAD_GATE_STATUS=PASS" >> "$GITHUB_ENV"
+            echo "BUNDLE_SHA256=$sha" >> "$GITHUB_ENV"
+            echo "BUNDLE_PATH=$output" >> "$GITHUB_ENV"
+            echo "download_status=PASS" >> "$GITHUB_OUTPUT"
+          else
+            echo "DOWNLOAD_GATE_STATUS=FAIL" >> "$GITHUB_ENV"
+            echo "DOWNLOAD_GATE_FINDING=artifact download or CRC validation failed" >> "$GITHUB_ENV"
+            echo "download_status=FAIL" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+      - name: Audit encrypted dataset hashes, row totals, schema and coverage
+        id: audit
+        if: env.DOWNLOAD_GATE_STATUS == 'PASS'
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+        run: |
+          set +e
+          python scripts/phase8_greek_artifact_audit.py "${BUNDLE_PATH}" \
+            --expected-rows "${EXPECTED_ROWS}" --expected-parts "${EXPECTED_PARTS}" \
+            --expected-option-rows "${EXPECTED_OPTION_ROWS}" --expected-spot-rows "${EXPECTED_SPOT_ROWS}" \
+            --expected-source-artifact-id "${SOURCE_CACHED_ARTIFACT_ID}" --expected-source-run-id "${SOURCE_CACHED_RUN_ID}" > "${RUNNER_TEMP_DIR}/artifact-audit-result.json"
+          rc=$?
+          cat "${RUNNER_TEMP_DIR}/artifact-audit-result.json"
+          if [ "$rc" -eq 0 ]; then status=PASS; else status=FAIL; fi
+          echo "AUDIT_GATE_STATUS=$status" >> "$GITHUB_ENV"
+          echo "audit_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Write decision, review and role-owned logs
+        if: always()
+        env:
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path(".")
+          req=json.loads((root/"research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REQUEST_R1_2026-10-12.json").read_text())
+          source=os.environ.get("SOURCE_GATE_STATUS","FAIL")
+          synthetic=os.environ.get("SYNTHETIC_TEST_STATUS","FAIL")
+          download=os.environ.get("DOWNLOAD_GATE_STATUS","SKIPPED")
+          audit_status=os.environ.get("AUDIT_GATE_STATUS","SKIPPED")
+          result_path=Path(os.environ["RUNNER_TEMP_DIR"])/"artifact-audit-result.json"
+          audit={}
+          if result_path.exists():
+              try: audit=json.loads(result_path.read_text())
+              except Exception as exc: audit={"status":"FAIL","findings":[f"Cannot parse audit JSON: {type(exc).__name__}: {exc}"]}
+          findings=[]
+          if source!="PASS": findings.append("Source-run/artifact validation failed: "+os.environ.get("SOURCE_GATE_FINDING","unspecified"))
+          if synthetic!="PASS": findings.append("Independent synthetic artifact tests failed.")
+          if download!="PASS": findings.append("Artifact download/CRC validation failed: "+os.environ.get("DOWNLOAD_GATE_FINDING","not completed"))
+          if audit_status!="PASS" or audit.get("status")!="PASS":
+              findings.extend(audit.get("findings",[]))
+              if not audit.get("findings"): findings.append("Actual-artifact integrity and coverage audit did not pass.")
+          ok=source=="PASS" and synthetic=="PASS" and download=="PASS" and audit_status=="PASS" and audit.get("status")=="PASS"
+          decision="PASS_WITH_SCOPED_RESTRICTIONS" if ok else "REQUEST_CHANGES"
+          dec=root/"research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_DECISION_R1_2026-10-12.json"
+          report_path=root/"research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md"
+          payload={"schema_version":1,"gate":"PHASE8_GREEK_ENRICHMENT_ARTIFACT_R1","decision":decision,
+            "reviewed_at_utc":datetime.now(timezone.utc).isoformat(),"tester_workflow_run_id":os.environ.get("WORKFLOW_RUN_ID",""),
+            "developer_run_id":req.get("developer_run_id"),"developer_snapshot_sha":req.get("developer_snapshot_sha"),
+            "artifact_id":req.get("artifact_id"),"artifact_name":req.get("artifact_name"),
+            "artifact_sha256":os.environ.get("BUNDLE_SHA256",""),"source_gate_status":source,
+            "synthetic_test_status":synthetic,"download_gate_status":download,"audit_gate_status":audit_status,
+            "audit_result":audit,"findings":findings,
+            "restrictions":{"dhan_api_requests_authorized":False,"empirical_option_pnl_authorized":False,
+              "holdout_access_authorized":False,"strategy_promotion_authorized":False,"plaintext_upload_authorized":False,
+              "commercial_use_authorized":False,"source_license":"CC-BY-NC-4.0; non-commercial research only","source_grid_status":"PARTIAL_GRID"}}
+          dec.write_text(json.dumps(payload,indent=2,sort_keys=True)+"\n")
+          bullets="\n".join("- "+x for x in findings) if findings else "- No integrity or coverage consistency failure was detected within this artifact audit."
+          report=f"""# Independent tester review — Phase 8 Greek enrichment artifact R1
+
+Decision: **{decision}**
+
+Developer run: {req.get("developer_run_id")}
+Developer snapshot: {req.get("developer_snapshot_sha")}
+Artifact: {req.get("artifact_name")} (ID {req.get("artifact_id")})
+Tester workflow run: {os.environ.get("WORKFLOW_RUN_ID","")}
+Artifact ZIP SHA-256: {os.environ.get("BUNDLE_SHA256","")}
+Source gate: {source}; synthetic tests: {synthetic}; download gate: {download}; artifact audit: {audit_status}
+
+## Findings
+
+{bullets}
+
+## Verified coverage and integrity summary
+
+{json.dumps(audit,indent=2,sort_keys=True)}
+
+## Restrictions
+
+- This review checks artifact integrity and coverage metadata only; it is not evidence of a profitable strategy.
+- The grid remains PARTIAL_GRID and Greeks/expiry mapping are estimates/proxies.
+- No Dhan API, option P&L, holdout, strategy promotion, commercial use or plaintext upload is authorized.
+- The HF source licence is CC-BY-NC-4.0; non-commercial research only.
+
+**Developer → Tester:** correct any reported mismatch and resubmit a fresh immutable artifact.
+**Tester → Developer:** accept only if this decision is PASS_WITH_SCOPED_RESTRICTIONS; keep trading gates blocked.
+"""
+          report_path.write_text(report)
+          marker=f"## 2026-10-12 — Phase 8 Greek-enrichment artifact audit R1 (workflow {os.environ.get('WORKFLOW_RUN_ID','')})"
+          sp=root/"research/STATUS.md"; old=sp.read_text()
+          row="| Phase 8 Long-option execution | "+("**ARTIFACT AUDIT PASSED — TRADING GATES BLOCKED**" if ok else "**ARTIFACT AUDIT REQUEST CHANGES — DELIVERY NOT ACCEPTED**")+" | Tester-owned decision "+decision+"; see PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md |"
+          lines=old.splitlines()
+          for i,line in enumerate(lines):
+              if line.startswith("| Phase 8 Long-option execution |"): lines[i]=row; break
+          if marker not in old:
+              sp.write_text("\n".join(lines)+"\n\n"+marker+"\n- "+decision+" for developer run "+str(req.get("developer_run_id"))+" and artifact "+str(req.get("artifact_id"))+".\n- "+("Encrypted-part, row, hash, coverage and no-plaintext checks passed." if ok else "Artifact not accepted; see findings in tester report.")+"\n- No P&L, holdout, promotion, Dhan request, commercial use or plaintext upload authorized.\n")
+          ep=root/"research/ERROR_LOG.md"
+          if not ok and marker not in ep.read_text():
+              ep.write_text(ep.read_text()+"\n\n"+marker+"\n- Category: independent artifact audit.\n- Decision: REQUEST_CHANGES.\n- Findings: "+("; ".join(findings) if findings else "see report")+"\n- No artifact accepted and no trading gate opened.\n")
+          cp=root/"research/logs/CHAT_LOG.md"; oldchat=cp.read_text()
+          if marker not in oldchat:
+              detail={k:audit.get(k) for k in ("status","rows_preserved","parts","option_rows","spot_rows","greek_rows_with_delta","option_rows_missing_spot","option_rows_unmapped_expiry","spot_field_values_filled","hf_revision","source_license")}
+              cp.write_text(oldchat+"\n\n"+marker+"\n- Developer run "+str(req.get("developer_run_id"))+"; artifact ID "+str(req.get("artifact_id"))+"; decision "+decision+".\n- Artifact ZIP SHA-256: "+os.environ.get("BUNDLE_SHA256","")+"\n- Summary: "+json.dumps(detail,sort_keys=True)+"\n- Findings: "+("; ".join(findings) if findings else "none")+"\n\n**Developer → Tester:** "+("correct findings before resubmission." if not ok else "preserve limitations and do not advance without another gate.")+"\n**Tester → Developer:** "+("reject delivery." if not ok else "accept only artifact integrity/coverage; trading gates remain blocked.")+"\n")
+          with open(os.environ["GITHUB_ENV"],"a") as f: f.write(f"ARTIFACT_DECISION={decision}\n")
+          print(json.dumps({"decision":decision,"findings":findings,"audit_status":audit.get("status")},sort_keys=True))
+          PY
+      - name: Commit tester-owned artifact review
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_DECISION_R1_2026-10-12.json research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md research/STATUS.md research/logs/CHAT_LOG.md research/ERROR_LOG.md
+          git commit -m "Record independent Greek artifact audit R1 run ${{ github.run_id }}"
+          git push origin HEAD:phase-08-tester
+      - name: Enforce independent artifact decision
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          d=json.loads(pathlib.Path("research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_DECISION_R1_2026-10-12.json").read_text())
+          print("ARTIFACT_TESTER_DECISION="+d["decision"])
+          if d["decision"]!="PASS_WITH_SCOPED_RESTRICTIONS": raise SystemExit(1)
+          PY
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-greek-enrichment-artifact-audit-r1-${{ github.run_id }}
+          path: |
+            research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_DECISION_R1_2026-10-12.json
+            research/gates/PHASE8_GREEK_ENRICHMENT_ARTIFACT_REVIEW_R1_2026-10-12.md
+          if-no-files-found: warn
+          retention-days: 90

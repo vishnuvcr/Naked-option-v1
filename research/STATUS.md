@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **WORKFLOW GATE PASSED — FRESH HOSTED RUN AUTHORIZED** | Tester independently approved the typed workflow-call authorization correction; no empirical artifact accepted yet |
 | Phase 7 Ensemble/regime | BLOCKED | freeze gate |
-| Phase 8 Long-option execution | **R3 CODE-ONLY GATE PASSED — DELIVERY AUDIT PENDING** | Exact developer snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e` passed code review. Developer run #38195812828 attempt 2 is in progress; no enriched data artifact accepted |
+| Phase 8 Long-option execution | **R3 CODE GATE PASSED — INDEPENDENT ARTIFACT GATE PREPARED** | Developer run #38195812828 attempt 2 is enriching; separate tester workflow checks encrypted-part hashes, row totals, coverage and plaintext absence before acceptance |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -200,3 +200,8 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Decision: **PASS_WITH_SCOPED_RESTRICTIONS** for developer snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e`: [machine JSON](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json) · [review report](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R3_2026-10-12.md).
 - This is a code/source-access gate only, not acceptance of a dataset. Developer run [#38195812828 attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195812828) is running after the decision. Tester must separately inspect any terminal encrypted artifact and its coverage report.
 - Restrictions unchanged: no Dhan API, historical option P&L, holdout, strategy promotion, commercial use or plaintext publication; the HF partial grid and CC-BY-NC-4.0 research-only licensing limitations remain.
+
+
+## 2026-10-12 — Independent artifact-delivery gate prepared
+- A separate tester-owned workflow and synthetic-tested audit script now exist for the final R3 uploaded bundle. It verifies source run/commit/artifact identity, ZIP CRC, all 61 encrypted chunk hashes, exact per-part row sums, manifest/coverage agreement, Greek status/expiry/IV count totals, source attribution/license/revision, and absence of plaintext files.
+- Artifact gate request intentionally remains absent until a successful developer artifact ID is available. No artifact-level decision has been issued yet; code-only R3 approval does not equal dataset acceptance.

@@ -119,3 +119,7 @@
 ## 2026-10-12 — R3 row-count correction independently accepted (code gate only)
 - The independent R3 workflow [#38195900109](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38195900109) passed exact snapshot/blob pins, developer synthetic tests, 162 independently implemented Greek formula cases, and per-part manifest row-count checks.
 - Decision: PASS_WITH_SCOPED_RESTRICTIONS for code-only snapshot `f556c7b44088f18551453c36f78e8d5de7fe141e`. It authorizes only a rerun of the narrowly scoped HF enrichment after the exact gate; no enriched artifact was part of the review and no P&L/holdout/promotion is authorized.
+
+
+## 2026-10-12 — New independent artifact gate prepared (not yet run)
+- Added isolated artifact audit workflow, auditor script, and synthetic fixtures. The workflow is keyed only to the later artifact request JSON, so it cannot be mistaken for the R3 code-only test. It is not yet authorized to download any artifact because no R3 artifact exists at this point.
