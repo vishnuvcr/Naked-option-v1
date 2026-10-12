@@ -8,12 +8,18 @@ on:
       - "scripts/reshard_prediction_registry.py"
       - "scripts/build_prediction_compatibility_matrix.py"
       - "scripts/test_prediction_compatibility_matrix.py"
+      - "scripts/prediction_registry_synthetic_dryrun.py"
+      - "scripts/test_prediction_registry_synthetic_dryrun.py"
       - "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json"
       - ".github/workflows/repair-missing-method-shards.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: phase-08-r2-registry-repair
+  cancel-in-progress: false
 
 jobs:
   reshard-and-audit:
@@ -39,6 +45,8 @@ jobs:
         run: python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
       - name: Run compatibility matrix unit tests
         run: python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
+      - name: Run synthetic dry-run restart/error tests
+        run: python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
       - name: Audit rebuilt registry before committing
         shell: bash
         run: |
@@ -60,5 +68,7 @@ jobs:
             echo "No registry artifacts changed."
             exit 0
           fi
-          git commit -m "Reshard R2 registry for independent auditability"
+          git commit -m "Rebuild and validate R2 prediction registry artifacts"
+          git fetch origin phase-08-prediction-developer
+          git rebase origin/phase-08-prediction-developer
           git push origin HEAD:phase-08-prediction-developer
