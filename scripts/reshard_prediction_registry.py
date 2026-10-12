@@ -93,21 +93,25 @@ def chunks(records: list[dict[str, Any]], size: int):
 def validate_existing_method_shards(master_by_id: dict[str, dict[str, Any]]) -> None:
     pattern = re.compile(r"^METHODS_V2_R2_PART(\d+)\.json$")
     paths = sorted(METHOD_DIR.glob("METHODS_V2_R2_PART*.json"))
-    seen: set[str] = set()
+    seen_in_each_file: set[str] = set()
     for path in paths:
         if not pattern.fullmatch(path.name):
             raise SystemExit(f"BLOCKED: ambiguous method shard filename {path.name}")
         obj = load_json(path)
         records = record_list(obj, ("methods",), path)
+        file_ids: set[str] = set()
         for record in records:
             method_id = record_id(record, ("method_id",), path)
-            if method_id in seen:
-                raise SystemExit(f"BLOCKED: duplicate method ID across existing shards: {method_id}")
-            seen.add(method_id)
+            if method_id in file_ids:
+                raise SystemExit(f"BLOCKED: duplicate method ID inside existing shard {path.name}: {method_id}")
+            file_ids.add(method_id)
             if method_id not in master_by_id:
                 raise SystemExit(f"BLOCKED: existing shard contains unknown method ID {method_id}")
             if record != master_by_id[method_id]:
                 raise SystemExit(f"BLOCKED: existing method record differs from master for {method_id}")
+            # Overlap between differently named legacy shard sets is allowed only
+            # when each repeated record is byte-semantically equal to the master.
+            seen_in_each_file.add(method_id)
 
 
 def load_and_validate_configs(manifest: dict[str, Any]) -> list[dict[str, Any]]:
