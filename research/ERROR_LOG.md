@@ -153,3 +153,10 @@
 ## 2026-10-12 — Resolution of artifact-download HTTP 401
 - Resolved in tester workflow [#38197317740](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38197317740). The corrected redirect handler downloaded the exact artifact and verified ZIP SHA-256, CRC, all encrypted part hashes, row totals, coverage maps and plaintext absence.
 - Final tester decision: PASS_WITH_SCOPED_RESTRICTIONS. The HTTP 401 was a CI downloader defect, not a dataset-integrity mismatch. Economic/strategy gates remain blocked.
+
+
+## 2026-10-12 — Phase 8P independent code-review harness serialization/pipeline defect
+- First independent review harness run [#38199724442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199724442) ran the synthetic/hash audit logic but failed while serializing NumPy boolean values into the JSON receipt (`TypeError: Object of type bool_ is not JSON serializable`). The workflow also lacked `pipefail`, so the failed audit command was initially masked by `tee`; this run is not accepted as a reviewer decision.
+- Corrected reviewer output booleans to native Python bools and enabled `set -euo pipefail` in the tester workflow. The corrected run [#38199795642](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199795642) correctly failed closed after issuing REQUEST_CHANGES; report receipt artifact 11724599450.
+- Follow-up independent review [#38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955) completed the expanded audit and returned REQUEST_CHANGES, 9/13 checks passing; receipt artifact 11724953413. Decision report: [PHASE8P code review R1](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md).
+- No real market artifact was downloaded/decrypted; no empirical fit or holdout access occurred.
