@@ -21,9 +21,9 @@ permissions:
   actions: read
 
 concurrency:
-  # Versioned group lets the vectorized no-lookahead runner proceed while
-  # superseded diagnostic runs remain active on older snapshots.
-  group: phase-08-proxy-strategy-asof-v3-vectorized
+  # Versioned group lets the vectorized as-of selector run while superseded
+  # diagnostic grids remain active on older snapshots.
+  group: phase-08-proxy-strategy-asof-v4-vectorized-selection
   cancel-in-progress: false
 
 jobs:
