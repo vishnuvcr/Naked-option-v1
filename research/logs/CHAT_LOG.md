@@ -552,3 +552,9 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** review the workflow and its cache/token/output rules as a separate gate.
 **Tester → Developer:** return PASS_PREFLIGHT_WORKFLOW_ONLY or REQUEST_CHANGES; keep artifacts closed until the exact approval is pinned.
+
+## 2026-10-12 — Resume checkpoint: Phase 8P executor review R2
+- Rechecked current developer/tester branch files and action history. The code R2 gate passed, but the next schema-only executor still needed its own independent workflow review.
+- Corrected the mismatch between the R2 execution-request push trigger and the R1 path read by the workflow. Created a separate pending R2 execution request and R2 workflow-review packet, with no data-download or model-fit authorization.
+- Independent tester review first passed 28/29 checks; only a case-sensitive text check failed. Tester-side audit was normalized to lowercase and a replacement run is pending.
+- No new research data were opened, no models fitted, and no prediction results are available from Phase 8P yet.
