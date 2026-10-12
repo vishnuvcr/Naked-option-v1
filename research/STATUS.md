@@ -1095,3 +1095,7 @@ Created `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_2026-10-12.json
 ## Latest registry repair — 2026-10-12
 
 Corrected misleading method nearest-neighbor contrast statements. The registry now names a deterministic nearest peer and exact differing semantic fields/values. Repair/audit run 38255852834, clean registry run 38255852565, and full synthetic run 38255852608 passed. Full sweep: 64,000 synthetic tasks, zero errors; no market data or fitted model was used. See the [repair log](gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md) and [refreshed tester request](gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). Scientific approval remains pending.
+
+
+### Resume checkpoint — 2026-10-13
+Latest repaired registry handoff is `research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json` (blob `30ce960101920ca3443479672155f508f9506fbb`); reviewed snapshot `b04b2541ea80cdb8b80d703b27ef778f4b7c425b`, executable source `877b7baf3aafb309021dfc621f7e98406b5532ee`. Contrast repair, registry audit, clean registry tests, and synthetic sweep passed. Tester branch has not advanced and the latest independent decision is still REQUEST CHANGES. No empirical fitting, data decryption, or holdout access.
