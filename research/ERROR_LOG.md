@@ -757,3 +757,13 @@
 
 **Developer → Tester:** prioritize reviewing whether an independently auditable alternative fixed-contract panel can be built from already available, previously accepted data without weakening point-in-time contract, execution-cost or holdout controls. Report PASS/BLOCKED with exact evidence.
 **Tester → Developer:** do not generate empirical option P&L until an approved fixed-contract panel and separate one-use authorization exist; validate all charge arithmetic and no-lookahead rules before the 4,800-cell grid runs.
+
+
+## 2026-10-12 — Strategy-testing readiness remains blocked
+- Category: data readiness / authorization gate
+- Component: Phase 8 fixed-contract option panel and empirical P&L runner
+- Symptom: all 4,800 registered strategy configurations are ineligible because the point-in-time fixed-contract panel is not approved; empirical runner fails closed.
+- Impact: no empirical P&L, win rate, expectancy, drawdown or strategy ranking may be reported.
+- Evidence: independent tester report `research/gates/PHASE8_STRATEGY_TESTING_READINESS_TESTER_2026-10-12.md` on `phase-08-prediction-tester`.
+- Disposition: keep empirical authorization false; run only approved synthetic regressions/source feasibility and the aggregate-only duplicate diagnostic after a valid separate one-use authorization is present.
+- Prevention: do not treat prediction forecasts, OHLC proxies or model-estimated Greeks as executable option quotes; require point-in-time contract identity, expiry/lot-size joins, provenance, duplicate audit and causally valid execution prices.
