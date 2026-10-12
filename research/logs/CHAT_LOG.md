@@ -797,3 +797,12 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 **Developer → Tester:** independently inspect the exact source, test file, workflow and hosted logs; issue a hash-pinned, scoped PASS/REQUEST CHANGES on the tester branch.
 
 **Tester → Developer:** review utility correctness only within its stated scope; do not infer scientific validity. Keep the registry and synthetic-runner gates blocked until the complete remediation evidence passes.
+
+## 2026-10-12 — Proceed: harden prediction registry shard utility
+
+- Re-read the current developer-branch validator, tests, compatibility matrix and preregistration before editing.
+- Hardened ID validation, deterministic source metadata, empty-list handling, index schema checks, canonical JSONL checks, and shard path safety; added adversarial tests.
+- Commits: 9c6db727656d351742e3f2a93a7d8c6e3508aa8b and 49c60997b12aeb71a93a891b3c895cd6a34445b9.
+- First hosted run 38241541882 passed the earlier four-test snapshot. The new expanded test suite is run 38241558360; its final status is not yet verified.
+- Work remains developer-branch only. Tester branch was not modified. No shards, prediction fit, holdout access, or strategy results are claimed.
+- Next: verify expanded CI, update README/status/error log with final evidence, then submit the exact commit and logs for independent tester review. Registry gate remains blocked.
