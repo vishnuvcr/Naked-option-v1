@@ -12,7 +12,8 @@
     "synthetic_report": "research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json",
     "synthetic_report_blob_sha1": "9b2aa5e113706cf7d70f75a3372830daca5a3683",
     "synthetic_report_is_historical": true,
-    "note": "The canonical synthetic report predates contrast repair; use the contrast-repair supplement for latest run 38255852608."
+    "note": "The canonical synthetic report predates contrast repair; use the contrast-repair supplement for latest run 38255852608.",
+    "contrast_repair_log": "research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md"
   },
   "ci": {
     "contrast_repair_run": {
@@ -53,7 +54,9 @@
     "compatibility_matrix_markdown_blob_sha1": "1bdc3fe435b228098f2c35137e71b24e24eb1482",
     "config_manifest_git_blob_sha1": "cde05748ae534e612948137b7ddf97466d795a25",
     "preregistration_git_blob_sha1": "5095f9cc0dcca8567df7aa14ffacf88f42fc0038",
-    "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc"
+    "label_manifest_git_blob_sha1": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
+    "compatibility_matrix_json_git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971",
+    "data_manifest_git_blob_sha1": "66683afe7c498a6b52d7863a0da0c4f7a47734c8"
   },
   "tested_source_blobs": {
     "scripts/repair_method_contrast_statements.py": "bdb986bcc20c82f21dd05fbfad6ce19071463dfe",
