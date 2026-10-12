@@ -1,0 +1,196 @@
+{
+  "bid_ask_required": false,
+  "configurations_with_30_plus_trades_positive_c3": 0,
+  "costs": {
+    "brokerage_model": "Paytm Money historical unverified fallback: INR 20 per executed order; INR 40 round trip",
+    "contract_selection_asof": "prior-bar stored delta only when greek valuation timestamp <= entry; no raw-IV recomputation; prior-bar spot, open-interest and volume used for fallback/tie-break",
+    "drawdown_method": "timestamp-aggregated realized P&L; max drawdown percentage uses local positive peak; undefined if no positive peak",
+    "fees": "Date-effective STT, exchange transaction charges, IPFT, SEBI fee, stamp duty and GST from frozen phase8_cost_schedule.json",
+    "fill_tick_rounding": "BUY=ceil_to_tick_after_spread_slippage; SELL=floor_to_tick_after_spread_slippage; SELL_FLOOR=one_tick",
+    "incremental_slippage_by_scenario": {
+      "C0": 0.0,
+      "C1": 0.0025,
+      "C2": 0.005,
+      "C3": 0.01
+    },
+    "intraday_entry_delay_cap_seconds": 120,
+    "lot_size_limitation": "These are expiry-date-based lot-size proxies. Some contracts created before a lot-size transition can expire after it, so without a historical listed-contract master the absolute INR P&L and costs can be mis-scaled for transition-month contracts. Results remain exploratory.",
+    "lot_size_schedule": {
+      "expiry_2024-05-02_to_2024-11-25": 25,
+      "expiry_2024-11-26_to_2026-01-05": 75,
+      "expiry_before_2024-05-02": 50,
+      "expiry_from_2026-01-06": 65
+    },
+    "lot_size_transition_expiry_exclusion_windows": [
+      {
+        "end": "2024-06-01",
+        "start": "2024-05-02"
+      },
+      {
+        "end": "2024-12-26",
+        "start": "2024-11-26"
+      },
+      {
+        "end": "2026-02-05",
+        "start": "2026-01-06"
+      }
+    ],
+    "net_return_denominator": "rounded entry premium turnover plus modeled round-trip fees; conservative capital-at-risk proxy",
+    "proxy_spread_by_scenario": {
+      "C0": 0.005,
+      "C1": 0.01,
+      "C2": 0.02,
+      "C3": 0.04
+    },
+    "tick_size_rupees": 0.05
+  },
+  "diagnostic_counts": {
+    "ENTRY_BAR_TOO_LATE": 2284860,
+    "NO_CONTRACT_FOR_DELTA_DTE": 794463,
+    "NO_EXIT_CONTRACT_BAR": 56413,
+    "NO_EXIT_PRICE": 711867,
+    "NO_OVERLAPPING_OPTION_TIME": 523632,
+    "NO_PLANNED_EXIT_BAR": 32388,
+    "OVERLAP_SKIPPED": 280523
+  },
+  "execution_quality": "Q1_OHLC_PROXY",
+  "forecast_refitted": false,
+  "frozen_forecast": {
+    "artifact_id": 11638738288,
+    "artifact_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+    "forecast_cell_count": 100,
+    "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+    "panel_count": 10,
+    "phase7_run": 994,
+    "saved_signal_count": 359843
+  },
+  "grid": {
+    "cost_scenarios": [
+      "C0",
+      "C1",
+      "C2",
+      "C3"
+    ],
+    "registered_configs": 4800,
+    "summary_rows": 19200
+  },
+  "input_coverage": {
+    "duplicate_contract_timestamp_groups_with_conflicting_ohlc": 135127,
+    "duplicate_contract_timestamp_rows_beyond_first": 137534,
+    "first_option_timestamp_ist": "2021-12-10T09:15:00+05:30",
+    "forecast_panels": [
+      {
+        "file": "phase7_predictions_daily_H1.parquet",
+        "horizon": 1,
+        "layer": "daily",
+        "rows": 1670,
+        "sha256": "d99db1dcebba80829f060f6fa178c5e3294d70877e6a83373d48fe692aa4e48e"
+      },
+      {
+        "file": "phase7_predictions_daily_H2.parquet",
+        "horizon": 2,
+        "layer": "daily",
+        "rows": 1670,
+        "sha256": "a6eea05d1cb532413a17af249ef727f8e6e2de7f2bb35ca1cf7f811b7ade9052"
+      },
+      {
+        "file": "phase7_predictions_daily_H3.parquet",
+        "horizon": 3,
+        "layer": "daily",
+        "rows": 1670,
+        "sha256": "60acf3ee36512aed09dbe3b25967565fcfd18523a9f53c91c7585137fddc07c6"
+      },
+      {
+        "file": "phase7_predictions_daily_H5.parquet",
+        "horizon": 5,
+        "layer": "daily",
+        "rows": 1670,
+        "sha256": "2d7408a1a4bd6d8796474fbb12aab46576811357a62fbd3dbd9c100605738be9"
+      },
+      {
+        "file": "phase7_predictions_daily_H10.parquet",
+        "horizon": 10,
+        "layer": "daily",
+        "rows": 1670,
+        "sha256": "0aa919e6acc16316528de0f3ff14706a715d698aeb5c09f1da32074e09ca60a3"
+      },
+      {
+        "file": "phase7_predictions_intraday_H5.parquet",
+        "horizon": 5,
+        "layer": "intraday",
+        "rows": 8441,
+        "sha256": "83203cccc6020ecd360d321492af0f0087437022865d9fbad581b7e3c2f53dc6"
+      },
+      {
+        "file": "phase7_predictions_intraday_H15.parquet",
+        "horizon": 15,
+        "layer": "intraday",
+        "rows": 8441,
+        "sha256": "cf081e747aac0ceb25fa22539ed55a53a2d15784cf873dd5e0fd4d1a2c33c112"
+      },
+      {
+        "file": "phase7_predictions_intraday_H30.parquet",
+        "horizon": 30,
+        "layer": "intraday",
+        "rows": 8441,
+        "sha256": "f6e0467207f94f98993db3927749916adeafec8d24173a61e83dd7a91fb27e5b"
+      },
+      {
+        "file": "phase7_predictions_intraday_H60.parquet",
+        "horizon": 60,
+        "layer": "intraday",
+        "rows": 8441,
+        "sha256": "b3591674aed6dbbcc882e39ac630da21278d356fc06deaf52a812b888480b059"
+      },
+      {
+        "file": "phase7_predictions_intraday_H120.parquet",
+        "horizon": 120,
+        "layer": "intraday",
+        "rows": 8441,
+        "sha256": "afa0be6bed893745b01c4fc15f9a280f8f3ea7fb18cec54865245b9b623f3f88"
+      }
+    ],
+    "last_option_timestamp_ist": "2026-10-09T15:39:00+05:30",
+    "option_rows_invalid_expiry_text": 0,
+    "option_rows_missing_strike": 0,
+    "option_rows_missing_timestamp": 0,
+    "option_rows_read": 8490723,
+    "option_rows_unknown_side": 0,
+    "part_files_used": 61,
+    "rows_invalid_ohlc_nonfinite": 0,
+    "rows_invalid_ohlc_nonpositive": 0,
+    "rows_invalid_ohlc_structure": 0,
+    "rows_skipped_missing_key_fields": 0,
+    "rows_skipped_unusable_ohlc": 0,
+    "rows_tagged_option": 8490723,
+    "rows_tagged_other": 0,
+    "rows_tagged_spot": 509142,
+    "source_rows_read": 8999865,
+    "unique_contracts": 8469,
+    "unique_option_timestamps": 152154,
+    "usable_option_rows": 8490723
+  },
+  "interpretation": "These are OHLC proxy results. Entries use the first observed option bar strictly after the saved forecast decision. Exits use the frozen scheduled horizon or X1/X2/X3 trigger logic, with synthetic spread/slippage and date-effective fees. Ranking is exploratory; IID t-tests and BH values do not establish predictive or trading significance, and the highest historical result is not automatically promoted.",
+  "option_data_artifact": {
+    "archive_sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
+    "artifact_id": 11723198817,
+    "dataset_id": "NIFTY_1M_DHAN_HF_SPOT_GREEKS_ENRICHED_R3",
+    "expiry_mapping_method": "HF expiry-partition file-list proxy through latest listed date; weekly Tuesday-rule proxy after that; not an official point-in-time contract master",
+    "source_license": "CC-BY-NC-4.0; non-commercial research only",
+    "source_run_id": 38195812828
+  },
+  "outputs": {
+    "summary_csv": "phase8_proxy_strategy_summary.csv",
+    "top_50_csv": "phase8_proxy_top_50_worst_cost_scenario.csv",
+    "top_50_yearly_csv": "phase8_proxy_top_50_yearly.csv",
+    "trade_ledger_gzip_csv": "phase8_proxy_trade_ledger.csv.gz"
+  },
+  "quote_executable": false,
+  "schema_version": 1,
+  "source_data_acquired_new": false,
+  "status": "COMPLETE_PROXY_BACKTEST",
+  "strategy_promotion_authorized": false,
+  "top_50_worst_cost_scenario": [],
+  "trade_count": 1513050,
+  "user_instruction": "Proceed with available OHLC data; no bid/ask prerequisite."
+}
