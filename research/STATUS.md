@@ -980,3 +980,10 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - No shard outputs have been generated or verified; do not infer registry approval from the tooling commits.
 - Next gate: tester review of exact utility/test commits, then run tests, generate and verify small shards, complete compatibility and label/statistical preregistration, and pass synthetic restart/resource checks.
 - Empirical prediction fitting, strategy selection and untouched-holdout access remain **NOT AUTHORIZED**.
+
+
+## 2026-10-12 — Registry utility CI result
+
+- Utility workflow run [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039): **PASS**; four unit tests and SHA-256 known-vector check succeeded.
+- This is not the independent tester gate. Registry gate remains **BLOCKED / REQUEST CHANGES** until actual shards, scientific compatibility, frozen labels/statistics and synthetic runner gates are reviewed and approved.
+- No empirical fitting or untouched-holdout access is authorized.
