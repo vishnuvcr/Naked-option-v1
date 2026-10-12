@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "gate": "PREDICTION_REGISTRY_V2_R2_INDEPENDENT_REVIEW",
+  "status": "REQUESTED_NOT_APPROVED",
+  "requested_at": "2026-10-12",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_documentation_commit": "fedb722bdb2199ff4bef794f230b55336750bf5c",
+  "tested_source_commit": "6d4787348d7b0b794e210026ceddcea19192eccc",
+  "synthetic_ci": {
+    "run_id": 38254175308,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308",
+    "conclusion": "success",
+    "artifact_id": 11749635242,
+    "results_jsonl_sha256": "6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b",
+    "tasks": 64000,
+    "synthetic_mock_only": 27264,
+    "blocked_compatibility": 36736,
+    "error_jsonl_rows": 0,
+    "market_data_opened": false,
+    "model_fitting_performed": false,
+    "holdout_accessed": false
+  },
+  "clean_audit_ci": {
+    "run_id": 38254175428,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175428",
+    "conclusion": "success"
+  },
+  "repair_ci": {
+    "run_id": 38254175326,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175326",
+    "conclusion": "success"
+  },
+  "statistical_tests": {
+    "file": "scripts/test_prediction_statistics.py",
+    "test_count": 10,
+    "result": "PASS in run 38254175308"
+  },
+  "registry_summary": {
+    "method_count": 1000,
+    "method_shards": 40,
+    "methods_per_shard": 25,
+    "configuration_count": 8000,
+    "configuration_shards": 80,
+    "configs_per_shard": 100,
+    "allow_in_principle": 426,
+    "blocked": 574,
+    "empirically_eligible": 0,
+    "semantic_fingerprints_unique": 1000,
+    "note": "Allow-in-principle is a design-screening result only; no empirical run is authorized."
+  },
+  "reviewed_blobs": {
+    "scripts/audit_prediction_registry_shards.py": "f62a733a7e5782fee027932e69fe836d14b65eb5",
+    "scripts/build_prediction_compatibility_matrix.py": "ccb70a73e0c2c46dd652810e3cfad1d4d8ac04f2",
+    "scripts/prediction_statistics.py": "3b36b21ed3d7c47a6b58e5f95c6b6f6861e0c776",
+    "scripts/test_prediction_statistics.py": "5512c48863442c2cf835b7a3c018aabd8a5b5164",
+    "scripts/test_prediction_preregistration.py": "6502c5b427965ec18fdda9d2dd59d4b3f6d4db4a",
+    "scripts/test_prediction_compatibility_matrix.py": "7a18d74bac531deca5feb75f42b5fa701ba3caa2",
+    "scripts/prediction_registry_synthetic_dryrun.py": "6b1bb8e98478dc3d558279828f733bb6316d7876",
+    "research/registry/PREDICTION_PREREGISTRATION_V2_R2.json": "60aa517d329d29fb8433d2ea7e9ad9eb8c51c86b",
+    "research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json": "eca01d604afa3db3fcb86e962ca3a579c85a35dc",
+    "research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json": "cde05748ae534e612948137b7ddf97466d795a25",
+    "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json": "8782e66f90d00fa93c2690dccaf85e0f53144f2b",
+    "research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json": "d57c3610c6dbba042ee3a13ebf31936f4007b5bc",
+    "research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md": "ba48e803d42cfb84db80d687a12ae27839bc6c9c",
+    "research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json": "9b2aa5e113706cf7d70f75a3372830daca5a3683"
+  },
+  "review_questions": [
+    "Verify tested source commit and every listed blob SHA; reject if source identity cannot be reconstructed.",
+    "Independently recompute method/config shard hashes, byte counts, IDs, master equality, index reconciliation and configuration parent linkage.",
+    "Audit whether 1,000 semantic fingerprints encode scientifically distinct methods rather than syntactic variants; verify the compatibility matrix and all ALLOW_IN_PRINCIPLE rationales.",
+    "Check label definitions, flat tolerance, session alignment, sample/missingness thresholds, fold calendar windows, target-maturity purge and embargo for leakage.",
+    "Independently verify the log-loss/Brier/calibration formulas, paired five-session moving-block bootstrap p-value/CI, BY FDR adjusted p-values and multiplicity-family grouping.",
+    "Review deterministic restart, injected-failure logging, exact commit pinning and synthetic-only claims in the artifact.",
+    "Assess whether resource estimates are adequately characterized; currently ~109056 hypothetical fit calls and ~1173 serial CPU-hours are assumptions, not measured estimator runtimes.",
+    "Return a hash-pinned PASS or REQUEST CHANGES with specific evidence. Do not authorize empirical fitting or untouched-holdout access by implication."
+  ],
+  "prohibited_until_new_gate_pass": [
+    "empirical model fitting",
+    "model selection using outer folds",
+    "strategy selection",
+    "decryption or reading of encrypted market artifacts",
+    "untouched-holdout access"
+  ]
+}
