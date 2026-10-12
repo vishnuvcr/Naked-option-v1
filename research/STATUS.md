@@ -690,3 +690,12 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review the exact preflight report/hash once run #38202961271 finishes; decide PASS or BLOCKED on target contract, holdout exclusion, timestamp joins and coverage.
 **Tester → Developer:** no empirical fit unless a separate tester decision accepts the exact preflight report.
+
+
+## 2026-10-12 — Phase 8P preflight execution blocked; workflow R3 submitted
+- First authorized preflight attempts [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) and [#38203041438](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38203041438) verified the two frozen ZIP hashes, but both ended without a valid schema/coverage report. A sanitized BLOCKED receipt only reported `GateBlocked`; the old workflow hid the symbolic gate code. The receipt-writing step separately failed because `sys` was not imported.
+- Both outputs are non-accepting and no model fit occurred. The reports contain no feature coverage/results; no raw/decrypted rows were uploaded. The specific symbolic preflight blocker remains to be identified.
+- Repaired workflow at commit `24ce332c5d2baae90086fce497f649d1f0a9f3db`, blob `b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5`: safe symbolic diagnostic code and fixed receipt import. Reset the execution request to pending independent workflow review; no further data run is allowed until the exact new blob is approved.
+
+**Developer → Tester:** review workflow blob b8ab18897feddd29a889e3fd5c7633fc1cc7c3a5 and its two repairs; no artifact download is requested during review.
+**Tester → Developer:** after exact workflow PASS, run only schema preflight and inspect its new symbolic blocker/coverage report; keep fitting blocked.
