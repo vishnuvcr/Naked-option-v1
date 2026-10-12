@@ -987,3 +987,10 @@ No strategy has been accepted based on the R2 registry or earlier proxy outputs.
 - Utility workflow run [38240927039](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38240927039): **PASS**; four unit tests and SHA-256 known-vector check succeeded.
 - This is not the independent tester gate. Registry gate remains **BLOCKED / REQUEST CHANGES** until actual shards, scientific compatibility, frozen labels/statistics and synthetic runner gates are reviewed and approved.
 - No empirical fitting or untouched-holdout access is authorized.
+
+## Prediction registry R2 shard utility — 2026-10-12
+
+- Validator hardened in commit [9c6db72](https://github.com/vishnuvcr/Naked-option-v1/commit/9c6db727656d351742e3f2a93a7d8c6e3508aa8b); adversarial regression tests expanded in [49c6099](https://github.com/vishnuvcr/Naked-option-v1/commit/49c60997b12aeb71a93a891b3c895cd6a34445b9).
+- Initial hosted run [38241541882](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241541882) passed the four-test suite from the validator commit, but did not include the expanded tests added immediately afterward. Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) is pending verification.
+- Utility hardening covers malformed index handling, stable IDs, empty explicit lists, canonical JSONL, final newline, and unsafe shard paths.
+- **Registry remains BLOCKED:** actual method/config shards not generated; compatibility/distinctness and statistical preregistration unresolved; no fitting or holdout access authorized.
