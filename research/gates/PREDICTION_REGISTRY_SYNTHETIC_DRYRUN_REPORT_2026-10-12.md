@@ -5,7 +5,7 @@
 ## Pinned execution
 
 - Developer branch commit used by the successful, commit-pinned full run: `d6ab3298f42367de9b0101cdedf477165b20d31f`.
-- GitHub Actions run: [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894).
+- GitHub Actions run: [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308).
 - Workflow: `.github/workflows/prediction-registry-synthetic-dryrun.yml`.
 - The committed dataset manifest explicitly says `encrypted_only=true`. The workflow verifies metadata and hashes but does not decrypt or open market data.
 - Full result artifact: GitHub Actions artifact `r2-prediction-synthetic-dryrun`, ID `11749307748`, including `results.jsonl`, `summary.json`, `checkpoint.json`, and empty `errors.jsonl`.
@@ -32,12 +32,12 @@ The terminal-status counts sum to 64,000. The `SYNTHETIC_MOCK_ONLY` rows are det
 - Full synthetic `results.jsonl` SHA-256: `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`.
 - File size: 36,955,576 bytes.
 - Synthetic seed: `2026101208`.
-- Hosted wall time: 47.20 seconds (not a production-runtime benchmark).
+- Hosted wall time: 46.96 seconds (not a production-runtime benchmark).
 - The hosted `summary.json` records source Git blob SHA-1 pins (distinct from content SHA-256) and registry/preregistration digests. The workflow asserts the checkout commit equals the triggering `GITHUB_SHA`.
 
 ## Restart and failure-handling tests
 
-The commit-pinned full synthetic workflow [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894) passed the metrics, restart and failure-handling tests for: deterministic interruption after task 17, checkpoint creation, safe resume, and byte-for-byte equality with a clean 80-task run; injected exception logging to JSONL with exception type/message and traceback hash; and loading/validating the full 8,000-config registry before a one-task smoke assertion.
+The latest hardened, commit-pinned full synthetic workflow [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed the metrics, restart and failure-handling tests for: deterministic interruption after task 17, checkpoint creation, safe resume, and byte-for-byte equality with a clean 80-task run; injected exception logging to JSONL with exception type/message and traceback hash; and loading/validating the full 8,000-config registry before a one-task smoke assertion.
 
 Two defects were caught and corrected: the Git-blob verifier originally used the two literal characters `\\0` instead of the NUL byte; a test also expected holdout wording different from the frozen preregistration. Both corrections are recorded in `research/ERROR_LOG.md`.
 
