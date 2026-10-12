@@ -3,6 +3,7 @@
 ## Active research-control policy — 2026-10-13
 
 - Independent tester review is deferred until the planned results bundle is acquired, frozen, and hashed. Intermediate commits and phase steps are not sent for tester review.
+- Automatic post-results handoff workflow: `.github/workflows/phase-08p-submit-post-results-review.yml`; it only runs when the formal acquired-results request is present and passes hash validation.
 - Developer-side unit/regression tests, data validation, schema checks, exact source/result hashes and leakage/statistical assertions remain mandatory during execution.
 - The tester workflow now waits for a formal acquired-results review request. See [cadence policy](governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md).
 - R2 remains a non-empirical two-target pilot. The developer must complete and validate the full ten-horizon registry, proceed through planned result acquisition, and then request one consolidated independent review. Historic R3 REQUEST CHANGES remains logged, but is no longer used to pause every intermediate step under the revised cadence.
