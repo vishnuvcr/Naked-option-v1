@@ -253,7 +253,7 @@ jobs:
              "model_fit_authorized":False,"holdout_access_authorized":False,
              "option_pnl_authorized":False,"strategy_promotion_authorized":False,
              "reasons":["PREFLIGHT_RUNTIME_FAILURE_NO_VALID_REPORT"]}
-          p.write_text(json.dumps(report,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+          p.write_text(json.dumps(report,indent=2,sort_keys=True)+"\n",encoding="utf-8")
           PY
           fi
           python - "$REPORT" <<'PY'
@@ -297,7 +297,7 @@ jobs:
              "approved_code_commit":os.environ["APPROVED_DEVELOPER_COMMIT"],"artifacts":items,
              "external_market_source_requests":False,"model_fitted":False,"holdout_metrics_computed":False,
              "option_pnl_run":False,"strategy_promotion":False}
-          Path(sys.argv[1]).write_text(json.dumps(d,indent=2,sort_keys=True)+"\\n")
+          Path(sys.argv[1]).write_text(json.dumps(d,indent=2,sort_keys=True)+"\n")
           PY
 
       - name: Upload aggregate-only preflight receipt
