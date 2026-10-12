@@ -31,8 +31,13 @@ jobs:
       - name: Checkout developer branch
         uses: actions/checkout@v4
         with:
-          ref: phase-08-prediction-developer
+          ref: ${{ github.sha }}
           persist-credentials: true
+      - name: Assert exact workflow-trigger commit
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Pinned checkout: $(git rev-parse HEAD)"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -75,4 +80,17 @@ jobs:
           git commit -m "Rebuild and validate R2 prediction registry artifacts"
           git fetch origin phase-08-prediction-developer
           git rebase origin/phase-08-prediction-developer
+          # Revalidate on the rebased source before any push. Rebuild may be a no-op.
+          python scripts/reshard_prediction_registry.py
+          python scripts/build_prediction_compatibility_matrix.py
+          python -m unittest discover -s scripts -p "test_shard_prediction_registry.py" -v
+          python -m unittest discover -s scripts -p "test_reshard_prediction_registry.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_compatibility_matrix.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_registry_synthetic_dryrun.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_preregistration.py" -v
+          python scripts/audit_prediction_registry_shards.py
+          git add -A research/registry/method_shards research/registry/config_shards research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json research/registry/PREDICTION_PREREGISTRATION_V2_R2.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh verified R2 registry artifacts after rebase"
+          fi
           git push origin HEAD:phase-08-prediction-developer
