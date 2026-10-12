@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "gate": "PHASE8P_INDEPENDENT_CODE_REVIEW",
+  "review_scope": "CODE_AND_SYNTHETIC_TESTS_ONLY",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+  "reviewed_blobs": {
+    "scripts/phase8p_greek_prediction.py": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
+    "scripts/test_phase8p_greek_prediction.py": "4681c8e34aab1edae44f70ffad455741799d7075",
+    ".github/workflows/phase8p-greek-prediction.yml": "9ba46f5563de564b22de088fea5e59cf48792655",
+    "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md": "018500722f88f5fb100a2e24afc3d5d97394631e",
+    "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md": "265c6696466b1999371cb4581baf20fbe950d3f1"
+  },
+  "scope_approval": {
+    "tester_branch": "phase-08-prediction-tester",
+    "review_file": "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md",
+    "review_blob_sha1": "798008657afe0757c54c9aa7dc5eeb1fade3faf5",
+    "decision": "PASS_SCOPE_ONLY_WITH_RESTRICTIONS"
+  },
+  "daily_timestamp_amendment": {
+    "tester_branch": "phase-08-prediction-tester",
+    "review_file": "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_TESTER_R2_2026-10-12.md",
+    "review_blob_sha1": "d0f6ad6803c16051bd897f3074682281b3e4c3a0",
+    "decision_file": "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_DECISION_R2_2026-10-12.json",
+    "decision_blob_sha1": "c154ab22dbf3fe244c6ff2010b6ea60a30538308",
+    "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS",
+    "convention": "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST"
+  },
+  "developer_synthetic_ci": {
+    "run_id": 38201417381,
+    "run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201417381",
+    "tested_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
+    "artifact_id": 11725102315,
+    "artifact_sha256": "6c3c812f0eafff90e09fffb9dba0a9bf4915c3b2fdbe144452a1f2dcbc18ad7e",
+    "conclusion": "success",
+    "note": "Synthetic-only tests, including daily decision-time mapping, mixed OPTION/SPOT rows, blocked authorization, and model smoke tests; no real artifacts opened."
+  },
+  "review_questions": [
+    "Verify all reviewed blob SHAs and exact developer commit identity.",
+    "Independently evaluate exact artifact identity/hash verification and manifest source/license/row-count lineage before any data gate.",
+    "Inspect that schema/preflight code is reachable only with exact tester-approved code decision and does not authorize model fit itself.",
+    "Review explicit daily cash-close mapping (15:30 IST) and exact bar-start+60-second Greek timestamp selection.",
+    "Review feature aggregation formulas, ratio denominator/missingness behavior, daily/intraday exact joins, target-end calculations, and expected terminal missing labels.",
+    "Check chronological block order, training target-maturity purge, paired-row identity, same-row metrics, null-centered bootstrap, Holm 20-test family, and insufficient-coverage behavior.",
+    "Inspect whether the frozen Run #994 artifact actually proves an untouched-holdout boundary. If not, reject preflight and do not fit; do not invent a cutoff.",
+    "Check aggregate-only output and absence of decrypted files, raw rows, source/API requests, holdout access, P&L or strategy promotion.",
+    "Return PASS_FOR_CODE_ONLY or REQUEST_CHANGES. No data access or empirical-fit authorization is granted by the code decision."
+  ],
+  "prohibited": {
+    "download_or_decrypt_market_artifacts": true,
+    "empirical_model_fit": true,
+    "external_market_source_request": true,
+    "holdout_access": true,
+    "option_pnl": true,
+    "strategy_promotion": true
+  }
+}
