@@ -176,11 +176,11 @@ def load_registry() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], di
     scope = prereg.get("scope", {})
     actual_manifest_blob = git_blob_sha1(data_manifest_raw)
     pinned_inputs = {
-        "data_manifest_sha256_git_blob": actual_manifest_blob,
-        "label_manifest_sha256_git_blob": git_blob_sha1((REGISTRY / "PREDICTION_LABEL_MANIFEST_V2_R2.json").read_bytes()),
-        "config_manifest_sha256_git_blob": git_blob_sha1((REGISTRY / "PREDICTION_CONFIG_MANIFEST_V2_R2.json").read_bytes()),
-        "registry_index_sha256_git_blob": git_blob_sha1(idx_raw),
-        "compatibility_matrix_sha256_git_blob": git_blob_sha1(matrix_raw),
+        "data_manifest_git_blob_sha1": actual_manifest_blob,
+        "label_manifest_git_blob_sha1": git_blob_sha1((REGISTRY / "PREDICTION_LABEL_MANIFEST_V2_R2.json").read_bytes()),
+        "config_manifest_git_blob_sha1": git_blob_sha1((REGISTRY / "PREDICTION_CONFIG_MANIFEST_V2_R2.json").read_bytes()),
+        "registry_index_git_blob_sha1": git_blob_sha1(idx_raw),
+        "compatibility_matrix_git_blob_sha1": git_blob_sha1(matrix_raw),
     }
     for key, actual in pinned_inputs.items():
         if scope.get(key) != actual:
