@@ -104,7 +104,7 @@ def main():
         "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
         "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
         "CC-BY-NC-4.0",
-        "nifty_1m_composite:v1",
+        "NIFTY-1m-composite:v1",
     ))
     checks.append({"check":"immutable_artifact_and_encryption_pins","pass":pins_ok})
     if not pins_ok: failures.append("PINNED_INPUT_OR_ENCRYPTION_LINEAGE_MISSING")
