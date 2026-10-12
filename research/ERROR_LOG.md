@@ -1109,3 +1109,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester (post-results only):** preserve both failed attempts and the exact final contract correction in the frozen result bundle.
 **Tester → Developer (post-results only):** verify the correction matches the actual R2 manifest and that no hash validation was weakened.
+
+
+## 2026-10-13 — R3 manual data-artifact identity comparison corrected
+
+- Category: analyst/tooling mistake / artifact lineage.
+- Symptom: an initial manual comparison used ancestor artifact ID 11696937921 (whose SHA-256 is 5337b545a0b95b943fc3de4f39b00c5d857a656fc663a9387a564aaf288af80b) as if it were the current derived encrypted archive. Its internal monthly part hashes therefore appeared not to match the current derived dataset manifest.
+- Root cause: confusion between the manifest's `derived_from.parent_artifact_id` lineage and the current derived artifact ID.
+- Correction/evidence: downloaded current derived artifact ID 11698879857 from source run 38131641336 and verified outer ZIP SHA-256 `40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b`. Its embedded manifest is `_temp/repair-derived-encrypted/dataset_manifest.json`, SHA-256 `da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f`, 34,363 bytes. All 61 encrypted members match byte sizes and SHA-256 values, with zero mismatches; their declared row counts sum to 8,999,865 (8,490,723 OPTION and 509,142 SPOT). The verified archive is encrypted-only; no plaintext has been decrypted in this manual check.
+- Prevention: distinguish source ancestor fields from the exact current artifact identity in every later report and preflight pin. Added `research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json` and builder/test assertions for the current artifact ID, archive/manifest hashes, exact source-manifest blob, and ancestry. The artifact pin and test are now inputs to R3 developer CI.
+- Consequence: initial “part mismatch” observation was a false alarm caused by the wrong artifact; no source-manifest corruption is inferred. Decryption/data-schema/timestamp preflight remains a separate pending step.
