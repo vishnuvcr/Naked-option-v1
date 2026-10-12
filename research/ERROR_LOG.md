@@ -1007,3 +1007,11 @@
 - Source manifest pin names were changed from misleading `*_sha256_git_blob` to `*_git_blob_sha1`; these 40-character hashes are Git object IDs (SHA-1), not raw-file SHA-256. Raw content SHA-256 remains separate in the runner output.
 - Added `scripts/prediction_statistics.py` and its regression tests. Tests for binary metrics, calibration intercept/slope, deterministic five-session block bootstrap, invalid/short-fold inputs, and BY FDR values passed in [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987) and in the latest pinned synthetic workflow.
 - Final full synthetic output: 64,000 rows, 27,264 toy/mock-only rows, 36,736 compatibility-blocked rows, empty error JSONL; result SHA-256 `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`. This is orchestration evidence only, not market prediction evidence.
+
+
+## 2026-10-12 — Latest hardened statistical/synthetic run
+
+- Run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed on pinned source `6d4787348d7b0b794e210026ceddcea19192eccc`: 64,000 synthetic rows; 27,264 mock-only; 36,736 compatibility blocked; zero exception/error JSONL rows; result SHA-256 `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`; artifact ID 11749635242.
+- Latest code hardening now explicitly rejects float-valued binary labels, requires both classes for calibration intercept/slope, and requires integer bootstrap length/replicate count/seed. The 8-test statistical suite passed inside the synthetic run, and full registry audit/re-sharding workflows passed.
+- The runner output is deterministic toy-probability data only. It provides no evidence about real-market predictability or strategy returns.
+- Resource estimates (~109,056 hypothetical fit calls / ~1,173 CPU-hours) remain assumption-based. Scientific tester gate remains REQUEST CHANGES / awaiting new independent review; no empirical fitting or holdout access.
