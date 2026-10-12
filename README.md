@@ -483,3 +483,6 @@ Status: hosted data-integrity result is verified; independent tester decision re
 
 ### Latest strict-input statistical gate — 2026-10-12
 The pinned run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed the full 64,000-task synthetic orchestration, restart/error tests, and all 10 latest statistical regression tests. No real-market dataset was opened; no empirical fitting or holdout access occurred. [Updated synthetic report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md).
+
+
+- Latest registry correction: [contrast repair log](research/gates/PREDICTION_REGISTRY_CONTRAST_REPAIR_LOG_2026-10-12.md) and [refreshed independent review request](research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). Repair/audit and synthetic workflows passed; scientific review is still pending.
