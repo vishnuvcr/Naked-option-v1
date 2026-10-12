@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_R2",
+  "decision": "PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY",
+  "review_date": "2026-10-12",
+  "tester_branch": "phase-08-prediction-tester",
+  "developer_branch": "phase-08-prediction-developer",
+  "workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-execution.yml",
+  "workflow_blob_sha1": "398063be2215dbed40c123521bf2868b0bcdb6a3",
+  "executor_request_path": "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_REVIEW_REQUEST_R2_2026-10-12.json",
+  "executor_request_blob_sha1": "252536eb06b0bf0d4d6f10d00e802cd481b3a94b",
+  "supersedes_request_blob_sha1": "fa3ae648d9da23649ad3db62c28456c032069a06",
+  "superseded_decision_blob_sha1": "d713efe1511b95ad11211395a519e142e3ff80bf",
+  "developer_code_commit": "8f8d513330d1cb064b4d3ffe9933f8e8014f2850",
+  "r4_code_decision_blob_sha1": "469fe821a1f735051a9db0ea2a02f14881922dfc",
+  "r4_code_report_blob_sha1": "0a1ede135fa30477ea8e4cd1643d395eead49a10",
+  "r4_scope_decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+  "tester_audit": {
+    "path": "scripts/phase8p_duplicate_diagnostic_execution_audit.py",
+    "blob_sha1": "daf4a4aeb65efaeebcf04b9d7593dc7bcb2fa58",
+    "workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-execution-review.yml",
+    "workflow_blob_sha1": "46e7f6cea78264e073ccc4598bbbc177f39a2976"
+  },
+  "reviewer_run": {
+    "run_id": 38206600329,
+    "conclusion": "success",
+    "checks_passed": 33,
+    "checks_total": 33,
+    "failures": [],
+    "receipt_artifact_id": 11727980780,
+    "receipt_zip_sha256": "0522c85f76d7c98b3ffe6475b1b97f5675ce3c4047819d3faa7665f21f030599"
+  },
+  "safe_noop_run_id": 38206533110,
+  "failed_review_runs": [
+    {
+      "run_id": 38206552763,
+      "checks_passed": 31,
+      "checks_total": 32,
+      "reason": "R2 request retained R1 workflow-approval path",
+      "disposition": "corrected_and_superseded"
+    }
+  ],
+  "prior_fail_closed_runs": [
+    {
+      "run_id": 38205997072,
+      "reason": "missing top-level nonce"
+    },
+    {
+      "run_id": 38206009396,
+      "reason": "missing top-level R4 decision/report/scope blob keys"
+    }
+  ],
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "execution_nonce": "PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133",
+  "execution_authorization_request_path": "research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTION_AUTHORIZATION_REQUEST_R1_2026-10-12.json",
+  "execution_authorization_required": true,
+  "checks_passed": 33,
+  "checks_total": 33,
+  "failures": [],
+  "real_artifact_accessed": false,
+  "real_artifact_decrypted": false,
+  "real_diagnostic_authorized": false,
+  "execution_authorization_granted": false,
+  "deduplication_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "raw_or_decrypted_data_upload_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false
+}
