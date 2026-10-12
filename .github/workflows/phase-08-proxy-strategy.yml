@@ -1,0 +1,242 @@
+name: Phase 8 OHLC Proxy Strategy Backtest
+
+on:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - .github/workflows/phase-08-proxy-strategy.yml
+      - scripts/run_phase8_proxy_strategy.py
+      - scripts/test_phase8_proxy_strategy.py
+      - research/phase8/PROXY_EXECUTION_REQUEST.md
+  workflow_dispatch:
+    inputs:
+      execute_proxy_backtest:
+        description: Run the tester-approved OHLC proxy backtest
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: phase-08-proxy-strategy
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy pyarrow scikit-learn cryptography
+      - name: Compile runner/tests
+        run: python -m py_compile scripts/run_phase8_proxy_strategy.py scripts/test_phase8_proxy_strategy.py
+      - name: Synthetic proxy regression
+        run: python scripts/test_phase8_proxy_strategy.py
+      - name: Runner self-test
+        run: python scripts/run_phase8_proxy_strategy.py --self-test
+
+  tester-gate:
+    needs: regression
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.gate.outputs.authorized }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require exact tester PASS on current blobs
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin phase-08-prediction-tester
+          report="$RUNNER_TEMP/phase8-proxy-tester.md"
+          if ! git show FETCH_HEAD:research/gates/PHASE8_PROXY_STRATEGY_TESTER.md > "$report" 2>/dev/null; then
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "Tester report absent; empirical job will remain skipped."
+            exit 0
+          fi
+          r="$(git rev-parse HEAD:scripts/run_phase8_proxy_strategy.py)"
+          t="$(git rev-parse HEAD:scripts/test_phase8_proxy_strategy.py)"
+          w="$(git rev-parse HEAD:.github/workflows/phase-08-proxy-strategy.yml)"
+          rr="$(awk -F': ' '$1=="Runner blob SHA"{print $2; exit}' "$report")"
+          tt="$(awk -F': ' '$1=="Synthetic test blob SHA"{print $2; exit}' "$report")"
+          ww="$(awk -F': ' '$1=="Workflow blob SHA"{print $2; exit}' "$report")"
+          if grep -Fxq 'STATUS: PASS — OHLC PROXY BACKTEST AUTHORIZED' "$report" &&
+             [[ "$r" == "$rr" && "$t" == "$tt" && "$w" == "$ww" ]]; then
+            echo "authorized=true" >> "$GITHUB_OUTPUT"
+            echo "Tester PASS matches exact current blobs."
+          else
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "Tester gate not authorized: status or blob mismatch."
+            echo "runner=$r tester_runner=$rr tests=$t tester_tests=$tt workflow=$w tester_workflow=$ww"
+          fi
+
+  proxy-backtest:
+    needs: [regression, tester-gate]
+    if: >-
+      needs.tester-gate.outputs.authorized == 'true' &&
+      ((github.event_name == 'workflow_dispatch' && inputs.execute_proxy_backtest == true) ||
+       (github.event_name == 'push' && contains(github.event.head_commit.message, '[RUN_PHASE8_PROXY]')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      PHASE7_ARTIFACT_ID: '11638738288'
+      PHASE7_ARTIFACT_SHA256: '3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9'
+      OPTION_ARTIFACT_ID: '11698879857'
+      OPTION_ARTIFACT_SHA256: '40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy pyarrow scikit-learn cryptography
+      - name: Restore the immutable forecast artifact by ID and SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/phase7-reference"
+          curl --fail --location --silent --show-error --retry 3 --retry-all-errors \
+            -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PHASE7_ARTIFACT_ID}/zip" \
+            --output "$RUNNER_TEMP/phase7-reference.zip"
+          test "$(sha256sum "$RUNNER_TEMP/phase7-reference.zip" | awk '{print $1}')" = "$PHASE7_ARTIFACT_SHA256"
+          unzip -q "$RUNNER_TEMP/phase7-reference.zip" -d "$RUNNER_TEMP/phase7-reference"
+          test -s "$RUNNER_TEMP/phase7-reference/phase7_reference/phase7_reference_manifest.json"
+          test -s "$RUNNER_TEMP/phase7-reference/phase7_ensemble_results.json"
+      - name: Restore the existing option composite by ID and SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/phase8-option-bundle"
+          curl --fail --location --silent --show-error --retry 3 --retry-all-errors \
+            -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${OPTION_ARTIFACT_ID}/zip" \
+            --output "$RUNNER_TEMP/phase8-option-composite.zip"
+          test "$(sha256sum "$RUNNER_TEMP/phase8-option-composite.zip" | awk '{print $1}')" = "$OPTION_ARTIFACT_SHA256"
+          unzip -q "$RUNNER_TEMP/phase8-option-composite.zip" -d "$RUNNER_TEMP/phase8-option-bundle"
+          manifest="$(find "$RUNNER_TEMP/phase8-option-bundle" -type f -name dataset_manifest.json -print -quit)"
+          test -n "$manifest"
+          input_dir="$RUNNER_TEMP/phase8-decrypt-input"
+          mkdir -p "$input_dir"
+          cp "$manifest" "$input_dir/dataset_manifest.json"
+          while IFS= read -r -d '' part; do cp "$part" "$input_dir/"; done < <(find "$(dirname "$manifest")" -maxdepth 1 -type f -name '*.csv.gz.enc' -print0)
+          test "$(find "$input_dir" -maxdepth 1 -type f -name '*.csv.gz.enc' | wc -l)" -eq 61
+      - name: Decrypt existing parts only
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          set -euo pipefail
+          python scripts/decrypt_nifty_1m_composite.py \
+            --input-dir "$RUNNER_TEMP/phase8-decrypt-input" \
+            --output-dir "$RUNNER_TEMP/phase8-decrypted-parts" --overwrite
+          test "$(find "$RUNNER_TEMP/phase8-decrypted-parts" -maxdepth 1 -type f -name '*.csv.gz' | wc -l)" -eq 61
+      - name: Run the 4,800 configuration OHLC proxy grid
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/phase8-proxy-results"
+          python scripts/run_phase8_proxy_strategy.py \
+            --forecast-root "$RUNNER_TEMP/phase7-reference" \
+            --parts-dir "$RUNNER_TEMP/phase8-decrypted-parts" \
+            --output-dir "$RUNNER_TEMP/phase8-proxy-results" \
+            | tee "$RUNNER_TEMP/phase8-proxy-results/hosted_run_stdout.json"
+      - name: Publish summary tables and update research records
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          publish="research/results/phase8-proxy-run-${GITHUB_RUN_ID}"
+          mkdir -p "$publish"
+          cp "$RUNNER_TEMP/phase8-proxy-results/phase8_proxy_strategy_run_report.json" "$publish/"
+          cp "$RUNNER_TEMP/phase8-proxy-results/phase8_proxy_strategy_summary.csv" "$publish/"
+          cp "$RUNNER_TEMP/phase8-proxy-results/phase8_proxy_top_50_worst_cost_scenario.csv" "$publish/"
+          cp "$RUNNER_TEMP/phase8-proxy-results/phase8_proxy_top_50_yearly.csv" "$publish/"
+          cat > "$publish/README.md" <<EOF
+          # Phase 8 OHLC Proxy Strategy Run ${GITHUB_RUN_ID}
+
+          - [Full run report](phase8_proxy_strategy_run_report.json)
+          - [All 19,200 configuration/scenario rows](phase8_proxy_strategy_summary.csv)
+          - [Top candidates under worst-cost scenario C3](phase8_proxy_top_50_worst_cost_scenario.csv)
+          - [Yearly breakdown for candidates](phase8_proxy_top_50_yearly.csv)
+          - Results are Q1/OHLC proxy estimates, not quote-executable.
+          EOF
+          python - <<'PY'
+          from pathlib import Path
+          import json, os, datetime
+          run_id=os.environ["GITHUB_RUN_ID"]
+          publish=Path("research/results")/("phase8-proxy-run-"+run_id)
+          data=json.loads((publish/"phase8_proxy_strategy_run_report.json").read_text())
+          readme=Path("README.md")
+          old=readme.read_text(encoding="utf-8")
+          marker="## Latest Phase 8 OHLC proxy strategy run"
+          section=(
+              f"\\n\\n{marker} — Run {run_id}\\n\\n"
+              f"- **Status:** {data['status']} (Q1/OHLC proxy, not quote-executable).\\n"
+              f"- **Trades simulated:** {data['trade_count']:,}; 4,800 configurations × 4 cost scenarios.\\n"
+              f"- **Candidates positive under C3 with at least 30 trades:** {data['configurations_with_30_plus_trades_positive_c3']}.\\n"
+              f"- **Report:** [full run report](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_run_report.json)\\n"
+              f"- **Grid:** [all rows](research/results/phase8-proxy-run-{run_id}/phase8_proxy_strategy_summary.csv)\\n"
+              f"- **Worst-cost candidates:** [C3 top 50](research/results/phase8-proxy-run-{run_id}/phase8_proxy_top_50_worst_cost_scenario.csv)\\n"
+          )
+          if marker in old:
+              old=old[:old.index(marker)-2].rstrip()
+          readme.write_text(old+section,encoding="utf-8")
+          status=Path("research/STATUS.md")
+          lines=status.read_text(encoding="utf-8").splitlines()
+          for i,line in enumerate(lines):
+              if line.startswith("| Phase 8 Long-option execution |"):
+                  state="COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING" if data["status"]=="COMPLETE_PROXY_BACKTEST" else data["status"]
+                  lines[i]=f"| Phase 8 Long-option execution | {state} | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |"
+                  break
+          status.write_text("\\n".join(lines)+"\\n",encoding="utf-8")
+          with Path("research/logs/RESEARCH_LOG.md").open("a",encoding="utf-8") as f:
+              f.write(f"\\n\\n## {datetime.date.today().isoformat()} — Phase 8 OHLC proxy strategy Run {run_id}\\n\\n")
+              f.write(f"- Status: {data['status']}; simulated trades: {data['trade_count']}.\\n")
+              f.write(f"- C3-positive configurations with at least 30 trades: {data['configurations_with_30_plus_trades_positive_c3']}.\\n")
+              f.write("- No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.\\n")
+          with Path("research/logs/CHAT_LOG.md").open("a",encoding="utf-8") as f:
+              f.write(f"\\n\\n## {datetime.date.today().isoformat()} — User directed strategy testing without bid/ask validation\\n\\n")
+              f.write(f"- OHLC proxy run {run_id}: status {data['status']}; trades {data['trade_count']}; C3-positive configs with >=30 trades {data['configurations_with_30_plus_trades_positive_c3']}.\\n")
+              f.write("- No new market data were acquired. Hidden chain-of-thought is not included; this records decisions and outcomes.\\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$publish" README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md
+          git commit -m "Publish Phase 8 OHLC proxy results for run ${GITHUB_RUN_ID}"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Upload full proxy artifact with trade ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-ohcl-proxy-results-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_strategy_run_report.json
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_strategy_summary.csv
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_trade_ledger.csv.gz
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_top_50_worst_cost_scenario.csv
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_top_50_yearly.csv
+            ${{ runner.temp }}/phase8-proxy-results/phase8_proxy_strategy_error.log
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Remove decrypted source material
+        if: always()
+        run: |
+          rm -rf "$RUNNER_TEMP/phase8-decrypt-input" "$RUNNER_TEMP/phase8-decrypted-parts" \
+            "$RUNNER_TEMP/phase8-option-bundle" "$RUNNER_TEMP/phase8-option-composite.zip" \
+            "$RUNNER_TEMP/phase7-reference.zip" "$RUNNER_TEMP/phase7-reference"
