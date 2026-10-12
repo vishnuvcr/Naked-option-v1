@@ -656,3 +656,9 @@
 - Initial static inspection of .github/workflows/phase8p-preflight-only.yml found the push trigger named PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json while the gate script attempted to read PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R1_2026-10-12.json. This could cause the authorized request to be ignored or the wrong request to be evaluated.
 - Corrected the gate to read R2 and pinned the corrected workflow blob 474712e945dfaef83c814c9e17d1513ad44a3152. The R2 execution request is pending review and fails closed; no artifact was downloaded by this change.
 - Tester review run [#38202735979](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202735979) initially reported 28/29 checks due to a case-sensitive tester-side text assertion; that tester harness was corrected independently and rerun [#38202785798](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202785798) is pending.
+
+
+## 2026-10-12 — Phase 8P execution request fail-closed attempt
+- Workflow run [#38202662228](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202662228) was triggered while R2 execution request status was PENDING_INDEPENDENT_WORKFLOW_REVIEW. It stopped at the status gate before any artifact download, as required.
+- After the tester returned PASS_PREFLIGHT_WORKFLOW_ONLY (29/29 checks), the request was changed to AUTHORIZED_TO_RUN_SCHEMA_PREFLIGHT_ONLY and pinned to tester decision blob 0f7cf48945704e9498b7e149a7ae71a820809070.
+- Authorized schema-only replacement run [#38202961271](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38202961271) is queued. No model fit is permitted by this request.
