@@ -905,3 +905,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Developer → Tester:** audit the proposal's method uniqueness, bounded configuration universe, evaluation gates and resource/completeness contract; do not run models or access the holdout.
 
 **Tester → Developer:** issue a hash-pinned PASS or REQUEST CHANGES on the tester branch. No registry implementation or empirical prediction batch advances until the required gate passes.
+
+## 2026-10-12 — 1,000+ prediction-method amendment submitted for independent gate
+
+- Proposal R1 is pinned at developer commit `65dd011139e62ff17289c4a29a94602e92ef9fe3`, blob SHA `e0ad50a05447d062d4ec2a02f5dcc8ac8c2f2c8b`.
+- Independent review request created as [issue #23](https://github.com/vishnuvcr/Naked-option-v1/issues/23). Required verdict is PASS or REQUEST CHANGES on the isolated tester branch, with exact proposal hash pinned.
+- Review must cover substantive method uniqueness, separate method/configuration counts, finite grid completeness, chronological/PIT validation, multiple-testing controls, failure retention, and protection from Phase 8 strategy-result leakage.
+- **Gate status: AWAITING TESTER REVIEW.** Registry V2 generation and new empirical prediction batches are blocked until an independent tester decision is recorded. This is a deliberate gate, not a claim that the review has already run.
+- Phase 8 run #38229793041 is completed but does not count toward the 1,000-method requirement; it remains downstream exploratory execution evidence.
+
+**Developer → Tester:** complete issue #23 review on the tester branch, hash-pin the proposal, and return a reproducible PASS/REQUEST CHANGES.
+
+**Tester → Developer:** no registry expansion or empirical batch until the independent decision is committed.
