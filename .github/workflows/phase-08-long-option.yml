@@ -1,6 +1,19 @@
 name: Phase 8 Long-Option Research
 
 on:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - '.github/workflows/phase-08-long-option.yml'
+      - 'scripts/run_phase8_long_option.py'
+      - 'scripts/test_phase8_long_option_runner.py'
+      - 'scripts/test_phase8_execution_engine.py'
+      - 'research/phase8/PHASE8_FROZEN_INPUT_MANIFEST.json'
+      - 'research/gates/PHASE8_SPEC_APPROVAL_TESTER.md'
+      - 'research/gates/PHASE8_RECONSTRUCTION_CODE_TESTER.md'
+      - 'research/gates/PHASE8_EXECUTION_CONVENTIONS_TESTER.md'
+      - 'research/gates/PHASE8_EXECUTION_ENGINE_APPROVAL_TESTER_R2.md'
   workflow_call:
     inputs:
       empirical_authorized:
