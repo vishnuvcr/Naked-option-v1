@@ -1,5 +1,14 @@
 # Research Status
 
+## Full-horizon R3 registry — developer execution (2026-10-13)
+
+- Added deterministic R3 builder and tests for the ten frozen horizons, 40,000 configurations, canonical output hashes, horizon-specific maturity/purge/embargo, preserved R2 provenance, and post-results tester cadence.
+- The established registry workflow now includes a separate R3 job so it is covered by existing developer CI. The standalone R3 workflow remains as a manual-run option.
+- R2’s per-record config_sha256 differs from canonical configuration-object SHA-256 in a verified sample. R2 shard file hashes/counts/ID ranges remain the declared integrity checks; R3 documents and preserves the legacy digest while producing new canonical digests.
+- The hosted build output is not yet visible through the available repository file/status interface. Build/validation is **pending verification**; no pass is claimed and the empirical runner has not been started.
+- Tester review remains deferred until results acquisition under the current user instruction.
+
+
 ## Active research-control policy — 2026-10-13
 
 - Independent tester review is deferred until the planned results bundle is acquired, frozen, and hashed. Intermediate commits and phase steps are not sent for tester review.
@@ -29,7 +38,7 @@
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
-| Phase 8P Prediction research | DEVELOPER EXECUTION — FULL HORIZON REGISTRY / RESULTS ACQUISITION | R2 pilot only; next build a developer-validated ten-horizon registry, execute the frozen research workload, preserve all results and failures, then submit one consolidated tester review after result acquisition. |
+| Phase 8P Prediction research | DEVELOPER EXECUTION — R3 TEN-HORIZON BUILD / VALIDATION | R2 preserved as pilot; R3 builder covers 10 horizons / 40,000 configurations. Hosted build output not yet verified. No empirical fit; tester review deferred until complete result acquisition. |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
