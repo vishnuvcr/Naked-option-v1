@@ -75,7 +75,23 @@ def main() -> int:
     changed = repair_records(records)
     payload = (json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
     MASTER.write_bytes(payload)
-    print(json.dumps({"methods": len(records), "contrasts_updated": changed, "master": MASTER.relative_to(ROOT).as_posix()}, indent=2))
+    by_id = {record["method_id"]: record for record in records}
+    shard_dir = ROOT / "research" / "registry" / "method_shards"
+    shard_updates = 0
+    for shard_path in sorted(shard_dir.glob("METHODS_V2_R2_PART*.json")):
+        shard_obj = json.loads(shard_path.read_text(encoding="utf-8"))
+        shard_methods = shard_obj.get("methods")
+        if not isinstance(shard_methods, list):
+            raise ValueError(f"Invalid methods array in {shard_path}")
+        for item in shard_methods:
+            method_id = item.get("method_id")
+            if method_id not in by_id:
+                raise ValueError(f"Unknown method ID in {shard_path}: {method_id}")
+        shard_obj["methods"] = [by_id[item["method_id"]] for item in shard_methods]
+        shard_payload = (json.dumps(shard_obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+        shard_path.write_bytes(shard_payload)
+        shard_updates += 1
+    print(json.dumps({"methods": len(records), "contrasts_updated": changed, "shards_updated": shard_updates, "master": MASTER.relative_to(ROOT).as_posix()}, indent=2))
     return 0
 
 if __name__ == "__main__":
