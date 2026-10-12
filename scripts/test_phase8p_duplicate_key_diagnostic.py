@@ -19,6 +19,8 @@ def main():
     assert result["seconds_milliseconds_timestamp_normalization"] == "PASS"
     assert result["ordered_header_fail_closed"] == "PASS"
     assert result["no_deduplication_or_raw_output"] == "PASS"
+    assert result["disk_backed_aggregation"] == "PASS"
+    assert result["per_part_progress_reporting"] == "PASS"
     assert result["real_artifact_opened"] is False
     assert result["model_fitted"] is False
 
