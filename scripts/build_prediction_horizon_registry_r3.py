@@ -51,7 +51,7 @@ POSITIONAL_HORIZONS = [
     ("POS_10D_UP_DOWN", 10),
 ]
 ALL_LABEL_IDS = [x[0] for x in INTRADAY_HORIZONS + POSITIONAL_HORIZONS]
-HASH_RULE = "SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including final newline"
+HASH_RULE = "SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline if present"
 CONFIG_DIGEST_RULE = "SHA-256 over canonical UTF-8 JSON of the configuration object using sorted keys and compact separators, without a trailing newline"
 METHOD_SEMANTIC_FIELDS = (
     "algorithm_family", "architecture_or_decision_function", "learning_objective",
