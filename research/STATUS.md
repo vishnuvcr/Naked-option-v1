@@ -162,3 +162,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 **Tester → Developer:** independently verify the terminal artifact, coverage report, row preservation, encrypted-part hashes and unresolved-Greek statuses before accepting delivery.
 
 **Developer → Tester:** report terminal run outcome and preserve the partial-grid / proxy / non-commercial restrictions in all final references.
+
+
+## 2026-10-12 — Phase 8 Greek enrichment R2 tester decision
+- Canonical independent tester workflow [#38194602133](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194602133) passed exact four-file blob pins, the developer synthetic suite, and 162 independently coded Black-Scholes/finite-difference CE/PE cases. Exact developer snapshot: `6ebb54bdbbc7ed0198d23d0b555aea547a127f9f`.
+- Decision: [R2 machine JSON](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R2_2026-10-12.json) and [R2 review report](research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_REVIEW_R2_2026-10-12.md): **PASS_WITH_SCOPED_RESTRICTIONS**.
+- The developer run [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) passed authorization, cached-source integrity, and HF metadata/spot retrieval. As of this status update, the 61-part enrichment/re-encryption step remained in progress; output rows, encrypted hashes and coverage were not yet accepted.
+- A second, duplicate workflow had a stale R1 path and failed its pin gate. It was removed and logged; it did not request source data and does not supersede the canonical passing decision.
+- Scope restrictions remain: public HF spot plus expiry file-list enrichment only; no Dhan API call, empirical option P&L, holdout access, strategy promotion, commercial use, or plaintext upload.
