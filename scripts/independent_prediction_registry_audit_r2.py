@@ -67,7 +67,7 @@ def audit_shards(root, entries, records_key, id_key, issues, label):
                 issues.append({"code": f"{label}_DUPLICATE_OR_INVALID_ID", "path": entry["path"], "id": rid})
             seen.add(rid)
             records.append(rec)
-        shard_summaries.append({"path": entry["path"], "records": len(chunk), "bytes": len(raw), "sha256": digest_bytes(raw)})
+        shard_summaries.append({"path": entry["path"], "records": len(chunk), "bytes": len(raw), "sha256": digest_bytes(raw), "matrix_sha256": obj.get("matrix_sha256")})
     return records, shard_summaries
 
 def nearest_peer(method, methods):
@@ -100,7 +100,7 @@ def main():
         issues.append({"code": "COMPATIBILITY_MASTER_COUNTS_OR_GUARD", "method_count": compat_master.get("method_count"), "eligible": compat_master.get("empirically_eligible_count")})
     if any(r.get("eligible_for_empirical_fitting") is not False for r in compat_shards):
         issues.append({"code": "EMPIRICAL_ELIGIBILITY_NOT_FALSE_FOR_ALL_ROWS"})
-    if any(r.get("matrix_sha256") != compat_master.get("matrix_sha256") for r in compat_shards):
+    if any(x.get("matrix_sha256") != compat_master.get("matrix_sha256") for x in compat_meta):
         issues.append({"code": "SHARD_MASTER_DIGEST_LINKAGE"})
     decision_counts = dict(sorted(Counter(r.get("compatibility_decision") for r in compat_shards).items()))
     sem_fps = [r.get("semantic_fingerprint_sha256") for r in compat_shards]
