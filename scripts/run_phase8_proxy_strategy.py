@@ -100,6 +100,12 @@ def plan_exit_epoch(decision: int, layer: str, horizon: int, sessions: list[str]
                     unique_times: np.ndarray) -> int | None:
     if layer == "intraday":
         planned = int(decision + int(horizon) * 60)
+        # Intraday trades cannot silently roll into the next session because an
+        # H-minute target falls after the 15:30 NSE close. Those cases are skipped.
+        decision_local = pd.Timestamp(decision, unit="s", tz="UTC").tz_convert(IST)
+        planned_local = pd.Timestamp(planned, unit="s", tz="UTC").tz_convert(IST)
+        if planned_local.date() != decision_local.date() or planned_local.strftime("%H:%M:%S") > "15:30:00":
+            return None
     else:
         d = session_date_for_epoch(decision)
         pos = int(np.searchsorted(np.asarray(sessions, dtype=object), d, side="left"))
@@ -476,6 +482,11 @@ def simulate_exit(skel: dict, policy: str, options: pd.DataFrame,
             )
             trailing_high = new_high
             if reason is not None and price is not None:
+                # If a stop was crossed by a gap through its level, OHLC-only
+                # data cannot justify the stop price; use the lower bar open.
+                bar_open = float(option_open[row_idx])
+                if reason in {"STOP_LOSS", "TRAILING_STOP"} and np.isfinite(bar_open) and bar_open > 0:
+                    price = min(float(price), bar_open)
                 exit_pos = series_pos
                 exit_base = float(price)
                 exit_reason = str(reason)
@@ -814,6 +825,12 @@ def run_proxy(reference_root: Path, parts_dir: Path, output_dir: Path) -> dict:
                 "expiry_2024-11-26_to_2026-01-05": 75,
                 "expiry_from_2026-01-06": 65,
             },
+            "lot_size_limitation": (
+                "These are expiry-date-based lot-size proxies. Some contracts created before a "
+                "lot-size transition can expire after it, so without a historical listed-contract "
+                "master the absolute INR P&L and costs can be mis-scaled for transition-month "
+                "contracts. Results remain exploratory."
+            ),
         },
         "trade_count": int(len(trade_df)),
         "configurations_with_30_plus_trades_positive_c3": int(len(eligible)),
