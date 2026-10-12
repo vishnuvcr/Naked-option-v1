@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DAILY_DECISION_TIME_AMENDMENT",
+  "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS",
+  "proposal_path": "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_R1_2026-10-12.md",
+  "proposal_blob_sha1": "3f48c1b00b8abcb35103cda620734071c77b459c",
+  "convention": "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST",
+  "sources": [
+    {
+      "title": "NSE Market Timings",
+      "url": "https://www.nseindia.com/static/market-data/market-timings",
+      "fact": "Equities regular session closes 15:30 IST; equity derivatives regular session closes 15:40 IST."
+    },
+    {
+      "title": "NSE Market Timings & Holidays",
+      "url": "https://www.nseindia.com/resources/exchange-communication-holidays",
+      "fact": "Regular equity session opens 09:15 and closes 15:30 IST."
+    }
+  ],
+  "restrictions": {
+    "artifact_download_or_decryption_authorized": false,
+    "model_fit_authorized": false,
+    "holdout_access_authorized": false,
+    "new_data_source_request_authorized": false,
+    "option_pnl_authorized": false,
+    "strategy_promotion_authorized": false
+  },
+  "required_code_gate_remains": "REQUEST_CHANGES",
+  "required_following_gate": "independent artifact-bound schema/coverage preflight"
+}
