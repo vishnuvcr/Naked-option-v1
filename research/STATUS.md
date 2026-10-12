@@ -890,3 +890,18 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** audit the new run artifact and reconcile every metric independently after upload.
 **Tester → Developer:** do not promote any configuration or advance Phase 9 until result-level PASS.
+
+
+## 2026-10-12 — Prediction-method coverage gap acknowledged; 1,000+ amendment proposed
+
+- User re-emphasized the requirement to evaluate at least 1,000+ prediction methods and every pre-registered configuration, and to prioritize prediction over strategy tuning.
+- Audit of `research/METHOD_REGISTRY.md` found 112 named registry entries (A01–A05, B01–B13, C01–C12, D01–D15, E01–E10, F01–F15, G01–G18, H01–H06, I01–I10, J01–J08). Existing Phase 4–7 batches do not prove 1,000 unique method definitions have been tested.
+- Phase 8 run #38229793041 tested 4,800 forecast-to-option execution configurations across four cost scenarios. These are execution configurations, not prediction methods; they do **not** satisfy the 1,000-method requirement.
+- Created `research/gates/PREDICTION_UNIVERSE_1000_METHODS_AMENDMENT_PROPOSAL_R1_2026-10-12.md` at developer commit `65dd011139e62ff17289c4a29a94602e92ef9fe3`. This is a proposal only; it does not change the frozen method registry or authorize model execution until independent tester approval.
+- Current Phase 8 proxy result artifact is exploratory execution evidence only. Keep strategy selection/Phase 9 blocked; independently audit its integrity/accounting, but do not use these results to choose prediction methods.
+- Next gate: tester reviews the amendment on the isolated tester branch. After approval, build a versioned machine-readable registry with at least 1,000 substantively distinct method definitions and a separate finite configuration manifest; test every manifest entry or record a specific audited blocker. Count method definitions and parameter/configuration variants separately.
+- Scope guard: “all configurations” means every configuration in the frozen finite manifest, not an unbounded mathematical space. Keep intraday and positional prediction protocols separate, protect the untouched holdout, control multiple testing, and retain failures/null results.
+ 
+**Developer → Tester:** audit the proposal's method uniqueness, bounded configuration universe, evaluation gates and resource/completeness contract; do not run models or access the holdout.
+
+**Tester → Developer:** issue a hash-pinned PASS or REQUEST CHANGES on the tester branch. No registry implementation or empirical prediction batch advances until the required gate passes.
