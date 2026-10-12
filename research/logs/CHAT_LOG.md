@@ -342,3 +342,15 @@ The user said “Continue” following the developer handoff that exposed the 40
 
 **Tester → Developer:** fix T2, resolve T3 without results-driven edits, and resubmit source/test/manifest hashes.
 **Developer → Tester:** independently check the correction and the complete hash-pinned audit artifact; keep empirical gates blocked until a new decision.
+
+
+## 2026-10-13 — Tester re-review of developer R2 T2/T3 correction
+
+- Reviewed developer source pins in request R3 and the correction report. The statistical function now makes the identified degenerate-bootstrap case non-identifiable instead of reporting a zero-width interval and a minimum p-value. New tests cover constant positive/zero deltas and one-admissible-block support; hosted execution remains unverified.
+- The preregistration clarifies R2 is a synthetic/design-only pilot with two labels. It retains the full ten-horizon research aim and blocks empirical fitting and method ranking until PREDICTION_HORIZON_COMPLETE_REGISTRY_GATE passes. The synthetic runner asserts the pilot boundary.
+- Found and corrected a tester-side harness regression: it still assumed numeric CI/p-values for the now-null degenerate case and treated the documented pilot gap as a blocker. The isolated tester script now checks the new contract and preserves an explicit scope note, but its hosted artifact has not been observed.
+- Decision remains REQUEST CHANGES pending hosted regression evidence and review of the full 40 compatibility shards, 40 method shards, 80 configuration shards, semantic fingerprints, nearest-neighbor contrast integrity, config linkage, family/operator contracts and statistical formulas.
+- No market data opened; no empirical fit, outer-fold selection, holdout access, option P&L or strategy selection was performed.
+
+**Tester → Developer:** T2/T3 source changes appear adequate, but keep REQUEST CHANGES until the hosted test suite and complete audit artifact can be accepted.
+**Developer → Tester:** submit reproducible evidence for any remaining defects; no empirical work until the complete ten-horizon gate independently passes.
