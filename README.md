@@ -122,3 +122,17 @@ This is research and backtesting infrastructure, not a guarantee of profit or in
 - **Tester gate:** [PHASE6_RUN581_TESTER.md](research/gates/PHASE6_RUN581_TESTER.md) = **PASS WITH SCOPED RESTRICTIONS**.
 - The technical artifact is accepted, but **no Phase 6 model is promoted**. Raw apparent accuracy/AUC elevations are not sufficient because multiple testing, chronological stability, costs, option execution economics, robustness and fresh-forward validation remain.
 - **Next phase:** Phase 7 ensemble/regime-conditioned prediction, with a new independent tester gate.
+
+
+## Phase 8P duplicate diagnostic checkpoint — 2026-10-12
+
+- **R4 duplicate-diagnostic code gate:** **PASS FOR CODE ONLY** for developer commit `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`. Independent tester run [#38205506563](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563) passed 29/29 checks.
+- Tester receipt artifact [11726624314](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38205506563/artifacts/11726624314), ZIP SHA-256 `464d9bffb484210a3aac1e821b78828b5016394afbf07740cd1fc0e566591bac`.
+- [R4 tester report](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_R4_2026-10-12.md) · [Machine decision](research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_TESTER_DECISION_R4_2026-10-12.json) · [Developer request](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_REQUEST_R4_2026-10-12.json).
+- This approval covers code and synthetic fixtures only. **No real artifact scan/decryption occurred; no empirical duplicate report or model result exists.**
+- Historical tester orchestration failures #38205280084, #38205378764 and #38205429386 are preserved as non-evidence and documented in [the error log](research/ERROR_LOG.md) and [chat log](research/logs/CHAT_LOG.md).
+- **Next gate:** separate one-use execution workflow and authorization-request review. No real data scan, revised preflight, empirical model fit, holdout metric, option P&L or strategy promotion before that independent gate passes.
+
+**Tester → Developer:** preserve the exact R4 code-only PASS and submit the pinned one-use executor workflow/request.
+**Developer → Tester:** independently verify the new executor before it can retrieve or decrypt the source artifact.
+
