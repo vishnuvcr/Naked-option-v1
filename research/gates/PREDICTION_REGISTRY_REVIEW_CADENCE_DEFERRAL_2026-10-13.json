@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "memo": "PREDICTION_REGISTRY_REVIEW_CADENCE_DEFERRAL",
+  "effective_date": "2026-10-13",
+  "instruction_from_user": "No tester review at each step! Tester to review only after the results acquirement!",
+  "previous_decision_preserved": "research/gates/PREDICTION_REGISTRY_V2_R2_INDEPENDENT_TESTER_DECISION_R3_2026-10-13.json",
+  "operational_state": "DEFERRED_UNTIL_RESULTS_ACQUIRED",
+  "rationale": "The earlier REQUEST CHANGES decision and its scientific findings remain immutable historical evidence. Under the new review cadence, further independent review is not conducted on intermediate corrections. The developer continues the planned work under developer-side controls and submits one complete, frozen result bundle for consolidated independent review.",
+  "automatic_trigger": "research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json",
+  "required_conditions": [
+    "results_acquired must be true",
+    "exact tested developer commit must be pinned",
+    "changed source Git blob IDs must be pinned",
+    "result-bundle manifest path and SHA-256 must be pinned",
+    "manifest must include acquired result artifacts and their SHA-256 hashes",
+    "failed, null and incomplete runs must be included or explicitly accounted for"
+  ],
+  "developer_side_controls_continue": true,
+  "independent_tester_review_now": false,
+  "note": "This memo changes review cadence only. It does not waive developer-side integrity, statistical, leakage, data-quality or cost checks."
+}
