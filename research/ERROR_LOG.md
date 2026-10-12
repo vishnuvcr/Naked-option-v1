@@ -801,3 +801,12 @@
 - Created tester handoff issue [#21](https://github.com/vishnuvcr/Naked-option-v1/issues/21) for a field-by-field audit of existing cached sources, effective-dated contract metadata, duplicate/overlap handling, Q1/Q2 quote tiers, and transaction-cost arithmetic.
 - Workflow observability issue persists: the available connector's commit-run query is PR-only, so the push-triggered workflow result remains unverified. This must not be classified as a workflow pass or failure.
 - No empirical P&L, holdout read, or model fitting performed. Empirical authorization remains false. Do not reuse consumed nonce `PHASE8P_DUP_DIAG_EXEC_20261012_R1_8F8D5133`; the R2 nonce is not an authorization.
+
+
+## 2026-10-12 — Phase 8 proxy run 38218646184
+- Category: runtime/option-panel construction.
+- Symptom: runner reached `make_skeletons` with `unique_times` empty and crashed at `unique_times[0]`.
+- Impact: no trades or performance metrics were produced. Artifact 11733078027 contained only a short error log.
+- Correction: added an explicit no-eligible-row guard, aggregate-only row-type/key/OHLC counters, and normalization of row tags and expiry text. No data source was re-downloaded and no bid/ask gate was added.
+- Regression verification: hosted synthetic suite and self-test passed on runner blob `1689a00b16813795ec5256158ee10c27a92bcc1a`, test blob `a128d48d2fc41851bd54a9e9c32d4809cc6a8ba2` in run 38219833960. This is code regression evidence, not strategy evidence.
+- Rerun: hosted run 38219967649 uses the same forecast and composite artifacts; empirical outcome remains pending.
