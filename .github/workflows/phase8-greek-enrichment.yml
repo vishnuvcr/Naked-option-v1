@@ -111,8 +111,6 @@ jobs:
 
 
       - name: Validate cached source part-row counts before any external data request
-        env:
-          INPUT_DIR: ${{ env.INPUT_DIR }}
         run: |
           python - <<'PY'
           import importlib.util, json, os, pathlib
