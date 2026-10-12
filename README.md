@@ -1,23 +1,14 @@
-## Latest Phase 8P correction checkpoint — 2026-10-13
+## Research control update — 2026-10-13
 
-- The developer corrected a degenerate moving-block bootstrap case. Non-identifiable resamples now return null confidence limits and p-value instead of a zero-width interval and a minimum p-value. Regression tests cover constant positive/zero deltas and a single-admissible-block fold.
-- R2 is explicitly a two-target synthetic/design pilot, not exhaustive horizon coverage. Empirical fitting and method ranking remain blocked until the complete intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session registry gate is independently approved.
-- [Developer correction submission](research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
-- [Independent re-review request R3](research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R3_2026-10-13.json).
-- The latest tester decision remains REQUEST CHANGES pending independent re-review. Hosted results for the newest correction are not yet verified.
-- No market-data fitting, holdout access, or performance claim resulted from this correction.
-
----
-
-## Latest Phase 8P correction checkpoint — 2026-10-13
-
-- Developer corrected the degenerate moving-block bootstrap: non-identifiable resamples now return null inferential outputs instead of a zero-width confidence interval/minimum p-value. Regression tests cover constant positive/zero deltas and a single-admissible-block fold.
-- R2 is explicitly a two-target synthetic/design pilot, not exhaustive horizon coverage. No empirical fitting or method ranking is authorized; the complete intraday 5/15/30/60/120-minute and positional +1/+2/+3/+5/+10-session registry gate is required first.
-- [Developer correction submission](research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md).
-- Latest tester decision remains REQUEST CHANGES until independent re-review. Hosted results for the newest source correction are not yet verified.
-- No market data was fitted, no holdout was accessed, and no prediction/strategy performance metric is accepted.
+- **Review cadence changed by user instruction:** independent tester review is deferred until the planned research results have been acquired, frozen and inventoried. Do not request a review for every intermediate step, commit, phase or code correction.
+- Developer-side unit tests, data-quality checks, schema validation, hash checks and workflow CI continue throughout execution. They are technical controls, not independent tester verdicts.
+- The tester workflow is now gated on a formal acquired-results review request and verifies the pinned result bundle before review. The manual run button remains available for that post-acquisition gate only.
+- The earlier R2 tester REQUEST CHANGES findings remain preserved in the audit trail as historical findings; they are not an instruction to interrupt every subsequent step under the new cadence.
+- R2 remains a synthetic/design pilot only. The developer's next research work is to complete and validate the full ten-horizon registry and acquire the planned empirical result bundle under the frozen controls. The tester is then asked to perform one consolidated review of results, methods, formulas, leakage controls and conclusions.
+- [Tester Review Cadence Policy](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md) · [Research Plan](research/RESEARCH_PLAN.md) · [Current Status](research/STATUS.md).
 
 ---
+
 # NIFTY Naked-Option Direction Research
 
 Research program for predicting NIFTY 50 direction and translating signals into long-only naked option buying strategies for intraday and positional horizons.
