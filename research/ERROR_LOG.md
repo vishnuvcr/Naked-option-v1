@@ -645,3 +645,9 @@
 - Findings: incomplete end-to-end runner and artifact-bound output; caller-controlled fit authorization; missing monotone chronological block validation; exact snapshot helper errors on SPOT rows with NaN Greek offsets; missing daily feature/timestamp contract; preflight identity and label/holdout proofs not cryptographically bound.
 - Root causes and exact required changes are recorded in [tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md). This does not invalidate or modify the accepted R3 Greek data artifact.
 - Disposition: preserve the reviewed R1 code snapshot and all failed CI attempts; do not download/decrypt either real artifact, fit empirical models, access holdout, or proceed to P&L until developer fixes and tester approval.
+
+
+## 2026-10-12 — Phase 8P code gate R2 decision
+- Developer synthetic workflow [#38201417381](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201417381) passed for exact source snapshot `a5a38e3592234aea9052e697416c8154c6f8e8f8`.
+- Independent tester run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) failed because that revision recorded REQUEST_CHANGES and correctly failed its status gate. It is non-accepting history, not a data or science result. Corrected independent review [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) completed with 16/16 checks passing and `PASS_FOR_CODE_ONLY`.
+- The accepted scope is only the exact code/test blobs named in tester decision R2. Artifact inspection in a distinct schema-only gate is the next permitted step; no model fitting is authorized yet.
