@@ -855,3 +855,8 @@ Continued Phase 8P on the developer branch after the user said “Resume”. Cre
 Synthetic run [38251707853](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38251707853) completed 64,000 synthetic tasks in 45.65 seconds, produced no error JSONL rows, and passed interruption/resume byte-identity and injected-failure logging tests. Output digest: 6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b. No real market data, model fitting or holdout access occurred. Resource figures (~1,173 serial CPU-hours / 109,056 hypothetical fits) are assumptions, not measured estimator performance.
 
 A subsequent clean-audit test failed only because its assertion did not match the holdout sentence in the preregistration; the assertion was corrected. Both repair run [38252351950](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351950) and clean audit [38252351923](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351923) passed on commit 09420408e52cc8d9a2f75b2273ec879593c4b149. Tester gate is still REQUEST CHANGES; no empirical fitting.
+
+
+### 2026-10-12 — Statistical utility and reproducibility gates
+
+Implemented preregistered log-loss/Brier/balanced-accuracy metrics, calibration intercept/slope, five-session paired moving-block bootstrap and BY FDR adjustment utilities. Tests passed in hosted run [38253421987](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253421987). Corrected a mislabeled Git blob SHA-1 field convention and pinned all relevant workflows to the exact triggering commit; the pinned synthetic run [38253120700](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253120700) succeeded. No real data or fitted models were used. The independent scientific gate remains REQUEST CHANGES.
