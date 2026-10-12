@@ -812,3 +812,10 @@ Developer checked the hosted Actions result for the newly added shard utility wo
 - Expanded test run `38241558360` failed 7/8 because the malformed-index fixture expected a count mismatch while declaring a matching count. The exact failure was inspected from hosted logs.
 - Fixed the fixture expectation in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`; new hosted result must be checked.
 - The failure and correction are recorded; registry gate remains blocked. Tester branch unchanged.
+
+## 2026-10-12 — Expanded shard utility suite passed
+
+- Run `38241647992` verified from GitHub Actions job logs: all 8 unit tests passed and the SHA-256 known-vector step passed, on source commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`.
+- Previous failed run `38241558360` is retained as a transparent correction trail. The issue was a test fixture declaring one shard while asserting a mismatch; corrected fixture now declares two.
+- Updated checkpoint/status/error log and requested independent tester review in issue #25. Tester branch was not modified.
+- Actual shards are not generated until independent code review; scientific compatibility and preregistration remain blocked. No fitting or holdout access.
