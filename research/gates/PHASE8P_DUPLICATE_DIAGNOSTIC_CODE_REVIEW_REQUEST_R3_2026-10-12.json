@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW",
+  "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
+  "review_scope": "SYNTHETIC_AND_STATIC_CODE_ONLY_NO_REAL_ARTIFACT_ACCESS",
+  "developer_commit": "aae250d8a34989ebe0bd901e1d6b7d9aa0ec5a5f",
+  "diagnostic_path": "scripts/phase8p_duplicate_key_diagnostic.py",
+  "diagnostic_blob_sha1": "3427c48dcd86207dbe0a22d41da15ffa1a59fa43",
+  "test_path": "scripts/test_phase8p_duplicate_key_diagnostic.py",
+  "test_blob_sha1": "c1f3d1f86e728fc0a3ee3b28dcd58264767fb3b1",
+  "synthetic_workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml",
+  "synthetic_workflow_blob_sha1": "08cbb1519666d25186b684c000a1df478ad3329d",
+  "existing_approved_module_blob_sha1": "410e1995d6093b959d4334ed678a588c146af5c2",
+  "synthetic_ci_run_id": 38204009045,
+  "synthetic_ci_artifact_id": 11726546815,
+  "synthetic_ci_receipt_sha256": "79efe7183c8f7e95dbc4d0930e534e94522af3b7c16bf12b876f5b3a453847ff",
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "prior_data_gate_decision_path": "research/gates/PHASE8P_PREFLIGHT_DATA_TESTER_DECISION_R1_2026-10-12.json",
+  "prior_data_gate_decision_blob_sha1": "b906d6f76c68bf5e20a0403681cac5dca62972aa",
+  "diagnostic_contract": {
+    "key_fields": [
+      "timestamp_epoch",
+      "expiry_date",
+      "expiry_flag",
+      "expiry_code",
+      "returned_strike",
+      "option_type"
+    ],
+    "raw_key_semantics": "reproduce current feature-builder key string semantics",
+    "normalized_key_semantics": "normalize epoch seconds/milliseconds, expiry date, strike and option type",
+    "row_fingerprint": "SHA-256 of canonicalized complete row",
+    "output": "aggregate counts and input artifact identity only; no raw key/rows/market values",
+    "deduplication": false,
+    "model_fit": false,
+    "holdout_access": false,
+    "external_source_requests": false
+  },
+  "required_checks": [
+    "Verify exact developer commit and diagnostic/test/workflow blobs",
+    "Re-run synthetic fixtures for exact duplicates, conflicting duplicates, timestamp normalization, malformed schema and no deduplication",
+    "Static-scan for network calls and raw row/identifier output",
+    "Verify no real artifact is downloaded/decrypted by the code-review job",
+    "Confirm diagnostic uses the existing pinned artifact identity/hash verifier and authenticated encrypted-part reader"
+  ],
+  "real_artifact_access_authorized": false,
+  "real_artifact_decryption_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "deduplication_authorized": false
+}
