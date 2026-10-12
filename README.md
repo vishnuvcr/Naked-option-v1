@@ -4,6 +4,8 @@ Research program for predicting NIFTY 50 direction and translating signals into 
 
 ## Research status
 
+- Phase 8P prediction-registry artifact integrity passed hosted CI. Its 1,000-row compatibility screen marks 426 conditionally compatible in principle and 574 blocked, with zero empirical candidates authorized. The full 64,000-task synthetic workflow passed but uses mock probabilities only; no market data or model fitting was performed. [Synthetic report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md). The scientific tester gate remains REQUEST CHANGES.
+
 - Phase 8P prediction registry data-integrity subgate passed hosted CI on 2026-10-12: 1,000/1,000 unique methods and 8,000/8,000 unique configurations audited; 40 method shards × 25 records and 80 config shards × 100 records. The broader scientific registry gate remains BLOCKED / tester REQUEST CHANGES.
 
 - Phase 2 passed the independent tester gate with explicit source restrictions.
@@ -25,6 +27,12 @@ D07 now uses chronological training-only calibration for its base-probability st
 
 ## Canonical documents
 
+- [R2 row-level compatibility matrix (machine-readable)](research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json)
+- [R2 preregistration (draft)](research/registry/PREDICTION_PREREGISTRATION_V2_R2.json)
+- [R2 label manifest (draft)](research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json)
+- [R2 small-shard index](research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json)
+- [Synthetic dry-run report](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md)
+- [Synthetic dry-run report (JSON)](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json)
 - [Research plan](research/RESEARCH_PLAN.md)
 - [Research protocol](research/RESEARCH_PROTOCOL.md)
 - [Method registry](research/METHOD_REGISTRY.md)
@@ -437,7 +445,7 @@ The earlier sharding layout (50 methods per file and 2,000 configurations per fi
 - Re-sharding unit tests: scripts/test_reshard_prediction_registry.py.
 - Automated repair workflow: .github/workflows/repair-missing-method-shards.yml that runs the transform, tests, and audit before committing and uploads a JSON report.
 
-Status: hosted outcome and new small-shard commit are not yet verified. Independent tester decision remains REQUEST CHANGES. Model fitting/holdout access remain blocked.
+Status: hosted data-integrity result is verified; independent tester decision remains REQUEST CHANGES for scientific compatibility and preregistration. Model fitting/holdout access remain blocked.
 
 
 ### Latest Phase 8P prediction-registry status — 2026-10-12
@@ -448,4 +456,11 @@ Status: hosted outcome and new small-shard commit are not yet verified. Independ
 - [Separate clean-branch audit run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38249716356): PASS.
 - [Small-shard index](research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json): 40 method shards (25 rows each), 80 config shards (100 rows each), with file sizes/counts/ID ranges/SHA-256.
 - [Re-sharding tool](scripts/reshard_prediction_registry.py), [strict audit](scripts/audit_prediction_registry_shards.py), [targeted tests](scripts/test_reshard_prediction_registry.py), and [audit workflow](.github/workflows/prediction-registry-shard-tests.yml).
-- Reported counts: 1,000 master methods and 1,000 unique method IDs; 8,000 configs and 8,000 unique config IDs; audit errors empty. Existing independent tester decision remains REQUEST CHANGES on scientific distinctness/compatibility, frozen statistical plan and synthetic restart/resource evidence. No fitting or holdout access.
+- Reported counts: 1,000 master methods and 1,000 unique method IDs; 8,000 configs and 8,000 unique config IDs; audit errors empty. Independent tester decision remains REQUEST CHANGES on scientific compatibility/preregistration; synthetic orchestration and restart plumbing pass but estimator resource figures are assumption-based and unbenchmarked. No fitting or holdout access.
+
+
+- Phase 8P registry subgate: file/hash/count/index integrity passed hosted CI; compatibility matrix and preregistration are drafts awaiting the tester.
+- Compatibility matrix: 426 ALLOW_IN_PRINCIPLE, 574 BLOCK, 0 empirically eligible; all 1,000 semantic fingerprints unique. The matrix is not a model-performance result.
+- Synthetic pipeline report: [Markdown](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.md) and [JSON](research/gates/PREDICTION_REGISTRY_SYNTHETIC_DRYRUN_REPORT_2026-10-12.json). Run 38251707853 processed 64,000 synthetic tasks, no errors, and restart/failure-injection tests passed. No market data, actual model fit or holdout used.
+- Current repair and clean-verifier runs passed at commit 09420408e52cc8d9a2f75b2273ec879593c4b149: [repair](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351950), [clean audit](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38252351923).
+- Estimated ~1,173 serial CPU-hours is assumption-based only. A measured representative estimator benchmark is still missing. Scientific gate remains REQUEST CHANGES.
