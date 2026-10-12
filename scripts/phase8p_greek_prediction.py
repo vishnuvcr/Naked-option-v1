@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Prediction-only Greek feature-study utilities. No network or data access."""
 from __future__ import annotations
-import argparse, hashlib, json, math
+import argparse, hashlib, io, json, math, os, subprocess, zipfile
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 from sklearn.metrics import (average_precision_score, balanced_accuracy_score,
@@ -13,6 +13,52 @@ from sklearn.linear_model import LogisticRegression
 SEED = 42
 BOOTSTRAP_REPS = 500
 EXPECTED_HORIZONS = {"daily": (1, 2, 3, 5, 10), "intraday": (5, 15, 30, 60, 120)}
+
+DAILY_TIME_CONVENTION = "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST"
+FROZEN_PHASE7_COMMIT = "b50be8cfa1ebe008a800e65a53f9c0fb2581aecb"
+FROZEN_LABEL_SOURCE_BLOBS = {
+    "daily": "0d1d93261fe10b8da47267185651f7ee161c3b46",
+    "intraday": "58222be4a95f10c2f1a8bda4597927ff82f18de6",
+}
+PINNED_ARTIFACTS = {
+    "greek": {
+        "artifact_id": 11723198817,
+        "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
+        "name": "nifty-1m-greeks-enriched-r3",
+    },
+    "forecast": {
+        "artifact_id": 11638738288,
+        "sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
+        "name": "phase7-ensemble-reference",
+        "manifest_sha256": "f0efc378bb3c41c8b51c6f47f0f9b7336111e57527d9e047241856274fa49091",
+        "aggregate_sha256": "96c1428f448b1f91e50a2efd1253884e0f11d044c1c57d9a1fda60d61ab7fc39",
+    },
+}
+GREEK_SOURCE_PIN = {
+    "revision": "0f4800e43e6f96cec0794369d78eb4d3c4211ef5",
+    "license": "CC-BY-NC-4.0",
+    "source_artifact_id": 11698879857,
+    "source_run_id": 38131641336,
+    "source_zip_sha256": "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b",
+}
+SPOT_FEATURE_COLUMNS = [
+    "ret_1", "ret_5", "ret_15", "ret_30", "ret_60",
+    "rv20", "rv60", "previous_session_return",
+]
+GREEK_FEATURE_COLUMNS = [
+    "n_call", "n_put", "n_delta_call", "n_delta_put",
+    "call_delta_median", "put_delta_median", "delta_imbalance",
+    "call_gamma_median", "put_gamma_median",
+    "call_theta_per_day_median", "put_theta_per_day_median",
+    "call_vega_per_1pct_iv_median", "put_vega_per_1pct_iv_median",
+    "call_iv_median", "put_iv_median", "iv_skew_put_minus_call",
+    "oi_put_call_ratio", "volume_put_call_ratio",
+    "oi_put_call_ratio_denominator_invalid", "volume_put_call_ratio_denominator_invalid",
+    "oi_put_valid_n", "oi_put_call_ratio_call_valid_n",
+    "volume_put_valid_n", "volume_put_call_ratio_call_valid_n",
+    "n_option_rows_for_provenance",
+]
+
 VALID_GREEK_STATUS = {"GREEKS_ESTIMATED_FROM_INVERTED_IV", "GREEKS_ESTIMATED_FROM_SOURCE_IV_FALLBACK"}
 PANEL_REQUIRED = {"layer", "horizon", "source_row_index", "decision_timestamp",
                   "label_direction", "future_return", "block_index",
@@ -135,36 +181,173 @@ def validate_panel_frame(frame: pd.DataFrame, layer: str, horizon: int) -> dict[
             "last_decision_timestamp": str(ts.iloc[-1]),
             "timestamps_unique_ordered": True}
 
-def preflight_contract(manifest: Mapping[str, Any], panels: Sequence[pd.DataFrame]) -> dict[str, Any]:
-    """Schema-only decision. Missing holdout/target maturity proof blocks fitting."""
+def verify_pinned_artifact_identity(path: str | Path, artifact_name: str, observed_artifact_id: int) -> dict[str, Any]:
+    """Verify an already-downloaded GitHub artifact against the immutable R3/RUN994 pins."""
+    if artifact_name not in PINNED_ARTIFACTS:
+        raise GateBlocked("UNREGISTERED_ARTIFACT_NAME")
+    pin = PINNED_ARTIFACTS[artifact_name]
+    try:
+        actual_id = int(observed_artifact_id)
+    except (TypeError, ValueError):
+        raise GateBlocked("OBSERVED_ARTIFACT_ID_INVALID")
+    if actual_id != int(pin["artifact_id"]):
+        raise GateBlocked(f"ARTIFACT_ID_MISMATCH:{artifact_name}")
+    actual_sha = sha256_file(path)
+    if actual_sha != pin["sha256"]:
+        raise GateBlocked(f"ARTIFACT_SHA256_MISMATCH:{artifact_name}")
+    return {
+        "artifact_name": artifact_name,
+        "artifact_id": actual_id,
+        "sha256": actual_sha,
+        "verified": True,
+        "pinned_source": "PHASE8P_CODE_CONSTANTS",
+    }
+
+
+def _validate_artifact_receipts(receipts: Mapping[str, Any] | None) -> list[str]:
     reasons = []
+    if not isinstance(receipts, Mapping) or set(receipts) != {"greek", "forecast"}:
+        return ["PINNED_ARTIFACT_RECEIPTS_MISSING_OR_INCOMPLETE"]
+    for name, pin in PINNED_ARTIFACTS.items():
+        receipt = receipts.get(name)
+        if not isinstance(receipt, Mapping):
+            reasons.append(f"ARTIFACT_RECEIPT_MISSING:{name}")
+            continue
+        if (receipt.get("verified") is not True
+                or receipt.get("artifact_name") != name
+                or receipt.get("artifact_id") != pin["artifact_id"]
+                or receipt.get("sha256") != pin["sha256"]):
+            reasons.append(f"ARTIFACT_RECEIPT_PIN_MISMATCH:{name}")
+    return reasons
+
+
+def preflight_contract(
+    manifest: Mapping[str, Any],
+    panels: Sequence[pd.DataFrame],
+    *,
+    artifact_receipts: Mapping[str, Any] | None = None,
+    target_maturity_proof: Mapping[str, Any] | None = None,
+    holdout_exclusion_proof: Mapping[str, Any] | None = None,
+    target_end_by_panel: Mapping[str, Sequence[Any]] | None = None,
+    panel_file_sha256: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    """Schema/coverage-only decision. This function can never authorize model fitting."""
+    reasons: list[str] = []
+    reasons.extend(_validate_artifact_receipts(artifact_receipts))
     if manifest.get("status") != "COMPLETE" or manifest.get("schema_version") != 1:
         reasons.append("FROZEN_PANEL_MANIFEST_STATUS_OR_SCHEMA_UNPROVEN")
-    if not manifest.get("commit") or not manifest.get("run_id"):
-        reasons.append("FROZEN_PANEL_SOURCE_IDENTITY_MISSING")
-    holdout = manifest.get("holdout_exclusion_contract")
-    if not isinstance(holdout, dict) or holdout.get("proof") != "VERIFIED" or not holdout.get("protected_row_mask_sha256"):
-        reasons.append("PROTECTED_HOLDOUT_EXCLUSION_NOT_PROVEN_BY_FROZEN_MANIFEST")
-    target = manifest.get("target_maturity_contract")
-    if not isinstance(target, dict) or target.get("proof") != "VERIFIED" or not target.get("source_code_sha256") or not target.get("rule"):
-        reasons.append("TARGET_END_AND_LABEL_MATURITY_RULE_NOT_PROVEN_BY_FROZEN_MANIFEST")
+    if str(manifest.get("commit", "")) != FROZEN_PHASE7_COMMIT:
+        reasons.append("FROZEN_PANEL_SOURCE_COMMIT_MISMATCH")
+    if not manifest.get("run_id"):
+        reasons.append("FROZEN_PANEL_RUN_ID_MISSING")
+    if manifest.get("protocol") != "research/phase7/PHASE7_METHOD_SPEC.md":
+        reasons.append("FROZEN_PANEL_PROTOCOL_MISMATCH")
+    if manifest.get("seed") != SEED:
+        reasons.append("FROZEN_PANEL_SEED_MISMATCH")
+    if not isinstance(panel_file_sha256, Mapping) or len(panel_file_sha256) != 10:
+        reasons.append("TEN_PANEL_FILE_HASHES_REQUIRED")
+    elif any(not isinstance(v, str) or len(v) != 64 for v in panel_file_sha256.values()):
+        reasons.append("PANEL_FILE_HASH_INVALID")
+
+    if not isinstance(target_maturity_proof, Mapping):
+        reasons.append("TARGET_END_AND_LABEL_MATURITY_PROOF_MISSING")
+    else:
+        if target_maturity_proof.get("daily_label_source_blob_sha1") != FROZEN_LABEL_SOURCE_BLOBS["daily"]:
+            reasons.append("DAILY_LABEL_SOURCE_BLOB_NOT_PINNED")
+        if target_maturity_proof.get("intraday_label_source_blob_sha1") != FROZEN_LABEL_SOURCE_BLOBS["intraday"]:
+            reasons.append("INTRADAY_LABEL_SOURCE_BLOB_NOT_PINNED")
+        if target_maturity_proof.get("daily_rule") != "close.shift(-H)":
+            reasons.append("DAILY_TARGET_RULE_MISMATCH")
+        if target_maturity_proof.get("intraday_rule") != "exact timestamp + H minutes":
+            reasons.append("INTRADAY_TARGET_RULE_MISMATCH")
+        if target_maturity_proof.get("target_end_checks_passed") is not True:
+            reasons.append("TARGET_END_SOURCE_ALIGNMENT_NOT_PROVEN")
+
+    if not isinstance(holdout_exclusion_proof, Mapping):
+        reasons.append("PROTECTED_HOLDOUT_EXCLUSION_PROOF_MISSING")
+    else:
+        if holdout_exclusion_proof.get("proof") != "VERIFIED":
+            reasons.append("PROTECTED_HOLDOUT_EXCLUSION_NOT_VERIFIED")
+        mask_sha = str(holdout_exclusion_proof.get("mask_sha256", ""))
+        if len(mask_sha) != 64 or any(ch not in "0123456789abcdef" for ch in mask_sha.lower()):
+            reasons.append("PROTECTED_HOLDOUT_MASK_SHA256_MISSING_OR_INVALID")
+        cutoffs = holdout_exclusion_proof.get("cutoff_by_layer")
+        if not isinstance(cutoffs, Mapping) or set(cutoffs) != {"daily", "intraday"}:
+            reasons.append("PROTECTED_HOLDOUT_CUTOFFS_MISSING")
+        if holdout_exclusion_proof.get("source_manifest_sha256") != manifest.get("manifest_sha256"):
+            reasons.append("PROTECTED_HOLDOUT_PROOF_NOT_BOUND_TO_FROZEN_MANIFEST")
+
     summaries = []
     if len(panels) != 10:
         reasons.append("EXPECTED_EXACTLY_10_FROZEN_PANELS")
+    found = set()
     for frame in panels:
         try:
-            summaries.append(validate_panel_frame(frame, str(frame["layer"].iloc[0]), int(frame["horizon"].iloc[0])))
+            layer = str(frame["layer"].iloc[0])
+            horizon = int(frame["horizon"].iloc[0])
+            summary = validate_panel_frame(frame, layer, horizon)
+            found.add((layer, horizon))
+            y = pd.to_numeric(frame["label_direction"], errors="coerce").to_numpy(float)
+            future = pd.to_numeric(frame["future_return"], errors="coerce").to_numpy(float)
+            finite_y = np.isfinite(y)
+            if np.any(finite_y & ~np.isfinite(future)):
+                reasons.append(f"FINITE_LABEL_WITHOUT_FUTURE_RETURN:{layer}:H{horizon}")
+            nonzero = finite_y & np.isfinite(future) & (future != 0)
+            expected = (future[nonzero] > 0).astype(int)
+            if not np.array_equal(y[nonzero].astype(int), expected):
+                reasons.append(f"LABEL_SIGN_MISMATCH:{layer}:H{horizon}")
+            if target_end_by_panel is None:
+                reasons.append(f"TARGET_END_VALUES_MISSING:{layer}:H{horizon}")
+            else:
+                key = f"{layer}:H{horizon}"
+                ends = pd.to_datetime(target_end_by_panel.get(key, []), errors="coerce", utc=True)
+                decisions = pd.to_datetime(
+                    frame["decision_timestamp"],
+                    errors="coerce",
+                    utc=(layer == "intraday"),
+                )
+                if len(ends) != len(frame) or ends.isna().any():
+                    reasons.append(f"TARGET_END_VECTOR_INVALID:{layer}:H{horizon}")
+                else:
+                    decision_utc = pd.DatetimeIndex([
+                        daily_close_timestamp(x) if layer == "daily" else pd.Timestamp(x).tz_convert("UTC")
+                        for x in decisions
+                    ])
+                    if np.any(ends.asi8 <= decision_utc.asi8):
+                        reasons.append(f"TARGET_END_NOT_STRICTLY_AFTER_DECISION:{layer}:H{horizon}")
+                    if np.any(finite_y & ends.isna()):
+                        reasons.append(f"FINITE_LABEL_WITHOUT_TARGET_END:{layer}:H{horizon}")
+            summaries.append(summary)
         except Exception as exc:
             reasons.append(f"PANEL_VALIDATION_FAILED:{type(exc).__name__}:{exc}")
-    found = {(x["layer"], x["horizon"]) for x in summaries}
     required = {(layer, h) for layer, hs in EXPECTED_HORIZONS.items() for h in hs}
     if found != required:
         reasons.append("PANEL_LAYER_HORIZON_GRID_MISMATCH")
-    return {"schema_version": 1, "status": "PASS" if not reasons else "BLOCKED",
-            "mode": "SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT", "manifest_run_id": manifest.get("run_id"),
-            "manifest_commit": manifest.get("commit"), "panel_summaries": summaries,
-            "model_fit_authorized": False, "holdout_access_authorized": False,
-            "option_pnl_authorized": False, "strategy_promotion_authorized": False, "reasons": reasons}
+
+    pins = {
+        name: {"artifact_id": receipts.get(name, {}).get("artifact_id"),
+               "sha256": receipts.get(name, {}).get("sha256")}
+        for name in ("greek", "forecast")
+    } if isinstance(receipts, Mapping) else {}
+    return {
+        "schema_version": 2,
+        "status": "PASS" if not reasons else "BLOCKED",
+        "mode": "SCHEMA_COVERAGE_ONLY_NO_MODEL_FIT",
+        "forecast_run_id": manifest.get("run_id"),
+        "forecast_commit": manifest.get("commit"),
+        "forecast_manifest_sha256": manifest.get("manifest_sha256"),
+        "input_artifacts": pins,
+        "panel_file_sha256": dict(panel_file_sha256 or {}),
+        "panel_summaries": summaries,
+        "target_maturity_proof": dict(target_maturity_proof or {}),
+        "holdout_exclusion_proof": dict(holdout_exclusion_proof or {}),
+        "model_fit_authorized": False,
+        "holdout_access_authorized": False,
+        "option_pnl_authorized": False,
+        "strategy_promotion_authorized": False,
+        "reasons": sorted(set(reasons)),
+    }
+
 
 def moving_block_indices(n: int, block_len: int, rng: np.random.Generator) -> np.ndarray:
     if n <= 0 or block_len <= 0:
@@ -264,25 +447,30 @@ def calibration_intercept_slope(y, p):
     return {"intercept": float(model.intercept_[0]), "slope": float(model.coef_[0, 0])}
 
 def exact_snapshot_rows(rows, decision_timestamp):
-    """Keep only option rows whose timestamp_epoch + declared offset equals decision UTC."""
+    """Select only OPTION rows whose recorded Greek valuation instant equals decision UTC."""
     decision = pd.Timestamp(decision_timestamp)
     if decision.tzinfo is None:
         raise GateBlocked("DECISION_TIMESTAMP_MUST_BE_TIMEZONE_AWARE")
     decision_epoch = decision.tz_convert("UTC").timestamp()
     result = []
     for row in rows:
+        row_type = str(row.get("row_type", "OPTION")).upper()
+        if row_type != "OPTION":
+            # SPOT rows deliberately have no option Greek valuation offset.
+            continue
         start = number(row.get("timestamp_epoch"))
         offset = number(row.get("greek_valuation_offset_seconds"))
         if not np.isfinite(start) or not np.isfinite(offset):
-            raise GateBlocked("GREEK_VALUATION_TIMESTAMP_FIELDS_MISSING")
-        # Raw timestamp_epoch can be seconds or milliseconds; use the same safe threshold
-        # as the approved enrichment implementation, then apply its recorded valuation offset.
+            raise GateBlocked("OPTION_GREEK_VALUATION_TIMESTAMP_FIELDS_MISSING")
+        if not math.isclose(offset, 60.0, rel_tol=0.0, abs_tol=1e-9):
+            raise GateBlocked("UNREGISTERED_GREEK_VALUATION_OFFSET")
         if start > 1e12:
             start = math.floor(start / 1000.0)
         valuation = start + offset
         if math.isclose(valuation, decision_epoch, rel_tol=0.0, abs_tol=1e-6):
             result.append(row)
     return result
+
 
 def daily_target_end_dates(decision_dates, source_dates, horizon):
     """Reproduce the frozen daily make_label shift(-H) row relationship."""
@@ -378,75 +566,232 @@ def build_spot_features(spot_rows, decision_timestamps, daily=False):
         output.append(row)
     return pd.DataFrame(output)
 
-def walk_forward_predict(y, target_end, decision_time, block_index, x_spot, x_augmented,
-                         layer, minimum_training_rows=1000, scope_approved=False,
-                         code_approved=False, preflight=None):
-    """Fit the two frozen models only after the explicit independent gate is satisfied.
+def daily_close_timestamp(raw_date):
+    """Map a date-only daily cash-index decision to the tester-approved 15:30 IST close."""
+    stamp = pd.Timestamp(raw_date)
+    if pd.isna(stamp):
+        raise GateBlocked("DAILY_DECISION_DATE_MISSING")
+    if stamp.tzinfo is not None:
+        raise GateBlocked("DAILY_DECISION_DATE_MUST_BE_DATE_ONLY")
+    local = stamp.normalize().tz_localize("Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
+    return local.tz_convert("UTC")
 
-    This function has no external-data path. The caller supplies already-matched, audited
-    frames and a tester-approved preflight receipt. Missing/ambiguous target-end values block.
+
+def build_daily_spot_features(spot_rows, decision_dates):
+    """Build daily features using the approved cash-close timestamp convention."""
+    decisions = [daily_close_timestamp(x) for x in decision_dates]
+    features = build_spot_features(spot_rows, decisions, daily=True)
+    features["daily_decision_time_convention"] = DAILY_TIME_CONVENTION
+    return features
+
+
+def canonical_panel_timestamps(frame: pd.DataFrame, layer: str) -> pd.DatetimeIndex:
+    if "decision_timestamp" not in frame:
+        raise GateBlocked("DECISION_TIMESTAMP_FIELD_MISSING")
+    if layer == "intraday":
+        return pd.DatetimeIndex(pd.to_datetime(frame["decision_timestamp"], errors="raise", utc=True))
+    if layer == "daily":
+        return pd.DatetimeIndex([daily_close_timestamp(x) for x in frame["decision_timestamp"]])
+    raise GateBlocked("UNREGISTERED_LAYER")
+
+
+def _feature_epoch_column(frame: pd.DataFrame, name: str = "decision_timestamp_utc") -> np.ndarray:
+    if name not in frame:
+        raise GateBlocked("FEATURE_DECISION_TIMESTAMP_MISSING:" + name)
+    ts = pd.DatetimeIndex(pd.to_datetime(frame[name], errors="raise", utc=True))
+    if ts.has_duplicates or not ts.is_monotonic_increasing:
+        raise GateBlocked("FEATURE_DECISION_TIMESTAMPS_DUPLICATE_OR_UNSORTED")
+    return ts.asi8
+
+
+def build_option_feature_frame(
+    option_parts: Iterable[pd.DataFrame],
+    decision_timestamps,
+    spot_rows_sink: list[pd.DataFrame] | None = None,
+) -> pd.DataFrame:
+    """Aggregate exact-time Greek snapshots while only retaining matching OPTION rows.
+
+    Each input DataFrame may contain both OPTION and SPOT records from one authenticated
+    encrypted monthly part. Non-option records are copied to the optional spot sink and
+    never subjected to Greek-offset validation.
     """
-    from sklearn.ensemble import HistGradientBoostingClassifier
-    from sklearn.impute import SimpleImputer
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
-    enforce_fit_gate(scope_approved, code_approved, preflight or {})
-    y = np.asarray(y, float)
-    target_end = pd.to_datetime(target_end, errors="raise", utc=(layer == "intraday"))
-    decision_time = pd.to_datetime(decision_time, errors="raise", utc=(layer == "intraday"))
-    blocks = np.asarray(block_index, dtype=int)
-    if not (len(y) == len(target_end) == len(decision_time) == len(blocks) == len(x_spot) == len(x_augmented)):
-        raise GateBlocked("PANEL_TARGET_FEATURE_LENGTH_MISMATCH")
-    if target_end.isna().any() or decision_time.isna().any():
-        raise GateBlocked("TARGET_END_OR_DECISION_TIME_UNPROVEN")
-    if not np.isin(y[np.isfinite(y)], [0., 1.]).all():
-        raise GateBlocked("LABEL_NOT_BINARY_0_1")
-    if not np.array_equal(np.unique(blocks), np.arange(len(np.unique(blocks)))):
-        raise GateBlocked("BLOCK_INDEX_NOT_CONTIGUOUS")
-    if not x_spot.index.equals(pd.RangeIndex(len(y))) or not x_augmented.index.equals(pd.RangeIndex(len(y))):
-        raise GateBlocked("FEATURES_NOT_ROW_ALIGNED_TO_FROZEN_PANEL")
-    specs = {
-        "logistic": lambda: Pipeline([
-            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
-            ("scaler", StandardScaler()),
-            ("model", LogisticRegression(penalty="l2", C=1.0, solver="liblinear",
-                class_weight=None, max_iter=1000, tol=1e-4, random_state=SEED)),
-        ]),
-        "hist_gradient_boosting": lambda: Pipeline([
-            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
-            ("model", HistGradientBoostingClassifier(max_iter=200, learning_rate=0.03,
-                max_leaf_nodes=15, min_samples_leaf=30, l2_regularization=0.0,
-                max_bins=255, early_stopping=False, class_weight=None, random_state=SEED)),
-        ]),
-    }
-    outputs = {}
-    unique_blocks = np.unique(blocks)
-    for model_name, factory in specs.items():
-        outputs[model_name] = {"p_spot": np.full(len(y), np.nan), "p_augmented": np.full(len(y), np.nan),
-                               "fit_blocks": 0, "blocked_blocks": []}
-        for b in unique_blocks:
-            test = np.flatnonzero(blocks == b)
-            if not len(test): continue
-            cutoff = decision_time[test[0]]
-            train = np.flatnonzero((blocks < b) & np.isfinite(y) & (target_end < cutoff))
-            if len(train) < minimum_training_rows:
-                outputs[model_name]["blocked_blocks"].append({"block": int(b), "reason": "INSUFFICIENT_MATURE_TRAIN_ROWS", "n_train": int(len(train))})
+    decisions = pd.DatetimeIndex(pd.to_datetime(list(decision_timestamps), errors="raise", utc=True))
+    if decisions.has_duplicates:
+        decisions = decisions.drop_duplicates().sort_values()
+    requested = set((decisions.asi8 // 1_000_000_000).tolist())
+    groups: dict[int, list[dict[str, Any]]] = {}
+    seen_contracts: set[tuple[Any, ...]] = set()
+    option_rows_scanned = 0
+    option_rows_exact = 0
+    contract_key_fields = ("timestamp_epoch", "expiry_date", "expiry_flag",
+                           "expiry_code", "returned_strike", "option_type")
+    for part_number, frame in enumerate(option_parts):
+        if not isinstance(frame, pd.DataFrame) or "row_type" not in frame:
+            raise GateBlocked(f"COMPOSITE_PART_SCHEMA_INVALID:{part_number}")
+        types = frame["row_type"].fillna("").astype(str).str.upper()
+        spots = frame.loc[types.eq("SPOT")].copy()
+        if spot_rows_sink is not None and not spots.empty:
+            spot_rows_sink.append(spots)
+        options = frame.loc[types.eq("OPTION")].copy()
+        if options.empty:
+            continue
+        required = {"timestamp_epoch", "greek_valuation_offset_seconds", *contract_key_fields}
+        missing = required - set(options.columns)
+        if missing:
+            raise GateBlocked("OPTION_PART_REQUIRED_FIELDS_MISSING:" + ",".join(sorted(missing)))
+        start = pd.to_numeric(options["timestamp_epoch"], errors="coerce").to_numpy(float)
+        offset = pd.to_numeric(options["greek_valuation_offset_seconds"], errors="coerce").to_numpy(float)
+        if np.any(~np.isfinite(start)) or np.any(~np.isfinite(offset)):
+            raise GateBlocked(f"OPTION_TIMESTAMP_OR_VALUATION_OFFSET_MISSING:PART{part_number}")
+        start = np.where(start > 1e12, np.floor(start / 1000.0), start)
+        if np.any(~np.isclose(offset, 60.0, rtol=0.0, atol=1e-9)):
+            raise GateBlocked(f"UNREGISTERED_GREEK_VALUATION_OFFSET:PART{part_number}")
+        valuation = start + offset
+        exact = np.isin(valuation.astype(np.int64), np.fromiter(requested, dtype=np.int64)) if requested else np.zeros(len(options), dtype=bool)
+        option_rows_scanned += len(options)
+        if not exact.any():
+            continue
+        selected = options.loc[exact].copy()
+        selected["_phase8p_start_epoch_seconds"] = start[exact].astype(np.int64)
+        selected["_phase8p_valuation_epoch_seconds"] = valuation[exact].astype(np.int64)
+        # Detect duplicate contract-time rows across and within monthly parts before aggregation.
+        for row in selected.to_dict("records"):
+            key_values = []
+            for field in contract_key_fields:
+                value = row.get(field)
+                if value is None or (isinstance(value, float) and not np.isfinite(value)):
+                    key_values.append("MISSING" if field != "timestamp_epoch" else None)
+                else:
+                    key_values.append(str(value))
+            key = tuple(key_values)
+            if key in seen_contracts:
+                raise GateBlocked("DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS")
+            seen_contracts.add(key)
+            epoch = int(row["_phase8p_valuation_epoch_seconds"])
+            groups.setdefault(epoch, []).append(row)
+            option_rows_exact += 1
+
+    records = []
+    decision_seconds = (decisions.asi8 // 1_000_000_000).astype(np.int64)
+    for epoch in decision_seconds:
+        rows = groups.get(int(epoch), [])
+        summary = aggregate_option_snapshot(rows) if rows else {
+            "n_call": 0, "n_put": 0, "n_delta_call": 0, "n_delta_put": 0,
+            "observed_panel_warning": "PARTIAL_GRID_NOT_FULL_EXCHANGE_CHAIN",
+            "n_option_rows_for_provenance": 0, "greek_status_counts": {},
+            "iv_source_counts": {}, "expiry_source_counts": {},
+            "greek_status_counts_fractions": {}, "iv_source_counts_fractions": {},
+            "expiry_source_counts_fractions": {},
+        }
+        flat: dict[str, Any] = {
+            "decision_timestamp_utc": pd.Timestamp(int(epoch), unit="s", tz="UTC").isoformat(),
+            "decision_epoch_seconds": int(epoch),
+            "greek_exact_snapshot_missing": int(not bool(rows)),
+            "n_option_rows_exact_snapshot": int(len(rows)),
+        }
+        for key, value in summary.items():
+            if isinstance(value, dict):
                 continue
-            if len(np.unique(y[train])) < 2:
-                raise GateBlocked(f"SINGLE_CLASS_TRAINING_BLOCK:{model_name}:{b}")
-            models = []
-            for features in (x_spot, x_augmented):
-                model = factory()
-                model.fit(features.iloc[train], y[train].astype(int))
-                models.append(model)
-            p0 = models[0].predict_proba(x_spot.iloc[test])[:, 1]
-            p1 = models[1].predict_proba(x_augmented.iloc[test])[:, 1]
-            if not (np.isfinite(p0).all() and np.isfinite(p1).all()):
-                raise GateBlocked(f"NONFINITE_PREDICTION:{model_name}:{b}")
-            outputs[model_name]["p_spot"][test] = p0
-            outputs[model_name]["p_augmented"][test] = p1
-            outputs[model_name]["fit_blocks"] += 1
-    return outputs
+            if isinstance(value, str):
+                if key.endswith("_status"):
+                    flat[key + "_denominator_invalid"] = int(value != "VALID")
+                continue
+            flat[key] = value
+        for summary_key, prefix in (
+            ("greek_status_counts_fractions", "greek_status_fraction"),
+            ("iv_source_counts_fractions", "iv_source_fraction"),
+            ("expiry_source_counts_fractions", "expiry_source_fraction"),
+        ):
+            for label, proportion in summary.get(summary_key, {}).items():
+                clean = "".join(ch if ch.isalnum() else "_" for ch in str(label)).strip("_")
+                flat[f"{prefix}_{clean}"] = float(proportion)
+        records.append(flat)
+    result = pd.DataFrame(records)
+    if result.empty:
+        return pd.DataFrame(columns=["decision_timestamp_utc", "decision_epoch_seconds", "greek_exact_snapshot_missing"])
+    if result["decision_epoch_seconds"].duplicated().any():
+        raise GateBlocked("OPTION_FEATURE_FRAME_HAS_DUPLICATE_DECISION_TIME")
+    result.attrs["coverage"] = {
+        "requested_decision_instants": int(len(result)),
+        "exact_snapshot_instants": int((result["greek_exact_snapshot_missing"] == 0).sum()),
+        "missing_exact_snapshot_instants": int((result["greek_exact_snapshot_missing"] == 1).sum()),
+        "option_rows_scanned": int(option_rows_scanned),
+        "option_rows_at_exact_requested_instants": int(option_rows_exact),
+        "coverage_unit": "exact Greek valuation instant (start timestamp + recorded 60 seconds)",
+        "grid_limitation": "PARTIAL_GRID_NOT_FULL_EXCHANGE_CHAIN",
+    }
+    return result
+
+
+def align_features_to_prediction_panel(
+    panel: pd.DataFrame,
+    spot_feature_frame: pd.DataFrame,
+    greek_feature_frame: pd.DataFrame,
+    layer: str,
+    source_timestamps=None,
+) -> pd.DataFrame:
+    """Exact one-to-one panel/feature alignment plus the frozen label-end timestamp."""
+    if panel.empty:
+        raise GateBlocked("EMPTY_PREDICTION_PANEL")
+    horizon = int(panel["horizon"].iloc[0])
+    summary = validate_panel_frame(panel, layer, horizon)
+    decisions = canonical_panel_timestamps(panel, layer)
+    if decisions.has_duplicates or not decisions.is_monotonic_increasing:
+        raise GateBlocked("PANEL_DECISION_TIMES_DUPLICATE_OR_UNSORTED")
+    out = panel.reset_index(drop=True).copy()
+    out["_phase8p_row_position"] = np.arange(len(out), dtype=np.int64)
+    out["decision_timestamp_utc"] = decisions
+    decision_epoch = decisions.asi8 // 1_000_000_000
+    out["_phase8p_decision_epoch_seconds"] = decision_epoch
+
+    spot = spot_feature_frame.copy()
+    spot_epoch = _feature_epoch_column(spot)
+    if len(np.unique(spot_epoch)) != len(spot_epoch):
+        raise GateBlocked("SPOT_FEATURE_FRAME_DUPLICATE_DECISION_TIME")
+    spot["_phase8p_decision_epoch_seconds"] = spot_epoch // 1_000_000_000
+    spot = spot.drop(columns=["decision_timestamp_utc"], errors="ignore")
+    out = out.merge(spot, on="_phase8p_decision_epoch_seconds", how="left",
+                    validate="one_to_one", suffixes=("", "_spot"))
+    if "spot_exact_bar_missing" not in out:
+        out["spot_exact_bar_missing"] = 1
+    out["spot_exact_bar_missing"] = pd.to_numeric(out["spot_exact_bar_missing"], errors="coerce").fillna(1).astype(int)
+
+    greek = greek_feature_frame.copy()
+    greek_epoch = _feature_epoch_column(greek)
+    if len(np.unique(greek_epoch)) != len(greek_epoch):
+        raise GateBlocked("GREEK_FEATURE_FRAME_DUPLICATE_DECISION_TIME")
+    greek["_phase8p_decision_epoch_seconds"] = greek_epoch // 1_000_000_000
+    greek = greek.drop(columns=["decision_timestamp_utc"], errors="ignore")
+    greek_columns = [c for c in greek.columns if c != "_phase8p_decision_epoch_seconds"]
+    out = out.merge(greek, on="_phase8p_decision_epoch_seconds", how="left",
+                    validate="one_to_one", suffixes=("", "_greek"))
+    if "greek_exact_snapshot_missing" not in out:
+        out["greek_exact_snapshot_missing"] = 1
+    out["greek_exact_snapshot_missing"] = pd.to_numeric(out["greek_exact_snapshot_missing"], errors="coerce").fillna(1).astype(int)
+
+    if layer == "daily":
+        date_values = panel["decision_timestamp"].tolist()
+        target_dates = daily_target_end_dates(date_values, date_values, horizon)
+        target_end = []
+        for date_value in target_dates:
+            target_end.append(pd.NaT if pd.isna(date_value) else daily_close_timestamp(date_value))
+        target_end = pd.DatetimeIndex(target_end)
+    else:
+        if source_timestamps is None:
+            raise GateBlocked("INTRADAY_FULL_SOURCE_TIMESTAMPS_REQUIRED_FOR_TARGET_END")
+        target_end = intraday_target_end_timestamps(decisions, source_timestamps, horizon)
+    out["target_end_timestamp_utc"] = target_end
+    y = pd.to_numeric(out["label_direction"], errors="coerce").to_numpy(float)
+    if np.any(np.isfinite(y) & pd.isna(target_end)):
+        raise GateBlocked("FINITE_LABEL_WITHOUT_PROVABLE_TARGET_END")
+    finite = np.isfinite(y)
+    end_epoch = pd.DatetimeIndex(target_end).asi8
+    dec_epoch = decisions.asi8
+    if np.any(finite & (end_epoch <= dec_epoch)):
+        raise GateBlocked("TARGET_END_NOT_STRICTLY_AFTER_DECISION")
+    out["source_panel_row_count"] = summary["rows"]
+    return out
+
 
 def synthetic_self_test() -> dict[str, Any]:
     rows=[]
