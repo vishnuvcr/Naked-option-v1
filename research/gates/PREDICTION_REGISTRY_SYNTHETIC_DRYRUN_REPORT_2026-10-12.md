@@ -37,7 +37,7 @@ The terminal-status counts sum to 64,000. The `SYNTHETIC_MOCK_ONLY` rows are det
 
 ## Restart and failure-handling tests
 
-The latest hardened, commit-pinned full synthetic workflow [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed the metrics, restart and failure-handling tests for: deterministic interruption after task 17, checkpoint creation, safe resume, and byte-for-byte equality with a clean 80-task run; injected exception logging to JSONL with exception type/message and traceback hash; and loading/validating the full 8,000-config registry before a one-task smoke assertion.
+The latest hardened, commit-pinned full synthetic workflow [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed all 10 statistical utility tests plus the restart and failure-handling tests for: deterministic interruption after task 17, checkpoint creation, safe resume, and byte-for-byte equality with a clean 80-task run; injected exception logging to JSONL with exception type/message and traceback hash; and loading/validating the full 8,000-config registry before a one-task smoke assertion.
 
 Two defects were caught and corrected: the Git-blob verifier originally used the two literal characters `\\0` instead of the NUL byte; a test also expected holdout wording different from the frozen preregistration. Both corrections are recorded in `research/ERROR_LOG.md`.
 
@@ -66,3 +66,6 @@ The estimate assumes five CPU seconds per baseline fit on 20,000 rows/1,920 feat
 - **Empirical fitting and untouched-holdout access:** NOT AUTHORIZED.
 
 The next developer step is to resolve tester findings, complete adapter-specific numerical tests, and calibrate resource assumptions with representative synthetic estimator benchmarks. No real-data model runs until a new hash-pinned tester PASS.
+
+
+The same hosted job reports `Ran 10 tests` for `scripts/test_prediction_statistics.py`; all passed, including strict label/parameter type checks and the both-classes requirement for calibration.
