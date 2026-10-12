@@ -585,3 +585,13 @@
 - Symptom: the job-logs endpoint returned HTTP 404 `BlobNotFound` while the enrichment step was still reported `in_progress` by the job-steps API.
 - Impact: no scientific impact established. The run and current step remain reported as in progress; no output artifact or terminal coverage metric is available yet, so none is accepted.
 - Disposition: continue monitoring job-step state and use terminal logs/artifacts after the run completes. Do not infer success, failure, or a stall from the missing live log blob alone.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment R2 terminal row-count failure
+- Category: data-contract / manifest schema mismatch.
+- Component: `scripts/enrich_nifty_composite_greeks.py`, final source-vs-output row-count assertion.
+- Hosted run: [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152), developer snapshot `6ebb54bdbbc7ed0198d23d0b555aea547a127f9f`; terminal output: `ValueError: row count changed: source=None output=8999865`.
+- Impact: all 61 monthly partitions were processed in the temporary runner workspace, but validation and artifact upload were skipped. No enriched dataset was delivered or accepted. R1 had failed at the same final check, so R2 did not resolve that prior defect.
+- Root cause: the source bundle manifest has per-part integer `row_count` fields but lacks top-level `rows_preserved`; the developer used the absent top-level field as the aggregate truth.
+- Correction in R3: sum all per-part row counts, reject malformed/fractional/negative values and any inconsistent top-level total, compare the sum with 8,999,865 before any HF request and after output generation, add regression tests, and update coverage reporting to identify the aggregation method.
+- Prevention: source schema inspection and manifest-contract fixtures are mandatory before a large hosted calculation. Tester must independently review the exact R3 snapshot before any data request.

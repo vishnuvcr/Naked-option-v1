@@ -10,7 +10,7 @@
 | Phase 5 Statistical/ML | **PASSED WITH SCOPED RESTRICTIONS** | Family D run #23 immutable artifact passed independent tester gate; no model promoted; downstream economic/robustness/fresh-forward gates remain mandatory |
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
-| Phase 8 Long-option execution | **R2 TESTER PASS WITH SCOPED RESTRICTIONS; ENRICHMENT RUN IN PROGRESS** | Exact snapshot `6ebb54bdbbc7ed0198d23d0b555aea547a127f9f` approved; hosted run #38194592152 attempt 2 has passed authorization/input retrieval and is still enriching 61 encrypted partitions. Final integrity gate pending; no P&L, holdout or promotion |
+| Phase 8 Long-option execution | **BLOCKED — R2 TERMINAL ROW-COUNT FAILURE; R3 TESTER REVIEW PENDING** | R1/R2 reached 8,999,865 output rows but were rejected because top-level `rows_preserved` is absent in the cached manifest. R3 derives the expected total from 61 per-part counts and preflights before HF calls. No artifact published, no P&L or strategy promotion |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
@@ -603,3 +603,11 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 - Developer hosted run [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) passed the exact-snapshot authorization gate, cached input archive SHA-256 validation, and HF spot/expiry metadata retrieval. At this update, enrichment/re-encryption was still in progress; encrypted-output integrity, row preservation and upload were pending.
 - A duplicate tester workflow with a stale R1 path was removed from `phase-08-tester`; the duplicate-run defect is logged there. It did not request source data and does not invalidate the canonical passing decision.
 - Scope remains limited to HF public expiry-file-list metadata + exact-timestamp NIFTY spot enrichment of the cached `PARTIAL_GRID`; no Dhan API calls, option P&L, holdout access, strategy promotion, commercial use or plaintext upload.
+
+
+## 2026-10-12 — Phase 8 Greek-enrichment R2 terminal failure / R3 resubmission
+- Developer run [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) completed with failure in enrichment step 10. The final message was `ValueError: row count changed: source=None output=8999865`. The script had processed/re-encrypted rows in the runner workspace, but validation and upload were skipped; **no enriched artifact was published or accepted**.
+- Root cause: the cached source manifest exposes per-part `row_count` values but no top-level `rows_preserved`. R1 had the same deterministic failure. R2 corrected timestamp matching but did not correct this source-manifest contract.
+- R3 changes the expected-row-count calculation to sum per-part counts, rejects malformed/inconsistent declared totals, adds synthetic cases, adds an early preflight requiring 8,999,865 rows before any HF request, and versions output paths/dataset ID to R3.
+- R3 has **not yet received independent tester approval**. The developer workflow must remain blocked at the exact-snapshot gate until the R3 decision is recorded on `phase-08-tester`.
+- Scope remains HF public spot/expiry metadata only; no Dhan API, empirical option P&L, holdout, strategy promotion, commercial use or plaintext output is authorized.

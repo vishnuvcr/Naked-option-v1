@@ -16,6 +16,24 @@ def bs(s,k,t,v,call):
     return s*N(d1)-k*N(d2) if call else k*N(-d2)-s*N(-d1)
 
 def main():
+
+    # The cached R1/R2 input manifest can omit top-level rows_preserved. Use the
+    # 61 authenticated per-part row_count values as the authoritative total.
+    row_manifest={"parts":[{"file":"a.csv.gz.enc","row_count":2},{"file":"b.csv.gz.enc","row_count":"3"},{"file":"c.csv.gz.enc","row_count":4}]}
+    assert m.manifest_expected_rows(row_manifest)==9
+    assert m.manifest_expected_rows({**row_manifest,"rows_preserved":9})==9
+    for bad_manifest in (
+        {**row_manifest,"rows_preserved":8},
+        {"parts":[{"file":"missing-count.csv.gz.enc"}]},
+        {"parts":[{"file":"fractional.csv.gz.enc","row_count":1.5}]},
+        {"parts":[{"file":"negative.csv.gz.enc","row_count":-1}]},
+    ):
+        try:
+            m.manifest_expected_rows(bad_manifest)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(("invalid row-count manifest was accepted",bad_manifest))
     s=np.array([25000.,25000.]); k=s.copy(); t=np.array([20/365,20/365]); expected=np.array([.22,.22]); call=np.array([True,False])
     p=np.array([bs(s[i],k[i],t[i],expected[i],call[i]) for i in range(2)])
     iv,st=m.solve_iv(s,k,t,p,call)

@@ -487,3 +487,13 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** independently accept or reject only after terminal artifact and coverage validation is available.
 **Tester → Developer:** keep the gate blocked for delivery while step 10 is active; do not infer metrics from missing live logs.
+
+
+## 2026-10-12 — R2 failure confirmed; R3 manifest-contract correction prepared
+- The exact R2 developer run [#38194592152, attempt 2](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38194592152) failed after processing the 61 partitions: `ValueError: row count changed: source=None output=8999865`. Validation and artifact upload were skipped. The dataset is **not delivered**.
+- Root cause: the cached source bundle has mandatory per-part `row_count` values but does not define the aggregate top-level `rows_preserved` key expected by the R1/R2 final assertion. This escaped earlier synthetic-only tests because they did not model the source manifest schema.
+- R3 makes per-part row counts authoritative, cross-checks any optional aggregate, adds negative/missing/fractional/mismatch regression cases, introduces an early row-count preflight before HF requests, and creates new versioned output paths. Scope remains exactly the existing HF spot and expiry-file-list authorization; Dhan/P&L/holdout/promotion/plaintext remain prohibited.
+- R3's exact-snapshot tester decision is pending. No further data request is authorized until that decision passes.
+
+**Developer → Tester:** independently audit the manifest-row contract and the pre-fetch 8,999,865-row guard in the exact R3 snapshot, together with the existing timestamp and Greek-formula tests.
+**Tester → Developer:** issue PASS only after exact four-blob pins and both developer/independent test suites pass; otherwise REQUEST_CHANGES. Keep source requests blocked until that recorded decision exists.

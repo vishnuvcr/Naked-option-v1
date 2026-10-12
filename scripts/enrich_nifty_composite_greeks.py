@@ -18,6 +18,41 @@ def sha256(path):
         for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
     return h.hexdigest()
 
+def manifest_expected_rows(manifest):
+    """Return the authoritative expected rows from per-part manifest counts.
+
+    Some cached bundle manifests omit the optional top-level rows_preserved field.
+    Per-part row_count values are mandatory and can be summed without decrypting data.
+    If a top-level total is present, require it to agree with the part-level sum.
+    """
+    parts = manifest.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise ValueError("source manifest parts missing or empty")
+    counts = []
+    for index, part in enumerate(parts):
+        if not isinstance(part, dict) or part.get("row_count") is None or isinstance(part.get("row_count"), bool):
+            raise ValueError(f"source manifest part {index} has no valid row_count")
+        try:
+            value = float(part["row_count"])
+        except (TypeError, ValueError):
+            raise ValueError(f"source manifest part {index} has non-numeric row_count")
+        if not math.isfinite(value) or value < 0 or not value.is_integer():
+            raise ValueError(f"source manifest part {index} has invalid row_count: {part['row_count']!r}")
+        counts.append(int(value))
+    total = sum(counts)
+    declared = manifest.get("rows_preserved")
+    if declared is not None and declared != "":
+        if isinstance(declared, bool):
+            raise ValueError("source manifest rows_preserved is not an integer count")
+        try:
+            declared_value = float(declared)
+        except (TypeError, ValueError):
+            raise ValueError("source manifest rows_preserved is not numeric")
+        if not math.isfinite(declared_value) or not declared_value.is_integer() or int(declared_value) != total:
+            raise ValueError(f"source manifest rows_preserved {declared!r} disagrees with per-part sum {total}")
+    return total
+
+
 def key_from_token(token):
     from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
     if not isinstance(token,str) or len(token.strip())<16: raise ValueError("HF_TOKEN missing/too short")
@@ -247,6 +282,8 @@ def main():
     for part in manifest["parts"]:
         path=a.input_dir/part["file"]
         if not path.is_file() or sha256(path)!=part["encrypted_sha256"]: raise ValueError("source encrypted part hash mismatch: "+part["file"])
+    expected_rows=manifest_expected_rows(manifest)
+    if expected_rows != 8999865: raise ValueError(f"cached manifest part-row sum changed: expected 8999865, found {expected_rows}")
     spot=pd.read_parquet(a.hf_spot_parquet)
     if "timestamp" not in spot.columns: raise ValueError("HF NIFTY spot parquet lacks timestamp")
     st=pd.to_datetime(spot["timestamp"],errors="coerce",utc=True)
@@ -258,7 +295,7 @@ def main():
     calendar_horizon=max(max(sessions),dataset_end)
     dates,monthly,sources,last_source=make_expiry_calendar(paths,sessions,calendar_horizon)
     a.output_dir.mkdir(parents=True,exist_ok=True); total=0
-    coverage={"schema_version":1,"status":"COMPLETE_WITH_COVERAGE_RESTRICTIONS","source_dataset_id":manifest.get("dataset_id"),"source_status":manifest.get("status"),"source_option_rows":int(manifest.get("source_row_count_options",manifest.get("rows_options",manifest.get("original_rows_options",0)))),"source_spot_rows":int(manifest.get("source_row_count_spot",manifest.get("rows_spot",0))),"source_total_rows":int(manifest.get("rows_preserved",0)),"source_artifact_id":11698879857,"source_run_id":38131641336,"source_artifact_sha256":"40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b","calculated_at_utc":datetime.utcnow().isoformat()+"Z","source_attribution":"https://huggingface.co/datasets/thetrademarkk/india-index-options-1m","source_license":"CC-BY-NC-4.0: non-commercial research only","expiry_partition_count":sum(1 for x in paths if expiry_from_path(x)),"latest_hf_expiry_date":last_source.isoformat(),"expiry_mapping_method":"HF expiry-partition file-list proxy through latest listed date; weekly Tuesday-rule proxy after that; not an official point-in-time contract master","greek_method":"European Black-Scholes Greeks; solve IV from minute option close when arbitrage-bounded and numerically solvable; fallback to source IV with documented heuristic; zero-rate/zero-dividend proxy; not historical vendor Greeks","data_limitations":["The underlying Dhan request grid is PARTIAL_GRID and does not cover every exchange-listed strike/contract.","The HF dataset itself documents partial option coverage for sparse/illiquid/far strikes.","Expiry mapping for relative expiry codes is inferred from a public expiry partition list, not reconciled against point-in-time official Dhan contract-master snapshots.","Historical risk-free rates and dividend yields are unavailable; r=q=0 proxies are explicit.","Rows with missing/invalid spot, expiry, IV, option type or session keep Greek values missing and are reported."],"parts":[],"row_count_by_month":{},"rows_preserved":0,"greek_rows_with_delta":0,"option_rows_missing_spot":0,"option_rows_unmapped_expiry":0,"spot_field_values_filled":0,"greek_status_counts":{},"expiry_mapping_source_counts":{},"iv_source_counts":{}}
+    coverage={"schema_version":1,"status":"COMPLETE_WITH_COVERAGE_RESTRICTIONS","source_dataset_id":manifest.get("dataset_id"),"source_status":manifest.get("status"),"source_option_rows":int(manifest.get("source_row_count_options",manifest.get("rows_options",manifest.get("original_rows_options",0)))),"source_spot_rows":int(manifest.get("source_row_count_spot",manifest.get("rows_spot",0))),"source_total_rows":expected_rows,"source_total_rows_method":"SUM_OF_PART_MANIFEST_ROW_COUNTS","source_artifact_id":11698879857,"source_run_id":38131641336,"source_artifact_sha256":"40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b","calculated_at_utc":datetime.utcnow().isoformat()+"Z","source_attribution":"https://huggingface.co/datasets/thetrademarkk/india-index-options-1m","source_license":"CC-BY-NC-4.0: non-commercial research only","expiry_partition_count":sum(1 for x in paths if expiry_from_path(x)),"latest_hf_expiry_date":last_source.isoformat(),"expiry_mapping_method":"HF expiry-partition file-list proxy through latest listed date; weekly Tuesday-rule proxy after that; not an official point-in-time contract master","greek_method":"European Black-Scholes Greeks; solve IV from minute option close when arbitrage-bounded and numerically solvable; fallback to source IV with documented heuristic; zero-rate/zero-dividend proxy; not historical vendor Greeks","data_limitations":["The underlying Dhan request grid is PARTIAL_GRID and does not cover every exchange-listed strike/contract.","The HF dataset itself documents partial option coverage for sparse/illiquid/far strikes.","Expiry mapping for relative expiry codes is inferred from a public expiry partition list, not reconciled against point-in-time official Dhan contract-master snapshots.","Historical risk-free rates and dividend yields are unavailable; r=q=0 proxies are explicit.","Rows with missing/invalid spot, expiry, IV, option type or session keep Greek values missing and are reported."],"parts":[],"row_count_by_month":{},"rows_preserved":0,"greek_rows_with_delta":0,"option_rows_missing_spot":0,"option_rows_unmapped_expiry":0,"spot_field_values_filled":0,"greek_status_counts":{},"expiry_mapping_source_counts":{},"iv_source_counts":{}}
     (a.output_dir/".plain").mkdir(exist_ok=True)
     try:
         by_name={p["file"]:p for p in manifest["parts"]}
@@ -291,8 +328,8 @@ def main():
             for grp in ("greek_status_counts","expiry_mapping_source_counts","iv_source_counts"):
                 for k,v in rep.get(grp,{}).items(): coverage[grp][k]=coverage[grp].get(k,0)+int(v)
         shutil.rmtree(a.output_dir/".plain",ignore_errors=True)
-        if total!=int(manifest.get("rows_preserved",0)): raise ValueError(f"row count changed: source={manifest.get('rows_preserved')} output={total}")
-        outman={"schema_version":1,"dataset_id":"NIFTY_1M_DHAN_HF_SPOT_GREEKS_ENRICHED_R2","created_at_utc":coverage["calculated_at_utc"],"download_bundle_contains_encrypted_data_only":True,"do_not_upload_plaintext_or_publish_in_public_repository":True,"encryption":"AES-256-GCM; key derivation requires same HF_TOKEN used for original cache","columns":list(out.columns),"parts":coverage["parts"],"rows_preserved":coverage["rows_preserved"],"row_count_by_month":coverage["row_count_by_month"],"greek_status_counts":coverage["greek_status_counts"],"expiry_mapping_source_counts":coverage["expiry_mapping_source_counts"],"iv_source_counts":coverage["iv_source_counts"],"greek_model":"BLACK_SCHOLES_EUROPEAN_ZERO_RATE_ZERO_DIVIDEND_PROXY","expiry_mapping_method":coverage["expiry_mapping_method"],"greek_method":coverage["greek_method"],"source_attribution":coverage["source_attribution"],"source_license":coverage["source_license"],"limitations":coverage["data_limitations"],"source_artifact_id":11698879857,"source_run_id":38131641336}
+        if total!=expected_rows: raise ValueError(f"row count changed: manifest_part_sum={expected_rows} output={total}")
+        outman={"schema_version":1,"dataset_id":"NIFTY_1M_DHAN_HF_SPOT_GREEKS_ENRICHED_R3","created_at_utc":coverage["calculated_at_utc"],"download_bundle_contains_encrypted_data_only":True,"do_not_upload_plaintext_or_publish_in_public_repository":True,"encryption":"AES-256-GCM; key derivation requires same HF_TOKEN used for original cache","columns":list(out.columns),"parts":coverage["parts"],"rows_preserved":coverage["rows_preserved"],"row_count_by_month":coverage["row_count_by_month"],"greek_status_counts":coverage["greek_status_counts"],"expiry_mapping_source_counts":coverage["expiry_mapping_source_counts"],"iv_source_counts":coverage["iv_source_counts"],"greek_model":"BLACK_SCHOLES_EUROPEAN_ZERO_RATE_ZERO_DIVIDEND_PROXY","expiry_mapping_method":coverage["expiry_mapping_method"],"greek_method":coverage["greek_method"],"source_attribution":coverage["source_attribution"],"source_license":coverage["source_license"],"limitations":coverage["data_limitations"],"source_artifact_id":11698879857,"source_run_id":38131641336}
         (a.output_dir/"dataset_manifest.json").write_text(json.dumps(outman,indent=2,sort_keys=True))
         a.coverage_report.parent.mkdir(parents=True,exist_ok=True); a.coverage_report.write_text(json.dumps(coverage,indent=2,sort_keys=True))
         print(json.dumps({"status":coverage["status"],"rows_preserved":coverage["rows_preserved"],"greek_rows_with_delta":coverage["greek_rows_with_delta"],"option_rows_missing_spot":coverage["option_rows_missing_spot"],"option_rows_unmapped_expiry":coverage["option_rows_unmapped_expiry"],"parts":len(coverage["parts"])},sort_keys=True))

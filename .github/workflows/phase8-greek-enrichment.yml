@@ -7,7 +7,7 @@ on:
       - "scripts/enrich_nifty_composite_greeks.py"
       - "scripts/test_enrich_nifty_composite_greeks.py"
       - ".github/workflows/phase8-greek-enrichment.yml"
-      - "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md"
+      - "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R3_2026-10-12.md"
   workflow_dispatch:
     inputs:
       run_enrichment:
@@ -53,11 +53,11 @@ jobs:
         run: |
           python - <<'PY'
           import json, os, subprocess
-          path = "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R2_2026-10-12.json"
+          path = "research/gates/PHASE8_GREEK_ENRICHMENT_TESTER_DECISION_R3_2026-10-12.json"
           try:
               raw = subprocess.check_output(["git", "show", "origin/phase-08-tester:" + path], text=True)
           except subprocess.CalledProcessError:
-              raise SystemExit("TESTER_GATE_BLOCKED: no R2 decision on phase-08-tester; no market-data request made")
+              raise SystemExit("TESTER_GATE_BLOCKED: no R3 decision on phase-08-tester; no market-data request made")
           d = json.loads(raw)
           if d.get("decision") != "PASS_WITH_SCOPED_RESTRICTIONS":
               raise SystemExit("TESTER_GATE_BLOCKED: decision is not PASS_WITH_SCOPED_RESTRICTIONS")
@@ -86,7 +86,7 @@ jobs:
               "scripts/enrich_nifty_composite_greeks.py",
               "scripts/test_enrich_nifty_composite_greeks.py",
               ".github/workflows/phase8-greek-enrichment.yml",
-              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md",
+              "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R3_2026-10-12.md",
           }
           if set(d.get("reviewed_blobs", {})) != must_review:
               raise SystemExit("TESTER_GATE_BLOCKED: reviewed_blobs does not equal the required file set")
@@ -108,6 +108,23 @@ jobs:
           unzip -q "$RUNNER_TEMP_DIR/nifty-source-artifact/source.zip" -d "$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked"
           test -s "$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked/_temp/repair-derived-encrypted/dataset_manifest.json"
           echo "INPUT_DIR=$RUNNER_TEMP_DIR/nifty-source-artifact/unpacked/_temp/repair-derived-encrypted" >> "$GITHUB_ENV"
+
+
+      - name: Validate cached source part-row counts before any external data request
+        env:
+          INPUT_DIR: ${{ env.INPUT_DIR }}
+        run: |
+          python - <<'PY'
+          import importlib.util, json, os, pathlib
+          root=pathlib.Path(os.environ["INPUT_DIR"])
+          manifest=json.loads((root/"dataset_manifest.json").read_text())
+          spec=importlib.util.spec_from_file_location("greek_row_manifest", "scripts/enrich_nifty_composite_greeks.py")
+          module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+          expected=module.manifest_expected_rows(manifest)
+          assert len(manifest.get("parts", []))==61, "expected exactly 61 cached parts"
+          assert expected==8999865, f"expected 8,999,865 input rows from per-part manifest, found {expected}"
+          print(json.dumps({"preflight":"PASS","parts":len(manifest["parts"]),"rows_from_part_manifest":expected},sort_keys=True))
+          PY
 
       - name: Fetch HF expiry-partition metadata and NIFTY 1-minute spot bars
         env:
@@ -159,8 +176,8 @@ jobs:
           test -d "$INPUT_DIR"
           python scripts/enrich_nifty_composite_greeks.py \
             --input-dir "$INPUT_DIR" \
-            --output-dir "$RUNNER_TEMP_DIR/nifty-1m-greeks-enriched-r2" \
-            --coverage-report "$RUNNER_TEMP_DIR/greek-enrichment-coverage-r2.json" \
+            --output-dir "$RUNNER_TEMP_DIR/nifty-1m-greeks-enriched-r3" \
+            --coverage-report "$RUNNER_TEMP_DIR/greek-enrichment-coverage-r3.json" \
             --expiry-file-list "$EXPIRY_FILE_LIST" \
             --hf-spot-parquet "$HF_SPOT_PARQUET"
 
@@ -171,12 +188,14 @@ jobs:
           python - <<'PY'
           import hashlib, json, os, pathlib
           root=pathlib.Path(os.environ["RUNNER_TEMP_DIR"])
-          out=root/"nifty-1m-greeks-enriched-r2"
+          out=root/"nifty-1m-greeks-enriched-r3"
           m=json.loads((out/"dataset_manifest.json").read_text())
-          c=json.loads((root/"greek-enrichment-coverage-r2.json").read_text())
+          c=json.loads((root/"greek-enrichment-coverage-r3.json").read_text())
           assert m["download_bundle_contains_encrypted_data_only"] is True
           assert m["do_not_upload_plaintext_or_publish_in_public_repository"] is True
           assert m["rows_preserved"]==8999865==c["rows_preserved"]
+          assert c["source_total_rows"]==8999865
+          assert c["source_total_rows_method"]=="SUM_OF_PART_MANIFEST_ROW_COUNTS"
           assert len(m["parts"])==61==len(list(out.glob("*.csv.gz.enc")))
           assert not list(out.glob("*.csv.gz")), "Plaintext monthly CSV.GZ must not be uploaded"
           assert not (out/".plain").exists(), "Temporary plaintext directory must be removed"
@@ -191,10 +210,10 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nifty-1m-greeks-enriched-r2
+          name: nifty-1m-greeks-enriched-r3
           path: |
-            ${{ runner.temp }}/nifty-1m-greeks-enriched-r2/
-            ${{ runner.temp }}/greek-enrichment-coverage-r2.json
+            ${{ runner.temp }}/nifty-1m-greeks-enriched-r3/
+            ${{ runner.temp }}/greek-enrichment-coverage-r3.json
             ${{ runner.temp }}/hf-nifty/source_metadata.json
           if-no-files-found: warn
           retention-days: 90
