@@ -170,7 +170,7 @@ def main():
                   '"conflicting_signature_fields"', '"manifest_columns_sha256"',
               )))
         scan_start = diagnostic.index("def scan_frames(")
-        scan_end = diagnostic.index("\ndef run_diagnostic(", scan_start)
+        scan_end = diagnostic.index("\\ndef run_diagnostic(", scan_start)
         scan_source = diagnostic[scan_start:scan_end]
         check(checks, failures, "r5_disk_backed_scan_and_bounded_state",
               all(term in scan_source for term in (
@@ -181,7 +181,8 @@ def main():
               and "seen_contracts" not in scan_source)
         check(checks, failures, "r5_progress_is_aggregate_only_and_flushed",
               all(term in diagnostic for term in (
-                  "DUP_DIAG_PROGRESS", "file=sys.stderr", "flush=True", "progress(counters)",
+                  "DUP_DIAG_PROGRESS", "file=sys.stderr", "flush=True", "progress({",
+                  '"parts_scanned"', '"rows_scanned"', '"option_rows_scanned"',
               ))
               and "per_part_progress_reporting" in diagnostic_test
               and "disk_backed_aggregation" in diagnostic_test)
