@@ -610,3 +610,11 @@ User instructed the research to obtain Greek-calculation inputs from Dhan API, H
 
 **Developer → Tester:** independently review R5 scope and later exact code/workflow hashes; reject any reuse of the consumed R1 nonce.
 **Tester → Developer:** return a written R5 review and exact gate requirements; no real-data access until fresh independent approvals and final one-use authorization.
+
+
+## 2026-10-12 — Resume
+- User said “Resume”. Developer pinned exact R5 snapshot in the pending independent review request (snapshot commit `916ff866a5290e38203cff3ea2fa30d77a229d18`; diagnostic blob `2e4a47c7453768c66759a5167028aac9eb12568d`). Review request update commit is `81d8118dabecbb48fe5a402f60cd2d7d616a29c0` and the request still explicitly denies real-data/model/holdout authorization.
+- Reviewed previous tester artifact: 29/30 checks passed; static audit alone failed with ValueError. No real data accessed; no model fit; no empirical result accepted.
+- Tester updated its own audit and triggered fresh review [#38211091622](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38211091622). At this log entry, the run is still in progress.
+- Synthetic/protocol runs #38208731140 and #38208731426 passed, but do not constitute empirical evidence.
+- Developer instruction: wait for independent exact-code and executor reviews before any fresh one-use authorization. Tester instruction: provide explicit findings and retain closed permissions unless all gates pass.
