@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REG = ROOT / "research" / "registry"
 DATA_MANIFEST = ROOT / "research" / "data" / "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
 DATA_ARTIFACT_PIN = ROOT / "research" / "data" / "PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
+SESSION_CALENDAR = ROOT / "research" / "data" / "NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
 R2_CONFIG_MANIFEST = REG / "PREDICTION_CONFIG_MANIFEST_V2_R2.json"
 R2_REGISTRY_INDEX = REG / "PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json"
 R2_LABEL_MANIFEST = REG / "PREDICTION_LABEL_MANIFEST_V2_R2.json"
@@ -244,6 +245,27 @@ def label_record(label_id: str, horizon_value: int) -> dict[str, Any]:
     }
 
 def build_labels(r2_label_manifest: dict[str, Any]) -> dict[str, Any]:
+    if not SESSION_CALENDAR.is_file():
+        raise SystemExit("BLOCKED: official NSE equity session calendar snapshot is missing")
+    calendar = load_json(SESSION_CALENDAR)
+    if calendar.get("calendar_id") != "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3":
+        raise SystemExit("BLOCKED: unexpected NSE exchange calendar identity")
+    if calendar.get("timezone") != "Asia/Kolkata" or calendar.get("date_bounds") != {"start": "2021-10-11", "end_inclusive": "2026-10-10"}:
+        raise SystemExit("BLOCKED: NSE exchange calendar date range/timezone does not match the frozen dataset")
+    sources = {int(x.get("year", 0)) for x in calendar.get("sources", []) if x.get("url") and x.get("circular")}
+    if sources != {2021, 2022, 2023, 2024, 2025, 2026}:
+        raise SystemExit(f"BLOCKED: calendar must identify annual NSE capital-market circulars for 2021–2026; got {sorted(sources)}")
+    holiday_dates = []
+    for year in ("2021", "2022", "2023", "2024", "2025", "2026"):
+        entries = calendar.get("regular_session_holidays_by_year", {}).get(year)
+        if not isinstance(entries, list) or not entries:
+            raise SystemExit(f"BLOCKED: NSE calendar has no regular-session holiday list for {year}")
+        holiday_dates.extend(item.get("date") for item in entries)
+    supplements = calendar.get("supplements", [])
+    if not any(x.get("date") == "2026-01-15" and x.get("date_reconciled_from_live_page") is True for x in supplements):
+        raise SystemExit("BLOCKED: NSE special weekday closure on 2026-01-15 is missing from calendar supplements")
+    if len(holiday_dates) != len(set(holiday_dates)):
+        raise SystemExit("BLOCKED: duplicate date in NSE regular-session holiday calendar")
     labels = [label_record(label_id, h) for label_id, h in INTRADAY_HORIZONS + POSITIONAL_HORIZONS]
     label_ids = {x["id"] for x in labels}
     assert label_ids == set(ALL_LABEL_IDS) and len(labels) == 10
@@ -265,7 +287,13 @@ def build_labels(r2_label_manifest: dict[str, Any]) -> dict[str, Any]:
         "labels": labels,
         "common_rules": {
             "timezone": "Asia/Kolkata (IST)",
-            "session_calendar": "Use the official NSE session calendar snapshot pinned in the developer data-preflight manifest before generating labels. If the calendar snapshot/hash is absent or contradictory to observed session timestamps, fail closed.",
+            "session_calendar": "Use the official NSE Capital Market equities regular-session calendar snapshot pinned below before label generation; reconcile it against observed SPOT session dates and fail closed on contradictions or missing scheduled sessions.",
+            "session_calendar_id": calendar["calendar_id"],
+            "session_calendar_path": SESSION_CALENDAR.relative_to(ROOT).as_posix(),
+            "session_calendar_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR.read_bytes()),
+            "session_calendar_sha256": sha256(SESSION_CALENDAR.read_bytes()),
+            "regular_session_open": calendar["regular_session"]["open"],
+            "regular_session_close": calendar["regular_session"]["close"],
             "decision_time": "Every predictor value must be available at or before the recorded decision timestamp; option/derived predictors must use publication/availability timestamps when distinct from event timestamps.",
             "price_provenance": "NIFTY spot/index observations only for labels; option/derived rows may be predictors but never replace target spot prices.",
             "duplicate_rows": "Deduplicate only byte-identical (instrument, exchange timestamp, interval) rows; conflicting duplicate rows block the affected fold/source.",
@@ -411,6 +439,12 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["scope"]["source_dataset_is_encrypted_only"] = True
     p["scope"]["source_row_count_from_manifest"] = 8999865
     p["scope"]["data_manifest_git_blob_sha1"] = git_blob_sha1(DATA_MANIFEST.read_bytes())
+    p["scope"]["session_calendar_path"] = SESSION_CALENDAR.relative_to(ROOT).as_posix()
+    p["scope"]["session_calendar_git_blob_sha1"] = git_blob_sha1(SESSION_CALENDAR.read_bytes())
+    p["scope"]["session_calendar_sha256"] = sha256(SESSION_CALENDAR.read_bytes())
+    p["scope"]["session_calendar_id"] = load_json(SESSION_CALENDAR)["calendar_id"]
+    p["scope"]["regular_session_open"] = load_json(SESSION_CALENDAR)["regular_session"]["open"]
+    p["scope"]["regular_session_close"] = load_json(SESSION_CALENDAR)["regular_session"]["close"]
     p["scope"]["derived_encrypted_artifact_pin_path"] = DATA_ARTIFACT_PIN.relative_to(ROOT).as_posix()
     p["scope"]["derived_encrypted_artifact_pin_git_blob_sha1"] = git_blob_sha1(DATA_ARTIFACT_PIN.read_bytes())
     p["scope"]["current_derived_artifact_id"] = data_pin["current_derived_artifact"]["artifact_id"]
@@ -668,6 +702,8 @@ def main() -> int:
             "r2_label_manifest_git_blob_sha1": git_blob_sha1(R2_LABEL_MANIFEST.read_bytes()),
             "r2_preregistration_git_blob_sha1": git_blob_sha1(R2_PREREG.read_bytes()),
             "data_manifest_git_blob_sha1": git_blob_sha1(DATA_MANIFEST.read_bytes()),
+            "session_calendar_git_blob_sha1": git_blob_sha1(SESSION_CALENDAR.read_bytes()),
+            "session_calendar_sha256": sha256(SESSION_CALENDAR.read_bytes()),
             "data_artifact_pin_git_blob_sha1": git_blob_sha1(DATA_ARTIFACT_PIN.read_bytes()),
             "current_derived_artifact_id": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["artifact_id"],
             "current_derived_artifact_archive_sha256": load_json(DATA_ARTIFACT_PIN)["current_derived_artifact"]["archive_sha256"],
