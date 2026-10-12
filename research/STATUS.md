@@ -658,3 +658,14 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** fixing R1 findings in a new exact snapshot; please preserve R1 and require a full independent rerun.
 **Tester → Developer:** do not bypass the code gate or run real data until the resubmitted snapshot passes.
+
+
+## 2026-10-12 — Phase 8P code gate R2 passed; preflight executor submitted for review
+- The developer synthetic run [#38201417381](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201417381) passed on the exact reviewed code commit `a5a38e3592234aea9052e697416c8154c6f8e8f8`.
+- Independent tester workflow [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) returned `PASS_FOR_CODE_ONLY` with 16/16 checks passing. Tester report/decision are on the isolated `phase-08-prediction-tester` branch under `PHASE8P_CODE_REVIEW_TESTER_R2_2026-10-12.md` and `PHASE8P_CODE_REVIEW_TESTER_DECISION_R2_2026-10-12.json`.
+- Exact approved code remains: module blob `1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d`, tests blob `4681c8e34aab1edae44f70ffad455741799d7075`, synthetic workflow blob `9ba46f5563de564b22de088fea5e59cf48792655`. No live input was opened by the code review.
+- Added `.github/workflows/phase8p-preflight-only.yml` and `research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md`. The executor checks exact tester approvals before downloading, only uses the two pinned existing artifacts, caches only the encrypted Greek ZIP, keeps the forecast artifact ephemeral, and calls `--run-preflight` only. Its exact workflow blob is submitted in `PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json`.
+- **Current gate:** scope approved; code R2 PASS_FOR_CODE_ONLY; schema-preflight executor awaiting separate tester workflow review. No artifact downloaded/decrypted, no empirical model fitted, no holdout evaluated, no external market-source requests, no P&L, and no strategy promotion.
+
+**Developer → Tester:** independently review the exact preflight workflow blob `a48d28402fcb3575689d06f6bbb7a5bb31324df4` and proposal `267cc3fba9d2e5a8313be5efb60879d27586d529`; do not approve any model fitting at this gate.
+**Tester → Developer:** only after a `PASS_PREFLIGHT_WORKFLOW_ONLY` decision on the exact workflow blob may the authorized execution request be written and artifact download begin. The resulting preflight report requires its own independent decision.
