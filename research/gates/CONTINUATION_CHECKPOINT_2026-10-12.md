@@ -44,3 +44,10 @@ Pinned full synthetic run 38253120700 passed, with no real data/model fitting/ho
 Final full synthetic run [38253486894](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38253486894) passed at exact commit `d6ab3298f42367de9b0101cdedf477165b20d31f`. The workflow asserts its checkout equals the triggering GitHub SHA, passes restart/replay and injected-failure tests, passes metrics/bootstrap/BY tests, and completes 64,000 synthetic tasks. Counts remain 27,264 mock-only and 36,736 compatibility-blocked; error JSONL is empty; no market data, real fit or holdout was touched.
 
 The hash metadata was corrected to distinguish Git blob SHA-1 IDs from raw-file SHA-256 digests. Statistical utilities are implemented and tested; estimated model-run resources remain assumption-based, not benchmarked. Independent tester review remains REQUEST CHANGES and empirical fitting remains blocked.
+
+
+## Latest continuation — 2026-10-12
+
+The hardened, exact-commit synthetic run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38254175308) passed at source SHA `6d4787348d7b0b794e210026ceddcea19192eccc`, artifact ID `11749635242`. It processed 64,000 synthetic tasks with 27,264 mock-only rows, 36,736 compatibility-blocked rows, and zero errors. The statistical utility suite passed all 8 tests, including strict input-type and missing-class guards. Result SHA-256: `6a45f139077bfa058f240a3268023f061ee3ca3ca51d84e5f3307c527a765f6b`.
+
+No market data, actual estimator fit or holdout was used. The resource budget remains assumption-based, not benchmarked. Independent scientific review is pending; fitting remains blocked.
