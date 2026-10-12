@@ -67,3 +67,16 @@ Further code review found that `load_option_data()` filters for finite, positive
 This is an **unresolved data-integrity risk**, not proof that the frozen source has invalid OHLC rows. The current run is already executing the tester-approved snapshot and must not be altered mid-run. At result review, report that the artifact does not count structural OHLC violations. Before treating X1/X2/X3 trigger-policy results as dependable, either demonstrate with a narrowly scoped aggregate-only audit over the same cached rows that violations are absent (or immaterial), or submit a corrected validator and matching synthetic tests for independent review. Do not silently remove rows or change the frozen grid after seeing P&L.
 
 **Developer → Tester:** verify the OHLC data-integrity limitation and require a scoped evidence-based disposition; distinguish “not measured” from “zero invalid rows.”
+
+## R6 — Prove the timing of any raw-IV-derived contract selections
+
+The point-in-time rules prohibit using IV observed only after the decision. In `scripts/run_phase8_proxy_strategy.py`, `resolve_deltas_vectorized()` falls back to the input `implied_volatility` field when an as-of stored delta is unavailable, but that raw field has no separate valuation/availability timestamp in the runner's input schema. The Greek enrichment script explicitly documents that its *derived* `greek_implied_volatility` is inverted from the same minute's `option_close` (close valued at timestamp + 60 seconds); fortunately the Phase 8 runner does not consume that `greek_implied_volatility` field. The public source dataset card for the active HF minute-OHLC source documents OHLCV/OI and no IV field, but the enriched composite's raw-IV coverage still needs to be measured rather than assumed ([source schema](https://huggingface.co/datasets/thetrademarkk/india-index-options-1m/blob/main/README.md)).
+
+Result-level disposition required:
+- Count `delta_selection_method` values in the ledger (including `OBSERVED_DELTA_ASOF`, `BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY`, and `MONEYNESS_FALLBACK`).
+- For any `BLACK_SCHOLES_RAW_IV_AT_DECISION_PROXY` rows, establish the source IV was available at the entry decision timestamp. If no separate as-of evidence exists, classify those contract selections as unverified and do not promote the affected results; use only strictly as-of fields or a declared moneyness fallback in a separately tester-reviewed correction.
+- Do not confuse the close-derived `greek_implied_volatility` with a point-in-time IV input at bar open.
+
+This is currently an **as-of provenance question**, not proof that this run used leaked values. The exact current run remains unchanged; evaluate the actual ledger before a result-level pass.
+
+**Developer → Tester:** perform this method-count/timestamp provenance check from the completed ledger and report unknown IV availability explicitly.
