@@ -1,0 +1,100 @@
+{
+  "schema_version": 3,
+  "gate": "PHASE8P_DUPLICATE_DIAGNOSTIC_CODE_REVIEW_R5",
+  "status": "PENDING_INDEPENDENT_TESTER_REVIEW",
+  "review_scope": "STATIC_AND_SYNTHETIC_ONLY_NO_REAL_ARTIFACT_ACCESS",
+  "developer_commit": "ade5372c1f9f92e07857ab2aabcca18f21b899e1",
+  "implementation": {
+    "core_module_path": "scripts/phase8p_greek_prediction.py",
+    "core_module_blob_sha1": "3358381d64b3e675e49687fa5d34df44d8a9c984",
+    "core_test_path": "scripts/test_phase8p_greek_prediction.py",
+    "core_test_blob_sha1": "198e731e9e5f5dd011370cd6f656fe27e97c6ca5",
+    "core_synthetic_workflow_path": ".github/workflows/phase8p-greek-prediction.yml",
+    "core_synthetic_workflow_blob_sha1": "5d413bc4a0d6fb63c89775a153af33f270853b8f",
+    "diagnostic_path": "scripts/phase8p_duplicate_key_diagnostic.py",
+    "diagnostic_blob_sha1": "3abf03253024053ffdb39044db38e15532406e22",
+    "diagnostic_test_path": "scripts/test_phase8p_duplicate_key_diagnostic.py",
+    "diagnostic_test_blob_sha1": "2a77cf0e634f568bdb8374cddea368d4d8e63c06",
+    "diagnostic_synthetic_workflow_path": ".github/workflows/phase8p-duplicate-diagnostic-synthetic.yml",
+    "diagnostic_synthetic_workflow_blob_sha1": "08cbb1519666d25186b684c000a1df478ad3329d"
+  },
+  "scope_approval": {
+    "proposal_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_AMENDMENT_R4_2026-10-12.md",
+    "proposal_blob_sha1": "1ea9bca882b53fd2853829137aba2d521023b3bd",
+    "tester_decision_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json",
+    "tester_decision_blob_sha1": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+    "tester_report_path": "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_TESTER_R2_2026-10-12.md",
+    "tester_report_blob_sha1": "3305ed3a2a6617441c9ccaf73764d9edf0e53b5f",
+    "decision": "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS"
+  },
+  "synthetic_evidence": {
+    "disk_backed_scan": {
+      "run_id": 38208348486,
+      "conclusion": "success",
+      "developer_commit": "74a820b6612c2cb20874f5a9ec4553a9413e3f78"
+    },
+    "regression_suite": {
+      "run_id": 38208356622,
+      "conclusion": "success",
+      "developer_commit": "ade5372c1f9f92e07857ab2aabcca18f21b899e1"
+    }
+  },
+  "prior_runtime_failure": {
+    "run_id": 38207005953,
+    "conclusion": "failure",
+    "exit_code": 143,
+    "summary": "Hosted runner shutdown signal during in-memory scan; no aggregate report; no data conclusion",
+    "original_nonce_consumed": true
+  },
+  "source_artifact": {
+    "artifact_id": 11723198817,
+    "sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736"
+  },
+  "diagnostic_contract": {
+    "schema_source": "columns list inside pinned dataset_manifest.json",
+    "column_reconciliation": "each decrypted part must exactly match manifest column list, in order, before processing rows",
+    "timestamp_semantics": "at least one timestamp_utc or timestamp_ist is required; every present timestamp representation must agree with timestamp_epoch",
+    "economic_key_fields": [
+      "underlying",
+      "greek_valuation_epoch_seconds",
+      "normalized_expiry_date",
+      "returned_strike",
+      "normalized_option_type"
+    ],
+    "valuation_offset_seconds": 60,
+    "signature": "all manifest columns except four approved collection-provenance variance fields when present",
+    "allowed_provenance_variance_fields": [
+      "source_request_id",
+      "requested_relative_strike",
+      "request_scope_sha256",
+      "response_sha256"
+    ],
+    "duplicate_policy": "exact signature repeats classified separately from conflicts; conflict fields reported by name only; no source row changed",
+    "memory_design": "disk-backed SQLite keyed by SHA-256 economic key; compressed first signature stored in runner-local temporary database; only one source part is held in memory; temporary database is deleted",
+    "progress_reporting": "part/row counters only; no row-level or contract-level data",
+    "output": "aggregate counts, schema/signature hashes, conflicting column names only; no raw rows, keys, prices, labels, feature tables or decrypted source upload"
+  },
+  "required_checks": [
+    "Verify exact developer commit and all six source/test/workflow blob pins",
+    "Verify exact R4 scope amendment tester decision/report blobs and scope-only flags",
+    "Run the core self-test and core regression suite on the detached developer worktree",
+    "Run diagnostic self-test and diagnostic regression suite on the detached developer worktree",
+    "Check exact-duplicate and conflicting-signature classifications, seconds/milliseconds normalization, field-name-only conflicts, and row/part-order invariance",
+    "Verify ordered manifest schema, required semantic fields, conditional timestamp representation and extra/missing/reordered header fail-closed behavior",
+    "Static-check SQLite disk-backed per-key storage, compressed signature persistence, no full unique-signature dictionary, and automatic temporary database cleanup",
+    "Verify progress callbacks report only part and aggregate row counters with no values or identifiers",
+    "Check schema/output allowlist and all no-deduplication/no-raw-output/false model and holdout flags",
+    "Static scan for network/source imports or artifact downloads in the diagnostic and test path",
+    "Verify source artifact identity/hash check runs before manifest open and encrypted-part iterator",
+    "Verify review workflow itself does not download/open/decrypt source artifact or invoke the real diagnostic"
+  ],
+  "real_artifact_access_authorized": false,
+  "real_artifact_decryption_authorized": false,
+  "real_diagnostic_authorized": false,
+  "deduplication_authorized": false,
+  "model_fit_authorized": false,
+  "holdout_access_authorized": false,
+  "external_market_source_requests_authorized": false,
+  "option_pnl_authorized": false,
+  "strategy_promotion_authorized": false
+}
