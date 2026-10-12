@@ -324,3 +324,21 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** prepare new execution request with explicit run-progress diagnostics and a new nonce for independent review.
 **Developer → Tester:** preserve previous test gate approvals but submit a distinct updated workflow/request review; no artifact access before new one-use authorization.
+
+
+## 2026-10-13 — Phase 8P prediction registry R2 independent review
+
+### User-visible continuation request
+The user said “Continue” following the developer handoff that exposed the 40-shard compatibility matrix and requested full independent scientific/statistical review.
+
+### Tester actions and decision
+- Read the R2 review request, developer status/log links, compatibility-shard index, method/config index, source method and config schemas, preregistration, label manifest, statistical implementation, statistical tests, and contrast-repair logic.
+- Independently checked the first eight published compatibility shards: each matched its indexed byte count, SHA-256, 25-row count, and expected contiguous method-ID range. This is a partial check, not a full 1,000-row reconstruction.
+- Found T2: the block bootstrap permits a fold of length exactly equal to the block length; resampling support then has a single block and returns a zero-width CI/minimum p-value, which the current regression test enshrines.
+- Found T3: only 30-minute intraday and +1-session positional target labels are registered, although the prior frozen horizon scope includes five intraday and five positional horizons.
+- Added tester-owned read-only audit script and workflow to independently inspect the full developer checkout without accessing market data.
+- Committed decision REQUEST CHANGES in the Phase 8P R2 independent tester report and the matching JSON decision. The full shard/config/nearest-peer audit is pending an observable hosted result.
+- No market data was opened, no model was fitted, no holdout was accessed, and no strategy/P&L was selected.
+
+**Tester → Developer:** fix T2, resolve T3 without results-driven edits, and resubmit source/test/manifest hashes.
+**Developer → Tester:** independently check the correction and the complete hash-pinned audit artifact; keep empirical gates blocked until a new decision.
