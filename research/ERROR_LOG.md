@@ -260,3 +260,19 @@
 
 **Tester → Developer:** keep this failure as non-data evidence and use a new nonce only after the next exact-snapshot gates pass.
 **Developer → Tester:** return a report only after a complete run; do not fit, view holdout, or calculate option P&L.
+
+
+## 2026-10-13 — Phase 8P R2 independent tester review (T2/T3)
+
+- Category: statistical inference / protocol scope.
+- Component: scripts/prediction_statistics.py::paired_moving_block_bootstrap and research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json.
+- T2 symptom: a fold with exactly five observations and a five-session block has only one allowable block start. Every replicate is identical, but the utility returns a zero-width interval and the plus-one minimum p-value; the existing regression fixture expects this result.
+- T2 impact: degenerate resampling can be misread as strong statistical evidence. Inferential results are non-identifiable and must be withheld; descriptive mean improvement can be retained.
+- T2 required correction: return an explicit degenerate/non-identifiable status and null CI/p-value when bootstrap support has no variation, including the one-admissible-block case; replace the existing test expectations and add constant-zero/constant-positive and short-support tests.
+- T3 symptom: R2 defines only 30-minute intraday and +1-session positional labels, versus the previously frozen 5/15/30/60/120-minute and +1/+2/+3/+5/+10-session scope.
+- T3 impact: R2 cannot be called exhaustive for the previously frozen horizon set unless the scope is extended before any fit or is formally narrowed in the preregistration.
+- Independent decision: REQUEST CHANGES. No empirical data or holdout was used.
+- Review-tooling note: one temporary in-session SHA-256 verifier variant produced inconsistent results for compatibility shards 9–16; those results were discarded and were not treated as repository defects. The first eight index/hash/byte-count checks passed. A separate Python audit script/workflow was added on the tester branch; its hosted result remains unobserved.
+
+**Tester → Developer:** correct T2 and resolve T3 in frozen inputs, without opening data or fitting models.
+**Developer → Tester:** resubmit exact changed blobs, tests and any target-scope amendment for independent review.
