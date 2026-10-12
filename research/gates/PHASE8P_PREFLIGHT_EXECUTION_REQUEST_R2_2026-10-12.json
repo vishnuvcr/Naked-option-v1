@@ -6,8 +6,11 @@
   "approved_developer_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
   "code_decision_blob_sha1": "a23774dd9bf476f4e0fa3e1edf2d540bbd548c7b",
   "preflight_workflow_approval": {
-    "path": "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R2_2026-10-12.json",
-    "blob_sha1": "0f7cf48945704e9498b7e149a7ae71a820809070"
+    "path": "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_TESTER_DECISION_R1_2026-10-12.json",
+    "blob_sha1": "23efed6098fb73f0efb6715066213512bb8b894a",
+    "decision": "PASS_PREFLIGHT_WORKFLOW_ONLY",
+    "reviewer_workflow_run_id": 38202785798,
+    "review_receipt_sha256": "d810501f61faf84dc3e240a81378a8a87a05bd4dba09a40e8c099c8b7351affb"
   },
   "artifacts": {
     "greek": {
@@ -29,5 +32,7 @@
   "upload_raw_data_authorized": false,
   "no_data_download_before_workflow_review": true,
   "no_model_fit_before_preflight_tester_decision": true,
-  "authorization_note": "Authorized by independent tester PASS_PREFLIGHT_WORKFLOW_ONLY. This request permits schema/coverage preflight only; no model fitting, holdout access, external data source calls, option P&L or strategy promotion."
+  "authorization_note": "Authorized by independent tester PASS_PREFLIGHT_WORKFLOW_ONLY. This request permits schema/coverage preflight only; no model fitting, holdout access, external data source calls, option P&L or strategy promotion.",
+  "workflow_review_completed": true,
+  "authorization_scope": "SCHEMA_COVERAGE_PREFLIGHT_ONLY_NO_MODEL_FIT"
 }
