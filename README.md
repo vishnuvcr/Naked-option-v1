@@ -1,3 +1,19 @@
+## 2026-10-12 — Phase 8P Greek-feature prediction: independent code gate REQUEST_CHANGES
+
+The new prediction-only sub-study's scope R3 passed **scope review only** and the developer synthetic suite passed. The isolated tester then issued **REQUEST_CHANGES** on exact developer code snapshot `16cb5d266c6312aeeea07ebd61fbbcd589a8281d`. The code gate is not passed; **no real market artifact has been downloaded/decrypted and no empirical model fit occurred**.
+
+- [Tester code-review report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md)
+- [Machine-readable tester decision](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json)
+- [Prediction-only scope R3](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md)
+- [Developer synthetic CI #38199456531](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531) · [Independent tester code gate #38199864955](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199864955)
+
+Required fixes include an end-to-end pinned-artifact/feature-join/20-cell prediction runner, cryptographically bound fit authorization, chronological block-order checks, correct handling of SPOT rows in exact Greek snapshot selection, an approved daily decision-time contract, and an artifact-bound target/holdout preflight. The accepted R3 dataset remains immutable; empirical data access, model fitting, holdout access, option P&L and strategy promotion remain blocked.
+
+**Developer → Tester:** submit an exact R2 code/test snapshot only after resolving R1 findings.
+**Tester → Developer:** preserve R1 and require a new independent code gate; do not open the data gate early.
+
+---
+
 ## 2026-10-12 — R3 Greek-enriched dataset independently accepted
 
 **Tester decision: PASS_WITH_SCOPED_RESTRICTIONS.** [Independent tester run #38197317740](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38197317740) downloaded the artifact and passed ZIP SHA-256, archive CRC, encrypted-part hashes, row totals, coverage-map consistency, schema, source metadata and no-plaintext checks.
