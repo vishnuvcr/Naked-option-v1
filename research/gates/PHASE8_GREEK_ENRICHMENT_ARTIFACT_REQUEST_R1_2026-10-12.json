@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8_GREEK_ENRICHMENT_ARTIFACT_R1",
+  "request_id": "PHASE8_GREEK_ENRICHMENT_ARTIFACT_REQUEST_R1_2026-10-12",
+  "created_at": "2026-10-12",
+  "developer_run_id": 38195812828,
+  "developer_run_attempt": 2,
+  "developer_snapshot_sha": "f556c7b44088f18551453c36f78e8d5de7fe141e",
+  "artifact_id": 11723198817,
+  "artifact_name": "nifty-1m-greeks-enriched-r3",
+  "artifact_zip_sha256": "e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736",
+  "artifact_size_bytes": 1610370340,
+  "expected_rows": 8999865,
+  "expected_parts": 61,
+  "expected_option_rows": 8490723,
+  "expected_spot_rows": 509142,
+  "source_cached_artifact_id": 11698879857,
+  "source_cached_run_id": 38131641336,
+  "source_cached_artifact_zip_sha256": "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b",
+  "reviewer_tasks": [
+    "Verify the exact completed developer run, branch, commit SHA, workflow path and exact artifact ID/name/size via GitHub API.",
+    "Download the artifact ZIP and check archive CRC and exact uploaded ZIP SHA-256 e61c1aa845c3e58bc82506797f3ca2e8f35944d8d4cd58082a04776a25378736.",
+    "Open encrypted dataset_manifest.json, greek-enrichment-coverage-r3.json and HF source metadata directly from ZIP; do not trust developer summary alone.",
+    "Verify exactly 61 encrypted CSV.GZ parts, each N1C1 AES-GCM header, each file SHA-256 against manifest, and no plaintext CSV/CSV.GZ or .plain members.",
+    "Verify the sum of all 61 part row_count values, manifest rows_preserved, coverage rows_preserved and source_total_rows all equal 8,999,865; compare row_count_by_month and part-level entries between manifest and report.",
+    "Verify source option/spot row totals of 8,490,723 and 509,142 and independently sum greek_status_counts, expiry_mapping_source_counts and iv_source_counts to option rows.",
+    "Verify required Greek/expiry fields, exact HF repository and immutable 40-character revision, attribution, CC-BY-NC-4.0 licensing and non-commercial restriction.",
+    "Check reported Greek coverage and missingness counts. Do not interpret zero expiry rows unmapped as proof of official expiry completeness; the source grid remains PARTIAL_GRID and expiry mapping is a proxy.",
+    "Pass only if artifact integrity and coverage metadata are internally consistent; otherwise publish REQUEST_CHANGES and detailed findings to the tester branch."
+  ],
+  "restrictions": {
+    "dhan_api_requests_authorized": false,
+    "empirical_option_pnl_authorized": false,
+    "holdout_access_authorized": false,
+    "strategy_promotion_authorized": false,
+    "plaintext_upload_authorized": false,
+    "commercial_use_authorized": false,
+    "source_license": "CC-BY-NC-4.0; non-commercial research only",
+    "source_grid_status": "PARTIAL_GRID"
+  }
+}
