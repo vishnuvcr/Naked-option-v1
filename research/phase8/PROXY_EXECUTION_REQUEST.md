@@ -13,3 +13,6 @@ This request invokes the exact developer-branch runner, tests, and workflow blob
 - Limitations: all results are Q1/OHLC proxy, historical lot sizing is approximate around contract transitions, and the results are not quote-executable.
 
 Run only if GitHub Actions confirms the exact tester PASS and all required regression jobs pass.
+
+
+Rerun authorization: R2 — 2026-10-12. Use the corrected tester-approved runner/test/workflow blobs, the same two pinned artifacts, and the existing HF_TOKEN secret only to decrypt the cached composite. If the aggregate counters still show no eligible option rows, stop with the sanitized diagnostics and fix the parser; do not label that result as trading performance. No new data acquisition and no bid/ask gate.
