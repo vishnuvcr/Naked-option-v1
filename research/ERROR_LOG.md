@@ -226,3 +226,15 @@
 
 **Tester → Developer:** proceed to submit the isolated, hash-pinned one-use executor workflow request, not the real scan.
 **Developer → Tester:** review the workflow and authorization handoff before artifact retrieval; no model fitting or holdout access.
+
+
+## 2026-10-12 — One-use duplicate executor workflow review: final R1 PASS
+
+- Independent tester run [#38206319754](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754) returned `PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY`, **31/31 checks passed**, no failures. Receipt [11727591616](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754/artifacts/11727591616), SHA-256 `3009787cfb7abf9f04ca2abf695d1ffabbd9c77e26e2fe0b9303beda48f56d11`.
+- The independent audit now has an explicit assertion that artifact redirect locations and HF_TOKEN are not echoed into outputs.
+- Earlier workflow runs #38205955895 and #38206043280 safely no-opped with all data steps skipped. #38205997072 and #38206009396 failed closed before data access because the request initially lacked top-level nonce / R4 pin fields; those fields were corrected. These are preserved as request-contract errors, not data/scientific outcomes.
+- The final review artifact contains only aggregate static audit metadata; no data rows, keys or ZIP was downloaded as part of this gate.
+- Next mandatory gate is the separate one-use execution authorization. Workflow-only PASS must not be reused as permission to access the source artifact.
+
+**Tester → Developer:** keep the artifact gate closed; submit the exact one-use execution authorization bundle.
+**Developer → Tester:** independently validate every nonce, blob and artifact pin; do not authorize model fitting, deduplication, holdout, P&L or raw-data upload.
