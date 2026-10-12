@@ -840,3 +840,15 @@
 
 **Developer → Tester:** verify the artifact and publication-failure diagnosis independently, and audit the metrics before any promotion.
 **Tester → Developer:** keep Phase 9 blocked; request a new exact-snapshot gate for any code correction or rerun.
+
+
+## 2026-10-12 — Phase 8 R7 corrections and regression defects
+
+- Previous run 38222296903 produced a result artifact but failed during result publication/rebase. Its workflow failure handler incorrectly declared `FAILED_NO_METRICS`; a corrected workflow now distinguishes `PUBLISH_FAILED_WITH_METRICS` from a true missing-metrics failure and commits only unique run artifacts to avoid conflicts in shared logs.
+- Tester independently requested changes for drawdown denominator, OHLC integrity, tick rounding, raw-IV point-in-time provenance, missing lagged liquidity tie-break, intraday entry timing, lot-size transitions and summary/ledger reconciliation.
+- Corrections committed to developer branch: local-peak drawdown using timestamp-aggregated P&L; complete OHLC validation; 120-second intraday cap; conservative tick rounding; prior-bar-only Greek and liquidity selection; exclusion of expiry windows around lot-size transitions; corrected workflow publication path.
+- Hosted regression previously exposed a missing `_lag_rolling_spot` field in synthetic contract-selection fixtures. The runner now safely treats missing lagged fixture columns as unavailable; regression is being rerun on the newer snapshot.
+- No new empirical results are accepted. Existing C3 candidate values predate these corrections and must not be reused as current strategy results.
+
+**Developer → Tester:** check this fix log against current code and exact hosted tests; request changes if any risk remains.
+**Tester → Developer:** do not start the corrected empirical grid until the exact code/test/workflow snapshot passes independent review.
