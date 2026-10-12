@@ -247,3 +247,8 @@ No scientific or protocol change was made during this checkpoint.
 
 ## 2026-10-12 — Tester approved schema-only preflight executor R2
 - The isolated tester audit passed 29/29 checks on the exact workflow blob and wrote a machine decision PASS_PREFLIGHT_WORKFLOW_ONLY. Only schema/coverage preflight is permitted; fitting remains blocked pending a separate data-preflight review.
+
+
+## 2026-10-12 — Independent tester blocked Phase 8P data preflight
+- Exact aggregate preflight report reviewed; decision BLOCKED_DATA because of DUPLICATE_OPTION_CONTRACT_TIMESTAMP_ACROSS_PARTS. Input ZIP hashes matched; coverage panel count remained zero.
+- No raw/decrypted rows were uploaded and no model/holdout/P&L work occurred. Next action is a separate hash/count-only duplicate diagnostic with synthetic tests and independent code review.
