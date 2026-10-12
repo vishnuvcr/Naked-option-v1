@@ -3,20 +3,20 @@
   "gate": "PHASE8_GREEK_ENRICHMENT_R2",
   "request_id": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R2_2026-10-12",
   "created_at": "2026-10-12",
-  "developer_snapshot_sha": "5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6",
+  "developer_snapshot_sha": "6ebb54bdbbc7ed0198d23d0b555aea547a127f9f",
   "supersedes_request": "PHASE8_GREEK_ENRICHMENT_TESTER_REQUEST_R1_2026-10-12",
   "approved_scope_requested": "HF_PUBLIC_EXPIRY_FILELIST_AND_NIFTY_SPOT_ENRICHMENT_OF_CACHED_ENCRYPTED_COMPOSITE",
   "reviewed_blobs": {
     "scripts/enrich_nifty_composite_greeks.py": "6b59dd53a0dc4b62d7e78f725ac76e907e8ac6dd",
     "scripts/test_enrich_nifty_composite_greeks.py": "3c53e1757be84aef74697c912ae68fe1fc7ab108",
-    ".github/workflows/phase8-greek-enrichment.yml": "093fbc4f31bf449d70d8503ea687f2820d410a7b",
+    ".github/workflows/phase8-greek-enrichment.yml": "50cbb1f963d33fb05ad0cb88e6ae751071958fa9",
     "research/gates/PHASE8_GREEK_ENRICHMENT_SCOPE_REQUEST_R2_2026-10-12.md": "77a2562ca738c55d98b587b8a58a333f89f515fe"
   },
   "prior_test_evidence": {
     "run_id": 38169189321,
-    "developer_snapshot_sha": "1e9421b00b2b17d1dd2d714b8eb2ab59c5387d89",
+    "developer_snapshot_sha": "5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6",
     "synthetic_test_step": "success",
-    "terminal_gate": "failed closed because no tester decision matched the exact developer snapshot",
+    "terminal_gate": "REQUEST_CHANGES: R2 tester workflow was still checking the R1 request path and exact four-file set; no source request authorized.",
     "source_calls_made": false
   },
   "rationale_for_r2": [
@@ -49,6 +49,7 @@
   },
   "reviewer_instructions": {
     "developer": "Do not change reviewed blobs during review; a changed snapshot needs a fresh R2 request and decision.",
-    "tester": "Record a PASS_WITH_SCOPED_RESTRICTIONS decision only for exact commit 5f4537e968bb80ce1e84dd2bc24ba1429cbbdbf6 after both test suites pass; otherwise REQUEST_CHANGES. Keep P&L, holdout, strategy promotion, Dhan calls and plaintext upload unauthorized."
-  }
+    "tester": "Record PASS_WITH_SCOPED_RESTRICTIONS only for exact commit 6ebb54bdbbc7ed0198d23d0b555aea547a127f9f after exact four-file blob checks, developer synthetic suite, independent Black-Scholes audit, and seconds-resolution exact-spot join tests pass. Otherwise REQUEST_CHANGES. Keep P&L, holdout, strategy promotion, Dhan calls and plaintext upload unauthorized."
+  },
+  "test_attempt": 2
 }
