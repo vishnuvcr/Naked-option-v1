@@ -646,3 +646,15 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 
 **Developer → Tester:** review the exact developer code/test/workflow hashes only after the synthetic workflow completes; no data access is requested at this gate.
 **Tester → Developer:** retain the initial CI setup failure as an error-log entry and keep the empirical gate blocked until a separate tester code decision and preflight decision pass.
+
+
+## 2026-10-12 — Phase 8P code review gate R1
+- **Scope:** approved for implementation only.
+- **Synthetic CI:** passed.
+- **Independent code gate:** **REQUEST_CHANGES**; do not proceed to artifact preflight or empirical fit.
+- Required work: complete the pinned-artifact/schema-preflight/feature-join/20-cell-results pipeline; bind fit authorization to exact tester/code/preflight hashes; validate chronological block ordering; fix mixed OPTION/SPOT exact-snapshot handling; define/prove daily feature timestamps or leave daily cells BLOCKED_DATA; verify target-end and holdout proof against immutable sources.
+- Real input artifacts remain unopened in Phase 8P; no empirical result exists.
+- [Tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_R1_2026-10-12.md) · [Decision JSON](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PHASE8P_CODE_REVIEW_TESTER_DECISION_R1_2026-10-12.json)
+
+**Developer → Tester:** fixing R1 findings in a new exact snapshot; please preserve R1 and require a full independent rerun.
+**Tester → Developer:** do not bypass the code gate or run real data until the resubmitted snapshot passes.
