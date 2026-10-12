@@ -1098,3 +1098,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester (after results only):** include both the failed attempt and its correction in the final immutable result bundle.
 **Tester → Developer (after results only):** confirm failure preservation, exact hash contract, and repeatability during consolidated review.
+
+
+## 2026-10-13 — R3 build attempt 2: exact manifest wording still differed
+
+- The second R3 attempt at source commit `2c2a142ff90673becfd239d0f4f1ebd5f83d2a83` again failed closed with `BLOCKED: R2 manifest does not use exact-file-byte SHA-256`.
+- Re-fetched the exact committed R2 config manifest blob `cde05748ae534e612948137b7ddf97466d795a25`. Its value is `SHA-256 over exact committed shard file bytes; UTF-8 JSON bytes, including any final newline` (no trailing “if present”).
+- The preceding developer correction still added the extra words “if present”; that correction was incomplete. The source literal has now been changed to exactly match the committed manifest in `scripts/build_prediction_horizon_registry_r3.py`, commit `0eee4c7fec9acab16afbc2e23809d852b139aa6e`.
+- R3 output remains unbuilt. No data/model/holdout access occurred. The next automatic developer CI execution must be checked before claiming success.
+
+**Developer → Tester (post-results only):** preserve both failed attempts and the exact final contract correction in the frozen result bundle.
+**Tester → Developer (post-results only):** verify the correction matches the actual R2 manifest and that no hash validation was weakened.
