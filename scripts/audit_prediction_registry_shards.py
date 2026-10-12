@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit committed R2 registry shard counts, IDs and manifest file hashes.
+"""Audit committed R2 registry shard counts, IDs and declared integrity hashes.
 
 This is a data-integrity audit, not scientific compatibility approval.
 """
@@ -7,15 +7,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
-import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "research" / "registry"
+METHOD_MASTER = REGISTRY / "METHOD_REGISTRY_V2_R2.json"
 CONFIG_MANIFEST = REGISTRY / "PREDICTION_CONFIG_MANIFEST_V2_R2.json"
-METHOD_GLOB = "method_shards/METHODS_V2_R2_PART*.json"
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def sha256_file(path: Path) -> str:
@@ -24,6 +26,10 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def canonical_json(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
 def load_json(path: Path) -> Any:
@@ -56,11 +62,8 @@ def stable_id(record: dict[str, Any], candidates: tuple[str, ...], path: Path) -
     return str(value)
 
 
-def audit_method_shards(errors: list[str]) -> tuple[int, set[str]]:
+def audit_method_shards(errors: list[str]) -> tuple[int, set[str], dict[str, Any]]:
     paths = sorted((REGISTRY / "method_shards").glob("METHODS_V2_R2_PART*.json"))
-    if not paths:
-        errors.append("no method shard files found")
-        return 0, set()
     all_ids: set[str] = set()
     total = 0
     for expected_part, path in enumerate(paths, 1):
@@ -81,21 +84,40 @@ def audit_method_shards(errors: list[str]) -> tuple[int, set[str]]:
             total += len(records)
         except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
             errors.append(str(exc))
-    return total, all_ids
+    master_summary: dict[str, Any] = {}
+    try:
+        master = load_json(METHOD_MASTER)
+        master_records = records_from(master, ("methods", "method_registry", "registry"), METHOD_MASTER)
+        master_ids = [stable_id(record, ("method_id",), METHOD_MASTER) for record in master_records]
+        master_summary = {"master_records": len(master_records), "master_unique_ids": len(set(master_ids))}
+        if len(master_ids) != len(set(master_ids)):
+            errors.append("master method registry contains duplicate method IDs")
+        missing = sorted(set(master_ids) - all_ids)
+        unexpected = sorted(all_ids - set(master_ids))
+        if missing:
+            errors.append(f"method shards omit {len(missing)} master IDs; first={missing[:10]}")
+        if unexpected:
+            errors.append(f"method shards contain {len(unexpected)} IDs absent from master; first={unexpected[:10]}")
+        if len(master_records) != 1000:
+            errors.append(f"master method total mismatch; expected=1000 actual={len(master_records)}")
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"master registry audit error: {exc}")
+    return total, all_ids, master_summary
 
 
-def audit_config_shards(errors: list[str]) -> tuple[int, set[str]]:
+def audit_config_shards(errors: list[str]) -> tuple[int, set[str], list[dict[str, Any]]]:
     try:
         manifest = load_json(CONFIG_MANIFEST)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         errors.append(f"cannot load config manifest: {exc}")
-        return 0, set()
+        return 0, set(), []
     shards = manifest.get("config_shards") if isinstance(manifest, dict) else None
     if not isinstance(shards, list):
         errors.append("config manifest config_shards must be a list")
-        return 0, set()
+        return 0, set(), []
     all_ids: set[str] = set()
     total = 0
+    hash_diagnostics = []
     for shard in shards:
         if not isinstance(shard, dict):
             errors.append("config manifest shard entry must be an object")
@@ -106,12 +128,25 @@ def audit_config_shards(errors: list[str]) -> tuple[int, set[str]]:
             if not path.is_file():
                 errors.append(f"missing config shard: {rel}")
                 continue
-            actual_sha = sha256_file(path)
-            if actual_sha != shard.get("sha256"):
-                errors.append(f"{rel}: file SHA-256 mismatch; manifest={shard.get('sha256')} actual={actual_sha}")
-            obj = load_json(path)
+            raw = path.read_bytes()
+            obj = json.loads(raw.decode("utf-8"))
             records = records_from(obj, ("configs", "configurations", "records"), path)
             ids = [stable_id(record, ("config_id", "configuration_id", "id"), path) for record in records]
+            actual_raw_sha = sha256_bytes(raw)
+            actual_canonical_root_sha = sha256_bytes(canonical_json(obj))
+            actual_canonical_records_sha = sha256_bytes(b"".join(canonical_json(record) + b"\n" for record in records))
+            expected_sha = shard.get("sha256")
+            hash_match = expected_sha in (actual_raw_sha, actual_canonical_root_sha, actual_canonical_records_sha)
+            hash_diagnostics.append({
+                "path": rel,
+                "manifest_sha256": expected_sha,
+                "raw_file_sha256": actual_raw_sha,
+                "canonical_root_sha256": actual_canonical_root_sha,
+                "canonical_records_lf_sha256": actual_canonical_records_sha,
+                "matched_known_file_encoding": hash_match,
+            })
+            if not hash_match:
+                errors.append(f"{rel}: declared shard SHA-256 matches neither raw file nor canonical JSON/root or canonical record stream")
             if len(records) != shard.get("count"):
                 errors.append(f"{rel}: record count mismatch; manifest={shard.get('count')} actual={len(records)}")
             if ids:
@@ -128,27 +163,22 @@ def audit_config_shards(errors: list[str]) -> tuple[int, set[str]]:
             total += len(records)
         except (KeyError, OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
             errors.append(f"config shard audit error: {exc}")
-    if isinstance(manifest, dict):
-        if total != manifest.get("configuration_count"):
-            errors.append(f"config total mismatch; manifest={manifest.get('configuration_count')} actual={total}")
-    return total, all_ids
+    if isinstance(manifest, dict) and total != manifest.get("configuration_count"):
+        errors.append(f"config total mismatch; manifest={manifest.get('configuration_count')} actual={total}")
+    return total, all_ids, hash_diagnostics
 
 
 def main() -> int:
     errors: list[str] = []
-    method_count, method_ids = audit_method_shards(errors)
-    config_count, config_ids = audit_config_shards(errors)
-    expected_methods = 1000
-    expected_configs = 8000
-    if method_count != expected_methods:
-        errors.append(f"method total mismatch; expected={expected_methods} actual={method_count}")
-    if config_count != expected_configs:
-        errors.append(f"config total mismatch; expected={expected_configs} actual={config_count}")
+    method_count, method_ids, master_summary = audit_method_shards(errors)
+    config_count, config_ids, hash_diagnostics = audit_config_shards(errors)
+    if method_count != 1000:
+        errors.append(f"method shard total mismatch; expected=1000 actual={method_count}")
+    if config_count != 8000:
+        errors.append(f"config total mismatch; expected=8000 actual={config_count}")
     print(json.dumps({
-        "method_records": method_count,
-        "unique_method_ids": len(method_ids),
-        "config_records": config_count,
-        "unique_config_ids": len(config_ids),
+        "method_shards": {"shard_records": method_count, "unique_shard_ids": len(method_ids), **master_summary},
+        "config_shards": {"records": config_count, "unique_ids": len(config_ids), "hash_diagnostics": hash_diagnostics},
         "errors": errors,
         "scientific_status": "UNREVIEWED; data integrity checks do not establish compatibility or predictive validity",
     }, indent=2))
