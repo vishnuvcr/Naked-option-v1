@@ -961,3 +961,13 @@ A failed family or model is not a terminal conclusion. The full finite pre-regis
 | Empirical prediction runs | **NOT AUTHORIZED** | Both registry and synthetic-runner gates must pass first |
 
 No strategy has been accepted based on the R2 registry or earlier proxy outputs.
+
+
+## 2026-10-12 — R2 continuation
+
+- Registry gate: **BLOCKED / REQUEST CHANGES**.
+- Draft preregistration: [PREDICTION_PREREGISTRATION_V1.json](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/registry/PREDICTION_PREREGISTRATION_V1.json).
+- Compatibility gate: [PREDICTION_COMPATIBILITY_MATRIX_R2.md](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/research/registry/PREDICTION_COMPATIBILITY_MATRIX_R2.md).
+- Outstanding preregistration fields: flat-return tolerance, fold dates, minimum training/validation rows and class support, missingness thresholds, bootstrap block length/seed, and multiplicity family grouping.
+- The method × representation × operator cross-product is not yet accepted as 1,000 valid distinct methods. Bulk shard creation was attempted but the tool call cap prevented confirmation of any shard writes. Do not claim shards exist.
+- Empirical prediction runs and untouched holdout access remain **NOT AUTHORIZED**.
