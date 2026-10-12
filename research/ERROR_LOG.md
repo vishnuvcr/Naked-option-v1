@@ -276,3 +276,16 @@
 
 **Tester → Developer:** correct T2 and resolve T3 in frozen inputs, without opening data or fitting models.
 **Developer → Tester:** resubmit exact changed blobs, tests and any target-scope amendment for independent review.
+
+
+## 2026-10-13 — Tester audit harness stale bootstrap contract
+
+- Category: tester tooling / regression correctness.
+- Component: scripts/independent_prediction_registry_audit_r2.py.
+- Symptom: the initial tester audit probe assumed that a degenerate bootstrap returned CI values and a numeric p-value; after the developer correctly changed those inferential outputs to null, the probe could attempt to compare None with 0.05. The previous missing-horizon warning also treated the now-explicit, non-empirical R2 pilot as if it were still an undocumented scope gap.
+- Impact: the tester audit harness would fail or return a misleading REQUEST CHANGES result even when the developer's correction behaved as intended. This was a tester-harness defect, not a market-data or developer-result defect.
+- Correction: verify that single-admissible-block and constant-positive resamples return NON_IDENTIFIABLE_DEGENERATE_RESAMPLING with null CI/p-value; verify that a non-degenerate sample still returns status OK; check the explicit pilot amendment and hard ten-horizon gate. Record omitted horizon labels as a scope note only if the pilot boundary is valid, otherwise block.
+- Updated tester script commit: 17e4bf7658d8a18f86721fc6589eb4bd1a41df34; blob 4a8aba83c19442f973b7b1514d9bfda814c5d479. The hosted audit artifact is not yet verified.
+
+**Tester → Developer:** preserve the corrected bootstrap and pilot scope; do not fit or rank methods.
+**Developer → Tester:** review any reproduced audit issue with exact source and artifact hashes.
