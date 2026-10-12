@@ -58,3 +58,12 @@ Status: **IMPLEMENTED, NOT YET EXECUTED OR TESTER-APPROVED**.
 - Expanded suite run [38241558360](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241558360) executed 8 tests; 7 passed and 1 failed because the malformed-index fixture incorrectly expected a shard-count mismatch while declaring one shard and a count of one. The failure was in the test expectation, not a demonstrated validator defect.
 - Corrected the fixture to declare shard_count=2 while providing one entry in commit `1fe2a290cf933d349ece0691929ee65f669d2b9c`. A fresh run must pass before the expanded suite is reported green.
 - Failure is preserved as non-passing evidence. Scientific gate remains blocked; no shards or empirical fitting.
+
+## Expanded regression suite verified — 2026-10-12
+
+- Fresh hosted run [38241647992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38241647992) on commit `1fe2a290cf933d349ece0691929ee65f669d2b9c` completed successfully.
+- All 8 unit tests passed; the standalone SHA-256 known-vector check passed. The prior failed run `38241558360` remains recorded as a test-fixture correction, not deleted or relabeled.
+- This validates utility regression behavior only. No method/config shards have been generated. The independent tester has not yet issued a decision; compatibility, distinctness, preregistration, and synthetic runner gates remain unresolved.
+
+**Developer → Tester:** review validator/test source at commit `1fe2a290cf933d349ece0691929ee65f669d2b9c` and hosted run `38241647992`; issue a scoped hash-pinned decision.
+**Tester → Developer:** report any code or test defects; do not clear scientific registry or fitting gates based on utility CI alone.
