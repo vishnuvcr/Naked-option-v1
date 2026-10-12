@@ -290,3 +290,16 @@ No scientific or protocol change was made during this checkpoint.
 
 **Tester → Developer:** submit the one-use diagnostic executor workflow/request for independent review; do not invoke the real encrypted reader.
 **Developer → Tester:** verify pre-download authorization enforcement, identity and code pins, no replay, aggregate-only output and all model/holdout/P&L flags closed.
+
+
+## 2026-10-12 — One-use duplicate executor workflow review final outcome
+
+- Tester independent executor review run [#38206319754](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754) passed **31/31 checks** and issued `PASS_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_ONLY`.
+- Exact reviewed executor workflow blob: `e1832072723a46a2688af83eb0346207325069a0`; developer request blob: `fa3ae648d9da23649ad3db62c28456c032069a06`; code commit: `8f8d513330d1cb064b4d3ffe9933f8e8014f2850`.
+- Report: [executor workflow tester report](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_R1_2026-10-12.md). Decision: [workflow-only decision JSON](../gates/PHASE8P_DUPLICATE_DIAGNOSTIC_EXECUTOR_WORKFLOW_TESTER_DECISION_R1_2026-10-12.json).
+- Reviewer receipt [11727591616](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38206319754/artifacts/11727591616), SHA-256 `3009787cfb7abf9f04ca2abf695d1ffabbd9c77e26e2fe0b9303beda48f56d11`.
+- No-op checks #38205955895 and #38206043280 proved missing request/approval keeps the workflow in a non-authorized path before cache restore or artifact download. Request schema mistakes in #38205997072/#38206009396 are preserved as non-evidence.
+- **No real artifact was scanned or decrypted.** There is no empirical duplicate report. Next gate is a new pinned one-use execution authorization request/decision; only the final authorization may permit the exact single diagnostic execution, with every model/holdout/P&L/dedup flag remaining false.
+
+**Tester → Developer:** submit the distinct one-use execution authorization request; no artifact scan yet.
+**Developer → Tester:** produce the request bundle with exact workflow/request/report/decision/code/artifact/nonce pins and all out-of-scope permissions false.
