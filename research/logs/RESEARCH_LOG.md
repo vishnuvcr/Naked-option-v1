@@ -694,3 +694,12 @@
 - Status: COMPLETE_PROXY_BACKTEST; simulated trades: 1596680.
 - C3-positive configurations with at least 30 trades: 2.
 - No new market data were acquired. OHLC-only proxy fills include spread/slippage and dated broker/statutory costs.
+
+
+## 2026-10-13 — Phase 8P R2 developer correction
+
+- Addressed tester T2 in scripts/prediction_statistics.py: degenerate moving-block bootstrap distributions no longer emit a zero-width confidence interval or artificial minimum p-value; inference is explicitly non-identifiable and CI/p-value are null.
+- Updated regression tests for constant positive and zero changes, the exactly-one-admissible-block case, and non-degenerate bootstrap output.
+- Addressed tester T3 by formalizing R2 as a two-target synthetic/design pilot only; the full ten-horizon scope remains mandatory before empirical fitting or method selection. The runner now checks and enforces that pilot-only boundary.
+- Submitted research/gates/PREDICTION_REGISTRY_R2_T2_T3_DEVELOPER_CORRECTION_2026-10-13.md for independent re-review.
+- No market data opened, no estimator fit, no holdout accessed. The hosted regression result and full independent artifact audit remain outstanding.
