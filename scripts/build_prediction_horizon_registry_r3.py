@@ -445,10 +445,14 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
         new["missing_target_rule"] = f"Exclude missing decision/target pairs and report counts; BLOCK if more than 1.0% of session-eligible rows lack the target pair."
         new["eligible_timestamp_range"] = ["2021-10-11", "2026-10-10"]
         if is_intraday:
+            new.pop("label_horizon", None)
+            new.pop("label_horizon_exchange_sessions", None)
             new["label_horizon_minutes"] = h
             new["purge_exchange_sessions"] = 1
             new["embargo_exchange_sessions"] = 1
         else:
+            new.pop("label_horizon_minutes", None)
+            new["label_horizon"] = f"{h} complete following exchange sessions"
             new["label_horizon_exchange_sessions"] = h
             new["purge_exchange_sessions"] = h
             new["embargo_exchange_sessions"] = h
@@ -471,8 +475,13 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
         x["id"]: {"purge_exchange_sessions": x["purge_exchange_sessions"], "embargo_exchange_sessions": x["embargo_exchange_sessions"]}
         for x in label_manifest["labels"]
     }
-    p["chronological_validation"]["inner_validation"]["split_policy"] += (
-        " The exact purge/embargo length is horizon-specific as pinned in the label manifest; no random split is permitted."
+    p["chronological_validation"]["inner_validation"]["split_policy"] = (
+        "Within each outer training window, sort eligible official NSE exchange sessions and form three expanding inner folds "
+        "with validation intervals at session-index quantiles [0.40, 0.60), [0.60, 0.80), and [0.80, 1.00). "
+        "Each inner fold trains only on sessions strictly earlier than its validation start. Apply the label-specific "
+        "purge_exchange_sessions and embargo_exchange_sessions from the R3 label manifest, exclude any training label "
+        "whose target interval intersects validation, and require every training target endpoint to be observable at the "
+        "training cutoff. No random split or result-driven fold adjustment is permitted."
     )
     p["chronological_validation"]["inner_validation"]["minimum_inner_training_rows"] = {
         label: (10000 if label.startswith("INTRA_") else 150) for label in ALL_LABEL_IDS
@@ -495,6 +504,12 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["sample_eligibility"]["minimum_class_support_each_direction_training"] = {
         label: (1000 if label.startswith("INTRA_") else 50) for label in ALL_LABEL_IDS
     }
+    p["fitting_and_calibration"]["inner_validation"] = (
+        "Use deterministic expanding inner chronological folds contained wholly in the current outer training window. "
+        "For each label, apply its horizon-specific purge and embargo from the R3 label manifest; remove training labels "
+        "whose target endpoint is not observable at the training cutoff or overlaps validation. No random split, fixed "
+        "one-session purge override, or results-driven fold change is permitted."
+    )
     p["fitting_and_calibration"]["minimum_inner_training_rows"] = {
         label: (10000 if label.startswith("INTRA_") else 150) for label in ALL_LABEL_IDS
     }
@@ -505,6 +520,13 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
         label: (100 if label.startswith("INTRA_") else 10) for label in ALL_LABEL_IDS
     }
     p["metrics_and_inference"]["bootstrap"]["block_length_exchange_sessions"] = 10
+    p["metrics_and_inference"]["bootstrap"]["method"] = (
+        "Paired moving-block bootstrap of per-exchange-session baseline-minus-candidate log-loss improvements. "
+        "Within each outer fold, sample contiguous ten-session blocks with replacement until the original fold's "
+        "session count is reached; never cross fold boundaries and use the same resampled session indices for candidate "
+        "and baseline. Center the bootstrap distribution under the null for the two-sided p-value. If the resampling "
+        "distribution is degenerate, retain the observed mean descriptively and report null confidence limits and p-value."
+    )
     p["metrics_and_inference"]["bootstrap"]["resampling_unit"] = (
         "Exchange sessions within each outer fold; fixed ten-session moving blocks; never cross outer-fold boundaries. "
         "Candidate and baseline share the same sampled session indices. If the empirical bootstrap distribution is degenerate, report descriptive mean only and null CI/p-value."
