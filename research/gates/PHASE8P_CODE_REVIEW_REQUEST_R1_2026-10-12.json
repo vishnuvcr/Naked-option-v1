@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "gate": "PHASE8P_INDEPENDENT_CODE_REVIEW",
+  "review_scope": "CODE_AND_SYNTHETIC_TESTS_ONLY",
+  "developer_branch": "phase-08-prediction-developer",
+  "developer_commit": "16cb5d266c6312aeeea07ebd61fbbcd589a8281d",
+  "reviewed_blobs": {
+    "scripts/phase8p_greek_prediction.py": "2e69fff59e694e7fb06111c3af5a8ad5e03ac746",
+    "scripts/test_phase8p_greek_prediction.py": "a7bc842d63e07c1041c98f7de83d9a6f78c4be43",
+    ".github/workflows/phase8p-greek-prediction.yml": "9ba46f5563de564b22de088fea5e59cf48792655",
+    "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md": "018500722f88f5fb100a2e24afc3d5d97394631e"
+  },
+  "scope_approval": {
+    "tester_branch": "phase-08-prediction-tester",
+    "review_file": "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md",
+    "review_blob": "798008657afe0757c54c9aa7dc5eeb1fade3faf5",
+    "decision": "PASS_SCOPE_ONLY_WITH_RESTRICTIONS"
+  },
+  "synthetic_ci": {
+    "run_id": 38199456531,
+    "run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38199456531",
+    "tested_commit": "bc2e8d583e8c44d4dc0588fd784a6ee91ed75a6f",
+    "artifact_id": 11724718426,
+    "artifact_sha256": "b108b9f412f4532b6de50e7b4763651caf409d6d0faf8cb95c78feff4ddf4cf4",
+    "conclusion": "success",
+    "note": "Code and test blob hashes match the submitted review snapshot; post-run commits only appended logs."
+  },
+  "prohibited": {
+    "download_or_decrypt_market_artifacts": true,
+    "model_fit": true,
+    "external_market_source_request": true,
+    "holdout_access": true,
+    "option_pnl": true,
+    "strategy_promotion": true
+  },
+  "review_questions": [
+    "Check signed Delta/IV formulas, denominator edge cases, and target-end arithmetic independently.",
+    "Verify all model comparisons preserve identical row identities and chronological ordering.",
+    "Verify bootstrap null centering, p-value direction, Holm correction, deterministic settings and failure handling.",
+    "Check that the fit gate cannot be bypassed by an arbitrary Boolean/dict and is pinned to approved scope/code/preflight hashes.",
+    "Check end-to-end completeness: feature construction, artifact/schema preflight, daily/intraday row matching, 20-cell run, aggregate outputs and cleanup.",
+    "Return PASS_FOR_CODE_ONLY or REQUEST_CHANGES; do not authorize empirical data access or fitting."
+  ]
+}
