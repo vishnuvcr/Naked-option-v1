@@ -1,0 +1,10 @@
+test_config_id_replacement_is_precise (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_config_id_replacement_is_precise) ... ok
+test_full_r2_source_is_integrity_checked_and_expands_to_40000 (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_full_r2_source_is_integrity_checked_and_expands_to_40000) ... ok
+test_generated_full_registry_outputs_are_consistent (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_generated_full_registry_outputs_are_consistent) ... ok
+test_r2_artifacts_are_not_overwritten (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_r2_artifacts_are_not_overwritten) ... ok
+test_ten_frozen_labels_and_horizon_specific_purge_embargo (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_ten_frozen_labels_and_horizon_specific_purge_embargo) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.784s
+
+OK
