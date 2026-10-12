@@ -153,3 +153,10 @@ New errors must be appended, never overwritten.
 | 2026-10-07 | 6 | Reusable Phase 6 workflow used `hashFiles()` in job-level empirical `if` | GitHub Actions does not expose `hashFiles` in `jobs.<job_id>.if`; hosted run failed before a job could start | Replaced with typed `workflow_call` boolean authorization; caller detects tester approval; synced workflow to `main`; preserved failed run as non-evidence | Pending tester workflow re-review |
 
 | 2026-10-07 | 6 | Phase 6 workflow corrected after invalid job-level hashFiles gate | Prior hosted attempt failed before execution; tester requested typed workflow-call authorization and caller-side approval detection | Implemented and independently approved the workflow correction; failed run retained as non-evidence | Resolved; fresh run required |
+
+
+## 2026-10-12 — Phase 8P code review R2 resolved
+- Reviewer workflow [#38201657383](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201657383) audited exact developer commit `a5a38e3592234aea9052e697416c8154c6f8e8f8` and reported `PASS_FOR_CODE_ONLY`, 16/16 checks, zero findings. Receipt artifact 11725607739 SHA-256 `e0ab96d0fc70233f29ea5a2d3a896ef31f5c06e5ec3b67ca79ae8b35b4a387df`.
+- The immediately earlier run [#38201593053](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38201593053) returned REQUEST_CHANGES and remains preserved as failed-gate history. The later run is the accepted R2 code-only decision.
+- No real input artifact was downloaded/decrypted; no model fitted; no holdout/P&L/strategy was accessed. Code PASS allows only a separate schema/coverage preflight.
+- Workflow review for the preflight executor is now a distinct pending gate. It is not part of the code-only PASS and must be reviewed before download.
