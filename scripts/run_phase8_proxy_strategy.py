@@ -208,6 +208,19 @@ def load_option_data(parts_dir: Path) -> tuple[pd.DataFrame, list[str], dict]:
             + json.dumps({k: int(v) for k, v in diagnostics.items()}, sort_keys=True)
             + "; proxy metrics not produced."
         )
+    duplicate_key = options.duplicated(["timestamp_epoch", "contract_key"], keep="first")
+    diagnostics["duplicate_contract_timestamp_rows_beyond_first"] = int(duplicate_key.sum())
+    duplicate_groups = options.loc[
+        options.duplicated(["timestamp_epoch", "contract_key"], keep=False),
+        ["timestamp_epoch", "contract_key", "option_open", "option_high", "option_low", "option_close"],
+    ]
+    if duplicate_groups.empty:
+        diagnostics["duplicate_contract_timestamp_groups_with_conflicting_ohlc"] = 0
+    else:
+        conflicts = duplicate_groups.groupby(["timestamp_epoch", "contract_key"], sort=False)[
+            ["option_open", "option_high", "option_low", "option_close"]
+        ].nunique(dropna=False).gt(1).any(axis=1)
+        diagnostics["duplicate_contract_timestamp_groups_with_conflicting_ohlc"] = int(conflicts.sum())
     # Q1 proxy fills require usable observed OHLC. This is row eligibility for
     # calculating a trade, not a source-validation gate that stops the study.
     # Enforce complete OHLC consistency, including close. Invalid bars must
