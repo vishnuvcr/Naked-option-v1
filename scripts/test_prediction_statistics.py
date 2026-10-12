@@ -14,8 +14,8 @@ class PredictionStatisticsTests(unittest.TestCase):
     def test_log_loss_brier_and_balanced_accuracy_known_vector(self):
         y = [0, 1, 0, 1]
         p = [0.2, 0.8, 0.8, 0.2]
-        self.assertAlmostEqual(stats.binary_log_loss(y, p), -math.log(0.2), places=12)
-        self.assertAlmostEqual(stats.brier_score(y, p), 0.32, places=12)
+        self.assertAlmostEqual(stats.binary_log_loss(y, p), (-math.log(0.8) * 2 - math.log(0.2) * 2) / 4, places=12)
+        self.assertAlmostEqual(stats.brier_score(y, p), 0.34, places=12)
         self.assertAlmostEqual(stats.balanced_accuracy(y, p), 0.5, places=12)
 
     def test_probability_and_label_validation_fail_closed(self):
