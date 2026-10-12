@@ -886,3 +886,8 @@ User requested resume. During review of method shards, developer found generic n
 ### 2026-10-13 — Resume after contrast repair
 
 Rechecked the latest developer branch, tester branch head, issue #25 comments, refreshed R2 review request, status/error logs, and CI run outcomes. The latest request is `PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json`, pinning source `877b7baf3aafb309021dfc621f7e98406b5532ee` and registry artifacts after contrast repair. CI runs 38255852834, 38255852565, and 38255852608 passed. Tester branch remains unchanged at `638564f9b31d3527f934868f336f60e6ce2b4ed0`; independent scientific gate remains REQUEST CHANGES. No market data or fitted model was accessed.
+
+
+### 2026-10-13 — Proceed: compatibility matrix auditability
+
+Published 40 small compatibility JSON shards with 25 method rows per file, plus a SHA-256 index and a deterministic reconstruction verifier. Registry CI run 38299233992 passed the four new shard tests and existing registry/statistical tests. Generated files were committed at `503af0a4c6af98aec2c2a41b633cedc50df75d34`. The refreshed tester request pins the index and CI run. This resolves artifact accessibility only; scientific review is still pending.
