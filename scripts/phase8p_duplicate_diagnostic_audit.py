@@ -189,7 +189,7 @@ def main():
               "economic_duplicate_diagnostic", "conflicting_signature_fields",
           )) and all(term in diagnostic for term in (
               "seconds_milliseconds_timestamp_normalization", "permuted =",
-              "timestamp text disagreeing with the source epoch",
+              "bad_timestamp = dict(full_base, timestamp_utc=",
           )))
 
     # Re-run both test suites inside the exact detached developer worktree.
