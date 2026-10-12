@@ -1,14 +1,14 @@
 {
   "schema_version": "nse-equity-regular-session-calendar-v1",
   "calendar_id": "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3",
-  "status": "FROZEN_DEVELOPER_PREPARED_PENDING_TIMESTAMP_RECONCILIATION",
+  "status": "FROZEN_DEVELOPER_PREPARED_WITH_SPECIAL_SESSION_EXCEPTIONS",
   "prepared_at": "2026-10-13",
   "timezone": "Asia/Kolkata",
   "market_segment": "NSE Capital Market Segment — Equities",
   "regular_session": {
     "open": "09:15:00",
     "close": "15:30:00",
-    "source_url": "https://www.nseindia.com/static/market-data/market-timings",
+    "source_url": "https://www.nseindia.com/resources/exchange-communication-holidays",
     "notes": "This is the standard regular equities session. Special Muhurat trading is not treated as an ordinary regular-session bar for these labels."
   },
   "date_bounds": {
@@ -416,6 +416,14 @@
       "source_type": "current official NSE Market Timings & Holidays page",
       "date_reconciled_from_live_page": true,
       "notes": "This special holiday appears on the current NSE equities holidays page but is absent from the annual CMTR/71775 circular list; include it as an explicit later supplement, not as a silently substituted annual-list entry."
+    },
+    {
+      "date": "2026-08-26",
+      "description": "Id-E-Milad full-day equities trading holiday (present on current official NSE holidays page)",
+      "source_url": "https://www.nseindia.com/resources/exchange-communication-holidays",
+      "source_type": "current official NSE Market Timings & Holidays page",
+      "date_reconciled_from_live_page": true,
+      "notes": "The current official page lists the date; preserve it as an explicit supplement to the pinned annual 2026 circular rather than silently substituting the circular."
     }
   ],
   "muhurat_sessions": [
@@ -451,10 +459,125 @@
     }
   ],
   "validation_rules": [
-    "Calendar weekdays/holidays must reconcile with unique SPOT session dates in the pinned data; do not automatically treat every date without rows as an official holiday.",
-    "Any observed SPOT timestamp outside the regular session must be accounted for explicitly.",
-    "If a source date is a scheduled session but has no SPOT rows, record a missing-session data-quality event and block labels that depend on it until reconciled.",
-    "Calendar hash must be pinned in the R3 label manifest and preregistration before label generation.",
-    "No labels use Muhurat-only evening sessions."
+    "Regular Capital Market equities sessions use 09:15–15:30 Asia/Kolkata on Monday–Friday unless declared a full-day trading holiday.",
+    "Weekends are closed by default. A weekend date is considered an eligible normal session only when an explicit special_sessions entry says regular_hours_compatible=true.",
+    "Declared full-day holiday dates remain closed except when an explicit special-session record exists.",
+    "The special sessions listed with regular_hours_compatible=false are excluded from both regular-grid intraday and positional labels; do not infer their close from a standard session schedule.",
+    "The 2025-02-01 normal-budget session is permitted for both horizons and must carry an ex-ante budget-event indicator.",
+    "Any SPOT observations outside listed regular or explicit special session rules fail the developer data preflight and must be reconciled against a source circular before label generation.",
+    "Calendar source bytes and generated session calendar bytes must both be pinned in the R3 label manifest and preregistration before label generation.",
+    "Any declared normal weekday session with missing SPOT bars or a date absent from this calendar is a data-quality event; do not silently move fold or sample dates."
+  ],
+  "special_sessions": [
+    {
+      "date": "2021-11-04",
+      "session_id": "MUHURAT_2021",
+      "source_year": 2021,
+      "source_url": "https://archives.nseindia.com/content/circulars/CMTR46623.pdf",
+      "circular": "NSE/CMTR/46623",
+      "session_mode": "muhurat_special",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Special evening session, not standard 09:15–15:30; excluded from both prediction label grids unless a future pre-registered session-specific protocol is approved."
+    },
+    {
+      "date": "2022-10-24",
+      "session_id": "MUHURAT_2022",
+      "source_year": 2022,
+      "source_url": "https://archives.nseindia.com/content/circulars/CMTR50560.pdf",
+      "circular": "NSE/CMTR/50560",
+      "session_mode": "muhurat_special",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Special evening session, not standard 09:15–15:30; excluded from both prediction label grids."
+    },
+    {
+      "date": "2023-11-12",
+      "session_id": "MUHURAT_2023",
+      "source_year": 2023,
+      "source_url": "https://archives.nseindia.com/content/circulars/CMTR54757.pdf",
+      "circular": "NSE/CMTR/54757",
+      "session_mode": "muhurat_special_weekend",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Sunday Muhurat session with special timings; excluded from both regular-session label grids."
+    },
+    {
+      "date": "2024-01-20",
+      "session_id": "BCP_DR_2024_01_20",
+      "source_year": 2024,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/MSD59999.pdf",
+      "circular": "NSE/MSD/59999",
+      "session_mode": "special_live_bcp_dr_multiple_segments",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Saturday live session with intra-day switch to disaster recovery and irregular segments; excluded from both regular-session label grids."
+    },
+    {
+      "date": "2024-03-02",
+      "session_id": "BCP_DR_2024_03_02",
+      "source_year": 2024,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/MSD60677.pdf",
+      "circular": "NSE/MSD/60677",
+      "session_mode": "special_live_bcp_dr_multiple_segments",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Saturday special session included split regular segments 09:15–10:00 and 11:30–12:30; excluded from both regular-session label grids."
+    },
+    {
+      "date": "2024-05-18",
+      "session_id": "BCP_DR_2024_05_18",
+      "source_year": 2024,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/MSD61893.pdf",
+      "circular": "NSE/MSD/61893",
+      "session_mode": "special_live_bcp_dr_multiple_segments",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Saturday special live session with intra-day switch to disaster recovery and shortened/multiple segments; excluded from both regular-session label grids."
+    },
+    {
+      "date": "2024-11-01",
+      "session_id": "MUHURAT_2024",
+      "source_year": 2024,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/CMTR59722.pdf",
+      "circular": "NSE/CMTR/59722",
+      "session_mode": "muhurat_special",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Special Muhurat session, not standard 09:15–15:30; excluded from both prediction label grids."
+    },
+    {
+      "date": "2025-02-01",
+      "session_id": "BUDGET_2025_02_01",
+      "source_year": 2025,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/MSD66381.pdf",
+      "circular": "NSE/MSD/66381",
+      "session_mode": "normal_weekend_open",
+      "positional_eligible": true,
+      "intraday_eligible": true,
+      "regular_hours_compatible": true,
+      "open": "09:15:00",
+      "close": "15:30:00",
+      "reason": "NSE declared live trading on Saturday for Union Budget as per normal trading day. The ex-ante Union Budget event flag must be recorded; its session is otherwise eligible for regular-grid labels."
+    },
+    {
+      "date": "2025-10-21",
+      "session_id": "MUHURAT_2025",
+      "source_year": 2025,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/CMTR65587.pdf",
+      "circular": "NSE/CMTR/65587",
+      "session_mode": "muhurat_special",
+      "positional_eligible": false,
+      "intraday_eligible": false,
+      "regular_hours_compatible": false,
+      "reason": "Special Muhurat session, not standard 09:15–15:30; excluded from both prediction label grids."
+    }
   ]
 }
