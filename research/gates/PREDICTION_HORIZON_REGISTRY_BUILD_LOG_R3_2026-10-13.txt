@@ -1,0 +1,1 @@
+BLOCKED: R2 manifest does not use exact-file-byte SHA-256
