@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 EXPECTED = {
-    "workflow_blob": "a48d28402fcb3575689d06f6bbb7a5bb31324df4",
+    "workflow_blob": "15e330467f60df5dc00e502b37bea70b9720b421",
     "proposal_blob": "267cc3fba9d2e5a8313be5efb60879d27586d529",
     "code_commit": "a5a38e3592234aea9052e697416c8154c6f8e8f8",
     "module_blob": "1de7f9e4bce0ee3ddf7dfa0d0b10282a7f0a5c8d",
@@ -17,7 +17,8 @@ EXPECTED = {
     "forecast_id": 11638738288,
     "forecast_sha256": "3e8a22ded608668b5674f7aed609fefa5c4befcde39a58b7f208e59ab25959a9",
 }
-REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json"
+REVIEW_REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_WORKFLOW_REVIEW_REQUEST_R1_2026-10-12.json"
+EXECUTION_REQUEST_PATH = "research/gates/PHASE8P_PREFLIGHT_EXECUTION_REQUEST_R2_2026-10-12.json"
 WORKFLOW_PATH = ".github/workflows/phase8p-preflight-only.yml"
 PROPOSAL_PATH = "research/gates/PHASE8P_PREFLIGHT_EXECUTOR_PROPOSAL_R1_2026-10-12.md"
 
