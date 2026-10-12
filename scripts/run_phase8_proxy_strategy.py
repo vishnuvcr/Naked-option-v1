@@ -60,6 +60,19 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+LOT_SIZE_TRANSITION_EXPIRY_WINDOWS = (
+    ("2024-05-02", "2024-06-01"),
+    ("2024-11-26", "2024-12-26"),
+    ("2026-01-06", "2026-02-05"),
+)
+
+
+def lot_size_transition_uncertain(expiry: str) -> bool:
+    """Conservatively exclude expiry windows where listed-contract lot size may differ."""
+    d = str(expiry)[:10]
+    return any(start <= d <= end for start, end in LOT_SIZE_TRANSITION_EXPIRY_WINDOWS)
+
+
 def lot_size_for_expiry(expiry: str) -> int:
     """NIFTY lot size by expiry effective date; contracts are date-effective."""
     d = str(expiry)[:10]
@@ -332,6 +345,7 @@ def select_contract(options: pd.DataFrame, starts: np.ndarray, ends: np.ndarray,
         & (local["expiry_epoch"].to_numpy(dtype=np.int64) > int(planned_exit))
         & ((local["expiry_session_idx"].to_numpy(dtype=np.int32) - int(entry_session_idx)) >= dte_lo)
         & ((local["expiry_session_idx"].to_numpy(dtype=np.int32) - int(entry_session_idx)) <= dte_hi)
+        & ~local["expiry_key"].map(lot_size_transition_uncertain).to_numpy(dtype=bool)
         & np.isfinite(local["option_open"].to_numpy(dtype=float))
         & (local["option_open"].to_numpy(dtype=float) > 0)
     )
