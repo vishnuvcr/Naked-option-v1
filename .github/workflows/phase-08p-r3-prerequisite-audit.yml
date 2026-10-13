@@ -1,0 +1,84 @@
+name: Phase 8P R3 prerequisite audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/audit_prediction_r3_prerequisites.py"
+      - "scripts/test_prediction_r3_prerequisite_audit.py"
+      - "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
+      - "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
+      - "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-r3-prerequisite-audit.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08p-r3-prerequisite-audit
+  cancel-in-progress: false
+
+jobs:
+  frozen-input-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact triggering source
+        uses: actions/checkout@v4
+        with:
+          ref: \${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert checkout is immutable triggering commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run synthetic fail-closed tests
+        run: python -m unittest discover -s scripts -p "test_prediction_r3_prerequisite_audit.py" -v
+      - name: Verify exact pinned sources and complete 40,000-config/80-cell accounting
+        run: python scripts/audit_prediction_r3_prerequisites.py --report research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json
+      - name: Upload aggregate-only prerequisite audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-r3-prerequisite-audit
+          path: research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json
+          if-no-files-found: warn
+      - name: Persist aggregate-only audit report
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json"
+          cp "$report" "$RUNNER_TEMP/r3-prerequisite-audit.json"
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          persisted=false
+          for attempt in 1 2 3 4 5; do
+            git fetch origin phase-08-prediction-developer
+            git reset --hard origin/phase-08-prediction-developer
+            cp "$RUNNER_TEMP/r3-prerequisite-audit.json" "$report"
+            git add "$report"
+            if git diff --cached --quiet; then
+              persisted=true
+              break
+            fi
+            git commit -m "Record R3 fail-closed prerequisite audit"
+            if git push origin HEAD:phase-08-prediction-developer; then
+              persisted=true
+              break
+            fi
+            echo "Branch tip moved while committing the aggregate-only audit; retry $attempt of 5"
+            sleep 2
+          done
+          if [ "$persisted" != "true" ]; then
+            echo "PREREQUISITE_AUDIT_PERSISTENCE_FAILED_AFTER_RETRIES"
+            exit 1
+          fi
