@@ -54,7 +54,7 @@ def bind_configuration(config: dict[str, Any], family: str) -> Binding:
         if isinstance(c,bool) or not isinstance(c,(int,float)) or c<=0:
             raise ParameterBindingError("LOGISTIC_C_INVALID")
         return Binding(family,p,True)
-    return Binding(family,p,False,"FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED")
+    return Binding(family,p,False,"UNSUPPORTED_FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED")
 
 def require_supported(config: dict[str, Any], family: str) -> Binding:
     binding=bind_configuration(config,family)
