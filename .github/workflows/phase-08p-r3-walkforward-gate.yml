@@ -1,0 +1,49 @@
+name: Phase 8P R3 chronological split and result-schema gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/prediction_walkforward_r3.py"
+      - "scripts/test_prediction_walkforward_r3.py"
+      - "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-r3-walkforward-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  walkforward-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact triggering source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run synthetic split and result accounting tests
+        run: python -m unittest discover -s scripts -p "test_prediction_walkforward_r3.py" -v
+      - name: Compile changed Python modules
+        run: python -m py_compile scripts/prediction_walkforward_r3.py scripts/test_prediction_walkforward_r3.py
+      - name: Verify no fitting or holdout access in split module
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path("scripts/prediction_walkforward_r3.py").read_text()
+          forbidden = ("model.fit(", "holdout.csv", "HOLDOUT_ACCESS_TOKEN")
+          found = [term for term in forbidden if term in source]
+          if found:
+              raise SystemExit(f"forbidden fitting/holdout marker in pure split module: {found}")
+          print("PASS: split and schema module contains no estimator fit or holdout access")
+          PY
