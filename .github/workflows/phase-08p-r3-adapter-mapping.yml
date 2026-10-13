@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Audit every method and configuration mapping
-        run: python scripts/audit_prediction_adapter_mapping_r3.py > "$RUNNER_TEMP/adapter-mapping-report.json"
+        run: python scripts/audit_prediction_adapter_mapping_r3.py | tee "$RUNNER_TEMP/adapter-mapping-report.json"
       - name: Assert complete pre-fit accounting and no eligibility
         run: |
           python - <<'PY'
