@@ -525,3 +525,12 @@ The compatibility matrix now has 40 committed review shards with 25 rows each. [
 
 ### 2026-10-13 — R3 empirical execution gate reconciliation
 The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md) confirms that the data preflight passed with scoped sample blocks, but empirical fitting is still blocked: the compatibility matrix summary remains 426 conditional, 574 blocked and **zero empirically eligible** methods, and no verified R3-specific executor/authorization path has been established. The 40,000-config registry is not empirical evidence. No model metrics, holdout results, option P&L or strategy conclusion are claimed. See the [status ledger](research/STATUS.md), [error log](research/ERROR_LOG.md), and [conversation decision log](research/logs/CHAT_LOG.md). Next: reconcile all 40,000 configurations into an exact hash-pinned eligibility manifest, preserve all blocked rows, then test and benchmark an authorized executor before any development-fold fitting. Tester review remains deferred until the complete result bundle is frozen.
+
+
+## Phase 8P R3 — logistic adapter code gate (2026-10-13)
+
+- Added a first, **code-only** logistic probability adapter with train-only preprocessing and strict input checks: [adapter](scripts/prediction_logistic_adapter_r3.py).
+- Added [synthetic-only regression tests](scripts/test_prediction_logistic_adapter_r3.py) and an [automatic/manual GitHub Actions code gate](.github/workflows/phase-08p-logistic-adapter-r3.yml).
+- The hosted test result is pending verification; no pass is claimed merely from committing the workflow.
+- This does **not** authorize empirical fitting. Inner chronological OOF calibration, complete registry eligibility dispositions, a restartable development-fold runner, and the applicable scientific gate remain outstanding. No holdout access, P&L, or empirical model result is claimed.
+- See [current status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
