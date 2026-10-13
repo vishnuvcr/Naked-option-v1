@@ -1093,3 +1093,28 @@ After run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/run
 
 **Developer → Tester (post-results only):** review the frozen full result bundle at the consolidated post-acquisition checkpoint; verify config uniqueness, fold-specific blocks, source pins, leakage and failed-row accounting.
 **Tester → Developer:** after results are frozen, independently re-run the manifest audit and check that only explicitly authorized configurations/folds were fitted.
+
+
+## 2026-10-13 — User command: “Ok proceed” (R3 prerequisite audit)
+
+### User request
+User authorized continuation from the last Phase 8P R3 checkpoint. Scope remained prediction research, not trading-strategy selection.
+
+### Developer action summary
+- Re-read the frozen preregistration, ten-horizon label/config manifests, compatibility index, pinned encrypted-data artifact, preprocessing rules, data preflight, eligibility disposition and current project status.
+- Added a fail-closed prerequisite auditor that checks pinned Git object hashes, all 400 configuration shard hashes/counts, 40 compatibility shards, method authorization flags, all 40,000 configs, and the exact 80-cell sample-support grid. Added synthetic tests and an automated/manual GitHub Actions workflow.
+- First workflow attempt [38402329539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402329539) was a workflow-only failure: a literal backslash corrupted the checkout ref and all scientific/audit steps were skipped. The defect was corrected and a regression assertion was added. That failed run is non-evidence and is logged in research/ERROR_LOG.md.
+- Corrected hosted audit [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed; final regression-covered run [38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507) also passed.
+- Persisted output: research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json, Git blob SHA-1 47f6f3e1cd8ccd98c9254739938419f4c0c75055. The output is aggregate-only and does not contain raw/plaintext market rows.
+
+### Current gate result
+- 40,000 unique configurations, ten horizons, 4,000 configurations per horizon, 40 configurations per method.
+- All source/config/compatibility hashes and counts verified.
+- Data preflight: 75 label/fold cells supported; five positional F01 cells remain blocked by the unchanged 1% target-pair missingness rule.
+- Compatibility: 426 conditional in principle; 574 blocked; zero methods implemented/approved for empirical fitting.
+- All config/method fitting flags remain false. No empirical model fit, prediction-performance conclusion, strategy selection or holdout access occurred.
+
+### Next bounded step
+Implement and test the development-fold-only executor with explicit method allowlisting (starting with PM0001), label-specific maturity/purge/embargo, inner chronological OOF calibration, training-only transformations, row-complete blocked/failed status accounting and restartable checkpoints. Keep empirical fitting blocked until the implementation/authorization gate passes.
+
+**Developer → Tester:** Independent review remains deferred until the complete planned results bundle is acquired, frozen and hashed. At that handoff, independently audit every config/fold row, math/formulas, source hashes, leakage controls, blocked/failed accounting and conclusions.
