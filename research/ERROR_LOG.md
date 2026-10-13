@@ -1416,3 +1416,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - No empirical data or fitting involved.
 
 - Follow-up correction: [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 tests, including an imbalanced-class test validating the corrected class-conditional KNN density-ratio score.
+
+
+## 2026-10-13 — Additive spline logistic synthetic gate
+- Category: implementation / synthetic validation
+- Component: `scripts/prediction_gam_adapter_r3.py`
+- Workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed the three GAM tests and the combined 36-test suite. No outstanding defect at this gate.
+- No market-data fitting or holdout access.
