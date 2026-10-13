@@ -830,3 +830,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added deterministic random forest, Extra Trees, gradient boosting and histogram gradient boosting adapters with synthetic tests for probability bounds, deterministic seeds, invalid support/parameters and nonfinite features.
 - Workflow [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 tests across the current adapter suite. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - No market-data fitting or holdout access.
+
+
+## 2026-10-13 — Margin/distance score adapters
+- Added kernel SVM, nearest-centroid and KNN neighbor-log-odds score adapters; added chronological OOF Platt calibration for raw scores.
+- Initial run [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566) found NearestCentroid API incompatibilities. Fixed direct distance computation from centroids and mapped zero shrink threshold to `None`; rerun [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 synthetic tests. Report: [PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market-data fitting or holdout access.
