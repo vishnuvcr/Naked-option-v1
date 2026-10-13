@@ -1325,3 +1325,5 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Combined workflow [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests: 5 logistic, 4 chronological calibration, and 4 probit. Report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Synthetic-only tests. No market data or holdout access; no empirical fitting authorization. Next families: LDA/QDA, elastic-net logistic, then tree ensembles.
+
+- Numerical review extension: [workflow 38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 tests, including a central finite-difference check of the probit likelihood gradient. Updated report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
