@@ -1,3 +1,9 @@
+## Process correction — independent review is post-results only (2026-10-14)
+
+The user reiterated the agreed cadence. Per [`research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md`](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md), do not send intermediate code/protocol commits to the tester. Complete the frozen prediction protocol and data/label preflight, run developer-side regression and leakage/statistical checks, acquire and freeze the complete planned prediction results bundle, then create the formal `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with exact commit/artifact hashes. Only then is the consolidated tester review initiated. A stale preregistration clause requiring independent approval before fitting is contradictory and must be amended before fitting; the amendment must preserve rigorous frozen controls and holdout isolation. This process correction generated no empirical results.
+
+---
+
 # Research Status
 
 ## Phase 8P R3 — chronological split/schema synthetic gate passed (2026-10-13)
