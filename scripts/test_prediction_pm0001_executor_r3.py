@@ -3,7 +3,9 @@ from __future__ import annotations
 import unittest
 import numpy as np
 
-from prediction_pm0001_executor_r3 import (\n    PM0001ExecutionError, fit_pm0001_outer_fold, _precheck_inner_oof_support,\n)
+from prediction_pm0001_executor_r3 import (
+    PM0001ExecutionError, fit_pm0001_outer_fold, _precheck_inner_oof_support,
+)
 
 
 class PM0001ExecutorTests(unittest.TestCase):
