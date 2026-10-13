@@ -735,3 +735,12 @@ The follow-up attempt exposed that the previous fix still included trailing word
 ## 2026-10-13 — Exact derived dataset archive reconciled
 
 The current derived encrypted dataset is artifact 11698879857 from run 38131641336, outer ZIP SHA-256 `40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b`. Its embedded manifest SHA-256 is `da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f`. A local encrypted-member-only audit verified all 61 monthly part files (sizes and hashes) and 8,999,865 declared rows with zero mismatches. The artifact manifest's `derived_from` references ancestor artifact 11696937921; that ancestor's ZIP digest is not the current derived archive digest. The initial part mismatch was caused by accidentally comparing the ancestor artifact and is corrected in the error log. No decryption/model fit/holdout access occurred.
+
+
+## 2026-10-13 — R3 eligibility manifest verification and scoped-fold repair
+
+- Resumed after the user requested continuation from the persisted-manifest checkpoint.
+- Verified hosted run [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080), its successful job steps, retained ZIP artifact and committed manifest. Parsed all 40,000 records; found 40,000 unique configuration IDs, 1,000 method IDs with 40 configurations per method, and false empirical-fit flags at both manifest and record levels. Previous disposition counts were 17,040 implementation/authorization blocks and 22,960 compatibility blocks.
+- Detected and corrected a latent logic defect: five failed sample cells are positional F01 fold-label cells, not whole positional horizons. Commit [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3) updates the builder, synthetic tests and hosted workflow to preserve fold-specific scope and verify pinned input Git blob hashes.
+- Registry accounting is not market prediction evidence. No prediction metric or strategy is claimed; protected holdout remains untouched; empirical fitting remains unauthorized because the method compatibility matrix has zero empirically eligible methods.
+- Next bounded task: verify the corrected hosted manifest and then complete the PM0001 logistic-family development-only executor contract, including inner OOF provenance, horizon-specific purge/embargo, restartable checkpointing and explicit authorization. Do not execute blocked methods or access holdout.
