@@ -1131,3 +1131,13 @@ Latest repaired registry handoff is `research/gates/PREDICTION_REGISTRY_V2_R2_RE
 ### 2026-10-13 — Compatibility matrix made independently inspectable
 
 The previous tester blocker noted that the full compatibility matrix was too large to inspect reliably through the repository API. Added 40 committed compatibility JSON shards (25 rows each), a SHA-256/byte-count/ID-range index, and a reconstruction verifier. Registry CI [run 38299233992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992) passed the four new shard tests and the existing registry/statistical suites; it generated and committed the shards at `503af0a4c6af98aec2c2a41b633cedc50df75d34`. The matrix still records 426 conditional, 574 blocked, and zero empirically eligible rows. This addresses artifact accessibility only; the independent scientific gate remains REQUEST CHANGES.
+
+
+## Resume checkpoint — 2026-10-13 17:05 IST
+
+- Verified committed R3 preflight report: `research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json` (blob `9da9692d67b5fda6271e021c77e429d1b9f32b3c`). Current report: no global blockers; 75 eligible fold-label cells; five positional F01 label cells explicitly blocked by frozen support rules.
+- Attempt receipt records exit code 0 and `PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS`; no model fit, holdout access, plaintext upload, or raw-row retention during preflight.
+- Composite dataset integrity recorded: 8,999,865 rows; canonical decoded CSV SHA-256 `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. Source integrity is not a predictive result.
+- Registry currently contains 40,000 configurations across ten horizons. Do not equate registry generation or synthetic orchestration with empirical evidence.
+- Current blocker: empirical executor/result acquisition and authorization chain must be reconciled with the scoped-block manifest and the agreed consolidated end-of-results tester review. The separate Greek-feature study remains authorization-gated. No model metrics or strategy are claimed at this checkpoint.
+- Next: run a finite empirical sweep on eligible development data only; persist per-configuration status, failures, checkpoints and hashes; then submit the frozen complete result inventory for independent tester review. Do not relax thresholds or access the protected holdout.
