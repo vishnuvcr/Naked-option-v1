@@ -55,6 +55,20 @@ class MarkovSwitchingLogitAdapter:
             raise MarkovSwitchingLogitContractError("LOGIT_OPTIMIZER_FAILED")
         return result.x[1:].copy(), float(result.x[0])
 
+    @staticmethod
+    def _forward_pass(z, y, coefficients, intercepts, transition, initial):
+        n = len(y)
+        k = len(initial)
+        eta = np.column_stack([intercepts[s] + z @ coefficients[s] for s in range(k)])
+        p = np.clip(expit(eta), 1e-9, 1 - 1e-9)
+        emission = y[:, None] * np.log(p) + (1 - y[:, None]) * np.log(1 - p)
+        log_transition = np.log(transition)
+        alpha = np.empty((n, k), dtype=float)
+        alpha[0] = np.log(initial) + emission[0]
+        for t in range(1, n):
+            alpha[t] = emission[t] + logsumexp(alpha[t - 1, :, None] + log_transition, axis=0)
+        return alpha, float(logsumexp(alpha[-1]))
+
     def fit(self, x_train, y_train):
         x = np.asarray(x_train, dtype=float)
         y_raw = np.asarray(y_train)
@@ -154,19 +168,28 @@ class MarkovSwitchingLogitAdapter:
                 coefficients[state_id] = coef
                 intercepts[state_id] = intercept
 
+            # Compare convergence on the likelihood of the updated (M-step) fit.
+            final_alpha, updated_log_likelihood = self._forward_pass(
+                z, y, coefficients, intercepts, transition, initial
+            )
             if (old_log_likelihood is not None
-                    and abs(log_likelihood - old_log_likelihood)
+                    and abs(updated_log_likelihood - old_log_likelihood)
                     < 1e-5 * (1 + abs(old_log_likelihood))):
                 self.converged_ = True
+                old_log_likelihood = updated_log_likelihood
                 break
-            old_log_likelihood = log_likelihood
+            old_log_likelihood = updated_log_likelihood
 
+        # Keep the stored likelihood and terminal filter synchronized with final parameters.
+        final_alpha, final_log_likelihood = self._forward_pass(
+            z, y, coefficients, intercepts, transition, initial
+        )
         self.coefficients_ = coefficients
         self.intercepts_ = intercepts
         self.transition_ = transition
         self.initial_ = initial
-        self.last_state_posterior_ = gamma[-1].copy()
-        self.log_likelihood_ = float(old_log_likelihood)
+        self.last_state_posterior_ = np.exp(final_alpha[-1] - final_log_likelihood)
+        self.log_likelihood_ = final_log_likelihood
         return self
 
     def predict_proba(self, x_test):
