@@ -1147,3 +1147,10 @@ Feature-construction contract: PASS. Empirical fitting: BLOCKED. Holdout access:
 Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting authorization: false. Holdout access: false. Predictive conclusions: none yet.
 
 **Developer → Tester:** Do not approve empirical fitting from synthetic gate results. When a complete frozen empirical bundle exists, independently audit every config/fold, maturity/purge/embargo, leakage, arithmetic, missing/blocked rows, inference and correction. Until then, remain in pre-fit validation.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: added fail-closed terminal accounting for the full registered prediction grid and strengthened validation to inspect every compressed result row.
+- Evidence: [run 38419789140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140) produced full coverage; row-level schema gate [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed all 320,000 rows. See [terminal accounting report](../gates/PREDICTION_TERMINAL_ACCOUNTING_RESULT_R3_2026-10-13.md).
+- Outcome: 20,000 BLOCKED_DATA, 300,000 BLOCKED_GATE; no model fitting, market data load, or holdout access. Next work must remain pre-fit until independent review and method-family implementation/authorization gates pass.
