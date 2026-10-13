@@ -1377,3 +1377,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Expanded family workflow [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests across the current implemented families, including change-point segmentation and a trainable one-layer temporal convolution adapter. [Updated report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
 - A tensor-shape defect in the temporal convolution adapter was caught by the synthetic suite and corrected; the passing run includes the correction. See `research/ERROR_LOG.md` for both the initial mismatch and missed first patch.
 - No market data or holdout access; zero methods have empirical fitting authorization. Next: reconcile every ALLOW_IN_PRINCIPLE method and config with exact adapter/parameter contracts, then independent review before fitting.
+
+
+## Phase 8P R3 — adapter mapping inventory passed (2026-10-13)
+
+- Hosted audit [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed. Result: [PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md](gates/PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md); artifact [11844142858](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994/artifacts/11844142858).
+- All 1,000 methods / 40,000 configurations reconcile. All 426 ALLOW_IN_PRINCIPLE methods map to adapter and synthetic-test files; 574 remain blocked. The combined synthetic family suite [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 tests.
+- This checks file mapping and registry accounting, not semantic support for every parameter or prediction performance. All empirical-fit flags remain false. Next: parameter-level contract audit, independent family code review, and leakage/chronology verification before considering any empirical fit.
