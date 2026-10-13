@@ -113,11 +113,11 @@ class WalkForwardR3Tests(unittest.TestCase):
         samples = rows_for_sessions(sessions, horizon=3)
         plan = build_fold_indices(
             samples, sessions, fold_id="F05",
-            validation_start_position=20, validation_end_position_exclusive=26,
+            validation_start_position=20, validation_end_position_exclusive=28,
             purge_sessions=3, embargo_sessions=3,
         )
-        self.assertEqual(plan.validation_indices, (23,))
-        self.assertEqual(plan.counts["validation_targets_outside_window"], 3)
+        self.assertEqual(plan.validation_indices, (23, 24))
+        self.assertEqual(plan.counts["validation_targets_outside_window"], 2)
         self.assertEqual(plan.counts["embargoed_validation_rows"], 3)
 
     def test_inner_folds_are_deterministic_expanding_quantile_windows(self):
@@ -133,7 +133,7 @@ class WalkForwardR3Tests(unittest.TestCase):
     def test_inner_fold_rejects_insufficient_outer_training_history(self):
         sessions = business_sessions("2025-01-02", 8)
         with self.assertRaisesRegex(WalkForwardContractError, "INNER_QUANTILE_SPLIT_EMPTY_OR_INVALID"):
-            build_inner_fold_descriptors(sessions, outer_validation_start_position=5)
+            build_inner_fold_descriptors(sessions, outer_validation_start_position=3)
 
     def test_fold_builder_rejects_nonmature_reverse_or_out_of_range_target(self):
         sessions = business_sessions("2025-01-02", 10)
