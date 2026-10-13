@@ -11,3 +11,9 @@ The combined workflow passed 52 synthetic tests across logistic regression, chro
 The suite includes a finite-difference check for the probit likelihood gradient, an imbalanced-class check for KNN density-ratio direction, deterministic-tree and MLP checks, a finite-difference check of MLP backpropagation, train-only preprocessing checks, and fail-closed tests for invalid support/parameters/nonfinite inputs. SVM and distance-based raw scores require chronological inner-OOF calibration before evaluation.
 
 No market data was loaded and no holdout was accessed. These are synthetic implementation checks only, not prediction results or fitting authorization. The synthetic gate now covers the registered change-point and temporal convolution adapter implementations as well. These checks validate code contracts only, not predictive value. Method-level eligibility remains zero.
+
+
+## 2026-10-14 — Temporal-convolution dropout remediation
+- Implemented deterministic inverted dropout on hidden activations during training; inference uses the full activation path. Added validation of dropout range and deterministic repeatability tests.
+- Combined synthetic family workflow [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites, plus compilation and no-data/no-holdout source checks. No market data was loaded and no holdout accessed.
+- This resolves the temporal adapter's previously ignored dropout parameter at adapter level, but the complete parameter-binding/registry reconciliation and independent review remain required. No empirical fitting authorization.
