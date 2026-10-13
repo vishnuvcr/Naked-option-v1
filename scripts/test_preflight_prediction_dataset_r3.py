@@ -72,6 +72,23 @@ class PredictionDataPreflightHelpersTests(unittest.TestCase):
         class_fail = preflight.finalize_metric("POS_1D_UP_DOWN","F01",below_classes,0.01,40,15)
         self.assertIn("DIRECTION_CLASS_SUPPORT_BELOW_FROZEN_MINIMUM",class_fail["block_reasons"])
 
+    def test_validation_sample_rules_are_loaded_before_use_and_range_checked(self):
+        prereg = {
+            "sample_eligibility": {
+                "target_pair_missing_fraction_max": 0.005,
+                "minimum_validation_rows": {"INTRA_5M_UP_DOWN": 100},
+                "minimum_class_support_each_direction_per_validation_fold": {"INTRA_5M_UP_DOWN": 20},
+            }
+        }
+        sample_rules, missing_fraction = preflight.validation_sample_rules(prereg)
+        self.assertIs(sample_rules, prereg["sample_eligibility"])
+        self.assertAlmostEqual(missing_fraction, 0.005)
+        for invalid in (float("nan"), float("inf"), -0.01, 1.01, "not-a-number"):
+            with self.subTest(invalid=invalid), self.assertRaises(preflight.PreflightBlocked):
+                preflight.validation_sample_rules({"sample_eligibility": {"target_pair_missing_fraction_max": invalid}})
+        with self.assertRaises(preflight.PreflightBlocked):
+            preflight.validation_sample_rules({})
+
     def test_empty_validation_metric_fails_closed_without_nan(self):
         metric = preflight.empty_metric()
         row = preflight.finalize_metric("INTRA_120M_UP_DOWN","F08",metric,0.01,5000,250)

@@ -953,3 +953,15 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 - Corrected the builder from “including any final newline if present” to the exact committed text in `0eee4c7fec9acab16afbc2e23809d852b139aa6e`. This second failed attempt is logged; no integrity guard was bypassed.
 - R3 outputs and tests are still pending. No empirical fitting or tester review occurred.
 
+
+
+## 2026-10-13 — Continue: R3 registry verified; launch data preflight
+- Rechecked the developer branch, phase status, pinned data artifact manifest, R3 build report/logs, registry index, and preflight workflow/scripts before proceeding.
+- Confirmed the R3 full-horizon registry build completed with exit code 0 and the dedicated regression suite passed 6/6 tests. The output contains 1,000 methods, 40,000 configurations, 400 reviewable config shards, and 4,000 configurations per each of the ten frozen horizons. This was registry-only work; no market data/model/holdout was accessed.
+- During a preflight code inspection, found an uninitialized-use defect: `sample_rules` was read before assignment in the target-pair label support loop. Fixed the order through a validated helper and added unit coverage for valid/missing/malformed/non-finite/out-of-range threshold values. Detailed entry is in `research/ERROR_LOG.md`.
+- Hardened the artifact download sequence so the GitHub repository token is sent only to the GitHub API redirect endpoint; the signed artifact URL is fetched without forwarding the token to another host. This is preventive security hardening; no credential exposure was observed.
+- The corrected script and tests are being committed together to trigger the existing encrypted-source/data-preflight workflow. Outcome remains pending until the workflow diagnostic is observed. Plaintext remains confined to runner temporary storage; output contracts prohibit uploading raw rows.
+- No empirical model has been fitted, the untouched holdout has not been accessed, and no prediction performance or strategy is claimed.
+
+**Developer → Tester (post-results only):** wait for the complete, frozen, hash-pinned empirical bundle.
+**Tester → Developer (post-results only):** after acquisition, audit the full bundle in one independent pass and return a reproducible pinned decision.

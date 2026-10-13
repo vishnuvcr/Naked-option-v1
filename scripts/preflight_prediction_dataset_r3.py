@@ -66,6 +66,20 @@ def fold_for_day(day:str, folds:list[dict[str,Any]])->str|None:
             return str(fold["id"])
     return None
 
+def validation_sample_rules(prereg:dict[str,Any])->tuple[dict[str,Any],float]:
+    """Return frozen validation minima and a checked target-pair missingness limit."""
+    sample_rules=prereg.get("sample_eligibility")
+    if not isinstance(sample_rules,dict):
+        raise PreflightBlocked("PREREG_SAMPLE_ELIGIBILITY_MISSING_OR_INVALID")
+    try:
+        missing_fraction=float(sample_rules.get("target_pair_missing_fraction_max",0.01))
+    except (TypeError,ValueError) as exc:
+        raise PreflightBlocked("PREREG_TARGET_PAIR_MISSINGNESS_LIMIT_INVALID") from exc
+    if not math.isfinite(missing_fraction) or not 0.0 <= missing_fraction <= 1.0:
+        raise PreflightBlocked("PREREG_TARGET_PAIR_MISSINGNESS_LIMIT_OUT_OF_RANGE")
+    return sample_rules, missing_fraction
+
+
 def empty_metric()->dict[str,int]:
     return {"possible_target_pairs":0,"missing_target_pairs":0,"flat_exclusions":0,"up":0,"down":0,"classifiable_rows":0,"endpoint_ineligible":0}
 
@@ -391,8 +405,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
             else: m["down"]+=1; m["classifiable_rows"]+=1
 
     validation=[]
-    missing_limit_fraction=float(sample_rules.get("target_pair_missing_fraction_max",0.01))
-    sample_rules=prereg["sample_eligibility"]
+    sample_rules, missing_limit_fraction = validation_sample_rules(prereg)
     for label_id in label_horizons:
         for fold in folds:
             row=finalize_metric(label_id,fold,fold_metrics[label_id][fold],missing_limit_fraction,

@@ -1119,3 +1119,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction/evidence: downloaded current derived artifact ID 11698879857 from source run 38131641336 and verified outer ZIP SHA-256 `40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b`. Its embedded manifest is `_temp/repair-derived-encrypted/dataset_manifest.json`, SHA-256 `da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f`, 34,363 bytes. All 61 encrypted members match byte sizes and SHA-256 values, with zero mismatches; their declared row counts sum to 8,999,865 (8,490,723 OPTION and 509,142 SPOT). The verified archive is encrypted-only; no plaintext has been decrypted in this manual check.
 - Prevention: distinguish source ancestor fields from the exact current artifact identity in every later report and preflight pin. Added `research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json` and builder/test assertions for the current artifact ID, archive/manifest hashes, exact source-manifest blob, and ancestry. The artifact pin and test are now inputs to R3 developer CI.
 - Consequence: initial “part mismatch” observation was a false alarm caused by the wrong artifact; no source-manifest corruption is inferred. Decryption/data-schema/timestamp preflight remains a separate pending step.
+
+
+## 2026-10-13 — Phase 8P R3 preflight sample-rule initialization defect
+- Category: implementation/runtime
+- Component: `scripts/preflight_prediction_dataset_r3.py` label-support validation.
+- Symptom: `sample_rules` was dereferenced to read the missing-target-pair threshold before `sample_rules = prereg["sample_eligibility"]` had assigned it.
+- Impact: the full data preflight would reach the label-support stage and raise an unbound-local runtime error, preventing a valid dataset-support report. No empirical model fit or holdout access occurred.
+- Correction: added `validation_sample_rules()` to validate the preregistration section and missingness limit, then call it before per-label fold checks.
+- Regression coverage: added tests for valid threshold extraction, absent sample rules, non-numeric values, non-finite values, and out-of-range limits in `scripts/test_preflight_prediction_dataset_r3.py`.
+- Prevention: frozen protocol configuration must be loaded and validated before any derived threshold is read. Run the complete preflight workflow on the corrected commit before treating data as eligible.
