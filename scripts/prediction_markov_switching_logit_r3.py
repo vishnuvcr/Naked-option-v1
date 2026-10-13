@@ -34,6 +34,16 @@ class MarkovSwitchingLogitAdapter:
     log_likelihood_: float | None = None
 
     @staticmethod
+    def _transition_update(expected_counts, alpha):
+        counts = np.asarray(expected_counts, dtype=float)
+        if (counts.ndim != 2 or counts.shape[0] != counts.shape[1]
+                or counts.shape[0] < 2 or not np.isfinite(counts).all()
+                or np.any(counts < 0) or not np.isfinite(alpha) or alpha <= 0):
+            raise MarkovSwitchingLogitContractError("TRANSITION_COUNTS_OR_PRIOR_INVALID")
+        smoothed = counts + float(alpha)
+        return smoothed / smoothed.sum(axis=1, keepdims=True)
+
+    @staticmethod
     def _fit_logistic(z, y, weights, ridge, initial=None):
         d = z.shape[1]
         theta0 = np.zeros(d + 1) if initial is None else np.asarray(initial, dtype=float).copy()
@@ -158,8 +168,7 @@ class MarkovSwitchingLogitAdapter:
             # Symmetric Dirichlet transition prior: alpha is applied per matrix cell.
             initial = np.maximum(gamma[0], 1e-12)
             initial /= initial.sum()
-            transition = expected_transitions + float(self.transition_prior)
-            transition /= transition.sum(axis=1, keepdims=True)
+            transition = self._transition_update(expected_transitions, self.transition_prior)
 
             for state_id in range(k):
                 weights = gamma[:, state_id]
