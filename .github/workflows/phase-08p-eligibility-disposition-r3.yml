@@ -16,7 +16,7 @@ on:
       - ".github/workflows/phase-08p-eligibility-disposition-r3.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   registry-disposition:
@@ -48,3 +48,26 @@ jobs:
           assert sum(d["disposition_counts"].values()) == 40000
           print("PASS: 40,000 unique configurations accounted for; no empirical fitting authorized")
           PY
+
+      - name: Preserve manifest and commit it to the research branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          manifest="research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
+          cp "$manifest" /tmp/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          cp /tmp/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json "$manifest"
+          git add "$manifest"
+          if ! git diff --cached --quiet; then
+            git commit -m "Store verified R3 eligibility disposition manifest"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
+      - name: Upload a copy of the disposition manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-eligibility-disposition-r3
+          path: research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json
+          if-no-files-found: error
