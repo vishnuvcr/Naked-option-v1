@@ -33,3 +33,5 @@ class GAMAdapterTests(unittest.TestCase):
             GeneralizedAdditiveProbabilityAdapter().predict_proba(self.x[:2])
 
 if __name__=="__main__": unittest.main()
+
+# Gate note: the tests above use synthetic generated samples only.
