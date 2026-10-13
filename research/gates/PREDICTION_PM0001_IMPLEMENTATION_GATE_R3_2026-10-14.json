@@ -4,18 +4,18 @@
   "method_id": "PM0001",
   "method_name": "L2 logistic regression with calibrated directional probabilities",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
-  "source_commit": "c95ebbdbd761821085f250a82c2124fbcb1786b8",
+  "source_commit": "09db756ce5676d42f0493f8cbe1f608197d7c88f",
   "source_blob_pins": {
-    "scripts/prediction_pm0001_executor_r3.py": "1353c46d78a4b1e1cc42213ed198daca734f2ee0",
-    "scripts/test_prediction_pm0001_executor_r3.py": "64ed6a77d0031aebe10ffce036467423748277b9",
+    "scripts/prediction_pm0001_executor_r3.py": "7197715eff035d9d37051a1a9a549e570f2d4a5b",
+    "scripts/test_prediction_pm0001_executor_r3.py": "377397c68a3b421be683691cc4f452c52455b037",
     ".github/workflows/phase-08p-r3-pm0001-executor-synthetic.yml": "d5d1cde71f0d22780d18897223bd4c2708d7d99a",
     "scripts/prediction_logistic_adapter_r3.py": "fcdedf5b0ddfc9dafc44ef1cf61dc981f55a3dc2",
     "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
     "scripts/prediction_statistics.py": "669ab408f18acff2f79e47669203a7598077e3cd"
   },
   "verification": {
-    "workflow_run_id": 38470621843,
-    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843",
+    "workflow_run_id": 38471186718,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471186718",
     "conclusion": "success",
     "synthetic_tests": 5,
     "python_compile": "PASS",
@@ -36,9 +36,12 @@
     "fail-closed invalid C and invalid endpoint checks",
     "20-exchange-session rolling refit cadence",
     "later refits admit earlier validation rows only after target maturity",
-    "training-target maturity and purge enforced at every refit cutoff"
+    "training-target maturity and purge enforced at every refit cutoff",
+    "outer-fold class-support minima checked before fitting",
+    "inner-fold row and per-class support checked before any estimator is fit",
+    "20-session refit schedule preserves exact validation-row coverage"
   ],
   "manual_authorization_required": false,
   "empirical_fit_authorized": false,
-  "notes": "Developer synthetic implementation gate only. Rolling-refit cadence now matches the registered every_20_trading_sessions setting. It does not establish market predictive skill, does not authorize empirical fitting, and does not replace the single consolidated post-results independent tester review. Method may be considered for the next eligibility disposition only after data preflight and executor authorization gates also pass."
+  "notes": "Developer synthetic implementation gate only. The implementation now checks frozen row/class-support minima before fitting, uses the registered 20-session rolling refit cadence, and recalculates train-only scaling and chronological OOF calibration at every cutoff. It does not establish market predictive skill, does not authorize empirical fitting, and does not replace the single consolidated post-results independent tester review."
 }
