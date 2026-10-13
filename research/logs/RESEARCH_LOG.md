@@ -1,3 +1,14 @@
+## 2026-10-14 — Full R3 eligibility disposition published
+
+- Workflow [#38470897493](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) passed synthetic disposition rules, verified every config/method shard and committed the 40,000-row manifest at `b4acbccf` (blob `1c6a228f071892bf27a76d0a459d9ce0c1469965`).
+- Counts: 40,000 unique configs, 40 PM0001 configurations pending executor gate, 75 supported and 5 scoped-blocked fold-label cells; no configuration is yet empirically authorized.
+- The initial persistence attempt failed during concurrent branch updates; the retry was hardened, and the subsequent run successfully committed the manifest. The failure is retained in the error log.
+- Next: data-backed PM0001 execution precheck and run. Tester review remains post-results only.
+
+**Developer → Tester:** wait for complete frozen results only.
+
+---
+
 ## 2026-10-14 — PM0001 rolling-refit implementation gate passed
 
 - PM0001 synthetic workflow [#38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed after enforcing the registered `every_20_trading_sessions` refit cadence.
