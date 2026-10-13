@@ -32,3 +32,16 @@ No market data was loaded, no model was fitted on market data, and the holdout r
 ## Follow-up: explicit parameter-binding gate
 - Added `scripts/prediction_parameter_binding_r3.py` and synthetic tests to make known semantic mismatches explicit. Bayesian `coefficient_drift` is mapped to adapter `process_variance`; Markov-switching with three regimes and transition-prior configurations remain blocked; HMM accepts only diagonal covariance and 2/4 states; temporal convolution configurations remain blocked until dropout is implemented.
 - Gate [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed after one test-vocabulary correction. This improves fail-closed behavior but does not resolve the underlying Markov-switching/dropout implementations. Empirical fitting remains unauthorized.
+
+
+## R4 follow-up — 2026-10-14 (implementation committed, verification pending)
+
+- An isolated R4 developer branch adds strict parameter binding for all 19 implemented model families and constructor-level synthetic mapping tests. Survival/event-time parameters remain blocked.
+- Markov-switching is expanded to two and three regimes. The original registry lists `transition_prior` values 2 and 5 but does not define their statistical meaning in this adapter contract. R4 provisionally treats the value as a symmetric Dirichlet pseudocount for every expected transition-count cell; this must be independently assessed before any empirical fit.
+- Temporal-convolution dropout had already been implemented in the preceding checkpoint; R4 now binds `channels`, `kernel_size`, and `dropout` to the intended adapter fields.
+- Full-registry audit is being expanded to all 40,000 configurations. R4 tests/workflow status remains **pending verification** in this update.
+- Report: [R4 parameter-binding audit](PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md).
+
+**Developer → Tester:** verify the new statistical convention, formulas and every parameter-to-constructor mapping independently; no market fitting before a pinned review decision.
+
+**Tester → Developer:** do not treat the provisional transition-prior convention as accepted without review; keep non-approved combinations blocked.
