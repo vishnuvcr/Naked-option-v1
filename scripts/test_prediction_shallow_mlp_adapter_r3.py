@@ -26,6 +26,24 @@ class ShallowMLPTests(unittest.TestCase):
         b=ShallowMLPProbabilityAdapter(**kwargs).fit(self.x[self.train],self.y[self.train]).predict_proba(self.x[self.test])
         np.testing.assert_allclose(a,b,rtol=0,atol=0)
 
+    def test_mlp_backprop_gradients_match_finite_differences(self):
+        rng=np.random.default_rng(13)
+        xb=rng.normal(size=(9,2)); yb=np.array([0,1,0,1,1,0,1,0,1],dtype=float)
+        w1=rng.normal(size=(2,3))*.2; b1=rng.normal(size=3)*.1
+        w2=rng.normal(size=3)*.2; b2=.1; mask=np.ones((9,3)); wd=.15
+        _,grads=ShallowMLPProbabilityAdapter._batch_loss_and_grad(xb,yb,w1,b1,w2,b2,mask,wd)
+        params=[w1.copy(),b1.copy(),w2.copy(),np.array([b2])]
+        analytic=[grads[0],grads[1],grads[2],np.array([grads[3]])]
+        eps=1e-6
+        for pi,param in enumerate(params):
+            for idx in np.ndindex(param.shape):
+                plus=[p.copy() for p in params]; minus=[p.copy() for p in params]
+                plus[pi][idx]+=eps; minus[pi][idx]-=eps
+                fp=ShallowMLPProbabilityAdapter._batch_loss_and_grad(xb,yb,plus[0],plus[1],plus[2],float(plus[3][0]),mask,wd)[0]
+                fm=ShallowMLPProbabilityAdapter._batch_loss_and_grad(xb,yb,minus[0],minus[1],minus[2],float(minus[3][0]),mask,wd)[0]
+                numeric=(fp-fm)/(2*eps)
+                self.assertAlmostEqual(float(analytic[pi][idx]),float(numeric),places=5)
+
     def test_parameter_and_input_validation(self):
         with self.assertRaisesRegex(MLPContractError,"DROPOUT"):
             ShallowMLPProbabilityAdapter(dropout=.9).fit(self.x[self.train],self.y[self.train])
