@@ -1,3 +1,12 @@
+# Latest Phase 8P R3 checkpoint — chronological split contract passed (2026-10-13)
+
+- Hosted chronological contract workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) passed and persisted [the aggregate test report](research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json), blob 67aaea739f777a8857fb43be8e85416b22de3af8.
+- The gate verifies synthetic chronological split, target maturity, purge/embargo, inner-fold boundaries, role-specific support, terminal statuses, mandatory fields, exact row coverage and log-loss arithmetic. It does not load market data or fit a model.
+- Frozen contract: [chronological execution rules](research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json) · [feature contract](research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json) · [status](research/STATUS.md) · [error log](research/ERROR_LOG.md).
+- Research remains prediction-only. Empirical fitting is unauthorized, all method flags stay false, and the holdout stays sealed. Next: validate the full config/fold eligibility grid and implement restartable development-only execution with exact 320,000-row terminal accounting.
+
+---
+
 # Latest Phase 8P R3 checkpoint — frozen features validated (2026-10-13)
 
 - Feature contract workflow [38404222506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38404222506) passed all tests and 45 linked provenance/label-contract checks. Aggregate report: [PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json](research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json).
