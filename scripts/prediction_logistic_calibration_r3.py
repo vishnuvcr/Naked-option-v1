@@ -44,24 +44,42 @@ class PlattCalibrator:
 
 
 def chronological_inner_oof(estimator_factory, x, y, session_positions, purge_sessions: int,
-                            min_train_rows: int, min_validation_rows: int):
-    """Create three expanding OOF folds using fixed [0.40,0.60), [0.60,0.80), [0.80,1) quantiles.
+                            min_train_rows: int, min_validation_rows: int, *,
+                            target_endpoint_session_positions=None, embargo_sessions: int = 0):
+    """Create three expanding OOF folds with frozen session quantiles.
 
-    Inputs must already be ordered by official exchange session. Session positions are
-    integer indices into the unique ordered session calendar. Label-specific purge is
-    applied in session units; caller is responsible for proving target endpoints and
-    official calendar provenance before calling.
+    Rows must be ordered by decision session. Every training target must have matured
+    strictly before the validation boundary. Purge is applied to training decisions;
+    embargo removes the initial validation sessions. Callers must supply endpoint
+    session indices for a fail-closed maturity check; omission is rejected.
     """
-    x = np.asarray(x, dtype=float); y = np.asarray(y); s = np.asarray(session_positions, dtype=int)
-    if x.ndim != 2 or y.ndim != 1 or s.ndim != 1 or len(x) != len(y) or len(y) != len(s):
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y)
+    s = np.asarray(session_positions)
+    if target_endpoint_session_positions is None:
+        raise CalibrationContractError("TARGET_ENDPOINT_SESSION_POSITIONS_REQUIRED")
+    endpoint = np.asarray(target_endpoint_session_positions)
+    if (x.ndim != 2 or y.ndim != 1 or s.ndim != 1 or endpoint.ndim != 1
+            or len(x) != len(y) or len(y) != len(s) or len(s) != len(endpoint)):
         raise CalibrationContractError("INNER_OOF_INPUT_SHAPE_INVALID")
-    if not np.isfinite(x).all() or not np.isfinite(y.astype(float)).all():
+    if (not np.isfinite(x).all() or not np.isfinite(y.astype(float)).all()
+            or not np.isfinite(s.astype(float)).all() or not np.isfinite(endpoint.astype(float)).all()):
         raise CalibrationContractError("INNER_OOF_INPUT_NONFINITE")
-    if purge_sessions < 0 or min_train_rows < 1 or min_validation_rows < 1:
+    if (not np.isin(y, [0, 1]).all() or set(np.unique(y).tolist()) != {0, 1}
+            or np.any(s != s.astype(int)) or np.any(endpoint != endpoint.astype(int))):
+        raise CalibrationContractError("INNER_OOF_LABEL_OR_SESSION_INDEX_INVALID")
+    s = s.astype(int)
+    endpoint = endpoint.astype(int)
+    if np.any(endpoint < s):
+        raise CalibrationContractError("TARGET_ENDPOINT_PRECEDES_DECISION")
+    if (purge_sessions < 0 or embargo_sessions < 0
+            or min_train_rows < 1 or min_validation_rows < 1):
         raise CalibrationContractError("INNER_OOF_GATE_ARGUMENT_INVALID")
+    if np.any(np.diff(s) < 0):
+        raise CalibrationContractError("INNER_OOF_DECISION_SESSIONS_NOT_CHRONOLOGICAL")
     unique = np.unique(s)
-    if len(unique) < 10 or not np.array_equal(unique, np.sort(unique)):
-        raise CalibrationContractError("INNER_OOF_SESSION_ORDER_INVALID")
+    if len(unique) < 10:
+        raise CalibrationContractError("INNER_OOF_TOO_FEW_UNIQUE_SESSIONS")
     n = len(unique)
     intervals = [(int(n*.40), int(n*.60)), (int(n*.60), int(n*.80)), (int(n*.80), n)]
     outputs = []
@@ -70,13 +88,18 @@ def chronological_inner_oof(estimator_factory, x, y, session_positions, purge_se
             raise CalibrationContractError("INNER_OOF_EMPTY_VALIDATION_INTERVAL")
         valid_sessions = unique[start:end]
         first_valid = int(valid_sessions[0])
-        train_mask = s < (first_valid - purge_sessions)
-        valid_mask = np.isin(s, valid_sessions)
-        tr = np.flatnonzero(train_mask); va = np.flatnonzero(valid_mask)
+        last_valid_exclusive = int(valid_sessions[-1]) + 1
+        train_mask = (s < (first_valid - purge_sessions)) & (endpoint < first_valid)
+        valid_mask = np.isin(s, valid_sessions) & (s >= first_valid + embargo_sessions)
+        tr = np.flatnonzero(train_mask)
+        va = np.flatnonzero(valid_mask)
         if len(tr) < min_train_rows or len(va) < min_validation_rows:
             raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_MINIMUM_ROWS_FAILED")
-        if len(tr) and len(va) and not (s[tr].max() < s[va].min() - purge_sessions):
-            raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PURGE_FAILED")
+        if len(tr) and len(va):
+            if not (s[tr].max() < s[va].min() - purge_sessions):
+                raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PURGE_FAILED")
+            if np.any(endpoint[tr] >= first_valid):
+                raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_IMMATURE_TRAINING_TARGET")
         if set(np.unique(y[tr]).tolist()) != {0, 1}:
             raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_TRAINING_CLASS_SUPPORT_FAILED")
         model = estimator_factory()
@@ -85,7 +108,10 @@ def chronological_inner_oof(estimator_factory, x, y, session_positions, purge_se
         if not np.isfinite(prob).all() or np.any((prob < 0) | (prob > 1)):
             raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PROBABILITY_INVALID")
         outputs.append({"fold": fold, "train_indices": tr, "validation_indices": va,
-                        "probabilities": prob, "labels": y[va].astype(int)})
+                        "probabilities": prob, "labels": y[va].astype(int),
+                        "validation_start_session": first_valid,
+                        "validation_end_session_exclusive": last_valid_exclusive,
+                        "training_target_maturity_max_session": int(endpoint[tr].max())})
     return outputs
 
 
