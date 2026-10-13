@@ -1,0 +1,61 @@
+{
+  "schema_version": "phase8p-prereg-freeze-gate-v1",
+  "gate": "PHASE8P_PREREGISTRATION_AND_DATA_PREFLIGHT_BRIDGE_R4",
+  "date": "2026-10-14",
+  "status": "DEVELOPER_SYNTHETIC_RECONCILIATION_PENDING_TESTER_REVIEW",
+  "protocol_separation": {
+    "greek": {
+      "comparisons": 20,
+      "metric": "paired Brier improvement",
+      "bootstrap_reps": 500,
+      "seed": 42,
+      "multiplicity": "Holm",
+      "daily_time": "DATE_ONLY_DAILY_PANEL_TO_CASH_CLOSE_15_30_IST",
+      "artifact_access_authorized": false,
+      "model_fit_authorized": false
+    },
+    "main_registry": {
+      "methods": 1000,
+      "configurations": 40000,
+      "metric": "out-of-sample log-loss",
+      "bootstrap_reps": 10000,
+      "seed": 2026101209,
+      "multiplicity": "Benjamini-Yekutieli by label stratum",
+      "empirical_fitting_authorized": false
+    },
+    "markov": {
+      "family": "markov_switching_logit",
+      "scope": "main prediction registry only",
+      "greek_study_uses_it": false,
+      "empirical_fitting_authorized": false
+    }
+  },
+  "main_registry_label_ids": [
+    "INTRA_5M_UP_DOWN",
+    "INTRA_15M_UP_DOWN",
+    "INTRA_30M_UP_DOWN",
+    "INTRA_60M_UP_DOWN",
+    "INTRA_120M_UP_DOWN",
+    "POS_1D_UP_DOWN",
+    "POS_2D_UP_DOWN",
+    "POS_3D_UP_DOWN",
+    "POS_5D_UP_DOWN",
+    "POS_10D_UP_DOWN"
+  ],
+  "known_blockers": [
+    "R1 F1-F6 fixes need fresh independent review on this exact SHA",
+    "Greek schema/coverage preflight has not run on current exact commit",
+    "existing main-registry preflight has null preregistration blob SHA",
+    "existing main-registry preflight contains scoped sample eligibility blocks",
+    "main label manifest validation pending",
+    "empirical fitting and holdout remain unauthorized"
+  ],
+  "authorization": {
+    "synthetic_ci_authorized": true,
+    "schema_only_artifact_preflight_authorized": false,
+    "empirical_model_fitting_authorized": false,
+    "holdout_access_authorized": false,
+    "option_pnl_authorized": false,
+    "strategy_promotion_authorized": false
+  }
+}
