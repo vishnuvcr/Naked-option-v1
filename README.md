@@ -1,3 +1,7 @@
+## Process correction — tester review occurs after results publication (2026-10-14)
+
+The user reiterated that **independent tester review must not occur until after the planned prediction results have been acquired and published/frozen**. The governing cadence policy says the tester starts only on a hash-pinned `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with `results_acquired: true` and a complete result-bundle manifest. Do not request intermediate tester reviews, and do not treat the old tester report as a reason to pause routine developer execution. Continue developer-side automated correctness, data-integrity, label/fold, leakage, statistical and protocol checks throughout execution. The existing R6 parameter-binding approval is historical code-subgate evidence, not the results review. Resolve the stale pre-registration requirement for pre-fit independent approval consistently with this cadence before fitting; no scientific result is implied by this process correction.
+
 # Phase 8P R4 parameter-binding gate — PASS (2026-10-14)
 
 **Reviewed code snapshot:** `1bfba987629e793accbd218d87745a8f80cf8dbd`  
