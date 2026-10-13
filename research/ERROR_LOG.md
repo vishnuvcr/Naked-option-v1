@@ -1368,3 +1368,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_probit_adapter_r3.py`
 - Hosted combined gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed all 13 logistic, calibration and probit tests. No error remained at this gate.
 - Scope: synthetic data only; no market-data fitting or holdout access.
+
+
+## 2026-10-13 — Probit gradient audit
+- Category: mathematical validation
+- Component: `scripts/prediction_probit_adapter_r3.py`
+- Added finite-difference gradient comparison to guard against sign/derivative mistakes in the penalized probit likelihood. Workflow [38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed.
+- No error found by this test; empirical fitting remains unauthorized.
