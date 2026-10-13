@@ -1239,3 +1239,11 @@ The fold-scope correction commit triggered workflow run [38398836570](https://gi
 ### 2026-10-13 follow-up — corrected manifest checks passed; persistence repair required
 
 Hosted run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) passed all eight synthetic fold-scope tests, the full 40,000-config shard/hash build, and explicit checks for 75 supported / five blocked label-fold cells and zero empirically eligible configs. It failed only at persistence because the tracked manifest was modified before git pull --rebase. This is logged in the error log; workflow commit [344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54) now stashes the built output before branch synchronization. Fresh hosted verification and reading back the persisted manifest remain required.
+
+
+## Phase 8P R3 — corrected eligibility manifest gate PASS (2026-10-13)
+
+- Hosted workflow [38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557) concluded SUCCESS: synthetic rule tests, complete 40,000-config shard/hash reconciliation, fold-support assertions, persisted Git commit and retained artifact all passed.
+- Persisted manifest Git blob SHA-1: 707ea05ac9cf896881cbcf72b892ce8214368265. Manifest-content SHA-256: cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229. Workflow artifact: 11813078693; ZIP SHA-256: 3ce206efe768799856c2d94c1c91225b602e023ab0752f6bb2f0851e0120c50f.
+- Verified exactly 40,000 unique config IDs, 1,000 method IDs with 40 configs each, disposition sum 40,000, zero eligible/pending fits, and all fit flags false. Of 80 label/fold cells, 75 pass and five positional F01 cells fail the preregistered 1% missing-target-pair cap. Later positional folds remain supported.
+- Registry accounting gate is now closed with PASS. Scientific execution remains BLOCKED: compatibility is still 426 conditional / 574 blocked / 0 empirically eligible. Next: complete the PM0001 logistic-family executor and authorization gate for development folds only. No empirical prediction result or strategy is claimed; holdout remains untouched.
