@@ -1217,3 +1217,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: corrected KNN density-ratio semantics and added an imbalanced-class direction test after source review.
 - Evidence: [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 synthetic tests.
 - Outcome: synthetic-only; no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: implemented additive spline logistic regression and expanded the synthetic gate across the current classical estimator set.
+- Evidence: [workflow 38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests.
+- Outcome: implementation QA only; no market data, empirical fitting, or holdout access. State-space and temporal families remain.
