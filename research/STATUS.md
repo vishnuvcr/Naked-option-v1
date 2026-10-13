@@ -1391,3 +1391,5 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - File-mapping audit passed, but the follow-up parameter-level review identified unresolved semantic mappings. See [PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md](gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
 - Key blockers: Bayesian coefficient_drift alias; Markov-switching registry permits 3 regimes and transition_prior while current adapter is two-regime; temporal-convolution config includes dropout not implemented by its adapter. HMM covariance must be checked as diag. These are blockers, not permission to ignore config fields.
 - No market data was fitted and holdout remains sealed. Next: parameter-binding layer, tests proving parameters are consumed, then independent review before any empirical fit.
+
+- Classical probability adapters advanced: the probit adapter was added and tested synthetically. Combined hosted gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 5 logistic + 4 calibration + 4 probit tests. Result remains synthetic-only, with no empirical fitting authorization.
