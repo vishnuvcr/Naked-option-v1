@@ -119,7 +119,10 @@ def main():
         if sem_contract.get("review_and_execution_gates",{}).get("empirical_fitting_authorized") is not False: errors.append("SEMANTIC_CONTRACT_EMPIRICAL_FLAG_MISMATCH")
         parent=sem_contract.get("parent_preregistration",{})
         if parent.get("git_blob_sha")!=git_blob_sha(parent.get("path","")): errors.append("SEMANTIC_PARENT_PREREG_SHA_MISMATCH")
-        if sem_prereg.get("status")!="DEVELOPER_AMENDMENT_PROPOSED_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS": errors.append("PREREG_V2_STATUS_MISMATCH")
+        if sem_prereg.get("status")!="TESTER_REVIEWED_SEMANTIC_AMENDMENT_CODE_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS": errors.append("PREREG_V2_STATUS_MISMATCH")
+        if sem_contract.get("status")!="TESTER_REVIEWED_CODE_CONTRACT_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS": errors.append("SEMANTIC_CONTRACT_STATUS_MISMATCH")
+        if sem_prereg.get("model_parameter_semantics_contracts",{}).get("markov_switching_logit",{}).get("review_status")!="R5_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING": errors.append("SEMANTIC_REVIEW_STATUS_MISMATCH")
+        if sem_prereg.get("tester_review",{}).get("outcome")!="NUMERICAL_AND_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING": errors.append("TESTER_REVIEW_RECORD_MISMATCH")
     except (KeyError, TypeError, ValueError, OSError) as exc:
         errors.append("SEMANTIC_CONTRACT_VALIDATION_ERROR:"+str(exc))
     report={
