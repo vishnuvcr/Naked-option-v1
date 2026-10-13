@@ -167,6 +167,7 @@ def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[s
         "supported_outer_fold_ids": supported_folds,
         "empirical_fit_authorized": False,
         "manual_authorization_required": False,
+        "implementation_gate_status": "DEVELOPER_TESTED_SYNTHETIC_ONLY" if implementation_passed else "NOT_DEMONSTRATED",
     }
 
 
