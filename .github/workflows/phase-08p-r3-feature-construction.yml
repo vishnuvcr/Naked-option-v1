@@ -1,0 +1,83 @@
+name: Phase 8P R3 feature construction contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"
+      - "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
+      - "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json"
+      - "scripts/prediction_features_r3.py"
+      - "scripts/test_prediction_features_r3.py"
+      - "scripts/validate_prediction_feature_contract_r3.py"
+      - ".github/workflows/phase-08p-r3-feature-construction.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08p-r3-feature-construction
+  cancel-in-progress: false
+
+jobs:
+  feature-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact triggering source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert checkout is immutable triggering commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run synthetic feature-construction tests
+        run: python -m unittest discover -s scripts -p "test_prediction_features_r3.py" -v
+      - name: Validate the frozen feature contract and linked data gates
+        run: python scripts/validate_prediction_feature_contract_r3.py
+      - name: Upload aggregate-only report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-r3-feature-construction-contract
+          path: research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Persist aggregate-only report
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json"
+          cp "$report" "$RUNNER_TEMP/feature-contract-report.json"
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          persisted=false
+          for attempt in 1 2 3 4 5; do
+            git fetch origin phase-08-prediction-developer
+            git reset --hard origin/phase-08-prediction-developer
+            cp "$RUNNER_TEMP/feature-contract-report.json" "$report"
+            git add "$report"
+            if git diff --cached --quiet; then
+              persisted=true
+              break
+            fi
+            git commit -m "Record R3 feature-construction contract gate"
+            if git push origin HEAD:phase-08-prediction-developer; then
+              persisted=true
+              break
+            fi
+            echo "Branch tip moved during report persistence; retry $attempt of 5"
+            sleep 2
+          done
+          if [ "$persisted" != "true" ]; then
+            echo "FEATURE_CONTRACT_REPORT_PERSISTENCE_FAILED_AFTER_RETRIES"
+            exit 1
+          fi
