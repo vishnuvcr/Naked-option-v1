@@ -1423,3 +1423,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_gam_adapter_r3.py`
 - Workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed the three GAM tests and the combined 36-test suite. No outstanding defect at this gate.
 - No market-data fitting or holdout access.
+
+
+## 2026-10-13 — Shallow MLP synthetic gate
+- Category: implementation / numerical synthetic validation
+- Component: `scripts/prediction_shallow_mlp_adapter_r3.py`
+- Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed all three MLP tests and the combined 39-test suite. No defect found at this gate.
+- Synthetic only; no empirical market-data fitting.
