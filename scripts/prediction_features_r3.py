@@ -285,7 +285,9 @@ def build_feature_batch(
     emitted: list[FeatureSample] = []
     diagnostics: Counter[str] = Counter(data_counts)
     diagnostics["samples_considered"] = 0
+    diagnostics["target_pairs_possible"] = 0
     diagnostics["target_pairs_missing"] = 0
+    diagnostics["endpoint_ineligible"] = 0
     diagnostics["flat_targets_excluded"] = 0
     diagnostics["feature_history_excluded"] = 0
     diagnostics["missing_decision_close_sessions"] = 0
@@ -298,6 +300,11 @@ def build_feature_batch(
             for i, decision in enumerate(day_bars):
                 diagnostics["samples_considered"] += 1
                 target_time = decision.timestamp + timedelta(minutes=horizon)
+                # A target beyond the regular session is excluded from the possible-pair denominator.
+                if target_time.date().isoformat() != day or target_time.timetz().replace(tzinfo=None) > CLOSE:
+                    diagnostics["endpoint_ineligible"] += 1
+                    continue
+                diagnostics["target_pairs_possible"] += 1
                 target = lookup.get(target_time)
                 if target is None or target.session_date != decision.session_date:
                     diagnostics["target_pairs_missing"] += 1
@@ -328,12 +335,16 @@ def build_feature_batch(
         horizon = POSITIONAL_SESSIONS[label_id]
         for i, day in enumerate(eligible_sessions):
             diagnostics["samples_considered"] += 1
+            target_index = i + horizon
+            if target_index >= len(eligible_sessions):
+                diagnostics["endpoint_ineligible"] += 1
+                continue
+            diagnostics["target_pairs_possible"] += 1
             decision = session_close.get(day)
             if decision is None:
                 diagnostics["missing_decision_close_sessions"] += 1
                 diagnostics["target_pairs_missing"] += 1
                 continue
-            target_index = i + horizon
             target = close_by_session_index.get(target_index)
             if target is None:
                 diagnostics["target_pairs_missing"] += 1
@@ -366,6 +377,8 @@ def build_feature_batch(
             ))
 
     diagnostics["samples_emitted"] = len(emitted)
+    denominator = int(diagnostics["target_pairs_possible"])
+    diagnostics["target_pair_missing_fraction"] = (diagnostics["target_pairs_missing"] / denominator) if denominator else None
     diagnostics["feature_dimension"] = 2 * lookback_bars
     diagnostics["source_csv_sha256"] = source_csv_sha256
     diagnostics["calendar_sha256"] = calendar_sha
