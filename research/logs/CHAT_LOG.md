@@ -1,3 +1,15 @@
+## 2026-10-14 — R3 eligibility disposition gate
+
+### Developer result
+Eligibility workflow [#38470897493](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) passed and committed the full disposition manifest (`b4acbccf`, blob `1c6a228f071892bf27a76d0a459d9ce0c1469965)). It accounts for 40,000 unique configurations and 1,000 methods, with 75 supported / 5 scoped-blocked label-fold cells. Exactly 40 PM0001 configurations are pending the executor gate; no empirical fitting is yet authorized.
+
+### Next
+Build a fail-closed execution precheck that verifies the frozen data/preflight, implementation report, eligibility manifest and source hashes, then execute the PM0001 registered universe without touching the holdout. No tester review until the complete frozen results bundle is acquired.
+
+**Developer → Tester:** wait for complete frozen results only.
+
+---
+
 ## 2026-10-14 — PM0001 implementation correction
 
 ### Developer action
