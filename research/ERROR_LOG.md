@@ -1245,3 +1245,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Evidence: dedicated run [38395246409](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395246409), commit `a4c5449dca89171341a16147ec9cdd71e7b30b50`.
 - Result: SUCCESS; both synthetic suites and the code-only source audit passed. Previous failures are retained above as historical defects; they are not overwritten or relabeled as passes.
 - Scientific impact: none. No empirical market-data fit, holdout access, performance estimate, or strategy selection occurred. The code gate does not establish OOF provenance or empirical eligibility.
+
+
+## 2026-10-13 — R3 eligibility disposition builder hosted run pending
+- Category: verification state / registry tooling
+- Component: `scripts/build_prediction_eligibility_manifest_r3.py` and `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
+- Evidence: hosted run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666), source commit `6883ccb3bb733614e72b3cd5434547de96fd8452`.
+- Observed: all five synthetic disposition-rule tests passed; full 40,000-config shard/hash reconciliation was still running at last check.
+- Disposition: pending, not an error conclusion yet. The output manifest is not accepted until the run completes successfully and its exact file/hash/counts are verified. No empirical fitting or holdout access.
