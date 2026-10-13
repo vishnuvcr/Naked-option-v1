@@ -588,3 +588,8 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 ### Workflow correction audit — 2026-10-13
 
 The first fold-scoped manifest rerun, [38398836570](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38398836570), failed at checkout because of a literal backslash in the GitHub SHA expression; no tests or build ran. The expression was corrected in [commit b8b1eb2c0eaecde206789968f7585f496f9f6e95](https://github.com/vishnuvcr/Naked-option-v1/commit/b8b1eb2c0eaecde206789968f7585f496f9f6e95). Fresh hosted run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) is queued; registry acceptance remains pending.
+
+
+### Registry gate persistence repair — 2026-10-13
+
+Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) passed the eight synthetic tests, 40,000-config build and fold-scope assertions, but failed to persist the artifact because Git rebase rejected the modified tracked JSON. The workflow now stashes the generated manifest before rebasing, then restores and commits the exact bytes: [commit 344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54). The new run and committed manifest must still be verified before this gate is accepted.
