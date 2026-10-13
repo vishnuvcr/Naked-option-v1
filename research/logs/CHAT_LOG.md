@@ -1175,3 +1175,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented a probit adapter with train-only standardization and penalized likelihood; extended the synthetic family workflow.
 - Evidence: [combined synthetic gate 38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests across logistic, chronological calibration and probit.
 - Outcome: synthetic implementation contract passes only. No market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: added finite-difference verification of the probit objective gradient and reran the family synthetic gate.
+- Evidence: [workflow 38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 synthetic tests.
+- Outcome: logistic/probit adapter mechanics pass synthetic review only; no empirical fitting or holdout access.
