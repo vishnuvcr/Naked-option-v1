@@ -1321,3 +1321,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** prepare the protocol/data-preflight package only.  
 **Tester → Developer:** review the exact frozen bundle before any empirical model run.
+
+
+### 2026-10-14 — Started protocol/data-preflight bridge
+Created `phase-08-prediction-prereg-freeze-developer`, a protocol bridge, a machine-readable gate, static audit/tests and an automatic/manual synthetic-only workflow. Greek scope retains paired Brier / 500 bootstrap / seed 42 / Holm; the broad registry retains log-loss / 10,000 / seed 2026101209 / BY. The current audit is designed to surface the null preregistration hash and scoped blocks of the old broad-registry preflight rather than interpreting that as global authorization. No real artifact was downloaded/opened and no fit or holdout access occurred. Hosted gate and independent review are pending.
+
+**Developer → Tester:** independently review F1–F6 after the synthetic gate passes.
+**Tester → Developer:** no schema-preflight approval before the exact source bundle has code-only PASS.
