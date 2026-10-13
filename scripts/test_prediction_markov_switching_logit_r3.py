@@ -1,5 +1,8 @@
 """Synthetic-only tests for generalized Markov-switching logistic adapter."""
 import unittest
+import hashlib
+import json
+from pathlib import Path
 import numpy as np
 from scipy.special import expit, logsumexp
 from prediction_markov_switching_logit_r3 import (
@@ -59,6 +62,37 @@ class MarkovSwitchingTests(unittest.TestCase):
                     model.last_state_posterior_, ref_terminal_posterior, atol=1e-12, rtol=0
                 )
                 self.assertAlmostEqual(model.log_likelihood_, ref_log_likelihood, places=10)
+
+    def test_transition_update_matches_dirichlet_pseudocount_formula(self):
+        for k in (2, 3):
+            counts = np.arange(1, k * k + 1, dtype=float).reshape(k, k)
+            for alpha in (2, 5):
+                actual = MarkovSwitchingLogitAdapter._transition_update(counts, alpha)
+                expected = (counts + alpha) / (
+                    counts.sum(axis=1, keepdims=True) + k * alpha
+                )
+                np.testing.assert_allclose(actual, expected, rtol=0, atol=1e-14)
+                np.testing.assert_allclose(actual.sum(axis=1), np.ones(k), atol=1e-14)
+
+    def test_transition_prior_contract_is_pinned_by_preregistration_v2(self):
+        root = Path(__file__).resolve().parents[1]
+        contract_path = root / "research/registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json"
+        prereg_path = root / "research/registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json"
+        contract_bytes = contract_path.read_bytes()
+        git_blob_sha = hashlib.sha1(
+            f"blob {len(contract_bytes)}\\0".encode("utf-8") + contract_bytes
+        ).hexdigest()
+        contract = json.loads(contract_bytes)
+        prereg = json.loads(prereg_path.read_text(encoding="utf-8"))
+        pinned = prereg["model_parameter_semantics_contracts"]["markov_switching_logit"]
+        self.assertEqual(prereg["schema_version"], "prediction-preregistration-v2")
+        self.assertEqual(pinned["path"], str(contract_path.relative_to(root)))
+        self.assertEqual(pinned["git_blob_sha"], git_blob_sha)
+        self.assertEqual(contract["schema_version"], "markov-switching-transition-prior-contract-v1")
+        self.assertEqual(contract["registered_parameters"]["transition_prior"]["allowed_values"], [2, 5])
+        self.assertEqual(contract["registered_parameters"]["n_regimes"]["allowed_values"], [2, 3])
+        self.assertIn("N_ij + alpha", contract["transition_update"]["estimator"])
+        self.assertFalse(contract["review_and_execution_gates"]["empirical_fitting_authorized"])
 
     def test_transition_prior_changes_transition_matrix(self):
         low = MarkovSwitchingLogitAdapter(
