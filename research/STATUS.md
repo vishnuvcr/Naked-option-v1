@@ -1,6 +1,6 @@
 ## Process correction — independent review is post-results only (2026-10-14)
 
-The user reiterated the agreed cadence. Per [`research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md`](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md), do not send intermediate code/protocol commits to the tester. Complete the frozen prediction protocol and data/label preflight, run developer-side regression and leakage/statistical checks, acquire and freeze the complete planned prediction results bundle, then create the formal `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with exact commit/artifact hashes. Only then is the consolidated tester review initiated. A stale preregistration clause requiring independent approval before fitting is contradictory and must be amended before fitting; the amendment must preserve rigorous frozen controls and holdout isolation. This process correction generated no empirical results.
+The user reiterated the agreed cadence. Per [`research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md`](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md), do not send intermediate code/protocol commits to the tester. Complete the frozen prediction protocol and data/label preflight, run developer-side regression and leakage/statistical checks, acquire and freeze the complete planned prediction results bundle, then create the formal `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with exact commit/artifact hashes. Only then is the consolidated tester review initiated. The controlling R3 preregistration already specifies post-results review; older V1/V2 wording is historical. The remaining fitting blockers are developer-side implementation/eligibility and execution gates. This process correction generated no empirical results.
 
 ---
 
@@ -1477,7 +1477,7 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Freeze all ten horizon labels; label maturity, flat-return tolerance, target-pair missingness limits, chronological fold dates/minimums, purge/embargo details, bootstrap block length/seed, and the multiplicity family definition.
 - Resolve legacy tester findings F1–F6 by proving end-to-end executor completeness, cryptographically pinned fit authorization/input contracts, strict chronological block ordering, exact OPTION/SPOT snapshot filtering, date-only daily feature mapping, and a schema/coverage-only preflight tied to exact source/label artifacts.
-- Regenerate/hash-pin the full horizon/configuration contract, run developer-side synthetic/integrity gates, then submit the frozen protocol and preflight for independent review. Do not fit empirical data before that PASS.
+- The ten-horizon R3 preregistration, fold rules and statistical settings are frozen. Continue developer-side implementation/eligibility, exact-source preflight, chronology/leakage regression, executor and result-accounting gates. Do not start fitting until those developer-side gates pass. After acquiring/finalizing the complete planned result bundle, issue one consolidated post-results tester request.
 
-**Developer → Tester:** review the next preregistration/data-preflight package before any real data fitting.  
-**Tester → Developer:** reject unresolved `NOT_FROZEN_BLOCKED` fields or unproven source/holdout conditions.
+**Developer → Tester (after results acquisition only):** audit the complete result bundle and exact hashes.  
+**Tester → Developer (after results publication):** report consolidated findings; no intermediate Phase 8P review.
