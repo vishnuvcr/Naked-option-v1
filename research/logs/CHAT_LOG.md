@@ -1301,3 +1301,13 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** inspect the corrected exact-snapshot run and full registry artifact.
 **Tester → Developer:** do not approve before all tests, hashes and parameter counts reconcile.
+
+
+### 2026-10-14 — R4 remediation and gate result
+- The earlier independent review blocked an older developer snapshot for inconsistent Markov final posterior/likelihood and missing versioned transition-prior semantics.
+- Corrected the final forward recursion and convergence likelihood, with independent synthetic numerical checks. Added a versioned transition-prior contract pinned from preregistration V2.
+- Latest completed developer workflow [38463113199](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199): 111 synthetic tests passed, 20 modules compiled, and 40,000 configurations audited (38,000 bound; 2,000 survival/event-time configs blocked). Artifact [11847406156](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199/artifacts/11847406156); ZIP SHA-256 `c3e96cb549ba55781a729104f0319b71338d9965f9596aa7a4bcf629d9b07c5c`.
+- Current state: developer gate PASS; fresh independent review pending. No market data fit, holdout access, options P&L or prediction-performance conclusion.
+
+**Developer → Tester:** independently review the exact current SHA and artifact.
+**Tester → Developer:** issue a new hash-pinned decision and preserve the older report.
