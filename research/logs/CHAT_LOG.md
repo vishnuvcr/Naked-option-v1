@@ -1285,3 +1285,13 @@ Current branch HEAD is `4c87f49f82a8c1e5d20f6a04c057ef91fd8a1e14`. The push-trig
 
 **Developer → Tester:** wait for post-results handoff only.  
 **Tester → Developer:** after publication, audit the full bundle and report reproducible findings.
+
+
+## 2026-10-14 — OOF calibration gate repaired and passed; tester remains deferred
+
+The first synthetic run [38468327357](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357) exposed a real shape mismatch: the logistic adapter returns a positive-class vector, but the OOF helper sliced it as a matrix. This failed run is preserved in the error log. The helper was corrected to accept either a one-dimensional probability vector or a two-column matrix, with strict shape validation.
+
+The corrected exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8` passed hosted workflow [38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354): 62 tests across 16 suites, compilation, and static no-market-data/no-holdout checks. The pinned gate report is [PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json](../gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json). No empirical fitting/results or holdout access occurred. No tester review was requested.
+
+**Developer → Tester:** wait for the post-results complete-bundle handoff only.  
+**Tester → Developer:** after results publication, independently audit all results and failure/null rows.
