@@ -1406,3 +1406,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Impact: no empirical data or fitting; synthetic gate only.
 
 - Correction evidence: hardened workflow [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed all 32 tests after the nearest-centroid fixes. No market-data fitting or holdout access.
+
+
+## 2026-10-13 — KNN density-ratio semantic correction
+- Category: methodology / estimator semantics
+- Component: `scripts/prediction_margin_distance_adapters_r3.py`
+- Source review found the first KNN implementation emitted smoothed neighbor posterior log-odds, which is not the same as a class-conditional density-ratio estimate when class counts are unequal.
+- Correction: estimate the score as log local weighted neighbor mass per class sample count, with a small pseudocount; added an imbalanced-class direction test. Workflow rerun pending.
+- No empirical data or fitting involved.
