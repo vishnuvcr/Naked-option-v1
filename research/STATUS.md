@@ -1363,3 +1363,5 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 synthetic tests, adding a deterministic one-hidden-layer MLP with dropout and weight decay. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
 - No market data or holdout access. HMM, Markov-switching logit, Bayesian dynamic logit, change-point and temporal convolution families remain; no empirical fitting is authorized.
+
+- Tester hardening: added a central finite-difference check of the MLP backpropagation gradients. Latest run [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests. Updated [family gate report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
