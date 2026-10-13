@@ -646,3 +646,9 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - **PASS — read-only integrity/accounting audit:** [workflow run 38418296924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924), [result report](research/gates/REGISTRY_AUDIT_RESULT_2026-10-13.md), [workflow artifact](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924/artifacts/11824953893).
 - Verified all 400 config shards / 40,000 configurations and all 40 compatibility shards / 1,000 methods, shard byte counts and SHA-256, canonical configuration digests, unique IDs, label counts, and 40 configs per method. Counts: 426 ALLOW_IN_PRINCIPLE, 574 BLOCK; zero empirically eligible.
 - No market data loaded, no model fit, no holdout access. Registry integrity is not prediction-performance evidence or fitting authorization.
+
+
+### Phase 8P R3 complete terminal accounting (2026-10-13)
+- **PASS — 320,000/320,000 unique config/fold rows:** [workflow run 38419789140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140), [compressed row artifact](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140/artifacts/11826731071), [result report](research/gates/PREDICTION_TERMINAL_ACCOUNTING_RESULT_R3_2026-10-13.md).
+- Statuses: 20,000 BLOCKED_DATA (five exact F01 label cells × 4,000 configurations) and 300,000 BLOCKED_GATE. No market-data load, model fit, or holdout access.
+- The executor establishes complete terminal accounting only. No predictive results exist; empirical fitting remains unauthorized pending independent review and per-family implementation/test approval.
