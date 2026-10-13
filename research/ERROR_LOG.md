@@ -1524,3 +1524,15 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** check the corrected full test run and confirm no output-shape normalization changes probability meaning.
 **Tester → Developer:** reject if vector/matrix handling changes class orientation, if any synthetic test fails, or if registry totals do not reconcile.
+
+
+## 2026-10-14 — Independent R4 code review blockers
+- Category: numerical consistency / preregistration.
+- Reviewed developer commit: `0e016b657a4f7f906b4fde3a20a515d7ce53f0e4`; evidence: R4 run [38462243181](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38462243181) and artifact [11845873140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38462243181/artifacts/11845873140).
+- T1: Markov forward log-likelihood/state posterior are computed before each M-step, but the post-M-step transition/logit parameters are stored and reused for predictions. At convergence the code breaks before refreshing the stored likelihood; otherwise final state output is still based on the previous parameter iterate. Required fix: recompute final forward recursion using the final stored parameters and add a test that recomputes/compares terminal posterior and likelihood exactly within numeric tolerance.
+- T2: transition_prior values 2/5 are now interpreted as symmetric Dirichlet pseudocounts per transition cell, but that meaning was not previously explicit in the frozen configuration/preregistration. Required fix: version and hash the semantic contract before empirical results, with formula, parameter meaning, and tests.
+- Decision: independent review **BLOCKED**, notwithstanding a green developer synthetic/registry gate. No empirical fitting or holdout use.
+- See [independent tester report](gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R4_2026-10-14.md).
+
+**Tester → Developer:** implement T1 and freeze T2; submit a new commit and passing hosted report.
+**Developer → Tester:** preserve this finding and independently re-check the resubmission.
