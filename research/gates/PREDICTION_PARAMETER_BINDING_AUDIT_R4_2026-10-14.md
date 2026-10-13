@@ -2,7 +2,7 @@
 
 Date: 2026-10-14  
 Branch: `phase-08-prediction-param-audit-developer`  
-Developer snapshot status: **CODE UPDATED; SYNTHETIC AND FULL-REGISTRY GATES NOT YET VERIFIED**
+Developer snapshot status: **R4 HOSTED SYNTHETIC/REGISTRY GATE PASSED; FRESH INDEPENDENT REVIEW PENDING**
 
 ## Purpose and restrictions
 
@@ -52,3 +52,20 @@ This file records the R4 intent and implementation in the developer branch. At t
 **Developer → Tester:** independently audit the frozen prior definition, forward/backward arithmetic, 2/3-regime posterior normalization, all 38,000 supported parameter bindings, and the exact 40,000-row registry result. Do not authorize empirical fitting on code-only evidence.
 
 **Tester → Developer:** return exact reproducible findings against the pinned commit and artifact hashes. Reject any mismatch; keep market data, holdout, option P&L and promotion blocked until all separate gates pass.
+
+
+## Developer remediation/resubmission checkpoint — 2026-10-14
+
+**Exact tested commit:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  
+**Hosted run:** [38463113199 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199)  
+**Artifact:** [11847406156](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199/artifacts/11847406156)  
+**Artifact ZIP SHA-256:** `c3e96cb549ba55781a729104f0319b71338d9965f9596aa7a4bcf629d9b07c5c`
+
+The updated run passed 111 synthetic tests, compiled 20 prediction modules, and reconciled 1,000 method records / 40,000 configurations (38,000 supported parameter bindings and 2,000 explicitly blocked survival/event-time configurations). Compatibility remains 426 `ALLOW_IN_PRINCIPLE`, 574 `BLOCK`; empirically eligible methods remain zero.
+
+T1 is corrected: convergence compares the post-M-step likelihood and a final forward pass recomputes the terminal posterior/log-likelihood from final stored parameters. A synthetic test independently reconstructs the recursion. T2 now has a versioned contract and preregistration amendment; this amendment remains proposed pending independent approval.
+
+**Current gate:** developer automation **PASS**; independent review of the new SHA **PENDING**. No market-data fitting, holdout access, options P&L, ranking, or strategy promotion is authorized. Other preregistration `NOT_FROZEN_BLOCKED` fields remain unresolved.
+
+**Developer → Tester:** review the exact SHA, numerical test, semantic contract pins and hosted artifact.  
+**Tester → Developer:** return a fresh decision without rewriting the historical BLOCKED report.
