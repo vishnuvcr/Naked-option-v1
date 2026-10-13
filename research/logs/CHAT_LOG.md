@@ -1259,3 +1259,11 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: checked the in-progress family workflow; it completed successfully. Added probit adapter synthetic tests to the combined family gate.
 - Evidence: [run 38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871).
 - Outcome: 13 synthetic tests passed across logistic, chronological calibration, and probit adapters. No market-data load, empirical fit, holdout access, or prediction-performance conclusion.
+
+
+### 2026-10-14 — User instruction and action
+- User: “Resume”
+- Action: resumed Phase 8P parameter-semantics remediation; added fail-closed configuration binding tests and implemented training-time inverted dropout for the temporal-convolution adapter with deterministic synthetic coverage.
+- Parameter-binding gate: [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed.
+- Temporal-convolution combined synthetic gate: [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) was running at the time of this log update; do not mark dropout remediation complete until it passes.
+- No market data fitting or holdout access.
