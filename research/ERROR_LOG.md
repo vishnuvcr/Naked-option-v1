@@ -1,3 +1,10 @@
+## 2026-10-14 — OOF endpoint-in-fold regression verification
+- Category: CI / regression verification
+- Component: `scripts/test_prediction_logistic_calibration_r3.py`, `scripts/prediction_logistic_calibration_r3.py`
+- Symptom: additional strict assertion was added to require every OOF validation target endpoint to remain inside its own fold.
+- Verification: [workflow #38468780406](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406) succeeded on `c98c4763df5b24988eb87ac881bab619df23d27d`; job `synthetic-family-tests` concluded success. The earlier vector/matrix adapter mismatch remains preserved in the preceding error entry and gate report.
+- Disposition: PASS for the synthetic code contract only. No empirical model fit or holdout access; this does not clear the registry/executor gate.
+
 # Error Log
 
 ## 2026-10-07 — Phase 6 Run 37668947725
