@@ -572,3 +572,6 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - Added the [deterministic R3 eligibility disposition builder](scripts/build_prediction_eligibility_manifest_r3.py), [synthetic tests](scripts/test_prediction_eligibility_manifest_r3.py), and [automatic/manual workflow](.github/workflows/phase-08p-eligibility-disposition-r3.yml).
 - Hosted run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666) passed the five synthetic rule tests; full 40,000-config shard reconciliation was still running at last check. The output manifest is **pending** until CI completes and the committed file is verified.
 - This gate is registry accounting only and cannot authorize empirical fitting. No market prediction result or strategy is claimed. See [status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
+
+
+- **Artifact persistence correction:** the first successful eligibility build generated the manifest in a temporary runner but did not preserve it. This was logged and corrected; [run 38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) must pass and the committed manifest must be re-read before this deliverable is considered complete. See [error log](research/ERROR_LOG.md).
