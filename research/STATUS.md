@@ -1159,3 +1159,12 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Workflow outcome: **PENDING hosted execution verification**. The commit itself is not treated as a passed test.
 - Important limitation: this is only the estimator adapter component. Inner-chronological OOF calibration, complete 40,000-config eligibility manifest, empirical runner, and separate scientific authorization remain incomplete. Empirical fitting remains **NOT AUTHORIZED**; holdout remains untouched.
 - Next bounded steps: verify hosted code-gate result; add and test chronological inner-OOF calibration; reconcile all config rows to explicit eligible/blocked dispositions; implement restartable, fold-purged development-only runner; benchmark runtime and run only the resulting approved manifest.
+
+
+## Phase 8P R3 — chronological calibration component added (2026-10-13)
+
+- Added `scripts/prediction_logistic_calibration_r3.py` with Platt calibration trained on explicitly supplied inner-OOF probabilities and a deterministic three-fold expanding chronological OOF utility with purge checks.
+- Added synthetic-only tests at `scripts/test_prediction_logistic_calibration_r3.py`; the automatic/manual workflow now runs both adapter and calibration tests.
+- Corrected the adapter test's expected log-loss constant. The four-observation reference is 0.2604634887; earlier incorrect fixture value is retained in the error log.
+- Hosted workflow outcome remains **UNVERIFIED** in this checkpoint. No empirical market data was loaded and no empirical prediction metrics were produced.
+- Important remaining gate: the OOF utility's caller must provide correctly ordered official session positions and prove label endpoints/purge semantics; this code is not yet a complete registry executor or authorization path. Full 40,000-config dispositions, outer-fold runner, runtime benchmark, empirical fitting authorization and results freeze remain pending.
