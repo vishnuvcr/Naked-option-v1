@@ -1,3 +1,12 @@
+## Phase 8P R3 — eligibility gate passed; execution remains next (2026-10-14)
+
+- Eligibility disposition workflow [#38471769553 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471769553) completed and uploaded artifact `11852526147` (SHA-256 `ac76327b23e9e9e159e60d1f184b4d776e15187bb947fc007c53a1c250e01259`).
+- Verified artifact counts: 40,000 unique configuration rows; 17,000 `BLOCKED_IMPLEMENTATION_NOT_READY`; 22,960 `BLOCKED_METHOD_COMPATIBILITY`; 40 `ELIGIBLE_PENDING_EXECUTOR_GATE`. No configuration is empirically authorized. Five positional fold/label cells are blocked for target-pair missingness above 1%; 75 cells remain eligible at the data-support level.
+- The eligibility gate first failed closed because its PM0001 implementation source pins were stale; source pins were refreshed only after the PM0001 synthetic suite passed. The failure is retained in `research/ERROR_LOG.md`.
+- Next developer task: build and test the data-backed execution precheck/runner against the canonical decrypted dataset, preserve blocked and failed config/fold rows, and do not access holdout. Passing registry or synthetic gates is not predictive-performance evidence.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
 ## Phase 8P R3 — eligibility disposition published (2026-10-14)
 
 - Workflow [38470897493 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) committed the complete disposition manifest at commit `b4acbccf`; file blob SHA-1 `1c6a228f071892bf27a76d0a459d9ce0c1469965`.
