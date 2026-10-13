@@ -58,3 +58,8 @@ Proceed only to method-family implementation and synthetic tests. Do not run emp
 - Addeditive spline logistic uses a train-only standardization and quantile-knot spline transform followed by regularized logistic regression. Synthetic tests passed for knot-count presets, probability bounds, train-only fitting and invalid support.
 - Expanded combined workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests across the current estimator set. See [family gate report](PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
 - Tester decision remains PASS for synthetic implementation mechanics only. The HMM, Markov-switching, Bayesian dynamic, change-point, temporal convolutional network and survival-first-passage families remain unresolved; no empirical fitting approval.
+
+
+## Shallow MLP family review
+- MLP implementation matches the registered shallow family parameters (hidden units, dropout and weight decay), uses training-only standardization, deterministic seeds and a bounded sigmoid probability output. Synthetic determinism and validation tests passed in [workflow 38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378).
+- Tester decision: PASS for synthetic contract only. The adapter's optimization dynamics still require independent numerical validation before any empirical fitting; this report does not authorize it.
