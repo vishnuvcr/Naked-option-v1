@@ -16,6 +16,7 @@ class TemporalConvolutionAdapter:
     learning_rate:float=0.01
     epochs:int=120
     l2:float=1e-3
+    dropout:float=0.0
     random_state:int=42
     mean_:np.ndarray|None=None
     scale_:np.ndarray|None=None
@@ -25,14 +26,18 @@ class TemporalConvolutionAdapter:
     head_bias_:float=0.0
     loss_history_:list|None=None
 
-    def _forward(self,x):
+    def _forward(self,x,dropout_mask=None):
         n,t,d=x.shape; k=self.kernel_size; c=self.channels
         out=np.zeros((n,t-k+1,c))
         for j in range(k):
             out[:,:t-k+1,:]+=np.einsum("ntd,dc->ntc",x[:,j:t-k+j+1,:],self.conv_weights_[j])
         out+=self.conv_bias_[None,None,:]
         act=np.maximum(out,0)
-        pooled=act.mean(axis=1)
+        if dropout_mask is None:
+            train_act=act
+        else:
+            train_act=act*dropout_mask/(1.0-self.dropout)
+        pooled=train_act.mean(axis=1)
         logits=pooled@self.head_weights_+self.head_bias_
         return expit(logits),out,act,pooled
 
@@ -43,7 +48,7 @@ class TemporalConvolutionAdapter:
         if not np.isfinite(x).all(): raise TemporalConvContractError("TRAINING_FEATURES_NONFINITE")
         if not np.isfinite(y).all() or not set(np.unique(y).tolist()).issubset({0.0,1.0}): raise TemporalConvContractError("TRAINING_LABELS_INVALID")
         if set(np.unique(y).tolist())!={0.0,1.0}: raise TemporalConvContractError("TRAINING_REQUIRES_BOTH_CLASSES")
-        if self.channels<1 or self.kernel_size<1 or self.epochs<1 or self.learning_rate<=0 or self.l2<0: raise TemporalConvContractError("MODEL_PARAMETER_INVALID")
+        if self.channels<1 or self.kernel_size<1 or self.epochs<1 or self.learning_rate<=0 or self.l2<0 or not np.isfinite(self.dropout) or not 0<=self.dropout<1: raise TemporalConvContractError("MODEL_PARAMETER_INVALID")
         self.mean_=x.mean(axis=(0,1)); self.scale_=x.std(axis=(0,1)); self.scale_[self.scale_==0]=1.0
         z=(x-self.mean_[None,None,:])/self.scale_[None,None,:]
         rng=np.random.default_rng(self.random_state); d=x.shape[2]; c=self.channels; k=self.kernel_size
@@ -52,13 +57,15 @@ class TemporalConvolutionAdapter:
         params=[self.conv_weights_,self.conv_bias_,self.head_weights_,np.array([self.head_bias_])]
         m=[np.zeros_like(p) for p in params]; v=[np.zeros_like(p) for p in params]; self.loss_history_=[]
         for epoch in range(1,self.epochs+1):
-            p,pre,act,pooled=self._forward(z); p=np.clip(p,1e-8,1-1e-8)
+            dropout_mask = None if self.dropout==0 else rng.binomial(1,1.0-self.dropout,size=(z.shape[0],z.shape[1]-k+1,c)).astype(float)
+            p,pre,act,pooled=self._forward(z,dropout_mask); p=np.clip(p,1e-8,1-1e-8)
             loss=-np.mean(y*np.log(p)+(1-y)*np.log(1-p))+.5*self.l2*(np.sum(self.conv_weights_**2)+np.sum(self.head_weights_**2))
             self.loss_history_.append(float(loss))
             dl=(p-y)/len(y)
             gh=pooled.T@dl+self.l2*self.head_weights_; gb=np.array([dl.sum()])
             gpool=dl[:,None]*self.head_weights_[None,:]
             gact=np.broadcast_to(gpool[:,None,:]/act.shape[1],act.shape)*(pre>0)
+            if dropout_mask is not None: gact*=dropout_mask/(1.0-self.dropout)
             gw=np.zeros_like(self.conv_weights_)
             for j in range(k):
                 gw[j]=np.einsum("ntd,ntc->dc",z[:,j:z.shape[1]-k+j+1,:],gact)
