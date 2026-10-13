@@ -6,6 +6,6 @@ test_r2_artifacts_are_not_overwritten (test_prediction_horizon_registry_r3.Predi
 test_ten_frozen_labels_and_horizon_specific_purge_embargo (test_prediction_horizon_registry_r3.PredictionHorizonRegistryR3Tests.test_ten_frozen_labels_and_horizon_specific_purge_embargo) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 2.327s
+Ran 6 tests in 2.176s
 
 OK
