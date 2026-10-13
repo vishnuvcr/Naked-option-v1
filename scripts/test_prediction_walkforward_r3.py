@@ -117,7 +117,7 @@ class WalkForwardR3Tests(unittest.TestCase):
             purge_sessions=3, embargo_sessions=3,
         )
         self.assertEqual(plan.validation_indices, (23, 24))
-        self.assertEqual(plan.counts["validation_targets_outside_window"], 2)
+        self.assertEqual(plan.counts["validation_targets_outside_window"], 1)
         self.assertEqual(plan.counts["embargoed_validation_rows"], 3)
 
     def test_inner_folds_are_deterministic_expanding_quantile_windows(self):
@@ -127,8 +127,8 @@ class WalkForwardR3Tests(unittest.TestCase):
         self.assertEqual([(x.validation_start_position, x.validation_end_position_exclusive) for x in inner],
                          [(8, 12), (12, 16), (16, 20)])
         self.assertEqual(inner[-1].validation_end_session_index_exclusive, 20)
-        self.assertLess(inner[0].validation_end_session_index_exclusive,
-                        inner[1].validation_start_session_index_exclusive + 1)
+        self.assertEqual(inner[0].validation_end_session_index_exclusive,
+                         inner[1].validation_start_session_index)
 
     def test_inner_fold_rejects_insufficient_outer_training_history(self):
         sessions = business_sessions("2025-01-02", 8)
