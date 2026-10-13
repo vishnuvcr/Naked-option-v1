@@ -1177,3 +1177,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Root cause: a generated 40,000-config registry and passed data preflight do not by themselves establish method eligibility or authorize fitting; the execution/eligibility contract has not been reconciled end-to-end.
 - Correction/next step: build an exact 40,000-row disposition manifest; preserve compatibility and sample-support blocks; pin an authorized executor only after registry eligibility is evidence-backed; add count-conservation, fail-closed, restart and no-holdout regression tests.
 - Prevention: prohibit any empirical job unless the run proves exact registry/config hashes, explicit authorization, eligible-only fitting, complete status accounting and holdout exclusion.
+
+
+## 2026-10-13 — Phase 8P R3 logistic adapter implementation checkpoint
+- Category: implementation/test-fixture correction
+- Component: `scripts/test_prediction_logistic_adapter_r3.py`
+- Symptom: initial expected binary log-loss constant did not match the fixture probabilities.
+- Correction: recomputed the reference directly from the four observations; expected mean log loss is 0.2604634887 (not the initially entered value). The fixture was corrected before treating any test as passed.
+- Impact: no market data opened and no empirical fitting performed.
+- Prevention: independently calculate metric fixtures and compare against the library reference; hosted tests still must pass before this code gate can be accepted.
+- Current status: synthetic test workflow result is pending verification; no scientific result is claimed.
