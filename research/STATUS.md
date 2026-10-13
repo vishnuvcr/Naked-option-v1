@@ -1,3 +1,17 @@
+## Latest status checkpoint — OOF maturity gate correction (2026-10-14)
+
+- User authorized continuation. Research remains prediction-only; the independent tester is **deferred until the complete results bundle is acquired, frozen and hash-pinned** per [review cadence policy](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md). No intermediate tester request was made.
+- Correctness gap found in `scripts/prediction_logistic_calibration_r3.py`: inner chronological OOF calibration accepted only decision-session indices, so it could not prove each training target had matured before the validation boundary, and it did not remove the initial embargo sessions or exclude OOF targets ending beyond their validation fold.
+- Fixed by requiring explicit target-endpoint session indices, rejecting endpoints before decisions and non-chronological inputs, restricting training to mature targets strictly before the validation boundary, applying the frozen purge and validation embargo, and requiring each OOF validation target endpoint to remain inside its fold.
+- Added synthetic regressions for endpoint-maturity enforcement, missing endpoint metadata and endpoint-before-decision rejection. Updated `.github/workflows/phase-08p-r3-logistic-family-synthetic.yml` so its push/manual workflow runs this test module and compiles the calibration module.
+- Exact current developer HEAD at this checkpoint: `4c87f49f82a8c1e5d20f6a04c057ef91fd8a1e14`. The workflow is configured to run automatically on the push; hosted run status has not yet been independently verified in this checkpoint. Treat the correction as **pending CI verification**, not a passed gate.
+- This is a code-contract correction only: no empirical model fit, no performance metrics, no strategy selection and no holdout access. The wider R3 blockers remain: no methods yet authorized for empirical fitting and the executor must still enforce all data/fold/eligibility gates before a model run.
+
+**Developer → Tester (only after result acquisition):** wait for the complete frozen results bundle and formal review request.  
+**Tester → Developer (after results publication):** conduct one consolidated, hash-pinned audit of source, protocol, all outputs and null/failure rows.
+
+---
+
 # Research Status
 
 ## Phase 8P R3 — chronological split/schema synthetic gate passed (2026-10-13)
