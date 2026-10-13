@@ -1475,3 +1475,17 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the next preregistration/data-preflight package before any real data fitting.  
 **Tester → Developer:** reject unresolved `NOT_FROZEN_BLOCKED` fields or unproven source/holdout conditions.
+
+## Phase 8P R4 protocol/data-preflight bridge — static gate pending (2026-10-14)
+
+- Branch: [`phase-08-prediction-prereg-freeze-developer`](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-prereg-freeze-developer).
+- Bridge: [protocol separation and finite steps](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-prereg-freeze-developer/research/governance/PHASE8P_PREREGISTRATION_AND_DATA_PREFLIGHT_BRIDGE_R4_2026-10-14.md).
+- Machine gate: [R4 gate specification](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-prereg-freeze-developer/research/gates/PHASE8P_PREREG_FREEZE_GATE_R4_2026-10-14.json).
+- Automatic/manual synthetic workflow: [phase8p-prereg-freeze-code-gate.yml](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-prereg-freeze-developer/.github/workflows/phase8p-prereg-freeze-code-gate.yml).
+- **Protocol separation:** Greek study = 20 comparisons, paired Brier, 500 bootstrap repetitions, seed 42, Holm; main registry = 1,000 methods / 40,000 configurations, log-loss, 10,000 repetitions, seed 2026101209, BY. The Markov prior contract belongs only to the main registry.
+- Existing main-registry data preflight still has a null preregistration blob pin and scoped sample-eligibility blocks. It is not global fit authorization.
+- This gate runs synthetic/source/hash checks only. It does not download real artifacts, fit models, score predictions, open the holdout or calculate options P&L.
+- Current status: **pending hosted run and independent code-only review**. Schema/coverage preflight remains unauthorized until the exact commit passes independent review.
+
+**Developer → Tester:** review F1–F6, exact source hashes and protocol separation after the hosted gate completes.  
+**Tester → Developer:** issue a hash-pinned code-only decision or exact corrections; no real artifact opening before PASS.
