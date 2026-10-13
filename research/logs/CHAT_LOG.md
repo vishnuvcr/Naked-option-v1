@@ -1,3 +1,17 @@
+## 2026-10-14 — PM0001 implementation correction
+
+### Developer action
+The PM0001 component initially fitted once per outer fold, which conflicted with the frozen configuration's `refit_cadence=every_20_trading_sessions`. This was logged as a protocol-compliance defect. The executor now refits every 20 exchange sessions, recalculates train-only scaling and chronological OOF calibration at each cutoff, requires all training targets to have matured, and applies purge at each refit.
+
+### Verification
+[Workflow #38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed five synthetic tests. The implementation gate report was refreshed with exact source pins. A stale-pin failure in eligibility workflow #38470621746 is preserved in the error log.
+
+No empirical model fit, performance result, or holdout access occurred. The next gate is full eligibility disposition, then a data-backed execution workflow. Tester review remains post-results only.
+
+**Developer → Tester:** wait for complete frozen results only.
+
+---
+
 ## 2026-10-14 — Standing permission and OOF gate verification
 
 ### User instruction
