@@ -1327,3 +1327,8 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Synthetic-only tests. No market data or holdout access; no empirical fitting authorization. Next families: LDA/QDA, elastic-net logistic, then tree ensembles.
 
 - Numerical review extension: [workflow 38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 tests, including a central finite-difference check of the probit likelihood gradient. Updated report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+
+## Phase 8P R3 — LDA/QDA classical adapter gate passed (2026-10-13)
+
+- Latest workflow [38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed 19 synthetic tests across logistic, chronological calibration, probit, LDA and QDA. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market data or holdout access; no empirical fitting authorization. Next: elastic-net logistic and tree-based estimators.
