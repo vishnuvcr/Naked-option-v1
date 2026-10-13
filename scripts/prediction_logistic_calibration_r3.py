@@ -104,7 +104,15 @@ def chronological_inner_oof(estimator_factory, x, y, session_positions, purge_se
             raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_TRAINING_CLASS_SUPPORT_FAILED")
         model = estimator_factory()
         model.fit(x[tr], y[tr].astype(int))
-        prob = model.predict_proba(x[va])[:, 1]
+        raw_prob = np.asarray(model.predict_proba(x[va]), dtype=float)
+        if raw_prob.ndim == 1:
+            prob = raw_prob
+        elif raw_prob.ndim == 2 and raw_prob.shape[1] == 2:
+            prob = raw_prob[:, 1]
+        else:
+            raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PROBABILITY_SHAPE_INVALID")
+        if prob.ndim != 1 or len(prob) != len(va):
+            raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PROBABILITY_SHAPE_INVALID")
         if not np.isfinite(prob).all() or np.any((prob < 0) | (prob > 1)):
             raise CalibrationContractError(f"INNER_OOF_FOLD_{fold}_PROBABILITY_INVALID")
         outputs.append({"fold": fold, "train_indices": tr, "validation_indices": va,
