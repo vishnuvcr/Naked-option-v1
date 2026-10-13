@@ -1,0 +1,50 @@
+name: Phase 8P R3 eligibility disposition registry gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/build_prediction_eligibility_manifest_r3.py"
+      - "scripts/test_prediction_eligibility_manifest_r3.py"
+      - "research/registry/config_shards_r3/**"
+      - "research/registry/compatibility_shards/**"
+      - "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-eligibility-disposition-r3.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  registry-disposition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test disposition rules using synthetic fixtures
+        working-directory: scripts
+        run: python -m unittest test_prediction_eligibility_manifest_r3.py -v
+      - name: Build and verify all 40,000 registry dispositions
+        run: python scripts/build_prediction_eligibility_manifest_r3.py
+      - name: Verify output accounting and fail-closed state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json")
+          d = json.loads(p.read_text())
+          assert d["record_count"] == 40000
+          assert d["unique_config_count"] == 40000
+          assert d["empirical_fit_authorized"] is False
+          assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 0
+          assert sum(d["disposition_counts"].values()) == 40000
+          print("PASS: 40,000 unique configurations accounted for; no empirical fitting authorized")
+          PY
