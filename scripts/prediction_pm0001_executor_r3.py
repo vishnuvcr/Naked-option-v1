@@ -184,6 +184,37 @@ def fit_pm0001_outer_fold(
 
     first_cutoff = validation_start_session
     last_cutoff = validation_end_session_exclusive
+    # Preflight every refit cutoff before fitting the first estimator. If a later
+    # cutoff lacks support, the entire config/fold is blocked without partial fitting.
+    for block_start in range(first_cutoff, last_cutoff, refit_cadence_sessions):
+        block_end = min(block_start + refit_cadence_sessions, last_cutoff)
+        train_mask = (decision < block_start - purge_sessions) & (endpoint < block_start)
+        block_mask = (
+            (decision >= block_start) & (decision < block_end)
+            & (endpoint < validation_end_session_exclusive) & (endpoint >= decision)
+        )
+        if block_start == validation_start_session:
+            block_mask &= decision >= validation_start_session + embargo_sessions
+        train_idx = np.flatnonzero(train_mask)
+        block_idx = np.flatnonzero(block_mask)
+        if not len(block_idx):
+            continue
+        if len(train_idx) < min_outer_train_rows:
+            raise PM0001ExecutionError(f"REFIT_{block_start}_OUTER_TRAIN_ROW_MINIMUM_FAILED")
+        _require_class_support(labels, train_idx, min_outer_train_class_support,
+                              f"REFIT_{block_start}_OUTER_TRAIN_CLASS_SUPPORT_FAILED")
+        if np.any(endpoint[train_idx] >= block_start):
+            raise PM0001ExecutionError(f"REFIT_{block_start}_TRAIN_TARGET_NOT_MATURE")
+        if np.any(decision[train_idx] >= block_start - purge_sessions):
+            raise PM0001ExecutionError(f"REFIT_{block_start}_PURGE_FAILED")
+        _precheck_inner_oof_support(
+            labels[train_idx], decision[train_idx], endpoint[train_idx],
+            purge_sessions=purge_sessions, embargo_sessions=embargo_sessions,
+            min_train_rows=min_inner_train_rows,
+            min_validation_rows=min_inner_validation_rows,
+            min_class_support_each=min_inner_class_support,
+        )
+
     for block_start in range(first_cutoff, last_cutoff, refit_cadence_sessions):
         block_end = min(block_start + refit_cadence_sessions, last_cutoff)
         train_mask = (
