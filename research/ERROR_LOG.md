@@ -1196,3 +1196,12 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: explicitly replaced the exact source token `.2899092476` with `.2604634887`, independently calculated as the mean of `[-ln(0.9), -ln(0.8), -ln(0.7), -ln(0.7)]`.
 - Prevention: verify the persisted repository file after each source edit; do not infer that a successful API response means the intended text changed.
 - Status: persisted correction confirmed by a new blob SHA; hosted tests remain unverified.
+
+
+## 2026-10-13 — Phase 8P chronological calibration code gate
+- Category: implementation/governance limitation
+- Component: `scripts/prediction_chronological_calibration_r3.py`
+- Finding: the calibrator can validate chronological ordering of supplied inner-OOF predictions but cannot independently prove that their source predictions were generated with correct chronological folds, purge/embargo, or without upstream leakage.
+- Impact: it is not a standalone empirical authorization mechanism and must not be used until the runner emits a verifiable OOF provenance manifest.
+- Mitigation: keep the runner and fit gate separate; require fold-source hashes, training/validation time ranges, purge/embargo assertions and no holdout rows in the future provenance manifest.
+- Status: workflow run 38394817761 queued/pending; no test pass or empirical result asserted.
