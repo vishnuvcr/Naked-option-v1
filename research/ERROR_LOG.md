@@ -1285,3 +1285,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: removed the literal backslash before the GitHub commit SHA expression and committed the workflow fix at [b8b1eb2c0eaecde206789968f7585f496f9f6e95](https://github.com/vishnuvcr/Naked-option-v1/commit/b8b1eb2c0eaecde206789968f7585f496f9f6e95).
 - Next verification: hosted rerun [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791); do not accept any manifest until job conclusions and exact committed output are checked.
 - Disposition: workflow-only failure; no tests, market data fit, metric or holdout operation occurred.
+
+
+## 2026-10-13 — R3 fold-scoped manifest persistence failed after passing tests
+
+- Category: workflow artifact persistence / Git working-tree state.
+- Workflow run: [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791), source commit b8b1eb2c0eaecde206789968f7585f496f9f6e95.
+- Observed: all eight fold-scope synthetic tests passed; the full builder passed its 40,000-record/source-hash accounting; the explicit fold-level assertions passed (75 supported cells, 5 blocked cells all in positional F01, zero empirically eligible configurations). The persistence step then failed at git pull --rebase because the newly generated JSON was already a modified tracked file.
+- Root cause: manifest generation modified the tracked output before the workflow synchronized the branch with commits that arrived during execution.
+- Correction: stash the generated tracked manifest before rebase, then restore the exact built bytes, stage/commit/push the manifest and upload its artifact. Fix committed at [344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54).
+- Disposition: no manifest from this failed persistence run is accepted as the final corrected artifact. No empirical model was fit; holdout remains untouched.
