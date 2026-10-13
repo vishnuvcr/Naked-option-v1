@@ -872,3 +872,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Extended the adapter mapping audit to enumerate exact parameter keys and values across all 40,000 configurations. Hosted run [38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442) passed registry accounting.
 - Parameter-level review found blockers: Bayesian drift alias; Markov-switching n_regimes/transition_prior mismatch; temporal-convolution dropout missing; HMM covariance assumption needs a frozen-value assertion. Full report: [PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md](../gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
 - No market-data fit, no holdout access, and no empirical method is authorized.
+
+
+## 2026-10-13 — Probit adapter synthetic gate
+- Added `scripts/prediction_probit_adapter_r3.py` and tests `scripts/test_prediction_probit_adapter_r3.py`; extended the hosted synthetic workflow.
+- Run [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 5 logistic tests, 4 chronological calibration tests, and 4 probit tests. No market data/holdout access and no empirical performance conclusions.
