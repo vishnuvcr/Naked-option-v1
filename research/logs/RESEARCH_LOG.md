@@ -843,3 +843,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-13 — Expanded estimator family synthetic gate
 - Added additive spline logistic regression and expanded the combined family workflow. [Run 38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 tests covering logistic, probit, LDA/QDA, elastic-net logistic, tree ensembles, SVM, nearest centroid, KNN density ratio, additive spline logistic and chronological calibration.
 - Result: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Synthetic only; no market data or holdout access.
+
+
+## 2026-10-13 — Shallow MLP adapter
+- Added a deterministic one-hidden-layer NumPy MLP with dropout, Adam updates, and weight decay matching registered family parameters; added synthetic tests for probability bounds, determinism and fail-closed validation.
+- Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 tests across the current family suite. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+- No market data, empirical fitting or holdout access.
