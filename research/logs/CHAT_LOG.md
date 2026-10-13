@@ -1154,3 +1154,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: added fail-closed terminal accounting for the full registered prediction grid and strengthened validation to inspect every compressed result row.
 - Evidence: [run 38419789140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140) produced full coverage; row-level schema gate [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed all 320,000 rows. See [terminal accounting report](../gates/PREDICTION_TERMINAL_ACCOUNTING_RESULT_R3_2026-10-13.md).
 - Outcome: 20,000 BLOCKED_DATA, 300,000 BLOCKED_GATE; no model fitting, market data load, or holdout access. Next work must remain pre-fit until independent review and method-family implementation/authorization gates pass.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: completed full terminal-row accounting, hardened preflight provenance checks, and ran the logistic/calibration synthetic family gate.
+- Evidence: [terminal accounting run 38420286467](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467); [logistic synthetic run 38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917).
+- Outcome: accounting PASS; logistic adapter synthetic tests PASS. No empirical model fit, market-data load, holdout access, or predictive result.
