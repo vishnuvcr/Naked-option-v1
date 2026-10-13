@@ -1129,3 +1129,22 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: added `validation_sample_rules()` to validate the preregistration section and missingness limit, then call it before per-label fold checks.
 - Regression coverage: added tests for valid threshold extraction, absent sample rules, non-numeric values, non-finite values, and out-of-range limits in `scripts/test_preflight_prediction_dataset_r3.py`.
 - Prevention: frozen protocol configuration must be loaded and validated before any derived threshold is read. Run the complete preflight workflow on the corrected commit before treating data as eligible.
+
+
+## 2026-10-13 — R3 calendar data gate blocked; source corrections applied
+- Category: data quality / calendar provenance.
+- Preflight run `38378315901` on commit `32e653f1a5de092ddcf8b3fd33ca96ca565cb51c` verified the archive, all 61 encrypted part hashes/sizes, canonical decoded CSV hash, 8,999,865 rows and 47-column schema, but label data eligibility remained BLOCKED.
+- Findings: 44,710 SPOT rows outside frozen regular hours; rows on closed/unmapped dates; 12 invalid spot closes; four apparent missing sessions.
+- Calendar root cause: Bakri Id changed from 28 to 29 June 2023 (NSE/CMTR/57285); later NSE notices made 22-Jan-2024, 20-May-2024 and 20-Nov-2024 trading holidays (CMTR/60338, 61518, 64960); NSE declared live regular-hours trading on Sunday 1-Feb-2026 for the Union Budget (CMTR/72349).
+- Correction: source calendar, builder and calendar tests now carry provenance-bearing overrides. Frozen R3 preprocessing policy quarantines closed/unmapped, nonstandard, out-of-hours, non-minute and invalid-price rows from predictor and endpoint use; source bytes remain unchanged, no fill/interpolation. Exact target-pair missingness and fold support remain hard gates. No model fitting or holdout access occurred.
+
+## 2026-10-13 — Standalone R3 workflow missing checkout token
+- Category: workflow/infrastructure.
+- Run `38380632984` failed before checkout because standalone `actions/checkout@v4` required missing secret `GH_TOKEN`. No registry steps ran; this was non-evidence.
+- Correction: standalone registry workflow now is manual-dispatch-only and uses `secrets.GITHUB_TOKEN`. Automatic build and test orchestration remains in established `prediction-registry-shard-tests.yml`, verified by run `38380784159` PASS.
+
+## 2026-10-13 — Preflight Git blob pin guard encoded wrong terminator
+- Category: hash/integrity guard.
+- Run `38380784184` passed preflight helper unit tests then failed closed before the 231 MB data download because both calendar and preprocessing-policy source pins appeared stale.
+- Root cause: guard hash input used a literal backslash-zero rather than the Git blob header's NUL byte.
+- Correction: commit `cc27db19b81a67cfc187ba726455a4ec2f18352c` uses an explicit zero byte `bytes([0])` in the hash helper and early workflow guard. Run `38380908366` is active; its complete data diagnostics must be verified before any empirical fit.

@@ -2,12 +2,11 @@
 
 ## Full-horizon R3 registry — developer execution (2026-10-13)
 
-- The deterministic R3 registry build completed with exit code 0: 1,000 methods × 40 configurations = 40,000 configurations across all ten frozen horizons, in 400 config shards (100 each). Each horizon has 4,000 configurations.
-- Developer regression coverage passed 6/6 tests. NSE session-calendar generation/tests also passed 7/7; source and generated-calendar hashes are pinned in the build report.
-- R2's legacy per-record config_sha256 differs from the canonical configuration-object SHA-256 in a verified sample. R2 shard file hashes/counts/ID ranges remain the declared integrity checks; R3 preserves the legacy field and emits new canonical hashes.
-- The active next gate is encrypted artifact/source verification, temporary decryption, and aggregate-only data preflight. A preflight runtime defect involving validation-threshold initialization was found in code review, fixed, and covered by regression tests in commit 4690bd1ffd99839a17fe126ff403abe6d90ca4af.
-- The data-preflight workflow is being restarted on the corrected source; data eligibility remains unverified until its final diagnostic is present and passes.
-- Tester review remains deferred until results acquisition under the current user instruction.
+- Established registry CI run [38380784159](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380784159) passed: calendar generation/tests, R3 full-horizon build and provenance checks, R2 pilot preservation, shard audit and statistical/synthetic regression jobs. R3 covers 1,000 methods × 40 configs = 40,000 configs (4,000 per horizon; 400 shards).
+- Calendar corrections now carry citations to NSE/CMTR/57285, 60338, 61518, 64960 and 72349. The [frozen preprocessing amendment](governance/PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13.md) and [machine-readable rules](../research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json) define deterministic, disjoint quarantine rules without modifying source data.
+- Earlier preflight verified the encrypted archive and all 61 part hashes, plus the canonical decoded CSV hash, 8,999,865 rows and 47 columns. It remained BLOCKED by stale calendar rules, 44,710 off-session SPOT rows, and 12 invalid spot prices.
+- Preflight run [38380784184](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380784184) failed closed before downloading data because the Git blob source-pin guard encoded the header terminator incorrectly. The corrected guard is committed in `cc27db19b81a67cfc187ba726455a4ec2f18352c`; rerun [38380908366](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380908366) is active/pending verification.
+- Empirical fitting remains blocked until a corrected aggregate preflight proves exact target-pair coverage and every validation fold meets the frozen row/directional-class minima. No model fit, holdout access or strategy selection occurred. Tester review remains post-results-only.
 
 
 ## Active research-control policy — 2026-10-13
@@ -39,12 +38,12 @@
 | Phase 6 Novel methods | **PASSED WITH SCOPED RESTRICTIONS** | Run #581 immutable artifact independently accepted; no method promoted |
 | Phase 7 Ensemble/regime | **PASSED WITH SCOPED RESTRICTIONS** | Run #654 immutable artifact independently audited; no candidate promoted |
 | Phase 8 Long-option execution | COMPLETED OHLC PROXY RUN — TESTER REVIEW PENDING | 4,800 frozen configs; four cost scenarios; Q1 proxy, not executable quote P&L |
-| Phase 8P Prediction research | R3 registry build and developer regression PASS; encrypted data preflight RUNNING/PENDING | 40,000 configurations across ten horizons; 6/6 R3 regression tests and 7/7 calendar tests passed. Data eligibility and empirical prediction execution remain blocked until the pinned artifact and label-support preflight pass. Tester review deferred until complete result acquisition. |
+| Phase 8P Prediction research | R3 registry PASS; corrected data preflight RUNNING/PENDING | 40,000 configurations across ten horizons; 6/6 R3 regression tests and 7/7 calendar tests passed. Data eligibility and empirical prediction execution remain blocked until the pinned artifact and label-support preflight pass. Tester review deferred until complete result acquisition. |
 | Phase 9 Robustness/statistics | BLOCKED | CPCV/DSR/PBO gate |
 | Phase 10 Fresh-forward | BLOCKED | untouched-forward gate |
 | Phase 11 Manuscript/final conclusion | BLOCKED | final tester sign-off |
 
-Last updated: 2026-10-13 (R3 registry tests passed; data preflight next; tester review deferred until result acquisition)
+Last updated: 2026-10-13 (R3 registry CI passed; data preflight rerun pending; tester review deferred until result acquisition)
 
 ## Phase 5 current state
 

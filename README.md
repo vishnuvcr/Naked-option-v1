@@ -1,8 +1,9 @@
 ## Full-horizon R3 registry — developer execution (2026-10-13)
 
-- Verified hosted R3 build and test diagnostics are committed: 1,000 methods × 40 configurations = 40,000 configs across all ten horizons; 400 config shards; each horizon has 4,000 configs.
-- Regression tests passed 6/6 and NSE-session-calendar tests passed 7/7. This is registry/integrity evidence only, not model performance.
-- Next: validate the pinned encrypted data artifact, securely decrypt only in runner temporary storage, and complete aggregate data preflight. Empirical fitting remains blocked pending a passed data gate; tester review remains deferred until complete result acquisition.
+- Established registry CI run [38380784159](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380784159) passed: ten-horizon R3 registry build, calendar tests, registry/provenance tests, R2 preservation, shard integrity, and statistical/synthetic regressions. The registry has 40,000 configurations, 4,000 per each of the ten horizons.
+- The official-session calendar includes later NSE corrections for the June 2023 Bakri Id date, three 2024 full trading holidays, and the live regular-hours 1-Feb-2026 Budget session. See [pre-results preprocessing amendment](research/governance/PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13.md) and [machine-readable quarantine rules](research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json).
+- The prior full data preflight verified the encrypted artifact and all 61 parts, as well as the canonical decoded CSV hash, but the data-quality gate was blocked by calendar and row-eligibility issues. The frozen preprocessing policy preserves raw data unchanged, quarantines ineligible spot observations, and forbids filling or interpolation.
+- Corrected data-preflight run [38380908366](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380908366) is currently running. Empirical fitting remains blocked until exact target-pair missingness and all fold-level row/class support checks pass. No empirical method ranking or strategy is claimed. Tester review remains post-results-only.
 
 ---
 ## Research control update — 2026-10-13

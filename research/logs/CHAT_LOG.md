@@ -968,3 +968,14 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 
 - Workflow concurrency note (2026-10-13): the first data-preflight workflow push used the previous preflight script before the just-found sample-rule defect was corrected. Updated the workflow to cancel a stale in-progress preflight when a newer watched source commit arrives, preventing an obsolete revision from consuming the full two-hour job slot. The corrected run must still be judged only by its pinned head SHA and committed aggregate diagnostic.
+
+
+## 2026-10-13 — Continue: calendar reconciliation, preprocessing policy and rerun
+- User instruction: “Ok proceed”. Developer verified full-horizon registry CI, source pins and previous aggregate-only data preflight before editing.
+- Added later official calendar corrections: NSE/CMTR/57285 (2023 Bakri Id shift), 60338 (22-Jan-2024), 61518 (20-May-2024), 64960 (20-Nov-2024), and 72349 (live regular-hours session on 1-Feb-2026). Calendar builder/tests now require explicit source-linked correction metadata.
+- Added a pre-results policy for disjoint quarantine of closed/unmapped dates, nonstandard sessions, rows outside 09:15–15:30, non-minute timestamps and invalid/nonpositive spot closes. Original data remain unchanged; no interpolation/forward-filling. Exact target endpoints, the frozen missing-pair cap and fold support minima remain hard requirements. Positional horizon counts only the contiguous prediction-eligible session index.
+- Established R3 registry run 38380784159 passed. Standalone workflow attempt 38380632984 exposed missing GH_TOKEN; corrected to GITHUB_TOKEN and manual-only, leaving established workflow as automatic builder. Preflight run 38380784184 revealed a wrong NUL-byte in the Git blob hash guard; fixed in commit cc27db19b81a67cfc187ba726455a4ec2f18352c. Corrected run 38380908366 is active/pending.
+- No empirical prediction metric or strategy is claimed. Tester review remains deferred until all planned results are acquired, frozen and hash-pinned.
+
+**Developer → Tester (post-results only):** wait for the complete result bundle, exact source commit and all artifact hashes.
+**Tester → Developer:** after acquisition, perform one consolidated independent audit of source/labels, formulae, leakage, failures/nulls, multiplicity, costs and conclusions, then return a reproducible hash-pinned decision.
