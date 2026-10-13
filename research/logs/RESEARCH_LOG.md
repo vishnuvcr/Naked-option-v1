@@ -824,3 +824,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added train-only standardized elastic-net logistic adapter with deterministic saga solver settings and synthetic tests for endpoint ratios, parameter rejection, class support and probability bounds.
 - Workflow [38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 tests across the current classical adapter suite. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - No market data or holdout access.
+
+
+## 2026-10-13 — Tree ensemble adapters
+- Added deterministic random forest, Extra Trees, gradient boosting and histogram gradient boosting adapters with synthetic tests for probability bounds, deterministic seeds, invalid support/parameters and nonfinite features.
+- Workflow [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 tests across the current adapter suite. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market-data fitting or holdout access.
