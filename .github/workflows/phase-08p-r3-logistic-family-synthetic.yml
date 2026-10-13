@@ -19,6 +19,7 @@ on:
       - "scripts/prediction_bayesian_dynamic_logit_r3.py"
       - "scripts/test_prediction_bayesian_dynamic_logit_r3.py"
       - "scripts/prediction_change_point_adapter_r3.py"
+      - "scripts/test_prediction_change_point_adapter_r3.py"
       - "scripts/prediction_temporal_convolution_adapter_r3.py"
       - "scripts/test_prediction_temporal_convolution_adapter_r3.py"
       - "scripts/prediction_discriminant_adapters_r3.py"
@@ -65,6 +66,7 @@ jobs:
           python -m unittest discover -s scripts -p "test_prediction_markov_switching_logit_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_bayesian_dynamic_logit_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_temporal_convolution_adapter_r3.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_change_point_adapter_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_discriminant_adapters_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_elastic_net_logistic_adapter_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_tree_ensemble_adapters_r3.py" -v
