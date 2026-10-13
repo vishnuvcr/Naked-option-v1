@@ -15,6 +15,7 @@ from sklearn.metrics import average_precision_score, balanced_accuracy_score, br
 
 from prediction_logistic_adapter_r3 import LogisticProbabilityAdapter
 from prediction_logistic_calibration_r3 import PlattCalibrator, chronological_inner_oof
+from prediction_statistics import calibration_intercept_slope
 
 
 class PM0001ExecutionError(ValueError):
@@ -35,6 +36,9 @@ class PM0001FoldResult:
     balanced_accuracy: float
     roc_auc: float
     average_precision: float
+    calibration_intercept: float | None
+    calibration_slope: float | None
+    calibration_status: str
     train_positive_support: int
     train_negative_support: int
     validation_positive_support: int
