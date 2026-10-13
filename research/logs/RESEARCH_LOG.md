@@ -795,3 +795,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added automated workflow `.github/workflows/phase-08p-r3-logistic-family-synthetic.yml` for the existing logistic probability adapter and chronological OOF Platt calibration.
 - Run [38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917) passed 5 adapter tests and 4 calibration tests, plus compilation and source checks. Report: [PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Synthetic data only; no market data, holdout, or empirical conclusion.
+
+
+## 2026-10-13 — Method-family implementation inventory
+- Added a frozen family plan and validator, checked against all 40 compatibility shards. Workflow [38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992) passed. Report: [PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md](../gates/PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md).
+- Registry has 1,000 methods in 20 families, 426 ALLOW_IN_PRINCIPLE, 574 BLOCK. Logistic regression is the only family with a passing synthetic gate; no empirical method is eligible.
