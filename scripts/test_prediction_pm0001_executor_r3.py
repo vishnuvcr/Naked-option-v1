@@ -28,7 +28,8 @@ class PM0001ExecutorTests(unittest.TestCase):
             validation_end_session_exclusive=230, purge_sessions=2,
             embargo_sessions=2, c=c, min_outer_train_rows=80,
             min_outer_validation_rows=20, min_inner_train_rows=20,
-            min_inner_validation_rows=10,
+            min_inner_validation_rows=10, min_outer_train_class_support=2,
+            min_outer_validation_class_support=2, min_inner_class_support=2,
         )
 
     def test_fit_is_chronological_and_returns_valid_metrics(self):
