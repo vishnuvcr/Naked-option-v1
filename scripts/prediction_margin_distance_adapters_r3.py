@@ -26,7 +26,9 @@ def _scores(model,x_test,n_features,kind):
     if not np.isfinite(x).all(): raise MarginAdapterContractError("PREDICTION_FEATURES_NONFINITE")
     if kind=="svm": out=model.decision_function(x)
     elif kind=="centroid":
-        distances=model.named_steps["centroid"].transform(model.named_steps["scale"].transform(x))
+        z=model.named_steps["scale"].transform(x)
+        centers=model.named_steps["centroid"].centroids_
+        distances=np.linalg.norm(z[:,None,:]-centers[None,:,:],axis=2)
         # Positive score favors class 1: distance to class 0 minus distance to class 1.
         out=distances[:,0]-distances[:,1]
     else:
@@ -56,7 +58,8 @@ class NearestCentroidScoreAdapter:
     def fit(self,x_train:Sequence[Sequence[float]],y_train:Sequence[int]):
         x,y=_xy(x_train,y_train)
         if not np.isfinite(self.shrink_threshold) or self.shrink_threshold<0: raise MarginAdapterContractError("CENTROID_SHRINK_THRESHOLD_INVALID")
-        self.model=Pipeline([("scale",StandardScaler()),("centroid",NearestCentroid(shrink_threshold=self.shrink_threshold))])
+        threshold=None if self.shrink_threshold==0 else float(self.shrink_threshold)
+        self.model=Pipeline([("scale",StandardScaler()),("centroid",NearestCentroid(shrink_threshold=threshold))])
         self.model.fit(x,y); self.n_features_=x.shape[1]; return self
     def predict_score(self,x_test): return _scores(self.model,x_test,self.n_features_,"centroid")
 
