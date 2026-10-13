@@ -101,7 +101,6 @@ def main():
       "method_config_count_max":max(config_counts.values()) if config_counts else 0,
       "allow_methods_with_adapter_and_test_files":sum(1 for r in methods.values() if r.get("compatibility_decision")=="ALLOW_IN_PRINCIPLE" and r.get("algorithm_family") in FAMILIES and all((ROOT/p).is_file() for p in FAMILIES[r["algorithm_family"]])),
       "family_inventory":{fam:{"methods":family_counts[fam],"allow_in_principle":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="ALLOW_IN_PRINCIPLE"),"blocked":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="BLOCK"),"model_parameter_keys":sorted(param_keys[fam]),"parameter_values":{k:dict(param_values[fam][k]) for k in sorted(param_values[fam])}} for fam in sorted(family_counts)},
-      "empirically_eligible_methods":sum(1 for r in methods.values() if r.get("eligible_for_empirical_fitting") is True),
       "parameter_binding_counts":dict(binding_counts),"parameter_binding_by_family":{k:dict(v) for k,v in sorted(binding_by_family.items())},
       "empirically_eligible_methods":sum(1 for r in methods.values() if r.get("eligible_for_empirical_fitting") is True),
       "empirical_fitting_authorized":False,"market_data_loaded":False,"holdout_accessed":False,
