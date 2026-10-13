@@ -1267,3 +1267,5 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Parameter-binding gate: [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed.
 - Temporal-convolution combined synthetic gate: [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) was running at the time of this log update; do not mark dropout remediation complete until it passes.
 - No market data fitting or holdout access.
+
+- Follow-up to the “Resume” instruction: temporal-convolution dropout implementation passed the expanded synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113), 56 tests across 15 suites. No empirical fitting or holdout access.
