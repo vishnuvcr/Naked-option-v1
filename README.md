@@ -565,3 +565,10 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - Historical failures remain documented in the [error log](research/ERROR_LOG.md); they are not counted as scientific results.
 - This does **not** authorize empirical fitting: the compatibility matrix still reports 426 conditional, 574 blocked and 0 empirically eligible methods. No market-data model fit, holdout access, prediction performance result, option P&L, or strategy selection occurred.
 - Next finite step: deterministic eligibility dispositions for all 40,000 R3 configurations, then only evidence-backed implementation/authorization work. See [empirical gate reconciliation](research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md) and [current status](research/STATUS.md).
+
+
+## Phase 8P R3 — eligibility disposition build (2026-10-13)
+
+- Added the [deterministic R3 eligibility disposition builder](scripts/build_prediction_eligibility_manifest_r3.py), [synthetic tests](scripts/test_prediction_eligibility_manifest_r3.py), and [automatic/manual workflow](.github/workflows/phase-08p-eligibility-disposition-r3.yml).
+- Hosted run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666) passed the five synthetic rule tests; full 40,000-config shard reconciliation was still running at last check. The output manifest is **pending** until CI completes and the committed file is verified.
+- This gate is registry accounting only and cannot authorize empirical fitting. No market prediction result or strategy is claimed. See [status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
