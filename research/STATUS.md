@@ -1344,3 +1344,9 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Workflow [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests across logistic, calibration, probit, LDA/QDA, elastic-net logistic, random forest, Extra Trees, gradient boosting and histogram gradient boosting. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - No market data or holdout access. These remain synthetic adapter checks; no empirical fitting is authorized. Next: margin/distance models.
+
+
+## Phase 8P R3 — margin/distance models passed synthetic gate (2026-10-13)
+
+- Hardened workflow [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 tests. Report: [PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- Added raw-score adapters for kernel SVM, nearest centroid and KNN neighbor log-odds, plus chronological OOF Platt calibration for raw scores. First run failed on two scikit-learn NearestCentroid API differences; corrected and logged. No market data or holdout access.
