@@ -53,10 +53,10 @@ class BayesianDynamicLogitAdapter:
         x=np.asarray(x_test,dtype=float)
         if x.ndim!=2 or x.shape[1]!=self.feature_count_: raise BayesianDynamicLogitContractError("PREDICTION_SHAPE_INVALID")
         if not np.isfinite(x).all(): raise BayesianDynamicLogitContractError("PREDICTION_FEATURES_NONFINITE")
-        z=(x-self.mean_)/self.scale_; out=[]
+        z=(x-self.mean_)/self.scale_; out=[]; cov=self.covariance_.copy()
         for row in z:
-            self.covariance_=self.covariance_+np.eye(len(self.beta_))*self.process_variance
-            v=np.r_[1.0,row]; mu=float(v@self.beta_); var=max(float(v@self.covariance_@v),0)
+            cov=cov+np.eye(len(self.beta_))*self.process_variance
+            v=np.r_[1.0,row]; mu=float(v@self.beta_); var=max(float(v@cov@v),0)
             # Logistic-normal moment approximation.
             out.append(float(expit(mu/np.sqrt(1+np.pi*var/8))))
         p=np.asarray(out)
