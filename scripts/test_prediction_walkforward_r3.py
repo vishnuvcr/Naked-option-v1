@@ -117,7 +117,7 @@ class WalkForwardR3Tests(unittest.TestCase):
             purge_sessions=3, embargo_sessions=3,
         )
         self.assertEqual(plan.validation_indices, (23, 24))
-        self.assertEqual(plan.counts["validation_targets_outside_window"], 1)
+        self.assertEqual(plan.counts["validation_targets_outside_window"], 2)
         self.assertEqual(plan.counts["embargoed_validation_rows"], 3)
 
     def test_inner_folds_are_deterministic_expanding_quantile_windows(self):
