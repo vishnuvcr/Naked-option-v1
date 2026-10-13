@@ -1,3 +1,13 @@
+## Phase 8P R3 — eligibility gate passed; execution remains next (2026-10-14)
+
+- [Eligibility disposition workflow #38471769553 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471769553) generated artifact `11852526147`; SHA-256 `ac76327b23e9e9e159e60d1f184b4d776e15187bb947fc007c53a1c250e01259`.
+- Registry accounting: 40,000 rows; 17,000 blocked for implementation readiness, 22,960 blocked by method compatibility, and 40 PM0001 configs pending the executor gate. All remain `empirical_fit_authorized=false`.
+- Data-support accounting: 75 label/fold cells eligible and 5 positional cells blocked because missing target pairs exceed the frozen 1% limit. These five cells remain explicitly blocked; no silent dropping or horizon-wide generalization.
+- An initial eligibility run failed closed on stale PM0001 source pins. The implementation report was refreshed after the synthetic executor workflow passed, and the subsequent eligibility run succeeded. See [ERROR_LOG](research/ERROR_LOG.md).
+- Next: data-backed execution precheck and runner; no market predictive metrics exist yet. Tester review remains after complete results are published, frozen and hash-pinned.
+
+**Developer → Tester:** wait for the complete frozen results bundle only.
+
 ## Phase 8P R3 eligibility disposition published (2026-10-14)
 
 - [Workflow #38470897493 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) generated and committed [the full 40,000-configuration disposition manifest](research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json); manifest blob SHA-1 `1c6a228f071892bf27a76d0a459d9ce0c1469965`, commit `b4acbccf`.
