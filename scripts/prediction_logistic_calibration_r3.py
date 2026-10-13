@@ -90,7 +90,7 @@ def chronological_inner_oof(estimator_factory, x, y, session_positions, purge_se
         first_valid = int(valid_sessions[0])
         last_valid_exclusive = int(valid_sessions[-1]) + 1
         train_mask = (s < (first_valid - purge_sessions)) & (endpoint < first_valid)
-        valid_mask = np.isin(s, valid_sessions) & (s >= first_valid + embargo_sessions)
+        valid_mask = np.isin(s, valid_sessions) & (s >= first_valid + embargo_sessions) & (endpoint < last_valid_exclusive)
         tr = np.flatnonzero(train_mask)
         va = np.flatnonzero(valid_mask)
         if len(tr) < min_train_rows or len(va) < min_validation_rows:
