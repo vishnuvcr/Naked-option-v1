@@ -67,6 +67,7 @@ jobs:
           import json
           from pathlib import Path
           report = json.loads(Path("prediction-parameter-binding-audit-r4.json").read_text(encoding="utf-8"))
+          assert report["schema_version"] == "prediction-adapter-mapping-audit-r4", report
           assert report["status"] == "PASS_PARAMETER_BINDING_AUDIT_R4", report.get("errors")
           assert report["methods"] == 1000, report
           assert report["configurations"] == 40000, report
