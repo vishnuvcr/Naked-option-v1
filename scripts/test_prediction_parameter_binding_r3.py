@@ -119,7 +119,7 @@ class ParameterBindingTests(unittest.TestCase):
             require_supported({"model_parameters": {}}, "unknown_family")
 
     def test_incorrect_hmm_and_tcn_domains_fail_closed(self):
-        with self.assertRaisesRegex(ParameterBindingError, "covariance"):
+        with self.assertRaisesRegex(ParameterBindingError, "(?i)covariance"):
             bind_configuration({"model_parameters": {"covariance": "full", "n_states": 2}},
                                "hidden_markov_model")
         with self.assertRaisesRegex(ParameterBindingError, "DROPOUT"):
