@@ -1462,3 +1462,9 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Failure: an edit inserted literal `\\n` characters into a Python loop, causing `SyntaxError`; the pipeline initially masked the script exit because it lacked `pipefail`.
 - Correction: replaced literal escape sequences with real newlines and enabled `set -o pipefail` in the workflow. Rerun [38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442) passed registry/accounting checks and exposed the registered parameter value domains.
 - Audit follow-up found unresolved parameter semantics; see [parameter audit](PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md). No empirical fitting or holdout access occurred.
+
+
+## 2026-10-13 — Probit adapter validation
+- Category: synthetic model-family validation
+- Component: `scripts/prediction_probit_adapter_r3.py`
+- Result: combined hosted synthetic gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed all 13 tests across logistic, calibration and probit components. No new defect detected by these tests. No empirical fitting or holdout access.
