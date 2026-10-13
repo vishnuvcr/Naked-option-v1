@@ -11,6 +11,8 @@ from typing import Sequence
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from prediction_logistic_adapter_r3 import AdapterContractError
 
