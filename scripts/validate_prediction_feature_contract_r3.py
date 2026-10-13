@@ -169,6 +169,12 @@ def audit(report_path: Path = REPORT_PATH) -> dict[str, Any]:
         "contract_sha256": sha256(contract_raw),
         "label_manifest_sha256": sha256(label_raw),
         "calendar_sha256": sha256(calendar_raw),
+        "feature_builder_git_blob_sha1": git_blob_sha1((ROOT / "scripts/prediction_features_r3.py").read_bytes()),
+        "feature_builder_sha256": sha256((ROOT / "scripts/prediction_features_r3.py").read_bytes()),
+        "feature_tests_git_blob_sha1": git_blob_sha1((ROOT / "scripts/test_prediction_features_r3.py").read_bytes()),
+        "feature_tests_sha256": sha256((ROOT / "scripts/test_prediction_features_r3.py").read_bytes()),
+        "contract_validator_git_blob_sha1": git_blob_sha1(Path(__file__).read_bytes()),
+        "contract_validator_sha256": sha256(Path(__file__).read_bytes()),
     }
     if scope.get("label_manifest_git_blob_sha1") != source_checks["label_manifest_git_blob_sha1"]:
         raise ContractValidationError("PREREG_LABEL_MANIFEST_BLOB_PIN_MISMATCH")
