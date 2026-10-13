@@ -1,6 +1,7 @@
 """Synthetic-only tests for generalized Markov-switching logistic adapter."""
 import unittest
 import numpy as np
+from scipy.special import expit, logsumexp
 from prediction_markov_switching_logit_r3 import (
     MarkovSwitchingLogitAdapter, MarkovSwitchingLogitContractError,
 )
@@ -34,6 +35,30 @@ class MarkovSwitchingTests(unittest.TestCase):
                 np.testing.assert_allclose(model.initial_.sum(), 1.0, atol=1e-8)
                 np.testing.assert_allclose(model.last_state_posterior_.sum(), 1.0, atol=1e-8)
                 self.assertTrue(np.isfinite(model.log_likelihood_))
+
+                # Independently reconstruct the final forward recursion from the stored fit.
+                z = (self.x[:180] - model.mean_) / model.scale_
+                eta = np.column_stack([
+                    model.intercepts_[s] + z @ model.coefficients_[s] for s in range(k)
+                ])
+                p_state = np.clip(expit(eta), 1e-9, 1 - 1e-9)
+                log_emission = (
+                    self.y[:180, None] * np.log(p_state)
+                    + (1 - self.y[:180, None]) * np.log(1 - p_state)
+                )
+                log_transition = np.log(model.transition_)
+                alpha = np.empty((len(z), k), dtype=float)
+                alpha[0] = np.log(model.initial_) + log_emission[0]
+                for t in range(1, len(z)):
+                    alpha[t] = log_emission[t] + logsumexp(
+                        alpha[t - 1, :, None] + log_transition, axis=0
+                    )
+                ref_log_likelihood = float(logsumexp(alpha[-1]))
+                ref_terminal_posterior = np.exp(alpha[-1] - ref_log_likelihood)
+                np.testing.assert_allclose(
+                    model.last_state_posterior_, ref_terminal_posterior, atol=1e-12, rtol=0
+                )
+                self.assertAlmostEqual(model.log_likelihood_, ref_log_likelihood, places=10)
 
     def test_transition_prior_changes_transition_matrix(self):
         low = MarkovSwitchingLogitAdapter(
