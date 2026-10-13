@@ -1224,3 +1224,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented additive spline logistic regression and expanded the synthetic gate across the current classical estimator set.
 - Evidence: [workflow 38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests.
 - Outcome: implementation QA only; no market data, empirical fitting, or holdout access. State-space and temporal families remain.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: implemented a deterministic shallow MLP with dropout and weight decay, then ran the expanded synthetic family suite.
+- Evidence: [workflow 38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 synthetic tests.
+- Outcome: synthetic QA only; no market data, empirical fitting, or holdout access.
