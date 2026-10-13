@@ -1511,3 +1511,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** wait for the post-results request only.  
 **Tester → Developer:** after results publication, include failed CI attempts and the correction in the consolidated audit.
+
+
+### Follow-up — correction verified in synthetic CI (2026-10-14)
+- Corrected source commit: `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`.
+- Hosted workflow [38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) succeeded: 62 tests across 16 suites; compilation and no-market-data/no-holdout source checks passed.
+- Gate report: [PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json](gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json). The original failed attempt remains recorded; the fix is accepted for the synthetic code subgate only.
+- No empirical fitting or performance results; no holdout access. Broader implementation/eligibility/executor gates remain open.
