@@ -1,6 +1,6 @@
 {
   "schema_version": "prediction-preregistration-v2",
-  "status": "DEVELOPER_AMENDMENT_PROPOSED_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
+  "status": "TESTER_REVIEWED_SEMANTIC_AMENDMENT_CODE_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS",
   "created": "2026-10-12",
   "scope": "prediction only; no option strategy selection; no untouched holdout access",
   "primary_metric": "out_of_sample_log_loss",
@@ -60,9 +60,16 @@
   "model_parameter_semantics_contracts": {
     "markov_switching_logit": {
       "path": "research/registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json",
-      "git_blob_sha": "c0402b71e709156e6684e0d20fe0a5a87f0d2efc",
+      "git_blob_sha": "54bd8d65fc3c5f06afa34e1e1bb6f202a35f3dc5",
       "contract_id": "MARKOV_SWITCHING_TRANSITION_PRIOR_V1",
-      "review_status": "PROPOSED_REQUIRES_INDEPENDENT_TESTER_APPROVAL"
+      "review_status": "R5_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING"
     }
+  },
+  "tester_review": {
+    "report_path": "research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R5_2026-10-14.md",
+    "reviewer_branch": "phase-08-prediction-param-audit-tester-r5",
+    "reviewed_developer_sha": "aa10f90c972c08d1b4788ffa30777e3266da01b3",
+    "outcome": "NUMERICAL_AND_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING",
+    "empirical_fitting_authorized": false
   }
 }
