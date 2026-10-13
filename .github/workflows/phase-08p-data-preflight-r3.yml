@@ -23,7 +23,7 @@ permissions:
 
 concurrency:
   group: phase-08p-r3-data-preflight
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   encrypted-source-and-data-preflight:

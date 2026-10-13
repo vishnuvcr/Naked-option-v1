@@ -965,3 +965,6 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 **Developer → Tester (post-results only):** wait for the complete, frozen, hash-pinned empirical bundle.
 **Tester → Developer (post-results only):** after acquisition, audit the full bundle in one independent pass and return a reproducible pinned decision.
+
+
+- Workflow concurrency note (2026-10-13): the first data-preflight workflow push used the previous preflight script before the just-found sample-rule defect was corrected. Updated the workflow to cancel a stale in-progress preflight when a newer watched source commit arrives, preventing an obsolete revision from consuming the full two-hour job slot. The corrected run must still be judged only by its pinned head SHA and committed aggregate diagnostic.

@@ -2,10 +2,11 @@
 
 ## Full-horizon R3 registry — developer execution (2026-10-13)
 
-- Added deterministic R3 builder and tests for the ten frozen horizons, 40,000 configurations, canonical output hashes, horizon-specific maturity/purge/embargo, preserved R2 provenance, and post-results tester cadence.
-- The established registry workflow now includes a separate R3 job so it is covered by existing developer CI. The standalone R3 workflow remains as a manual-run option.
-- R2’s per-record config_sha256 differs from canonical configuration-object SHA-256 in a verified sample. R2 shard file hashes/counts/ID ranges remain the declared integrity checks; R3 documents and preserves the legacy digest while producing new canonical digests.
-- The hosted build output is not yet visible through the available repository file/status interface. Build/validation is **pending verification**; no pass is claimed and the empirical runner has not been started.
+- The deterministic R3 registry build completed with exit code 0: 1,000 methods × 40 configurations = 40,000 configurations across all ten frozen horizons, in 400 config shards (100 each). Each horizon has 4,000 configurations.
+- Developer regression coverage passed 6/6 tests. NSE session-calendar generation/tests also passed 7/7; source and generated-calendar hashes are pinned in the build report.
+- R2's legacy per-record config_sha256 differs from the canonical configuration-object SHA-256 in a verified sample. R2 shard file hashes/counts/ID ranges remain the declared integrity checks; R3 preserves the legacy field and emits new canonical hashes.
+- The active next gate is encrypted artifact/source verification, temporary decryption, and aggregate-only data preflight. A preflight runtime defect involving validation-threshold initialization was found in code review, fixed, and covered by regression tests in commit 4690bd1ffd99839a17fe126ff403abe6d90ca4af.
+- The data-preflight workflow is being restarted on the corrected source; data eligibility remains unverified until its final diagnostic is present and passes.
 - Tester review remains deferred until results acquisition under the current user instruction.
 
 
