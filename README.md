@@ -1,3 +1,15 @@
+# R4 CI incident — corrected run pending (2026-10-14)
+
+- First R4 run [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770) failed in Python setup before tests because pip caching expected a requirements manifest. This is recorded as an infrastructure failure, not a scientific result.
+- Workflow correction: removed the optional pip-cache setting. The next push-triggered run must pass the synthetic test suite and bind the full 40,000-config registry before this gate can progress.
+- [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/ERROR_LOG.md) · [Research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/STATUS.md) · [R4 audit spec](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/gates/PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md).
+- Still blocked: market-data fitting, holdout access, option P&L and strategy promotion.
+
+**Developer → Tester:** review the completed corrected run only.
+**Tester → Developer:** reject incomplete/skipped tests and retain all data gates.
+
+---
+
 # Latest Phase 8P R4 parameter-binding checkpoint — verification pending (2026-10-14)
 
 **Current gate: R4 code is committed on an isolated developer branch, but hosted verification and independent review are still pending. Empirical fitting remains unauthorized.**
