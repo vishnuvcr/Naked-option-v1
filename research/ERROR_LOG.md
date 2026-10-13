@@ -1445,3 +1445,5 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: accumulate each kernel contribution into the entire valid output span. Fix commit `9ed231c2787967b83399373d0284db861620de48`; awaiting hosted rerun.
 
 - Follow-up: first correction targeted the wrong textual slice and therefore did not change the failing left-hand destination. The second hosted run reproduced the same broadcast error. Corrected the exact `out[:,j:t-k+j+1,:]` destination in commit `f3944e3fba830f120a51de0e295b758b4b80b6cb`; rerun pending.
+
+- Resolution verified: expanded synthetic family run [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed the full 52-test suite after the exact slice fix. This resolves the tensor broadcast issue; it does not confer empirical fitting authorization.
