@@ -1,0 +1,51 @@
+{
+  "schema_version": "prediction-oof-calibration-maturity-gate-r3-v1",
+  "date": "2026-10-14",
+  "status": "PASS_SYNTHETIC_OOF_MATURITY_PURGE_EMBARGO_GATE",
+  "tested_source_commit": "faa89942b26bfc874ed5604848db2f3a9d0a2bb8",
+  "workflow": {
+    "name": "Phase 8P R3 expanded prediction family synthetic gate (retry 2)",
+    "run_id": 38468518354,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354",
+    "conclusion": "success",
+    "test_suites": 16,
+    "tests_passed": 62,
+    "compilation": "PASS",
+    "source_and_holdout_static_check": "PASS"
+  },
+  "source_blob_pins": {
+    "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
+    "scripts/test_prediction_logistic_calibration_r3.py": "3dec007a60f4f7239cb918f6b0ec46919fcd6b09",
+    ".github/workflows/phase-08p-r3-logistic-family-synthetic.yml": "515d3dd5b23e8dd5fca6306cb933810ba66ac7be"
+  },
+  "assertions": [
+    "target endpoint positions are required",
+    "target endpoints cannot precede decision sessions",
+    "decision-session order must be chronological",
+    "training labels must mature strictly before the OOF validation boundary",
+    "training samples obey the frozen purge",
+    "initial OOF validation embargo sessions are excluded",
+    "OOF validation target endpoints must remain inside the same validation fold",
+    "probability adapter accepts either positive-class vector or two-column probability matrix and validates shape"
+  ],
+  "prior_failed_run": {
+    "run_id": 38468327357,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357",
+    "conclusion": "failure",
+    "root_cause": "OOF helper indexed a one-dimensional positive-class probability vector as a two-column matrix",
+    "disposition": "preserved as non-accepting history; corrected in tested source commit"
+  },
+  "scientific_scope": {
+    "empirical_fitting_performed": false,
+    "market_data_loaded_by_synthetic_workflow": false,
+    "holdout_accessed": false,
+    "prediction_performance_results_created": false,
+    "methods_authorized_for_empirical_fitting": 0,
+    "independent_tester_review_requested": false,
+    "independent_tester_review_cadence": "AFTER_COMPLETE_RESULTS_BUNDLE_ACQUIRED_FROZEN_AND_HASHED"
+  },
+  "limitations": [
+    "This is a synthetic code-contract gate only, not empirical prediction evidence.",
+    "The full R3 eligibility/executor gates remain unresolved; no model is authorized for market-data fitting."
+  ]
+}
