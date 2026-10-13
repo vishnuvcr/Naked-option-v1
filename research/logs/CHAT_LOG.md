@@ -1291,3 +1291,13 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** review the corrected workflow run only; do not infer model correctness from the setup failure.
 **Tester → Developer:** require all tests and the 40,000-configuration audit to complete before issuing a code decision.
+
+
+### 2026-10-14 — R4 synthetic test failures and corrections
+- Workflow [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) executed 107 tests and stopped with one error and one failure. The Markov regime and prior-sensitivity tests passed. Compile/registry audit steps were skipped under fail-fast policy.
+- The error found that chronological OOF calibration assumed `predict_proba` was always a two-column matrix; the in-repo adapter returns a vector of positive-class probabilities. Fixed helper to accept either valid shape and added a test for matrix output.
+- The assertion failure was only case sensitivity in the covariance test; changed its regex to case-insensitive. Both issues are recorded in the [error log](../ERROR_LOG.md).
+- R4 still has **no verified full-gate result**. No empirical fitting, market data or holdout access occurred.
+
+**Developer → Tester:** inspect the corrected exact-snapshot run and full registry artifact.
+**Tester → Developer:** do not approve before all tests, hashes and parameter counts reconcile.
