@@ -82,7 +82,7 @@ def validation_sample_rules(prereg:dict[str,Any])->tuple[dict[str,Any],float]:
 
 
 def git_blob_sha1(raw:bytes)->str:
-    return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+    return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+bytes([0])+raw).hexdigest()
 
 def validate_preprocessing_rules(prereg:dict[str,Any], policy_path:Path)->dict[str,Any]:
     """Fail closed unless policy file bytes match the pre-result preregistration pins."""

@@ -53,7 +53,7 @@ jobs:
           prereg=json.loads((root/"research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json").read_text(encoding="utf-8"))
           scope=prereg.get("scope", {})
           def blob_sha(raw):
-              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+bytes([0])+raw).hexdigest()
           checks=[
               ("session_calendar_source_git_blob_sha1",root/"research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"),
               ("data_preprocessing_rules_git_blob_sha1",root/"research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json"),
