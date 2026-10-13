@@ -542,3 +542,11 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - The code-gate workflow now runs both adapter and calibration regression tests and is triggered by changes to either component. [Workflow](.github/workflows/phase-08p-logistic-adapter-r3.yml).
 - Corrected and re-read the persisted log-loss fixture; expected value is 0.2604634887. This is a synthetic metric check only.
 - Hosted test execution is still unverified. The OOF helper is not a full empirical executor; session/calendar/target maturity proofs, complete registry dispositions and formal fitting authorization remain required. No market results are claimed.
+
+
+## Phase 8P R3 — calibration component added (2026-10-13)
+
+- Added [chronological inner-OOF calibration component](scripts/prediction_chronological_calibration_r3.py) and [synthetic tests](scripts/test_prediction_chronological_calibration_r3.py).
+- Extended the [automatic/manual code gate](.github/workflows/phase-08p-logistic-adapter-r3.yml) to test both the logistic adapter and calibration component.
+- Hosted run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) is pending at the latest checkpoint; no passing result is claimed yet.
+- The calibrator does not prove provenance of its input OOF predictions. A future runner must enforce chronological folds, purge/embargo and holdout exclusion and emit a verifiable provenance manifest. Empirical fitting remains unauthorized.
