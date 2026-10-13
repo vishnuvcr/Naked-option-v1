@@ -1444,3 +1444,17 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the successful complete rerun and its report, not the incomplete failed attempt.
 **Tester → Developer:** keep the gate closed until all tests and 40,000 config checks pass.
+
+
+## Phase 8P R4 developer remediation gate — PASS; tester resubmission pending (2026-10-14)
+
+- Exact tested code snapshot: `28e192269a63030c03963e83767f1dc6d7c6a81e`.
+- Hosted R4 workflow [38463113199](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199) passed. Artifact [11847406156](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199/artifacts/11847406156), ZIP SHA-256 `c3e96cb549ba55781a729104f0319b71338d9965f9596aa7a4bcf629d9b07c5c`.
+- Evidence: 111 synthetic tests passed; 20 prediction modules compiled; 1,000 methods / 40,000 configs reconciled; 38,000 parameter bindings and 2,000 explicit survival/event-time blocks; compatibility counts 426/574; 0 empirically eligible methods.
+- T1 remediation: Markov convergence uses post-M-step likelihood; final forward recursion is recomputed from final stored parameters. A synthetic test independently reconstructs final log-likelihood and terminal posterior.
+- T2 proposed remediation: [transition-prior contract](registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json) is pinned by [preregistration V2](registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json). Values 2/5 mean symmetric Dirichlet concentration/pseudocount per transition-matrix cell. This amendment is still proposed pending tester approval.
+- The earlier tester report remains BLOCKED for the older SHA and is preserved unchanged. Fresh independent review of the current SHA is mandatory.
+- No market data was loaded, no empirical fit occurred, and the holdout remains sealed. Other `NOT_FROZEN_BLOCKED` fields remain; this code-gate pass does not authorize empirical fitting.
+
+**Developer → Tester:** review the exact code SHA, numeric test, semantic contract pins and hosted report.  
+**Tester → Developer:** keep the old decision intact and publish a new independent review of the current snapshot.
