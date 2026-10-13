@@ -1547,3 +1547,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** review the ten-horizon/frozen-preregistration/data-preflight gate next.  
 **Tester → Developer:** no fitting approval until the full contract, input provenance, and enforced authorization pass.
+
+
+## 2026-10-14 — Process deviation: premature tester-review handoff
+- Category: research governance / instruction-following
+- Component: Phase 8P tester-review cadence
+- Symptom: developer response said a fresh independent tester review was required before empirical prediction experiments, despite the repository's dated review-cadence policy explicitly deferring independent review until the planned results bundle is acquired, frozen, indexed and hashed.
+- Root cause: an outdated checkpoint/older gate wording was followed instead of reconciling it against the controlling policy and latest developer/tester branch state.
+- Impact: risk of unnecessarily delaying the planned prediction result-acquisition run; no scientific results were produced or invalidated by this response.
+- Correction: no intermediate tester review will be requested. Developer will continue the planned protocol-freeze, label/fold/data preflight, empirical result acquisition and developer-side automated quality checks. Before fitting, amend the contradictory preregistration clause requiring independent pre-fit approval without weakening the frozen statistical, chronology, provenance, leakage, multiplicity or holdout restrictions. Submit the complete frozen result bundle for the single consolidated tester review only after results are published.
+- Prevention: consult `research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md` and current status/preregistration before choosing the next gate; tester review cadence and developer-side execution gates must remain distinct.
