@@ -703,3 +703,5 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 ### Parameter-level implementation audit (2026-10-14)
 - [Audit report](research/gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md): file mapping is not sufficient; Bayesian drift, Markov-switching regimes/transition prior, temporal-convolution dropout, and HMM covariance need exact parameter contracts. Empirical fitting remains unauthorized.
+
+- Probit adapter added; combined synthetic gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests across logistic, chronological calibration, and probit adapters. No market data or holdout access; fitting remains unauthorized.
