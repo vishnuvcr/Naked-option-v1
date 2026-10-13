@@ -2,7 +2,9 @@
 
 Status: PASS_COMPLETE_BLOCKED_ACCOUNTING.
 
-Hosted workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140
+Initial hosted workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140
+
+Strengthened row-level schema and blocked-metric audit: [workflow run 38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) — PASS. This run re-generated the complete artifact after checking all 320,000 JSONL rows against the preregistered mandatory schema, unique-pair coverage, terminal status, null metrics for blocked rows, and no-fit/no-holdout flags. Latest artifact: [11825318200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140/artifacts/11825318200). Artifact ZIP SHA-256: `9cef3d8a5ab14dc72ee9e992f417d8b510bbfc1bf2260b5770c27db92d0adf86`
 
 Artifact (compressed terminal JSONL plus summary): https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140/artifacts/11826731071
 
