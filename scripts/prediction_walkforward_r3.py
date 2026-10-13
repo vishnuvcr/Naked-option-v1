@@ -375,10 +375,16 @@ def terminal_result_row(
         raise WalkForwardContractError("BLOCKED_OR_FAILED_ROW_REQUIRES_FAILURE_REASON")
     if not re.fullmatch(r"[0-9a-f]{64}", source_manifest_sha256):
         raise WalkForwardContractError("SOURCE_MANIFEST_SHA256_MISSING_OR_INVALID")
+    config_details = config.get("configuration") if isinstance(config.get("configuration"), Mapping) else config
+    config_id = config.get("config_id")
+    method_id = config.get("method_id", config_details.get("method_id"))
+    label_id = config.get("label_id", config_details.get("label_id"))
+    if not all(isinstance(value, str) and value for value in (config_id, method_id, label_id)):
+        raise WalkForwardContractError("CONFIG_ID_METHOD_ID_OR_LABEL_ID_MISSING")
     row = {
-        "config_id": config.get("config_id"),
-        "method_id": config.get("method_id"),
-        "label_id": config.get("label_id"),
+        "config_id": config_id,
+        "method_id": method_id,
+        "label_id": label_id,
         "fold_id": fold_id,
         "train_start": train_start,
         "train_end": train_end,
@@ -413,7 +419,7 @@ def terminal_result_row(
         "observed_session_count": 0,
         "bootstrap_status": "NOT_RUN",
         "bootstrap_replicates": 0,
-        "by_family_id": str(config.get("label_id")),
+        "by_family_id": str(label_id),
         "source_manifest_sha256": source_manifest_sha256,
         "train_positive_support": int(train_positive_support),
         "train_negative_support": int(train_negative_support),
@@ -475,8 +481,21 @@ def validate_result_rows(
                 if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1):
                     raise WalkForwardContractError(f"P_VALUE_OUT_OF_RANGE:{pair}:{key}")
             lower, upper = row.get("bootstrap_ci_lower"), row.get("bootstrap_ci_upper")
-            if lower is not None and upper is not None and lower > upper:
-                raise WalkForwardContractError(f"BOOTSTRAP_CI_BOUNDS_REVERSED:{pair}")
+            if (lower is None) != (upper is None):
+                raise WalkForwardContractError(f"BOOTSTRAP_CI_ONE_BOUND_MISSING:{pair}")
+            if lower is not None:
+                if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in (lower, upper)):
+                    raise WalkForwardContractError(f"BOOTSTRAP_CI_NONFINITE:{pair}")
+                if lower > upper:
+                    raise WalkForwardContractError(f"BOOTSTRAP_CI_BOUNDS_REVERSED:{pair}")
+            for key in ("brier_score", "balanced_accuracy", "roc_auc", "average_precision"):
+                value = row.get(key)
+                if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1):
+                    raise WalkForwardContractError(f"SCALAR_METRIC_OUT_OF_RANGE:{pair}:{key}")
+            for key in ("calibration_intercept", "calibration_slope"):
+                value = row.get(key)
+                if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value)):
+                    raise WalkForwardContractError(f"CALIBRATION_METRIC_NONFINITE:{pair}:{key}")
     if got != expected:
         raise WalkForwardContractError(f"RESULT_ROW_COVERAGE_MISMATCH:missing={len(expected-got)}:unexpected={len(got-expected)}")
     return {
