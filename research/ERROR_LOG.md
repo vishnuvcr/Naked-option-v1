@@ -1,3 +1,10 @@
+## 2026-10-14 — Eligibility manifest persistence exhausted retries during concurrent branch updates
+- Category: workflow / branch race
+- Component: `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
+- Symptom: [workflow #38470745396](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470745396) passed synthetic disposition tests and generated the 40,000-row manifest, but its Git push exhausted five retries while documentation commits advanced the branch tip. No manifest was committed by that run.
+- Correction planned: increase retry budget/backoff and avoid concurrent repository writes during manifest persistence. The generated manifest is not considered published until the workflow commits it and the branch file is hash-verified.
+- Scientific state: 40 PM0001 configurations are only pending the executor gate; empirical fitting remains unauthorized; no holdout access.
+
 ## 2026-10-14 — Eligibility gate correctly rejected stale PM0001 implementation pins
 - Category: provenance / gate failure
 - Component: `scripts/build_prediction_eligibility_manifest_r3.py`
