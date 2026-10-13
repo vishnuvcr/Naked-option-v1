@@ -11,6 +11,23 @@ class ProbitAdapterTests(unittest.TestCase):
         self.y=(rng.random(300)<p).astype(int)
         self.train=np.arange(220); self.test=np.arange(220,300)
 
+    def test_probit_objective_gradient_matches_central_finite_difference(self):
+        rng=np.random.default_rng(17)
+        z=rng.normal(size=(35,3))
+        signed=np.where(rng.integers(0,2,size=35)==1,1.0,-1.0)
+        theta=rng.normal(size=4)*0.2
+        penalty=0.7
+        _,analytic=ProbitProbabilityAdapter._objective_and_gradient(theta,z,signed,penalty)
+        numeric=np.zeros_like(theta)
+        eps=1e-6
+        for i in range(len(theta)):
+            plus=theta.copy(); minus=theta.copy()
+            plus[i]+=eps; minus[i]-=eps
+            fp=ProbitProbabilityAdapter._objective_and_gradient(plus,z,signed,penalty)[0]
+            fm=ProbitProbabilityAdapter._objective_and_gradient(minus,z,signed,penalty)[0]
+            numeric[i]=(fp-fm)/(2*eps)
+        np.testing.assert_allclose(analytic,numeric,rtol=2e-5,atol=2e-5)
+
     def test_fit_predict_probability_contract(self):
         m=ProbitProbabilityAdapter(prior_scale=1.0).fit(self.x[self.train],self.y[self.train])
         p=m.predict_proba(self.x[self.test])
