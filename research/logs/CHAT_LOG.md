@@ -1196,3 +1196,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented elastic-net logistic adapter and extended synthetic test coverage.
 - Evidence: [workflow 38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 synthetic tests across the current classical adapter suite.
 - Outcome: no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: implemented tree ensemble adapters (random forest, Extra Trees, gradient boosting, histogram gradient boosting) and expanded the synthetic test suite.
+- Evidence: [workflow 38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests.
+- Outcome: adapter mechanics only; no market data, empirical fitting, or holdout access.
