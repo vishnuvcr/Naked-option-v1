@@ -1,0 +1,65 @@
+name: Phase 8P R3 fail-closed terminal accounting
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/prediction_accounting_executor_r3.py"
+      - "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-r3-terminal-accounting.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  terminal-accounting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile accounting executor
+        run: python -m py_compile scripts/prediction_accounting_executor_r3.py
+      - name: Build all 320000 fail-closed terminal rows
+        run: python scripts/prediction_accounting_executor_r3.py "$RUNNER_TEMP/prediction-terminal-rows.jsonl.gz"
+      - name: Assert complete coverage and zero fitting
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "prediction-terminal-rows.jsonl.gz.summary.json"
+          d = json.loads(p.read_text())
+          assert d["status"] == "PASS_COMPLETE_BLOCKED_ACCOUNTING", d
+          assert d["configurations"] == 40000, d
+          assert d["outer_folds"] == 8, d
+          assert d["expected_terminal_rows"] == 320000, d
+          assert d["terminal_rows_written"] == 320000, d
+          assert d["unique_config_fold_pairs"] == 320000, d
+          assert d["empirical_fit_performed"] is False, d
+          assert d["market_data_loaded"] is False, d
+          assert d["holdout_accessed"] is False, d
+          assert sum(d["terminal_status_counts"].values()) == 320000, d
+          PY
+      - name: Upload complete terminal rows and summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-terminal-accounting-r3
+          path: |
+            ${{ runner.temp }}/prediction-terminal-rows.jsonl.gz
+            ${{ runner.temp }}/prediction-terminal-rows.jsonl.gz.summary.json
+          if-no-files-found: error
+          retention-days: 90
