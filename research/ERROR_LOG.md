@@ -1536,3 +1536,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** review the current exact SHA and audit artifact, not just the earlier report.  
 **Tester → Developer:** preserve the earlier BLOCKED decision for its SHA and return a new hash-pinned decision.
+
+
+## 2026-10-14 — R5 tester status mismatch
+- Developer snapshot `aa10f90c972c08d1b4788ffa30777e3266da01b3` passed run 38463664826, including 111 synthetic tests and 40,000 configuration records.
+- Final Markov posterior/likelihood math and transition-prior formula/hash checks passed review.
+- Remaining blocker: the contract and preregistration still say approval is pending. Developer must update statuses, refresh related hashes, and rerun.
+- No market-data fitting or holdout access is allowed; other preregistration items remain unresolved.
+
+**Tester → Developer:** align statuses and pins, rerun the gate.
+**Developer → Tester:** submit the new commit and artifact for confirmation.
