@@ -1375,3 +1375,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_probit_adapter_r3.py`
 - Added finite-difference gradient comparison to guard against sign/derivative mistakes in the penalized probit likelihood. Workflow [38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed.
 - No error found by this test; empirical fitting remains unauthorized.
+
+
+## 2026-10-13 — LDA/QDA synthetic validation
+- Category: implementation / synthetic testing
+- Component: `scripts/prediction_discriminant_adapters_r3.py`
+- Workflow [38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed all five discriminant tests and the combined 19-test family suite. No test defect remained.
+- Synthetic only; no empirical market-data fitting.
