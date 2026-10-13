@@ -678,3 +678,5 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - Expanded classical synthetic gate [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 tests including random forest, Extra Trees, gradient boosting and histogram gradient boosting. [Report](research/gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting authorization.
 
 - Margin/distance synthetic gate [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 tests after correcting nearest-centroid API issues. [Report](research/gates/PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md). Raw scores require chronological OOF calibration; no empirical fitting.
+
+- Follow-up review corrected KNN scoring to class-conditional density-ratio semantics; [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 synthetic tests, including an imbalanced-class direction test. No empirical fitting.
