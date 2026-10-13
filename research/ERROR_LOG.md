@@ -1156,3 +1156,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: retain those five F01 label/fold cells as `BLOCKED_SAMPLE_ELIGIBILITY`; do not lower the 1% cap and do not discard eligible intraday/F02–F08 results. A scoped preflight status indicates valid structural data with explicit unusable cells, and its serialized `scoped_blocks` carries every reason/count.
 - The aggregate report and attempt metadata uploaded as artifact 11802999005, ZIP digest `8bd9e2f4e8dd87a2bf729af63442ffe0406618f4ac96416fa747872d6c6a2158`; plaintext cleanup succeeded. The attempt's repository push was rejected because the branch advanced while the data scan ran; workflow fix rebases the report-only commit safely before pushing.
 - No model/holdout was used. A new report must pass the changed scoped-block unit test and commit successfully before fitting.
+
+
+## 2026-10-13 — Resume audit: empirical execution not yet evidenced
+- Category: research orchestration / evidence boundary
+- Component: Phase 8P R3 prediction sweep handoff
+- Symptom: the committed R3 data preflight and 40,000-configuration registry are present, but the inspected workflow set contains registry construction and synthetic dry-run workflows, not a clearly verified real-data empirical sweep completion artifact.
+- Impact: no R3 empirical metric can be accepted or described as a result yet; a synthetic pass must not be mistaken for model fitting.
+- Evidence: `PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json` reports no global blockers and five scoped positional F01 blocks; `PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json` records model_fitting_performed=false and holdout_accessed=false.
+- Resolution required: identify or implement the finite empirical executor; explicitly consume the preregistered scoped-block manifest; fit/evaluate eligible development folds only; persist checkpoints, errors, per-configuration outputs and content hashes; freeze the complete inventory before the consolidated tester review.
+- Prevention: never infer empirical evidence from registry count, preflight success, or synthetic-only workflows. Do not relax frozen thresholds to force completion.
