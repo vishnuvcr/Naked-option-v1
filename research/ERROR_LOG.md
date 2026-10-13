@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 precheck artifact metadata pin mismatch (diagnostic retry)
+- Category: workflow / artifact provenance
+- Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
+- Symptom: corrected workflow [#38472238773](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38472238773) passed synthetic unit tests and source-pin checks but failed before download when the GitHub artifact metadata did not match one of the pinned values.
+- Correction: added explicit metadata diagnostics to report the exact mismatching field before failing. No data was decrypted and no model was fitted in this attempt.
+- Do not weaken the archive hash, size, or artifact ID pin; correct the workflow only after the actual API response is visible.
+
 ## 2026-10-14 — PM0001 data-precheck workflow failed at artifact redirect parsing
 - Category: workflow / artifact retrieval
 - Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
