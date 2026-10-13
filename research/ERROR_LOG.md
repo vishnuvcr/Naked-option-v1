@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 precheck used a mistyped encrypted archive digest
+- Category: source pin / workflow typo
+- Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
+- Symptom: workflow [#38472339013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38472339013) reported `PINNED_SOURCE_ARTIFACT_METADATA_MISMATCH:digest`. The actual GitHub artifact metadata returned digest `sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b`, while the new workflow had a one-character omission.
+- Correction: aligned the new workflow's expected digest and archive checksum with the existing committed data pin and the live artifact metadata. The canonical uncompressed CSV SHA-256 remains a separate pin and was not changed.
+- No dataset was downloaded or decrypted in the failed run; no model fitting or holdout access occurred.
+
 ## 2026-10-14 — PM0001 precheck artifact metadata pin mismatch (diagnostic retry)
 - Category: workflow / artifact provenance
 - Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
