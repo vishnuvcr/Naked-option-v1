@@ -1187,3 +1187,12 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Impact: no market data opened and no empirical fitting performed.
 - Prevention: independently calculate metric fixtures and compare against the library reference; hosted tests still must pass before this code gate can be accepted.
 - Current status: synthetic test workflow result is pending verification; no scientific result is claimed.
+
+
+## 2026-10-13 — Logistic adapter log-loss fixture corrected
+- Category: test-fixture arithmetic
+- Component: `scripts/test_prediction_logistic_adapter_r3.py`
+- Symptom: the expected value had been entered incorrectly and an earlier correction attempt searched for a token that did not match the leading-dot literal, so the correction was not applied.
+- Correction: explicitly replaced the exact source token `.2899092476` with `.2604634887`, independently calculated as the mean of `[-ln(0.9), -ln(0.8), -ln(0.7), -ln(0.7)]`.
+- Prevention: verify the persisted repository file after each source edit; do not infer that a successful API response means the intended text changed.
+- Status: persisted correction confirmed by a new blob SHA; hosted tests remain unverified.
