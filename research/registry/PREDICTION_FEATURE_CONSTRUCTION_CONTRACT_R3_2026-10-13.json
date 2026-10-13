@@ -33,7 +33,7 @@
       "INTRA_120M_UP_DOWN"
     ],
     "decision_rows": "Eligible minute-aligned SPOT observations within a pinned regular NSE session.",
-    "history": "For lookback L, the feature vector contains L simple returns and L close levels. Return j is close[t-j] / close[t-j-1] - 1 for j=0..L-1; level j is close[t-j] for j=0..L-1. Feature values use the decision bar and up to L previous one-minute transitions, all within the same session; at least L+1 exact eligible closes are required.",
+    "history": "For lookback L, the feature vector contains L simple returns and L close levels. Return j is close[t-j] / close[t-j-1] - 1 for j=0..L-1; level j is close[t-j] for j=0..L-1. Feature values use the decision bar and up to L previous observed one-minute bars, all within the same session; at least L+1 exact eligible closes are required. Missing minute timestamps are not synthesized or filled; lag indices refer to observed eligible bars.",
     "target": "Use an exact observed close at decision timestamp + the registered horizon in minutes. Decision and endpoint must both be in the same regular session; do not interpolate, forward-fill, or use a different timestamp.",
     "flat_rule": "Exclude and count rows whose absolute simple return is <= 1e-8; y=1 only if return > 1e-8, otherwise y=0 when return < -1e-8.",
     "endpoint_session_index": "Equal to the decision exchange-session index."
@@ -66,7 +66,11 @@
     "quarantined_SPOT_rows_by_reason",
     "duplicate_eligible_timestamps",
     "samples_considered",
+    "target_pairs_possible",
     "target_pairs_missing",
+    "target_pair_missing_fraction",
+    "endpoint_ineligible",
+    "missing_decision_close_sessions",
     "flat_targets_excluded",
     "feature_history_excluded",
     "samples_emitted",
