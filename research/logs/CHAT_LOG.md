@@ -1029,3 +1029,10 @@ Developer continued the code gate without opening market data or holdout. Added 
 A repository re-read caught that the adapter log-loss fixture correction had not persisted: the prior replacement string did not match the source's leading-dot literal. The exact token was corrected and the resulting new blob SHA was verified. This is recorded as a developer/test-fixture mistake; no market data or empirical fitting was involved.
 
 Current scope is still code-only. The OOF caller must independently prove official session ordering, label maturity and exact purge rules. Full registry reconciliation, end-to-end executor, runtime benchmark and authorized empirical execution are still outstanding; hosted workflow status is not verified in this checkpoint.
+
+
+### 2026-10-13 — User said “Proceed”: calibration component
+
+Added `scripts/prediction_chronological_calibration_r3.py` and `scripts/test_prediction_chronological_calibration_r3.py`. The calibrator accepts only explicitly supplied inner-OOF probabilities, labels and timestamps; enforces ordered unique timestamps, probability validity, both classes and minimum sample size; and fits a logistic Platt map. The code gate workflow now runs both logistic-adapter and calibration synthetic suites. Hosted run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) was observed queued/pending.
+
+Important scientific limitation logged: timestamp ordering alone does not prove that upstream OOF probabilities are causally generated. The future runner must emit fold/purge/embargo provenance and must not access holdout. No market data opened, no empirical fitting performed, no holdout access and no metrics claimed.
