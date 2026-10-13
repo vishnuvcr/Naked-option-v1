@@ -1,0 +1,138 @@
+name: Phase 8P R4 Preregistration Bridge — Synthetic Gate
+
+on:
+  push:
+    branches: [phase-08-prediction-prereg-freeze-developer]
+    paths:
+      - "scripts/phase8p_greek_prediction.py"
+      - "scripts/test_phase8p_greek_prediction.py"
+      - "scripts/audit_phase8p_prereg_freeze_r4.py"
+      - "scripts/test_phase8p_prereg_freeze_r4.py"
+      - "scripts/prediction_walkforward_r3.py"
+      - "scripts/test_prediction_walkforward_r3.py"
+      - "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json"
+      - "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_R3_2026-10-12.md"
+      - ".github/workflows/phase8p-prereg-freeze-code-gate.yml"
+  workflow_dispatch:
+    inputs:
+      synthetic_only:
+        description: "Run synthetic/static tests only (default; no artifact download)"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase8p-prereg-freeze-r4-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  static-gate:
+    if: ${{ github.event_name == 'push' || inputs.synthetic_only == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact snapshot
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.14.1 scikit-learn==1.5.2
+
+      - name: Verify immutable scope approvals from tester branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin phase-08-prediction-tester:refs/remotes/origin/phase-08-prediction-tester
+          python - <<'PY'
+          import json, subprocess
+          ref = "origin/phase-08-prediction-tester"
+          def show(path):
+              return subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True)
+          def blob(path):
+              return subprocess.check_output(["git", "rev-parse", f"{ref}:{path}"], text=True).strip()
+          pins = {
+            "research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md": "798008657afe0757c54c9aa7dc5eeb1fade3faf5",
+            "research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json": "ee9fb7e4cc2030a532b358e450ca1e4f0325d91b",
+            "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_DECISION_R2_2026-10-12.json": "c154ab22dbf3fe244c6ff2010b6ea60a30538308",
+            "research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_TESTER_R2_2026-10-12.md": "d0f6ad6803c16051bd897f3074682281b3e4c3a0"
+          }
+          for path, expected in pins.items():
+              actual = blob(path)
+              if actual != expected:
+                  raise SystemExit("TESTER_APPROVAL_BLOB_MISMATCH:" + path + ":" + actual)
+          scope = show("research/gates/PHASE8P_GREEK_PREDICTION_SCOPE_TESTER_R3_2026-10-12.md")
+          if "PASS — SCOPE ONLY, WITH RESTRICTIONS" not in scope or "018500722f88f5fb100a2e24afc3d5d97394631e" not in scope:
+              raise SystemExit("GREEK_SCOPE_APPROVAL_INVALID")
+          daily = json.loads(show("research/gates/PHASE8P_DAILY_TIMESTAMP_AMENDMENT_DECISION_R2_2026-10-12.json"))
+          if daily.get("decision") != "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS" or daily.get("proposal_blob_sha1") != "265c6696466b1999371cb4581baf20fbe950d3f1" or daily.get("model_fit_authorized") is not False:
+              raise SystemExit("DAILY_TIMESTAMP_APPROVAL_INVALID")
+          duplicate = json.loads(show("research/gates/PHASE8P_DUPLICATE_CONTRACT_SCOPE_DECISION_R2_2026-10-12.json"))
+          if duplicate.get("decision") != "PASS_SCOPE_AMENDMENT_ONLY_WITH_RESTRICTIONS" or duplicate.get("proposal_blob_sha1") != "1ea9bca882b53fd2853829137aba2d521023b3bd" or duplicate.get("model_fit_authorized") is not False:
+              raise SystemExit("DUPLICATE_SCOPE_APPROVAL_INVALID")
+          print("PASS: immutable scope and timestamp approvals are hash-pinned; no artifact opened.")
+          PY
+
+      - name: Run Greek study self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/phase8p_greek_prediction.py --self-test | tee "$RUNNER_TEMP/phase8p-self-test.json"
+          python scripts/test_phase8p_greek_prediction.py 2>&1 | tee "$RUNNER_TEMP/phase8p-greek-tests.log"
+
+      - name: Run main-registry chronological contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/test_prediction_walkforward_r3.py 2>&1 | tee "$RUNNER_TEMP/main-r3-walkforward-tests.log"
+
+      - name: Run cross-protocol hash audit and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/audit_phase8p_prereg_freeze_r4.py > "$RUNNER_TEMP/phase8p-prereg-freeze-audit-r4.json"
+          cp "$RUNNER_TEMP/phase8p-prereg-freeze-audit-r4.json" phase8p-prereg-freeze-audit-r4.json
+          cat phase8p-prereg-freeze-audit-r4.json
+          python scripts/test_phase8p_prereg_freeze_r4.py 2>&1 | tee "$RUNNER_TEMP/protocol-bridge-tests.log"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("phase8p-prereg-freeze-audit-r4.json").read_text(encoding="utf-8"))
+          assert report["status"] == "PASS_STATIC_PROTOCOL_RECONCILIATION_WITH_EXECUTION_BLOCKERS", report.get("errors")
+          assert all(x["pass"] for x in report["checks"].values()), report["checks"]
+          assert all(x["pass"] for x in report["source_blob_checks"].values()), report.get("errors")
+          for key in ("schema_only_artifact_preflight_authorized","empirical_model_fitting_authorized","holdout_access_authorized","option_pnl_authorized","strategy_promotion_authorized"):
+              assert report["authorization"][key] is False
+          print("PASS: static protocol gate passed; real artifact and empirical execution flags remain false.")
+          PY
+
+      - name: Compile touched Python modules
+        run: python -m py_compile scripts/phase8p_greek_prediction.py scripts/prediction_walkforward_r3.py scripts/audit_phase8p_prereg_freeze_r4.py scripts/test_phase8p_prereg_freeze_r4.py
+
+      - name: Upload code-only report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: phase8p-prereg-freeze-audit-r4
+          path: |
+            ${{ runner.temp }}/phase8p-self-test.json
+            ${{ runner.temp }}/phase8p-greek-tests.log
+            ${{ runner.temp }}/main-r3-walkforward-tests.log
+            ${{ runner.temp }}/protocol-bridge-tests.log
+            ${{ runner.temp }}/phase8p-prereg-freeze-audit-r4.json
+          if-no-files-found: warn
+          retention-days: 90
