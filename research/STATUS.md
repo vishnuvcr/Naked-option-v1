@@ -1,5 +1,15 @@
 # Research Status
 
+## Phase 8P R3 — chronological split/schema synthetic gate passed (2026-10-13)
+
+- Corrected workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) passed and persisted [PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json](gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json), status PASS_SYNTHETIC_CHRONOLOGICAL_CONTRACT_ONLY. The report pins exact source hashes and explicitly records empirical fitting=false, holdout access=false, market data loaded=false.
+- The pure component [prediction_walkforward_r3.py](../scripts/prediction_walkforward_r3.py) validates the eight frozen outer windows, target maturity, session-index purge/embargo, inner quantile boundaries, role-specific sample minima, exact preflight blocks and terminal result-row schema. Synthetic tests cover these checks and log-loss arithmetic.
+- Machine-readable chronological contract: [PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json](registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json); human-readable supplement: [PHASE8P_CHRONOLOGICAL_EXECUTION_SUPPLEMENT_R3_2026-10-13.md](governance/PHASE8P_CHRONOLOGICAL_EXECUTION_SUPPLEMENT_R3_2026-10-13.md).
+- Known fixes are recorded in [ERROR_LOG.md](ERROR_LOG.md). No empirical result exists yet. Next gate: validate all 40,000 configurations against exact label/fold compatibility and construct a deterministic development-only executor that writes one terminal row for each of 320,000 config/fold pairs without reading the holdout.
+- Existing eligibility remains unchanged: 0 configurations are empirically authorized; the five positional F01 data blocks remain scoped to their exact cells.
+
+---
+
 ## Phase 8P R3 — feature-construction contract passed (2026-10-13)
 
 - Hosted workflow [38404222506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38404222506) concluded SUCCESS. The aggregate report is [PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json](gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json), Git blob SHA-1 448623986b2773faf34db3ae33437feea0e057f9; all 45 linked contract/provenance checks passed.
