@@ -72,14 +72,14 @@ jobs:
           x=json.load(open(sys.argv[1]))
           actual={k:x.get(k) for k in ("id","expired","digest","size_in_bytes","created_at","expires_at","name")}
           print(json.dumps(actual,sort_keys=True))
-          expected={"id":11698879857,"expired":False,"digest":"sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b","size_in_bytes":231076122}
+          expected={"id":11698879857,"expired":False,"digest":"sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b","size_in_bytes":231076122}
           for key,value in expected.items():
               if actual.get(key)!=value:
                   raise SystemExit(f"PINNED_SOURCE_ARTIFACT_METADATA_MISMATCH:{key}:expected={value!r}:actual={actual.get(key)!r}")
           PY
           # GitHub CLI follows the API's temporary signed-URL redirect without exposing the token in shell output.
           gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip" > "$WORK/source.zip"
-          echo "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b  $WORK/source.zip" | sha256sum -c -
+          echo "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b  $WORK/source.zip" | sha256sum -c -
           unzip -q "$WORK/source.zip" -d "$WORK/unpacked"
           MANIFEST="$(find "$WORK/unpacked" -type f -name dataset_manifest.json -print -quit)"
           test -n "$MANIFEST"
