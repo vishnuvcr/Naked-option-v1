@@ -5,6 +5,7 @@ This is not a model executor. It intentionally performs zero fitting until metho
 implementation/test approval and empirical authorization are explicitly granted.
 """
 import gzip, hashlib, json, sys
+from datetime import datetime, timezone
 from collections import Counter
 from pathlib import Path
 
@@ -94,7 +95,7 @@ def main(out_path):
                   "balanced_accuracy":None,"roc_auc":None,"average_precision":None,"calibration_intercept":None,
                   "calibration_slope":None,"observed_session_count":0,"bootstrap_status":"NOT_RUN","bootstrap_replicates":0,
                   "by_family_id":label,"source_manifest_sha256":source_hash,"train_positive_support":0,
-                  "train_negative_support":0,"created_utc":"2026-10-13T00:00:00+00:00",
+                  "train_negative_support":0,"created_utc":datetime.now(timezone.utc).isoformat(),
                   "model_fitting_performed":False,"holdout_accessed":False
                 }
                 f.write(json.dumps(row,sort_keys=True,separators=(",",":"))+"\n")
