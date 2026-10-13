@@ -1,4 +1,24 @@
-# R4 test correction — full rerun pending (2026-10-14)
+# Latest Phase 8P R4 development gate — PASS; independent review pending (2026-10-14)
+
+**Exact developer snapshot:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  
+**Hosted R4 workflow:** [run 38463113199 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199)  
+**Audit artifact:** [artifact 11847406156](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199/artifacts/11847406156)  
+**Artifact ZIP SHA-256:** `c3e96cb549ba55781a729104f0319b71338d9965f9596aa7a4bcf629d9b07c5c`
+
+- **111 synthetic tests passed**; **20 prediction modules compiled**.
+- **1,000 methods / 40,000 configs** reconciled: **38,000 supported parameter bindings**, **2,000 survival/event-time configurations explicitly blocked**. Compatibility counts: 426 `ALLOW_IN_PRINCIPLE`, 574 `BLOCK`.
+- Empirical eligibility remains **0**. No market-data fitting; no holdout access.
+- Markov terminal posterior and log-likelihood are recomputed from final stored parameters and verified against an independently reconstructed forward recursion.
+- Proposed parameter semantics: [transition-prior contract](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json), pinned by [preregistration V2](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json); independent approval remains pending.
+- The old tester report blocked an earlier SHA. Current snapshot has the remediation and a green automated gate; a **fresh independent review is mandatory**.
+- **Still blocked:** empirical fitting, holdout access, option P&L, model ranking and strategy promotion. Other `NOT_FROZEN_BLOCKED` preregistration fields remain unresolved.
+
+**Developer → Tester:** review exact SHA `28e192269a63030c03963e83767f1dc6d7c6a81e`, final-forward arithmetic, semantic contract and artifact.  
+**Tester → Developer:** issue a hash-pinned decision and keep research-data gates closed until all protocol/data gates pass.
+
+---
+
+## Historical: first R4 synthetic run failed; later corrected
 
 - Run [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) executed 107 tests and failed before the registry audit: one output-shape error in chronological OOF calibration, and one case-sensitive assertion error. Markov 2/3-regime tests and transition-prior sensitivity passed.
 - Corrective changes now accept either one-dimensional binary probability vectors or two-column probability matrices and test both shapes. The HMM covariance assertion now handles uppercase error tokens. This is remediation in progress, not a gate pass.
@@ -10,7 +30,7 @@
 
 ---
 
-# R4 CI incident — corrected run pending (2026-10-14)
+## Historical: R4 CI setup incident; later corrected
 
 - First R4 run [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770) failed in Python setup before tests because pip caching expected a requirements manifest. This is recorded as an infrastructure failure, not a scientific result.
 - Workflow correction: removed the optional pip-cache setting. The next push-triggered run must pass the synthetic test suite and bind the full 40,000-config registry before this gate can progress.
@@ -22,7 +42,7 @@
 
 ---
 
-# Latest Phase 8P R4 parameter-binding checkpoint — verification pending (2026-10-14)
+## Historical: pre-verification R4 checkpoint; superseded by current green run
 
 **Current gate: R4 code is committed on an isolated developer branch, but hosted verification and independent review are still pending. Empirical fitting remains unauthorized.**
 
