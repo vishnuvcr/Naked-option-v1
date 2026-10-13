@@ -534,3 +534,11 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - The hosted test result is pending verification; no pass is claimed merely from committing the workflow.
 - This does **not** authorize empirical fitting. Inner chronological OOF calibration, complete registry eligibility dispositions, a restartable development-fold runner, and the applicable scientific gate remain outstanding. No holdout access, P&L, or empirical model result is claimed.
 - See [current status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
+
+
+## Phase 8P R3 — chronological calibration code added (2026-10-13)
+
+- Added [Platt calibration and expanding chronological OOF utilities](scripts/prediction_logistic_calibration_r3.py) with [synthetic-only tests](scripts/test_prediction_logistic_calibration_r3.py).
+- The code-gate workflow now runs both adapter and calibration regression tests and is triggered by changes to either component. [Workflow](.github/workflows/phase-08p-logistic-adapter-r3.yml).
+- Corrected and re-read the persisted log-loss fixture; expected value is 0.2604634887. This is a synthetic metric check only.
+- Hosted test execution is still unverified. The OOF helper is not a full empirical executor; session/calendar/target maturity proofs, complete registry dispositions and formal fitting authorization remain required. No market results are claimed.
