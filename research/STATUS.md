@@ -1393,3 +1393,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - No market data was fitted and holdout remains sealed. Next: parameter-binding layer, tests proving parameters are consumed, then independent review before any empirical fit.
 
 - Classical probability adapters advanced: the probit adapter was added and tested synthetically. Combined hosted gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 5 logistic + 4 calibration + 4 probit tests. Result remains synthetic-only, with no empirical fitting authorization.
+
+
+## Phase 8P R3 — fail-closed parameter binding gate passed (2026-10-14)
+
+- Workflow [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed six synthetic tests plus compile/source checks. Binder report is documented in [parameter semantics audit](gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
+- Bayesian `coefficient_drift` maps explicitly to `process_variance`; unsupported Markov-switching regimes/transition-prior semantics and temporal-convolution dropout are blocked instead of silently ignored. HMM requires `covariance=diag` and supported state count.
+- This is a fail-closed contract gate, not empirical authorization. Next: implement supported Markov transition-prior/regime semantics and temporal-convolution dropout, then test every parameter field against the registry before independent review.
