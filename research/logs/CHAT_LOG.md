@@ -1168,3 +1168,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: validated the frozen implementation inventory against all 40 compatibility shards and ran the logistic synthetic gate.
 - Evidence: [family plan run 38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992), [logistic synthetic run 38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917).
 - Outcome: 1,000 methods / 20 families reconciled; 426 conditionally compatible, 574 blocked. Logistic synthetic tests pass; empirical fitting remains unauthorized.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: implemented a probit adapter with train-only standardization and penalized likelihood; extended the synthetic family workflow.
+- Evidence: [combined synthetic gate 38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests across logistic, chronological calibration and probit.
+- Outcome: synthetic implementation contract passes only. No market data, empirical fitting, or holdout access.
