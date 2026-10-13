@@ -1118,3 +1118,18 @@ User authorized continuation from the last Phase 8P R3 checkpoint. Scope remaine
 Implement and test the development-fold-only executor with explicit method allowlisting (starting with PM0001), label-specific maturity/purge/embargo, inner chronological OOF calibration, training-only transformations, row-complete blocked/failed status accounting and restartable checkpoints. Keep empirical fitting blocked until the implementation/authorization gate passes.
 
 **Developer → Tester:** Independent review remains deferred until the complete planned results bundle is acquired, frozen and hashed. At that handoff, independently audit every config/fold row, math/formulas, source hashes, leakage controls, blocked/failed accounting and conclusions.
+
+
+## 2026-10-13 — Feature-construction gate result
+
+### Developer action summary
+- Froze the pre-result mechanical interpretation of the registered PM0001 raw lag stack in research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json and documented it in research/governance/PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13.md.
+- Implemented the sample builder scripts/prediction_features_r3.py; it consumes eligible SPOT rows only and does not fit or rank models. It creates returns/close levels with deterministic newest-to-oldest ordering, and exact horizon labels without interpolation or forward filling.
+- Added synthetic regression tests and a validator linked to the frozen labels, data preflight, prerequisite audit and PM0001 compatibility definition.
+- Workflow [38404222506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38404222506) passed; report research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json, blob SHA-1 448623986b2773faf34db3ae33437feea0e057f9, confirms 45/45 checks passed.
+- The contract notes an important scope boundary: PM0001 starts with spot-only lagged features. Option data can only be introduced through a separate point-in-time feature contract before results are observed.
+
+### Current disposition
+Feature-construction contract: PASS. Empirical fitting: BLOCKED. Holdout access: false. Trading/strategy selection: out of scope for the current prediction sub-study.
+
+**Developer → Tester:** wait for the planned frozen results bundle and its formal review request, then independently audit formulas, labels, split chronology, purge/embargo, model/calibration leakage, every config/fold outcome and statistical inference.
