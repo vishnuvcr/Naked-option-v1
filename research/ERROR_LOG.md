@@ -1,3 +1,11 @@
+## 2026-10-14 — Eligibility disposition failed closed on stale PM0001 implementation pins
+- Category: provenance / gate failure
+- Component: `scripts/build_prediction_eligibility_manifest_r3.py` and `research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json`
+- Symptom: workflow [#38471587415](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471587415) failed with `PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:scripts/prediction_pm0001_executor_r3.py`.
+- Root cause: PM0001 executor and regression tests had changed to add rolling-refit and class-support checks, but the implementation gate report still pinned the earlier blobs.
+- Correction: refreshed the report pins after the revised synthetic suite passed, then reran eligibility. Workflow [#38471769553](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471769553) passed and uploaded the disposition artifact. The old failed run is retained; no gate was bypassed.
+- Scientific scope: registry disposition only. No empirical model fitting, no holdout access, no predictive performance result.
+
 ## 2026-10-14 — PM0001 class-support test import edit
 - Category: test implementation / syntax error
 - Component: `scripts/test_prediction_pm0001_executor_r3.py`
