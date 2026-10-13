@@ -1,3 +1,18 @@
+# R5 independent tester review — numerical pass; formal status gate blocked (2026-10-14)
+
+Reviewed developer snapshot `aa10f90c972c08d1b4788ffa30777e3266da01b3`, workflow [38463664826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826), and artifact [11848135257](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826/artifacts/11848135257). The automation passed 111 synthetic tests, compiled 20 modules and audited 40,000 configs.
+
+- **PASS:** final Markov posterior/log-likelihood calculation is synchronized with the final model parameters; independent synthetic reconstruction agrees.
+- **PASS:** transition-prior formula and preregistration/contract hashes reconcile.
+- **BLOCKED:** the pinned contract and preregistration still label approval as proposed/pending. Developer must update status fields, refresh hashes and rerun.
+- Full report: [R5 tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r5/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R5_2026-10-14.md).
+- No market-data fit or holdout access; empirical fitting remains unauthorized, and other preregistration blockers remain.
+
+**Tester → Developer:** finalize contract statuses and hashes, then rerun.  
+**Developer → Tester:** submit the next exact SHA and artifact for final confirmation.
+
+---
+
 # Latest Phase 8P R4 development gate — PASS; independent review pending (2026-10-14)
 
 **Exact developer snapshot:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  
