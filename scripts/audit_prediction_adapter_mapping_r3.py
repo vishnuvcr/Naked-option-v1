@@ -100,11 +100,16 @@ def main():
 
     semantic_contract_path="research/registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json"
     prereg_v2_path="research/registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json"
+    sem_prereg={}
+    sem_contract={}
+    actual_contract_blob=""
+    actual_prereg_v2_blob=""
     try:
         sem_prereg=read_json(prereg_v2_path)
         sem_contract=read_json(semantic_contract_path)
         pinned=sem_prereg["model_parameter_semantics_contracts"]["markov_switching_logit"]
         actual_contract_blob=git_blob_sha(semantic_contract_path)
+        actual_prereg_v2_blob=git_blob_sha(prereg_v2_path)
         if pinned.get("path")!=semantic_contract_path: errors.append("SEMANTIC_CONTRACT_PATH_MISMATCH")
         if pinned.get("git_blob_sha")!=actual_contract_blob: errors.append("SEMANTIC_CONTRACT_BLOB_SHA_MISMATCH")
         if sem_contract.get("schema_version")!="markov-switching-transition-prior-contract-v1": errors.append("SEMANTIC_CONTRACT_SCHEMA_MISMATCH")
@@ -119,7 +124,7 @@ def main():
         errors.append("SEMANTIC_CONTRACT_VALIDATION_ERROR:"+str(exc))
     report={
       "schema_version":"prediction-adapter-mapping-audit-r4",
-      "status":"PASS_ADAPTER_MAPPING_INVENTORY" if not errors else "FAIL",
+      "status":"PASS_PARAMETER_BINDING_AUDIT_R4" if not errors else "FAIL",
       "methods":len(methods),"configurations":len(configs),"families":len(family_counts),
       "decision_counts":dict(decision_counts),"method_config_count_min":min(config_counts.values()) if config_counts else 0,
       "method_config_count_max":max(config_counts.values()) if config_counts else 0,
@@ -127,7 +132,7 @@ def main():
       "family_inventory":{fam:{"methods":family_counts[fam],"allow_in_principle":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="ALLOW_IN_PRINCIPLE"),"blocked":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="BLOCK"),"model_parameter_keys":sorted(param_keys[fam]),"parameter_values":{k:dict(param_values[fam][k]) for k in sorted(param_values[fam])}} for fam in sorted(family_counts)},
       "parameter_binding_counts":dict(binding_counts),"parameter_binding_by_family":{k:dict(v) for k,v in sorted(binding_by_family.items())},
       "empirically_eligible_methods":sum(1 for r in methods.values() if r.get("eligible_for_empirical_fitting") is True),
-      "parameter_semantics_contract":{"preregistration_path":prereg_v2_path,"preregistration_git_blob_sha":git_blob_sha(prereg_v2_path),"contract_path":semantic_contract_path,"contract_git_blob_sha":git_blob_sha(semantic_contract_path),"contract_status":sem_contract.get("status","INVALID")},
+      "parameter_semantics_contract":{"preregistration_path":prereg_v2_path,"preregistration_git_blob_sha":actual_prereg_v2_blob,"contract_path":semantic_contract_path,"contract_git_blob_sha":actual_contract_blob,"contract_status":sem_contract.get("status","INVALID")},
       "empirical_fitting_authorized":False,"market_data_loaded":False,"holdout_accessed":False,
       "errors":errors
     }
