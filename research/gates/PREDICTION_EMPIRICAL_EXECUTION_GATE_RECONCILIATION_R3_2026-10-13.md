@@ -47,3 +47,10 @@ This is a repository state/gate audit, not a literature review and not an empiri
 **Developer:** resolve the registry eligibility and executor gaps with immutable, hash-pinned evidence; keep holdout sealed; never treat synthetic runs as empirical results.
 
 **Tester (at the agreed end-of-results checkpoint):** independently audit exact config-to-method mapping, all 40,000 disposition rows, compatibility and feature gates, fold-level sample blocks, leakage/purge/embargo, deterministic restart behavior, result accounting, metric math and hash integrity. Reject any run that fits a blocked configuration or omits failures.
+
+
+## Deeper compatibility inspection — 2026-10-13
+
+A direct read of the first committed compatibility shards confirms that the blocker is not merely a missing workflow. For example, method PM0001 is marked `ALLOW_IN_PRINCIPLE`, but its `eligible_for_empirical_fitting` flag is false and its implementation status is `NOT_IMPLEMENTED_OR_TESTER_APPROVED`; it requires family probability-adapter, inner-fold calibration, and probability/log-loss numerical tests. PM0002 is explicitly blocked because its directional cost matrix is not preregistered. The shard index confirms 1,000 method rows, 426 allow-in-principle, 574 blocked, and zero empirically eligible.
+
+Therefore the first actual resolution is to implement and regression-test approved method families and their adapters, not to relabel the 426 conditional rows as eligible. A generic 40,000-config executor would not be safe until each method-family contract is implemented and gated. The next work unit should start with the simplest compatible probability family (e.g., logistic regression), implement the preregistered train-only transforms/calibration/purge rules, add the required numerical tests, and keep every other method/configuration explicitly blocked. This can produce legitimate partial empirical results without pretending the full universe is ready. Any expansion of eligibility must be backed by code tests and the independent review process already specified in the repository.
