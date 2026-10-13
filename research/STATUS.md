@@ -1312,3 +1312,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Hosted workflow [38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917) passed: 5 logistic adapter tests + 4 chronological OOF calibration tests, plus compile and source checks. Report: [PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Synthetic-only result; no market data or holdout access. This does not authorize empirical fitting or establish prediction performance. Next: freeze a method-family-to-adapter contract and test each method's registered parameters before review.
+
+
+## Phase 8P R3 — method-family inventory validated (2026-10-13)
+
+- Workflow [38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992) passed against all 40 compatibility shards. Result: [PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md](gates/PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md); inventory: [PREDICTION_METHOD_FAMILY_IMPLEMENTATION_PLAN_R3_2026-10-13.json](registry/PREDICTION_METHOD_FAMILY_IMPLEMENTATION_PLAN_R3_2026-10-13.json).
+- Inventory covers 1,000 methods in 20 families: 426 conditional in principle, 574 blocked. Logistic regression is the only family with a passing synthetic adapter gate so far. Zero methods are empirically eligible; no market-data fitting has occurred.
+- Next: implement and test family adapters in frozen order, starting with simple probabilistic baselines and classical estimators; independent review is required before any empirical fitting.
