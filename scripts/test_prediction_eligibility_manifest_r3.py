@@ -44,9 +44,11 @@ class EligibilityManifestTests(unittest.TestCase):
              "model_fitting_performed": False, "label_sample_support": fold_support("INTRA_5M_UP_DOWN")},
             {"pin": "x"},
         )
-        self.assertEqual(m["disposition_counts"], {"BLOCKED_IMPLEMENTATION_OR_AUTHORIZATION": 1})
+        self.assertEqual(m["disposition_counts"], {"BLOCKED_IMPLEMENTATION_NOT_READY": 1})
         self.assertFalse(m["empirical_fit_authorized"])
         self.assertFalse(m["records"][0]["empirical_fit_authorized"])
+        self.assertFalse(m["manual_authorization_required"])
+        self.assertFalse(m["records"][0]["manual_authorization_required"])
 
     def test_compatibility_block_takes_precedence(self):
         m = build_manifest(
