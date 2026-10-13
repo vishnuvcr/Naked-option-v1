@@ -1365,3 +1365,8 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - No market data or holdout access. HMM, Markov-switching logit, Bayesian dynamic logit, change-point and temporal convolution families remain; no empirical fitting is authorized.
 
 - Tester hardening: added a central finite-difference check of the MLP backpropagation gradients. Latest run [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests. Updated [family gate report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+
+## Phase 8P R3 — state-space synthetic gate expansion passed (2026-10-13)
+
+- Combined workflow [38456989867](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38456989867) passed 47 synthetic tests, including diagonal-Gaussian HMM, Markov-switching logistic and sequential Bayesian dynamic logistic adapters. No market data or holdout access.
+- Updated [family synthetic gate report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Change-point segmentation exists but needs combined-gate tests; temporal convolution remains. No empirical fitting authorization.
