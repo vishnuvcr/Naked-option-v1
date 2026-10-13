@@ -1352,3 +1352,8 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Added raw-score adapters for kernel SVM, nearest centroid and KNN neighbor log-odds, plus chronological OOF Platt calibration for raw scores. First run failed on two scikit-learn NearestCentroid API differences; corrected and logged. No market data or holdout access.
 
 - KNN score semantics were tightened to estimate a class-conditional density ratio (normalizing local weighted neighbor mass by class sample counts) rather than posterior odds. The imbalanced-class direction test passed in [latest run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714); total suite is 33 synthetic tests. See [margin/distance report](gates/PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md).
+
+## Phase 8P R3 — expanded family synthetic gate passed (2026-10-13)
+
+- Latest workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests across 13 estimator families plus chronological calibration. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+- Includes logistic, probit, LDA/QDA, elastic-net logistic, four tree ensembles, SVM, nearest centroid, KNN density ratio, and additive spline logistic. No market data or holdout access. Complex state-space/temporal families remain; no empirical method is authorized.
