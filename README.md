@@ -557,3 +557,11 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - The dedicated code gate exposed a malformed test command and a stale log-loss test value. Both corrections are recorded in the research error log.
 - Correct synthetic log-loss reference: 0.2604634887. Dedicated adapter workflow runs 38395143013 and 38395142525 were still running at last check; the repository protocol check is not a substitute for the adapter test result.
 - See [current status](research/STATUS.md), [error log](research/ERROR_LOG.md), and [conversation log](research/logs/CHAT_LOG.md).
+
+
+## Phase 8P R3 — adapter/calibration code gate verified (2026-10-13)
+
+- Dedicated [Phase 8P code gate run 38395246409](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395246409) completed successfully at commit `a4c5449dca89171341a16147ec9cdd71e7b30b50`. The logistic adapter synthetic tests, chronological calibration synthetic tests, and code-only source audit all passed.
+- Historical failures remain documented in the [error log](research/ERROR_LOG.md); they are not counted as scientific results.
+- This does **not** authorize empirical fitting: the compatibility matrix still reports 426 conditional, 574 blocked and 0 empirically eligible methods. No market-data model fit, holdout access, prediction performance result, option P&L, or strategy selection occurred.
+- Next finite step: deterministic eligibility dispositions for all 40,000 R3 configurations, then only evidence-backed implementation/authorization work. See [empirical gate reconciliation](research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md) and [current status](research/STATUS.md).
