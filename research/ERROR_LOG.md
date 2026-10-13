@@ -1497,3 +1497,17 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** no intermediate review; await acquired-results bundle.  
 **Tester → Developer:** after results publication, audit the full implementation and all result rows.
+
+
+## 2026-10-14 — OOF probability adapter shape mismatch (run 38468327357)
+- Category: implementation/interface defect
+- Component: `scripts/prediction_logistic_calibration_r3.py::chronological_inner_oof`
+- Symptom: hosted synthetic workflow [38468327357](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357) failed in the new OOF test with `IndexError: too many indices for array` at `model.predict_proba(x[va])[:, 1]`.
+- Root cause: `LogisticProbabilityAdapter.predict_proba` returns the positive-class probability as a one-dimensional vector, whereas some scikit-learn estimators return an n×2 matrix. The helper assumed only the latter interface.
+- Impact: OOF synthetic test failed before any market data access or empirical fitting. This run is non-accepting; no scientific metric was generated.
+- Correction: helper now accepts either a one-dimensional positive-class vector or a two-column probability matrix, validates shape/length, and rejects any other output shape. Updated source is in commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`.
+- Verification: retry workflow [38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) is running; do not mark the correction passed until its conclusion and all steps are checked.
+- Prevention: adapter contract tests must explicitly cover supported probability output shapes, and every shared helper must validate the estimator interface before slicing outputs.
+
+**Developer → Tester:** wait for the post-results request only.  
+**Tester → Developer:** after results publication, include failed CI attempts and the correction in the consolidated audit.
