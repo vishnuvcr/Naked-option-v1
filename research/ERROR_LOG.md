@@ -1447,3 +1447,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Follow-up: first correction targeted the wrong textual slice and therefore did not change the failing left-hand destination. The second hosted run reproduced the same broadcast error. Corrected the exact `out[:,j:t-k+j+1,:]` destination in commit `f3944e3fba830f120a51de0e295b758b4b80b6cb`; rerun pending.
 
 - Resolution verified: expanded synthetic family run [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed the full 52-test suite after the exact slice fix. This resolves the tensor broadcast issue; it does not confer empirical fitting authorization.
+
+
+## 2026-10-13 — Adapter mapping audit
+- Category: registry-to-implementation mapping
+- Component: `scripts/audit_prediction_adapter_mapping_r3.py`, workflow `.github/workflows/phase-08p-r3-adapter-mapping.yml`
+- Outcome: hosted run [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed all registry/config linkage and adapter/test file checks. No new mismatch found.
+- Separate resolved defect: temporal convolution output accumulation had a destination-slice shape mismatch; after a missed first textual patch, the exact slice was corrected and full family workflow [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 tests. No empirical fitting or holdout access occurred.
