@@ -29,3 +29,8 @@
 
 ## Tester instruction to developer
 Proceed only to method-family implementation and synthetic tests. Do not run empirical fitting, do not open the holdout, and do not mark a method eligible by editing registry flags. Return a new implementation bundle for review before any empirical run.
+
+
+## Follow-up synthetic family review
+- Logistic adapter/calibration synthetic workflow [38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917) passed five logistic tests and four chronological calibration tests. See [family report](PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- Decision remains limited to synthetic contract validation. No empirical fitting is approved. The method-to-adapter parameter mapping, exact compatibility conditions and per-method authorization still need a dedicated gate.
