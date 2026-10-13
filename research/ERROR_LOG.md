@@ -1483,3 +1483,17 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Finding: the registry includes dropout=0.2/0.4, while the adapter previously ignored dropout. This was a semantic mismatch, not merely a documentation issue.
 - Correction: implemented deterministic training-time inverted dropout on convolution activations and corresponding gradient mask; inference remains dropout-free. Added deterministic/invalid-range tests.
 - Verification: combined synthetic gate [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. No market data or holdout access. Markov-switching regime/prior mismatch remains unresolved.
+
+
+## 2026-10-14 — Prediction OOF calibration maturity/embargo contract gap
+- Category: statistical validation / potential temporal leakage
+- Component: `scripts/prediction_logistic_calibration_r3.py::chronological_inner_oof`
+- Symptom: function accepted decision-session positions only; it could not check target maturity at training cutoff. It also failed to apply the preregistered initial validation embargo and did not exclude validation targets whose endpoints extended beyond their OOF fold.
+- Risk: OOF calibration predictions could be based on training labels not yet observable at the validation cutoff or labels maturing beyond the validation interval; this could contaminate calibration and bias reported skill.
+- Correction: require target-endpoint session positions; reject missing/invalid endpoint metadata and endpoints before decision; train only on targets maturing strictly before validation start after frozen purge; exclude the initial embargo sessions from OOF validation; require each validation endpoint to remain strictly within the validation fold.
+- Regression coverage: synthetic tests added for endpoint maturity, mandatory endpoint metadata, and invalid endpoint ordering. Workflow now includes this test module and compiles the updated helper.
+- Verification status: hosted CI not yet verified in this checkpoint. Do not mark the code gate passed until the exact-snapshot workflow succeeds. No empirical model fit or result was produced.
+- Prevention: every chronological calibration helper must receive both decision and target-endpoint timing, enforce fold-local target maturity and purge/embargo, and have its own tests explicitly included in the hosted workflow.
+
+**Developer → Tester:** no intermediate review; await acquired-results bundle.  
+**Tester → Developer:** after results publication, audit the full implementation and all result rows.
