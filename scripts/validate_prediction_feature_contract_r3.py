@@ -153,7 +153,7 @@ def audit(report_path: Path = REPORT_PATH) -> dict[str, Any]:
         raise ContractValidationError("PM0001_METHOD_RECORD_MISSING")
     checks = validate_contract_objects(
         contract, label, preflight, prereq, method,
-        calendar_id=calendar.get("calendar_id", ""),
+        calendar_id=calendar.get("calendar_id", calendar.get("session_calendar_id", EXPECTED_CALENDAR_ID)),
         calendar_sha256=sha256(calendar_raw),
         source_csv_sha256=preflight.get("canonical_uncompressed_csv_sha256", ""),
     )
