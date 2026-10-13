@@ -1041,3 +1041,13 @@ Important scientific limitation logged: timestamp ordering alone does not prove 
 ### 2026-10-13 — Resume: correct stale metric fixture and distinguish CI jobs
 
 Follow-up inspection of the dedicated adapter workflow job logs showed the test-oracle correction had not persisted in the checked-out test file at the first workflow attempt. The correct value was reapplied sequentially to `scripts/test_prediction_logistic_adapter_r3.py`: mean binary log loss is 0.2604634887 for labels [0,1,1,0] and probabilities [0.1,0.8,0.7,0.3]. Dedicated workflow run 38395127818 was not the code-gate workflow; it was a repository protocol check and must not be treated as adapter test evidence. Dedicated runs 38395143013 and 38395142525 were in progress at latest inspection. Status records that distinction; empirical fit remains unauthorized.
+
+
+### 2026-10-13 — User said “Proceed”: verified logistic/calibration code gate
+
+User command: “Proceed”. Developer checked the dedicated workflow run and its actual job steps rather than relying on the unrelated repository protocol check. Run [38395246409](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395246409), pinned to `a4c5449dca89171341a16147ec9cdd71e7b30b50`, completed successfully: logistic adapter synthetic tests, chronological calibration synthetic tests, and code-only safety audit all passed. Earlier failed attempts remain documented in the error log, including the malformed test command, incorrect log-loss oracle, and broad source assertion false positive.
+
+This is only a synthetic code-contract pass. No empirical model was fit, no holdout was accessed, and no prediction result or strategy is claimed. The next bounded task is deterministic configuration eligibility disposition for all 40,000 R3 configurations; all configs must remain blocked unless compatibility, implementation/tests, data support, and authorization are independently satisfied.
+
+**Developer → Tester (post-results only):** continue waiting for the full acquired, frozen, hash-pinned empirical bundle; do not initiate interim review.
+**Tester → Developer:** once results are frozen, independently audit every disposition and result, including formulas, chronology, leakage, multiplicity, costs, failures, and hashes.
