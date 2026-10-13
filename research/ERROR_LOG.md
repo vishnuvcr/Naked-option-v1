@@ -1227,3 +1227,13 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: rewrite the workflow with separate test steps and the exact committed filename `test_prediction_chronological_calibration_r3.py`.
 - Prevention: inspect the complete resulting workflow after modifications and compare every test glob to actual repository filenames before considering the code gate passed.
 - Disposition: workflow failure only; no scientific data opened and no empirical model fitted. Repair is committed; rerun verification pending.
+
+
+## 2026-10-13 — Phase 8P code-only source assertion false positive
+- Category: workflow/test assertion
+- Component: `.github/workflows/phase-08p-logistic-adapter-r3.yml`
+- Hosted run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395142525
+- Symptom: both synthetic suites passed, but the source audit failed because it rejected the word "holdout" anywhere in source text, including explanatory docstrings; that is not evidence of holdout access.
+- Correction: remove this broad lexical assertion while retaining checks that these modules do not load CSV data or invoke the empirical authorization gate.
+- Prevention: source-level safety assertions must test executable capabilities/calls, not incidental prose.
+- Disposition: no data access or empirical fit; rerun after assertion correction.
