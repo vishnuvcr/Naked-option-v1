@@ -1150,3 +1150,12 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - The 40,000-config registry is not 40,000 executed or valid fits. No empirical metrics, model outputs, option P&L or strategy conclusions were produced.
 - The separate Greek-feature runner has strict pinned authorization and must not be repurposed to bypass the R3 registry gate.
 - Next finite task: reconcile every config/method/feature/label against compatibility and preflight status; create a 40,000-row disposition manifest with exact count conservation; only then pin and test an authorized executor, benchmark resource use, and run eligible development folds. Holdout remains sealed. Tester review remains deferred until the complete result bundle is frozen.
+
+
+## Phase 8P R3 — first conditional adapter implementation (2026-10-13)
+
+- Added `scripts/prediction_logistic_adapter_r3.py`: train-only standardization plus logistic probability estimation, fixed 0.5 class threshold, and fail-closed input/probability checks. It does not load data, split folds, calibrate, or authorize empirical fitting.
+- Added synthetic contract tests at `scripts/test_prediction_logistic_adapter_r3.py` and automatic/manual workflow `.github/workflows/phase-08p-logistic-adapter-r3.yml`.
+- Workflow outcome: **PENDING hosted execution verification**. The commit itself is not treated as a passed test.
+- Important limitation: this is only the estimator adapter component. Inner-chronological OOF calibration, complete 40,000-config eligibility manifest, empirical runner, and separate scientific authorization remain incomplete. Empirical fitting remains **NOT AUTHORIZED**; holdout remains untouched.
+- Next bounded steps: verify hosted code-gate result; add and test chronological inner-OOF calibration; reconcile all config rows to explicit eligible/blocked dispositions; implement restartable, fold-purged development-only runner; benchmark runtime and run only the resulting approved manifest.
