@@ -63,3 +63,12 @@ The initial persistence correction is verified: run [38397474080](https://github
 Follow-up code review found the builder had collapsed five positional F01 fold-label failures into label-wide blocks. The preflight contains 75 passing fold-label cells and five blocked cells, all positional F01; this needs fold-level, not horizon-level, representation. Correction commit [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3) validates the complete grid, pins sources and records blocked/supported folds for each configuration. Corrected hosted execution and persisted-output verification remain pending.
 
 The compatibility gate remains 426 conditional methods, 574 blocked methods and **zero empirically eligible methods**. Empirical fitting remains prohibited. Next finite step: validate the corrected registry manifest, then complete and test PM0001's chronological calibration provenance and development-only executor before a separate explicit authorization gate. No holdout access or strategy conclusion is authorized by this registry step.
+
+
+## Corrected registry-accounting gate — PASS (2026-10-13)
+
+Accepted workflow: [38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557). The retained artifact ID 11813078693 was downloaded and parsed. The committed manifest Git blob SHA-1 707ea05ac9cf896881cbcf72b892ce8214368265 matches the artifact content and repository file; content SHA-256 is cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229.
+
+Verified 40,000 unique configs and 1,000 method IDs × 40 configs; disposition counts sum to 40,000 (17,040 implementation/authorization blocked; 22,960 compatibility blocked); no config is eligible/pending for fitting; all fit flags are false. The exact frozen data support grid has 75 passing label/fold cells and five blocked positional F01 cells. The other positional folds remain supported. The source pins and shard hashes passed hosted validation.
+
+This clears only registry accounting and persistence. The compatibility matrix remains 426 conditional, 574 blocked, and zero empirically eligible. **Do not fit yet.** Complete PM0001's implementation contract, runner with verifiable inner chronological OOF provenance, horizon-specific purge/embargo, restart/checkpoint behavior, and a specific development-fold authorization gate. Preserve the held-out period and do not treat synthetic checks as market performance.
