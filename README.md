@@ -583,3 +583,8 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - Code review found and fixed a latent eligibility-scope bug: the frozen data preflight blocks five positional **F01 label/fold cells**, not whole positional horizons. The builder now validates all 80 label/fold cells, records exact blocked and supported fold IDs per config, checks pinned source Git blob hashes, and has regression tests for single-fold vs all-fold blocking.
 - Correction commit: [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3). A new hosted workflow must pass and the new committed manifest must be hash/count verified before this registry gate is closed.
 - Empirical fitting remains **NOT AUTHORIZED**: 426 methods are conditional, 574 are blocked, and zero methods are empirically eligible. No prediction-performance result or strategy conclusion is claimed; the untouched holdout stays sealed. See [status](research/STATUS.md), [error log](research/ERROR_LOG.md), and [gate reconciliation](research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md).
+
+
+### Workflow correction audit — 2026-10-13
+
+The first fold-scoped manifest rerun, [38398836570](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38398836570), failed at checkout because of a literal backslash in the GitHub SHA expression; no tests or build ran. The expression was corrected in [commit b8b1eb2c0eaecde206789968f7585f496f9f6e95](https://github.com/vishnuvcr/Naked-option-v1/commit/b8b1eb2c0eaecde206789968f7585f496f9f6e95). Fresh hosted run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) is queued; registry acceptance remains pending.
