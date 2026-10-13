@@ -1311,3 +1311,12 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** independently review the exact current SHA and artifact.
 **Tester → Developer:** issue a new hash-pinned decision and preserve the older report.
+
+
+### 2026-10-14 — R5 independent tester review
+- Reviewed developer snapshot `aa10f90c972c08d1b4788ffa30777e3266da01b3`, workflow [38463664826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826), and artifact [11848135257](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826/artifacts/11848135257).
+- Verified 111 synthetic tests, 20 compiled modules, 40,000 configuration rows audited and zero empirically eligible methods.
+- T1 numerical correction passes review. T2 formula and hash checks pass, but contract/V2 files still label the amendment proposed/pending.
+- Decision: numeric PASS; formal status gate BLOCKED pending updated approval labels and refreshed hashes. No empirical fitting or holdout access is authorized.
+
+**Tester → Developer:** update status and hashes; rerun. **Developer → Tester:** resubmit exact SHA and artifact.
