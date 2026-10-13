@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 import numpy as np
 
-from prediction_pm0001_executor_r3 import PM0001ExecutionError, fit_pm0001_outer_fold
+from prediction_pm0001_executor_r3 import (\n    PM0001ExecutionError, fit_pm0001_outer_fold, _precheck_inner_oof_support,\n)
 
 
 class PM0001ExecutorTests(unittest.TestCase):
@@ -71,6 +71,31 @@ class PM0001ExecutorTests(unittest.TestCase):
         endpoint[220] = 230
         result = self.run_fit(endpoint_override=endpoint)
         self.assertNotIn(220, result.validation_indices)
+
+    def test_outer_validation_class_support_blocks_before_fitting(self):
+        x, y, decision, endpoint = self.fixture()
+        y[182:229] = 1
+        with self.assertRaisesRegex(PM0001ExecutionError, "OUTER_VALIDATION_CLASS_SUPPORT_FAILED"):
+            fit_pm0001_outer_fold(
+                x, y, decision, endpoint,
+                fold_id="F01", validation_start_session=180,
+                validation_end_session_exclusive=230, purge_sessions=2,
+                embargo_sessions=2, c=1.0, min_outer_train_rows=80,
+                min_outer_validation_rows=20, min_inner_train_rows=20,
+                min_inner_validation_rows=10, min_outer_train_class_support=2,
+                min_outer_validation_class_support=2, min_inner_class_support=2,
+            )
+
+    def test_inner_validation_class_support_is_checked_before_fit(self):
+        decision = np.arange(100, dtype=int)
+        endpoint = decision + 1
+        y = np.tile(np.array([0, 1], dtype=int), 50)
+        y[40:60] = 1
+        with self.assertRaisesRegex(PM0001ExecutionError, "INNER_OOF_FOLD_1_VALIDATION_CLASS_SUPPORT_FAILED"):
+            _precheck_inner_oof_support(
+                y, decision, endpoint, purge_sessions=1, embargo_sessions=1,
+                min_train_rows=20, min_validation_rows=10, min_class_support_each=2,
+            )
 
     def test_invalid_c_fails_closed(self):
         with self.assertRaisesRegex(PM0001ExecutionError, "C_MUST_BE_FINITE_POSITIVE"):
