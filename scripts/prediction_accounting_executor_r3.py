@@ -18,6 +18,10 @@ def main(out_path):
     pre_path = "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
     prereg_path = "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
     cm, ci, pre, prereg = map(read_json, (cm_path, ci_path, pre_path, prereg_path))
+    if pre.get("status") != "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS": raise ValueError("PREFLIGHT_STATUS_NOT_APPROVED")
+    if pre.get("canonical_hash_matches") is not True: raise ValueError("PREFLIGHT_CANONICAL_HASH_NOT_VERIFIED")
+    if pre.get("expected_canonical_csv_sha256") != pre.get("canonical_uncompressed_csv_sha256"): raise ValueError("PREFLIGHT_CANONICAL_HASH_DISAGREEMENT")
+    if pre.get("model_fitting_performed") is not False or pre.get("holdout_accessed") is not False: raise ValueError("PREFLIGHT_PROVENANCE_FLAGS_UNSAFE")
     compat = {}
     for sh in ci["shards"]:
         raw = (ROOT / sh["path"]).read_bytes()
