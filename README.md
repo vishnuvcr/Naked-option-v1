@@ -1,6 +1,6 @@
 ## Process correction — tester review occurs after results publication (2026-10-14)
 
-The user reiterated that **independent tester review must not occur until after the planned prediction results have been acquired and published/frozen**. The governing cadence policy says the tester starts only on a hash-pinned `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with `results_acquired: true` and a complete result-bundle manifest. Do not request intermediate tester reviews, and do not treat the old tester report as a reason to pause routine developer execution. Continue developer-side automated correctness, data-integrity, label/fold, leakage, statistical and protocol checks throughout execution. The existing R6 parameter-binding approval is historical code-subgate evidence, not the results review. Resolve the stale pre-registration requirement for pre-fit independent approval consistently with this cadence before fitting; no scientific result is implied by this process correction.
+The user reiterated that **independent tester review must not occur until after the planned prediction results have been acquired and published/frozen**. The governing cadence policy says the tester starts only on a hash-pinned `PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json` with `results_acquired: true` and a complete result-bundle manifest. Do not request intermediate tester reviews, and do not treat the old tester report as a reason to pause routine developer execution. Continue developer-side automated correctness, data-integrity, label/fold, leakage, statistical and protocol checks throughout execution. The existing R6 parameter-binding approval is historical code-subgate evidence, not the results review. The controlling R3 preregistration already specifies post-results review; older V1/V2 wording is historical. Continue developer-side implementation/eligibility and execution gates before fitting, and submit the tester request only after the full result bundle is acquired and frozen.
 
 # Phase 8P R4 parameter-binding gate — PASS (2026-10-14)
 
@@ -17,12 +17,12 @@ The user reiterated that **independent tester review must not occur until after 
 - Transition-prior semantics are versioned and tester-reviewed for this code contract; V2 and contract blob hashes are pinned by workflow assertions.
 - **Only the Phase 8P code/parameter-binding subgate is closed.** Empirical fitting is still blocked by remaining `NOT_FROZEN_BLOCKED` preregistration fields and the outstanding data/label/authorization preflight. No market data or holdout was accessed.
 
-**Developer → Tester:** the code gate is closed; independently review the next frozen preregistration and data/label preflight gate before any empirical fit.  
+**Developer → Tester (after results acquisition only):** wait for the formal frozen result-bundle request; no intermediate review is due.  
 **Tester → Developer:** require complete ten-horizon label definitions, frozen statistical/fold parameters, artifact provenance, and enforced authorization before approving any data execution.
 
 ---
 
-# Latest Phase 8P R4 development gate — PASS; independent review pending (2026-10-14)
+# Historical Phase 8P R4 development checkpoint — PASS (2026-10-14)
 
 **Exact developer snapshot:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  
 **Hosted R4 workflow:** [run 38463113199 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199)  
@@ -34,7 +34,7 @@ The user reiterated that **independent tester review must not occur until after 
 - Empirical eligibility remains **0**. No market-data fitting; no holdout access.
 - Markov terminal posterior and log-likelihood are recomputed from final stored parameters and verified against an independently reconstructed forward recursion.
 - Proposed parameter semantics: [transition-prior contract](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/registry/MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json), pinned by [preregistration V2](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json); independent approval remains pending.
-- The old tester report blocked an earlier SHA. Current snapshot has the remediation and a green automated gate; a **fresh independent review is mandatory**.
+- The old tester report blocked an earlier SHA and the later R6 report passed the code/parameter-binding subgate. Under the controlling post-results cadence, no fresh intermediate review is due.
 - **Still blocked:** empirical fitting, holdout access, option P&L, model ranking and strategy promotion. Other `NOT_FROZEN_BLOCKED` preregistration fields remain unresolved.
 
 **Developer → Tester:** review exact SHA `28e192269a63030c03963e83767f1dc6d7c6a81e`, final-forward arithmetic, semantic contract and artifact.  
