@@ -1,3 +1,15 @@
+# Latest Phase 8P R3 checkpoint — prerequisite audit passed (2026-10-13)
+
+- Hosted prerequisite audit [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed; after adding a regression test for workflow-expression escaping, final commit [d98bebbc0547fd536016290e8b54293a55612bd7](https://github.com/vishnuvcr/Naked-option-v1/commit/d98bebbc0547fd536016290e8b54293a55612bd7) also passed [run 38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507).
+- Machine-readable audit: [PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json](research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json). It verifies pinned sources, all 400 ten-horizon config shards, all 40 compatibility shards, 40,000 unique configs, 1,000 methods and the complete 80 label/fold data-support grid.
+- Data gate: 75/80 label-fold cells pass; five positional F01 cells stay blocked by the frozen 1% missing-target-pair rule. Do not loosen the rule or discard eligible later folds.
+- Method gate: 426 methods are conditional in principle; 574 are blocked; zero are implemented/approved for fitting. All empirical fit flags remain false. No prediction performance result, selected model, strategy or holdout result is claimed.
+- Next task: implement and test a development-fold-only executor with an explicit method allowlist (starting with PM0001), target-maturity and horizon-specific purge/embargo controls, expanding inner-fold OOF calibration, training-only transformations, complete config/fold outcome rows and restartable checkpoints. Keep empirical fitting blocked until the implementation authorization gate passes.
+
+Research continuity: [Current status](research/STATUS.md) · [Research log](research/logs/RESEARCH_LOG.md) · [Error log](research/ERROR_LOG.md) · [Conversation decision log](research/logs/CHAT_LOG.md) · [R3 prerequisite-audit workflow](.github/workflows/phase-08p-r3-prerequisite-audit.yml).
+
+---
+
 ## Full-horizon R3 registry — developer execution (2026-10-13)
 
 - Established registry CI [38380784159](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380784159) passed the ten-horizon R3 registry, calendar and provenance checks (40,000 configurations; 4,000 per horizon).
