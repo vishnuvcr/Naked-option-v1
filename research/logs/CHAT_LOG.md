@@ -1036,3 +1036,8 @@ Current scope is still code-only. The OOF caller must independently prove offici
 Added `scripts/prediction_chronological_calibration_r3.py` and `scripts/test_prediction_chronological_calibration_r3.py`. The calibrator accepts only explicitly supplied inner-OOF probabilities, labels and timestamps; enforces ordered unique timestamps, probability validity, both classes and minimum sample size; and fits a logistic Platt map. The code gate workflow now runs both logistic-adapter and calibration synthetic suites. Hosted run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) was observed queued/pending.
 
 Important scientific limitation logged: timestamp ordering alone does not prove that upstream OOF probabilities are causally generated. The future runner must emit fold/purge/embargo provenance and must not access holdout. No market data opened, no empirical fitting performed, no holdout access and no metrics claimed.
+
+
+### 2026-10-13 — Resume: correct stale metric fixture and distinguish CI jobs
+
+Follow-up inspection of the dedicated adapter workflow job logs showed the test-oracle correction had not persisted in the checked-out test file at the first workflow attempt. The correct value was reapplied sequentially to `scripts/test_prediction_logistic_adapter_r3.py`: mean binary log loss is 0.2604634887 for labels [0,1,1,0] and probabilities [0.1,0.8,0.7,0.3]. Dedicated workflow run 38395127818 was not the code-gate workflow; it was a repository protocol check and must not be treated as adapter test evidence. Dedicated runs 38395143013 and 38395142525 were in progress at latest inspection. Status records that distinction; empirical fit remains unauthorized.
