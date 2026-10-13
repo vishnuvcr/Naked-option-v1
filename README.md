@@ -1,3 +1,16 @@
+# R4 independent tester decision: BLOCKED (2026-10-14)
+
+- Reviewed developer snapshot [`0e016b657a4f7f906b4fde3a20a515d7ce53f0e4`](https://github.com/vishnuvcr/Naked-option-v1/commit/0e016b657a4f7f906b4fde3a20a515d7ce53f0e4).
+- Developer gate [38462243181](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38462243181) passed 109 synthetic tests, compilation and 40,000-configuration parameter binding. This is code-only evidence.
+- Tester report: [R4 independent review](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R4_2026-10-14.md).
+- Blockers: (T1) Markov terminal posterior/log likelihood are stored from parameters preceding the final M-step; (T2) transition-prior definition must be frozen in a versioned preregistration/configuration contract, not just added as working code.
+- No market-data fitting, holdout access, P&L or strategy promotion is authorized.
+
+**Tester → Developer:** fix T1 and freeze T2 in the protocol, then submit a new exact commit for independent review.
+**Developer → Tester:** preserve this report and re-run the complete gate after remediation.
+
+---
+
 # R4 test correction — full rerun pending (2026-10-14)
 
 - Run [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) executed 107 tests and failed before the registry audit: one output-shape error in chronological OOF calibration, and one case-sensitive assertion error. Markov 2/3-regime tests and transition-prior sensitivity passed.
