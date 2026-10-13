@@ -18,6 +18,7 @@ PREFLIGHT_PATH = "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
 CONFIG_MANIFEST_PATH = "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json"
 COMPAT_MATRIX_PATH = "research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json"
 OUT_PATH = "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
+IMPLEMENTATION_GATE_PATH = "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
 FOLD_IDS = tuple(f"F{i:02d}" for i in range(1, 9))
 
 GIT_BLOB_PINS = {
@@ -41,7 +42,7 @@ def read_json(path: str):
     return json.loads((ROOT / path).read_text(encoding="utf-8"))
 
 
-def verify_pinned_sources() -> None:
+def verify_pinned_sources() -> dict:
     for rel_path, expected in GIT_BLOB_PINS.items():
         path = ROOT / rel_path
         if not path.is_file():
@@ -58,6 +59,24 @@ def verify_pinned_sources() -> None:
         raise ValueError("COMPATIBILITY_MATRIX_PATH_PIN_MISMATCH")
     if index.get("compatibility_matrix_git_blob_sha1") != GIT_BLOB_PINS[COMPAT_MATRIX_PATH]:
         raise ValueError("COMPATIBILITY_MATRIX_BLOB_PIN_MISMATCH")
+    gate_path = ROOT / IMPLEMENTATION_GATE_PATH
+    if not gate_path.is_file():
+        raise ValueError("PM0001_IMPLEMENTATION_GATE_MISSING")
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    if gate.get("method_id") != "PM0001" or gate.get("status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
+        raise ValueError("PM0001_IMPLEMENTATION_GATE_STATUS_INVALID")
+    verification = gate.get("verification", {})
+    if verification.get("conclusion") != "success" or verification.get("source_data_loaded") is not False:
+        raise ValueError("PM0001_IMPLEMENTATION_GATE_CI_OR_SCOPE_INVALID")
+    if verification.get("empirical_model_fit") is not False or verification.get("holdout_accessed") is not False:
+        raise ValueError("PM0001_IMPLEMENTATION_GATE_SCOPE_INVALID")
+    for rel_path, expected in gate.get("source_blob_pins", {}).items():
+        path = ROOT / rel_path
+        if not path.is_file() or git_blob_sha1(path.read_bytes()) != expected:
+            raise ValueError(f"PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:{rel_path}")
+    if gate.get("empirical_fit_authorized") is not False or gate.get("manual_authorization_required") is not False:
+        raise ValueError("PM0001_IMPLEMENTATION_GATE_AUTHORIZATION_FLAGS_INVALID")
+    return gate
 
 
 def load_verified_shards(index: dict, key: str, path_key: str, hash_key: str, count_key: str):
@@ -108,7 +127,7 @@ def validate_fold_support_rows(rows: list[dict], expected_labels: set[str]) -> d
     return by_label
 
 
-def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[str, dict]]) -> dict:
+def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[str, dict]], implementation_gate: dict | None = None) -> dict:
     c = config["configuration"]
     label_id = c["label_id"]
     label_support = fold_support_by_label[label_id]
@@ -118,10 +137,15 @@ def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[s
     )
     supported_folds = [fold for fold in FOLD_IDS if fold not in blocked_folds]
 
+    implementation_passed = (
+        implementation_gate is not None
+        and method.get("method_id") == implementation_gate.get("method_id") == "PM0001"
+        and implementation_gate.get("status") == "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY"
+    )
     if method["compatibility_decision"] == "BLOCK":
         disposition = "BLOCKED_METHOD_COMPATIBILITY"
         reason = method.get("decision_code", "COMPATIBILITY_BLOCK")
-    elif method.get("eligible_for_empirical_fitting") is not True:
+    elif method.get("eligible_for_empirical_fitting") is not True and not implementation_passed:
         disposition = "BLOCKED_IMPLEMENTATION_NOT_READY"
         reason = method.get("implementation_status", "IMPLEMENTATION_NOT_DEMONSTRATED")
     elif len(blocked_folds) == len(FOLD_IDS):
@@ -146,7 +170,7 @@ def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[s
     }
 
 
-def build_manifest(configs: list[dict], methods: list[dict], preflight: dict, source_pins: dict) -> dict:
+def build_manifest(configs: list[dict], methods: list[dict], preflight: dict, source_pins: dict, implementation_gate: dict | None = None) -> dict:
     if preflight.get("canonical_hash_matches") is not True:
         raise ValueError("PREFLIGHT_CANONICAL_DATA_HASH_NOT_VERIFIED")
     if preflight.get("holdout_accessed") is not False:
@@ -163,7 +187,7 @@ def build_manifest(configs: list[dict], methods: list[dict], preflight: dict, so
         mid = cfg.get("method_id")
         if mid not in method_map:
             raise ValueError(f"CONFIG_METHOD_NOT_REGISTERED:{mid}")
-        out.append(classify(cfg, method_map[mid], fold_support))
+        out.append(classify(cfg, method_map[mid], fold_support, implementation_gate))
     if len({row["config_id"] for row in out}) != len(out):
         raise ValueError("DUPLICATE_CONFIG_ID")
 
@@ -236,8 +260,11 @@ def main() -> int:
         raise ValueError("EXPECTED_40000_UNIQUE_CONFIGURATIONS")
     if manifest["eligible_fold_label_cell_count"] != 75 or manifest["blocked_fold_label_cell_count"] != 5:
         raise ValueError("PREFLIGHT_FOLD_SUPPORT_COUNTS_CHANGED_REQUIRES_REVIEW")
-    if manifest["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) != 0:
-        raise ValueError("UNEXPECTED_CONFIG_ELIGIBILITY_REQUIRES_REVIEW")
+    pending = [row for row in manifest["records"] if row["disposition"] == "ELIGIBLE_PENDING_EXECUTOR_GATE"]
+    if len(pending) != 40 or any(row["method_id"] != "PM0001" for row in pending):
+        raise ValueError(f"EXPECTED_ONLY_40_PM0001_CONFIGS_PENDING_EXECUTOR_GATE:{len(pending)}")
+    if any(row["empirical_fit_authorized"] for row in pending):
+        raise ValueError("IMPLEMENTATION_GATE_MUST_NOT_AUTHORIZE_EMPIRICAL_FITTING")
     if sum(manifest["disposition_counts"].values()) != 40000:
         raise ValueError("DISPOSITION_ACCOUNTING_MISMATCH")
     output = ROOT / args.output
