@@ -67,11 +67,15 @@ jobs:
           import json
           from pathlib import Path
           report = json.loads(Path("prediction-parameter-binding-audit-r4.json").read_text(encoding="utf-8"))
-          assert report["status"] == "PASS_ADAPTER_MAPPING_INVENTORY", report.get("errors")
+          assert report["status"] == "PASS_PARAMETER_BINDING_AUDIT_R4", report.get("errors")
           assert report["methods"] == 1000, report
           assert report["configurations"] == 40000, report
           assert report["families"] == 20, report
           assert report["decision_counts"] == {"ALLOW_IN_PRINCIPLE": 426, "BLOCK": 574}, report
+          semantics = report["parameter_semantics_contract"]
+          assert semantics["preregistration_git_blob_sha"] == "1748edd2e0065db591bfd9598c2812d14f48327d", semantics
+          assert semantics["contract_git_blob_sha"] == "c0402b71e709156e6684e0d20fe0a5a87f0d2efc", semantics
+          assert semantics["contract_status"] == "DEVELOPER_PROPOSED_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS", semantics
           assert report["parameter_binding_counts"].get("BOUND") == 38000, report["parameter_binding_counts"]
           assert report["parameter_binding_counts"].get("BLOCKED:SURVIVAL_EVENT_TIME_CONTRACT_NOT_IMPLEMENTED") == 2000, report["parameter_binding_counts"]
           assert "ERROR" not in report["parameter_binding_counts"], report["parameter_binding_counts"]
