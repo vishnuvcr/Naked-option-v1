@@ -162,6 +162,10 @@ def fit_pm0001_outer_fold(
     baseline = np.full(len(valid_idx), prevalence, dtype=float)
     candidate_loss = float(log_loss(validation_y, probability, labels=[0, 1]))
     baseline_loss = float(log_loss(validation_y, baseline, labels=[0, 1]))
+    calibration = calibration_intercept_slope(validation_y.tolist(), probability.tolist())
+    calibration_status = str(calibration.get("status", "UNKNOWN"))
+    calibration_intercept = float(calibration["intercept"]) if calibration_status == "CONVERGED" else None
+    calibration_slope = float(calibration["slope"]) if calibration_status == "CONVERGED" else None
     return PM0001FoldResult(
         fold_id=fold_id,
         train_indices=tuple(map(int, train_idx)),
