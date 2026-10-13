@@ -1,0 +1,82 @@
+{
+  "schema_version": "prediction-feature-construction-contract-v1",
+  "date": "2026-10-13",
+  "amendment_id": "PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13",
+  "status": "FROZEN_PRE_RESULTS_IMPLEMENTATION_SUPPLEMENT",
+  "purpose": "Make the already-registered ordered_lagged_returns_and_levels representation executable without changing labels, horizons, outer folds, method universe, metrics, thresholds, or selection rules.",
+  "scope": {
+    "source_dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+    "canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "permitted_row_type": "SPOT",
+    "price_field": "nifty_close",
+    "calendar_path": "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+    "decision_time_timezone": "Asia/Kolkata",
+    "regular_session_open": "09:15:00",
+    "regular_session_close": "15:30:00",
+    "lookback_bars": [
+      20,
+      60
+    ],
+    "feature_order": [
+      "simple_returns_newest_to_oldest",
+      "spot_close_levels_newest_to_oldest"
+    ],
+    "feature_dimension_rule": "2 * lookback_bars",
+    "transformations": "Only training-fold StandardScaler; fit its means and scales using training rows in the current fold. No global scaling, imputation from future rows, PCA, feature selection, or feature engineering fit on the full sample."
+  },
+  "intraday": {
+    "labels": [
+      "INTRA_5M_UP_DOWN",
+      "INTRA_15M_UP_DOWN",
+      "INTRA_30M_UP_DOWN",
+      "INTRA_60M_UP_DOWN",
+      "INTRA_120M_UP_DOWN"
+    ],
+    "decision_rows": "Eligible minute-aligned SPOT observations within a pinned regular NSE session.",
+    "history": "For lookback L, the feature vector contains L simple returns and L close levels. Return j is close[t-j] / close[t-j-1] - 1 for j=0..L-1; level j is close[t-j] for j=0..L-1. Feature values use the decision bar and up to L previous one-minute transitions, all within the same session; at least L+1 exact eligible closes are required.",
+    "target": "Use an exact observed close at decision timestamp + the registered horizon in minutes. Decision and endpoint must both be in the same regular session; do not interpolate, forward-fill, or use a different timestamp.",
+    "flat_rule": "Exclude and count rows whose absolute simple return is <= 1e-8; y=1 only if return > 1e-8, otherwise y=0 when return < -1e-8.",
+    "endpoint_session_index": "Equal to the decision exchange-session index."
+  },
+  "positional": {
+    "labels": [
+      "POS_1D_UP_DOWN",
+      "POS_2D_UP_DOWN",
+      "POS_3D_UP_DOWN",
+      "POS_5D_UP_DOWN",
+      "POS_10D_UP_DOWN"
+    ],
+    "decision_rows": "Exact SPOT close observation timestamped 15:30:00 on each eligible official NSE session.",
+    "history": "For lookback L, use the decision session close and up to L immediately preceding official exchange-session closes. Feature vector contains L simple close-to-close returns and L close levels, both ordered newest-to-oldest. All L+1 source closes must exist; do not fill missing session closes.",
+    "target": "Use the exact observed close at session-index i+h, where h is the registered number of complete following official exchange sessions. Do not use calendar-day offsets or forward-fill.",
+    "flat_rule": "Exclude and count rows whose absolute simple return is <= 1e-8; y=1 only if return > 1e-8, otherwise y=0 when return < -1e-8.",
+    "endpoint_session_index": "Decision exchange-session index + registered positional horizon."
+  },
+  "point_in_time_and_quarantine": {
+    "option_rows_are_features": "Not in this initial PM0001 spot-only representation. Option-derived or global/contextual features require a separate pre-result feature contract with PIT publication/availability verification.",
+    "duplicate_timestamps": "Do not deduplicate by value equality in this builder. Any duplicate eligible SPOT timestamp fails closed; source-level byte-identical deduplication is governed by the frozen preprocessing rules.",
+    "timestamp_and_price": "Require parseable IST timestamps, exact whole-minute alignment, finite positive nifty_close, and session_date matching the timestamp's local date for an eligible observation.",
+    "quarantined_rows": "Ignore rows outside the frozen regular-session/calendar eligibility domain and count them in aggregate diagnostics; never use them as features or targets.",
+    "target_maturity": "Every training/calibration target endpoint must be observable strictly before the relevant training cutoff; target labels are not feature values.",
+    "holdout": "No holdout data path or secret may be read."
+  },
+  "required_diagnostics": [
+    "input_SPOT_rows",
+    "eligible_SPOT_rows",
+    "quarantined_SPOT_rows_by_reason",
+    "duplicate_eligible_timestamps",
+    "samples_considered",
+    "target_pairs_missing",
+    "flat_targets_excluded",
+    "feature_history_excluded",
+    "samples_emitted",
+    "feature_dimension",
+    "source_csv_sha256",
+    "calendar_sha256",
+    "contract_sha256"
+  ],
+  "non_changes": [
+    "No changes to target definitions, the 10 registered horizons, fold calendar boundaries, purge/embargo values, support minima, missingness limit, statistical metrics, multiplicity correction, method compatibility decisions, or strategy-selection scope.",
+    "This supplement defines the pre-result mechanical interpretation of an already-registered feature representation; it is not evidence that PM0001 is eligible or authorized for fitting."
+  ]
+}
