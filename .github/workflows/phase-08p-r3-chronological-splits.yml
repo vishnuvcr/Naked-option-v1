@@ -1,0 +1,83 @@
+name: Phase 8P R3 chronological split contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/prediction_walkforward_r3.py"
+      - "scripts/test_prediction_walkforward_r3.py"
+      - "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-r3-chronological-splits.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08p-r3-chronological-splits
+  cancel-in-progress: false
+
+jobs:
+  chronological-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact triggering source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run synthetic chronological and schema tests
+        run: python -m unittest discover -s scripts -p "test_prediction_walkforward_r3.py" -v
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-08p-r3-chronological-split-tests
+          path: |
+            scripts/test_prediction_walkforward_r3.py
+            scripts/prediction_walkforward_r3.py
+          if-no-files-found: error
+          retention-days: 90
+      - name: Persist gate result
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/chronological-gate.json"
+          python - <<'PY'
+          import hashlib, json, subprocess
+          from datetime import datetime, timezone
+          paths = ["scripts/prediction_walkforward_r3.py", "scripts/test_prediction_walkforward_r3.py", "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json", "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"]
+          blobs = {}
+          for path in paths:
+              raw = open(path, "rb").read()
+              blobs[path] = {"sha256": hashlib.sha256(raw).hexdigest(), "git_blob_sha1": hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\\0" + raw).hexdigest()}
+          report = {"schema_version":"prediction-chronological-split-test-report-v1","status":"PASS_SYNTHETIC_CHRONOLOGICAL_CONTRACT_ONLY","generated_utc":datetime.now(timezone.utc).isoformat(),"source_commit":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"test_suite":"test_prediction_walkforward_r3.py","source_hashes":blobs,"empirical_fit_authorized":False,"holdout_accessed":False,"market_data_loaded":False,"model_fitting_performed":False,"result_bundle_frozen":False}
+          open("$RUNNER_TEMP/chronological-gate.json","w").write(json.dumps(report,sort_keys=True,indent=2)+"\\n")
+          PY
+          cp "$RUNNER_TEMP/chronological-gate.json" research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json
+          cp research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json "$RUNNER_TEMP/chronological-gate-copy.json"
+          git config user.name "Naked Option Research Automation"
+          git config user.email "research-automation@users.noreply.github.com"
+          persisted=false
+          for attempt in 1 2 3 4 5; do
+            git fetch origin phase-08-prediction-developer
+            git reset --hard origin/phase-08-prediction-developer
+            cp "$RUNNER_TEMP/chronological-gate-copy.json" research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json
+            git add research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json
+            if git diff --cached --quiet; then persisted=true; break; fi
+            git commit -m "Record R3 chronological split test gate"
+            if git push origin HEAD:phase-08-prediction-developer; then persisted=true; break; fi
+            echo "Branch moved during report persistence; retry $attempt of 5"
+            sleep 2
+          done
+          test "$persisted" = "true"
