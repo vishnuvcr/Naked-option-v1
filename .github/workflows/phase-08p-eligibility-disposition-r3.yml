@@ -8,6 +8,7 @@ on:
     paths:
       - "scripts/build_prediction_eligibility_manifest_r3.py"
       - "research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md"
+      - "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
       - "scripts/test_prediction_eligibility_manifest_r3.py"
       - "research/registry/config_shards_r3/**"
       - "research/registry/compatibility_shards/**"
@@ -54,7 +55,7 @@ jobs:
           assert d["manual_authorization_required"] is False
           assert all(row["manual_authorization_required"] is False for row in d["records"])
           assert all(row["empirical_fit_authorized"] is False for row in d["records"])
-          assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 0
+          assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 40\n          pending = [row for row in d["records"] if row["disposition"] == "ELIGIBLE_PENDING_EXECUTOR_GATE"]\n          assert len(pending) == 40\n          assert all(row["method_id"] == "PM0001" for row in pending)\n          assert all(row["empirical_fit_authorized"] is False for row in pending)\n          assert all(row["manual_authorization_required"] is False for row in pending)
           assert sum(d["disposition_counts"].values()) == 40000
           assert d["eligible_fold_label_cell_count"] == 75
           assert d["blocked_fold_label_cell_count"] == 5
@@ -63,7 +64,7 @@ jobs:
           assert all(cell["label_id"].startswith("POS_") for cell in d["blocked_fold_label_cells"])
           assert all(row["blocked_outer_fold_ids"] == ["F01"] for row in d["records"]
                      if row["label_id"].startswith("POS_"))
-          print("PASS: 40,000 unique configurations; 75 supported / 5 scoped blocked fold-label cells; empirical fitting remains unauthorized")
+          print("PASS: 40,000 unique configurations; 40 PM0001 configurations pending executor gate; 75 supported / 5 scoped blocked fold-label cells; empirical fitting remains unauthorized")
           PY
       - name: Commit verified manifest to research branch
         env:
