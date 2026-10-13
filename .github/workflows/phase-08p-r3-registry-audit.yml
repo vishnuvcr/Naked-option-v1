@@ -1,0 +1,45 @@
+name: Phase 8P R3 prediction registry accounting audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/audit_prediction_registry_r3.py"
+      - "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/registry/config_shards_r3/**"
+      - "research/registry/compatibility_shards/**"
+      - ".github/workflows/phase-08p-r3-registry-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Audit every config and compatibility shard
+        run: python scripts/audit_prediction_registry_r3.py "$RUNNER_TEMP/registry-audit.json"
+      - name: Compile auditor
+        run: python -m py_compile scripts/audit_prediction_registry_r3.py
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-registry-accounting-audit-r3
+          path: ${{ runner.temp }}/registry-audit.json
+          if-no-files-found: error
+          retention-days: 90
