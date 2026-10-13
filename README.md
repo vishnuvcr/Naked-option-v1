@@ -691,3 +691,6 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 
 - Latest expanded family gate [38456989867](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38456989867) passed 47 synthetic tests, including HMM, Markov-switching logistic and Bayesian dynamic logistic adapters. [Updated report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Change-point combined tests and temporal convolution remain; no empirical fitting authorization.
+
+
+- Expanded family gate [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests, now including change-point and temporal convolution adapters. [Report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). A tensor-shape bug was caught and corrected. No empirical fitting or holdout access.
