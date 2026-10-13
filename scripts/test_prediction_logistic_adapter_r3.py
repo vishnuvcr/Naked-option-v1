@@ -32,7 +32,7 @@ class LogisticAdapterTests(unittest.TestCase):
     def test_logloss_matches_sklearn_reference(self):
         y = np.array([0, 1, 1, 0])
         p = np.array([.1, .8, .7, .3])
-        self.assertAlmostEqual(binary_log_loss(y, p), .2899092476, places=8)
+        self.assertAlmostEqual(binary_log_loss(y, p), .2604634887, places=8)
 
     def test_fail_closed_on_invalid_data_and_unfitted_model(self):
         m = LogisticProbabilityAdapter()
