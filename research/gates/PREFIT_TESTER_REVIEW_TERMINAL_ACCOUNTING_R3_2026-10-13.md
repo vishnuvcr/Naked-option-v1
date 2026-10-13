@@ -46,3 +46,9 @@ Proceed only to method-family implementation and synthetic tests. Do not run emp
 - LDA/QDA, elastic-net logistic, random forest, Extra Trees, gradient boosting, and histogram gradient boosting adapters were reviewed against the registered parameter shapes in the configuration shards. The adapters validate inputs and emit bounded probabilities; tree models use fixed seeds and single-thread execution for deterministic synthetic checks.
 - Latest family suite [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests. Report: [classical adapter result](PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Tester decision: PASS for synthetic mechanics only. Native probability outputs from tree ensembles are not automatically considered calibrated; inner chronological OOF calibration remains mandatory where specified. No empirical fitting is approved.
+
+
+## Margin/distance family review
+- Initial margin gate [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566) caught two nearest-centroid API errors; corrections passed in [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453).
+- A second mathematical review found that KNN posterior log-odds were not a class-conditional density ratio under class imbalance. The implementation now normalizes local weighted mass by each class's sample count; the imbalanced-class test and combined 33-test suite passed in [38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714).
+- Tester decision: PASS for synthetic score mechanics only. SVM, centroid and KNN raw scores must be calibrated only on inner chronological OOF predictions before evaluation. No empirical fitting approved.
