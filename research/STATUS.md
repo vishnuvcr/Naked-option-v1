@@ -1458,3 +1458,14 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the exact code SHA, numeric test, semantic contract pins and hosted report.  
 **Tester → Developer:** keep the old decision intact and publish a new independent review of the current snapshot.
+
+
+## R5 independent review — numerical pass; metadata closeout required (2026-10-14)
+- Reviewed developer SHA `aa10f90c972c08d1b4788ffa30777e3266da01b3`, run [38463664826](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826), and artifact [11848135257](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463664826/artifacts/11848135257).
+- Verified 111 synthetic tests, 20 modules compiled, 1,000 methods and 40,000 configs audited (38,000 bindings; 2,000 explicit survival blocks), and zero empirically eligible methods.
+- Markov final posterior/likelihood consistency and transition-prior formula/hash checks pass.
+- Overall gate remains blocked until the contract and V2 status fields stop saying approval is pending, the related hashes are refreshed, and the full gate is rerun.
+- Report: [R5 tester report](gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R5_2026-10-14.md). Empirical fitting remains disallowed; other preregistration fields are still unresolved.
+
+**Tester → Developer:** update status fields/pins and submit a fresh green snapshot.
+**Developer → Tester:** send the new exact commit and artifact for final confirmation.
