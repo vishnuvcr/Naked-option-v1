@@ -11,6 +11,7 @@ on:
       - 'requirements-composite.txt'
       - 'research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json'
       - 'research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json'
+      - 'research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json'
       - 'research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json'
       - 'research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json'
       - 'research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json'
@@ -42,6 +43,29 @@ jobs:
       - name: Run preflight helper regression tests before large artifact download
         shell: bash
         run: python -m unittest discover -s scripts -p "test_preflight_prediction_dataset_r3.py" -v
+
+      - name: Verify registry source pins before large artifact download
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib
+          root=pathlib.Path(".")
+          prereg=json.loads((root/"research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json").read_text(encoding="utf-8"))
+          scope=prereg.get("scope", {})
+          def blob_sha(raw):
+              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+          checks=[
+              ("session_calendar_source_git_blob_sha1",root/"research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"),
+              ("data_preprocessing_rules_git_blob_sha1",root/"research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json"),
+          ]
+          stale=[]
+          for key,path in checks:
+              if not path.is_file() or scope.get(key)!=blob_sha(path.read_bytes()):
+                  stale.append(key)
+          if stale:
+              raise SystemExit("PREFLIGHT_INPUT_SNAPSHOT_STALE_BEFORE_DOWNLOAD: regenerate registry/preregistration before data download; stale="+",".join(stale))
+          print("Preflight input source pins match the generated R3 preregistration.")
+          PY
 
       - name: Run encrypted verification, temporary decrypt and aggregate preflight
         shell: bash
@@ -130,6 +154,7 @@ jobs:
             --merged-gzip "$WORK/merged.csv.gz" \
             --calendar research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json \
             --preregistration research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json \
+            --preprocessing-rules research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json \
             --output research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json \
             > "$WORK/preflight-output.txt" 2>&1; then
             rc=0

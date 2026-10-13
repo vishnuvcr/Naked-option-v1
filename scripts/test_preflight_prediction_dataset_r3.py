@@ -89,6 +89,41 @@ class PredictionDataPreflightHelpersTests(unittest.TestCase):
         with self.assertRaises(preflight.PreflightBlocked):
             preflight.validation_sample_rules({})
 
+    def test_spot_quarantine_rule_excludes_only_ineligible_observations(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        tz=ZoneInfo("Asia/Kolkata")
+        regular={"is_exchange_trading_session":True,"regular_hours_compatible":True,"intraday_label_eligible":True,"positional_label_eligible":True}
+        closed={"is_exchange_trading_session":False,"regular_hours_compatible":False,"intraday_label_eligible":False,"positional_label_eligible":False}
+        special={"is_exchange_trading_session":True,"regular_hours_compatible":False,"intraday_label_eligible":False,"positional_label_eligible":False}
+        self.assertIsNone(preflight.spot_quarantine_reason(regular,datetime(2024,1,2,9,16,tzinfo=tz),"21000"))
+        self.assertEqual(preflight.spot_quarantine_reason(closed,datetime(2024,1,6,10,0,tzinfo=tz),"21000"),"CLOSED_OR_UNMAPPED_SESSION")
+        self.assertEqual(preflight.spot_quarantine_reason(special,datetime(2024,11,1,10,0,tzinfo=tz),"21000"),"NON_STANDARD_OR_INELIGIBLE_SESSION")
+        self.assertEqual(preflight.spot_quarantine_reason(regular,datetime(2024,1,2,15,31,tzinfo=tz),"21000"),"OUTSIDE_REGULAR_SESSION")
+        self.assertEqual(preflight.spot_quarantine_reason(regular,datetime(2024,1,2,9,16,1,tzinfo=tz),"21000"),"NON_MINUTE_TIMESTAMP")
+        for value in ("", "not-a-price", "nan", "inf", "0", "-1"):
+            with self.subTest(value=value):
+                self.assertEqual(preflight.spot_quarantine_reason(regular,datetime(2024,1,2,9,16,tzinfo=tz),value),"INVALID_OR_MISSING_SPOT_CLOSE")
+
+    def test_preprocessing_rules_are_pinned_by_git_blob_and_sha256(self):
+        import hashlib, json
+        rel=preflight.ROOT/"research"/"data"/"_test_preprocessing_policy.json"
+        raw=json.dumps({"status":"FROZEN_PRE_RESULTS","amendment_id":"PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13"},sort_keys=True).encode()
+        try:
+            rel.write_bytes(raw)
+            prereg={"scope":{
+              "data_preprocessing_amendment_id":"PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13",
+              "data_preprocessing_rules_path":rel.relative_to(preflight.ROOT).as_posix(),
+              "data_preprocessing_rules_git_blob_sha1":preflight.git_blob_sha1(raw),
+              "data_preprocessing_rules_sha256":hashlib.sha256(raw).hexdigest(),
+            }}
+            self.assertEqual(preflight.validate_preprocessing_rules(prereg,rel)["status"],"FROZEN_PRE_RESULTS")
+            prereg["scope"]["data_preprocessing_rules_git_blob_sha1"]="0"*40
+            with self.assertRaisesRegex(preflight.PreflightBlocked,"GIT_BLOB_PIN_MISMATCH"):
+                preflight.validate_preprocessing_rules(prereg,rel)
+        finally:
+            rel.unlink(missing_ok=True)
+
     def test_empty_validation_metric_fails_closed_without_nan(self):
         metric = preflight.empty_metric()
         row = preflight.finalize_metric("INTRA_120M_UP_DOWN","F08",metric,0.01,5000,250)

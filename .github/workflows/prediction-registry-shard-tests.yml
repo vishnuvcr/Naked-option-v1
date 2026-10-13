@@ -27,6 +27,7 @@ on:
       - "scripts/build_nse_session_calendar_r3.py"
       - "scripts/test_nse_session_calendar_r3.py"
       - "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
+      - "research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json"
       - "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
       - "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
       - ".github/workflows/phase-08p-complete-horizon-registry-r3.yml"

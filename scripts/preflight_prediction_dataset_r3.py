@@ -15,6 +15,7 @@ from typing import Any
 ROOT=Path(__file__).resolve().parents[1]
 DEFAULT_CALENDAR=ROOT/"research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json"
 DEFAULT_PREREG=ROOT/"research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+DEFAULT_PREPROCESSING_RULES=ROOT/"research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json"
 EXPECTED_CANONICAL_CSV_SHA256="cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
 EXPECTED_DATA_ROWS=8_999_865
 EXPECTED_COLUMNS=47
@@ -80,6 +81,47 @@ def validation_sample_rules(prereg:dict[str,Any])->tuple[dict[str,Any],float]:
     return sample_rules, missing_fraction
 
 
+def git_blob_sha1(raw:bytes)->str:
+    return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+
+def validate_preprocessing_rules(prereg:dict[str,Any], policy_path:Path)->dict[str,Any]:
+    """Fail closed unless policy file bytes match the pre-result preregistration pins."""
+    if not policy_path.is_file():
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_FILE_MISSING")
+    raw=policy_path.read_bytes()
+    try: policy=json.loads(raw.decode("utf-8"))
+    except Exception as exc: raise PreflightBlocked("DATA_PREPROCESSING_POLICY_INVALID_JSON") from exc
+    scope=prereg.get("scope",{})
+    if policy.get("status")!="FROZEN_PRE_RESULTS" or policy.get("amendment_id")!="PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13":
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_ID_OR_STATUS_INVALID")
+    if scope.get("data_preprocessing_amendment_id")!=policy.get("amendment_id"):
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_ID_PIN_MISMATCH")
+    if scope.get("data_preprocessing_rules_path")!=policy_path.relative_to(ROOT).as_posix():
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_PATH_PIN_MISMATCH")
+    if scope.get("data_preprocessing_rules_git_blob_sha1")!=git_blob_sha1(raw):
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_GIT_BLOB_PIN_MISMATCH")
+    if scope.get("data_preprocessing_rules_sha256")!=hashlib.sha256(raw).hexdigest():
+        raise PreflightBlocked("DATA_PREPROCESSING_POLICY_SHA256_PIN_MISMATCH")
+    return policy
+
+def spot_quarantine_reason(dayrow:dict[str,Any]|None, dt:datetime, raw_price:str,
+                           regular_open:str="09:15:00", regular_close:str="15:30:00")->str|None:
+    """Classify one spot row into one deterministic exclusion category."""
+    if dayrow is None or not dayrow.get("is_exchange_trading_session"):
+        return "CLOSED_OR_UNMAPPED_SESSION"
+    if not (dayrow.get("regular_hours_compatible") and dayrow.get("intraday_label_eligible") and dayrow.get("positional_label_eligible")):
+        return "NON_STANDARD_OR_INELIGIBLE_SESSION"
+    t=dt.time().replace(tzinfo=None)
+    if t<time.fromisoformat(regular_open) or t>time.fromisoformat(regular_close):
+        return "OUTSIDE_REGULAR_SESSION"
+    if dt.second!=0 or dt.microsecond!=0:
+        return "NON_MINUTE_TIMESTAMP"
+    try: price=float(raw_price)
+    except Exception: return "INVALID_OR_MISSING_SPOT_CLOSE"
+    if not math.isfinite(price) or price<=0:
+        return "INVALID_OR_MISSING_SPOT_CLOSE"
+    return None
+
 def empty_metric()->dict[str,int]:
     return {"possible_target_pairs":0,"missing_target_pairs":0,"flat_exclusions":0,"up":0,"down":0,"classifiable_rows":0,"endpoint_ineligible":0}
 
@@ -99,7 +141,7 @@ def finalize_metric(label_id:str, fold_id:str, metric:dict[str,int], missing_max
             "minimum_class_support_each_direction":min_class,
             "passes_frozen_data_minima":not reasons,"block_reasons":reasons}
 
-def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[str,Any]:
+def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path, preprocessing_rules_path:Path=DEFAULT_PREPROCESSING_RULES)->dict[str,Any]:
     report:dict[str,Any]={
       "schema_version":1,
       "preflight":"phase-08p-r3-nifty-composite-data-preflight",
@@ -114,6 +156,10 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     if not merged_gzip.is_file(): raise PreflightBlocked(f"missing merged CSV.GZ: {merged_gzip}")
     cal=json.loads(calendar_path.read_text(encoding="utf-8"))
     prereg=json.loads(prereg_path.read_text(encoding="utf-8"))
+    validate_preprocessing_rules(prereg,preprocessing_rules_path)
+    report["preprocessing_rules_path"]=str(preprocessing_rules_path.relative_to(ROOT) if preprocessing_rules_path.is_relative_to(ROOT) else preprocessing_rules_path.name)
+    report["preprocessing_rules_git_blob_sha1"]=git_blob_sha1(preprocessing_rules_path.read_bytes())
+    report["preprocessing_rules_sha256"]=sha256_file(preprocessing_rules_path)
     if cal.get("status")!="GENERATED_FROM_PINNED_OFFICIAL_SOURCE_PENDING_DATA_PREFLIGHT":
         report["blockers"].append("SESSION_CALENDAR_STATUS_INVALID")
     if cal.get("timezone")!="Asia/Kolkata" or cal.get("date_bounds")!={"start":"2021-10-11","end_inclusive":"2026-10-10"}:
@@ -170,6 +216,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     spot_by_day:dict[str,list[tuple[int,datetime,float]]]=defaultdict(list)
     duplicate_spot_timestamps=0; identical_value_duplicate_candidates=0
     unknown_spot_dates=Counter(); off_session_spot_rows=0; non_minute_timestamps=0
+    quarantine_reasons=Counter()
     spot_symbols:dict[str,Counter]=defaultdict(Counter)
     all_columns=None; price_field=None; price_candidates=[]
     row_hash_duplicate_blocked=False
@@ -233,29 +280,24 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
                     if kind=="OPTION": option_rows+=1
                     continue
                 dayrow=day_map.get(d)
-                if dayrow is None or not dayrow.get("is_exchange_trading_session"):
-                    unknown_spot_dates[d]+=1
-                    continue
-                if dt.second!=0 or dt.microsecond!=0:
-                    non_minute_timestamps+=1
-                if dayrow.get("regular_hours_compatible"):
-                    t=dt.time().replace(tzinfo=None)
-                    open_t=time.fromisoformat(cal["regular_session"]["open"])
-                    close_t=time.fromisoformat(cal["regular_session"]["close"])
-                    if not (open_t<=t<=close_t):
-                        off_session_spot_rows+=1
                 actual_close_times[dt.strftime("%H:%M")]+=1
                 for name in ("symbol","instrument","underlying","ticker","index_symbol"):
                     if name in indexes and row[indexes[name]].strip():
                         spot_symbols[name][row[indexes[name]].strip()]+=1
                 raw_price=row[indexes[price_field]].strip()
-                try:
-                    price=float(raw_price)
-                except Exception:
-                    price=float("nan")
-                if not math.isfinite(price) or price<=0:
-                    blank_counts["invalid_spot_price"]+=1
+                quarantine=spot_quarantine_reason(dayrow,dt,raw_price,cal["regular_session"]["open"],cal["regular_session"]["close"])
+                if quarantine:
+                    quarantine_reasons[quarantine]+=1
+                    if quarantine=="CLOSED_OR_UNMAPPED_SESSION":
+                        unknown_spot_dates[d]+=1
+                    elif quarantine=="OUTSIDE_REGULAR_SESSION":
+                        off_session_spot_rows+=1
+                    elif quarantine=="NON_MINUTE_TIMESTAMP":
+                        non_minute_timestamps+=1
+                    elif quarantine=="INVALID_OR_MISSING_SPOT_CLOSE":
+                        blank_counts["invalid_spot_price"]+=1
                     continue
+                price=float(raw_price)
                 if epoch in spot_points:
                     duplicate_spot_timestamps+=1
                     old_dt,old_price,old_hash=spot_points[epoch]
@@ -296,6 +338,10 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
       "unknown_spot_dates":dict(sorted(unknown_spot_dates.items())),
       "off_session_spot_rows":off_session_spot_rows,
       "non_minute_spot_timestamps":non_minute_timestamps,
+      "rows_quarantined_by_reason":dict(sorted(quarantine_reasons.items())),
+      "quarantined_spot_row_count":sum(quarantine_reasons.values()),
+      "label_eligible_spot_row_count":len(spot_points),
+      "spot_quarantine_fraction":(sum(quarantine_reasons.values())/(row_counts.get("SPOT",1) or 1)),
       "spot_identity_value_counts":{k:dict(v.most_common(20)) for k,v in spot_symbols.items()},
       "spot_bar_time_frequency":dict(actual_close_times.most_common(20))
     })
@@ -307,11 +353,9 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
     if len(timestamp_units)!=1: report["blockers"].append("TIMESTAMP_EPOCH_UNIT_MIXED_OR_EMPTY")
     if out_of_range_rows: report["blockers"].append("TIMESTAMP_OUTSIDE_FROZEN_DATE_RANGE")
     if blank_counts.get("timestamp_epoch",0) or blank_counts.get("row_type",0): report["blockers"].append("BLANK_REQUIRED_KEYS")
-    if unknown_spot_dates: report["blockers"].append("SPOT_ROWS_ON_CLOSED_OR_UNMAPPED_DATES")
-    if off_session_spot_rows: report["blockers"].append("SPOT_ROWS_OUTSIDE_DECLARED_REGULAR_SESSION")
-    if non_minute_timestamps: report["blockers"].append("SPOT_TIMESTAMPS_NOT_MINUTE_ALIGNED")
+    if quarantine_reasons:
+        report["warnings"].append("DETERMINISTIC_SPOT_ROW_QUARANTINE_APPLIED; quarantined rows are excluded from predictors and target endpoints")
     if duplicate_spot_timestamps: report["blockers"].append("DUPLICATE_SPOT_TIMESTAMP_KEYS_REQUIRE_SOURCE_RECONCILIATION")
-    if blank_counts.get("invalid_spot_price",0): report["blockers"].append("MISSING_OR_INVALID_SPOT_CLOSE_PRICES")
 
     eligible_expected_days=[r["date"] for r in calendar_rows if r.get("is_exchange_trading_session") and r.get("regular_hours_compatible") and r.get("positional_label_eligible")]
     missing_regular_dates=sorted(set(eligible_expected_days)-set(spot_by_day))
@@ -325,7 +369,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
         return report
 
     # Assign calendar session IDs and derive transient daily close prices.
-    by_session_index={r["exchange_session_index"]:r for r in calendar_rows if r.get("is_exchange_trading_session")}
+    by_session_index={r["prediction_session_index"]:r for r in calendar_rows if r.get("prediction_session_index") is not None}
     regular_close_time=time.fromisoformat(cal["regular_session"]["close"])
     regular_open_time=time.fromisoformat(cal["regular_session"]["open"])
     daily_close={}
@@ -345,7 +389,7 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path)->dict[
         if bar_time not in ("15:29","15:30"):
             nonstandard_closes.append(d)
             continue
-        daily_close[dayrow["exchange_session_index"]]=(d,price,dt)
+        daily_close[dayrow["prediction_session_index"]]=(d,price,dt)
     report["session_close_time_frequency"]=dict(close_time_counts)
     report["nonstandard_session_close_count"]=len(nonstandard_closes)
     report["nonstandard_session_close_sample"]=nonstandard_closes[:30]
@@ -434,10 +478,11 @@ def main()->int:
     p.add_argument("--merged-gzip",type=Path,required=True)
     p.add_argument("--calendar",type=Path,default=DEFAULT_CALENDAR)
     p.add_argument("--preregistration",type=Path,default=DEFAULT_PREREG)
+    p.add_argument("--preprocessing-rules",type=Path,default=DEFAULT_PREPROCESSING_RULES)
     p.add_argument("--output",type=Path,required=True)
     a=p.parse_args()
     try:
-        report=run_preflight(a.merged_gzip.resolve(),a.calendar.resolve(),a.preregistration.resolve())
+        report=run_preflight(a.merged_gzip.resolve(),a.calendar.resolve(),a.preregistration.resolve(),a.preprocessing_rules.resolve())
     except PreflightBlocked as exc:
         report={"schema_version":1,"preflight":"phase-08p-r3-nifty-composite-data-preflight",
                 "status":"BLOCKED_DATA_PREFLIGHT","blockers":[str(exc)],

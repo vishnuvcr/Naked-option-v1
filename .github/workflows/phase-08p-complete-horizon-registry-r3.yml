@@ -1,20 +1,6 @@
 name: Phase 8P full-horizon R3 registry build
 
 on:
-  push:
-    branches: [phase-08-prediction-developer]
-    paths:
-      - 'scripts/build_prediction_horizon_registry_r3.py'
-      - 'scripts/test_prediction_horizon_registry_r3.py'
-      - 'research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json'
-      - 'research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json'
-      - '.github/workflows/phase-08p-complete-horizon-registry-r3.yml'
-      - 'research/registry/PREDICTION_CONFIG_MANIFEST_V2_R2.json'
-      - 'research/registry/PREDICTION_LABEL_MANIFEST_V2_R2.json'
-      - 'research/registry/PREDICTION_REGISTRY_SHARD_INDEX_V2_R2.json'
-      - 'research/registry/PREDICTION_PREREGISTRATION_V2_R2.json'
-      - 'research/registry/compatibility_shards/**'
-      - 'research/registry/config_shards/**'
   workflow_dispatch:
 
 permissions:
@@ -33,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Assert exact triggering commit
