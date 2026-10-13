@@ -1414,3 +1414,5 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Source review found the first KNN implementation emitted smoothed neighbor posterior log-odds, which is not the same as a class-conditional density-ratio estimate when class counts are unequal.
 - Correction: estimate the score as log local weighted neighbor mass per class sample count, with a small pseudocount; added an imbalanced-class direction test. Workflow rerun pending.
 - No empirical data or fitting involved.
+
+- Follow-up correction: [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 tests, including an imbalanced-class test validating the corrected class-conditional KNN density-ratio score.
