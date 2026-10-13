@@ -1195,3 +1195,11 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Corrected workflow revision commit: [ff39b762107c0a09c8557f5a50d601fd0f24ff95](https://github.com/vishnuvcr/Naked-option-v1/commit/ff39b762107c0a09c8557f5a50d601fd0f24ff95).
 - Hosted runs [38395010669](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395010669) and [38395010248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395010248) were observed in progress after the repair; their final conclusions are not yet verified here.
 - No empirical fitting or holdout access. Eligibility manifest and development-only runner remain the next implementation milestones.
+
+
+## Phase 8P R3 — test oracle correction and hosted verification (2026-10-13)
+
+- The hosted adapter test exposed a stale expected log-loss value (0.2899092476). The observed reference for labels `[0,1,1,0]` and probabilities `[0.1,0.8,0.7,0.3]` is 0.2604634887; the committed test oracle is now corrected.
+- Workflow orchestration was separately repaired at commit `ff39b762107c0a09c8557f5a50d601fd0f24ff95` after a malformed combined command. Both failures are preserved in the error log.
+- Follow-up hosted run [38395127818](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395127818) passed its triggered repository protocol check, not necessarily the dedicated adapter workflow. Dedicated runs [38395143013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395143013) and [38395142525](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395142525) were in progress at the latest query.
+- Do not call the adapter/calibration code gate passed until the dedicated workflow job's own conclusion and test steps are verified. No empirical fitting or holdout access.
