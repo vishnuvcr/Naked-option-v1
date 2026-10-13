@@ -1,0 +1,31 @@
+# Pre-fit tester review — terminal accounting gate (2026-10-13)
+
+## Decision
+**PASS for terminal accounting only. NOT APPROVED for empirical fitting.**
+
+## Reviewed evidence
+- Hardened hosted workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467
+- Terminal-row artifact: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467/artifacts/11825388381
+- Source module: https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-developer/scripts/prediction_accounting_executor_r3.py
+- Registry integrity gate: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924
+
+## Checks passed
+1. 400 configuration shards and 40 compatibility shards are hash/byte checked during registry/executor processing.
+2. 40,000 configurations × 8 frozen outer folds produced 320,000 unique terminal rows.
+3. Every row passed preregistered mandatory-field checks.
+4. Every row had a valid blocked terminal status and failure reason; blocked metrics were null.
+5. No-fit and no-holdout flags were false for every row.
+6. Preflight status, canonical CSV hash agreement, and provenance flags are checked before output.
+7. Scoped F01 data blocks remained limited to the five exact label/fold cells; no horizon-wide propagation.
+8. Run summary confirms 20,000 BLOCKED_DATA and 300,000 BLOCKED_GATE rows, with no market-data load, model fitting, or holdout access.
+
+## Issues found and corrected
+- Initial executor did not fail closed on preflight status/hash/provenance and used a fixed value for created_utc. Both issues were corrected and recorded in research/ERROR_LOG.md; hardened workflow passed afterward.
+
+## Remaining blockers
+- All methods remain without implementation/tester approval; zero methods are empirically eligible.
+- The accounting executor intentionally contains no estimator and must not be treated as prediction evidence.
+- Before any model fit, each method family needs its own implementation tests and explicit eligibility gate, plus training-only transforms/calibration, maturity/purge/embargo and leakage tests, complete result validation, and approved preregistered inference.
+
+## Tester instruction to developer
+Proceed only to method-family implementation and synthetic tests. Do not run empirical fitting, do not open the holdout, and do not mark a method eligible by editing registry flags. Return a new implementation bundle for review before any empirical run.
