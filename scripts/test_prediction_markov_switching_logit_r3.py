@@ -80,7 +80,7 @@ class MarkovSwitchingTests(unittest.TestCase):
         prereg_path = root / "research/registry/PREDICTION_PREREGISTRATION_V2_2026-10-14.json"
         contract_bytes = contract_path.read_bytes()
         git_blob_sha = hashlib.sha1(
-            f"blob {len(contract_bytes)}\\0".encode("utf-8") + contract_bytes
+            f"blob {len(contract_bytes)}\0".encode("utf-8") + contract_bytes
         ).hexdigest()
         contract = json.loads(contract_bytes)
         prereg = json.loads(prereg_path.read_text(encoding="utf-8"))
