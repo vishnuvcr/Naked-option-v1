@@ -1008,3 +1008,15 @@ Developer re-read the current R3 registry, preregistration, preflight report, ex
 Verified facts: R3 preflight has no global blockers but includes five explicitly blocked positional F01 label cells; the 40,000-config registry exists; the existing compatibility summary remains 426 conditional, 574 blocked and zero empirically eligible method rows. The separate Greek-feature runner is strictly authorization-gated and cannot be used to bypass the R3 registry gate. No empirical model fitting, holdout access, prediction metrics, option P&L or strategy selection occurred in this step.
 
 Decision: empirical fitting remains blocked until every registered configuration has a hash-pinned, deterministic eligibility disposition and an R3-specific authorized executor is regression-tested. Next steps are finite: build the 40,000-row disposition manifest; reconcile method/feature/label compatibility and sample blocks; benchmark representative estimators; run only eligible development folds; freeze the complete results/errors inventory; then request the consolidated tester audit. No thresholds are relaxed and no synthetic result is presented as empirical evidence.
+
+
+### 2026-10-13 — User command: “Resolve and proceed” (logistic adapter step)
+
+Developer reviewed the current compatibility shard, fit-gate code, and Phase 8P workflow before editing. PM0001 remains ALLOW_IN_PRINCIPLE only and not eligible; the existing Greek prediction fit gate requires a pinned tester authorization bundle and is not bypassed.
+
+Implemented a bounded first component:
+- `scripts/prediction_logistic_adapter_r3.py`: training-only scaling, logistic probabilities, fixed 0.5 threshold, strict validation.
+- `scripts/test_prediction_logistic_adapter_r3.py`: synthetic-only tests for probabilities, train-only transform fitting, reference log loss, and fail-closed invalid inputs.
+- `.github/workflows/phase-08p-logistic-adapter-r3.yml`: automatic push trigger for the code/test files plus a manual dispatch button. The workflow is code-only and does not access market data or authorize fitting.
+
+Caught and corrected an incorrect hand-entered log-loss test constant before declaring results. The hosted workflow outcome has not yet been verified. This adapter alone does not satisfy PM0001: inner chronological OOF calibration, full registry dispositions, restartable empirical runner, and explicit authorization remain outstanding. No empirical metrics have been generated and holdout remains untouched.
