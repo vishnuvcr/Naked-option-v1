@@ -1,3 +1,14 @@
+## Phase 8P — expanded OOF calibration regression gate passed (synthetic only, 2026-10-14)
+
+- Hosted workflow [38468780406 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406) on exact source commit `c98c4763df5b24988eb87ac881bab619df23d27d`; Research Protocol Check [38468780261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780261) also passed.
+- Added the regression assertion that each scored OOF validation target endpoint remains strictly inside its fold. Gate report [R2](gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14_R2.json) pins helper blob `5512b6c72f400165c4eaa425b4ab4c803b6c9cd2`, test blob `0b6bb33a0a3a9d8d135c85a12bb62dba96ac1eb1`, and workflow blob `515d3dd5b23e8dd5fca6306cb933810ba66ac7be`.
+- The CI logs confirm the exact commit was checked out and the synthetic-family test job succeeded. This is code-contract validation only: no market data, no empirical fitting, no performance claim, and no holdout access. Empirically eligible methods remain 0.
+- Standing permission is recorded in [governance policy](governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md): no repeated user authorization pauses; all scientific/data/implementation gates still apply. Tester remains deferred until the complete frozen results bundle is acquired.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 ## Phase 8P — OOF calibration maturity gate passed (synthetic only, 2026-10-14)
 
 - Hosted workflow [38468518354 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) on exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`.
