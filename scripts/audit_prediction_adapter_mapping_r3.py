@@ -55,7 +55,9 @@ def main():
             if r.get("config_id") in configs: errors.append("DUPLICATE_CONFIG:"+str(r.get("config_id")))
             configs[r.get("config_id")]=r; config_counts[mid]+=1
             family=methods.get(mid,{}).get("algorithm_family","UNKNOWN")
-            for k,v in cfg.get("model_parameters",{}).items():\n                param_keys[family][k]+=1\n                param_values[family][k][json.dumps(v,sort_keys=True)]+=1
+            for k,v in cfg.get("model_parameters",{}).items():
+                param_keys[family][k]+=1
+                param_values[family][k][json.dumps(v,sort_keys=True)]+=1
             if cfg.get("method_id")!=mid: errors.append("CONFIG_METHOD_MISMATCH:"+str(r.get("config_id")))
             if cfg.get("label_id") not in cm.get("configurations_per_label",{}): errors.append("UNKNOWN_LABEL:"+str(r.get("config_id")))
     for mid,r in methods.items():
