@@ -1301,3 +1301,12 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** inspect the corrected exact-snapshot run and full registry artifact.
 **Tester → Developer:** do not approve before all tests, hashes and parameter counts reconcile.
+
+
+### 2026-10-14 — Independent R4 tester review
+- Reviewed developer SHA `0e016b657a4f7f906b4fde3a20a515d7ce53f0e4` and hosted run [38462243181](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38462243181). Developer gate passed 109 tests and the 40,000-row parameter-binding audit.
+- Independent review found T1: Markov terminal posterior and likelihood were stored from a prior parameter iterate. T2: transition-prior pseudocount semantics were implemented but not frozen/versioned in preregistration.
+- Decision: BLOCKED; no empirical fitting or holdout access. See [tester report](../gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R4_2026-10-14.md).
+
+**Tester → Developer:** correct T1/T2 and submit a new SHA.
+**Developer → Tester:** independently re-check the corrected code and contract.
