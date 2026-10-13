@@ -1269,3 +1269,19 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - No market data fitting or holdout access.
 
 - Follow-up to the “Resume” instruction: temporal-convolution dropout implementation passed the expanded synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113), 56 tests across 15 suites. No empirical fitting or holdout access.
+
+
+## 2026-10-14 — User authorized continuation; developer fixed OOF maturity/embargo gap
+
+### User instruction
+“Ok proceed”
+
+### Work performed
+Resumed from the canonical `phase-08-prediction-developer` branch after checking the current plan, status, cadence policy, R3 preregistration, empirical-gate reconciliation and relevant source/workflow files. No tester review was requested.
+
+Found that the logistic calibration helper did not accept target-endpoint session indices; consequently, its API could not verify that training labels were mature before validation. It also did not enforce the registered initial validation embargo or ensure calibration OOF targets ended inside the validation fold. Updated `scripts/prediction_logistic_calibration_r3.py` to fail closed without endpoint positions and enforce maturity, purge, embargo, chronological order and validation-fold endpoint boundaries. Added synthetic tests in `scripts/test_prediction_logistic_calibration_r3.py`. Updated `.github/workflows/phase-08p-r3-logistic-family-synthetic.yml` to run and compile this helper/test.
+
+Current branch HEAD is `4c87f49f82a8c1e5d20f6a04c057ef91fd8a1e14`. The push-triggered hosted CI is expected but not yet verified here; no PASS is claimed. No market-data fit or holdout access occurred. The next developer task is to verify hosted CI, repair any failures, and continue the method eligibility/executor work. Tester remains deferred until the complete results bundle is acquired and frozen.
+
+**Developer → Tester:** wait for post-results handoff only.  
+**Tester → Developer:** after publication, audit the full bundle and report reproducible findings.
