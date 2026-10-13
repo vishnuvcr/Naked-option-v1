@@ -1524,3 +1524,15 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** check the corrected full test run and confirm no output-shape normalization changes probability meaning.
 **Tester → Developer:** reject if vector/matrix handling changes class orientation, if any synthetic test fails, or if registry totals do not reconcile.
+
+
+## 2026-10-14 — R4 tester blockers remediated; current developer gate passed
+- Earlier tester report applied to SHA `0e016b657a4f7f906b4fde3a20a515d7ce53f0e4`: T1 stale Markov terminal posterior/log-likelihood from a prior parameter iterate; T2 transition-prior semantics not versioned in the preregistration.
+- T1 correction: convergence now compares the post-M-step likelihood and the final forward recursion is recomputed from the final stored initial distribution, transition matrix, and regime coefficients. An independent synthetic calculation checks terminal posterior and final log-likelihood against the stored output.
+- T2 proposed correction: versioned contract `MARKOV_SWITCHING_TRANSITION_PRIOR_CONTRACT_V1_2026-10-14.json` defines alpha 2/5 as a symmetric Dirichlet concentration per transition-matrix cell and specifies the normalized update formula. Preregistration V2 pins the contract's Git blob SHA and parent V1 blob. Independent tester approval is still pending.
+- Current evidence: [run 38463113199](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38463113199) passed on developer code SHA `28e192269a63030c03963e83767f1dc6d7c6a81e`: 111 synthetic tests, 20 modules compiled, 40,000 configurations audited (38,000 supported bindings, 2,000 survival/event-time blocks). Artifact ZIP SHA-256: `c3e96cb549ba55781a729104f0319b71338d9965f9596aa7a4bcf629d9b07c5c`.
+- Disposition: **developer automation PASS; fresh independent review pending**. This is not predictive-performance evidence. No market data, empirical fit, holdout access, options P&L, method selection, or promotion.
+- Prevention: any correction to numerical state handling or frozen parameter meaning must rerun the full audit and get a new independent review; green synthetic tests do not override the other preregistration blockers.
+
+**Developer → Tester:** review the current exact SHA and audit artifact, not just the earlier report.  
+**Tester → Developer:** preserve the earlier BLOCKED decision for its SHA and return a new hash-pinned decision.
