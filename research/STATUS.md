@@ -1338,3 +1338,9 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Workflow [38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 tests across logistic, chronological calibration, probit, LDA, QDA and elastic-net logistic. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Synthetic only; no market-data fit or holdout access. Next: tree ensemble families.
+
+
+## Phase 8P R3 — tree ensemble synthetic gate passed (2026-10-13)
+
+- Workflow [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests across logistic, calibration, probit, LDA/QDA, elastic-net logistic, random forest, Extra Trees, gradient boosting and histogram gradient boosting. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market data or holdout access. These remain synthetic adapter checks; no empirical fitting is authorized. Next: margin/distance models.
