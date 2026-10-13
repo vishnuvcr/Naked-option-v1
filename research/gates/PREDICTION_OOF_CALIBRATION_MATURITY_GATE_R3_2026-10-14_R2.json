@@ -1,0 +1,38 @@
+{
+  "schema_version": "prediction-oof-calibration-maturity-gate-r3-v2",
+  "research_date": "2026-10-14",
+  "status": "PASS_SYNTHETIC_CODE_CONTRACT_ONLY",
+  "workflow_run": {
+    "id": 38468780406,
+    "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406",
+    "conclusion": "success",
+    "head_sha": "c98c4763df5b24988eb87ac881bab619df23d27d",
+    "job": "synthetic-family-tests",
+    "job_id": 115542154536
+  },
+  "source_pins": {
+    "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
+    "scripts/test_prediction_logistic_calibration_r3.py": "0b6bb33a0a3a9d8d135c85a12bb62dba96ac1eb1",
+    ".github/workflows/phase-08p-r3-logistic-family-synthetic.yml": "515d3dd5b23e8dd5fca6306cb933810ba66ac7be"
+  },
+  "checks": {
+    "synthetic_test_suite": "PASS",
+    "target_endpoint_maturity_before_training_cutoff": "PASS",
+    "initial_validation_embargo": "PASS",
+    "validation_target_endpoint_inside_fold": "PASS",
+    "positive_class_probability_shape_validation": "PASS",
+    "python_compilation": "PASS",
+    "market_data_loaded": false,
+    "empirical_model_fit": false,
+    "holdout_accessed": false,
+    "empirically_eligible_methods": 0
+  },
+  "scope_note": "This is synthetic code-contract validation only. It does not establish empirical predictive skill and does not authorize empirical fitting. The complete results bundle has not been acquired; no tester review is requested.",
+  "preserved_failed_attempts": [
+    {
+      "run_id": 38468327357,
+      "url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357",
+      "failure": "probability adapter returned a one-dimensional positive-class vector while helper expected a two-column matrix; fixed and covered."
+    }
+  ]
+}
