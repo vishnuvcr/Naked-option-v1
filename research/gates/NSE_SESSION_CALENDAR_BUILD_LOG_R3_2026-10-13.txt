@@ -1,9 +1,9 @@
 {
   "status": "GENERATED_FROM_PINNED_OFFICIAL_SOURCE_PENDING_DATA_PREFLIGHT",
   "calendar_day_rows": 1826,
-  "exchange_session_count": 1241,
-  "intraday_label_eligible_session_count": 1233,
-  "positional_label_eligible_session_count": 1233,
+  "exchange_session_count": 1239,
+  "intraday_label_eligible_session_count": 1231,
+  "positional_label_eligible_session_count": 1231,
   "special_session_dates": [
     "2021-11-04",
     "2022-10-24",
@@ -13,9 +13,10 @@
     "2024-05-18",
     "2024-11-01",
     "2025-02-01",
-    "2025-10-21"
+    "2025-10-21",
+    "2026-02-01"
   ],
-  "source_calendar_sha256": "45cb278887e640d8ce114abbb503c8b619aa6159eb023c60814985a0e90eee51",
-  "generated_calendar_sha256": "fd7e9ee5ac871d343d9987549e16b433de59dd351fe1e69febd2e9b8c0e3f5fd",
-  "output_git_blob_sha1": "db376c3c2c8ec2d2cb9cccee9c6e5048cac77ccc"
+  "source_calendar_sha256": "2f59f0800280d2b2fec51d9f1143adadcdfc2408bd385c619f5ae3d4e063c195",
+  "generated_calendar_sha256": "ddce75f70f39e390e3d68fc6662ed31b3b85b9ecbc78d71178eedb7a34b9ae26",
+  "output_git_blob_sha1": "dbc5907d5a7c159bd8a70d13700f7e2a7128af69"
 }
