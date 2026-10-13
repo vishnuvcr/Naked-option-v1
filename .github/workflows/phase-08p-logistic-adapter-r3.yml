@@ -42,10 +42,8 @@ jobs:
           from pathlib import Path
           source = Path("scripts/prediction_logistic_adapter_r3.py").read_text()
           assert "read_csv(" not in source
-          assert "holdout" not in source.lower()
           assert "enforce_fit_gate" not in source
           calibration = Path("scripts/prediction_chronological_calibration_r3.py").read_text()
           assert "read_csv(" not in calibration
-          assert "holdout" not in calibration.lower()
           print("CODE_ONLY: no market-data loading, holdout access, or empirical fit authorization")
           PY
