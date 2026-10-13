@@ -1,0 +1,44 @@
+name: Phase 8P R3 parameter binding synthetic gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/prediction_parameter_binding_r3.py"
+      - "scripts/test_prediction_parameter_binding_r3.py"
+      - ".github/workflows/phase-08p-r3-parameter-binding.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  parameter-binding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run fail-closed parameter binding tests
+        run: python -m unittest discover -s scripts -p "test_prediction_parameter_binding_r3.py" -v
+      - name: Compile binder
+        run: python -m py_compile scripts/prediction_parameter_binding_r3.py
+      - name: Assert no empirical fitting or holdout access
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("scripts/prediction_parameter_binding_r3.py").read_text()
+          assert "fit(" not in s.replace("require_supported(", "")
+          assert "holdout.csv" not in s and "market_data.csv" not in s
+          print("binding-only gate; no model fit or data access")
+          PY
