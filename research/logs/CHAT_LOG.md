@@ -1061,3 +1061,11 @@ The dedicated workflow [38397356666](https://github.com/vishnuvcr/Naked-option-v
 
 **Developer → Tester (post-results only):** wait for the complete frozen empirical bundle; do not review intermediate implementation steps.
 **Tester → Developer:** after acquisition, independently audit the frozen config dispositions and all empirical results in one consolidated review.
+
+
+### 2026-10-13 — Eligibility manifest persistence defect caught
+
+After run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666) passed its synthetic tests, shard/hash reconciliation and 40,000-record accounting, the developer checked the repository and found the workflow had not persisted its generated output. The result therefore was not yet a usable repository artifact. Logged the defect and corrected the workflow to commit the manifest using rebase-before-push and upload a retained artifact. New run [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) is pending; do not mark the deliverable complete until the committed file is fetched and its counts/hash are verified.
+
+**Developer → Tester (post-results only):** continue to wait for frozen empirical results; this remains registry engineering only.
+**Tester → Developer:** at post-results review, confirm every disposition row and artifact hash; flag any missing output or config.
