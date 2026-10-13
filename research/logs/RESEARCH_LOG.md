@@ -877,3 +877,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-13 — Probit adapter synthetic gate
 - Added `scripts/prediction_probit_adapter_r3.py` and tests `scripts/test_prediction_probit_adapter_r3.py`; extended the hosted synthetic workflow.
 - Run [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 5 logistic tests, 4 chronological calibration tests, and 4 probit tests. No market data/holdout access and no empirical performance conclusions.
+
+
+## 2026-10-14 — Fail-closed parameter binding
+- Added a parameter-binding layer that maps Bayesian `coefficient_drift` to `process_variance` and blocks unsupported Markov-switching, HMM, and temporal-convolution configurations rather than ignoring fields.
+- Synthetic workflow [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed after correcting a test/error-vocabulary mismatch. Underlying regime/transition-prior and dropout support remain unresolved; no empirical fit is authorized.
