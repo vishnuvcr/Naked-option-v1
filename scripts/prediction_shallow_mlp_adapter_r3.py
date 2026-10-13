@@ -50,19 +50,12 @@ class ShallowMLPProbabilityAdapter:
             order=rng.permutation(len(z))
             for start in range(0,len(z),self.batch_size):
                 ix=order[start:start+self.batch_size]; xb=z[ix]; yb=labels[ix]; n=len(ix)
-                hidden_pre=xb@self.w1_+self.b1_; hidden=np.maximum(hidden_pre,0.0)
                 if self.dropout>0:
-                    mask=(rng.random(hidden.shape)>=self.dropout).astype(float)/(1.0-self.dropout)
-                    hidden_drop=hidden*mask
+                    mask=(rng.random((n,h))>=self.dropout).astype(float)/(1.0-self.dropout)
                 else:
-                    mask=np.ones_like(hidden); hidden_drop=hidden
-                logits=hidden_drop@self.w2_+self.b2_; pred=_sigmoid(logits)
-                dlogit=(pred-yb)/n
-                gw2=hidden_drop.T@dlogit+self.weight_decay*self.w2_
-                gb2=float(dlogit.sum())
-                dh=(dlogit[:,None]*self.w2_[None,:])*mask
-                dpre=dh*(hidden_pre>0)
-                gw1=xb.T@dpre+self.weight_decay*self.w1_; gb1=dpre.sum(axis=0)
+                    mask=np.ones((n,h),dtype=float)
+                _,grads_tuple=self._batch_loss_and_grad(xb,yb,self.w1_,self.b1_,self.w2_,self.b2_,mask,self.weight_decay)
+                gw1,gb1,gw2,gb2=grads_tuple
                 grads=[gw1,gb1,gw2,np.array([gb2])]
                 current=[self.w1_,self.b1_,self.w2_,np.array([self.b2_])]
                 step+=1
@@ -73,6 +66,23 @@ class ShallowMLPProbabilityAdapter:
                 self.w1_,self.b1_,self.w2_=current[0],current[1],current[2]; self.b2_=float(current[3][0])
         self.fitted_=True
         return self
+
+    @staticmethod
+    def _batch_loss_and_grad(xb,yb,w1,b1,w2,b2,mask,weight_decay):
+        hidden_pre=xb@w1+b1
+        hidden=np.maximum(hidden_pre,0.0)
+        hidden_drop=hidden*mask
+        logits=hidden_drop@w2+b2
+        pred=_sigmoid(logits)
+        loss=float(np.mean(np.logaddexp(0.0,logits)-yb*logits)+0.5*weight_decay*(np.sum(w1*w1)+np.sum(w2*w2)))
+        dlogit=(pred-yb)/len(xb)
+        gw2=hidden_drop.T@dlogit+weight_decay*w2
+        gb2=float(dlogit.sum())
+        dh=(dlogit[:,None]*w2[None,:])*mask
+        dpre=dh*(hidden_pre>0)
+        gw1=xb.T@dpre+weight_decay*w1
+        gb1=dpre.sum(axis=0)
+        return loss,(gw1,gb1,gw2,gb2)
 
     def predict_proba(self,x_test:Sequence[Sequence[float]])->np.ndarray:
         if not self.fitted_ or self.mean_ is None or self.scale_ is None: raise MLPContractError("MODEL_NOT_FIT")
