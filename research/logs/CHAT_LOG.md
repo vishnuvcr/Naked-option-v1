@@ -1069,3 +1069,15 @@ After run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/run
 
 **Developer → Tester (post-results only):** continue to wait for frozen empirical results; this remains registry engineering only.
 **Tester → Developer:** at post-results review, confirm every disposition row and artifact hash; flag any missing output or config.
+
+
+## 2026-10-13 — User request: Continue from R3 manifest checkpoint
+
+- User-facing request: “Continue”.
+- Verified run [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080), all job steps, retained artifact and committed manifest. It accounted for 40,000 unique configurations and 1,000 methods (40 configurations per method), and authorized no empirical fitting.
+- Found a latent defect in the initial manifest builder: it collapsed five positional F01 fold-label support failures into whole-label exclusions. No current eligible method used that path, so no model fit or performance result was affected.
+- Committed the fold-scoped correction at [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3). Fresh workflow and artifact verification are still required.
+- Current state: 426 conditional methods, 574 blocked methods, zero empirically eligible; no empirical fit, holdout access, performance inference or strategy selection is permitted by this checkpoint.
+
+**Developer → Tester (post-results only):** defer independent review until the complete planned result bundle is frozen; on review audit fold-specific sample gating and confirm no blocked fold reached a fitter.
+**Tester → Developer:** after results acquisition, independently check disposition hashes/counts, exact config-to-method mapping, fold-specific eligibility, leakage controls and completeness of failed/blocked result rows.
