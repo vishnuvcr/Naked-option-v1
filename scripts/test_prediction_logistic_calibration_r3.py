@@ -52,6 +52,23 @@ class CalibrationTests(unittest.TestCase):
             self.assertEqual(fold["probabilities"].ndim, 1)
             self.assertEqual(len(fold["probabilities"]), len(fold["labels"]))
 
+    def test_oof_accepts_two_column_predict_proba(self):
+        class Wrapper:
+            def fit(self, x, y):
+                self.base = LogisticProbabilityAdapter().fit(x, y)
+                return self
+            def predict_proba(self, x):
+                p = self.base.predict_proba(x)
+                return np.column_stack((1.0-p, p))
+        rng=np.random.default_rng(18)
+        x=rng.normal(size=(600,3)); y=(x[:,0]+.3*x[:,1]>0).astype(int)
+        sessions=np.repeat(np.arange(60),10)
+        folds=chronological_inner_oof(lambda: Wrapper(),x,y,sessions,2,50,50)
+        self.assertEqual(len(folds),3)
+        for fold in folds:
+            self.assertEqual(fold["probabilities"].ndim,1)
+            self.assertEqual(len(fold["probabilities"]),len(fold["labels"]))
+
     def test_bad_calibration_inputs_fail_closed(self):
         with self.assertRaisesRegex(CalibrationContractError,"SHAPE_OR_SAMPLE"):
             PlattCalibrator().fit([.2,.8],[0,1])
