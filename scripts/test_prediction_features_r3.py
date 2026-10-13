@@ -66,8 +66,14 @@ def positional_rows(days: list[str], missing_close_days: set[str] | None = None)
 
 
 def sequential_dates(start: str, count: int) -> list[str]:
-    start_date = date.fromisoformat(start)
-    return [(start_date + timedelta(days=i)).isoformat() for i in range(count)]
+    # Synthetic exchange calendar: weekdays only, so a +1-session label crosses weekends.
+    current = date.fromisoformat(start)
+    out = []
+    while len(out) < count:
+        if current.weekday() < 5:
+            out.append(current.isoformat())
+        current += timedelta(days=1)
+    return out
 
 
 class FeatureConstructionR3Tests(unittest.TestCase):
@@ -155,6 +161,9 @@ class FeatureConstructionR3Tests(unittest.TestCase):
         self.assertEqual(batch.diagnostics["feature_history_excluded"], 20)
         self.assertEqual(batch.diagnostics["samples_emitted"], 4)
         self.assertTrue(all(row.target_endpoint_session_index == row.decision_session_index + 1 for row in batch.samples))
+        friday_prediction = next(row for row in batch.samples if datetime.fromisoformat(row.decision_timestamp).weekday() == 4)
+        calendar_gap = datetime.fromisoformat(friday_prediction.target_endpoint_timestamp).date() - datetime.fromisoformat(friday_prediction.decision_timestamp).date()
+        self.assertEqual(calendar_gap, timedelta(days=3))  # Friday to Monday is one exchange session, not one calendar day.
         self.assertEqual(len(batch.samples[0].features), 40)
 
     def test_missing_official_session_close_is_never_forward_filled(self):
@@ -200,6 +209,14 @@ class FeatureConstructionR3Tests(unittest.TestCase):
         )
         self.assertEqual(batch.diagnostics["quarantined_SESSION_DATE_MISMATCH"], 1)
         self.assertEqual(batch.diagnostics["eligible_SPOT_rows"], 29)
+
+    def test_feature_workflow_checkout_ref_has_no_literal_backslash(self):
+        from pathlib import Path
+        workflow = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "phase-08p-r3-feature-construction.yml"
+        text = workflow.read_text(encoding="utf-8")
+        malformed = "ref: " + "\\" + "$" + "{{ github.sha }}"
+        self.assertNotIn(malformed, text)
+        self.assertIn("ref: " + "$" + "{{ github.sha }}", text)
 
 
 if __name__ == "__main__":
