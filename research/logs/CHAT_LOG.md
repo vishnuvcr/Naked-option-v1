@@ -1210,3 +1210,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: added raw-score adapters for kernel SVM, nearest centroid and KNN plus chronological score calibration; fixed two nearest-centroid API issues after a failed synthetic run.
 - Evidence: failed run [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566); corrected run [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 tests.
 - Outcome: synthetic-only. No market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: corrected KNN density-ratio semantics and added an imbalanced-class direction test after source review.
+- Evidence: [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 synthetic tests.
+- Outcome: synthetic-only; no market data, empirical fitting, or holdout access.
