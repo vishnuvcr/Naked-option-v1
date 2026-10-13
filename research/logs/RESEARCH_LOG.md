@@ -860,3 +860,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - The first two runs exposed a temporal-convolution output slicing bug. The exact destination slice was corrected in commit `f3944e3fba830f120a51de0e295b758b4b80b6cb` after the first textual correction missed the actual expression.
 - Hosted run [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests including the change-point and trainable temporal-convolution adapters. No market data or holdout access.
 - Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Empirical fitting remains unauthorized.
+
+
+## 2026-10-13 — Adapter mapping inventory audit
+- Added `scripts/audit_prediction_adapter_mapping_r3.py` and `.github/workflows/phase-08p-r3-adapter-mapping.yml` to audit every method/config against adapter and synthetic-test files.
+- Workflow [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed; report [PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md](../gates/PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md), artifact [11844142858](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994/artifacts/11844142858).
+- 1,000 methods and 40,000 configurations reconcile; 426 conditionally compatible methods map to adapter/test files, 574 remain blocked. This does not verify every parameter's semantic implementation and does not authorize fitting.
