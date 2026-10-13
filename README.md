@@ -680,3 +680,7 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - Margin/distance synthetic gate [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 tests after correcting nearest-centroid API issues. [Report](research/gates/PREDICTION_MARGIN_DISTANCE_SYNTHETIC_RESULT_R3_2026-10-13.md). Raw scores require chronological OOF calibration; no empirical fitting.
 
 - Follow-up review corrected KNN scoring to class-conditional density-ratio semantics; [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed 33 synthetic tests, including an imbalanced-class direction test. No empirical fitting.
+
+
+### Expanded prediction-family synthetic gate (2026-10-13)
+- [Workflow 38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests across 13 estimator families plus chronological calibration. [Report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). This is implementation QA only; no market-data fitting or holdout access.
