@@ -882,3 +882,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-14 — Fail-closed parameter binding
 - Added a parameter-binding layer that maps Bayesian `coefficient_drift` to `process_variance` and blocks unsupported Markov-switching, HMM, and temporal-convolution configurations rather than ignoring fields.
 - Synthetic workflow [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed after correcting a test/error-vocabulary mismatch. Underlying regime/transition-prior and dropout support remain unresolved; no empirical fit is authorized.
+
+
+## 2026-10-14 — Temporal-convolution dropout parameter consumed
+- Implemented registered dropout in the trainable temporal-convolution adapter using inverted dropout on training activations and backpropagated through the mask. Added deterministic synthetic coverage.
+- Run [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. No market data/holdout access. Markov-switching 3-regime and transition-prior semantics remain blocked.
