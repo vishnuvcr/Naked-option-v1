@@ -818,3 +818,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added train-only standardized LDA and QDA adapters with synthetic tests for probability bounds, preprocessing, invalid parameters and fail-closed behavior.
 - Workflow [38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed 19 tests across five adapter/calibration modules. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - No market data, empirical fitting or holdout access.
+
+
+## 2026-10-13 — Elastic-net logistic adapter
+- Added train-only standardized elastic-net logistic adapter with deterministic saga solver settings and synthetic tests for endpoint ratios, parameter rejection, class support and probability bounds.
+- Workflow [38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 tests across the current classical adapter suite. Report: [PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market data or holdout access.
