@@ -1307,3 +1307,8 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Follow-up row-level audit [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) also passed: all 320,000 compressed JSONL rows checked against mandatory fields, unique-pair coverage, blocked-metric null rules, and no-fit/no-holdout flags. Latest artifact [11825318200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140/artifacts/11825318200).
 - Hardened rerun [38420286467](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467) passed after adding fail-closed checks for preflight status, canonical hash agreement, and provenance flags; full row-level schema checks passed again. Artifact [11825388381](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467/artifacts/11825388381).
+
+## Phase 8P R3 — logistic family synthetic gate passed (2026-10-13)
+
+- Hosted workflow [38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917) passed: 5 logistic adapter tests + 4 chronological OOF calibration tests, plus compile and source checks. Report: [PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md](gates/PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- Synthetic-only result; no market data or holdout access. This does not authorize empirical fitting or establish prediction performance. Next: freeze a method-family-to-adapter contract and test each method's registered parameters before review.
