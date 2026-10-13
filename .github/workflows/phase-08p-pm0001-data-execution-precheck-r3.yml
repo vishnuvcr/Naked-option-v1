@@ -1,0 +1,110 @@
+name: Phase 8P R3 PM0001 data execution precheck
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - "scripts/run_pm0001_data_execution_precheck_r3.py"
+      - "scripts/test_pm0001_data_execution_precheck_r3.py"
+      - "scripts/prediction_pm0001_executor_r3.py"
+      - "scripts/prediction_features_r3.py"
+      - "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
+      - "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
+      - ".github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase-08p-pm0001-data-execution-precheck-r3
+  cancel-in-progress: false
+
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install bounded modeling dependencies
+        run: python -m pip install --disable-pip-version-check numpy scikit-learn
+      - name: Run precheck unit tests before dataset retrieval
+        working-directory: scripts
+        run: python -m unittest test_pm0001_data_execution_precheck_r3.py -v
+      - name: Verify PM0001 implementation gate and eligibility pins
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path(".")
+          gate=json.loads((root/"research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json").read_text())
+          assert gate["status"] == "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY"
+          for p, expected in gate["source_blob_pins"].items():
+              raw=(root/p).read_bytes()
+              actual=hashlib.sha1(b"blob "+str(len(raw)).encode()+b"\0"+raw).hexdigest()
+              assert actual == expected, f"stale implementation pin: {p}"
+          eligibility=json.loads((root/"research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json").read_text())
+          assert eligibility["record_count"] == 40000
+          assert eligibility["empirical_fit_authorized"] is False
+          assert eligibility["disposition_counts"]["ELIGIBLE_PENDING_EXECUTOR_GATE"] == 40
+          assert eligibility["implementation_gate_status"] == gate["status"]
+          print("PM0001 implementation and 40-config eligibility pins verified; empirical fitting still unauthorized.")
+          PY
+      - name: Download, verify, and temporarily decrypt canonical data
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/r3-pm0001-precheck"
+          mkdir -p "$WORK/unpacked" "$WORK/plain-parts"
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857" -o "$WORK/artifact-metadata.json"
+          python - "$WORK/artifact-metadata.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1]))
+          assert x["id"] == 11698879857 and x["expired"] is False
+          assert x["digest"] == "sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b"
+          assert x["size_in_bytes"] == 231076122
+          PY
+          curl -fsS -D "$WORK/headers.txt" -o /dev/null -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip"
+          URL="$(python - "$WORK/headers.txt" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="latin-1").read().splitlines()
+          v=[x.partition(":")[2].strip() for x in lines if x.lower().startswith("location:")]
+          assert v and v[-1].startswith("https://")
+          print(v[-1])
+          PY
+          )"
+          curl -fL --retry 3 --retry-delay 2 "$URL" -o "$WORK/source.zip"
+          echo "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b  $WORK/source.zip" | sha256sum -c -
+          unzip -q "$WORK/source.zip" -d "$WORK/unpacked"
+          MANIFEST="$(find "$WORK/unpacked" -type f -name dataset_manifest.json -print -quit)"
+          test -n "$MANIFEST"
+          BUNDLE="$(dirname "$MANIFEST")"
+          python -m pip install --disable-pip-version-check -r requirements-composite.txt
+          python scripts/validate_phase8_cached_composite_bundle.py --bundle-dir "$BUNDLE" --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json --output "$WORK/encrypted-report.json"
+          python scripts/decrypt_nifty_1m_composite.py --input-dir "$BUNDLE" --output-dir "$WORK/plain-parts" --merge-output "$WORK/merged.csv.gz"
+          echo "MERGED_GZIP=$WORK/merged.csv.gz" >> "$GITHUB_ENV"
+      - name: Run full canonical hash and 320 config-fold prechecks (no fitting)
+        env:
+          MERGED_GZIP: ${{ env.MERGED_GZIP }}
+        run: python scripts/run_pm0001_data_execution_precheck_r3.py --merged-gzip "$MERGED_GZIP" --output research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json
+      - name: Upload aggregate-only precheck
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pm0001-data-execution-precheck-r3
+          path: research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json
+          if-no-files-found: warn
+      - name: Remove plaintext and temporary source bytes
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/r3-pm0001-precheck"
