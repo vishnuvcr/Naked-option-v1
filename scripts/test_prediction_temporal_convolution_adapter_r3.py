@@ -19,6 +19,13 @@ class TemporalConvTests(unittest.TestCase):
         b=TemporalConvolutionAdapter(channels=3,epochs=8,random_state=3).fit(self.x[:130],self.y[:130])
         np.testing.assert_allclose(a.mean_,self.x[:130].mean(axis=(0,1)))
         np.testing.assert_allclose(a.predict_proba(self.x[130:]),b.predict_proba(self.x[130:]))
+    def test_dropout_is_validated_and_deterministic(self):
+        a=TemporalConvolutionAdapter(channels=3,kernel_size=3,epochs=10,dropout=.2,random_state=9).fit(self.x[:130],self.y[:130])
+        b=TemporalConvolutionAdapter(channels=3,kernel_size=3,epochs=10,dropout=.2,random_state=9).fit(self.x[:130],self.y[:130])
+        np.testing.assert_allclose(a.predict_proba(self.x[130:]),b.predict_proba(self.x[130:]))
+        with self.assertRaisesRegex(TemporalConvContractError,"MODEL_PARAMETER"):
+            TemporalConvolutionAdapter(dropout=1.0).fit(self.x[:130],self.y[:130])
+
     def test_fail_closed(self):
         with self.assertRaisesRegex(TemporalConvContractError,"BOTH_CLASSES"):
             TemporalConvolutionAdapter().fit(self.x[:50],np.zeros(50))
