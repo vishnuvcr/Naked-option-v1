@@ -1290,3 +1290,10 @@ Hosted run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/ru
 Accepted artifacts: R3 40,000-configuration disposition manifest (PASS) and data preflight (PASS_WITH_SCOPED_BLOCKS). Empirical execution remains blocked. Compatibility counts: 426 conditional, 574 blocked, zero empirically eligible; all methods still require implementation/tester approval.
 
 Next: build developer-side ten-horizon registry QA, then a fail-closed development-only executor with label-specific target maturity, purge/embargo, inner expanding-fold OOF predictions, train-only transformations and calibration, complete per-configuration/fold rows including blocked/failed outcomes, resumable checkpoints and explicit authorization. Preserve the five positional F01 blocks without excluding supported later folds. No model-performance claim or holdout access until the relevant gate passes.
+
+
+## Phase 8P R3 — registry accounting audit passed (2026-10-13)
+
+- Hosted read-only audit [38418296924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924) passed. Result: [REGISTRY_AUDIT_RESULT_2026-10-13.md](gates/REGISTRY_AUDIT_RESULT_2026-10-13.md); workflow artifact [11824953893](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924/artifacts/11824953893).
+- Verified 400/400 configuration shards (40,000 configs), 40/40 compatibility shards (1,000 methods), hashes/bytes, canonical config digests, unique identifiers, 10 labels at 4,000 each, and 40 configs per method. Compatibility: 426 conditional in principle, 574 blocked, zero empirically eligible.
+- No market data loaded, no model fit, no holdout access. Registry accounting only; empirical fitting remains unauthorized. Next: develop and test a fail-closed executor with complete terminal result-row accounting.
