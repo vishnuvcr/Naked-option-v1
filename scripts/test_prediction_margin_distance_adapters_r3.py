@@ -29,6 +29,15 @@ class MarginDistanceTests(unittest.TestCase):
         self.assert_scores(NearestCentroidScoreAdapter(shrink_threshold=.1).fit(self.x[self.train],self.y[self.train]))
         self.assert_scores(KNNDensityRatioScoreAdapter(n_neighbors=15,weights="distance").fit(self.x[self.train],self.y[self.train]))
 
+    def test_knn_density_ratio_accounts_for_class_sample_sizes(self):
+        rng=np.random.default_rng(19)
+        x0=rng.normal(loc=-1.0,scale=.35,size=(180,2))
+        x1=rng.normal(loc=1.0,scale=.35,size=(60,2))
+        x=np.vstack([x0,x1]); y=np.r_[np.zeros(len(x0),dtype=int),np.ones(len(x1),dtype=int)]
+        model=KNNDensityRatioScoreAdapter(n_neighbors=15,weights="uniform").fit(x,y)
+        scores=model.predict_score(np.array([[-1.0,-1.0],[1.0,1.0]]))
+        self.assertLess(scores[0],0.0)
+        self.assertGreater(scores[1],0.0)
     def test_invalid_parameters_and_support(self):
         with self.assertRaisesRegex(MarginAdapterContractError,"SVM_KERNEL"):
             KernelSVMScoreAdapter(kernel="bad").fit(self.x[self.train],self.y[self.train])
