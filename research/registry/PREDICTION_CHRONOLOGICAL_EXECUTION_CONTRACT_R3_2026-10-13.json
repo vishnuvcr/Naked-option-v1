@@ -1,0 +1,78 @@
+{
+  "schema_version": "prediction-chronological-execution-contract-v1",
+  "date": "2026-10-13",
+  "amendment_id": "PHASE8P_CHRONOLOGICAL_EXECUTION_SUPPLEMENT_R3_2026-10-13",
+  "status": "FROZEN_PRE_RESULTS_IMPLEMENTATION_SUPPLEMENT",
+  "scope": {
+    "research_stage": "prediction only; no options trading strategy or P&L selection",
+    "registry_config_count": 40000,
+    "outer_fold_count": 8,
+    "label_count": 10,
+    "result_row_grain": "exactly one terminal row for each registered config_id × outer fold_id, including blocked and failed rows",
+    "full_result_rows_if_all_registered_configs_accounted_for": 320000,
+    "holdout_access": "prohibited",
+    "empirical_fitting_authorized_by_this_contract": false
+  },
+  "outer_fold_rules": {
+    "boundaries": "Use the eight inclusive date windows in the pinned preregistration without changing dates.",
+    "session_indices": "Map each label's decision and endpoint dates to the label-specific eligible official exchange-session index defined by the pinned calendar.",
+    "train_maturity": "A training row's target endpoint session index must be strictly less than the outer validation start index.",
+    "purge": "Also require decision_session_index < validation_start_session_index - purge_exchange_sessions from the frozen label manifest; do not override the horizon-specific value.",
+    "validation_scoring": "Score only rows whose decision session is at least embargo_exchange_sessions after validation start, is before validation end-exclusive, and whose target endpoint session index lies inside [validation_start, validation_end_exclusive).",
+    "endpoint_after_fold": "Record and exclude target endpoints outside the same validation fold; do not score cross-fold target endpoints.",
+    "preflight_blocks": "A frozen BLOCKED_DATA label/fold cell remains blocked only for that exact cell; do not propagate positional F01 blocks to later folds."
+  },
+  "inner_fold_rules": {
+    "count": 3,
+    "session_universe": "All eligible official exchange sessions strictly before the current outer validation start, not a random sample and not a row-count quantile.",
+    "quantile_method": "Use integer floor for deterministic session-index cutpoints: floor(0.40*n), floor(0.60*n), floor(0.80*n), n.",
+    "intervals": "I01 [floor(0.40*n), floor(0.60*n)); I02 [floor(0.60*n), floor(0.80*n)); I03 [floor(0.80*n), n).",
+    "train": "For each inner fold, train only on sessions before its validation start and apply the same target-maturity and label-specific purge rules as the outer fold.",
+    "validation": "Apply the frozen label-specific embargo; target endpoints must stay inside the same inner validation interval.",
+    "failure": "If any inner fold fails frozen row/class support, block the config/outer-fold before estimator fitting; do not alter intervals or substitute a random split."
+  },
+  "support_rules": {
+    "source": "Use role-specific per-label minima already frozen in PREDICTION_PREREGISTRATION_R3_2026-10-13.json.",
+    "validation_classes": "Count UP and DOWN support independently; no class support may be borrowed across labels or folds.",
+    "feature_history": "Incomplete lookback history is excluded and counted; no interpolation or forward-fill.",
+    "label_support": "Use the existing 1% target-pair missingness gate and exact preflight label/fold disposition."
+  },
+  "result_rows": {
+    "mandatory_field_source": "preregistration.output_and_failure_rules.mandatory_fields",
+    "statuses": [
+      "EXECUTED_AUDITED",
+      "BLOCKED_DATA",
+      "BLOCKED_GATE",
+      "FAILED_TECHNICAL",
+      "REJECTED_EMPIRICAL"
+    ],
+    "blocked_metrics": "All predictive metrics, p-values and confidence-interval fields must be null for BLOCKED_DATA, BLOCKED_GATE and FAILED_TECHNICAL rows.",
+    "error_logging": "Persist config_id, method_id, label_id, fold_id, execution step, exception type and traceback SHA-256 for technical failures. Never silently retry with altered inputs.",
+    "restartability": "Persist row-level terminal state atomically; resume only unterminal config/fold pairs against the same source and code hashes.",
+    "source_manifest_sha256": "SHA-256 of exact DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json file bytes.",
+    "log_loss_improvement": "baseline_log_loss minus candidate_log_loss, computed on exactly the same evaluation rows.",
+    "result_completeness": "Validate uniqueness and complete 40,000 × 8 config/fold coverage before freezing the full bundle. Partial runs are explicitly incomplete and never treated as final results."
+  },
+  "statistical_analysis": {
+    "mandatory_prediction_metrics": [
+      "log_loss",
+      "brier_score",
+      "balanced_accuracy",
+      "roc_auc",
+      "average_precision",
+      "calibration_intercept",
+      "calibration_slope",
+      "coverage_if_selective"
+    ],
+    "inference": "Use the frozen preregistered paired session-block bootstrap and Benjamini–Yekutieli adjustment exactly as recorded in the preregistration.",
+    "selection": "No metric-based family/model selection until the complete result bundle is frozen and hashes are recorded.",
+    "forbidden": "No trading P&L, options entry/exit logic, cost model or post-hoc threshold optimization in this prediction-only gate."
+  },
+  "source_paths": {
+    "preregistration": "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json",
+    "label_manifest": "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json",
+    "feature_contract": "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json",
+    "data_preflight": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json",
+    "prerequisite_audit": "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json"
+  }
+}
