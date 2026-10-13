@@ -1,3 +1,13 @@
+## Phase 8P R3 — eligibility disposition published (2026-10-14)
+
+- Workflow [38470897493 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) committed the complete disposition manifest at commit `b4acbccf`; file blob SHA-1 `1c6a228f071892bf27a76d0a459d9ce0c1469965`.
+- Full registry: 40,000 unique configuration rows, 1,000 method IDs, exact accounting totals; 75 supported / 5 blocked label-fold cells. Only PM0001's 40 configurations are pending the next executor gate. All rows retain `empirical_fit_authorized=false`; manual authorization is not required.
+- This is a registry eligibility disposition, not an empirical result. Next: construct and test the data-backed PM0001 execution precheck and runner, then run the registered PM0001 configurations while preserving all fold rows and failures.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 ## Phase 8P — PM0001 rolling-refit synthetic gate passed (2026-10-14)
 
 - Hosted workflow [38470621843 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) on source commit `c95ebbdbd761821085f250a82c2124fbcb1786b8`.
