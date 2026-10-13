@@ -1,3 +1,13 @@
+## 2026-10-14 — OOF calibration endpoint-in-fold gate passed
+
+- Added a strict synthetic regression assertion requiring each OOF validation target endpoint to be strictly inside its fold.
+- Hosted workflow [#38468780406](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406) passed on `c98c4763df5b24988eb87ac881bab619df23d27d`; exact blobs are pinned in [gate report R2](../gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14_R2.json).
+- Standing user permission means no repeated manual authorization requests; it does not bypass data/implementation/compatibility gates. No empirical fit or holdout access; tester remains deferred until the complete frozen results bundle.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 ## 2026-10-07 — Phase 2B derived spot-data correction
 
 - The revised LastPric corroboration threshold passed the practical price gate, but the workflow then stopped because the HF source did not contain usable spot values for the selected date/expiry.
