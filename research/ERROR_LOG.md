@@ -1295,3 +1295,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Root cause: manifest generation modified the tracked output before the workflow synchronized the branch with commits that arrived during execution.
 - Correction: stash the generated tracked manifest before rebase, then restore the exact built bytes, stage/commit/push the manifest and upload its artifact. Fix committed at [344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54).
 - Disposition: no manifest from this failed persistence run is accepted as the final corrected artifact. No empirical model was fit; holdout remains untouched.
+
+
+## 2026-10-13 — R3 manifest persistence race and final correction
+
+- Category: workflow concurrency / branch persistence.
+- Failed run: [38399190788](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399190788), source commit 344a85a2c2906db319d464cfe488195c6b267d54.
+- Observed: all synthetic tests, the 40,000-config builder, and fold-scope assertions passed; Git commit creation succeeded locally, but push was rejected because the branch moved after branch synchronization.
+- Root cause: concurrent README/status/error-log commits raced the automation's branch push; ordinary pull/rebase did not cover a push-time ref change.
+- Correction: workflow commit [ffd95269d916a7ee9ca0b1317a02bc5e7eaf1ce0](https://github.com/vishnuvcr/Naked-option-v1/commit/ffd95269d916a7ee9ca0b1317a02bc5e7eaf1ce0) now keeps built bytes in RUNNER_TEMP, fetches/resets to the latest branch tip, restores the output and retries up to five times on a ref race.
+- Verification: run [38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557) succeeded; output was persisted and independently downloaded/reparsed. Final manifest Git blob SHA-1 707ea05ac9cf896881cbcf72b892ce8214368265, manifest SHA-256 cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229, 40,000 unique records, five exact fold-scoped blocks, zero empirical authorizations.
+- Disposition: resolved. The prior runs remain non-evidence for final artifact persistence; this run is the accepted registry-accounting artifact. No empirical fit, prediction metric or holdout access occurred.
