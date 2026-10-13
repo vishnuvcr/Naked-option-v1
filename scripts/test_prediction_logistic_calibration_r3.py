@@ -32,6 +32,26 @@ class CalibrationTests(unittest.TestCase):
                             sessions[f["validation_indices"]].min()-2)
         self.assertTrue(np.isfinite(oof_log_loss(folds)))
 
+    def test_chronological_oof_accepts_two_column_binary_probabilities(self):
+        class TwoColumnAdapter:
+            def fit(self, x_train, y_train):
+                self.base = LogisticProbabilityAdapter().fit(x_train, y_train)
+                return self
+            def predict_proba(self, x_test):
+                positive = self.base.predict_proba(x_test)
+                return np.column_stack([1.0 - positive, positive])
+
+        rng = np.random.default_rng(18)
+        x = rng.normal(size=(600, 3))
+        y = (x[:, 0] + 0.3 * x[:, 1] > 0).astype(int)
+        sessions = np.repeat(np.arange(60), 10)
+        folds = chronological_inner_oof(lambda: TwoColumnAdapter(), x, y, sessions,
+             purge_sessions=2, min_train_rows=50, min_validation_rows=50)
+        self.assertEqual(len(folds), 3)
+        for fold in folds:
+            self.assertEqual(fold["probabilities"].ndim, 1)
+            self.assertEqual(len(fold["probabilities"]), len(fold["labels"]))
+
     def test_bad_calibration_inputs_fail_closed(self):
         with self.assertRaisesRegex(CalibrationContractError,"SHAPE_OR_SAMPLE"):
             PlattCalibrator().fit([.2,.8],[0,1])
