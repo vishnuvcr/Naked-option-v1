@@ -688,3 +688,6 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - Shallow MLP adapter added; [workflow 38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 synthetic tests. [Family report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). No empirical fitting or holdout access.
 
 - MLP backpropagation now has a central finite-difference gradient check; [workflow 38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests. No empirical fitting.
+
+
+- Latest expanded family gate [38456989867](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38456989867) passed 47 synthetic tests, including HMM, Markov-switching logistic and Bayesian dynamic logistic adapters. [Updated report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Change-point combined tests and temporal convolution remain; no empirical fitting authorization.
