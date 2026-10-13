@@ -550,3 +550,10 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 - Extended the [automatic/manual code gate](.github/workflows/phase-08p-logistic-adapter-r3.yml) to test both the logistic adapter and calibration component.
 - Hosted run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) is pending at the latest checkpoint; no passing result is claimed yet.
 - The calibrator does not prove provenance of its input OOF predictions. A future runner must enforce chronological folds, purge/embargo and holdout exclusion and emit a verifiable provenance manifest. Empirical fitting remains unauthorized.
+
+
+## Phase 8P R3 — adapter CI checkpoint (2026-10-13)
+
+- The dedicated code gate exposed a malformed test command and a stale log-loss test value. Both corrections are recorded in the research error log.
+- Correct synthetic log-loss reference: 0.2604634887. Dedicated adapter workflow runs 38395143013 and 38395142525 were still running at last check; the repository protocol check is not a substitute for the adapter test result.
+- See [current status](research/STATUS.md), [error log](research/ERROR_LOG.md), and [conversation log](research/logs/CHAT_LOG.md).
