@@ -1327,3 +1327,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - **Failure:** The original chronological-gate workflow wrote to the literal path $RUNNER_TEMP/chronological-gate.json inside a quoted Python heredoc and used escaped bytes for Git blob framing. This caused report persistence to fail with FileNotFoundError. **Correction:** read the runner temp directory through os.environ, write via Path, and compute Git blob SHA-1 using the NUL byte bytes([0]).
 - **Evidence:** corrected hosted workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) concluded SUCCESS and persisted research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json (blob 67aaea739f777a8857fb43be8e85416b22de3af8). The separate split/result-schema gate [38406356340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406356340) also passed.
 - **Scope:** These were contract/test/workflow defects only. No market fitting, holdout access, or empirical prediction conclusion occurred.
+
+
+## 2026-10-13 — Phase 8P R3 registry accounting gate
+- Category: audit / integrity validation
+- Component: `scripts/audit_prediction_registry_r3.py`, workflow `phase-08p-r3-registry-audit.yml`
+- Result: hosted run [38418296924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924) passed; 400 configuration shards and 40 compatibility shards were verified with no audit errors.
+- Scope: no registry defect found. No market data, fitting, or holdout access occurred. An initial job-log lookup used a guessed job ID and returned 404; resolved by querying the run's actual job ID (115368513529). Tooling-only lookup mistake; no research impact.
