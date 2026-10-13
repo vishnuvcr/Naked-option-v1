@@ -1341,3 +1341,9 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_accounting_executor_r3.py` and workflow `phase-08p-r3-terminal-accounting.yml`.
 - Result: hosted run [38419789140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140) passed with complete 320,000-row coverage; 20,000 BLOCKED_DATA and 300,000 BLOCKED_GATE.
 - No implementation defect detected by the hosted accounting gate. No fitting, market-data loading, or holdout access occurred. This gate is not an empirical result.
+
+## 2026-10-13 — Terminal row-level validation extension
+- Category: validation hardening
+- Component: `.github/workflows/phase-08p-r3-terminal-accounting.yml`
+- Added a streaming audit over every compressed JSONL row: preregistered required fields, unique config/fold pair, terminal status, null metrics on blocked rows, and explicit no-fitting/no-holdout flags.
+- Hosted run [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed all 320,000 rows. No model fitting or holdout access occurred.
