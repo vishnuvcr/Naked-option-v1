@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Build a deterministic, fail-closed disposition for the frozen Phase 8P R3 registry.
 
-Registry accounting only: no market rows are loaded, no model is fitted, and no
-empirical execution is authorized. Fold-specific data blocks remain fold-specific.
+Registry accounting only: no market rows are loaded and no model is fitted. Standing permission removes repeated manual authorization, but actual fitting remains blocked until method implementation, data, and executor gates pass. Fold-specific data blocks remain fold-specific.
 """
 from __future__ import annotations
 
@@ -123,8 +122,8 @@ def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[s
         disposition = "BLOCKED_METHOD_COMPATIBILITY"
         reason = method.get("decision_code", "COMPATIBILITY_BLOCK")
     elif method.get("eligible_for_empirical_fitting") is not True:
-        disposition = "BLOCKED_IMPLEMENTATION_OR_AUTHORIZATION"
-        reason = method.get("implementation_status", "NOT_EXPLICITLY_EMPIRICALLY_ELIGIBLE")
+        disposition = "BLOCKED_IMPLEMENTATION_NOT_READY"
+        reason = method.get("implementation_status", "IMPLEMENTATION_NOT_DEMONSTRATED")
     elif len(blocked_folds) == len(FOLD_IDS):
         disposition = "BLOCKED_DATA_SUPPORT"
         reason = "ALL_REGISTERED_OUTER_FOLDS_BLOCKED_BY_FROZEN_SAMPLE_RULE"
@@ -143,6 +142,7 @@ def classify(config: dict, method: dict, fold_support_by_label: dict[str, dict[s
         "blocked_outer_fold_ids": blocked_folds,
         "supported_outer_fold_ids": supported_folds,
         "empirical_fit_authorized": False,
+        "manual_authorization_required": False,
     }
 
 
@@ -192,6 +192,8 @@ def build_manifest(configs: list[dict], methods: list[dict], preflight: dict, so
         "record_count": len(out),
         "unique_config_count": len({row["config_id"] for row in out}),
         "empirical_fit_authorized": False,
+        "manual_authorization_required": False,
+        "standing_permission_path": "research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md",
         "disposition_counts": counts,
         "fold_ids": list(FOLD_IDS),
         "eligible_fold_label_cell_count": eligible_cells,
