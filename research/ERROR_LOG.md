@@ -1,3 +1,11 @@
+## 2026-10-14 — PM0001 rolling refit cadence contract gap
+- Category: scientific implementation / preregistration compliance
+- Component: `scripts/prediction_pm0001_executor_r3.py`
+- Finding: the first PM0001 fold fitter trained once at the outer-fold start, but registered configurations specify `refit_cadence=every_20_trading_sessions`. A single fit would have violated the frozen configuration.
+- Correction: refactored the fold fitter to refit every 20 exchange sessions, rebuild train-only scaling and chronological OOF calibration at every refit cutoff, admit prior validation-period observations only after target maturity, apply purge at each refit, and score only targets ending inside the same outer fold. Added synthetic assertions for maturity, purge, repeated refits, and past validation rows entering later training only after maturity.
+- Verification: automated PM0001 synthetic workflow is pending. The previous one-fit implementation gate is superseded and must not be used to authorize empirical fitting. The PM0001 implementation gate report will be regenerated with the exact passing source blobs after CI succeeds.
+- Scope: no market data loaded and no empirical fit performed; holdout remains sealed.
+
 ## 2026-10-14 — Eligibility disposition workflow assertion syntax
 - Category: workflow / CI script syntax
 - Component: `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
