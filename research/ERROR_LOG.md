@@ -1262,3 +1262,15 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Impact: generated eligibility dispositions were not reviewable/cached from the repository, so that run is a successful computation but an incomplete deliverable.
 - Correction: add branch persistence with rebase-before-push and upload-artifact retention. Verification run 38397474080 is pending. No empirical fitting or holdout access occurred.
 - Prevention: workflow acceptance requires not only test/build success but also persisted, hash-verifiable output artifacts.
+
+
+## 2026-10-13 — R3 eligibility manifest fold-scope defect
+
+- Category: research-gate logic / sample-eligibility scope.
+- Component: scripts/build_prediction_eligibility_manifest_r3.py.
+- Evidence: the retained artifact from [run 38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) had 40,000 unique configurations, but source inspection found that the five failed positional F01 fold-label cells had been collapsed into five label-wide blockers.
+- Symptom/impact: a future configuration with otherwise valid eligibility would be incorrectly blocked for F02–F08 despite only F01 failing the frozen sample support threshold. Current production manifest did not exercise the branch because zero methods were eligible; no empirical fit or metric was affected.
+- Root cause: label-level blocked IDs replaced the exact label_sample_support grid.
+- Correction: commit [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3) validates all 80 label/fold rows, records precise fold scope, and adds regression tests for one-fold and all-fold blocks. Source Git blob pins are checked before building.
+- Prevention: never convert a fold-specific failure into a horizon-wide exclusion. Require hosted test/build/accounting success and verify the corrected committed manifest before accepting the gate.
+- Disposition: old manifest is superseded pending corrected rebuild. Empirical fitting remains unauthorized; holdout untouched.
