@@ -1404,3 +1404,5 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Symptom: synthetic gate [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566) failed because scikit-learn 1.7 `NearestCentroid` has no `transform` method and rejects `shrink_threshold=0.0` (expects `None` for no shrinkage).
 - Correction: compute Euclidean distances directly from the fitted `centroids_` and standardized features; map zero threshold to `None`. Follow-up run is pending.
 - Impact: no empirical data or fitting; synthetic gate only.
+
+- Correction evidence: hardened workflow [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed all 32 tests after the nearest-centroid fixes. No market-data fitting or holdout access.
