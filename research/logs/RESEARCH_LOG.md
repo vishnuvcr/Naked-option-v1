@@ -1,3 +1,12 @@
+## 2026-10-14 — Eligibility gate verified and artifact acquired
+
+- Workflow [#38471769553 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471769553) passed the disposition checks and uploaded the 40,000-row artifact (ID `11852526147`, SHA-256 `ac76327b23e9e9e159e60d1f184b4d776e15187bb947fc007c53a1c250e01259`).
+- Counts: 17,000 configurations blocked by implementation readiness, 22,960 blocked by method compatibility, and 40 PM0001 configurations pending executor gate. No empirical fit is authorized.
+- Five positional label/fold cells are blocked by target-pair missingness above 1%; 75 cells pass the data-support minimums. These are data eligibility counts, not model-performance results.
+- Stale implementation pins caused an earlier expected fail-closed result; the PM0001 source pins were refreshed only after the synthetic implementation tests passed. Next: data-backed execution precheck and runner.
+
+**Developer → Tester:** wait for complete frozen results only.
+
 ## 2026-10-14 — Full R3 eligibility disposition published
 
 - Workflow [#38470897493](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) passed synthetic disposition rules, verified every config/method shard and committed the 40,000-row manifest at `b4acbccf` (blob `1c6a228f071892bf27a76d0a459d9ce0c1469965`).
