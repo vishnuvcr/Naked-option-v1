@@ -674,3 +674,5 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - [Workflow 38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed 19 tests covering logistic, calibration, probit, LDA and QDA. [Report](research/gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting or holdout access.
 
 - Expanded classical synthetic gate [38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 tests, adding elastic-net logistic. [Report](research/gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting authorization.
+
+- Expanded classical synthetic gate [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 tests including random forest, Extra Trees, gradient boosting and histogram gradient boosting. [Report](research/gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting authorization.
