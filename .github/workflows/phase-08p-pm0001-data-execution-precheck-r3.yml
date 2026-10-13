@@ -93,6 +93,12 @@ jobs:
           python -m pip install --disable-pip-version-check -r requirements-composite.txt
           python scripts/validate_phase8_cached_composite_bundle.py --bundle-dir "$BUNDLE" --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json --output "$WORK/encrypted-report.json"
           python scripts/decrypt_nifty_1m_composite.py --input-dir "$BUNDLE" --output-dir "$WORK/plain-parts" --merge-output "$WORK/merged.csv.gz"
+          python scripts/preflight_prediction_dataset_r3.py \
+            --merged-gzip "$WORK/merged.csv.gz" \
+            --calendar research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json \
+            --preregistration research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json \
+            --preprocessing-rules research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json \
+            --output research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json
           echo "MERGED_GZIP=$WORK/merged.csv.gz" >> "$GITHUB_ENV"
       - name: Run full canonical hash and 320 config-fold prechecks (no fitting)
         env:
