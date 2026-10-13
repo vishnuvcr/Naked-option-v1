@@ -50,6 +50,26 @@ class EligibilityManifestTests(unittest.TestCase):
         self.assertFalse(m["manual_authorization_required"])
         self.assertFalse(m["records"][0]["manual_authorization_required"])
 
+    def test_pm0001_developer_gate_only_makes_configs_pending_executor_gate(self):
+        gate = {
+            "method_id": "PM0001",
+            "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
+            "empirical_fit_authorized": False,
+        }
+        m = build_manifest(
+            [cfg("C1", "PM0001")], [method("PM0001")],
+            {"canonical_hash_matches": True, "holdout_accessed": False,
+             "model_fitting_performed": False,
+             "label_sample_support": fold_support("INTRA_5M_UP_DOWN")},
+            {}, implementation_gate=gate,
+        )
+        row = m["records"][0]
+        self.assertEqual(row["disposition"], "ELIGIBLE_PENDING_EXECUTOR_GATE")
+        self.assertEqual(row["implementation_gate_status"], "DEVELOPER_TESTED_SYNTHETIC_ONLY")
+        self.assertFalse(row["empirical_fit_authorized"])
+        self.assertFalse(m["empirical_fit_authorized"])
+        self.assertFalse(m["manual_authorization_required"])
+
     def test_compatibility_block_takes_precedence(self):
         m = build_manifest(
             [cfg("C1", "PM0002")], [method("PM0002", "BLOCK", False)],
