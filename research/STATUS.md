@@ -1,3 +1,15 @@
+## Phase 8P — PM0001 rolling-refit synthetic gate passed (2026-10-14)
+
+- Hosted workflow [38470621843 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) on source commit `c95ebbdbd761821085f250a82c2124fbcb1786b8`.
+- Updated gate report [PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json](gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json) pins the exact PM0001 executor, test and workflow blobs.
+- The earlier one-fit-per-fold implementation was replaced because the frozen configuration requires refitting every 20 exchange sessions. New synthetic assertions check repeated refits, target maturity and purge at each cutoff, and admission of previously scored rows only after their labels mature.
+- **Synthetic only:** no market data loaded, no empirical prediction metrics, no holdout access. Method implementation is developer-tested but empirical fitting remains unauthorized pending eligibility disposition and the execution/data workflow gate.
+- Tester remains deferred until the complete results bundle is acquired, frozen and hash-pinned.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 ## Phase 8P — expanded OOF calibration regression gate passed (synthetic only, 2026-10-14)
 
 - Hosted workflow [38468780406 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406) on exact source commit `c98c4763df5b24988eb87ac881bab619df23d27d`; Research Protocol Check [38468780261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780261) also passed.
