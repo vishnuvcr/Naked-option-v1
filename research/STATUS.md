@@ -1,3 +1,17 @@
+## Phase 8P — OOF calibration maturity gate passed (synthetic only, 2026-10-14)
+
+- Hosted workflow [38468518354 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) on exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`.
+- All **62 tests across 16 suites** passed; Python compilation and the source-level no-market-data/no-holdout checks passed. The workflow now explicitly executes `test_prediction_logistic_calibration_r3.py`.
+- Gate report: [PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json](research/gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json). It pins source blobs and preserves failed attempt [38468327357](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357), where a vector/matrix probability-shape mismatch was caught and then corrected.
+- Corrected OOF calibration requires target-endpoint positions; verifies target maturity before training cutoff; applies purge and initial validation embargo; excludes targets ending outside their validation fold; validates positive-class probability output shape.
+- **This is synthetic code validation only.** No market data was loaded, no empirical model was fitted, no performance result was created, and holdout access remains false. Empirically eligible methods remain 0. The next gate is the developer-owned implementation/eligibility and execution path, not tester review.
+- Tester cadence unchanged: one consolidated review only after the full planned results bundle is acquired, frozen and hash-pinned.
+
+**Developer → Tester (post-results only):** wait for the formal complete-bundle review request.  
+**Tester → Developer (after results publication):** audit the complete frozen results and source hashes.
+
+---
+
 ## Latest status checkpoint — OOF maturity gate correction (2026-10-14)
 
 - User authorized continuation. Research remains prediction-only; the independent tester is **deferred until the complete results bundle is acquired, frozen and hash-pinned** per [review cadence policy](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md). No intermediate tester request was made.
