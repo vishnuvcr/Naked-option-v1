@@ -7,6 +7,7 @@ on:
       - phase-08-prediction-developer
     paths:
       - "scripts/build_prediction_eligibility_manifest_r3.py"
+      - "research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md"
       - "scripts/test_prediction_eligibility_manifest_r3.py"
       - "research/registry/config_shards_r3/**"
       - "research/registry/compatibility_shards/**"
@@ -50,6 +51,8 @@ jobs:
           assert d["unique_config_count"] == 40000
           assert len(d["records"]) == 40000
           assert d["empirical_fit_authorized"] is False
+          assert d["manual_authorization_required"] is False
+          assert all(row["manual_authorization_required"] is False for row in d["records"])
           assert all(row["empirical_fit_authorized"] is False for row in d["records"])
           assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 0
           assert sum(d["disposition_counts"].values()) == 40000
