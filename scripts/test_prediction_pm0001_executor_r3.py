@@ -32,6 +32,7 @@ class PM0001ExecutorTests(unittest.TestCase):
         )
 
     def test_fit_is_chronological_and_returns_valid_metrics(self):
+        x, y, decision, endpoint = self.fixture()
         result = self.run_fit()
         self.assertTrue(result.model_fitting_performed)
         self.assertFalse(result.holdout_accessed)
