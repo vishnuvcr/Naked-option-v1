@@ -887,3 +887,11 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-14 — Temporal-convolution dropout parameter consumed
 - Implemented registered dropout in the trainable temporal-convolution adapter using inverted dropout on training activations and backpropagated through the mask. Added deterministic synthetic coverage.
 - Run [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. No market data/holdout access. Markov-switching 3-regime and transition-prior semantics remain blocked.
+
+
+## 2026-10-14 — Phase 8P OOF calibration contract correction
+
+- Fixed missing target-maturity, validation-embargo and fold-endpoint checks in the logistic inner-OOF calibration helper. The helper now requires endpoint session positions and uses the frozen chronological folds fail-closed.
+- Added synthetic tests for missing endpoint metadata and endpoint-before-decision errors; updated the logistic-family CI workflow to include this test module and compile the changed helper.
+- Exact developer HEAD: `4c87f49f82a8c1e5d20f6a04c057ef91fd8a1e14`. Hosted CI outcome is pending verification; this is not yet a passed gate or empirical result.
+- No empirical fitting, performance analysis, strategy selection or holdout access. Next: verify hosted CI, fix any failures, and continue developer-owned eligibility/executor work. Tester review remains post-results only.
