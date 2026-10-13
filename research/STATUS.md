@@ -1444,3 +1444,15 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the successful complete rerun and its report, not the incomplete failed attempt.
 **Tester → Developer:** keep the gate closed until all tests and 40,000 config checks pass.
+
+
+## Phase 8P R4 independent tester decision — BLOCKED (2026-10-14)
+
+- Reviewed developer commit `0e016b657a4f7f906b4fde3a20a515d7ce53f0e4` and hosted R4 run [38462243181](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38462243181).
+- Developer automation passed: 109 tests, 20 modules compiled, 40,000 configurations audited (38,000 bound; 2,000 event-time/survival configurations blocked), 0 empirically eligible methods.
+- Independent tester decision: **BLOCKED** on (T1) Markov terminal filtered posterior/log-likelihood being retained from pre-M-step parameters while predictions use updated parameters, and (T2) the transition-prior meaning being introduced as a Dirichlet pseudocount without a frozen, versioned preregistration definition.
+- Full report: [R4 independent tester report](gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R4_2026-10-14.md).
+- No empirical fitting, market-data access, holdout access or strategy promotion is authorized. The developer must fix and resubmit; tester branch preserves the review decision.
+
+**Tester → Developer:** fix T1 and freeze T2 before empirical results; resubmit hashes and a full green audit.
+**Developer → Tester:** return a new independent decision on the exact resubmitted commit.
