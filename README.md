@@ -593,3 +593,11 @@ The first fold-scoped manifest rerun, [38398836570](https://github.com/vishnuvcr
 ### Registry gate persistence repair — 2026-10-13
 
 Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) passed the eight synthetic tests, 40,000-config build and fold-scope assertions, but failed to persist the artifact because Git rebase rejected the modified tracked JSON. The workflow now stashes the generated manifest before rebasing, then restores and commits the exact bytes: [commit 344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54). The new run and committed manifest must still be verified before this gate is accepted.
+
+
+## Verified corrected R3 eligibility manifest — 2026-10-13
+
+- Corrected workflow [38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557) passed all eight synthetic tests, full source/shard reconciliation, fold-scope accounting, repository persistence and artifact upload.
+- Committed manifest: [PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json](research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json); Git blob SHA-1 707ea05ac9cf896881cbcf72b892ce8214368265; manifest SHA-256 cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229; retained workflow artifact ID 11813078693, ZIP SHA-256 3ce206efe768799856c2d94c1c91225b602e023ab0752f6bb2f0851e0120c50f.
+- Counts: 40,000 records and unique IDs; 1,000 method IDs × 40 configurations; 17,040 implementation/authorization blocks; 22,960 compatibility blocks; zero eligible configurations; all empirical-fit flags false. Fold grid has 75 passing and five blocked label/fold cells. All five blocked cells are positional F01 only; no other outer fold is marked data-blocked.
+- Persistence failures encountered and corrected remain preserved in the [error log](research/ERROR_LOG.md). This completes registry accounting only. The next gate is still PM0001 implementation/executor authorization; no empirical prediction metrics or strategy claim yet. The protected holdout remains sealed.
