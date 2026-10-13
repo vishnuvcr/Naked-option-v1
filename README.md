@@ -512,3 +512,12 @@ The pinned run [38254175308](https://github.com/vishnuvcr/Naked-option-v1/action
 
 ### Phase 8P review artifacts — 2026-10-13
 The compatibility matrix now has 40 committed review shards with 25 rows each. [Registry CI run 38299233992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38299233992) passed shard integrity and reconstruction tests. See the [refreshed tester request](research/gates/PREDICTION_REGISTRY_V2_R2_REVIEW_REQUEST_R2_2026-10-12.json). This is an accessibility fix, not scientific approval; no method is approved for empirical fitting.
+
+
+## Resume checkpoint — 2026-10-13 17:05 IST
+
+- Confirmed the current R3 preflight artifact `research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json` is committed (blob `9da9692d67b5fda6271e021c77e429d1b9f32b3c`). It reports no global blockers, 75 eligible fold-label cells, and five explicitly blocked positional F01 label cells. The 1% support threshold remains frozen.
+- Confirmed the prior run record `PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json` records exit code 0 and `PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS`; no model fitting, holdout access, plaintext upload, or raw-row retention occurred in that preflight.
+- Important distinction: the current preflight report says the 61-part composite source has 8,999,865 rows and canonical decoded CSV SHA-256 `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. Data integrity/preflight is not prediction evidence.
+- Phase 8P Greek-feature study remains separately blocked by its exact-snapshot authorization contract; the synthetic self-test is explicitly not empirical evidence. The ten-horizon R3 registry has 40,000 configurations, but registry size is not evidence that models were fitted.
+- Next developer action: locate/finish the authorized empirical executor for the 40,000-configuration registry, consume the scoped-block manifest without dropping eligible folds, use only development folds, checkpoint results/errors, and produce a hash-pinned result inventory before the consolidated tester review. Do not relax preregistered support, treat synthetic outputs as results, or claim a strategy.
