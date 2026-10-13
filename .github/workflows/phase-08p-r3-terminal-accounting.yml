@@ -54,6 +54,37 @@ jobs:
           assert d["holdout_accessed"] is False, d
           assert sum(d["terminal_status_counts"].values()) == 320000, d
           PY
+      - name: Validate every terminal row schema and blocked-metric invariant
+        run: |
+          python - <<'PY'
+          import gzip, json, os
+          from pathlib import Path
+          root = Path(".")
+          required = set(json.loads((root / "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json").read_text())["output_and_failure_rules"]["mandatory_fields"])
+          p = Path(os.environ["RUNNER_TEMP"]) / "prediction-terminal-rows.jsonl.gz"
+          counts = {}
+          seen = set()
+          numeric_metrics = {"baseline_log_loss", "candidate_log_loss", "log_loss_improvement", "bootstrap_ci_lower", "bootstrap_ci_upper", "raw_p_value", "by_adjusted_p_value", "class_prior_baseline_log_loss", "previous_sign_baseline_log_loss", "brier_score", "balanced_accuracy", "roc_auc", "average_precision", "calibration_intercept", "calibration_slope"}
+          n = 0
+          with gzip.open(p, "rt", encoding="utf-8") as f:
+              for line in f:
+                  row = json.loads(line)
+                  missing = required - set(row)
+                  assert not missing, (n, sorted(missing))
+                  assert row["terminal_status"] in {"BLOCKED_DATA", "BLOCKED_GATE"}, (n, row["terminal_status"])
+                  assert row.get("failure_reason"), n
+                  assert all(row.get(k) is None for k in numeric_metrics), n
+                  assert row["model_fitting_performed"] is False and row["holdout_accessed"] is False, n
+                  key = (row["config_id"], row["fold_id"])
+                  assert key not in seen, key
+                  seen.add(key)
+                  counts[row["terminal_status"]] = counts.get(row["terminal_status"], 0) + 1
+                  n += 1
+          assert n == 320000, n
+          assert len(seen) == 320000, len(seen)
+          assert counts == {"BLOCKED_DATA": 20000, "BLOCKED_GATE": 300000}, counts
+          print(json.dumps({"rows_schema_checked": n, "unique_pairs": len(seen), "status_counts": counts}, sort_keys=True))
+          PY
       - name: Upload complete terminal rows and summary
         uses: actions/upload-artifact@v4
         with:
