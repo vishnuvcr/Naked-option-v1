@@ -663,3 +663,7 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 ### Method-family implementation inventory (2026-10-13)
 - [Plan validation workflow 38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992) passed against all 40 compatibility shards. [Validation result](research/gates/PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md) and [frozen family plan](research/registry/PREDICTION_METHOD_FAMILY_IMPLEMENTATION_PLAN_R3_2026-10-13.json).
 - 1,000 methods across 20 families: 426 conditional in principle, 574 blocked. Logistic is the only family with a passing synthetic adapter gate. No empirical fitting authorization or prediction-performance claim.
+
+
+### Classical probability adapters (2026-10-13)
+- Logistic, chronological OOF calibration, and probit synthetic gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests. [Report](research/gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting or holdout access.
