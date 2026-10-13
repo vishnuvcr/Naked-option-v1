@@ -1166,3 +1166,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Evidence: `PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json` reports no global blockers and five scoped positional F01 blocks; `PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json` records model_fitting_performed=false and holdout_accessed=false.
 - Resolution required: identify or implement the finite empirical executor; explicitly consume the preregistered scoped-block manifest; fit/evaluate eligible development folds only; persist checkpoints, errors, per-configuration outputs and content hashes; freeze the complete inventory before the consolidated tester review.
 - Prevention: never infer empirical evidence from registry count, preflight success, or synthetic-only workflows. Do not relax frozen thresholds to force completion.
+
+
+## 2026-10-13 — Phase 8P R3 empirical execution blocked at gate reconciliation
+- Category: research-gate / execution authorization
+- Component: R3 registry eligibility and empirical executor handoff
+- Symptom: data preflight is complete with scoped blocks, but the existing compatibility matrix summary has 426 conditional, 574 blocked and zero empirically eligible methods; no verified R3 executor/authorization path was found that safely consumes the R3 config shards plus the scoped-block manifest.
+- Impact: no empirical fitting was started; no metrics or strategy claims are accepted. This is an intentional fail-closed gate, not a model failure.
+- Evidence: `research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md`; R3 preflight report blob `9da9692d67b5fda6271e021c77e429d1b9f32b3c`; R3 registry index blob `8b7e1f1967cd51146573e43cde8462d64980e375`.
+- Root cause: a generated 40,000-config registry and passed data preflight do not by themselves establish method eligibility or authorize fitting; the execution/eligibility contract has not been reconciled end-to-end.
+- Correction/next step: build an exact 40,000-row disposition manifest; preserve compatibility and sample-support blocks; pin an authorized executor only after registry eligibility is evidence-backed; add count-conservation, fail-closed, restart and no-holdout regression tests.
+- Prevention: prohibit any empirical job unless the run proves exact registry/config hashes, explicit authorization, eligible-only fitting, complete status accounting and holdout exclusion.
