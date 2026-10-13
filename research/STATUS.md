@@ -1433,3 +1433,14 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** evaluate only a corrected run that completes the full test/audit job.
 **Tester → Developer:** keep the gate closed if any step is skipped, failed or lacks a hash-pinned report.
+
+
+## R4 hosted test-failure follow-up — 2026-10-14
+
+- Corrected setup allowed run [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) to execute 107 tests. It failed at one calibration output-shape assumption and one case-sensitive assertion; compile/registry audit were skipped by fail-fast behavior.
+- Markov switching's 2/3-regime contract and prior-sensitivity tests passed in that run. This does not mean the complete R4 gate passed.
+- Fixes are committed: calibration OOF now accepts either a positive-class vector or binary two-column matrix with strict shape checking; HMM covariance assertion is case-insensitive. A new vector/matrix compatibility test was added.
+- Current status: **corrected rerun required and pending verification**. No empirical data or holdout access, and no prediction conclusion.
+
+**Developer → Tester:** review the successful complete rerun and its report, not the incomplete failed attempt.
+**Tester → Developer:** keep the gate closed until all tests and 40,000 config checks pass.
