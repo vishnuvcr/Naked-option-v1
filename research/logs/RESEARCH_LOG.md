@@ -800,3 +800,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-13 — Method-family implementation inventory
 - Added a frozen family plan and validator, checked against all 40 compatibility shards. Workflow [38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992) passed. Report: [PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md](../gates/PREDICTION_METHOD_FAMILY_PLAN_VALIDATION_R3_2026-10-13.md).
 - Registry has 1,000 methods in 20 families, 426 ALLOW_IN_PRINCIPLE, 574 BLOCK. Logistic regression is the only family with a passing synthetic gate; no empirical method is eligible.
+
+
+## 2026-10-13 — Probit adapter implementation and synthetic gate
+- Added `scripts/prediction_probit_adapter_r3.py` with train-only standardization and penalized probit likelihood, plus synthetic tests.
+- Combined logistic/calibration/probit gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests. Report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market data, holdout, or empirical conclusions.
