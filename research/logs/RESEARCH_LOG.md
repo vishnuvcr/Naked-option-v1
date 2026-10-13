@@ -838,3 +838,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - No market-data fitting or holdout access.
 
 - Follow-up source review found posterior log-odds was not a class-conditional density ratio under class imbalance. The adapter now normalizes local weighted neighbor mass by class sample counts; [run 38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714) passed the new imbalanced-class direction test and all 33 synthetic tests.
+
+
+## 2026-10-13 — Expanded estimator family synthetic gate
+- Added additive spline logistic regression and expanded the combined family workflow. [Run 38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 tests covering logistic, probit, LDA/QDA, elastic-net logistic, tree ensembles, SVM, nearest centroid, KNN density ratio, additive spline logistic and chronological calibration.
+- Result: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Synthetic only; no market data or holdout access.
