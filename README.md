@@ -1,3 +1,14 @@
+## PM0001 rolling-refit implementation gate — synthetic only (2026-10-14)
+
+- [PM0001 executor workflow #38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed on source commit `c95ebbdbd761821085f250a82c2124fbcb1786b8`; the gate report pins exact helper/test/workflow blobs in [PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json](research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json).
+- PM0001 now implements the registered 20-exchange-session rolling refit, train-only scaling, target maturity and purge at every refit, chronological inner OOF calibration, and held-out prediction/calibration metrics. Synthetic tests passed; no market rows were loaded and no holdout was accessed.
+- The eligibility workflow is being updated to treat these 40 PM0001 configurations as **pending the executor/data gate only**. The method is not yet empirically authorized, and this is not predictive-performance evidence.
+- [Error log](research/ERROR_LOG.md) retains the failures and fixes, including the stale-pin rejection.
+
+**Developer → Tester:** wait for complete frozen results only.
+
+---
+
 ## Standing permission applied — no repeated authorization pauses (2026-10-14)
 
 - User instruction: **“No need for Authorization.”** Recorded in [standing research execution permission](research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md).
