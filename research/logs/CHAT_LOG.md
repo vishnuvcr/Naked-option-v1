@@ -1269,3 +1269,15 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - No market data fitting or holdout access.
 
 - Follow-up to the “Resume” instruction: temporal-convolution dropout implementation passed the expanded synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113), 56 tests across 15 suites. No empirical fitting or holdout access.
+
+
+### 2026-10-14 — User instruction and action: “Continue” (R4 parameter audit)
+- User instruction: “Continue”.
+- Action: reread current README and developer/tester status, parameter audit, error log, conversation log, research plan, frozen registry counts and relevant adapter/test sources before changing the gate.
+- Findings: the prior R3 hosted synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites, compilation and source checks; this is synthetic-only. The R3 mapping run [38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442) reconciled 1,000 methods and 40,000 configurations but only established inventory/file presence and not constructor-level parameter semantics.
+- Changed on isolated branch `phase-08-prediction-param-audit-developer`: generalized the Markov-switching adapter to 2/3 regimes with a documented provisional symmetric Dirichlet transition pseudocount; added synthetic tests for regime normalization and prior sensitivity; replaced the narrow parameter binder with an explicit 19-family mapping/domain layer; expanded tests to constructor-verify the mapping; extended the full-registry audit to bind all 40,000 configs and block the 2,000 survival/event-time configs; created [R4 gate specification](../gates/PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md).
+- Current outcome: **implementation is committed; R4 hosted test outcome is not yet verified**. No market data loaded, no empirical fit, no holdout access, no option P&L and no strategy promotion.
+- Next step: add and run an automatic + manual GitHub Actions gate, inspect test/audit report, log every failure, and correct/re-run without opening data. Independent tester must review the exact R4 snapshot before any empirical fit.
+  
+**Developer → Tester:** audit the exact R4 commit and full report, especially Markov transition prior/forward-backward math and all constructor parameter mappings.
+**Tester → Developer:** provide hash-pinned pass or exact corrections; do not approve empirical fitting solely on synthetic evidence.
