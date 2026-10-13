@@ -1141,3 +1141,12 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Registry currently contains 40,000 configurations across ten horizons. Do not equate registry generation or synthetic orchestration with empirical evidence.
 - Current blocker: empirical executor/result acquisition and authorization chain must be reconciled with the scoped-block manifest and the agreed consolidated end-of-results tester review. The separate Greek-feature study remains authorization-gated. No model metrics or strategy are claimed at this checkpoint.
 - Next: run a finite empirical sweep on eligible development data only; persist per-configuration status, failures, checkpoints and hashes; then submit the frozen complete result inventory for independent tester review. Do not relax thresholds or access the protected holdout.
+
+
+## Resume checkpoint — 2026-10-13: R3 empirical gate reconciliation
+
+- Added [empirical execution gate reconciliation](gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md) (commit `19d87732134f2e95dde9ae4ef232a3a3d546fadc0`).
+- **Empirical fitting remains blocked.** The R3 data preflight passed with scoped blocks (75 eligible fold-label cells; five positional F01 cells blocked), but registry eligibility is not resolved: the existing compatibility summary is 426 conditional, 574 blocked and zero empirically eligible method rows.
+- The 40,000-config registry is not 40,000 executed or valid fits. No empirical metrics, model outputs, option P&L or strategy conclusions were produced.
+- The separate Greek-feature runner has strict pinned authorization and must not be repurposed to bypass the R3 registry gate.
+- Next finite task: reconcile every config/method/feature/label against compatibility and preflight status; create a 40,000-row disposition manifest with exact count conservation; only then pin and test an authorized executor, benchmark resource use, and run eligible development folds. Holdout remains sealed. Tester review remains deferred until the complete result bundle is frozen.
