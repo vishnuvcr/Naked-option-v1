@@ -67,9 +67,22 @@ jobs:
           PY
 
           echo "stage=ARTIFACT_DOWNLOAD" > "$RUNNER_TEMP/r3-preflight-stage.txt"
-          curl -fL --retry 3 --retry-delay 2 \
+          # Authenticate only to the GitHub API redirect endpoint. Download the
+          # signed artifact URL without forwarding the repository token to another host.
+          curl -fsS -D "$WORK/artifact-download-headers.txt" -o /dev/null \
             -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip"
+          DOWNLOAD_URL="$(python - "$WORK/artifact-download-headers.txt" <<'PY'
+          import sys
+          lines=open(sys.argv[1],encoding="latin-1").read().splitlines()
+          values=[line.partition(":")[2].strip() for line in lines if line.lower().startswith("location:")]
+          if not values or not values[-1].startswith("https://"):
+              raise SystemExit("ARTIFACT_DOWNLOAD_BLOCKED: authenticated API response has no HTTPS Location")
+          print(values[-1])
+          PY
+          )"
+          test -n "$DOWNLOAD_URL"
+          curl -fL --retry 3 --retry-delay 2 "$DOWNLOAD_URL" \
             -o "$WORK/source-artifact.zip" 2>&1 | tee -a "$LOG"
           ACTUAL="$(sha256sum "$WORK/source-artifact.zip" | awk '{print $1}')"
           test "$ACTUAL" = "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b"
