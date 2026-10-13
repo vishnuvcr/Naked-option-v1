@@ -1,95 +1,190 @@
-"""Two-regime Markov-switching logistic model with EM-like soft regime assignments.
+"""Markov-switching logistic classifier with 2/3 filtered regimes.
 
-For research contract testing only. All fitted state, logistic parameters and scaling use
-training rows. The caller must supply chronologically ordered rows and handle calibration.
+The registered transition_prior is a symmetric Dirichlet pseudocount added to
+each expected transition count (allowed values: 2 or 5). This definition is
+explicit so the parameter cannot be accepted and then silently ignored.
+Training uses only rows supplied to fit(); test labels are never read.
 """
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
-from scipy.special import expit
 from scipy.optimize import minimize
-class MarkovSwitchingLogitContractError(ValueError): pass
+from scipy.special import expit, logsumexp
+
+
+class MarkovSwitchingLogitContractError(ValueError):
+    pass
+
 
 @dataclass
 class MarkovSwitchingLogitAdapter:
-    n_regimes:int=2
-    max_iter:int=30
-    ridge:float=1.0
-    random_state:int=42
-    mean_:np.ndarray|None=None
-    scale_:np.ndarray|None=None
-    coefficients_:np.ndarray|None=None
-    intercepts_:np.ndarray|None=None
-    transition_:np.ndarray|None=None
-    initial_:np.ndarray|None=None
-    converged_:bool=False
-    last_state_posterior_:np.ndarray|None=None
+    n_regimes: int = 2
+    transition_prior: int = 2
+    max_iter: int = 30
+    ridge: float = 1.0
+    random_state: int = 42
+    mean_: np.ndarray | None = None
+    scale_: np.ndarray | None = None
+    coefficients_: np.ndarray | None = None
+    intercepts_: np.ndarray | None = None
+    transition_: np.ndarray | None = None
+    initial_: np.ndarray | None = None
+    converged_: bool = False
+    last_state_posterior_: np.ndarray | None = None
+    log_likelihood_: float | None = None
 
-    def fit(self,x_train,y_train):
-        x=np.asarray(x_train,dtype=float); y=np.asarray(y_train)
-        if x.ndim!=2 or y.ndim!=1 or len(x)!=len(y) or len(x)<60 or x.shape[1]<1: raise MarkovSwitchingLogitContractError("TRAINING_SHAPE_OR_SIZE_INVALID")
-        if not np.isfinite(x).all(): raise MarkovSwitchingLogitContractError("TRAINING_FEATURES_NONFINITE")
-        if not np.isfinite(y.astype(float)).all() or not set(np.unique(y).tolist()).issubset({0,1}): raise MarkovSwitchingLogitContractError("TRAINING_LABELS_INVALID")
-        if set(np.unique(y).tolist())!={0,1}: raise MarkovSwitchingLogitContractError("TRAINING_REQUIRES_BOTH_CLASSES")
-        if self.n_regimes!=2 or self.max_iter<1 or not np.isfinite(self.ridge) or self.ridge<=0: raise MarkovSwitchingLogitContractError("MODEL_PARAMETER_INVALID")
-        self.mean_=x.mean(0); self.scale_=x.std(0); self.scale_[self.scale_==0]=1
-        z=(x-self.mean_)/self.scale_; n,d=z.shape; rng=np.random.default_rng(self.random_state)
-        # Stable initialization by deterministic split on first standardized feature.
-        order=np.argsort(z[:,0],kind="stable"); groups=np.zeros(n,dtype=int); groups[order[n//2:]]=1
-        coefs=np.zeros((2,d)); intercepts=np.zeros(2)
-        for s in range(2):
-            ix=groups==s
-            if len(np.unique(y[ix]))<2: ix=np.ones(n,dtype=bool)
-            def obj(theta):
-                eta=theta[0]+z[ix]@theta[1:]; p=np.clip(expit(eta),1e-9,1-1e-9)
-                loss=-np.sum(y[ix]*np.log(p)+(1-y[ix])*np.log(1-p))+.5*self.ridge*np.sum(theta[1:]**2)
-                grad_eta=p-y[ix]; grad=np.r_[grad_eta.sum(),z[ix].T@grad_eta+self.ridge*theta[1:]]
-                return float(loss),grad
-            res=minimize(obj,np.zeros(d+1),jac=True,method="L-BFGS-B")
-            intercepts[s]=res.x[0]; coefs[s]=res.x[1:]
-        trans=np.array([[.9,.1],[.1,.9]]); prior=np.array([.5,.5]); old=-np.inf
-        for it in range(self.max_iter):
-            eta=np.column_stack([intercepts[s]+z@coefs[s] for s in range(2)])
-            p=np.clip(expit(eta),1e-9,1-1e-9)
-            loge=y[:,None]*np.log(p)+(1-y[:,None])*np.log(1-p)
-            la=np.empty((n,2)); la[0]=np.log(prior)+loge[0]
-            for t in range(1,n):
-                for s in range(2): la[t,s]=loge[t,s]+np.logaddexp(la[t-1,0]+np.log(trans[0,s]),la[t-1,1]+np.log(trans[1,s]))
-            lb=np.zeros((n,2))
-            for t in range(n-2,-1,-1):
-                for s in range(2): lb[t,s]=np.logaddexp(np.log(trans[s,0])+loge[t+1,0]+lb[t+1,0],np.log(trans[s,1])+loge[t+1,1]+lb[t+1,1])
-            norm=np.logaddexp(la[:,0]+lb[:,0],la[:,1]+lb[:,1]); gamma=np.exp(la+lb-norm[:,None])
-            xi=np.zeros((2,2))
-            for t in range(n-1):
-                v=la[t,:,None]+np.log(trans)+loge[t+1,None,:]+lb[t+1,None,:]
-                v-=np.logaddexp(np.logaddexp(v[0,0],v[0,1]),np.logaddexp(v[1,0],v[1,1]))
-                xi+=np.exp(v)
-            prior=np.maximum(gamma[0],1e-6); prior/=prior.sum()
-            trans=xi+.05; trans/=trans.sum(1,keepdims=True)
-            for s in range(2):
-                w=gamma[:,s]
-                def objw(theta):
-                    et=theta[0]+z@theta[1:]; pp=np.clip(expit(et),1e-9,1-1e-9)
-                    loss=-np.sum(w*(y*np.log(pp)+(1-y)*np.log(1-pp)))+.5*self.ridge*np.sum(theta[1:]**2)
-                    ge=w*(pp-y); return float(loss),np.r_[ge.sum(),z.T@ge+self.ridge*theta[1:]]
-                res=minimize(objw,np.r_[intercepts[s],coefs[s]],jac=True,method="L-BFGS-B")
-                intercepts[s]=res.x[0]; coefs[s]=res.x[1:]
-            ll=float(norm.sum())
-            if it and abs(ll-old)<1e-5*(1+abs(old)): self.converged_=True; break
-            old=ll
-        self.coefficients_=coefs; self.intercepts_=intercepts; self.transition_=trans; self.initial_=prior; self.last_state_posterior_=gamma[-1].copy()
+    @staticmethod
+    def _fit_logistic(z, y, weights, ridge, initial=None):
+        d = z.shape[1]
+        theta0 = np.zeros(d + 1) if initial is None else np.asarray(initial, dtype=float).copy()
+
+        def objective(theta):
+            eta = theta[0] + z @ theta[1:]
+            p = np.clip(expit(eta), 1e-9, 1 - 1e-9)
+            loss = -np.sum(weights * (y * np.log(p) + (1 - y) * np.log(1 - p)))
+            loss += 0.5 * ridge * np.sum(theta[1:] ** 2)
+            grad_eta = weights * (p - y)
+            grad = np.r_[grad_eta.sum(), z.T @ grad_eta + ridge * theta[1:]]
+            return float(loss), grad
+
+        result = minimize(objective, theta0, jac=True, method="L-BFGS-B",
+                          options={"maxiter": 2000, "ftol": 1e-12})
+        if not np.isfinite(result.fun) or not np.isfinite(result.x).all():
+            raise MarkovSwitchingLogitContractError("LOGIT_OPTIMIZER_NONFINITE")
+        if not result.success:
+            raise MarkovSwitchingLogitContractError("LOGIT_OPTIMIZER_FAILED")
+        return result.x[1:].copy(), float(result.x[0])
+
+    def fit(self, x_train, y_train):
+        x = np.asarray(x_train, dtype=float)
+        y_raw = np.asarray(y_train)
+        if (x.ndim != 2 or y_raw.ndim != 1 or len(x) != len(y_raw)
+                or len(x) < 60 or x.shape[1] < 1):
+            raise MarkovSwitchingLogitContractError("TRAINING_SHAPE_OR_SIZE_INVALID")
+        if not np.isfinite(x).all():
+            raise MarkovSwitchingLogitContractError("TRAINING_FEATURES_NONFINITE")
+        if (not np.isfinite(y_raw.astype(float)).all()
+                or not set(np.unique(y_raw).tolist()).issubset({0, 1})):
+            raise MarkovSwitchingLogitContractError("TRAINING_LABELS_INVALID")
+        if set(np.unique(y_raw).tolist()) != {0, 1}:
+            raise MarkovSwitchingLogitContractError("TRAINING_REQUIRES_BOTH_CLASSES")
+        if (isinstance(self.n_regimes, bool) or self.n_regimes not in {2, 3}
+                or not isinstance(self.n_regimes, int)
+                or isinstance(self.transition_prior, bool)
+                or self.transition_prior not in {2, 5}
+                or not isinstance(self.transition_prior, int)
+                or isinstance(self.max_iter, bool) or self.max_iter < 1
+                or not np.isfinite(self.ridge) or self.ridge <= 0):
+            raise MarkovSwitchingLogitContractError("MODEL_PARAMETER_INVALID")
+
+        y = y_raw.astype(float)
+        self.mean_ = x.mean(axis=0)
+        self.scale_ = x.std(axis=0)
+        self.scale_[self.scale_ == 0] = 1.0
+        z = (x - self.mean_) / self.scale_
+        n, d = z.shape
+        k = self.n_regimes
+
+        # Deterministic rank-quantile initialization generalizes to both 2 and 3 regimes.
+        order = np.argsort(z[:, 0], kind="stable")
+        groups = np.empty(n, dtype=int)
+        groups[order] = np.minimum((np.arange(n) * k) // n, k - 1)
+        coefficients = np.zeros((k, d))
+        intercepts = np.zeros(k)
+        for state_id in range(k):
+            mask = groups == state_id
+            if len(np.unique(y[mask])) < 2:
+                mask = np.ones(n, dtype=bool)
+            coef, intercept = self._fit_logistic(
+                z[mask], y[mask], np.ones(int(mask.sum())), self.ridge
+            )
+            coefficients[state_id] = coef
+            intercepts[state_id] = intercept
+
+        transition = np.full((k, k), 0.1 / (k - 1), dtype=float)
+        np.fill_diagonal(transition, 0.9)
+        initial = np.full(k, 1.0 / k, dtype=float)
+        old_log_likelihood = None
+
+        for _ in range(self.max_iter):
+            eta = np.column_stack([intercepts[s] + z @ coefficients[s] for s in range(k)])
+            p = np.clip(expit(eta), 1e-9, 1 - 1e-9)
+            log_emission = y[:, None] * np.log(p) + (1 - y[:, None]) * np.log(1 - p)
+            log_transition = np.log(transition)
+            log_initial = np.log(initial)
+
+            log_alpha = np.empty((n, k), dtype=float)
+            log_alpha[0] = log_initial + log_emission[0]
+            for t in range(1, n):
+                log_alpha[t] = log_emission[t] + logsumexp(
+                    log_alpha[t - 1, :, None] + log_transition, axis=0
+                )
+
+            log_beta = np.zeros((n, k), dtype=float)
+            for t in range(n - 2, -1, -1):
+                log_beta[t] = logsumexp(
+                    log_transition
+                    + log_emission[t + 1, None, :]
+                    + log_beta[t + 1, None, :],
+                    axis=1,
+                )
+
+            log_likelihood = float(logsumexp(log_alpha[-1]))
+            log_gamma = log_alpha + log_beta
+            gamma = np.exp(log_gamma - logsumexp(log_gamma, axis=1, keepdims=True))
+
+            expected_transitions = np.zeros((k, k), dtype=float)
+            for t in range(n - 1):
+                log_xi = (
+                    log_alpha[t, :, None] + log_transition
+                    + log_emission[t + 1, None, :] + log_beta[t + 1, None, :]
+                )
+                expected_transitions += np.exp(log_xi - logsumexp(log_xi))
+
+            # Symmetric Dirichlet transition prior: alpha is applied per matrix cell.
+            initial = np.maximum(gamma[0], 1e-12)
+            initial /= initial.sum()
+            transition = expected_transitions + float(self.transition_prior)
+            transition /= transition.sum(axis=1, keepdims=True)
+
+            for state_id in range(k):
+                weights = gamma[:, state_id]
+                theta0 = np.r_[intercepts[state_id], coefficients[state_id]]
+                coef, intercept = self._fit_logistic(z, y, weights, self.ridge, theta0)
+                coefficients[state_id] = coef
+                intercepts[state_id] = intercept
+
+            if (old_log_likelihood is not None
+                    and abs(log_likelihood - old_log_likelihood)
+                    < 1e-5 * (1 + abs(old_log_likelihood))):
+                self.converged_ = True
+                break
+            old_log_likelihood = log_likelihood
+
+        self.coefficients_ = coefficients
+        self.intercepts_ = intercepts
+        self.transition_ = transition
+        self.initial_ = initial
+        self.last_state_posterior_ = gamma[-1].copy()
+        self.log_likelihood_ = float(old_log_likelihood)
         return self
 
-    def predict_proba(self,x_test):
-        if self.coefficients_ is None or self.last_state_posterior_ is None: raise MarkovSwitchingLogitContractError("MODEL_NOT_FIT")
-        x=np.asarray(x_test,dtype=float)
-        if x.ndim!=2 or x.shape[1]!=len(self.mean_): raise MarkovSwitchingLogitContractError("PREDICTION_SHAPE_INVALID")
-        if not np.isfinite(x).all(): raise MarkovSwitchingLogitContractError("PREDICTION_FEATURES_NONFINITE")
-        z=(x-self.mean_)/self.scale_; state=self.last_state_posterior_.copy(); out=[]
+    def predict_proba(self, x_test):
+        if self.coefficients_ is None or self.last_state_posterior_ is None:
+            raise MarkovSwitchingLogitContractError("MODEL_NOT_FIT")
+        x = np.asarray(x_test, dtype=float)
+        if x.ndim != 2 or x.shape[1] != len(self.mean_):
+            raise MarkovSwitchingLogitContractError("PREDICTION_SHAPE_INVALID")
+        if not np.isfinite(x).all():
+            raise MarkovSwitchingLogitContractError("PREDICTION_FEATURES_NONFINITE")
+        z = (x - self.mean_) / self.scale_
+        state = self.last_state_posterior_.copy()
+        out = []
         for row in z:
-            state=state@self.transition_
-            p=expit(self.intercepts_+self.coefficients_@row)
-            out.append(float(state@p))
-        result=np.asarray(out)
-        if not np.isfinite(result).all() or np.any((result<0)|(result>1)): raise MarkovSwitchingLogitContractError("PREDICTION_PROBABILITY_INVALID")
+            state = state @ self.transition_
+            p_state = expit(self.intercepts_ + self.coefficients_ @ row)
+            out.append(float(state @ p_state))
+        result = np.asarray(out)
+        if not np.isfinite(result).all() or np.any((result < 0) | (result > 1)):
+            raise MarkovSwitchingLogitContractError("PREDICTION_PROBABILITY_INVALID")
         return result
