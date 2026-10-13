@@ -1237,3 +1237,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: remove this broad lexical assertion while retaining checks that these modules do not load CSV data or invoke the empirical authorization gate.
 - Prevention: source-level safety assertions must test executable capabilities/calls, not incidental prose.
 - Disposition: no data access or empirical fit; rerun after assertion correction.
+
+
+## 2026-10-13 — Phase 8P adapter/calibration code gate final verification
+- Category: hosted verification / disposition
+- Component: `.github/workflows/phase-08p-logistic-adapter-r3.yml`
+- Evidence: dedicated run [38395246409](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395246409), commit `a4c5449dca89171341a16147ec9cdd71e7b30b50`.
+- Result: SUCCESS; both synthetic suites and the code-only source audit passed. Previous failures are retained above as historical defects; they are not overwritten or relabeled as passes.
+- Scientific impact: none. No empirical market-data fit, holdout access, performance estimate, or strategy selection occurred. The code gate does not establish OOF provenance or empirical eligibility.
