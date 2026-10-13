@@ -1,7 +1,7 @@
 {
   "schema_version": "markov-switching-transition-prior-contract-v1",
   "contract_id": "MARKOV_SWITCHING_TRANSITION_PRIOR_V1",
-  "status": "TESTER_REVIEWED_CODE_CONTRACT_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS",
+  "status": "TESTER_APPROVED_CODE_CONTRACT_ONLY_NO_EMPIRICAL_RUNS",
   "created_at": "2026-10-14",
   "scope": "synthetic/code-contract only; no market-data fitting, untouched holdout access, strategy selection, or P&L",
   "parent_preregistration": {
@@ -57,7 +57,7 @@
     "reviewer_branch": "phase-08-prediction-param-audit-tester-r5",
     "report_path": "research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R5_2026-10-14.md",
     "numerical_formula_decision": "PASS",
-    "final_pin_confirmation": "PENDING_NEW_HOSTED_RUN",
+    "decision_scope": "transition-prior formula and Markov numerical consistency only; not approval of empirical fitting",
     "empirical_fitting_authorized": false
   }
 }
