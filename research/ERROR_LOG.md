@@ -1497,3 +1497,16 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** independently recalculate registry totals and check exact constructor binding semantics on the pinned R4 snapshot.
 **Tester → Developer:** reject any parameter silently dropped or any unsupported family treated as fit-ready; do not open empirical data pending code approval.
+
+
+## 2026-10-14 — R4 workflow setup failed before tests
+- Category: CI configuration / dependency-cache setup.
+- Component: `.github/workflows/phase8p-parameter-binding-audit-r4.yml`, `actions/setup-python` step.
+- Symptom: first R4 run [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770) failed at step 4 with `No file ... matched to [**/requirements.txt or **/pyproject.toml]`.
+- Cause: `cache: pip` was enabled without a requirements or pyproject dependency manifest. The job stopped before dependency installation or tests; no model/registry test ran, so this is not a semantic result.
+- Correction: removed the optional setup-python pip cache setting; scientific package versions remain explicitly pinned in the workflow. The branch push should trigger a new exact-snapshot run.
+- Prevention: use pip cache only when a checked-in dependency manifest exists or an explicit cache path points to a real file; otherwise omit it. Record the run as infrastructure failure, never as a test pass/fail.
+- No market data loaded, no empirical fit, and no holdout access.
+
+**Developer → Tester:** ignore run 38461861770 for semantic approval because tests were skipped; inspect the corrected rerun.
+**Tester → Developer:** require a complete synthetic test and full registry audit run before reviewing the semantics.
