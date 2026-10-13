@@ -1203,3 +1203,11 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Workflow orchestration was separately repaired at commit `ff39b762107c0a09c8557f5a50d601fd0f24ff95` after a malformed combined command. Both failures are preserved in the error log.
 - Follow-up hosted run [38395127818](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395127818) passed its triggered repository protocol check, not necessarily the dedicated adapter workflow. Dedicated runs [38395143013](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395143013) and [38395142525](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395142525) were in progress at the latest query.
 - Do not call the adapter/calibration code gate passed until the dedicated workflow job's own conclusion and test steps are verified. No empirical fitting or holdout access.
+
+
+## Phase 8P R3 — adapter/calibration code gate verified (2026-10-13)
+
+- Dedicated workflow [38395246409](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395246409), pinned to `a4c5449dca89171341a16147ec9cdd71e7b30b50`, completed **SUCCESS**. Its `synthetic-code-contract` job passed both the logistic-adapter and chronological-calibration synthetic test suites and the code-only source audit.
+- The earlier failures remain non-evidence and are preserved: malformed shell commands, a wrong synthetic log-loss oracle, and an overly broad lexical source assertion. The final fix removed only the prose-sensitive assertion; the data-loading and empirical-fit-gate checks remain.
+- This is a code-only gate, not empirical prediction evidence. Compatibility remains 426 conditional / 574 blocked / 0 empirically eligible. No model was fit to market data, no holdout was accessed, and no performance metric or trading strategy is claimed.
+- Next: generate a deterministic 40,000-row eligibility disposition manifest from the frozen R3 config shards and compatibility evidence. Do not start any empirical fit unless the manifest and explicit authorization gate permit it.
