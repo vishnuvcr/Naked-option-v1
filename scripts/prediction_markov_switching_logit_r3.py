@@ -23,6 +23,7 @@ class MarkovSwitchingLogitAdapter:
     transition_:np.ndarray|None=None
     initial_:np.ndarray|None=None
     converged_:bool=False
+    last_state_posterior_:np.ndarray|None=None
 
     def fit(self,x_train,y_train):
         x=np.asarray(x_train,dtype=float); y=np.asarray(y_train)
@@ -76,19 +77,18 @@ class MarkovSwitchingLogitAdapter:
             ll=float(norm.sum())
             if it and abs(ll-old)<1e-5*(1+abs(old)): self.converged_=True; break
             old=ll
-        self.coefficients_=coefs; self.intercepts_=intercepts; self.transition_=trans; self.initial_=prior
+        self.coefficients_=coefs; self.intercepts_=intercepts; self.transition_=trans; self.initial_=prior; self.last_state_posterior_=gamma[-1].copy()
         return self
 
     def predict_proba(self,x_test):
-        if self.coefficients_ is None: raise MarkovSwitchingLogitContractError("MODEL_NOT_FIT")
+        if self.coefficients_ is None or self.last_state_posterior_ is None: raise MarkovSwitchingLogitContractError("MODEL_NOT_FIT")
         x=np.asarray(x_test,dtype=float)
         if x.ndim!=2 or x.shape[1]!=len(self.mean_): raise MarkovSwitchingLogitContractError("PREDICTION_SHAPE_INVALID")
         if not np.isfinite(x).all(): raise MarkovSwitchingLogitContractError("PREDICTION_FEATURES_NONFINITE")
-        z=(x-self.mean_)/self.scale_; state=self.initial_.copy(); out=[]
+        z=(x-self.mean_)/self.scale_; state=self.last_state_posterior_.copy(); out=[]
         for row in z:
             state=state@self.transition_
             p=expit(self.intercepts_+self.coefficients_@row)
-            state=state*p**0 # state stays transition prior; posterior regime update uses observed labels only in training
             out.append(float(state@p))
         result=np.asarray(out)
         if not np.isfinite(result).all() or np.any((result<0)|(result>1)): raise MarkovSwitchingLogitContractError("PREDICTION_PROBABILITY_INVALID")
