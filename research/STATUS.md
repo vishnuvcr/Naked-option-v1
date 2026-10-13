@@ -1,5 +1,19 @@
 # Research Status
 
+## Phase 8P R3 prerequisite audit — PASS with scoped restrictions (2026-10-13)
+
+- Automated hosted audit [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed after the checkout-expression fix; final regression-covered commit [d98bebbc0547fd536016290e8b54293a55612bd7](https://github.com/vishnuvcr/Naked-option-v1/commit/d98bebbc0547fd536016290e8b54293a55612bd7) ran [38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507) successfully as well.
+- Persisted report: [PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json](gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json). Git blob SHA-1 47f6f3e1cd8ccd98c9254739938419f4c0c75055. Report status PASS_DATA_AND_REGISTRY_PREREQUISITES_WITH_SCOPED_BLOCKS.
+- Registry verification: all 400 config shards passed byte/hash/count checks; 40,000 unique configs reconcile to 4,000 per each of ten horizons and 40 configs per method. All 40 compatibility shards and 1,000 method IDs passed checks; 426 methods remain conditionally compatible in principle, 574 blocked, zero implemented/approved for empirical fitting.
+- Data preflight: 8,999,865 rows checked against the pinned canonical hash and schema. Of 80 label/fold cells, 75 are supported and five remain blocked by the frozen 1% missing-target-pair rule: positional horizons at F01 only (1D 4/116; 2D 5/115; 3D 5/114; 5D 4/112; 10D 3/107). F02–F08 remain in scope where eligible.
+- Disposition reconciliation: 40,000 rows; 17,040 BLOCKED_IMPLEMENTATION_OR_AUTHORIZATION, 22,960 BLOCKED_METHOD_COMPATIBILITY, and zero eligible. Every config and method fitting flag remains false. No empirical model fit, strategy selection or holdout access occurred.
+- Workflow regression: first attempt [38402329539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402329539) failed before tests because the checkout ref contained a literal backslash. The correction and source-level regression test are committed; details are recorded in [ERROR_LOG.md](ERROR_LOG.md).
+- Next gate: implement and test a development-fold-only executor for a small explicit method allowlist, first PM0001 logistic regression; validate target maturity, fold-specific purge/embargo, inner expanding OOF calibration, train-only preprocessing, row-level blocked/failed accounting and restartable checkpoints. This is code/test work only until that authorization gate is explicitly passed. No strategy/P&L phase is active yet.
+
+The older status entries below are retained as a historical audit trail and may describe earlier checkpoints that have since been superseded.
+
+---
+
 ## Full-horizon R3 registry — developer execution (2026-10-13)
 
 - Established registry CI [38380784159](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380784159) passed full R3 registry/calendar/provenance and regression jobs: 1,000 methods × 40 configs = 40,000 configs, 4,000 per horizon, 400 config shards.
