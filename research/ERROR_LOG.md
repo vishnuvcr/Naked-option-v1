@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 data-precheck workflow failed at artifact redirect parsing
+- Category: workflow / artifact retrieval
+- Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
+- Symptom: workflow [#38472142664](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38472142664) and retry [#38472175108](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38472175108) stopped before downloading the encrypted dataset. The temporary GitHub artifact API response did not yield the expected `Location` header in the workflow parser, causing an assertion failure.
+- Correction: replaced custom redirect parsing with the authenticated GitHub CLI artifact endpoint; no model fitting or market-data processing occurred in the failed attempts. The corrected workflow is queued for verification.
+- Scientific scope: no empirical fit, no holdout access, no predictive result.
+
 ## 2026-10-14 — Eligibility disposition failed closed on stale PM0001 implementation pins
 - Category: provenance / gate failure
 - Component: `scripts/build_prediction_eligibility_manifest_r3.py` and `research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json`
