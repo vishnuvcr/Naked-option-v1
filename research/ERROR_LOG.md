@@ -1253,3 +1253,12 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Evidence: hosted run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666), source commit `6883ccb3bb733614e72b3cd5434547de96fd8452`.
 - Observed: all five synthetic disposition-rule tests passed; full 40,000-config shard/hash reconciliation was still running at last check.
 - Disposition: pending, not an error conclusion yet. The output manifest is not accepted until the run completes successfully and its exact file/hash/counts are verified. No empirical fitting or holdout access.
+
+
+## 2026-10-13 — Eligibility manifest persistence omission
+- Category: workflow artifact persistence
+- Component: `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
+- Symptom: the first successful run 38397356666 validated the generated 40,000-row manifest but left it only in the ephemeral runner; no repository manifest or retained workflow artifact was created.
+- Impact: generated eligibility dispositions were not reviewable/cached from the repository, so that run is a successful computation but an incomplete deliverable.
+- Correction: add branch persistence with rebase-before-push and upload-artifact retention. Verification run 38397474080 is pending. No empirical fitting or holdout access occurred.
+- Prevention: workflow acceptance requires not only test/build success but also persisted, hash-verifiable output artifacts.
