@@ -34,6 +34,7 @@ class CalibrationTests(unittest.TestCase):
             self.assertLess(sessions[f["train_indices"]].max(), first_valid-2)
             self.assertTrue(np.all(endpoints[f["train_indices"]] < first_valid))
             self.assertGreaterEqual(sessions[f["validation_indices"]].min(), first_valid+1)
+            self.assertTrue(np.all(endpoints[f["validation_indices"]] < f["validation_end_session_exclusive"]))
             self.assertLess(f["training_target_maturity_max_session"], first_valid)
         self.assertTrue(np.isfinite(oof_log_loss(folds)))
 
