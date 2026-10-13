@@ -65,11 +65,34 @@ class NearestCentroidScoreAdapter:
 
 @dataclass
 class KNNDensityRatioScoreAdapter:
-    n_neighbors:int=15; weights:str="distance"; model:Pipeline|None=None; n_features_:int|None=None
+    n_neighbors:int=15; weights:str="distance"; model:Pipeline|None=None; n_features_:int|None=None; y_train_:np.ndarray|None=None; class_counts_:dict|None=None
     def fit(self,x_train:Sequence[Sequence[float]],y_train:Sequence[int]):
         x,y=_xy(x_train,y_train)
         if isinstance(self.n_neighbors,bool) or not isinstance(self.n_neighbors,int) or not 1<=self.n_neighbors<len(x): raise MarginAdapterContractError("KNN_NEIGHBORS_INVALID")
         if self.weights not in {"uniform","distance"}: raise MarginAdapterContractError("KNN_WEIGHTS_INVALID")
         self.model=Pipeline([("scale",StandardScaler()),("knn",KNeighborsClassifier(n_neighbors=self.n_neighbors,weights=self.weights))])
-        self.model.fit(x,y); self.n_features_=x.shape[1]; return self
-    def predict_score(self,x_test): return _scores(self.model,x_test,self.n_features_,"knn")
+        self.model.fit(x,y); self.n_features_=x.shape[1]; self.y_train_=y.copy()
+        self.class_counts_={0:int(np.sum(y==0)),1:int(np.sum(y==1))}
+        return self
+    def predict_score(self,x_test):
+        if self.model is None or self.y_train_ is None or self.class_counts_ is None: raise MarginAdapterContractError("MODEL_NOT_FIT")
+        x=np.asarray(x_test,dtype=float)
+        if x.ndim!=2 or x.shape[1]!=self.n_features_: raise MarginAdapterContractError("PREDICTION_SHAPE_INVALID")
+        if not np.isfinite(x).all(): raise MarginAdapterContractError("PREDICTION_FEATURES_NONFINITE")
+        z=self.model.named_steps["scale"].transform(x)
+        distances,indices=self.model.named_steps["knn"].kneighbors(z,return_distance=True)
+        scores=[]
+        for d,ix in zip(distances,indices):
+            if self.weights=="uniform":
+                w=np.ones_like(d)
+            else:
+                zero=(d==0)
+                w=zero.astype(float) if zero.any() else 1.0/np.maximum(d,np.finfo(float).tiny)
+            y_near=self.y_train_[ix]
+            mass0=float(w[y_near==0].sum()); mass1=float(w[y_near==1].sum())
+            density0=(mass0+0.5)/self.class_counts_[0]
+            density1=(mass1+0.5)/self.class_counts_[1]
+            scores.append(float(np.log(density1)-np.log(density0)))
+        out=np.asarray(scores,dtype=float)
+        if not np.isfinite(out).all(): raise MarginAdapterContractError("DECISION_SCORE_INVALID")
+        return out
