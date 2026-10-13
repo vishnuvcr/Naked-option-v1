@@ -27,9 +27,8 @@ class TemporalConvolutionAdapter:
 
     def _forward(self,x):
         n,t,d=x.shape; k=self.kernel_size; c=self.channels
-        out=np.zeros((n,t,c))
+        out=np.zeros((n,t-k+1,c))
         for j in range(k):
-            out[j:,:t-k+1,:] if False else None
             out[:,j:t-k+j+1,:]+=np.einsum("ntd,dc->ntc",x[:,j:t-k+j+1,:],self.conv_weights_[j])
         out+=self.conv_bias_[None,None,:]
         act=np.maximum(out,0)
