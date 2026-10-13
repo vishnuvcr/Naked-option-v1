@@ -1,3 +1,15 @@
+# R4 test correction — full rerun pending (2026-10-14)
+
+- Run [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) executed 107 tests and failed before the registry audit: one output-shape error in chronological OOF calibration, and one case-sensitive assertion error. Markov 2/3-regime tests and transition-prior sensitivity passed.
+- Corrective changes now accept either one-dimensional binary probability vectors or two-column probability matrices and test both shapes. The HMM covariance assertion now handles uppercase error tokens. This is remediation in progress, not a gate pass.
+- [Status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/STATUS.md) · [Error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/ERROR_LOG.md) · [R4 audit contract](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/gates/PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md).
+- Empirical fitting and holdout access remain false; no market data was loaded.
+
+**Developer → Tester:** examine the corrected full run.
+**Tester → Developer:** withhold approval on any remaining test or registry mismatch.
+
+---
+
 # R4 CI incident — corrected run pending (2026-10-14)
 
 - First R4 run [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770) failed in Python setup before tests because pip caching expected a requirements manifest. This is recorded as an infrastructure failure, not a scientific result.
