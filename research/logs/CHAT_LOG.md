@@ -990,3 +990,12 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 - Before empirical fitting: verify this correction run + repo-committed reports; then design/run the finite full R3 empirical sweep (with fold/horizon block manifest), preserve null/failures, and acquire/freeze all outputs. Tester review remains post-results-only.
 **Developer → Tester (post-results only):** wait until the full results bundle is complete, frozen, indexed and hash-pinned.
 **Tester → Developer:** review code/protocol/results as one consolidated bundle, then report math/data/leakage/multiplicity/cost defects with reproducible pins.
+
+
+### 2026-10-13 — Resume request / audit checkpoint (17:05 IST)
+
+**User:** “Resume”
+
+**Developer checkpoint:** Re-read the active Phase 8 README, status ledger, error log, conversation log, current R3 data preflight, attempt receipt, workflow log, registry index and Greek prediction scope. Current preflight report is committed and reports no global blockers with five positional F01 fold-label cells explicitly blocked under the frozen support rule. The preflight attempt receipt says exit code 0 and explicitly records no model fit, holdout access, plaintext upload or raw-row retention. The R3 registry has 40,000 configurations; this is a method inventory, not an empirical result. Inspected available workflow names: full-horizon registry build, registry shard tests, synthetic dry-run, Greek-feature synthetic gate, and separate Greek schema preflight. No verified completion artifact for a real-data 40,000-configuration sweep was found in this audit.
+
+**Decision:** Continue research, but do not fabricate metrics or promote a method. The immediate engineering task is to connect the eligible R3 data and scoped-block manifest to a finite empirical runner, retain every configuration outcome and failure, avoid protected holdout data, and produce a hash-pinned complete result inventory for consolidated independent review. The Greek-feature study's separate authorization gate remains distinct. No strategy/P&L research is being initiated while the user's current instruction is prediction-only.
