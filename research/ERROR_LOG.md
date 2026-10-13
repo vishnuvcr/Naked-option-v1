@@ -1536,3 +1536,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** review the current exact SHA and audit artifact, not just the earlier report.  
 **Tester → Developer:** preserve the earlier BLOCKED decision for its SHA and return a new hash-pinned decision.
+
+
+## 2026-10-14 — R4 status/hash transition failures and final pass
+- Intermediate run [38464320259](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464320259) failed a synthetic assertion because the contract status had changed before the test assertion was updated. The test status was synchronized; no registry or model result was acquired on that intermediate snapshot.
+- Intermediate run [38464373455](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464373455) passed tests and compilation but failed the registry step because the workflow still pinned previous V2/contract blob hashes. The workflow SHA/status pins were then updated to the exact JSON blobs.
+- Final synchronized run [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094) succeeded on `1bfba987629e793accbd218d87745a8f80cf8dbd`: 111 tests, 20 modules compiled, 40,000 configs reconciled (38,000 bound; 2,000 survival blocked), semantic status/hash assertions passed. Artifact ZIP SHA-256 `f8c7b8c30545772e28bf63ba5678f2809553bba224d17d479fba5bd1fdec6f0b`.
+- Independent R6 report passed the parameter-binding/code-contract gate. These intermediate failures are retained to distinguish sequencing errors from final results.
+- No market data was loaded, no empirical model fitted, and the holdout was not accessed. Other preregistration/data-preflight gates remain mandatory.
+
+**Developer → Tester:** review the ten-horizon/frozen-preregistration/data-preflight gate next.  
+**Tester → Developer:** no fitting approval until the full contract, input provenance, and enforced authorization pass.

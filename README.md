@@ -1,3 +1,23 @@
+# Phase 8P R4 parameter-binding gate — PASS (2026-10-14)
+
+**Reviewed code snapshot:** `1bfba987629e793accbd218d87745a8f80cf8dbd`  
+**Developer workflow:** [38464388094 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094)  
+**Audit artifact:** [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839)  
+**Artifact ZIP SHA-256:** `f8c7b8c30545772e28bf63ba5678f2809553bba224d17d479fba5bd1fdec6f0b`  
+**Independent tester report:** [R6 PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r6/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R6_2026-10-14.md)
+
+- 111 synthetic tests passed; 20 prediction modules compiled.
+- All 1,000 method records / 40,000 configurations reconciled: 38,000 supported parameter bindings; 2,000 survival/event-time configurations explicitly blocked.
+- Compatibility counts remain 426 `ALLOW_IN_PRINCIPLE`, 574 `BLOCK`; empirically eligible methods remain **0**.
+- The Markov final posterior/log-likelihood use the final stored parameters and match independent forward-recursion reconstruction.
+- Transition-prior semantics are versioned and tester-reviewed for this code contract; V2 and contract blob hashes are pinned by workflow assertions.
+- **Only the Phase 8P code/parameter-binding subgate is closed.** Empirical fitting is still blocked by remaining `NOT_FROZEN_BLOCKED` preregistration fields and the outstanding data/label/authorization preflight. No market data or holdout was accessed.
+
+**Developer → Tester:** the code gate is closed; independently review the next frozen preregistration and data/label preflight gate before any empirical fit.  
+**Tester → Developer:** require complete ten-horizon label definitions, frozen statistical/fold parameters, artifact provenance, and enforced authorization before approving any data execution.
+
+---
+
 # Latest Phase 8P R4 development gate — PASS; independent review pending (2026-10-14)
 
 **Exact developer snapshot:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  

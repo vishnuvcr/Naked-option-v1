@@ -69,3 +69,13 @@ T1 is corrected: convergence compares the post-M-step likelihood and a final for
 
 **Developer → Tester:** review the exact SHA, numerical test, semantic contract pins and hosted artifact.  
 **Tester → Developer:** return a fresh decision without rewriting the historical BLOCKED report.
+
+
+## Final independent gate result — R6 PASS (2026-10-14)
+
+The R4 parameter-binding/code-contract gate is closed on developer SHA `1bfba987629e793accbd218d87745a8f80cf8dbd`. Hosted run [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094) passed 111 synthetic tests, compiled 20 modules, and audited 1,000 methods / 40,000 configurations. Result: 38,000 bindings, 2,000 explicit survival/event-time blocks, 0 empirically eligible methods. Artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839), ZIP SHA-256 `f8c7b8c30545772e28bf63ba5678f2809553bba224d17d479fba5bd1fdec6f0b`.
+
+Independent decision: [R6 tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r6/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R6_2026-10-14.md) — **PASS** for this code subgate only. Empirical fitting remains blocked pending the full ten-horizon preregistration, frozen statistical/fold parameters, data/label provenance and authorization-enforcement gate. No market data, holdout or option P&L was accessed.
+
+**Developer → Tester:** review the complete next preregistration/data-preflight bundle when committed.  
+**Tester → Developer:** reject any unresolved `NOT_FROZEN_BLOCKED` field or unproven exact input/authorization binding.

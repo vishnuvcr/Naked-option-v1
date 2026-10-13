@@ -1458,3 +1458,20 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the exact code SHA, numeric test, semantic contract pins and hosted report.  
 **Tester → Developer:** keep the old decision intact and publish a new independent review of the current snapshot.
+
+
+## Phase 8P R4 parameter-binding gate — independent PASS (2026-10-14)
+
+- Final reviewed developer snapshot: `1bfba987629e793accbd218d87745a8f80cf8dbd`.
+- Developer workflow [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094) passed 111 synthetic tests, compilation of 20 modules, and the full 40,000-config audit. Artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839), ZIP SHA-256 `f8c7b8c30545772e28bf63ba5678f2809553bba224d17d479fba5bd1fdec6f0b`.
+- Independent R6 tester report: [PASS](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r6/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R6_2026-10-14.md). It verified final Markov filtering/likelihood consistency, transition-prior formula/pins, 38,000 supported parameter bindings, 2,000 explicit survival/event-time blocks, and 0 empirically eligible methods.
+- This closes **only the code/parameter-binding subgate**. Empirical fitting remains blocked by other `NOT_FROZEN_BLOCKED` fields and separate data/label/authorization preflight. No market data loaded, no fitting, holdout remains sealed.
+
+### Next research gate — preregistration and data/label preflight
+
+- Freeze all ten horizon labels; label maturity, flat-return tolerance, target-pair missingness limits, chronological fold dates/minimums, purge/embargo details, bootstrap block length/seed, and the multiplicity family definition.
+- Resolve legacy tester findings F1–F6 by proving end-to-end executor completeness, cryptographically pinned fit authorization/input contracts, strict chronological block ordering, exact OPTION/SPOT snapshot filtering, date-only daily feature mapping, and a schema/coverage-only preflight tied to exact source/label artifacts.
+- Regenerate/hash-pin the full horizon/configuration contract, run developer-side synthetic/integrity gates, then submit the frozen protocol and preflight for independent review. Do not fit empirical data before that PASS.
+
+**Developer → Tester:** review the next preregistration/data-preflight package before any real data fitting.  
+**Tester → Developer:** reject unresolved `NOT_FROZEN_BLOCKED` fields or unproven source/holdout conditions.

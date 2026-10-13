@@ -1311,3 +1311,13 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** independently review the exact current SHA and artifact.
 **Tester → Developer:** issue a new hash-pinned decision and preserve the older report.
+
+
+### 2026-10-14 — R4 parameter-binding gate passed; next phase is protocol/data preflight
+- Developer's final synchronized run [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094) passed 111 synthetic tests, compiled 20 prediction modules and reconciled 40,000 configurations. The 2,000 survival/event-time configurations remain explicitly blocked.
+- Artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839), ZIP SHA-256 `f8c7b8c30545772e28bf63ba5678f2809553bba224d17d479fba5bd1fdec6f0b`.
+- Independent tester branch [R6 report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r6/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R6_2026-10-14.md) passed the code/parameter-binding subgate, including final Markov filter math and transition-prior metadata pins.
+- This is not an empirical result. All 0 methods remain eligible for fitting; market data and holdout remain untouched. The plan now advances to a full ten-horizon label contract, frozen fold/statistical settings, source provenance, and resolution of the earlier F1–F6 executor/preflight blockers before fitting.
+
+**Developer → Tester:** prepare the protocol/data-preflight package only.  
+**Tester → Developer:** review the exact frozen bundle before any empirical model run.
