@@ -83,7 +83,7 @@
   "input_name": "merged.csv.gz",
   "malformed_timestamps": 0,
   "market_rows_examined": true,
-  "merged_gzip_sha256": "b5f2dccb8204f529708f7f81f8d7d03c2401adf4e240493947e3a7d49aa7536e",
+  "merged_gzip_sha256": "ab0886e1b3c6ff4fcda3f104c76c285246fb7a38bd4a29c500b042f0d7fbb296",
   "missing_regular_spot_session_dates_count": 4,
   "missing_regular_spot_session_dates_sample": [
     "2023-06-29",

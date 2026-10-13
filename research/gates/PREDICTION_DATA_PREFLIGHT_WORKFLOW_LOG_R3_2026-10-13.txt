@@ -1,9 +1,8 @@
-source_commit=745e239f2d4b7770846b552f4ec247ca844814e6
+source_commit=32e653f1a5de092ddcf8b3fd33ca96ca565cb51c
 {"created_at": "2026-10-11T10:33:30Z", "digest": "sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b", "expired": false, "expires_at": "2027-01-09T10:21:09Z", "id": 11698879857, "name": "nifty-1m-derived-repaired-r2-38126168547", "size_in_bytes": 231076122}
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-  0  220M    0  302k    0     0   462k      0  0:08:08 --:--:--  0:08:08  462k  6  220M    6 13.3M    0     0  8291k      0  0:00:27  0:00:01  0:00:26 13.1M 21  220M   21 46.3M    0     0  17.4M      0  0:00:12  0:00:02  0:00:10 23.0M 39  220M   39 87.0M    0     0  23.8M      0  0:00:09  0:00:03  0:00:06 29.0M 61  220M   61  136M    0     0  29.2M      0  0:00:07  0:00:04  0:00:03 33.9M 87  220M   87  192M    0     0  34.0M      0  0:00:06  0:00:05  0:00:01 38.4M100  220M  100  220M    0     0  36.2M      0  0:00:06  0:00:06 --:--:-- 46.6M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0  220M    0 15315    0     0  70669      0  0:54:29 --:--:--  0:54:29 70576 19  220M   19 44.0M    0     0  35.1M      0  0:00:06  0:00:01  0:00:05 35.1M 39  220M   39 86.6M    0     0  38.8M      0  0:00:05  0:00:02  0:00:03 38.8M 62  220M   62  138M    0     0  43.0M      0  0:00:05  0:00:03  0:00:02 42.9M 87  220M   87  192M    0     0  45.1M      0  0:00:04  0:00:04 --:--:-- 45.1M100  220M  100  220M    0     0  46.1M      0  0:00:04  0:00:04 --:--:-- 48.3M
 archive_sha256=40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b
 embedded_manifest_sha256=da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f
 {
@@ -26,11 +25,11 @@ Collecting cffi>=1.14 (from cryptography==45.0.7->-r requirements-composite.txt 
 Collecting pycparser (from cffi>=1.14->cryptography==45.0.7->-r requirements-composite.txt (line 1))
   Downloading pycparser-3.11-py3-none-any.whl.metadata (8.2 kB)
 Downloading cryptography-45.0.7-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 105.7 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 37.0 MB/s eta 0:00:00
 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 78.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 106.3 MB/s eta 0:00:00
 Downloading pycparser-3.11-py3-none-any.whl (51 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 19.6 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 27.4 MB/s eta 0:00:00
 Installing collected packages: pycparser, cffi, cryptography
 Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
 {"decrypted_parts": 61, "merged_data_rows": 8999865, "merged_output": "/home/runner/work/_temp/r3-prediction-preflight/merged.csv.gz", "output_dir": "/home/runner/work/_temp/r3-prediction-preflight/plain-parts", "source_artifact_plaintext_rows_were_never_published": true}
@@ -70,7 +69,7 @@ Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
   "input_name": "merged.csv.gz",
   "malformed_timestamps": 0,
   "market_rows_examined": true,
-  "merged_gzip_sha256": "b5f2dccb8204f529708f7f81f8d7d03c2401adf4e240493947e3a7d49aa7536e",
+  "merged_gzip_sha256": "ab0886e1b3c6ff4fcda3f104c76c285246fb7a38bd4a29c500b042f0d7fbb296",
   "missing_regular_spot_session_dates_count": 4,
   "missing_regular_spot_session_dates_sample": [
     "2023-06-29",
