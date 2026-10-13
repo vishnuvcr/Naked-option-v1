@@ -1,3 +1,10 @@
+## 2026-10-14 — Eligibility disposition workflow assertion syntax
+- Category: workflow / CI script syntax
+- Component: `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
+- Symptom: [workflow #38470311762](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470311762) reached the manifest validation step, then Python failed with a SyntaxError because a multi-line assertion block was inserted as literal `\\n` characters.
+- Correction: replaced the literal escape sequences with actual newline characters in the embedded Python block. Follow-up workflow #38470311762's correction is pending in the newer run; no complete eligibility pass is claimed yet.
+- Scope: registry accounting only; no empirical fit or holdout access.
+
 ## 2026-10-14 — PM0001 executor follow-up and eligibility-overlay regression failures
 - Category: implementation / CI regression
 - Component: `scripts/prediction_pm0001_executor_r3.py`, `scripts/build_prediction_eligibility_manifest_r3.py`
