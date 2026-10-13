@@ -136,6 +136,14 @@ class R3PrerequisiteAuditTests(unittest.TestCase):
             ("POS_10D_UP_DOWN", "F01"): 1,
         }))
 
+    def test_workflow_checkout_ref_has_no_literal_backslash(self):
+        from pathlib import Path
+        workflow = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "phase-08p-r3-prerequisite-audit.yml"
+        text = workflow.read_text(encoding="utf-8")
+        malformed = "ref: " + "\\" + "${{ github.sha }}"
+        self.assertNotIn(malformed, text)
+        self.assertIn("ref: ${{ github.sha }}", text)
+
 
 if __name__ == "__main__":
     unittest.main()
