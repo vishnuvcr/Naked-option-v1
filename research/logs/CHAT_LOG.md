@@ -1321,3 +1321,19 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** prepare the protocol/data-preflight package only.  
 **Tester → Developer:** review the exact frozen bundle before any empirical model run.
+
+
+## 2026-10-14 — User correction: tester review must follow result publication
+
+### User instruction
+
+“I told you already that no tester review until after publication of results!?”
+
+### Developer acknowledgement and repository check
+
+The developer acknowledged incorrectly treating a fresh tester review as a prerequisite for the next empirical stage. Repository policy [`research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md`](research/governance/TESTER_REVIEW_CADENCE_POLICY_2026-10-13.md) already requires one consolidated independent review only after the complete results bundle is acquired, frozen, indexed and hash-pinned. Intermediate code commits, test corrections and ordinary execution steps remain developer-owned; developer-side tests and integrity gates remain mandatory.
+
+The audit also found an inconsistent stale clause in prediction preregistration V2 requiring independent approval before fitting. This contradiction must be fixed by a dated, pre-result protocol amendment consistent with the deferred-review policy, while keeping all statistical/data-safety controls and the untouched holdout sealed. No tester review was requested in this step. No empirical data/model fitting occurred and no result was accepted.
+
+**Developer → Tester (after result acquisition only):** wait until the formal post-results request contains the frozen bundle manifest and matching hashes; do not start an intermediate review.
+**Tester → Developer (after results publication):** perform one consolidated hash-pinned audit of the full results, source, protocol, failures/nulls and proposed conclusions.
