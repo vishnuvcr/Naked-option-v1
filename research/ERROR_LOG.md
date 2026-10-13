@@ -1334,3 +1334,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/audit_prediction_registry_r3.py`, workflow `phase-08p-r3-registry-audit.yml`
 - Result: hosted run [38418296924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924) passed; 400 configuration shards and 40 compatibility shards were verified with no audit errors.
 - Scope: no registry defect found. No market data, fitting, or holdout access occurred. An initial job-log lookup used a guessed job ID and returned 404; resolved by querying the run's actual job ID (115368513529). Tooling-only lookup mistake; no research impact.
+
+
+## 2026-10-13 — Terminal accounting gate
+- Category: executor / accounting validation
+- Component: `scripts/prediction_accounting_executor_r3.py` and workflow `phase-08p-r3-terminal-accounting.yml`.
+- Result: hosted run [38419789140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38419789140) passed with complete 320,000-row coverage; 20,000 BLOCKED_DATA and 300,000 BLOCKED_GATE.
+- No implementation defect detected by the hosted accounting gate. No fitting, market-data loading, or holdout access occurred. This gate is not an empirical result.
