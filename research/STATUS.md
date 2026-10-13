@@ -1407,3 +1407,18 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Added training-time inverted dropout to `TemporalConvolutionAdapter`; deterministic synthetic tests cover repeatability and invalid dropout rejection.
 - Combined hosted synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites, compilation, and source checks. This is synthetic-only, with no market data or holdout access.
 - Parameter-semantics gate remains open: Markov-switching 3-regime and transition-prior semantics still need implementation or permanent scoped blocking; all family parameter mappings require exhaustive audit and independent review. No empirical fitting authorization.
+
+
+## Phase 8P R4 — strict parameter binding and Markov semantics (2026-10-14)
+
+- A new isolated developer branch, [`phase-08-prediction-param-audit-developer`](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-param-audit-developer), contains an R4 revision of the registry-to-adapter binder, Markov-switching adapter/tests, and full-registry parameter audit.
+- The binder now declares exact parameter-key and value-domain contracts for each of 19 implemented families, maps the Bayesian drift alias and constructor names explicitly, and keeps the survival/event-time family blocked.
+- Markov switching is being extended to the registered 2- and 3-regime settings. The registry's previously unspecified `transition_prior` is provisionally defined as a symmetric Dirichlet pseudocount per transition cell; this definition is proposed for independent review, not treated as prior-source text.
+- The audit now intends to bind all 40,000 frozen configurations: expected 38,000 non-survival bindings and 2,000 explicit survival blocks. **Hosted verification is pending.**
+- The latest verified prior suite [run 38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 synthetic tests, compilation and source checks, with market data and holdout access false. This prior result does not validate the R4 code.
+- Current gate: **R4 synthetic and registry audit NOT YET VERIFIED**. Do not authorize empirical fitting, external data requests, holdout access, method selection, option P&L, or strategy promotion. Even a passing R4 synthetic gate requires independent review and later separate empirical-data preflight.
+- Audit specification: [R4 parameter-binding audit](gates/PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md). Next: hosted synthetic tests + 40,000-config audit; rectify errors and rerun until the gate emits either a verified pass or a precisely documented blocker.
+
+**Developer → Tester:** review the exact R4 snapshot and hosted report after the gate completes; independently check transition-prior arithmetic, 2/3-regime logic and every registered constructor parameter. No empirical fitting approval from synthetic tests alone.
+
+**Tester → Developer:** require the exact commit and report hashes, reject all unexplained binding/count mismatches, and keep holdout/data gates sealed until independent code approval.
