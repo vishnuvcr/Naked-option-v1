@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 class-support test import edit
+- Category: test implementation / syntax error
+- Component: `scripts/test_prediction_pm0001_executor_r3.py`
+- Symptom: [workflow #38471384422](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471384422) failed because a test import was inserted with literal escaped newline characters.
+- Correction: replaced the literal sequences with real newlines. The corrected source is under verification in workflow #38471406903; no pass is claimed until it succeeds.
+- A concurrent eligibility workflow also correctly rejected the now-stale implementation gate pin; it must be regenerated after the corrected PM0001 test suite passes.
+
 ## 2026-10-14 — Eligibility manifest persistence exhausted retries during concurrent branch updates
 - Category: workflow / branch race
 - Component: `.github/workflows/phase-08p-eligibility-disposition-r3.yml`
