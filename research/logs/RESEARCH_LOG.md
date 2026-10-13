@@ -785,3 +785,7 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Tests cover exact eight outer date windows, target maturity, session-index purge/embargo, endpoint containment, deterministic inner fold boundaries, frozen role-specific minima, scoped F01 data blocks, terminal row schema, unique coverage and log-loss improvement sign.
 - Initial synthetic assertion and workflow report-path bugs were corrected and recorded in research/ERROR_LOG.md. The gate proves mechanics only; no market data or model fit, no holdout access, and no predictive conclusion.
 - Next step: full 40,000-config compatibility/accounting preflight and a restartable development-only executor, still gated against all empirical-fit flags.
+
+## 2026-10-13 — Full terminal-row schema validation
+- Strengthened the terminal accounting workflow to stream-validate every row against preregistered mandatory fields, uniqueness, blocked-metric nulls, and no-fit/no-holdout flags.
+- Hosted run [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed; artifact [11825318200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140/artifacts/11825318200). Full result is linked in [terminal accounting report](../gates/PREDICTION_TERMINAL_ACCOUNTING_RESULT_R3_2026-10-13.md).
