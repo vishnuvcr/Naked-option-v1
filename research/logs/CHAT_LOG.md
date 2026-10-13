@@ -1081,3 +1081,15 @@ After run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/run
 
 **Developer → Tester (post-results only):** defer independent review until the complete planned result bundle is frozen; on review audit fold-specific sample gating and confirm no blocked fold reached a fitter.
 **Tester → Developer:** after results acquisition, independently check disposition hashes/counts, exact config-to-method mapping, fold-specific eligibility, leakage controls and completeness of failed/blocked result rows.
+
+
+## 2026-10-13 — Corrected R3 eligibility gate completed
+
+- User-facing request: “Continue”.
+- Verified success of [workflow run 38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557), including the persisted manifest commit and retained artifact.
+- Exact committed JSON was downloaded independently. SHA-1 Git blob: 707ea05ac9cf896881cbcf72b892ce8214368265; SHA-256 content: cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229. Counts verified: 40,000 unique configurations, 1,000 methods × 40 configs, 75 passing and five F01-only blocked label/fold cells.
+- Every model-fit authorization flag remains false; disposition counts are 17,040 implementation/authorization blocks and 22,960 compatibility blocks. The corrected registry accounting gate is PASS; empirical execution remains BLOCKED pending PM0001 executor/authorization work.
+- The workflow assembly/checkout and persistence issues were all recorded in the error log and corrected; only run 38399360557 is accepted as the corrected persisted registry artifact. No prediction result, option P&L or strategy conclusion exists; holdout remains sealed.
+
+**Developer → Tester (post-results only):** review the frozen full result bundle at the consolidated post-acquisition checkpoint; verify config uniqueness, fold-specific blocks, source pins, leakage and failed-row accounting.
+**Tester → Developer:** after results are frozen, independently re-run the manifest audit and check that only explicitly authorized configurations/folds were fitted.
