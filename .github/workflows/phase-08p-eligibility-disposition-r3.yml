@@ -71,6 +71,8 @@ jobs:
           cp "$manifest" "$RUNNER_TEMP/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The build rewrites a tracked output; stash it before branch synchronization.
+          git stash push -m "R3 manifest build output" -- "$manifest"
           git pull --rebase origin "$GITHUB_REF_NAME"
           cp "$RUNNER_TEMP/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json" "$manifest"
           git add "$manifest"
