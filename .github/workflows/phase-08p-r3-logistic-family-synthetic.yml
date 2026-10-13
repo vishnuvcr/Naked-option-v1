@@ -1,4 +1,4 @@
-name: Phase 8P R3 logistic family synthetic gate
+name: Phase 8P R3 expanded prediction family synthetic gate
 
 on:
   workflow_dispatch:
