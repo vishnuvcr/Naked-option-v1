@@ -1,3 +1,19 @@
+# R6 independent tester decision — code gate PASS; empirical fitting still blocked (2026-10-14)
+
+Reviewed developer SHA `1bfba987629e793accbd218d87745a8f80cf8dbd`, workflow [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094), and artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839). The workflow passed 111 synthetic tests, compiled 20 modules, and audited all 40,000 configurations.
+
+- **PASS:** parameter binding for all implemented families and explicit survival/event-time exclusions.
+- **PASS:** Markov final forward likelihood/posterior matches independent reconstruction.
+- **PASS:** transition-prior formula, approved code-only status, and V2/contract blob pins.
+- **NOT AUTHORIZED:** empirical model fitting, holdout access, options P&L, ranking or strategy selection. Preregistration still contains `NOT_FROZEN_BLOCKED` items.
+- Report: [R6 tester report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-tester-r6/research/gates/PREDICTION_PARAMETER_BINDING_TESTER_REPORT_R6_2026-10-14.md).
+- The intermediate R5 decision is preserved in [the R5 tester branch](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-param-audit-tester-r5).
+
+**Tester → Developer:** close this subgate and work on preregistration/data preflight only.  
+**Developer → Tester:** submit frozen protocol and data/label provenance requirements for review before any fitting.
+
+---
+
 # Latest Phase 8P R4 development gate — PASS; independent review pending (2026-10-14)
 
 **Exact developer snapshot:** `28e192269a63030c03963e83767f1dc6d7c6a81e`  
