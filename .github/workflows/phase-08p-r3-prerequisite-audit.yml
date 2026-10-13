@@ -33,7 +33,7 @@ jobs:
       - name: Check out exact triggering source
         uses: actions/checkout@v4
         with:
-          ref: \${{ github.sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
       - name: Assert checkout is immutable triggering commit
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
