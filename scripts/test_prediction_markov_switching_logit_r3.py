@@ -86,6 +86,11 @@ class MarkovSwitchingTests(unittest.TestCase):
         prereg = json.loads(prereg_path.read_text(encoding="utf-8"))
         pinned = prereg["model_parameter_semantics_contracts"]["markov_switching_logit"]
         self.assertEqual(prereg["schema_version"], "prediction-preregistration-v2")
+        self.assertEqual(prereg["status"], "TESTER_REVIEWED_SEMANTIC_AMENDMENT_CODE_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS")
+        self.assertEqual(contract["status"], "TESTER_REVIEWED_CODE_CONTRACT_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS")
+        self.assertEqual(pinned["review_status"], "R5_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING")
+        self.assertEqual(prereg["tester_review"]["outcome"], "NUMERICAL_AND_FORMULA_REVIEW_PASS_FINAL_PIN_CONFIRMATION_PENDING")
+        self.assertFalse(prereg["tester_review"]["empirical_fitting_authorized"])
         self.assertEqual(pinned["path"], str(contract_path.relative_to(root)))
         self.assertEqual(pinned["git_blob_sha"], git_blob_sha)
         self.assertEqual(contract["schema_version"], "markov-switching-transition-prior-contract-v1")
