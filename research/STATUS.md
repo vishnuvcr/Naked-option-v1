@@ -1400,3 +1400,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Workflow [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed six synthetic tests plus compile/source checks. Binder report is documented in [parameter semantics audit](gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
 - Bayesian `coefficient_drift` maps explicitly to `process_variance`; unsupported Markov-switching regimes/transition-prior semantics and temporal-convolution dropout are blocked instead of silently ignored. HMM requires `covariance=diag` and supported state count.
 - This is a fail-closed contract gate, not empirical authorization. Next: implement supported Markov transition-prior/regime semantics and temporal-convolution dropout, then test every parameter field against the registry before independent review.
+
+
+## Phase 8P R3 — temporal-convolution dropout implemented and tested (2026-10-14)
+
+- Added training-time inverted dropout to `TemporalConvolutionAdapter`; deterministic synthetic tests cover repeatability and invalid dropout rejection.
+- Combined hosted synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites, compilation, and source checks. This is synthetic-only, with no market data or holdout access.
+- Parameter-semantics gate remains open: Markov-switching 3-regime and transition-prior semantics still need implementation or permanent scoped blocking; all family parameter mappings require exhaustive audit and independent review. No empirical fitting authorization.
