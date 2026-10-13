@@ -1189,3 +1189,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented LDA/QDA probability adapters and expanded the synthetic family gate.
 - Evidence: [workflow 38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed 19 tests across logistic, chronological calibration, probit, LDA and QDA.
 - Outcome: synthetic-only adapter validation; no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: implemented elastic-net logistic adapter and extended synthetic test coverage.
+- Evidence: [workflow 38422235856](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422235856) passed 22 synthetic tests across the current classical adapter suite.
+- Outcome: no market data, empirical fitting, or holdout access.
