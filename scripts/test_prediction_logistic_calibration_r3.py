@@ -24,13 +24,37 @@ class CalibrationTests(unittest.TestCase):
         x=rng.normal(size=(600,3))
         y=(x[:,0] + .3*x[:,1] > 0).astype(int)
         sessions=np.repeat(np.arange(60),10)
+        endpoints=sessions + 1
         folds=chronological_inner_oof(lambda: LogisticProbabilityAdapter(),
-             x,y,sessions,purge_sessions=2,min_train_rows=50,min_validation_rows=50)
+             x,y,sessions,purge_sessions=2,min_train_rows=50,min_validation_rows=50,
+             target_endpoint_session_positions=endpoints, embargo_sessions=1)
         self.assertEqual([f["fold"] for f in folds],[1,2,3])
         for f in folds:
-            self.assertLess(sessions[f["train_indices"]].max(),
-                            sessions[f["validation_indices"]].min()-2)
+            first_valid=f["validation_start_session"]
+            self.assertLess(sessions[f["train_indices"]].max(), first_valid-2)
+            self.assertTrue(np.all(endpoints[f["train_indices"]] < first_valid))
+            self.assertGreaterEqual(sessions[f["validation_indices"]].min(), first_valid+1)
+            self.assertLess(f["training_target_maturity_max_session"], first_valid)
         self.assertTrue(np.isfinite(oof_log_loss(folds)))
+
+    def test_oof_requires_target_endpoint_positions(self):
+        x=np.arange(600,dtype=float).reshape(200,3)
+        y=np.tile([0,1],100)
+        sessions=np.repeat(np.arange(20),10)
+        with self.assertRaisesRegex(CalibrationContractError,"TARGET_ENDPOINT_SESSION_POSITIONS_REQUIRED"):
+            chronological_inner_oof(lambda: LogisticProbabilityAdapter(),x,y,sessions,
+                purge_sessions=1,min_train_rows=10,min_validation_rows=10)
+
+    def test_oof_rejects_target_endpoint_before_decision(self):
+        x=np.random.default_rng(9).normal(size=(200,3))
+        y=np.tile([0,1],100)
+        sessions=np.repeat(np.arange(20),10)
+        endpoints=sessions.copy()
+        endpoints[10]=sessions[10]-1
+        with self.assertRaisesRegex(CalibrationContractError,"TARGET_ENDPOINT_PRECEDES_DECISION"):
+            chronological_inner_oof(lambda: LogisticProbabilityAdapter(),x,y,sessions,
+                purge_sessions=1,min_train_rows=10,min_validation_rows=10,
+                target_endpoint_session_positions=endpoints)
 
     def test_bad_calibration_inputs_fail_closed(self):
         with self.assertRaisesRegex(CalibrationContractError,"SHAPE_OR_SAMPLE"):
