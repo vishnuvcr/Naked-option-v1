@@ -1458,3 +1458,13 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 **Developer → Tester:** review the exact code SHA, numeric test, semantic contract pins and hosted report.  
 **Tester → Developer:** keep the old decision intact and publish a new independent review of the current snapshot.
+
+
+## Phase 8P R6 independent tester decision — PASS for code gate (2026-10-14)
+- Reviewed developer snapshot `1bfba987629e793accbd218d87745a8f80cf8dbd`, hosted run [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094), artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839).
+- Verified 111 synthetic tests, 20 modules compiled, 40,000 config rows audited (38,000 bound; 2,000 survival/event-time configurations blocked), status `PASS_PARAMETER_BINDING_AUDIT_R4`, and the updated V2/contract blob pins.
+- Decision: **PASS** for parameter binding, Markov final posterior/likelihood consistency, and the code-only transition-prior contract. Prior R5 report remains in its separate branch and is preserved as an intermediate finding.
+- This is not permission to fit market data. Preregistration still has `NOT_FROZEN_BLOCKED` fields; finish and independently review them before data fitting. Holdout stays sealed.
+
+**Tester → Developer:** close this code gate and move only to preregistration/data preflight.
+**Developer → Tester:** submit the full frozen protocol and data/label preflight before any empirical fit.
