@@ -78,6 +78,49 @@ def _array_inputs(x, y, decision_positions, endpoint_positions):
     return X, labels.astype(int), decision, endpoint
 
 
+def _require_class_support(labels: np.ndarray, indices: Sequence[int], minimum_each: int, code: str) -> None:
+    selected = labels[np.asarray(indices, dtype=int)]
+    positive = int(np.sum(selected == 1))
+    negative = int(np.sum(selected == 0))
+    if positive < minimum_each or negative < minimum_each:
+        raise PM0001ExecutionError(f"{code}:positive={positive}:negative={negative}:minimum_each={minimum_each}")
+
+
+def _precheck_inner_oof_support(
+    labels: np.ndarray, decision: np.ndarray, endpoint: np.ndarray, *,
+    purge_sessions: int, embargo_sessions: int, min_train_rows: int,
+    min_validation_rows: int, min_class_support_each: int,
+) -> None:
+    """Preflight every frozen inner fold before fitting any estimator."""
+    unique = np.unique(decision)
+    if len(unique) < 10:
+        raise PM0001ExecutionError("INNER_OOF_TOO_FEW_UNIQUE_SESSIONS")
+    n = len(unique)
+    intervals = [(int(n * .40), int(n * .60)), (int(n * .60), int(n * .80)), (int(n * .80), n)]
+    for fold_number, (start, end) in enumerate(intervals, 1):
+        if end <= start:
+            raise PM0001ExecutionError(f"INNER_OOF_FOLD_{fold_number}_EMPTY")
+        valid_sessions = unique[start:end]
+        first_valid = int(valid_sessions[0])
+        last_valid_exclusive = int(valid_sessions[-1]) + 1
+        train_mask = (decision < first_valid - purge_sessions) & (endpoint < first_valid)
+        valid_mask = (
+            np.isin(decision, valid_sessions)
+            & (decision >= first_valid + embargo_sessions)
+            & (endpoint < last_valid_exclusive)
+        )
+        tr = np.flatnonzero(train_mask)
+        va = np.flatnonzero(valid_mask)
+        if len(tr) < min_train_rows:
+            raise PM0001ExecutionError(f"INNER_OOF_FOLD_{fold_number}_MIN_TRAIN_ROWS_FAILED")
+        if len(va) < min_validation_rows:
+            raise PM0001ExecutionError(f"INNER_OOF_FOLD_{fold_number}_MIN_VALIDATION_ROWS_FAILED")
+        _require_class_support(labels, tr, min_class_support_each, f"INNER_OOF_FOLD_{fold_number}_TRAIN_CLASS_SUPPORT_FAILED")
+        _require_class_support(labels, va, min_class_support_each, f"INNER_OOF_FOLD_{fold_number}_VALIDATION_CLASS_SUPPORT_FAILED")
+        if np.any(endpoint[tr] >= first_valid):
+            raise PM0001ExecutionError(f"INNER_OOF_FOLD_{fold_number}_IMMATURE_TRAINING_TARGET")
+
+
 def fit_pm0001_outer_fold(
     x: Sequence[Sequence[float]],
     y: Sequence[int],
@@ -94,6 +137,9 @@ def fit_pm0001_outer_fold(
     min_outer_validation_rows: int,
     min_inner_train_rows: int,
     min_inner_validation_rows: int,
+    min_outer_train_class_support: int,
+    min_outer_validation_class_support: int,
+    min_inner_class_support: int,
     refit_cadence_sessions: int = 20,
 ) -> PM0001FoldResult:
     """Fit one registered fold with rolling refits every 20 exchange sessions.
@@ -116,6 +162,18 @@ def fit_pm0001_outer_fold(
         raise PM0001ExecutionError("REFIT_CADENCE_INVALID")
     if not np.isfinite(c) or c <= 0:
         raise PM0001ExecutionError("C_MUST_BE_FINITE_POSITIVE")
+
+    all_validation_mask = (
+        (decision >= validation_start_session + embargo_sessions)
+        & (decision < validation_end_session_exclusive)
+        & (endpoint < validation_end_session_exclusive)
+        & (endpoint >= decision)
+    )
+    eligible_validation_indices = np.flatnonzero(all_validation_mask)
+    if len(eligible_validation_indices) < min_outer_validation_rows:
+        raise PM0001ExecutionError("OUTER_VALIDATION_ROW_MINIMUM_FAILED")
+    _require_class_support(labels, eligible_validation_indices, min_outer_validation_class_support,
+                          "OUTER_VALIDATION_CLASS_SUPPORT_FAILED")
 
     scored_indices: list[int] = []
     scored_probabilities: list[float] = []
@@ -146,8 +204,8 @@ def fit_pm0001_outer_fold(
             continue
         if len(train_idx) < min_outer_train_rows:
             raise PM0001ExecutionError(f"REFIT_{block_start}_OUTER_TRAIN_ROW_MINIMUM_FAILED")
-        if set(np.unique(labels[train_idx]).tolist()) != {0, 1}:
-            raise PM0001ExecutionError(f"REFIT_{block_start}_OUTER_TRAIN_CLASS_SUPPORT_FAILED")
+        _require_class_support(labels, train_idx, min_outer_train_class_support,
+                              f"REFIT_{block_start}_OUTER_TRAIN_CLASS_SUPPORT_FAILED")
         if np.any(endpoint[train_idx] >= block_start):
             raise PM0001ExecutionError(f"REFIT_{block_start}_TRAIN_TARGET_NOT_MATURE")
         if np.any(decision[train_idx] >= block_start - purge_sessions):
@@ -159,6 +217,12 @@ def fit_pm0001_outer_fold(
         y_train = labels[train_idx]
         d_train = decision[train_idx]
         e_train = endpoint[train_idx]
+        _precheck_inner_oof_support(
+            y_train, d_train, e_train, purge_sessions=purge_sessions,
+            embargo_sessions=embargo_sessions, min_train_rows=min_inner_train_rows,
+            min_validation_rows=min_inner_validation_rows,
+            min_class_support_each=min_inner_class_support,
+        )
         oof = chronological_inner_oof(
             lambda: LogisticProbabilityAdapter(c=float(c), random_state=2026101208),
             x_train, y_train, d_train, purge_sessions, min_inner_train_rows,
@@ -187,8 +251,8 @@ def fit_pm0001_outer_fold(
         refit_training_indices.append(tuple(map(int, train_idx)))
         total_oof_rows += int(len(oof_prob))
 
-    if len(scored_indices) < min_outer_validation_rows:
-        raise PM0001ExecutionError("OUTER_VALIDATION_ROW_MINIMUM_FAILED")
+    if set(scored_indices) != set(map(int, eligible_validation_indices)):
+        raise PM0001ExecutionError("OUTER_VALIDATION_ROW_ACCOUNTING_MISMATCH")
     if len(set(scored_indices)) != len(scored_indices):
         raise PM0001ExecutionError("DUPLICATE_VALIDATION_PREDICTION")
     order = np.argsort(np.asarray(scored_indices), kind="stable")
