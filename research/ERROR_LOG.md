@@ -1216,3 +1216,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: rewrite the workflow with separate test steps and the exact committed filename `test_prediction_chronological_calibration_r3.py`.
 - Prevention: inspect the complete resulting workflow after modifications and compare every test glob to actual repository filenames before considering the code gate passed.
 - Disposition: infrastructure/test-orchestration failure only; no scientific data opened and no empirical model fitted. Repair is committed; rerun verification pending.
+
+
+## 2026-10-13 — Phase 8P calibration workflow shell-command defect
+- Category: workflow/test orchestration
+- Component: `.github/workflows/phase-08p-logistic-adapter-r3.yml`
+- Hosted run: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761
+- Symptom: two unittest commands were concatenated into one `run:` command without a multiline shell block; unittest rejected the extra `-m unittest discover` tokens. The subsequent calibration test step also referenced an incorrect filename.
+- Root cause: workflow text replacement created invalid command structure and the test filename was not checked against the committed path.
+- Correction: rewrite the workflow with separate test steps and the exact committed filename `test_prediction_chronological_calibration_r3.py`.
+- Prevention: inspect the complete resulting workflow after modifications and compare every test glob to actual repository filenames before considering the code gate passed.
+- Disposition: workflow failure only; no scientific data opened and no empirical model fitted. Repair is committed; rerun verification pending.
