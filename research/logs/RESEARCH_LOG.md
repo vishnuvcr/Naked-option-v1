@@ -789,3 +789,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-13 — Full terminal-row schema validation
 - Strengthened the terminal accounting workflow to stream-validate every row against preregistered mandatory fields, uniqueness, blocked-metric nulls, and no-fit/no-holdout flags.
 - Hosted run [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed; artifact [11825318200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140/artifacts/11825318200). Full result is linked in [terminal accounting report](../gates/PREDICTION_TERMINAL_ACCOUNTING_RESULT_R3_2026-10-13.md).
+
+
+## 2026-10-13 — Logistic family synthetic tests
+- Added automated workflow `.github/workflows/phase-08p-r3-logistic-family-synthetic.yml` for the existing logistic probability adapter and chronological OOF Platt calibration.
+- Run [38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917) passed 5 adapter tests and 4 calibration tests, plus compilation and source checks. Report: [PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- Synthetic data only; no market data, holdout, or empirical conclusion.
