@@ -655,3 +655,6 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 - Follow-up full-row validation [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed all 320,000 schema and blocked-metric checks; latest artifact [11825318200](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140/artifacts/11825318200).
 - Hardened rerun [38420286467](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467) passed after adding fail-closed preflight provenance checks; all 320,000 row schemas and blocked-metric invariants passed. Latest artifact [11825388381](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467/artifacts/11825388381).
+
+### Logistic family synthetic gate (2026-10-13)
+- **PASS — synthetic only:** [workflow 38420549917](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420549917), [report](research/gates/PREDICTION_LOGISTIC_FAMILY_SYNTHETIC_RESULT_R3_2026-10-13.md). Five adapter tests and four calibration tests passed; no market data or holdout access. Empirical fitting remains unauthorized.
