@@ -1547,3 +1547,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** review the ten-horizon/frozen-preregistration/data-preflight gate next.  
 **Tester → Developer:** no fitting approval until the full contract, input provenance, and enforced authorization pass.
+
+
+## 2026-10-14 — Phase 8P R4 protocol bridge initiated
+The synthetic/static gate is being added on `phase-08-prediction-prereg-freeze-developer`. It pins canonical source blobs and checks legacy F1–F6 contracts while preserving the separation between the Greek incremental study and the main 1,000-method registry. The legacy main-registry preflight is not promoted: its preregistration blob SHA is null and it contains scoped sample-eligibility blocks. No real artifacts opened, no model fit, and no holdout access. First workflow run is pending.
+
+**Developer → Tester:** review the exact green snapshot before any data preflight.
+**Tester → Developer:** block data access if any source pin, scope approval or authorization flag is inconsistent.
