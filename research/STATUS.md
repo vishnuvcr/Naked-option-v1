@@ -1422,3 +1422,14 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 **Developer → Tester:** review the exact R4 snapshot and hosted report after the gate completes; independently check transition-prior arithmetic, 2/3-regime logic and every registered constructor parameter. No empirical fitting approval from synthetic tests alone.
 
 **Tester → Developer:** require the exact commit and report hashes, reject all unexplained binding/count mismatches, and keep holdout/data gates sealed until independent code approval.
+
+
+## R4 workflow incident follow-up — 2026-10-14
+
+- First R4 workflow [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770) stopped in `setup-python` before test execution because automatic pip cache setup could not find a requirements manifest.
+- Correction: optional pip caching has been removed from the workflow; library versions remain pinned. The incident is in [ERROR_LOG.md](ERROR_LOG.md) and [CHAT_LOG.md](logs/CHAT_LOG.md).
+- The failed run is classified as **INFRASTRUCTURE FAILURE / NO TEST RESULT**, not a failure of model mathematics and not a pass.
+- The corrected push-triggered rerun must complete every synthetic test, compilation and the 40,000-configuration audit. Until its exact report is inspected: R4 status remains **PENDING**, empirical fitting remains unauthorized and the holdout remains sealed.
+
+**Developer → Tester:** evaluate only a corrected run that completes the full test/audit job.
+**Tester → Developer:** keep the gate closed if any step is skipped, failed or lacks a hash-pinned report.
