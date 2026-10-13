@@ -1396,3 +1396,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_tree_ensemble_adapters_r3.py`
 - Workflow [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed all four tree-ensemble tests and the combined 26-test suite. No outstanding test defect.
 - Synthetic-only; no market-data fitting or holdout access.
+
+
+## 2026-10-13 — Margin/distance synthetic gate failure
+- Category: API compatibility / implementation runtime
+- Component: `scripts/prediction_margin_distance_adapters_r3.py`, nearest-centroid adapter.
+- Symptom: synthetic gate [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566) failed because scikit-learn 1.7 `NearestCentroid` has no `transform` method and rejects `shrink_threshold=0.0` (expects `None` for no shrinkage).
+- Correction: compute Euclidean distances directly from the fitted `centroids_` and standardized features; map zero threshold to `None`. Follow-up run is pending.
+- Impact: no empirical data or fitting; synthetic gate only.
