@@ -218,6 +218,8 @@ def build_manifest(configs: list[dict], methods: list[dict], preflight: dict, so
         "empirical_fit_authorized": False,
         "manual_authorization_required": False,
         "standing_permission_path": "research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md",
+        "implementation_gate_path": IMPLEMENTATION_GATE_PATH if implementation_gate else None,
+        "implementation_gate_status": implementation_gate.get("status") if implementation_gate else None,
         "disposition_counts": counts,
         "fold_ids": list(FOLD_IDS),
         "eligible_fold_label_cell_count": eligible_cells,
