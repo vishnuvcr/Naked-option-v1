@@ -96,7 +96,7 @@ def config_rows() -> list[dict[str, Any]]:
             raise PrecheckError(f"CONFIG_SHARD_HASH_MISMATCH:{p}")
         payload = json.loads(raw.decode("utf-8"))
         configs = payload.get("configs", [])
-        if len(configs) != shard.get("count"):
+        if len(configs) != shard.get("record_count", shard.get("count")):
             raise PrecheckError(f"CONFIG_SHARD_COUNT_MISMATCH:{p}")
         for row in configs:
             if row.get("config_id") in seen:
