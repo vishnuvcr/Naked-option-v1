@@ -1274,3 +1274,14 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: commit [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3) validates all 80 label/fold rows, records precise fold scope, and adds regression tests for one-fold and all-fold blocks. Source Git blob pins are checked before building.
 - Prevention: never convert a fold-specific failure into a horizon-wide exclusion. Require hosted test/build/accounting success and verify the corrected committed manifest before accepting the gate.
 - Disposition: old manifest is superseded pending corrected rebuild. Empirical fitting remains unauthorized; holdout untouched.
+
+
+## 2026-10-13 — R3 fold-scope correction workflow checkout failure
+
+- Category: workflow orchestration / expression interpolation.
+- Workflow run: [38398836570](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38398836570), commit 004472bbd8428d144e9355d63f3e28f3138f23b3.
+- Symptom: checkout received an invalid ref with a leading backslash before the commit SHA; all code/test/build steps were skipped.
+- Root cause: workflow content was assembled using a raw template where the escaping needed to prevent JavaScript interpolation was retained as a literal backslash in the YAML; GitHub then evaluated the commit-SHA expression leaving the slash in the ref.
+- Correction: removed the literal backslash before the GitHub commit SHA expression and committed the workflow fix at [b8b1eb2c0eaecde206789968f7585f496f9f6e95](https://github.com/vishnuvcr/Naked-option-v1/commit/b8b1eb2c0eaecde206789968f7585f496f9f6e95).
+- Next verification: hosted rerun [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791); do not accept any manifest until job conclusions and exact committed output are checked.
+- Disposition: workflow-only failure; no tests, market data fit, metric or holdout operation occurred.
