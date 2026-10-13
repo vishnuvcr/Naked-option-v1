@@ -1,3 +1,21 @@
+# Latest Phase 8P R4 parameter-binding checkpoint — verification pending (2026-10-14)
+
+**Current gate: R4 code is committed on an isolated developer branch, but hosted verification and independent review are still pending. Empirical fitting remains unauthorized.**
+
+- Developer branch: [phase-08-prediction-param-audit-developer](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-param-audit-developer)
+- R4 scope/report: [parameter-binding and Markov semantics audit](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/gates/PREDICTION_PARAMETER_BINDING_AUDIT_R4_2026-10-14.md)
+- R4 updates extend parameter binding across the 19 implemented families, explicitly block survival/event-time configurations, and test the Markov-switching 2/3-regime configuration plus transition-prior setting.
+- Expected audit: 1,000 methods / 40,000 configurations; 38,000 implemented-family parameter bindings and 2,000 explicit survival-family blocks. These are expected assertions, **not yet verified R4 results**.
+- Last verified hosted synthetic gate: [run 38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113), 56 synthetic tests across 15 suites plus compilation and source checks. It predates R4 and is not evidence that the R4 revision passes.
+- Status: [research status](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/STATUS.md) · [error log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/ERROR_LOG.md) · [conversation log](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/logs/CHAT_LOG.md) · [parameter semantics history](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-param-audit-developer/research/gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
+
+**Hard restrictions:** no market-data load, empirical fitting, holdout access, option P&L, result ranking, or strategy promotion without the separate code-review and data preflight approvals. Holdout remains sealed.
+
+**Developer → Tester:** independently check the exact R4 run report, Markov prior arithmetic and every constructor mapping when the run is available.
+**Tester → Developer:** require exact hashes and fail-closed counts; do not authorize fitting on synthetic test success alone.
+
+---
+
 # Latest Phase 8P R3 checkpoint — chronological split contract passed (2026-10-13)
 
 - Hosted chronological contract workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) passed and persisted [the aggregate test report](research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json), blob 67aaea739f777a8857fb43be8e85416b22de3af8.
