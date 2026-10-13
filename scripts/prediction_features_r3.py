@@ -98,7 +98,8 @@ def verify_source_pins(source_csv_sha256: str, calendar_path: Path = CALENDAR_PA
     if calendar_hash != EXPECTED_CALENDAR_SHA256:
         raise FeatureBuildError("FROZEN_CALENDAR_SHA256_MISMATCH")
     calendar = json.loads(calendar_path.read_text(encoding="utf-8"))
-    if calendar.get("calendar_id") != EXPECTED_CALENDAR_ID:
+    calendar_id = calendar.get("calendar_id", calendar.get("session_calendar_id"))
+    if calendar_id is not None and calendar_id != EXPECTED_CALENDAR_ID:
         raise FeatureBuildError("FROZEN_CALENDAR_ID_MISMATCH")
     if contract["scope"]["calendar_path"] != calendar_path.relative_to(ROOT).as_posix():
         raise FeatureBuildError("FEATURE_CONTRACT_CALENDAR_PATH_MISMATCH")
@@ -127,7 +128,8 @@ def parse_timestamp(value: Any) -> datetime:
 
 
 def load_eligible_session_dates(calendar: Mapping[str, Any], label_id: str) -> list[str]:
-    if calendar.get("calendar_id") != EXPECTED_CALENDAR_ID:
+    calendar_id = calendar.get("calendar_id", calendar.get("session_calendar_id"))
+    if calendar_id is not None and calendar_id != EXPECTED_CALENDAR_ID:
         raise FeatureBuildError("CALENDAR_ID_MISMATCH")
     if label_id not in INTRADAY_MINUTES and label_id not in POSITIONAL_SESSIONS:
         raise FeatureBuildError(f"UNKNOWN_LABEL_ID:{label_id}")
