@@ -4,20 +4,20 @@
   "method_id": "PM0001",
   "method_name": "L2 logistic regression with calibrated directional probabilities",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
-  "source_commit": "09db756ce5676d42f0493f8cbe1f608197d7c88f",
+  "source_commit": "6b83b9be9554ec07f74aea6d48ef9c2d7746e07c",
   "source_blob_pins": {
     "scripts/prediction_pm0001_executor_r3.py": "7197715eff035d9d37051a1a9a549e570f2d4a5b",
-    "scripts/test_prediction_pm0001_executor_r3.py": "377397c68a3b421be683691cc4f452c52455b037",
+    "scripts/test_prediction_pm0001_executor_r3.py": "1ed538c01f006b9b1a2ddc9c422f14ff5bf90492",
     ".github/workflows/phase-08p-r3-pm0001-executor-synthetic.yml": "d5d1cde71f0d22780d18897223bd4c2708d7d99a",
     "scripts/prediction_logistic_adapter_r3.py": "fcdedf5b0ddfc9dafc44ef1cf61dc981f55a3dc2",
     "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
     "scripts/prediction_statistics.py": "669ab408f18acff2f79e47669203a7598077e3cd"
   },
   "verification": {
-    "workflow_run_id": 38471186718,
-    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471186718",
+    "workflow_run_id": 38471406903,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471406903",
     "conclusion": "success",
-    "synthetic_tests": 5,
+    "synthetic_tests": 7,
     "python_compile": "PASS",
     "source_data_loaded": false,
     "empirical_model_fit": false,
@@ -39,7 +39,10 @@
     "training-target maturity and purge enforced at every refit cutoff",
     "outer-fold class-support minima checked before fitting",
     "inner-fold row and per-class support checked before any estimator is fit",
-    "20-session refit schedule preserves exact validation-row coverage"
+    "20-session refit schedule preserves exact validation-row coverage",
+    "outer-fold class-support minima checked before fitting",
+    "inner-fold row and per-class support checked before any estimator is fit",
+    "explicit regression tests prove insufficient outer/inner class support blocks before fitting"
   ],
   "manual_authorization_required": false,
   "empirical_fit_authorized": false,
