@@ -1,0 +1,48 @@
+{
+  "schema_version": "prediction-method-family-implementation-plan-r3",
+  "date": "2026-10-13",
+  "status": "FROZEN_IMPLEMENTATION_INVENTORY_PRE_FIT",
+  "source_index_path": "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json",
+  "source_registry_methods": 1000,
+  "source_configurations": 40000,
+  "empirical_fitting_authorized": false,
+  "families": [
+    {"family":"logistic_regression","methods":50,"allow_in_principle":21,"blocked":29,"adapter":"prediction_logistic_adapter_r3.py","synthetic_gate":"PASS","empirical_status":"NOT_AUTHORIZED"},
+    {"family":"probit_regression","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"lda","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"qda","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"generalized_additive_model","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"elastic_net_logistic","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"random_forest","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"extra_trees","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"gradient_boosting","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"histogram_gradient_boosting","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"kernel_svm","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"nearest_centroid","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"knn_density_ratio","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"hidden_markov_model","methods":50,"allow_in_principle":30,"blocked":20,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"markov_switching_logit","methods":50,"allow_in_principle":30,"blocked":20,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"bayesian_dynamic_logit","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"change_point_segment_model","methods":50,"allow_in_principle":30,"blocked":20,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"temporal_convolution_network","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"shallow_mlp","methods":50,"allow_in_principle":21,"blocked":29,"adapter":null,"synthetic_gate":"NOT_RUN","empirical_status":"NOT_IMPLEMENTED"},
+    {"family":"survival_first_passage","methods":50,"allow_in_principle":0,"blocked":50,"adapter":null,"synthetic_gate":"NOT_APPLICABLE_ALL_BLOCKED","empirical_status":"BLOCKED_COMPATIBILITY"}
+  ],
+  "family_contract_requirements": [
+    "Exact method_id to family and configuration parameter mapping from committed compatibility/configuration shards",
+    "Deterministic estimator settings and random seeds where applicable",
+    "Train-only transformations and feature selection",
+    "Inner chronological out-of-fold probability calibration where native probabilities are not valid",
+    "Label-specific target maturity, purge, embargo, and fold-scoped data eligibility",
+    "Synthetic numerical, shape, class-support, chronology, and leakage tests",
+    "Complete terminal rows for every registered configuration/fold including blocked and failed outcomes",
+    "Independent review before empirical fitting; never modify eligibility flags to bypass gates"
+  ],
+  "counts": {
+    "families": 20,
+    "methods": 1000,
+    "allow_in_principle": 426,
+    "blocked": 574,
+    "empirically_eligible": 0
+  }
+}
