@@ -1306,3 +1306,15 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Correction: workflow commit [ffd95269d916a7ee9ca0b1317a02bc5e7eaf1ce0](https://github.com/vishnuvcr/Naked-option-v1/commit/ffd95269d916a7ee9ca0b1317a02bc5e7eaf1ce0) now keeps built bytes in RUNNER_TEMP, fetches/resets to the latest branch tip, restores the output and retries up to five times on a ref race.
 - Verification: run [38399360557](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399360557) succeeded; output was persisted and independently downloaded/reparsed. Final manifest Git blob SHA-1 707ea05ac9cf896881cbcf72b892ce8214368265, manifest SHA-256 cad7add1502cc2202f426305cbf048eb369e7555b9f252ef421f43d3cdcba229, 40,000 unique records, five exact fold-scoped blocks, zero empirical authorizations.
 - Disposition: resolved. The prior runs remain non-evidence for final artifact persistence; this run is the accepted registry-accounting artifact. No empirical fit, prediction metric or holdout access occurred.
+
+
+## 2026-10-13 — Phase 8P R3 prerequisite-audit workflow checkout-expression regression
+
+- Category: workflow configuration / escaping regression
+- Component: \`.github/workflows/phase-08p-r3-prerequisite-audit.yml\`
+- Failed hosted run: [38402329539](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402329539), commit \`7fbc16778c1f8fd2c259bbe18850897320ee7a47\`.
+- Symptom: the checkout action received a literal backslash before \`\${{ github.sha }}\` and attempted to check out a nonexistent ref. Unit tests and audit steps were skipped; this run generated no scientific evidence.
+- Root cause: a workflow text-generation/escaping step persisted a backslash that should have been consumed before writing the YAML file. This repeated the same class of issue previously logged for Phase 8P.
+- Correction: removed the literal backslash in commit [b77da06d9a47c99c39e849710ed5c5b5791664ea](https://github.com/vishnuvcr/Naked-option-v1/commit/b77da06d9a47c99c39e849710ed5c5b5791664ea), and added \`test_workflow_checkout_ref_has_no_literal_backslash\` in commit [d98bebbc0547fd536016290e8b54293a55612bd7](https://github.com/vishnuvcr/Naked-option-v1/commit/d98bebbc0547fd536016290e8b54293a55612bd7).
+- Verification: corrected audit run [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed checkout, synthetic tests, pinned registry/data/disposition QA, aggregate artifact upload and persisted-report step. Repeat at final test commit [38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507) also concluded SUCCESS.
+- Prevention: assert checkout is at \`$GITHUB_SHA\`, maintain a source-level regression check for the exact YAML expression, and inspect checkout-step logs before accepting any hosted audit. Failed run remains non-evidence; no market fit or holdout access occurred.
