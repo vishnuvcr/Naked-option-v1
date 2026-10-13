@@ -1211,3 +1211,10 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - The earlier failures remain non-evidence and are preserved: malformed shell commands, a wrong synthetic log-loss oracle, and an overly broad lexical source assertion. The final fix removed only the prose-sensitive assertion; the data-loading and empirical-fit-gate checks remain.
 - This is a code-only gate, not empirical prediction evidence. Compatibility remains 426 conditional / 574 blocked / 0 empirically eligible. No model was fit to market data, no holdout was accessed, and no performance metric or trading strategy is claimed.
 - Next: generate a deterministic 40,000-row eligibility disposition manifest from the frozen R3 config shards and compatibility evidence. Do not start any empirical fit unless the manifest and explicit authorization gate permit it.
+
+
+## Phase 8P R3 — eligibility disposition builder added; hosted run pending (2026-10-13)
+
+- Added `scripts/build_prediction_eligibility_manifest_r3.py` to verify exact-byte SHA-256 and record counts for the frozen configuration and compatibility shards, reconcile all configuration-to-method IDs, and produce one fail-closed disposition per configuration. Added five synthetic rule tests and automatic/manual workflow `.github/workflows/phase-08p-eligibility-disposition-r3.yml`.
+- Hosted run [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666) passed the synthetic disposition tests and was executing the full shard/hash reconciliation at latest check. The complete output manifest and final workflow result are not yet verified; do not claim the 40,000-row build passed until the committed artifact and job conclusion are checked.
+- The builder is registry-only and hard-codes `empirical_fit_authorized=false`; current compatibility flags should keep every config blocked. No empirical fit, holdout access or prediction metric.
