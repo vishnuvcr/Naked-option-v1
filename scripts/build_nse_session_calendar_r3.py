@@ -47,6 +47,25 @@ def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
             if d in holidays:
                 raise ValueError(f"CALENDAR_BLOCKED: duplicate holiday date {d}")
             holidays[d]=item.get("description","Official holiday")
+    source_corrections=source.get("source_corrections",[])
+    if not isinstance(source_corrections,list) or not source_corrections:
+        raise ValueError("CALENDAR_BLOCKED: official source corrections must be recorded")
+    correction_ids=set()
+    for item in source_corrections:
+        correction_id=item.get("correction_id")
+        affected=item.get("affected_dates")
+        if not isinstance(correction_id,str) or not correction_id or correction_id in correction_ids:
+            raise ValueError("CALENDAR_BLOCKED: invalid or duplicate source correction ID")
+        if not isinstance(affected,list) or not affected or any(not isinstance(d,str) for d in affected):
+            raise ValueError(f"CALENDAR_BLOCKED: missing affected dates in {correction_id}")
+        if not item.get("circular") or not item.get("source_url") or not item.get("rule"):
+            raise ValueError(f"CALENDAR_BLOCKED: missing source/rule in {correction_id}")
+        for d in affected:
+            try: parsed=date.fromisoformat(d)
+            except Exception: raise ValueError(f"CALENDAR_BLOCKED: invalid correction date {d!r}") from None
+            if parsed < START or parsed > END:
+                raise ValueError(f"CALENDAR_BLOCKED: source correction outside date bounds: {d}")
+        correction_ids.add(correction_id)
     supplement_dates=set()
     for item in source.get("supplements",[]):
         d=item.get("date","")
@@ -169,6 +188,7 @@ def build_calendar(source: dict[str, Any], source_raw: bytes) -> dict[str, Any]:
       "source_calendar_git_blob_sha1":git_blob_sha1(source_raw),
       "source_circulars":source["sources"],
       "source_supplements":source["supplements"],
+      "source_corrections":source_corrections,
       "special_sessions_in_bounds":special_list,
       "regular_session_holidays_by_year":source["regular_session_holidays_by_year"],
       "day_count":len(days),

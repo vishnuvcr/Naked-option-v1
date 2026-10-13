@@ -197,8 +197,8 @@
         "description": "Maharashtra Day"
       },
       {
-        "date": "2023-06-28",
-        "description": "Bakri Id"
+        "date": "2023-06-29",
+        "description": "Bakri Id — corrected holiday date per NSE/CMTR/57285 dated 2023-06-27"
       },
       {
         "date": "2023-08-15",
@@ -231,6 +231,10 @@
     ],
     "2024": [
       {
+        "date": "2024-01-22",
+        "description": "Trading holiday under public-holiday notification; NSE/CMTR/60338 dated 2024-01-19"
+      },
+      {
         "date": "2024-01-26",
         "description": "Republic Day"
       },
@@ -259,6 +263,10 @@
         "description": "Maharashtra Day"
       },
       {
+        "date": "2024-05-20",
+        "description": "Parliamentary election trading holiday; NSE/CMTR/61518 dated 2024-04-08"
+      },
+      {
         "date": "2024-06-17",
         "description": "Bakri Id"
       },
@@ -281,6 +289,10 @@
       {
         "date": "2024-11-15",
         "description": "Gurunanak Jayanti"
+      },
+      {
+        "date": "2024-11-20",
+        "description": "Maharashtra Assembly election trading holiday; NSE/CMTR/64960 dated 2024-11-08"
       },
       {
         "date": "2024-12-25",
@@ -578,6 +590,74 @@
       "intraday_eligible": false,
       "regular_hours_compatible": false,
       "reason": "Special Muhurat session, not standard 09:15–15:30; excluded from both prediction label grids."
+    },
+    {
+      "date": "2026-02-01",
+      "session_id": "BUDGET_2026_02_01",
+      "source_year": 2026,
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/CMTR72349.pdf",
+      "circular": "NSE/CMTR/72349",
+      "session_mode": "normal_weekend_open",
+      "positional_eligible": true,
+      "intraday_eligible": true,
+      "regular_hours_compatible": true,
+      "open": "09:15:00",
+      "close": "15:30:00",
+      "reason": "NSE declared live Capital Market trading on Sunday for Union Budget presentation; preserve a date-available budget-event flag."
+    }
+  ],
+  "source_corrections": [
+    {
+      "correction_id": "NSE_CM_2023_BAKRI_ID_SHIFT",
+      "affected_dates": [
+        "2023-06-28",
+        "2023-06-29"
+      ],
+      "circular": "NSE/CMTR/57285",
+      "published_date": "2023-06-27",
+      "source_url": "https://niftyindices.com/Press_Release/ind_prs27062023.pdf",
+      "exchange_circular_url": "https://archives.nseindia.com/content/circulars/CMTR57285.pdf",
+      "rule": "2023-06-28 is a regular trading session; the holiday moved to 2023-06-29."
+    },
+    {
+      "correction_id": "NSE_CM_2024_RAM_TEMPLE_HOLIDAY",
+      "affected_dates": [
+        "2024-01-22"
+      ],
+      "circular": "NSE/CMTR/60338",
+      "published_date": "2024-01-19",
+      "source_url": "https://archives.nseindia.com/content/circulars/CMTR60338.pdf",
+      "rule": "Full-day trading holiday; remove from expected regular-session coverage."
+    },
+    {
+      "correction_id": "NSE_CM_2024_MUMBAI_ELECTION_HOLIDAY",
+      "affected_dates": [
+        "2024-05-20"
+      ],
+      "circular": "NSE/CMTR/61518",
+      "published_date": "2024-04-08",
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/CMTR61518.pdf",
+      "rule": "Full-day trading holiday; remove from expected regular-session coverage."
+    },
+    {
+      "correction_id": "NSE_CM_2024_MAHARASHTRA_ELECTION_HOLIDAY",
+      "affected_dates": [
+        "2024-11-20"
+      ],
+      "circular": "NSE/CMTR/64960",
+      "published_date": "2024-11-08",
+      "source_url": "https://archives.nseindia.com/content/circulars/CMTR64960.pdf",
+      "rule": "Full-day trading holiday; remove from expected regular-session coverage."
+    },
+    {
+      "correction_id": "NSE_CM_2026_BUDGET_SUNDAY_LIVE_SESSION",
+      "affected_dates": [
+        "2026-02-01"
+      ],
+      "circular": "NSE/CMTR/72349",
+      "published_date": "2026-01-16",
+      "source_url": "https://nsearchives.nseindia.com/content/circulars/CMTR72349.pdf",
+      "rule": "Live trading from 09:15 to 15:30 on Sunday; eligible for intraday and positional labels with a frozen Budget-event flag."
     }
   ]
 }

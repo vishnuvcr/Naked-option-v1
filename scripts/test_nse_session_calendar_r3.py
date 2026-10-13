@@ -63,14 +63,48 @@ class NSESessionCalendarR3Tests(unittest.TestCase):
             self.assertFalse(self.days[d]["is_exchange_trading_session"])
             self.assertEqual(self.days[d]["session_type"],"declared_full_day_holiday")
 
+    def test_official_calendar_corrections_are_applied_and_pinned(self):
+        corrections={x["correction_id"]:x for x in self.calendar["source_corrections"]}
+        for correction_id in (
+            "NSE_CM_2023_BAKRI_ID_SHIFT","NSE_CM_2024_RAM_TEMPLE_HOLIDAY",
+            "NSE_CM_2024_MUMBAI_ELECTION_HOLIDAY","NSE_CM_2024_MAHARASHTRA_ELECTION_HOLIDAY",
+            "NSE_CM_2026_BUDGET_SUNDAY_LIVE_SESSION",
+        ):
+            self.assertIn(correction_id,corrections)
+            self.assertTrue(corrections[correction_id]["source_url"].startswith("https://"))
+            self.assertTrue(corrections[correction_id]["circular"])
+        self.assertEqual(self.days["2023-06-28"]["session_type"],"regular")
+        self.assertTrue(self.days["2023-06-28"]["intraday_label_eligible"])
+        self.assertFalse(self.days["2023-06-29"]["is_exchange_trading_session"])
+        for d in ("2024-01-22","2024-05-20","2024-11-20"):
+            with self.subTest(date=d):
+                self.assertFalse(self.days[d]["is_exchange_trading_session"])
+                self.assertEqual(self.days[d]["session_type"],"declared_full_day_holiday")
+        budget=self.days["2026-02-01"]
+        self.assertTrue(budget["is_exchange_trading_session"])
+        self.assertEqual(budget["session_type"],"normal_weekend_open")
+        self.assertTrue(budget["intraday_label_eligible"])
+        self.assertTrue(budget["positional_label_eligible"])
+        self.assertEqual(budget["regular_open"],"09:15:00")
+        self.assertEqual(budget["regular_close"],"15:30:00")
+
+        budget_2026=self.days["2026-02-01"]
+        self.assertTrue(budget_2026["is_exchange_trading_session"])
+        self.assertTrue(budget_2026["intraday_label_eligible"])
+        self.assertTrue(budget_2026["positional_label_eligible"])
+        self.assertEqual(budget_2026["session_type"],"normal_weekend_open")
+        self.assertEqual(budget_2026["regular_open"],"09:15:00")
+        self.assertEqual(budget_2026["regular_close"],"15:30:00")
+
     def test_special_sessions_are_explicit_and_fail_closed(self):
         expected={
             "2021-11-04","2022-10-24","2023-11-12","2024-01-20",
-            "2024-03-02","2024-05-18","2024-11-01","2025-02-01","2025-10-21"
+            "2024-03-02","2024-05-18","2024-11-01","2025-02-01","2025-10-21",
+            "2026-02-01"
         }
         actual={x["date"] for x in self.calendar["special_sessions_in_bounds"]}
         self.assertEqual(actual,expected)
-        for d in expected-{"2025-02-01"}:
+        for d in expected-{"2025-02-01","2026-02-01"}:
             self.assertTrue(self.days[d]["is_exchange_trading_session"],d)
             self.assertFalse(self.days[d]["intraday_label_eligible"],d)
             self.assertFalse(self.days[d]["positional_label_eligible"],d)
