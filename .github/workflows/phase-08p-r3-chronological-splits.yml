@@ -54,8 +54,9 @@ jobs:
           set -euo pipefail
           report="$RUNNER_TEMP/chronological-gate.json"
           python - <<'PY'
-          import hashlib, json, subprocess
+          import hashlib, json, os, subprocess
           from datetime import datetime, timezone
+          from pathlib import Path
           paths = ["scripts/prediction_walkforward_r3.py", "scripts/test_prediction_walkforward_r3.py", "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json", "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"]
           blobs = {}
           for path in paths:
