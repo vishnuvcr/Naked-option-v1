@@ -1436,3 +1436,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Category: mathematical validation
 - Component: `scripts/prediction_shallow_mlp_adapter_r3.py`
 - Added central finite-difference verification for weight and bias gradients with dropout disabled in the check. Workflow [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed. No sign/gradient discrepancy detected.
+
+
+## 2026-10-13 — Temporal convolution output accumulation slice
+- Category: implementation / tensor shape
+- Component: `scripts/prediction_temporal_convolution_adapter_r3.py`
+- Failure: synthetic tests exposed a broadcast mismatch because the destination slice shortened by the kernel offset while each convolution contribution retained the full valid-window length.
+- Correction: accumulate each kernel contribution into the entire valid output span. Fix commit `9ed231c2787967b83399373d0284db861620de48`; awaiting hosted rerun.
