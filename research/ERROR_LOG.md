@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 executor follow-up and eligibility-overlay regression failures
+- Category: implementation / CI regression
+- Component: `scripts/prediction_pm0001_executor_r3.py`, `scripts/build_prediction_eligibility_manifest_r3.py`
+- PM0001 follow-up: [workflow #38469842554](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38469842554) repeated the missing calibration-field constructor error already found in #38469709631. The calculation and constructor mapping were corrected; [workflow #38469860146](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38469860146) then passed on source commit `9d963418cfdfd33067217888cb81425ee41d1efb`. A further test now checks the calibration status fields; verification is tracked by workflow #38469972383, which passed.
+- Eligibility overlay: [workflow #38470183685](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470183685) and [workflow #38470197893](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470197893) caught a missing `implementation_gate_status` field in the per-configuration row. The row field and top-level manifest status were added. Re-run after the final correction is pending; do not claim the complete disposition gate passed until verified.
+- Impact: developer-side synthetic/registry accounting only; no empirical fitting, no market data loaded in the PM0001 tests, and no holdout access.
+
 ## 2026-10-14 — PM0001 synthetic executor regression caught missing calibration result fields
 - Category: implementation / test failure
 - Component: `scripts/prediction_pm0001_executor_r3.py`
