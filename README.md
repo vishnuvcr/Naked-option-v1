@@ -709,3 +709,6 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 ### Parameter semantics gate (2026-10-14)
 - Fail-closed binder workflow [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed. Bayesian drift alias is explicit; unsupported Markov-switching regime/prior and temporal-convolution dropout configurations are blocked. See [parameter semantics audit](research/gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md). Empirical fitting remains unauthorized.
+
+
+- Temporal-convolution dropout is now implemented as deterministic training-time inverted dropout; combined synthetic workflow [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. Markov-switching parameter semantics and independent review remain blockers; no empirical fitting authorization.
