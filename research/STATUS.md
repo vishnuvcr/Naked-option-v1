@@ -1186,3 +1186,12 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Hosted code-gate run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) is queued/pending at this checkpoint; no pass is claimed yet.
 - This is a calibration component, not a fold generator: the future runner must generate predictions from chronological inner folds with frozen purge/embargo, and the calibrator's input provenance must be established by that runner. No market data or holdout was accessed and no empirical fit was run.
 - Still outstanding: verify CI, independently review calibration mathematics, produce the complete 40,000-row eligibility disposition, and implement a gated/restartable development-fold runner. Empirical fitting remains NOT AUTHORIZED.
+
+
+## Phase 8P R3 — workflow repair checkpoint (2026-10-13)
+
+- Inspected hosted run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) and its job log. The failure was a workflow YAML command-assembly defect: two `python -m unittest` commands were concatenated into one shell command, so unittest reported an unrecognized argument. The calibration test step was also pointed at a nonexistent test filename.
+- Repaired the workflow to use two independent test steps and the correct calibration test path.
+- Corrected workflow revision commit: [ff39b762107c0a09c8557f5a50d601fd0f24ff95](https://github.com/vishnuvcr/Naked-option-v1/commit/ff39b762107c0a09c8557f5a50d601fd0f24ff95).
+- Hosted runs [38395010669](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395010669) and [38395010248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38395010248) were observed in progress after the repair; their final conclusions are not yet verified here.
+- No empirical fitting or holdout access. Eligibility manifest and development-only runner remain the next implementation milestones.
