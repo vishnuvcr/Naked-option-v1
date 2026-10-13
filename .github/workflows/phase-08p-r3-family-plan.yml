@@ -1,0 +1,53 @@
+name: Phase 8P R3 method family plan validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/validate_prediction_family_plan_r3.py"
+      - "research/registry/PREDICTION_METHOD_FAMILY_IMPLEMENTATION_PLAN_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/registry/compatibility_shards/**"
+      - ".github/workflows/phase-08p-r3-family-plan.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-family-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate plan against all 40 compatibility shards
+        run: python scripts/validate_prediction_family_plan_r3.py > "$RUNNER_TEMP/family-plan-report.json"
+      - name: Assert all methods accounted for and no empirical authorization
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"family-plan-report.json").read_text())
+          assert d["status"] == "PASS_FAMILY_PLAN_ACCOUNTING", d
+          assert d["method_count"] == 1000 and d["family_count"] == 20, d
+          assert d["allow_in_principle"] == 426 and d["blocked"] == 574, d
+          assert d["empirically_eligible"] == 0 and d["empirical_fitting_authorized"] is False, d
+          PY
+      - name: Upload family plan validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-family-plan-validation-r3
+          path: ${{ runner.temp }}/family-plan-report.json
+          if-no-files-found: error
+          retention-days: 90
