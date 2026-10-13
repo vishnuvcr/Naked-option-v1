@@ -1443,3 +1443,5 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_temporal_convolution_adapter_r3.py`
 - Failure: synthetic tests exposed a broadcast mismatch because the destination slice shortened by the kernel offset while each convolution contribution retained the full valid-window length.
 - Correction: accumulate each kernel contribution into the entire valid output span. Fix commit `9ed231c2787967b83399373d0284db861620de48`; awaiting hosted rerun.
+
+- Follow-up: first correction targeted the wrong textual slice and therefore did not change the failing left-hand destination. The second hosted run reproduced the same broadcast error. Corrected the exact `out[:,j:t-k+j+1,:]` destination in commit `f3944e3fba830f120a51de0e295b758b4b80b6cb`; rerun pending.
