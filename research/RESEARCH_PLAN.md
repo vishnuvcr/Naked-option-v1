@@ -113,3 +113,13 @@ Literal “100% certainty” about future market direction is impossible. The sc
 ## Holdout terminology control
 
 The research protocol explicitly distinguishes a final **untouched holdout** from chronological training/validation folds and from the later fresh-forward verification. The final holdout must remain unopened during model selection and tuning.
+
+
+## Phase 8P R4 — protocol bridge / preflight planning (2026-10-14)
+1. Preserve the already-reviewed Greek incremental scope (20 comparisons; paired Brier; 500 bootstrap replications; seed 42; Holm) and the main prediction registry scope (1,000 methods / 40,000 configs; log-loss; 10,000 reps; seed 2026101209; BY) as separate protocols.
+2. Run synthetic tests and source/blob-pin checks for legacy F1–F6, chronological execution, ten-horizon label manifest and the Markov contract's scope.
+3. Retain the existing broad-registry preflight defects (null preregistration blob SHA and scoped sample blocks) as blockers; do not reinterpret them as a global PASS.
+4. Require exact-SHA independent code-only tester PASS before authorizing a schema/coverage-only Greek artifact preflight.
+5. Freeze and independently review aggregate-only preflight receipts before any separately authorized model fit. Keep model fitting, holdout access, option P&L and strategy promotion disabled throughout these steps.
+
+**Developer → Tester:** review the code-only gate and protocol boundaries. **Tester → Developer:** require the exact commit, immutable source hashes and fail-closed flags before data-access approval.
