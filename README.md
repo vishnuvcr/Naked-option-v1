@@ -669,3 +669,6 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - Logistic, chronological OOF calibration, and probit synthetic gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests. [Report](research/gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting or holdout access.
 
 - Probit numerical-gradient check added; [workflow 38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 synthetic tests. Empirical fitting remains unauthorized.
+
+### Classical estimator synthetic gate (2026-10-13)
+- [Workflow 38421973877](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421973877) passed 19 tests covering logistic, calibration, probit, LDA and QDA. [Report](research/gates/PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md). No empirical fitting or holdout access.
