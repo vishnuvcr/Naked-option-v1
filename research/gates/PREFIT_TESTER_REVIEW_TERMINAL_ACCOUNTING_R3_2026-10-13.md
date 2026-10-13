@@ -52,3 +52,9 @@ Proceed only to method-family implementation and synthetic tests. Do not run emp
 - Initial margin gate [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566) caught two nearest-centroid API errors; corrections passed in [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453).
 - A second mathematical review found that KNN posterior log-odds were not a class-conditional density ratio under class imbalance. The implementation now normalizes local weighted mass by each class's sample count; the imbalanced-class test and combined 33-test suite passed in [38423391714](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423391714).
 - Tester decision: PASS for synthetic score mechanics only. SVM, centroid and KNN raw scores must be calibrated only on inner chronological OOF predictions before evaluation. No empirical fitting approved.
+
+
+## Additive spline family review
+- Addeditive spline logistic uses a train-only standardization and quantile-knot spline transform followed by regularized logistic regression. Synthetic tests passed for knot-count presets, probability bounds, train-only fitting and invalid support.
+- Expanded combined workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests across the current estimator set. See [family gate report](PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+- Tester decision remains PASS for synthetic implementation mechanics only. The HMM, Markov-switching, Bayesian dynamic, change-point, temporal convolutional network and survival-first-passage families remain unresolved; no empirical fitting approval.
