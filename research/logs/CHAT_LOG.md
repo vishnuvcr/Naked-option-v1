@@ -1,3 +1,19 @@
+## 2026-10-14 — Standing permission and OOF gate verification
+
+### User instruction
+“No need for Authorization.”
+
+### Developer action
+Recorded standing permission in `research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md`. Interpretation: proceed without repeated manual authorization requests, while retaining the preregistered scientific, data, compatibility, implementation and holdout gates.
+
+Verified hosted workflow [#38468780406](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406) as SUCCESS on source commit `c98c4763df5b24988eb87ac881bab619df23d27d`. The added OOF endpoint-in-fold assertion passed. Exact source pins and outcome are recorded in `research/gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14_R2.json`.
+
+No empirical fitting, predictive performance results, strategy selection, or holdout access occurred. Tester review remains deferred until full result acquisition/freeze/hash pinning.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 # Research Conversation / Decision Log
 
 ## 2026-10-07
