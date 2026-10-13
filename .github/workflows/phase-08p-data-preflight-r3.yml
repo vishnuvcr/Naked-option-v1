@@ -36,6 +36,13 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
+      - name: Assert exact source commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Run preflight helper regression tests before large artifact download
+        shell: bash
+        run: python -m unittest discover -s scripts -p "test_preflight_prediction_dataset_r3.py" -v
+
       - name: Run encrypted verification, temporary decrypt and aggregate preflight
         shell: bash
         env:
