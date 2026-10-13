@@ -38,6 +38,12 @@ class PM0001ExecutorTests(unittest.TestCase):
         self.assertTrue(all(i < 178 for i in result.train_indices))
         self.assertTrue(all(182 <= i < 229 for i in result.validation_indices))
         self.assertGreaterEqual(result.oof_rows, 20)
+        self.assertGreater(result.refit_count, 1)
+        self.assertEqual(len(result.refit_training_indices), result.refit_count)
+        for cutoff, indices in zip(result.refit_cutoff_sessions, result.refit_training_indices):
+            self.assertTrue(all(decision[i] < cutoff - 2 for i in indices))
+            self.assertTrue(all(endpoint[i] < cutoff for i in indices))
+        self.assertTrue(any(180 <= decision[i] < 220 for i in result.final_train_indices))
         self.assertAlmostEqual(result.log_loss_improvement,
                                result.baseline_log_loss - result.candidate_log_loss, places=12)
         for value in (result.baseline_log_loss, result.candidate_log_loss,
