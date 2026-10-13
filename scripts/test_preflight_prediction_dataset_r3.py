@@ -124,6 +124,35 @@ class PredictionDataPreflightHelpersTests(unittest.TestCase):
         finally:
             rel.unlink(missing_ok=True)
 
+    def test_support_failures_are_scoped_to_label_and_fold_without_lowering_thresholds(self):
+        limit=0.01
+        cases=(
+            ("POS_1D_UP_DOWN",116,4,57,55),("POS_2D_UP_DOWN",115,5,62,48),
+            ("POS_3D_UP_DOWN",114,5,65,44),("POS_5D_UP_DOWN",112,4,69,39),
+            ("POS_10D_UP_DOWN",107,3,68,36),
+        )
+        rows=[]
+        for label,possible,missing,up,down in cases:
+            row=preflight.finalize_metric(label,"F01",{
+                **preflight.empty_metric(),"possible_target_pairs":possible,
+                "missing_target_pairs":missing,"classifiable_rows":possible-missing,"up":up,"down":down,
+            },limit,40,15)
+            rows.append(row)
+        rows.append(preflight.finalize_metric("INTRA_5M_UP_DOWN","F01",{
+            **preflight.empty_metric(),"possible_target_pairs":120,"missing_target_pairs":0,
+            "classifiable_rows":120,"up":60,"down":60,
+        },limit,40,15))
+        status,scoped=preflight.support_gate_decision(rows,[])
+        self.assertEqual(status,"PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS")
+        self.assertEqual(len(scoped),5)
+        self.assertTrue(all(x["status"]=="BLOCKED_SAMPLE_ELIGIBILITY" and x["fold_id"]=="F01" for x in scoped))
+        self.assertTrue(all(x["block_reasons"]==["TARGET_PAIR_MISSINGNESS_EXCEEDS_LIMIT"] for x in scoped))
+        self.assertTrue(all(not x["passes_frozen_data_minima"] for x in rows[:5]))
+        self.assertTrue(rows[5]["passes_frozen_data_minima"])
+        status2,scoped2=preflight.support_gate_decision(rows,["CANONICAL_HASH_MISMATCH"])
+        self.assertEqual(status2,"BLOCKED_DATA_PREFLIGHT")
+        self.assertEqual(len(scoped2),5)
+
     def test_empty_validation_metric_fails_closed_without_nan(self):
         metric = preflight.empty_metric()
         row = preflight.finalize_metric("INTRA_120M_UP_DOWN","F08",metric,0.01,5000,250)

@@ -67,6 +67,30 @@ def fold_for_day(day:str, folds:list[dict[str,Any]])->str|None:
             return str(fold["id"])
     return None
 
+def support_gate_decision(validation:list[dict[str,Any]], hard_blockers:list[str])->tuple[str,list[dict[str,Any]]]:
+    """Separate global data-contract blockers from explicitly blocked label/fold cells."""
+    scoped=[]
+    for row in validation:
+        if row.get("passes_frozen_data_minima") is True:
+            continue
+        scoped.append({
+            "scope":"LABEL_FOLD","status":"BLOCKED_SAMPLE_ELIGIBILITY",
+            "label_id":row.get("label_id"),"fold_id":row.get("fold_id"),
+            "block_reasons":list(row.get("block_reasons",[])),
+            "possible_target_pairs":row.get("possible_target_pairs"),
+            "missing_target_pairs":row.get("missing_target_pairs"),
+            "target_pair_missing_fraction":row.get("target_pair_missing_fraction"),
+            "classifiable_rows":row.get("classifiable_rows"),"up":row.get("up"),"down":row.get("down"),
+            "minimum_validation_rows":row.get("minimum_validation_rows"),
+            "minimum_class_support_each_direction":row.get("minimum_class_support_each_direction"),
+        })
+    if hard_blockers:
+        return "BLOCKED_DATA_PREFLIGHT",scoped
+    if scoped:
+        return "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS",scoped
+    return "PASS_DATA_PREFLIGHT",scoped
+
+
 def validation_sample_rules(prereg:dict[str,Any])->tuple[dict[str,Any],float]:
     """Return frozen validation minima and a checked target-pair missingness limit."""
     sample_rules=prereg.get("sample_eligibility")
@@ -156,7 +180,10 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path, prepro
     if not merged_gzip.is_file(): raise PreflightBlocked(f"missing merged CSV.GZ: {merged_gzip}")
     cal=json.loads(calendar_path.read_text(encoding="utf-8"))
     prereg=json.loads(prereg_path.read_text(encoding="utf-8"))
+    prereg_raw=prereg_path.read_bytes()
     validate_preprocessing_rules(prereg,preprocessing_rules_path)
+    report["preregistration_git_blob_sha1"]=git_blob_sha1(prereg_raw)
+    report["preregistration_sha256"]=hashlib.sha256(prereg_raw).hexdigest()
     report["preprocessing_rules_path"]=str(preprocessing_rules_path.relative_to(ROOT) if preprocessing_rules_path.is_relative_to(ROOT) else preprocessing_rules_path.name)
     report["preprocessing_rules_git_blob_sha1"]=git_blob_sha1(preprocessing_rules_path.read_bytes())
     report["preprocessing_rules_sha256"]=sha256_file(preprocessing_rules_path)
@@ -456,8 +483,6 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path, prepro
               int(sample_rules["minimum_validation_rows"][label_id]),
               int(sample_rules["minimum_class_support_each_direction_per_validation_fold"][label_id]))
             validation.append(row)
-            if not row["passes_frozen_data_minima"]:
-                report["blockers"].append(f"TARGET_SAMPLE_OR_CLASS_SUPPORT_GATE:{label_id}:{fold}")
     report["label_sample_support"]=validation
     report["label_support_summary"]={
       label:{"validation_rows_total":sum(x["classifiable_rows"] for x in validation if x["label_id"]==label),
@@ -466,8 +491,13 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path, prepro
              "folds_passing":sum(x["passes_frozen_data_minima"] for x in validation if x["label_id"]==label)}
       for label in label_horizons
     }
-    report["status"]="BLOCKED_DATA_PREFLIGHT" if report["blockers"] else "PASS_DATA_PREFLIGHT"
-    report["all_frozen_label_folds_meet_data_support_minima"]=not report["blockers"]
+    report["status"],report["scoped_blocks"]=support_gate_decision(validation,report["blockers"])
+    report["all_frozen_label_folds_meet_data_support_minima"]=not report["blockers"] and not report["scoped_blocks"]
+    report["all_sample_ineligible_fold_label_cells_explicitly_blocked"]=all(
+        x.get("status")=="BLOCKED_SAMPLE_ELIGIBILITY" for x in report["scoped_blocks"]
+    )
+    report["eligible_fold_label_cells"]=sum(bool(x.get("passes_frozen_data_minima")) for x in validation)
+    report["blocked_fold_label_cells"]=len(report["scoped_blocks"])
     report["source_artifact_id"]=11698879857
     report["source_artifact_run_id"]=38131641336
     report["feature_availability_note"]="Option expiry/lot/tick/IV/quote feature families must be separately screened; this report only establishes structural data integrity and spot-label support."
@@ -497,7 +527,7 @@ def main()->int:
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(report,sort_keys=True,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({k:v for k,v in report.items() if k not in ("label_sample_support","column_names","unknown_spot_dates","spot_identity_value_counts")},sort_keys=True,indent=2))
-    return 0 if report.get("status")=="PASS_DATA_PREFLIGHT" else 1
+    return 0 if report.get("status") in {"PASS_DATA_PREFLIGHT","PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS"} else 1
 
 if __name__=="__main__":
     raise SystemExit(main())

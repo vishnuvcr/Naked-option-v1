@@ -232,4 +232,8 @@ jobs:
             exit 0
           fi
           git commit -m "Record R3 encrypted data and aggregate preflight results"
+          # The multi-minute data scan may overlap unrelated branch commits. Rebase only this
+          # report-only commit onto the latest branch; never force-push.
+          git fetch origin phase-08-prediction-developer
+          git rebase origin/phase-08-prediction-developer
           git push origin HEAD:phase-08-prediction-developer

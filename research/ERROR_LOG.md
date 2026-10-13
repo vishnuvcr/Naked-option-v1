@@ -1148,3 +1148,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Run `38380784184` passed preflight helper unit tests then failed closed before the 231 MB data download because both calendar and preprocessing-policy source pins appeared stale.
 - Root cause: guard hash input used a literal backslash-zero rather than the Git blob header's NUL byte.
 - Correction: commit `cc27db19b81a67cfc187ba726455a4ec2f18352c` uses an explicit zero byte `bytes([0])` in the hash helper and early workflow guard. Run `38380908366` is active; its complete data diagnostics must be verified before any empirical fit.
+
+
+## 2026-10-13 — Scope positional F01 target-pair failures correctly
+- Source evidence: preflight run [38380908366](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38380908366), aggregate artifact ID 11802999005, report SHA-256 `dcf9b74b9dd9682175b3814d83e1c195c391fca2e19276cfaa12978463c08115`.
+- Frozen preflight: row/source hash/schema checks pass; all intraday label/fold pairs meet minima. Five positional F01 fold-label pairs exceed the preregistered 1.0% target-pair missingness threshold: POS_1D 4/116 (3.4483%), POS_2D 5/115 (4.3478%), POS_3D 5/114 (4.3860%), POS_5D 4/112 (3.5714%), POS_10D 3/107 (2.8037%). Class counts themselves clear the 15-per-direction floor.
+- Correction: retain those five F01 label/fold cells as `BLOCKED_SAMPLE_ELIGIBILITY`; do not lower the 1% cap and do not discard eligible intraday/F02–F08 results. A scoped preflight status indicates valid structural data with explicit unusable cells, and its serialized `scoped_blocks` carries every reason/count.
+- The aggregate report and attempt metadata uploaded as artifact 11802999005, ZIP digest `8bd9e2f4e8dd87a2bf729af63442ffe0406618f4ac96416fa747872d6c6a2158`; plaintext cleanup succeeded. The attempt's repository push was rejected because the branch advanced while the data scan ran; workflow fix rebases the report-only commit safely before pushing.
+- No model/holdout was used. A new report must pass the changed scoped-block unit test and commit successfully before fitting.

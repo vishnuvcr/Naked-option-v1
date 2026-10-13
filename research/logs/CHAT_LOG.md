@@ -979,3 +979,14 @@ Published 40 small compatibility JSON shards with 25 method rows per file, plus 
 
 **Developer → Tester (post-results only):** wait for the complete result bundle, exact source commit and all artifact hashes.
 **Tester → Developer:** after acquisition, perform one consolidated independent audit of source/labels, formulae, leakage, failures/nulls, multiplicity, costs and conclusions, then return a reproducible hash-pinned decision.
+
+
+## 2026-10-13 — Continue: scoped fold-label support and reliable report commit
+- Analyzed the complete aggregate artifact from run 38380908366. Encrypted source checks passed, 61 part hashes/sizes matched, canonical decoded CSV SHA-256 matched, row count/schema matched, 0 duplicate eligible spot timestamp keys, and no missing expected regular sessions remained.
+- The revised quarantine summary excluded 47,537 of 509,142 SPOT rows: 44,710 out-of-hours; 1,590 closed/unmapped-date; 1,225 nonstandard/ineligible-session; 12 invalid/missing close. Remaining 461,605 label-eligible SPOT rows (90.66%); no raw/plaintext upload, model fit or holdout access.
+- All intraday horizons passed frozen support in all 8 folds. Positional F01 exceeded the fixed 1% missing-target-pair cap for all five horizons; the observed rates are 3.45%, 4.35%, 4.39%, 3.57% and 2.80%. Class minima passed. The registered fail-closed rule requires scoped fold/config blocking, not relaxing the threshold or discarding eligible other folds.
+- Updated developer preflight to return PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS only when no global blockers remain and all failing cells are serialized as BLOCKED_SAMPLE_ELIGIBILITY. Added a regression reproducing all five F01 cases. Also record actual preflight preregistration Git blob SHA-1/SHA-256 in report.
+- Updated diagnostic commit step to rebase on branch tip and push without force, so reports survive concurrent README/status commits.
+- Before empirical fitting: verify this correction run + repo-committed reports; then design/run the finite full R3 empirical sweep (with fold/horizon block manifest), preserve null/failures, and acquire/freeze all outputs. Tester review remains post-results-only.
+**Developer → Tester (post-results only):** wait until the full results bundle is complete, frozen, indexed and hash-pinned.
+**Tester → Developer:** review code/protocol/results as one consolidated bundle, then report math/data/leakage/multiplicity/cost defects with reproducible pins.
