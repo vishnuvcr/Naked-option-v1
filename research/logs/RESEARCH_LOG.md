@@ -1,3 +1,14 @@
+## 2026-10-14 — PM0001 rolling-refit implementation gate passed
+
+- PM0001 synthetic workflow [#38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed after enforcing the registered `every_20_trading_sessions` refit cadence.
+- Exact implementation pins and the developer-only gate decision are in [PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json](../gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json).
+- The stale implementation gate was correctly rejected by workflow #38470621746; the report was refreshed only after the replacement source passed synthetic CI.
+- No empirical market fitting or holdout access. Eligibility disposition and the actual data/execution gate remain next.
+
+**Developer → Tester:** wait for complete frozen results only.
+
+---
+
 ## 2026-10-14 — OOF calibration endpoint-in-fold gate passed
 
 - Added a strict synthetic regression assertion requiring each OOF validation target endpoint to be strictly inside its fold.
