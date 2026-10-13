@@ -231,7 +231,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default=OUT_PATH)
     args = parser.parse_args()
-    verify_pinned_sources()
+    implementation_gate = verify_pinned_sources()
     index = read_json(INDEX_PATH)
     comp_index = read_json(COMPAT_INDEX_PATH)
     preflight = read_json(PREFLIGHT_PATH)
@@ -254,8 +254,10 @@ def main() -> int:
         "config_manifest_path": CONFIG_MANIFEST_PATH,
         "canonical_uncompressed_csv_sha256": preflight["canonical_uncompressed_csv_sha256"],
         "preflight_status": preflight["status"],
+        "implementation_gate_git_blob_sha1": git_blob_sha1((ROOT / IMPLEMENTATION_GATE_PATH).read_bytes()),
+        "implementation_gate_path": IMPLEMENTATION_GATE_PATH,
     }
-    manifest = build_manifest(configs, methods, preflight, pins)
+    manifest = build_manifest(configs, methods, preflight, pins, implementation_gate)
     if manifest["record_count"] != 40000 or manifest["unique_config_count"] != 40000:
         raise ValueError("EXPECTED_40000_UNIQUE_CONFIGURATIONS")
     if manifest["eligible_fold_label_cell_count"] != 75 or manifest["blocked_fold_label_cell_count"] != 5:
@@ -279,6 +281,8 @@ def main() -> int:
         "eligible_fold_label_cell_count": manifest["eligible_fold_label_cell_count"],
         "blocked_fold_label_cell_count": manifest["blocked_fold_label_cell_count"],
         "empirical_fit_authorized": False,
+        "manual_authorization_required": False,
+        "implementation_gate_status": implementation_gate["status"],
     }, sort_keys=True))
     return 0
 
