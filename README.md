@@ -575,3 +575,11 @@ The current [gate reconciliation report](research/gates/PREDICTION_EMPIRICAL_EXE
 
 
 - **Artifact persistence correction:** the first successful eligibility build generated the manifest in a temporary runner but did not preserve it. This was logged and corrected; [run 38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) must pass and the committed manifest must be re-read before this deliverable is considered complete. See [error log](research/ERROR_LOG.md).
+
+
+## Latest continuation checkpoint — fold-scoped registry repair (2026-10-13)
+
+- The previous persistence workflow [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) was verified directly: its 1.77 MB ZIP artifact and committed JSON contain 40,000 records, 40,000 unique configurations, 1,000 method IDs, 40 configs per method, and no empirical authorization flags. Prior manifest SHA-256: 912b65fa48b68e67dee4839148de73b6ae5870fa9a7e1b26368c3b532e3ed03a.
+- Code review found and fixed a latent eligibility-scope bug: the frozen data preflight blocks five positional **F01 label/fold cells**, not whole positional horizons. The builder now validates all 80 label/fold cells, records exact blocked and supported fold IDs per config, checks pinned source Git blob hashes, and has regression tests for single-fold vs all-fold blocking.
+- Correction commit: [004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3). A new hosted workflow must pass and the new committed manifest must be hash/count verified before this registry gate is closed.
+- Empirical fitting remains **NOT AUTHORIZED**: 426 methods are conditional, 574 are blocked, and zero methods are empirically eligible. No prediction-performance result or strategy conclusion is claimed; the untouched holdout stays sealed. See [status](research/STATUS.md), [error log](research/ERROR_LOG.md), and [gate reconciliation](research/gates/PREDICTION_EMPIRICAL_EXECUTION_GATE_RECONCILIATION_R3_2026-10-13.md).
