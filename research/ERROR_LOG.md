@@ -1,3 +1,10 @@
+## 2026-10-14 — Eligibility gate correctly rejected stale PM0001 implementation pins
+- Category: provenance / gate failure
+- Component: `scripts/build_prediction_eligibility_manifest_r3.py`
+- Symptom: [eligibility workflow #38470621746](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621746) failed with `PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:scripts/prediction_pm0001_executor_r3.py` after the executor was changed to comply with the preregistered 20-session refit cadence.
+- Disposition: expected fail-closed behavior; the old implementation report was not accepted. After [PM0001 synthetic workflow #38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed, the implementation gate report was regenerated with the new exact helper/test/workflow blob hashes. Eligibility re-verification is pending.
+- No empirical fit or holdout access.
+
 ## 2026-10-14 — PM0001 rolling refit cadence contract gap
 - Category: scientific implementation / preregistration compliance
 - Component: `scripts/prediction_pm0001_executor_r3.py`
