@@ -1,3 +1,14 @@
+## Phase 8P R3 eligibility disposition published (2026-10-14)
+
+- [Workflow #38470897493 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470897493) generated and committed [the full 40,000-configuration disposition manifest](research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json); manifest blob SHA-1 `1c6a228f071892bf27a76d0a459d9ce0c1469965`, commit `b4acbccf`.
+- Registry accounting: 40,000 unique configurations, all 1,000 methods mapped, 75 supported and 5 scoped-blocked label/fold cells. Exactly 40 PM0001 configurations are now `ELIGIBLE_PENDING_EXECUTOR_GATE`; **empirical fitting remains unauthorized** until the data-backed execution gate is generated and verified.
+- Standing permission is honored: no manual authorization pause. The PM0001 rolling-refit synthetic implementation gate passed, but no market rows have been loaded into a model and no predictive metrics exist yet.
+- The manifest persistence workflow's earlier branch-race failure is preserved in [ERROR_LOG](research/ERROR_LOG.md); retry/backoff was increased and the next run published the manifest.
+
+**Developer → Tester:** wait for the complete frozen results bundle only.
+
+---
+
 ## PM0001 rolling-refit implementation gate — synthetic only (2026-10-14)
 
 - [PM0001 executor workflow #38470621843](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38470621843) passed on source commit `c95ebbdbd761821085f250a82c2124fbcb1786b8`; the gate report pins exact helper/test/workflow blobs in [PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json](research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json).
