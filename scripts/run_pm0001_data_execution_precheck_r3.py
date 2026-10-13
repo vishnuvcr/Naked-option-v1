@@ -244,7 +244,7 @@ def run_precheck(merged_gzip: Path, output_path: Path) -> dict[str, Any]:
         raise PrecheckError("PRECHECK_ROW_ACCOUNTING_OR_TERMINAL_STATUS_FAILED")
     report = {
         "schema_version": "pm0001-data-execution-precheck-r3-v1",
-        "status": "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING",
+        "status": "FAIL_PRECHECK_COMPLETE_WITH_FAILURES" if status_counts.get("FAILED_PRECHECK", 0) else "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING",
         "source_csv_sha256": DATA_SHA256,
         "configuration_count": 40, "outer_fold_count": 8, "result_row_count": len(rows),
         "status_counts": dict(status_counts), "rows": rows,
@@ -264,7 +264,7 @@ def main() -> int:
     args = ap.parse_args()
     report = run_precheck(args.merged_gzip, args.output)
     print(json.dumps({k: v for k, v in report.items() if k != "rows"}, sort_keys=True, indent=2))
-    return 0
+    return 2 if report["status"] != "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING" else 0
 
 
 if __name__ == "__main__":
