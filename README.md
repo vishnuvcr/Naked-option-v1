@@ -1,3 +1,13 @@
+# Latest Phase 8P R3 checkpoint — frozen features validated (2026-10-13)
+
+- Feature contract workflow [38404222506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38404222506) passed all tests and 45 linked provenance/label-contract checks. Aggregate report: [PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json](research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json).
+- Frozen supplement: [feature construction contract](research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json) and [human-readable details](research/governance/PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13.md). PM0001 input is spot-only: 20/60 lookback with simple returns plus spot-close levels ordered newest-to-oldest; no option features are silently inserted.
+- The feature builder is sample-only, not an estimator; synthetic tests passed with no market rows. Fitting remains disabled because no method is implemented/approved for empirical execution.
+- Next gate: chronological folds, target-maturity checks, purge/embargo, per-fold minimum support, complete terminal row accounting and restartable execution.
+- Current status: [research/STATUS.md](research/STATUS.md) · [research log](research/logs/RESEARCH_LOG.md) · [error log](research/ERROR_LOG.md) · [conversation decision log](research/logs/CHAT_LOG.md).
+
+---
+
 # Latest Phase 8P R3 checkpoint — prerequisite audit passed (2026-10-13)
 
 - Hosted prerequisite audit [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed; after adding a regression test for workflow-expression escaping, final commit [d98bebbc0547fd536016290e8b54293a55612bd7](https://github.com/vishnuvcr/Naked-option-v1/commit/d98bebbc0547fd536016290e8b54293a55612bd7) also passed [run 38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507).
