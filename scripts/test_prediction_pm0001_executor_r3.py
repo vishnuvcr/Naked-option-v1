@@ -44,6 +44,13 @@ class PM0001ExecutorTests(unittest.TestCase):
                       result.brier_score, result.balanced_accuracy,
                       result.roc_auc, result.average_precision):
             self.assertTrue(np.isfinite(value))
+        self.assertIn(result.calibration_status, {"CONVERGED", "NON_IDENTIFIABLE", "NOT_CONVERGED"})
+        if result.calibration_status == "CONVERGED":
+            self.assertTrue(np.isfinite(result.calibration_intercept))
+            self.assertTrue(np.isfinite(result.calibration_slope))
+        else:
+            self.assertIsNone(result.calibration_intercept)
+            self.assertIsNone(result.calibration_slope)
 
     def test_unmatured_training_target_is_excluded(self):
         x, y, decision, endpoint = self.fixture()
