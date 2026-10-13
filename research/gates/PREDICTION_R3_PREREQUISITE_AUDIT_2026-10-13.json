@@ -1,0 +1,2358 @@
+{
+  "audit_generated_utc": "2026-10-13T13:07:56.955878+00:00",
+  "compatibility": {
+    "allow_in_principle": 426,
+    "blocked": 574,
+    "empirically_eligible_methods": 0,
+    "implementation_status_counts": {
+      "NOT_IMPLEMENTED_OR_TESTER_APPROVED": 1000
+    },
+    "method_count": 1000,
+    "shard_hashes": [
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART001.json",
+        "records": 25,
+        "sha256": "e7b12f5f098a59594961a8902ef747de25b0bb7c9cd07e51994878bfdcf5cdcf"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART002.json",
+        "records": 25,
+        "sha256": "b781c6867ac867beda1674f0105f439e38a61f53538763f530aff8525eec436f"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART003.json",
+        "records": 25,
+        "sha256": "6b4168d33c49e4ec6b1612fe0a6fa828862dba87f17a896231f6ec1fca0a638f"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART004.json",
+        "records": 25,
+        "sha256": "d89c3cf64171ba88c9e2e19dbbb3a3ca55284453aea5dc288f055c2ce296c313"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART005.json",
+        "records": 25,
+        "sha256": "a61b523f7a0a953d1e1340386afaa956c250f0b98fad9fb54661d84df1654709"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART006.json",
+        "records": 25,
+        "sha256": "d22aa37862087249364bd684f706087d29430a99d080b404d9acaa3700ace421"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART007.json",
+        "records": 25,
+        "sha256": "55ab057e48d8e88d9019e3e3ddd25bb46bd5ec9e56dde708c01f421a0d1b396a"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART008.json",
+        "records": 25,
+        "sha256": "26099fe48042e36c143a90f45f1b8cf6db8ca783f608a70334c7323f1d448e31"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART009.json",
+        "records": 25,
+        "sha256": "bdec826710a07f19983091baeab99889290ad83b70cb5e0dc26a95411e4c7b7b"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART010.json",
+        "records": 25,
+        "sha256": "0d2c94fe1153e2589d1dcd147eac0fe71d2303938e2290783fe31c6ad90a859d"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART011.json",
+        "records": 25,
+        "sha256": "fe32ff079a20025d8cc652572c3c96164efa929674821872a5fffffdfa814045"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART012.json",
+        "records": 25,
+        "sha256": "ef3a57da92bb40d5827cc9dd8851126cd8ad3f3654fabbae8d10d9f47e2a609c"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART013.json",
+        "records": 25,
+        "sha256": "927917e803660aa8082b0012a353046b63aee67be4e26079a4d01247c6738788"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART014.json",
+        "records": 25,
+        "sha256": "d8f22c4e438c4e258a088542331921422e4eeca33d7dd91a3f0e85890830d3aa"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART015.json",
+        "records": 25,
+        "sha256": "a68b10f084b0c5aa15a652faa116812156a9be63d51b8548493c86674fda96b2"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART016.json",
+        "records": 25,
+        "sha256": "ecc810be74c6798705739f8fada36b5a022305619d6ee7e3041cfccab76984ce"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART017.json",
+        "records": 25,
+        "sha256": "bd6b2c0efd5e3abf988590e6256b26fa9559cf4f32c9a623e3e27b5c0b910d37"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART018.json",
+        "records": 25,
+        "sha256": "e2002c67939833828cbdbbb1366f6416039c9096b9f96ab15fe331737ba06eb0"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART019.json",
+        "records": 25,
+        "sha256": "52f1f6b6a1d42546f566ad6dc68e5bf01c1838d35460fb4fb96b7a2da00bcf7c"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART020.json",
+        "records": 25,
+        "sha256": "6fd7e6476196c105ccd96ea79cf2dd3e26c6a6f1552002487258b1235a3b8966"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART021.json",
+        "records": 25,
+        "sha256": "55b92c146fd59ae4596a0721e30b681799ff8809c5d3a3877ac6bfaeeb1b3592"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART022.json",
+        "records": 25,
+        "sha256": "8d34787ae9aaa91516382ce35a142d0ba1cd1acc0342f17d25fd0554da440475"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART023.json",
+        "records": 25,
+        "sha256": "e93058eab5b05445bb4414fb993d625763d65e03fffb2f32c0ca297c9fe3808d"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART024.json",
+        "records": 25,
+        "sha256": "0ed0bb04139c0fc15c6a4bf085f4aa118a9676cb36d80b6b425c25c7b173730d"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART025.json",
+        "records": 25,
+        "sha256": "8ff912c5a95cfbd3bfc27c24e248d77df972e7271fda2f775d93fda7bc18c38d"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART026.json",
+        "records": 25,
+        "sha256": "eb1ecd7bd7778777f0288cee28e77934f706e865b31a3f53fe5ef69c60df6e8c"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART027.json",
+        "records": 25,
+        "sha256": "1b46dfa47ff3ef05c4ee7c108805f0d90deebd810e34a09bbb6e9101a6f7515f"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART028.json",
+        "records": 25,
+        "sha256": "88e92de029e1c758c114faae99b6fba90c5f130af011eaa6fcc726c843c834a1"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART029.json",
+        "records": 25,
+        "sha256": "7eda1ee050cc922bf95a3d6346bafcffa2ffb02db7afa1eca92855a794a72c9b"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART030.json",
+        "records": 25,
+        "sha256": "9201b86a856e0600c9c03237ffef00d546136a4ed8b761ea001181576e54a915"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART031.json",
+        "records": 25,
+        "sha256": "bdaa67d63a882f3e49b243f5f426266b8a099d0301ad768f90c4829db09b5abd"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART032.json",
+        "records": 25,
+        "sha256": "7fd7c7fd5a910b638dbe725f5f102c7e9612b316eec035da9e407169e0b72821"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART033.json",
+        "records": 25,
+        "sha256": "7e512a3310169c500f045e326b5c19963f6956950a74cc070a85311036ab64b3"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART034.json",
+        "records": 25,
+        "sha256": "188a093db59941289af4680d38db28c15cb3d2b358735757a8dbf3a7155ad9ab"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART035.json",
+        "records": 25,
+        "sha256": "355520eff0879f4c6eac83a5eab6845d0f8946495be1fb9fc92c921e06323ef0"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART036.json",
+        "records": 25,
+        "sha256": "ac67dea3107c8811a61a229fe4607de2cdd6ee6cd06f2f5a57604f040bf8251a"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART037.json",
+        "records": 25,
+        "sha256": "d5256557d0dd29491f49aefbfce96bc4dcba9675252b1cc9aabdc446f31ea9fd"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART038.json",
+        "records": 25,
+        "sha256": "3685923c609e9e17d820de2fdfaf08f84604669d1f1aafa7c49f68dbaf786920"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART039.json",
+        "records": 25,
+        "sha256": "a834fcb17745f202ef17dcfb30a21293566fc4ad2a06aa8bda84d22811343143"
+      },
+      {
+        "path": "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART040.json",
+        "records": 25,
+        "sha256": "ba515cdc098494b475e4d3fa28ecd236e188f1ab34c43ef246e116c65356130e"
+      }
+    ],
+    "verified_compatibility_shards": 40
+  },
+  "data_preflight": {
+    "blocked_cell_ids": [
+      {
+        "fold_id": "F01",
+        "label_id": "POS_10D_UP_DOWN"
+      },
+      {
+        "fold_id": "F01",
+        "label_id": "POS_1D_UP_DOWN"
+      },
+      {
+        "fold_id": "F01",
+        "label_id": "POS_2D_UP_DOWN"
+      },
+      {
+        "fold_id": "F01",
+        "label_id": "POS_3D_UP_DOWN"
+      },
+      {
+        "fold_id": "F01",
+        "label_id": "POS_5D_UP_DOWN"
+      }
+    ],
+    "blocked_cells": 5,
+    "canonical_hash_matches": true,
+    "label_fold_cells": 80,
+    "row_type_counts": {
+      "OPTION": 8490723,
+      "SPOT": 509142
+    },
+    "rows_read": 8999865,
+    "status": "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS",
+    "supported_cells": 75
+  },
+  "date": "2026-10-13",
+  "eligibility_disposition": {
+    "all_fit_flags_false": true,
+    "blocked_fold_label_cells": 5,
+    "configuration_count": 40000,
+    "disposition_counts": {
+      "BLOCKED_IMPLEMENTATION_OR_AUTHORIZATION": 17040,
+      "BLOCKED_METHOD_COMPATIBILITY": 22960
+    },
+    "eligible_fold_label_cells": 75
+  },
+  "execution_gate": {
+    "detail": "All 1,000 compatibility records remain NOT_IMPLEMENTED_OR_TESTER_APPROVED and all method/config fit flags remain false. Complete and test the development-fold executor and method implementations before authorizing a fit.",
+    "empirical_fit_authorized": false,
+    "holdout_accessed": false,
+    "next_gate": "IMPLEMENT_AND_TEST_DEVELOPMENT_FOLD_EXECUTOR_WITH_EXPLICIT_METHOD_ALLOWLIST",
+    "reason_code": "BLOCKED_ALL_METHODS_UNIMPLEMENTED_OR_NOT_APPROVED",
+    "strategy_selection_authorized": false
+  },
+  "model_fitting_performed": false,
+  "no_raw_or_plaintext_data_in_report": true,
+  "registry": {
+    "config_shard_hashes": [
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART001.json",
+        "records": 100,
+        "sha256": "980582baa087a3af3e83171f49916016c80e67216d1706ccb28c45655b20b996"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART002.json",
+        "records": 100,
+        "sha256": "3dc83562de1036d4f24076e9d8f52f6c5a1124a8492b63c4e375ecc259b62aa7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART003.json",
+        "records": 100,
+        "sha256": "f1a4f38b694b3d149fb48b32baa2bdde2901f09a72b6316fa3a084e8ba1b2ed2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART004.json",
+        "records": 100,
+        "sha256": "dcb3044a40a533d4aff2214db97dbcbae5934c89e98b8f00c4afdb40bb31e020"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART005.json",
+        "records": 100,
+        "sha256": "4324304890074ff96bcf169276554d4d6673521beb7219153f90559d222f17c8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART006.json",
+        "records": 100,
+        "sha256": "561784290f2461d074287e32d55ab3d952e9a834e337c3b94b87347248d1c184"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART007.json",
+        "records": 100,
+        "sha256": "0c0e3c345fd0b8a091d1b6accae6539d3489b22f594d815f24c2e1c9cb3a148d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART008.json",
+        "records": 100,
+        "sha256": "9e7e54ca486b70916c5020be6e0717c044a532ffc5c4d16b76925f5f656badaf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART009.json",
+        "records": 100,
+        "sha256": "d1f65b3a78b46e31a388cf893c6fdf9670d9071cdcce006cf743f8556762a077"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART010.json",
+        "records": 100,
+        "sha256": "426a7e8741f6bc2bd69aaa2de12ed0930fa8f183c00f202bdf1ca35cb2530d75"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART011.json",
+        "records": 100,
+        "sha256": "c0d847079479a1eeebb5353532c06638cda05a27d42f497dd8c9e419be1daf8e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART012.json",
+        "records": 100,
+        "sha256": "d0479e3f28b197c203df2084db7353bd254cede26d3c937bd450fbee42850d31"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART013.json",
+        "records": 100,
+        "sha256": "19fbab89a3f55637ad61adec06fa5877267b499b864b18c20d2ce17252bcd74e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART014.json",
+        "records": 100,
+        "sha256": "b1fe5cb882d6d5704ac2f1c9ffb17fa0cbce11d76d5615b5c1714ce55fb16673"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART015.json",
+        "records": 100,
+        "sha256": "d6ed97a605ec6c0293f397c29bef0228a3e65b1279a57538180b17e0888a01ae"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART016.json",
+        "records": 100,
+        "sha256": "bd069aa60f4e2c27510ece1814726d116dedb4b2fbf0c1193e248d394a7b255f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART017.json",
+        "records": 100,
+        "sha256": "58e87df4f02cd1ad924f69ef02eb05eb42cd30dd44d02daf08d3e114a6ee7ef8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART018.json",
+        "records": 100,
+        "sha256": "270cbe6ea211ea373bb52ebf29fcf546cf591cc22679db01da04b5b9b831ecad"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART019.json",
+        "records": 100,
+        "sha256": "bc21d8901d632d4412a1cfd0c2858bbb900a90dd716493eeede5b7cb46ccc80a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART020.json",
+        "records": 100,
+        "sha256": "4f6efdc8ab568c03b1a1e41a22da7ccdeb7c544aeaf817747b867260a02231e3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART021.json",
+        "records": 100,
+        "sha256": "a010e26632b2a4373d65e9609dfe16a2aab0db40748e19e1fbf61f8db2a187a2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART022.json",
+        "records": 100,
+        "sha256": "92bddf4f057ca59f1890fce051413faa4d249ab5ffd9eb63749062517930f310"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART023.json",
+        "records": 100,
+        "sha256": "bf5876e2731c0e83abeff64d378e8241bff2833834043d3935d58f354ea9e16c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART024.json",
+        "records": 100,
+        "sha256": "6c6763c8e980c7a067d61bcf27f9b572601d2325d951ba75cd3d292ba6169714"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART025.json",
+        "records": 100,
+        "sha256": "c941d7f351721b56420684905fc63fa57e8cb5ee7fa32107d4bc8b16405e0ccf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART026.json",
+        "records": 100,
+        "sha256": "e7b3b4d1f1da90b60e5131e0e37ef95afe466e33a3d6df760d46360e5fe6eeac"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART027.json",
+        "records": 100,
+        "sha256": "42ef7b48a9890b7f08dd984e2803449d065d627a03dd1d1a487be53e820ff760"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART028.json",
+        "records": 100,
+        "sha256": "2d5a1ba8f010b1b67e6066bafef652969aa37ba35483e9e97eda72e1f1d23ede"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART029.json",
+        "records": 100,
+        "sha256": "8daf6be91fe6ef10956756d5a2a6d41ffce51259cfc84023a7b9d5f2c04d345e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART030.json",
+        "records": 100,
+        "sha256": "a09cce321841a68136094c718503b63a0760190e8d5ab8c455cc74a6d88e6501"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART031.json",
+        "records": 100,
+        "sha256": "de83f20aeb0c664d3f1739f04e8feff06fdc338546e0d5521aa39330f7283f68"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART032.json",
+        "records": 100,
+        "sha256": "12e86cfa9d8a8f81a08376847d19264f48b59431e5f1055ea90012e7cac02bb5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART033.json",
+        "records": 100,
+        "sha256": "a1fde1314fc83885a004636e812d6b48341777396bf63ca94309c42222b88592"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART034.json",
+        "records": 100,
+        "sha256": "929dbb23fa586d7114e9a6eb5b5cf96e6a6433bcb0f6734a695947bdde110aa4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART035.json",
+        "records": 100,
+        "sha256": "9dd0a10609ee04f508855f26a71422d69952f067fc0f963ed1ed3fd45d623b2f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART036.json",
+        "records": 100,
+        "sha256": "71207adf458157852ca9e985ab712f39bc07f8cb2e3d515cd893890ef0723fef"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART037.json",
+        "records": 100,
+        "sha256": "a784f5b6360c6a3b8b00b65986654484059e23b181cdde43bb07f5b31fa78c21"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART038.json",
+        "records": 100,
+        "sha256": "7614326379e7b26fc11cb8e9638fa5d19c260d3be0a076b22ca0899933bf1335"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART039.json",
+        "records": 100,
+        "sha256": "a12f6d8f267aa3d0f2810be22e34ca3a67281770f6460d58b57ef9c3f6bd63a0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART040.json",
+        "records": 100,
+        "sha256": "94b6b1367ddf02607b9659e9f9d670c8d04d34281a04e868b72eaff35ba9d68f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART041.json",
+        "records": 100,
+        "sha256": "11fff8cbad29e10eadb082ea7f7c5534b403bed65d7b89997d94f65c3f995f60"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART042.json",
+        "records": 100,
+        "sha256": "62458f3177a99c9eba49c984d342bfd07a9d4228463b69e6d556d2cc172e60cf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART043.json",
+        "records": 100,
+        "sha256": "511ec022ae6d5ee586bdc61e94f650b52796a824915377cb278856c0d0f6bf95"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART044.json",
+        "records": 100,
+        "sha256": "6e1438352e011bde7661ac174fb3f3928d99ab64349ac7ce7e94673497db802f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART045.json",
+        "records": 100,
+        "sha256": "932df1e33164454a58b38aaec702ead249243d497e0966e90c4c529691b11661"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART046.json",
+        "records": 100,
+        "sha256": "89826c60242bbc12f5cfa6e208ea1bff94770bfb9cb5ce7156e45770692b0190"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART047.json",
+        "records": 100,
+        "sha256": "100f378972d995afdfed49c12d3df16cc81b095d811ce99ba31295ce257588ab"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART048.json",
+        "records": 100,
+        "sha256": "7bfd4e30727e6af686d05a2dd9b842dda988740f561e000281ce66f6547a4da0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART049.json",
+        "records": 100,
+        "sha256": "52dd4706490d59cc7a4ac9a4b8a7c45e0bffcb29e5f1f459d65da5a05316cf15"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART050.json",
+        "records": 100,
+        "sha256": "becaa1257534820e26e7f88bd24aca0aa0986a694534eafe50a003219c9950cd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART051.json",
+        "records": 100,
+        "sha256": "e8e843393792af7dada546d4edaede37deaa04766f4d86c299bec7c32f06de48"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART052.json",
+        "records": 100,
+        "sha256": "0bd22f477a4d0506a90d0cf1c86dab927bb7a16ad178ced192c345a47d69c7a2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART053.json",
+        "records": 100,
+        "sha256": "5f83dee0ce92db94e4d1dea9debfa75fa8778af7fb400c755b5a64e298b4070b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART054.json",
+        "records": 100,
+        "sha256": "6fbea15a429fed870f3083602d53fc01c1d197d4c9730280325fb7ddc80d4a7f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART055.json",
+        "records": 100,
+        "sha256": "4a9c512dd543c2247eddf9e29a0350ab85eede8d406df798b1b1174507a1c41b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART056.json",
+        "records": 100,
+        "sha256": "03c930d733e00811fcb6d750b910deb03170ad52ca326b384e2fb509ecf72b52"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART057.json",
+        "records": 100,
+        "sha256": "9638193a2e1bdca3a16509ec1d6a116e4a128334c07450a66957ebf58b3e0356"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART058.json",
+        "records": 100,
+        "sha256": "a97de8ef7aa4a35cf87044502360fffe826a1885db37a99a08584aa03eed0e97"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART059.json",
+        "records": 100,
+        "sha256": "15e04d64fc5524734fb1f4ae2bea738809b62234a9c9aa9482a6d8830c259495"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART060.json",
+        "records": 100,
+        "sha256": "0ef4fa769971705fbf2845a2b514379fdea928668a9d40ae85d0a71f064c3a3c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART061.json",
+        "records": 100,
+        "sha256": "9d640806637a803950286142f923b2e5f737d833361a6abeb2797b09cdacc5f1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART062.json",
+        "records": 100,
+        "sha256": "4e7b0910c6cefb7a3b06be65d1705ac410c2204036e298240b5129ec644bf062"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART063.json",
+        "records": 100,
+        "sha256": "7ad1a552e1e7ea8b0100f22156b709cafaf5cfd6900d3870f720fb08d943d525"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART064.json",
+        "records": 100,
+        "sha256": "ba23552a7ea78c8d1684bb864ac6c4587a673eb5319e341b9fc9092468fffd6b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART065.json",
+        "records": 100,
+        "sha256": "53d102ccdc8b76b8e23a8a7695f237cfc01e223c8f237b50ba6b2d2fdee67622"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART066.json",
+        "records": 100,
+        "sha256": "0e3284fdcdcc7ffae2e041fc6f66b4949d133fcc43fb266aca807cf26051864e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART067.json",
+        "records": 100,
+        "sha256": "9891e926a1d5b17daec0979b5f5c1ae90349fe10ec517bcaa5dc46ef0dd31d07"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART068.json",
+        "records": 100,
+        "sha256": "4e274040b9a4b8996f04772e8ab66c9e9e8d6fdbfe7f7da9c60c4aa3c4afe575"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART069.json",
+        "records": 100,
+        "sha256": "f32ea3dd643925d27e0d13fef7b581dcc82d0328bbcfec6bf8b79a69bbc6206c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART070.json",
+        "records": 100,
+        "sha256": "b77bdeb56294e8553aa389678ed363fecdd3f97d3d316cfd12387f96548c5adf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART071.json",
+        "records": 100,
+        "sha256": "177d8bd3ad7e71343bb880587decca1605d53ea5cfc1efb93866b21e69740d39"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART072.json",
+        "records": 100,
+        "sha256": "ec9f2507c979bb91c489f22fe5e602a841c23b2e2513ebf3a1d0a35cd65342a2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART073.json",
+        "records": 100,
+        "sha256": "f308c37c01d8e4bd3a582deeaecd48e83d36cc35beec89d3e79c824bfbad614b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART074.json",
+        "records": 100,
+        "sha256": "11b7dbb61c61a10a45e9b4387510d73223bb7c5da2d002a873e72572da905b84"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART075.json",
+        "records": 100,
+        "sha256": "4da2df9d8ca71fef1f27d8d61f295d22d27b111244e6463908ba11956ff5ce52"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART076.json",
+        "records": 100,
+        "sha256": "56b6076e8f2797ff25f55960dc352636d3adca282e2b559d56275cb8a6228931"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART077.json",
+        "records": 100,
+        "sha256": "5110fdd310ef3d55ad88a01e637359991e361a461f678039c98499e8edf61821"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART078.json",
+        "records": 100,
+        "sha256": "47837a59bec1c8d57d1133e3b969012173748e10fa698ef0c543f83e4d641ed1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART079.json",
+        "records": 100,
+        "sha256": "070656a52858342e5e5b60ffd0f4309044f597d96615be938037322b0bed232b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART080.json",
+        "records": 100,
+        "sha256": "dac5f0d60bb6b9a6560003cb36cab611c38ab6c233b0a6a515a977f6a4b89dd7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART081.json",
+        "records": 100,
+        "sha256": "c0b0b23f2e75183bb625af811c7c6b5808324578c83c1963a453bc8ab218ff66"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART082.json",
+        "records": 100,
+        "sha256": "061fb6b45aba620acbc18e29bc5fead67ca993318e37720a6f76bbd29a8099bc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART083.json",
+        "records": 100,
+        "sha256": "c5e285e15cb57b968a20bdd1a0771919551c4d8f729a0d41783f0814302631b4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART084.json",
+        "records": 100,
+        "sha256": "8e6e2e289eeb0c94ed7fc863f904c780691c3923f8f175813b3d339533a35a63"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART085.json",
+        "records": 100,
+        "sha256": "2fbb05510256a0f14c21e9457c6c171bf23d473c4c3dd81993ea249a93895b35"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART086.json",
+        "records": 100,
+        "sha256": "80d412a1a80e8c1d58e010a016c1af138badec4097a209a703e33bea2c863dcb"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART087.json",
+        "records": 100,
+        "sha256": "bc3ff01ba6417273e98c6981e108ea130c83274a663fee0876d82d7f2f9d0cbc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART088.json",
+        "records": 100,
+        "sha256": "2da4f0e96d22b900207d76f8dde0c6e2dde3de7e777457083022bcf8fe13114b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART089.json",
+        "records": 100,
+        "sha256": "ea6290de3408453e11b53ccb35a70c0a86e1421642b6a879ebe09dfc2c2af56e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART090.json",
+        "records": 100,
+        "sha256": "cd5e602d0ad3ec1a7294986900b34fa31cd1bc99e95ec54eada93c685bb7b989"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART091.json",
+        "records": 100,
+        "sha256": "6058c8ee1363e551bff18f7a44495b1b9022971622b60096c6dd98611650fcfa"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART092.json",
+        "records": 100,
+        "sha256": "78c6be931139a563fcc3168f5e6c85b86557b63cc09f38d5c30f8902f559ab70"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART093.json",
+        "records": 100,
+        "sha256": "0ddbdf0b54bd7e1c0e491279e2ecd52ff4109fa3ca376cfbd3ef787a02027288"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART094.json",
+        "records": 100,
+        "sha256": "ec60fd53771ef762c83d65c7988a8761b8b155c32711b2a4924edfffe4019c17"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART095.json",
+        "records": 100,
+        "sha256": "e7ec386aa888109fab9df3696b3757e653310e1c36b7ab7ae9c51c2cbda16e60"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART096.json",
+        "records": 100,
+        "sha256": "781529530701bcce80af11dc0625d64c2dca8f1b6e6e622a6468dd90eb8b77a8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART097.json",
+        "records": 100,
+        "sha256": "1e973756820e1c368714f5bf1cb7b9bd404c5078fa86a5956a4a4804b8d805be"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART098.json",
+        "records": 100,
+        "sha256": "1d83ac6fdc321e6478315bf94ab7b8e5dc0cdd06edb0607de3be1f89b30713ae"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART099.json",
+        "records": 100,
+        "sha256": "d08b5a876191a46b5541073e5079973d0ba9ca0586ea128a94e9706b5b94dfab"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART100.json",
+        "records": 100,
+        "sha256": "8269b0d1dc6f66f6af616549d77443e4256eba3783690ac99b291c60a0fe0945"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART101.json",
+        "records": 100,
+        "sha256": "58fa6b6f9646fd483d1d23386e529a2d714824ae8f1cbbcca0ab3c6c48534c5b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART102.json",
+        "records": 100,
+        "sha256": "49ce5a5d876768a733c3ce2db7c04d8391d6ffcc879d618147813e9521083ea3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART103.json",
+        "records": 100,
+        "sha256": "7216c6e27ca11d07d6ee92dc0ea289f2e4d6ce7921505f68a92a4a24c761cd8d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART104.json",
+        "records": 100,
+        "sha256": "3d444d82d849836d484255b9ede5558136b23b616e2a711b9ddd6c399a260cdf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART105.json",
+        "records": 100,
+        "sha256": "574db3b43d9b5ff40992900e7561d322ea08288fad0456acd35e850dbc58c67f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART106.json",
+        "records": 100,
+        "sha256": "b6e182313d8350d9e74432e4dc859a86483a1fe938a4e1da7b556ef497f81f73"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART107.json",
+        "records": 100,
+        "sha256": "b899281076de8413cece05ac639c6ff6cd6d4e381aafb6f9f688da5508facc52"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART108.json",
+        "records": 100,
+        "sha256": "ef66e7f163cfaa56f51e27b6722f3e7a8ef458ea746d0a9c4f0872617f53e06a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART109.json",
+        "records": 100,
+        "sha256": "9bc778c4eee04cbf632defaf4ec9201f1a5587614c349514ac117c602bb8404e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART110.json",
+        "records": 100,
+        "sha256": "5f70db5a62cda5787755fbd3eba4e239595bfdacdf8e6f0ba2e8eeba12a9382d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART111.json",
+        "records": 100,
+        "sha256": "5763fda589078d8cb129415f78f86f43a458abc2f8f2b438dcad6cab7d2b7ab5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART112.json",
+        "records": 100,
+        "sha256": "cedf6189cac64cf78c2c8c2699ab3ada95b43dee562273fe4b5a6b01fbb7748b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART113.json",
+        "records": 100,
+        "sha256": "15baf41340a20f14c543fcb4bcd3155d2c63a4887f501647853027bd0d9c4449"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART114.json",
+        "records": 100,
+        "sha256": "b961ee2c229fd687fc7d801515ed024080e5fa22e27e51c612f7e8d87ffac4e9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART115.json",
+        "records": 100,
+        "sha256": "93bcfe259b62be67731d050b89e330173b173baa2cfa979e03b0bd8cc1a0302d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART116.json",
+        "records": 100,
+        "sha256": "6ca3d634f46a095441f5a45fcb78504380d6025b1357f04b451fc4e440dd0501"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART117.json",
+        "records": 100,
+        "sha256": "66354275eb75875d4d27e193ef0e8af5bce62e955956824aa8ee06851b169a9f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART118.json",
+        "records": 100,
+        "sha256": "5f33ab8cbb6808d56b1114aa0743f99a98228f24e4f954eb7147cd5d8138ce18"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART119.json",
+        "records": 100,
+        "sha256": "d98f749f43f9bef1a1531b1d4beb450f2065bcabb955bcac7244096f1edf56cc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART120.json",
+        "records": 100,
+        "sha256": "b610c337054571a0574ccf4bce6fb76b3fb07b6924e92beb582d2bee70f3379e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART121.json",
+        "records": 100,
+        "sha256": "e31a5756d0b93de9e2cce4ed07351e9e38a9e93951ec4eb59f0f2f5ab581fdb7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART122.json",
+        "records": 100,
+        "sha256": "3ce45da03e3ed746ac8a7289cc05ef933f4ac2195ca3e60c8da80fa5cb32f5b2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART123.json",
+        "records": 100,
+        "sha256": "028010622ad44580aca822460312f039d776bfe2363caff22ebcee3149a5fd85"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART124.json",
+        "records": 100,
+        "sha256": "a9149f417b1b69803809c6ccfaaeddf296b4f8d1c7bdef1ac5076cc6baf0bd6d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART125.json",
+        "records": 100,
+        "sha256": "cdc0a0387a0f318f6c588049fdb82e5083d703884e3a761cd2de4be897b54eda"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART126.json",
+        "records": 100,
+        "sha256": "c757bc67a94677e0cb266f6792c178725f15c407ea868153c0f5e7f715f9fb02"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART127.json",
+        "records": 100,
+        "sha256": "ba5778be7ee635d14cb920a289027e45fea41626ae85d61919c98c558f7ec844"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART128.json",
+        "records": 100,
+        "sha256": "296550e2b710466f2541d9b5a97f0ebe457dc6fb3e5865a928b77c7b9a92430e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART129.json",
+        "records": 100,
+        "sha256": "cdbf4b0475490c8f758dc6e964359335e5e5fbfdcd489654c3d8211f47daa887"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART130.json",
+        "records": 100,
+        "sha256": "9c804ae24cd6e4f95816de8bd7b574dedd3b59adf9cd17c7a73820e94b098b2c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART131.json",
+        "records": 100,
+        "sha256": "c1c6b7832a7e8380ff573346561ff04a4b01e5827b26fe7cc7b5a98b31167e71"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART132.json",
+        "records": 100,
+        "sha256": "87b8af89bc01a49e3e71b36e7b708372fe1e9372ca8107931b7095d3f40de069"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART133.json",
+        "records": 100,
+        "sha256": "9ccc02d9ac1b253341f5de94669c18537f5c885cd6a8c4c8ed456fe69fe3b2e7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART134.json",
+        "records": 100,
+        "sha256": "0d9f9fe8d669a9dfc38bce0c71a5e0b837164991aad09d1ce2f85544ed5a5e96"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART135.json",
+        "records": 100,
+        "sha256": "cd894695e6a39bb713f39af82290529431f54d0cf57546afd07c81a9f4da2531"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART136.json",
+        "records": 100,
+        "sha256": "a79696c07381cb114f8504f2049170e195ae5ab461c53540f0f88d70dcc00878"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART137.json",
+        "records": 100,
+        "sha256": "50ad14e2ad28fad8706f4bdd6b77dd3fa521ac2f0c2d7d42e777241f999adb25"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART138.json",
+        "records": 100,
+        "sha256": "849a4cd0a9b7a0e73b418eebb92f037c726c380e9a659d763f92b683f67613bb"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART139.json",
+        "records": 100,
+        "sha256": "7b69d8ccc9f9725350c083dea4e2f2368c8a27f1e524653adc27a75d492e8a16"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART140.json",
+        "records": 100,
+        "sha256": "9698a7a3f07575e9ae77314ae62e9416652006f2e2553028add0a387ebb9b473"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART141.json",
+        "records": 100,
+        "sha256": "5e1f9a557abaec818322ebe313fde9dc2fef7c1ab4a75a3d41b9e1693cfcf4ea"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART142.json",
+        "records": 100,
+        "sha256": "3a9fedfc7e09bbc5ee70b42f7713fc230ce8a87a58874d562664d02d198ca212"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART143.json",
+        "records": 100,
+        "sha256": "99c7e8c971668106a30be1b6798d2e4f0615f77c39629a9500235a4bdc67c2b8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART144.json",
+        "records": 100,
+        "sha256": "a072298aae7b37df0bb0c7ddd45fbfa7d25716e9c1a2f07338904bc5ae337be4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART145.json",
+        "records": 100,
+        "sha256": "63e59530dcc0ea3177074e3dcfbbb69b37f2918e39e8ec2d7abd08ce426ae659"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART146.json",
+        "records": 100,
+        "sha256": "513209c96203fb155a51e483265d51332f7cbb548dbd706dc2fd2f6188222ace"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART147.json",
+        "records": 100,
+        "sha256": "79483ddd4007d242b66f3541075c4001c54606430eee1f32caf7f3a08ccf3781"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART148.json",
+        "records": 100,
+        "sha256": "e12432165a4446aefd3fc3b95d9bdab16a13e6b6f4135137b3891ae62286e1c1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART149.json",
+        "records": 100,
+        "sha256": "16006dfa33e96dff5dac3ea5224f79e29ce3e62ceb432feab5fef2673478de58"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART150.json",
+        "records": 100,
+        "sha256": "ff2ab305d892b8814ad423eea5df308ba7907d8777cf01692b9d0cfcc6cddc09"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART151.json",
+        "records": 100,
+        "sha256": "b8bf681b1fb0b68b8fabdcec9fc1cdbaeee919bbb3d5b938389050c3beae8385"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART152.json",
+        "records": 100,
+        "sha256": "d6d607eab2f602488711201aec0e8d922dd5cdf1a19a469d09186dabb40b934e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART153.json",
+        "records": 100,
+        "sha256": "34d8d3c9183fd7eb218a2ea5b6d0830ca2d8a58dce9d2b4542f908b88e2125c4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART154.json",
+        "records": 100,
+        "sha256": "1a3a3e1fdec533029043142b1a798368c0be41023c723fa6c57a637264562d20"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART155.json",
+        "records": 100,
+        "sha256": "af92f95d3a443e0f1b6783546537bc2d8c704ab1c3c274c86dcf9077f3767e1d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART156.json",
+        "records": 100,
+        "sha256": "e98186f48f3f51403420fea68d55dc869fae648855242d067b3f37996c594de6"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART157.json",
+        "records": 100,
+        "sha256": "8c033ec0cfc92a0be67e2ba1515960dde1cb467faca49bb490cba1d7f84f7027"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART158.json",
+        "records": 100,
+        "sha256": "f7ff734f7649d075feb029f3337c2273fdd680a6065727a7ad4dda8527fa9db9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART159.json",
+        "records": 100,
+        "sha256": "adfc4cff148e6f6496aa6ec6722542d5b1b4cbb26e4dfbeda1e8e9b0a3954f25"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART160.json",
+        "records": 100,
+        "sha256": "3668a6e77f6c608ef9510d8cc493a4232c3861ba97d3a79edccd21fdab334df8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART161.json",
+        "records": 100,
+        "sha256": "9f3c7ae31ccaaad6969c67967ed02170acf84434cfd226532efb4ccf64a18550"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART162.json",
+        "records": 100,
+        "sha256": "fee0f90409575792a97addacf637e81fa8c06facb89641bb48ba4587f584e0ce"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART163.json",
+        "records": 100,
+        "sha256": "ca47928852df81881329c39438c84cfcf9f419c50b2db92c730d56c491f0e667"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART164.json",
+        "records": 100,
+        "sha256": "e9c83d964b20edc04b2967dddc1c2e8c5fb81848f09ca75e416091b98a6eac60"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART165.json",
+        "records": 100,
+        "sha256": "f7ac589002f7926027e3c6b8369f74a6cee84a9023b85fb8a7a9e464ae75e65c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART166.json",
+        "records": 100,
+        "sha256": "e3ffe492d41883cc64693cff48f9522c714e1087e0f2310b2d0a00c6081f71c0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART167.json",
+        "records": 100,
+        "sha256": "ef371a2fc4991f6d6951e3dcae7ea7953d6c574147ad84437cef34d57629e816"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART168.json",
+        "records": 100,
+        "sha256": "9fb7a56b041209338646a1f9462affbe456359efbf179a30bb3e66f3d719ab68"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART169.json",
+        "records": 100,
+        "sha256": "a481832d89c414ab8a8343d5876983220d7b33ec463ba69b9784b997fca60f09"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART170.json",
+        "records": 100,
+        "sha256": "54c91502298497489857af156823cf1cde8b981fa71cca5957050f55d8a01a91"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART171.json",
+        "records": 100,
+        "sha256": "b5fbb50f7a90f406a4d4c3e4db569a782fa7afc25e4bb3d165e5ca6b0858ac2e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART172.json",
+        "records": 100,
+        "sha256": "862b0f0c0d0ecc3025c414131b6d6935e4f510cfa202c108a5a98ac6ec7714d9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART173.json",
+        "records": 100,
+        "sha256": "31740c3f1822f83a135bcd61103e1ccf68563223894d5d2b1ec7ea411a88b0a7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART174.json",
+        "records": 100,
+        "sha256": "f393c9fd5440184183192e71746f944a1f088c93955bf5196dab2c488bfbb692"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART175.json",
+        "records": 100,
+        "sha256": "10d8b58c29e0ee9037de67ed7338f357489d03ad5cc881f6e5ed263a0628df61"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART176.json",
+        "records": 100,
+        "sha256": "1e379a64dd5164990d402a13f117e1a7f6df7ae3024e2a55ab15aa131f6214db"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART177.json",
+        "records": 100,
+        "sha256": "5db76877ea01d62ac418a11ffb0b95671a4b395181481d1f5101458b03116f30"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART178.json",
+        "records": 100,
+        "sha256": "9274ee95fe17d1357e5349f3434216df7fb588c1bc2b19a3791de54c268e1bf9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART179.json",
+        "records": 100,
+        "sha256": "1ac52523a242383fc4476e5c42f2fc1749d120a3db5778710f58a0ce7b35eaa5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART180.json",
+        "records": 100,
+        "sha256": "6592babb9b76964cc315710f299bed76972d00d2a027804977ffe2846a47bae1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART181.json",
+        "records": 100,
+        "sha256": "3a80fdec81d609b12e7b8e8d21f3e29338f731e1d7bfeb0fc33b1d5eebceee99"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART182.json",
+        "records": 100,
+        "sha256": "8ebcd2d924963dca999327f4ef9f2ab5924b6f21ad64e3540605a7d5bc70a51c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART183.json",
+        "records": 100,
+        "sha256": "c1700e4d26a4be4d33e7a1ae89d614d0e15076fc3218b22f453a5a8755c3b885"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART184.json",
+        "records": 100,
+        "sha256": "88113243fc93d72cbef001ab60a8ba057d45d9f40fdc97adf224085fa89124e8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART185.json",
+        "records": 100,
+        "sha256": "bde168e6df989b554d16e1f00cb9f171a72a7755793a42e3f6782bb597bb94bb"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART186.json",
+        "records": 100,
+        "sha256": "955195381dfacc7a4f63bb279b172786dd17c619a19239411f03026d1f5b528a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART187.json",
+        "records": 100,
+        "sha256": "a454adc23c88fe12eb44bfcf734c7ff2dab57ad1c47860c90210dfaa066988ee"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART188.json",
+        "records": 100,
+        "sha256": "ba31a81eeca2199e283b5ce9a8adb259d6e38a3ca53f8b2da9aa0e3165258da3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART189.json",
+        "records": 100,
+        "sha256": "ad454d03340e58b67661a5867306f131286c499fe6334b192298aa305b991b1d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART190.json",
+        "records": 100,
+        "sha256": "58d57e9b7e940174179e03ef732fa1d647d14add1078f9afea73fdc3952bc26a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART191.json",
+        "records": 100,
+        "sha256": "7a206b943659fbc3b6be8ae651b0594210b9641395abe1204dda42b9a75c5bb7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART192.json",
+        "records": 100,
+        "sha256": "a4c11b25fcd4e030bc5c3302acb0ac424494b6209a3f3b687ad8564723a8a346"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART193.json",
+        "records": 100,
+        "sha256": "35fa134b38891ca4f514c6e863b5f9b989baf662a19b049123afcae0b6d48228"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART194.json",
+        "records": 100,
+        "sha256": "c169d8cb240d0312d94375c3286a4d3cef57d1636825ec251ca6031baceb6ba4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART195.json",
+        "records": 100,
+        "sha256": "00bbbd24ea1c38449e54ded814379d5b99a101bbdf7de2c5b03996aaf1fe3c8a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART196.json",
+        "records": 100,
+        "sha256": "c07dafe267d36562b3594699dd01ea90eda135e90b7c4bd1fd1cae9a8a46291f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART197.json",
+        "records": 100,
+        "sha256": "fa863e9899043f18653532c7276c3b65470acc197b7e313d74f450777830ea85"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART198.json",
+        "records": 100,
+        "sha256": "a692c0e86cce2a1eade8ed3a36f65c32f3436bdf08c7216ebb1e143641887370"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART199.json",
+        "records": 100,
+        "sha256": "b61cea49d6eb8cccbedc14990502e784e4a7cf9f55be5e1a3a722e0c3b053a4e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART200.json",
+        "records": 100,
+        "sha256": "710fd78c211f12021044d19c41047adf2c1520a81df48b3be6033037d805172b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART201.json",
+        "records": 100,
+        "sha256": "157546233b3f97718ab486e68936e0e8dc6b4b78639c1a5029e71851ec85a006"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART202.json",
+        "records": 100,
+        "sha256": "0499a94727a6c9782026f98f723e3ee93dc2cf5f2707509280b2dcfd0877c421"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART203.json",
+        "records": 100,
+        "sha256": "2da0901a50307a0b04e3c89161e165b9c65090d8482f84e1b8e002c1987d8e0c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART204.json",
+        "records": 100,
+        "sha256": "eea7bf27e67d73d1d9b573e546d37044079b934ab6e3c5a40a24a219bc01d6ca"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART205.json",
+        "records": 100,
+        "sha256": "5f6e5305382892603cfb91b04089e3f072d797ea7522eb776964c2948067cdee"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART206.json",
+        "records": 100,
+        "sha256": "d9c9f0027fa6abb9f859fcb8be93d4b244b0a3b5b5a53a968cf613001bbda418"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART207.json",
+        "records": 100,
+        "sha256": "3a0660c3c5a43df1d81ede65c3b987c2489e02cbd3d189ccc50c104027c16f87"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART208.json",
+        "records": 100,
+        "sha256": "3bc91241e83b6daaa588bd8582a8a644b2b94d4641aae41163ddf81c7aa87a67"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART209.json",
+        "records": 100,
+        "sha256": "b4f0d021546af8c47c5b874a257657a3404e1c1d52426145ca3211df996038a9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART210.json",
+        "records": 100,
+        "sha256": "26d3e31dccc028db27d701981c03cb7c47bcd5378b836a4fdb49b58a972739fd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART211.json",
+        "records": 100,
+        "sha256": "38e705d63797c4f72e989eedd6d2bb6ba6e5b91d30f0768aa2a44a2f0691b32d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART212.json",
+        "records": 100,
+        "sha256": "5cec7ff1169231130967ecef65b68fba07661cd3e2a1e3d86c97b38b7c3c8254"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART213.json",
+        "records": 100,
+        "sha256": "0e99edf9cd948abc2497fee722b143838256b3336c9cd464255209c4e18f5b8e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART214.json",
+        "records": 100,
+        "sha256": "b568e1db3f48fb96efa6264e986e0010847a1f6dbe3c2b1ac20ce418f7c54b23"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART215.json",
+        "records": 100,
+        "sha256": "7380d241f1450f25acd13802f5605d707eadfe7220ea4afb2ce90f451ebcf4e9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART216.json",
+        "records": 100,
+        "sha256": "0e9d01b3dbf9554861458fac4f00180fbcf20e8f78897b2baf94164084201391"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART217.json",
+        "records": 100,
+        "sha256": "ea9d5aa35b9ad338e68132d0994ee7e8e404d1a641d410a15f0c066c3c73d4ad"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART218.json",
+        "records": 100,
+        "sha256": "f167992fdfacde3ec44cb4c6226ea8f09ea838fa7390d2adbb022bd45c47efe7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART219.json",
+        "records": 100,
+        "sha256": "7b1dffd3236534ae7407dcff7851e974269253338447b2bc8f8d8cb83251503f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART220.json",
+        "records": 100,
+        "sha256": "2e3fdb8029d79edfbb25ab51af94181cb9df1f7bba4eff478138ab05b30f3c99"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART221.json",
+        "records": 100,
+        "sha256": "9ded3fac93240de1b2b4d5797869dfb57e6787ffbdfa9e9d7f11a224372d5902"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART222.json",
+        "records": 100,
+        "sha256": "c31935f575712da75485644b4a98e4c9132ec264d16ca2bc2529e456bf4fc5fe"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART223.json",
+        "records": 100,
+        "sha256": "01c39d54e93df3d786074b513fc85135f1dbd3310ba0364ddd516b0b06e07009"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART224.json",
+        "records": 100,
+        "sha256": "4fbe8259c3d73304a388ab321f1152225524cbc8d6eb9b5bead1ac091140fc9b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART225.json",
+        "records": 100,
+        "sha256": "4927cdd9ef312cc2c6b602960de6eda764992d0c0c93c5be6330eed4f8e0f986"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART226.json",
+        "records": 100,
+        "sha256": "d1a66fcf75051a35a814cae170e1baae2141762445f1aa19fa41d1e752340569"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART227.json",
+        "records": 100,
+        "sha256": "ab1a7d7cf8ea0cd49cd70655327946b81ab6170eb07283c69297943c9209e5c7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART228.json",
+        "records": 100,
+        "sha256": "63684641fe1620f1377e439a3cff28237bce5957b0c445706845e7cafbab953d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART229.json",
+        "records": 100,
+        "sha256": "9d4cacfc8921ea63fe9e9f7d65a4c710518e6083b790ea52794fa08697d476c1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART230.json",
+        "records": 100,
+        "sha256": "33a2002a63794bd3144571e070c5922c02861385763d0fb248f3a362e54d05ee"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART231.json",
+        "records": 100,
+        "sha256": "b9757d573b57132f3ecf7d69aadf1ab852821112c6f9e96c50b1ff3d7ff18793"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART232.json",
+        "records": 100,
+        "sha256": "033c744811e2888142d9966c7d31d5efa3320b53d4005e18a6caa148891433cf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART233.json",
+        "records": 100,
+        "sha256": "6b95365f07e6a4f141bbe6cb8f6233fbea6ab5bd8c3164432df8b88864e5c18e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART234.json",
+        "records": 100,
+        "sha256": "12d3751be7801051c1d4d4ad9bf973eabc69bf319c6c9bda0448db15a9921d6d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART235.json",
+        "records": 100,
+        "sha256": "b29a5455545582d5324f0e63183a42c1831d432048d3ace6e0fb4137815210f5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART236.json",
+        "records": 100,
+        "sha256": "0604cb8f282778aae0e5d42e2c940fcf628836b8fe06dd9184b4833b643c00f8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART237.json",
+        "records": 100,
+        "sha256": "fb13b7f3116ff648e8a7de4e8d2ef367e729a2367920b43bea85343d163ab9e7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART238.json",
+        "records": 100,
+        "sha256": "1c80743d36a2535f22f53508368b63e4804bdd43574a92a7d8ff6e8785194dca"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART239.json",
+        "records": 100,
+        "sha256": "d559cb84973e2adac4ed60f43af6de0bdb308285e7dbb0f0a4e6c59b8e845e06"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART240.json",
+        "records": 100,
+        "sha256": "ab9c201d8abaa33da7262fc3733a52f58f8c95089fbe6eee49388018f0ffb722"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART241.json",
+        "records": 100,
+        "sha256": "640575c5f02c1625efc45bf3c5e1d3acad50cf202764262bf9c2ff3f4fd59de8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART242.json",
+        "records": 100,
+        "sha256": "a672ac7067ee5311e3bc34eb91dcf7efdb21d8bf315e0c4f5845e29ef947e018"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART243.json",
+        "records": 100,
+        "sha256": "27190ee80cbcc28e37b97829c3b35e2dcecd1e17239f77bf7d58ad0766e41ab5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART244.json",
+        "records": 100,
+        "sha256": "b562d99ec010b8fcc3c3bafeea452e4fb45a58c7713973fa4fd7f7846c1a0ce0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART245.json",
+        "records": 100,
+        "sha256": "ee96f873b741729fe7f066de5e455f935217a86802485d77b99fd2d3df973510"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART246.json",
+        "records": 100,
+        "sha256": "dff96bdfb6c822a4d93895cc8e84c0d1fdd186e1ed8123f73b36f79e6dd3edb0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART247.json",
+        "records": 100,
+        "sha256": "c4fdb1f40af0aa45fc771459750caa8e1cd8990ce45cc0a7ae65e2e18a432633"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART248.json",
+        "records": 100,
+        "sha256": "d611e31a6011c952db241febc3aec293f6dfda845c3340d6028018cee1450b68"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART249.json",
+        "records": 100,
+        "sha256": "3f2bc09d23202b1d7451a3b7d8ea71fc41df29168d6e19606cfb1f89adf180d6"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART250.json",
+        "records": 100,
+        "sha256": "82a22fa839a872ce1ae287184341936a5ed8028b79037cc0e117819e07310471"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART251.json",
+        "records": 100,
+        "sha256": "bfbf046b434344122e9484fe274f7be09577bcbaf00a25642c34e83742557d54"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART252.json",
+        "records": 100,
+        "sha256": "b8c2b23bc289fe25b21a137e74fbf0bec48f292a38b202774b05ea04c51c199f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART253.json",
+        "records": 100,
+        "sha256": "f90e2439df7ad7ff490f298ecfa7415571f6b7187bf37efbad6767a3d8ac3d1a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART254.json",
+        "records": 100,
+        "sha256": "029094fc0de5cc5eea3afbaa2ddba87e5f5e287c462d804d54d42566b3ebad5c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART255.json",
+        "records": 100,
+        "sha256": "5250d26bbe7aa21ee6e7eb4cef22cfeac3107e69a901db56943178f49c0d72be"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART256.json",
+        "records": 100,
+        "sha256": "006dbd474023edcd837a68efa09f1d2f33c410cc328955bdc7456c4d23c46f1c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART257.json",
+        "records": 100,
+        "sha256": "34a2959cb915fb01f8a33c1d64a1e1206734babb6e0d61303108bf054e5654fd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART258.json",
+        "records": 100,
+        "sha256": "dfe81384e48c5547c84e1080b563a8762d982612c1a198c39e3c20ae05aa578a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART259.json",
+        "records": 100,
+        "sha256": "a1945a73c5f4f9211bd5ce4e067202e4a66b6aff89f8269574a7a5500a3365cc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART260.json",
+        "records": 100,
+        "sha256": "ed76c9b11d46892f1b98840276333d1bbb0bb2a1fe93ba14d5f118ae8f9b86cb"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART261.json",
+        "records": 100,
+        "sha256": "823e280c5f0875dcfd7792e8508e2ec2f4343b1c4c521b9be6955e35be495757"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART262.json",
+        "records": 100,
+        "sha256": "f86887b4596fe74ededbf5545d1335dd4aacdac2cae04c314be3c1823e7c66f2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART263.json",
+        "records": 100,
+        "sha256": "18e46a24a932319e49cf8ac22074d9ef1c22de29bccca7034c0a1436d55d5af7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART264.json",
+        "records": 100,
+        "sha256": "eafa9c7418d056f72d1fed1beacfad447e1d1192e17cb6dc3f0af1e5898be677"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART265.json",
+        "records": 100,
+        "sha256": "b847c2d760c1250f38077f60e5c5cf66794ea3e305ad8089ecde321fad384583"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART266.json",
+        "records": 100,
+        "sha256": "efa3fd04f5e9fa8763eceb2eb241f83911d8912c21b358365dbf52cd657cf277"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART267.json",
+        "records": 100,
+        "sha256": "cfbfa9e4e8fb1eba989b96d25a54ecb9642733bd5816017077907fe0038d40fc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART268.json",
+        "records": 100,
+        "sha256": "87492896201878cefc00e81b47b90ff478f04e9597bec17cfb76d97eeba8162b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART269.json",
+        "records": 100,
+        "sha256": "8ab1d73506619603ecb56ad7bbb01cc11d3f24147e1e5a91bbe323863c4491c7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART270.json",
+        "records": 100,
+        "sha256": "9cd305d61cf7127073f0b66c8efedbab7beb4b64274715628508fd5a5d58568f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART271.json",
+        "records": 100,
+        "sha256": "958681e804ffd846e8c549b438689262d1a7e050ab715b7b23491f28cad5c723"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART272.json",
+        "records": 100,
+        "sha256": "e39b4ad6629bda3fc0fecc1e08f6d0ccbbf51a068622a8df1ff8994d7e83dbd5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART273.json",
+        "records": 100,
+        "sha256": "ae626e747762553032fd7c149930bb0436613f90358802be1eb0ec258a592f17"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART274.json",
+        "records": 100,
+        "sha256": "a0d43f1318d2b7c7baf799bf89fcbac6c13bfc03f9dc102c5f6d2c1f308cf80b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART275.json",
+        "records": 100,
+        "sha256": "f0a3f4557ebc2553ac5535bf9bf8f292bb1322ecfc577243c5e9fb2154f49cae"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART276.json",
+        "records": 100,
+        "sha256": "f21b152a999e03428a52c8c776f48f047760bfd270aba0a21978379305ec37cc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART277.json",
+        "records": 100,
+        "sha256": "0f13148517af56e7a48035d048a29f47d88d457329ffbfbc31db11d8366f40b4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART278.json",
+        "records": 100,
+        "sha256": "0531ec96e4e0fc90e7543ef631004515c309eea56f10375368ca7534868940ca"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART279.json",
+        "records": 100,
+        "sha256": "3f547c8da7c320c115c78a4cf1c6efdef3b0800aaeb13dd4aa936d5ded5d0bcc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART280.json",
+        "records": 100,
+        "sha256": "4040f5b3f13db6e8f52a62277b732638bc5cff1f581755382cd03b91847df87c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART281.json",
+        "records": 100,
+        "sha256": "418aae3e2f5f390fafdabfcba592c2d23b007fdf343bee9f724ff41755ae27b8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART282.json",
+        "records": 100,
+        "sha256": "a75aabf2a72f08451472aafeefc33257056069db30af244a37d9fca363d55945"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART283.json",
+        "records": 100,
+        "sha256": "a20742881375bb2a9076ade03f64ac20a4027c03fe7316490d776f209abfb3e8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART284.json",
+        "records": 100,
+        "sha256": "3fd87a7fce643de4aba608dedce6f16ebeb8baa462e526169776e873e199ca63"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART285.json",
+        "records": 100,
+        "sha256": "e511b96a11b9c473b42cbe963fc2c18358fa13d3d8ebf41513ef70f5a7adb54d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART286.json",
+        "records": 100,
+        "sha256": "8714c0f27949f6ec031e47a0920aca30f3c86226821574ea91ab0a5e331a91f0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART287.json",
+        "records": 100,
+        "sha256": "540180c5decda9d5ba928e16c3d5ee649d0fb8c32d47109a24f1e4b064907bb9"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART288.json",
+        "records": 100,
+        "sha256": "c87eedf4e6021afd4c3a2dc936d91516ff7a54d6c2c202d3f32f5b3608d64121"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART289.json",
+        "records": 100,
+        "sha256": "4f5bb987fcd35f1b45b8909f4e76115765a05e65b7b8ff2b657d176bc570b3bb"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART290.json",
+        "records": 100,
+        "sha256": "7ac8b3d0527a2c1c1fa24e65603ea9c62f0f52a907b8b25bab45c98e0e8fe9bd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART291.json",
+        "records": 100,
+        "sha256": "99cf1eb43dc937668d254b9f475aa96611dc155c0e5948912908820a923ce5dc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART292.json",
+        "records": 100,
+        "sha256": "93c62fea787af030345025e71d09f162c66437e69605ac392084ad2063677d9a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART293.json",
+        "records": 100,
+        "sha256": "d97b46e81c16705297678700d29c345aa4bc36c13c320aef86e89a4b988672c4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART294.json",
+        "records": 100,
+        "sha256": "1e2d1011b306426b215afe108f304cea5fa81c76bdc88759cbb04d4d42cd41d8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART295.json",
+        "records": 100,
+        "sha256": "84a16c8f415fea98293d3f865e8700f862f25bec90c61ba4aa05d8cdcdf327b7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART296.json",
+        "records": 100,
+        "sha256": "da129ea441cc040f51ad2a2da0a3cad0386c5382395289e862f64a0632ff4b1b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART297.json",
+        "records": 100,
+        "sha256": "02451d63468a2fd53cd8af9bfd69687b87f61b9cf8edb9b1c417a05220318f2b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART298.json",
+        "records": 100,
+        "sha256": "8d8ce8a42e4153164f4164d891fec29896a4a72067b243ba1a7fc05c011c09f4"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART299.json",
+        "records": 100,
+        "sha256": "0b72cd778f18e24eba11b21d2a58a53b9595935390c1cb30c4bd110f3c40eb63"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART300.json",
+        "records": 100,
+        "sha256": "eb26c7c76e06500b478ef81969e7c34dfd99109eb841cda4dc236e512d375af1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART301.json",
+        "records": 100,
+        "sha256": "aaeb8bd3fbf2467f2b7f3cddc3c23a4a0c0a22164042544bb9f61ece12dede84"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART302.json",
+        "records": 100,
+        "sha256": "f11a7b29df95843eae67333cb8d5f2b349dceebcd67a500b058153c91d773383"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART303.json",
+        "records": 100,
+        "sha256": "239b5a3be59546415cf5fbf646d5710996ad11448df988d3d325ec8ab3a71b58"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART304.json",
+        "records": 100,
+        "sha256": "b6d68cac16c8c71ed9f9889c8616a52288ae333a7345f53aac28f8efaf02bf60"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART305.json",
+        "records": 100,
+        "sha256": "0a58ce9c63878c1899cc3df69005293ea5df4995b2a22ca45bf9c194c64ece20"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART306.json",
+        "records": 100,
+        "sha256": "d82b440b30162dfdebbc71d8adad0095245113f1a4d61c8a8d01288c960faed2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART307.json",
+        "records": 100,
+        "sha256": "f74c04e54595597aaa3f72c92008c7dcbb32984d654191a039aefd05802835ee"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART308.json",
+        "records": 100,
+        "sha256": "984b9857fdf559eafecff9e14c72cf1dff5614fe0fed3efddcf5438ff0f6cf8e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART309.json",
+        "records": 100,
+        "sha256": "34e703b051108b5d22c05cefaba3292951cfa80a466bc0d8ec3e44b13ddea0d8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART310.json",
+        "records": 100,
+        "sha256": "2d9cc9cca8d35c0d0a9423ede2f2b739a8ee2d6e90b07b7d393f06637810ae85"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART311.json",
+        "records": 100,
+        "sha256": "5f1fc1a194aa5cef42e5defe8eef02ed507cb04023e981a32e96f98cd29b1a92"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART312.json",
+        "records": 100,
+        "sha256": "fc762f8b64b932bd0cddb25adabc0d3a3aad3af3381b1641606e6f82d076c6b2"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART313.json",
+        "records": 100,
+        "sha256": "677db6f8f3651207269279c91844334094c532ed3fe34bbeb3e2fa8394ee17ac"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART314.json",
+        "records": 100,
+        "sha256": "5f559d6cab648a4f0db9cd904ca74483ea7314e9f6db8fb8574332d007967027"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART315.json",
+        "records": 100,
+        "sha256": "c742ee49949f9be05bbdcea662516aa06c6632bab1a5a7c7e6e206b6014dde9f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART316.json",
+        "records": 100,
+        "sha256": "23c7eadb04d80c21314f5fe4bd0768e75074f49c7320ca38ac1fbdb3d8f846c5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART317.json",
+        "records": 100,
+        "sha256": "fade0ddeb37a2c42f0ca6ba0281af4a22b9e0a8d6a6ab249efb9424273098d3d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART318.json",
+        "records": 100,
+        "sha256": "01b873b7acf3afc03daf799f0fb439a1df465d908129f77d5769625852d4f5e1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART319.json",
+        "records": 100,
+        "sha256": "e4a9db59de554bb4d58275ff9f21583dfaa3c36b5e4efb48b72bac22c9913390"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART320.json",
+        "records": 100,
+        "sha256": "1e339cd209a782074634e2f472a717909478b14981cee48582ece1e3da375b9f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART321.json",
+        "records": 100,
+        "sha256": "c6e02d8b2a27a37ec542d824542de3d1080e52a2b9186e49462683f04a3fb2af"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART322.json",
+        "records": 100,
+        "sha256": "882aae92df34d680b7458783dc505f0eb5e3b2e89ce982bb3c92dcbd0b671661"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART323.json",
+        "records": 100,
+        "sha256": "1aedd0332b88ad8f90eec3c6197a5b5deca590b36d52a8bf33e9eea65a508210"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART324.json",
+        "records": 100,
+        "sha256": "c1aa1fee0e6b9d2238e7cab794f6a1f6e5b3bc71ac44ef8a5cf4eca4c77bd6e6"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART325.json",
+        "records": 100,
+        "sha256": "a234eb60374f3fd1fd1bfa0f0bd7091218093dc7e24de3d538877451ad0c8104"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART326.json",
+        "records": 100,
+        "sha256": "5037622d468dc1659ef52746e01c6c37160f6ffdad2208c2b6b1723347e87b21"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART327.json",
+        "records": 100,
+        "sha256": "19891bf8d097eb1eac5e0697485456f84e6c20c45ae7fee262042b6b91033574"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART328.json",
+        "records": 100,
+        "sha256": "b82d2503fd11467074099efb34549deeb2965825b736a448d6785b2c8b1bcd9a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART329.json",
+        "records": 100,
+        "sha256": "80b4798cab6d2a03ea858c8f173e46c5d8a44b9a6f3d52a1cb7eca1832d95ab8"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART330.json",
+        "records": 100,
+        "sha256": "de0aaecabec016d46a52909b662233b7c8b9c146621b4a08c49d79487129475e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART331.json",
+        "records": 100,
+        "sha256": "84b4ed011266a73f3a3a2f111b71c117b6a1ece5b75f6f3a92f41e13e28318f6"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART332.json",
+        "records": 100,
+        "sha256": "01f324a3a40b1904feb4c8e093889be65673e953252e7e351f84395b97ee9cfd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART333.json",
+        "records": 100,
+        "sha256": "a999424edb8a20b598327073c01e19e43249b6b2b553850572e021e9298da1ad"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART334.json",
+        "records": 100,
+        "sha256": "33a0ce1e1ddb90af9fc8ff916ff3d2c626a67a6f7e13fbce6595595dd7e44f65"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART335.json",
+        "records": 100,
+        "sha256": "a0af9706a8cf4112885935104959a6fd94ff6c47698786233bd6d4b098d1e6af"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART336.json",
+        "records": 100,
+        "sha256": "c24cdeeccadee19cb4373dd83b27d34081403e13ae32d0245a5d65f9b67e4abc"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART337.json",
+        "records": 100,
+        "sha256": "7b2a28adc2e99898bcf07e7e775ebd4995f35981ef1632044e4a8cd3482a4c1b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART338.json",
+        "records": 100,
+        "sha256": "06be5efffdddd088ef6b07a118e9bdc39f4e92d35dcc3249ed0c8838a3fa2c54"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART339.json",
+        "records": 100,
+        "sha256": "e7ac01fcf1d4280baebe8dc5b815939f12f1efb02fa2152d2b4e449a21066337"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART340.json",
+        "records": 100,
+        "sha256": "f82785238e8666fd24d8e52cff512a5452e5cb0ec9ebb2e89b41d35d486ba3d1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART341.json",
+        "records": 100,
+        "sha256": "262737c017c8bbf713ef026413a281d1ef43f5700e4a01e654ca63e0a1d417b1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART342.json",
+        "records": 100,
+        "sha256": "d0cfa62ff3e22810f9c5ae91425cae3aec2de967388cd9e9aae77a700e2d70e3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART343.json",
+        "records": 100,
+        "sha256": "cba4cb5a51dc254ae70f698fa1c859f9196e54de648729bdc26df6814ed4288d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART344.json",
+        "records": 100,
+        "sha256": "3d3677f39fbb8882bd46b1a8f983c251899d0c94e27179aba643f590642183d5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART345.json",
+        "records": 100,
+        "sha256": "52aa2d357e66ef88f48e8fae579073fb063a81498068eef09bf261a9503ed66f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART346.json",
+        "records": 100,
+        "sha256": "99abf82c7be16b9008ebe35fec7bbb6a3a65b00f7e1392b09cdf4485480bfe88"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART347.json",
+        "records": 100,
+        "sha256": "efcc8489a1005c36bae8371e1f61440759f1328f036f9aad28a4c49630de0c1f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART348.json",
+        "records": 100,
+        "sha256": "323d9f7f976ffca1db96b04a77c1653b6cf75e5baca9de375c125c0196b53c77"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART349.json",
+        "records": 100,
+        "sha256": "aa9bb880172a1900a0b5c947448a42eb15210343feef4762cf248b6471d7189e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART350.json",
+        "records": 100,
+        "sha256": "6493443b5b8218ccb86adac717e2ecdc5fbfba8bf52112f44214381807239fde"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART351.json",
+        "records": 100,
+        "sha256": "62982b01a266af792f4598467cf90d03c11d76baa6be7d769e1a0fe708e307d0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART352.json",
+        "records": 100,
+        "sha256": "b826216bcf5c65fc283e91cbaee620a42b3fe2c48d8eeef25b016a8aada98ae1"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART353.json",
+        "records": 100,
+        "sha256": "b5663335a80ab5a25f8353a844846861c905fc39be0ddda4865d1280dea77560"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART354.json",
+        "records": 100,
+        "sha256": "2c0070171220630f87573567b776050e07e3b1fb6688cb1d76e0feb6d24fc84b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART355.json",
+        "records": 100,
+        "sha256": "0f85a10614bd9e9e259f1cad525007aa3db672831308f3cc927e1aee30429416"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART356.json",
+        "records": 100,
+        "sha256": "295d707b88f1d7b72db9ea507342c92190a6de12d6014c79fbb011339b2f5c7f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART357.json",
+        "records": 100,
+        "sha256": "2ad2e47d76bcbc3ea366a940a9d565b5b477172c8dff0e85762707448221492a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART358.json",
+        "records": 100,
+        "sha256": "eeb1a6d2d89455738e3388b58243f6f1d955d0753709d9aa1649b7589d6d33f3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART359.json",
+        "records": 100,
+        "sha256": "e287f0ca8d1235ba2c6144ca68eb6836627d7f8cbfe29a48b4dcb92ce73de15d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART360.json",
+        "records": 100,
+        "sha256": "f54a1e8cbe19767ed58433eda2bcb51366421d0197952aade91f6d188c6415bd"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART361.json",
+        "records": 100,
+        "sha256": "92727c6fe5179aea423bfadbf1cd299e0ff6473037964f96c99ea003b834babe"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART362.json",
+        "records": 100,
+        "sha256": "ea2136730ec42617a08089744907dc4b49f6e5f6eaff564218ef80a48c65025f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART363.json",
+        "records": 100,
+        "sha256": "eedf2cea9b9734b7796267c6d3fe3d022c57e78012c17d49104902c80fdaf19d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART364.json",
+        "records": 100,
+        "sha256": "9bca190e191f9ce04530cde05cb8f44d64a2a3cff46aa0920f671eb559b1e469"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART365.json",
+        "records": 100,
+        "sha256": "4392706787dbe0bf8daedabf795ff536671abd46561b91e07db3e8567a7cb41c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART366.json",
+        "records": 100,
+        "sha256": "a7c8cf7e5593b08ba6b403220e827618d9513cfa19273bdcf4491d37b940441e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART367.json",
+        "records": 100,
+        "sha256": "19cebfe9798e919813288560f7356a8ad63ede143a9627f95a69b19533bc2064"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART368.json",
+        "records": 100,
+        "sha256": "e20cacccf2e1a453204c43c2601b07dbfee0c17fdc47ca4fd17bba1b0d6c7e71"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART369.json",
+        "records": 100,
+        "sha256": "de7071c602966e334d783df6b52fcd68449e9d87a04d26a22d56a9b6ad41c779"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART370.json",
+        "records": 100,
+        "sha256": "e477173d3aa12145cb7c8476228e1d4e7511f6bdfd4e018c5e3c0a38cf3ca357"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART371.json",
+        "records": 100,
+        "sha256": "6b90d55c78525f62594196fc215017014986779b4ab119b55a19df9e4d868762"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART372.json",
+        "records": 100,
+        "sha256": "27dc60e370e2b793cd0361248ddc12b085b17e745723233ec51a12b45a0ab0ef"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART373.json",
+        "records": 100,
+        "sha256": "ba1da1f7de4e63f97087c2573d64c76714e5993aae72f14205ec9670b370afef"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART374.json",
+        "records": 100,
+        "sha256": "4bd5e092d4d719271469088709786f41b062290cbf1df91d141107ecd7b49b78"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART375.json",
+        "records": 100,
+        "sha256": "30b971111afab37b3ed055896e274590ef42b8e6298ba20a9f2903c9a2a078bf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART376.json",
+        "records": 100,
+        "sha256": "cbafd8a782ed9ddedb763a37ef2429ab26b2a2d0670425094924760efa9ba144"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART377.json",
+        "records": 100,
+        "sha256": "dbcb6837bb716bc11fdcc80d99c6e83e25736d33f5695a21ffa71b0267ba2696"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART378.json",
+        "records": 100,
+        "sha256": "6e594e83f63c5c98b84608a4e05bb023138a5e105b1c83f58f8de157bd2e0f9b"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART379.json",
+        "records": 100,
+        "sha256": "b39e0eff1b1831fecc99dc6962eeb7afade008ded2108d0f5c16ad4fc9aff96c"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART380.json",
+        "records": 100,
+        "sha256": "94e45ba2e01c215bbc2d598cfe351d0739b3080f54b59e2d2e89c3786e8e5a2a"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART381.json",
+        "records": 100,
+        "sha256": "fd4d3a6d3244f103d837ff57d6a63cd376c079c7bda4c7cbc5dedef78645163d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART382.json",
+        "records": 100,
+        "sha256": "64c177e5eb2596aeb68ccd2f00bdf8aeab88bd9a0c361bed71d12cf4a4b46d29"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART383.json",
+        "records": 100,
+        "sha256": "ae71b56dae6ff168d0b9bcf2a894a8381854da756ab84b03f2365591f55d3de7"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART384.json",
+        "records": 100,
+        "sha256": "e35d8c42db3a9a80853b4355ff66500d0e65c1d11aa50a833a317a8f945ddb91"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART385.json",
+        "records": 100,
+        "sha256": "da1359dac9573751a47c49477c3c9617cdf20fe2b04f9c6bdf421450ea873fe5"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART386.json",
+        "records": 100,
+        "sha256": "cc0412a138360033b40fba011ade451de4857a504dedbf1708f0fb88fb11f069"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART387.json",
+        "records": 100,
+        "sha256": "f6be5c3bfea9c5798b1e97d3677e1ec4e174c486b68944965b6aa29727e81eac"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART388.json",
+        "records": 100,
+        "sha256": "a8391c68a28eb08c3ee532c9af53579d92a7c3ff32a00747cddcc38d766ebf15"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART389.json",
+        "records": 100,
+        "sha256": "56a5ca10dc29f2de3c15267c4ab14b2b9cf160cf2598b22560530eaa69eb8c78"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART390.json",
+        "records": 100,
+        "sha256": "7636acdb158c8a145feebded423d99cb3469131815303fff1157e92648ef1d5d"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART391.json",
+        "records": 100,
+        "sha256": "a8ef5c46cb0d582bd5f29b8bc44d80b2c46a3004ab97395d56fbe9036731a4bf"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART392.json",
+        "records": 100,
+        "sha256": "bf6974cc1813073b02a8000acea888c2ed31cc6043df777b475b9ca2cd004a5e"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART393.json",
+        "records": 100,
+        "sha256": "b6f260bf8fd5fc6312d4c0aa80c19c4ad4231f352cb5c473da1216f93c0f1fed"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART394.json",
+        "records": 100,
+        "sha256": "7f5635d0da0921c831bed58d1604dda1e0bc54952a6c085ea1f096055ab2dec0"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART395.json",
+        "records": 100,
+        "sha256": "471389c9e1127552fa6be435425c36c995d1a5a70804df9a03373e230da50368"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART396.json",
+        "records": 100,
+        "sha256": "76d64e21bb8424cf4d914652ee474eac99fe3b6343e926894ef395a4563c653f"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART397.json",
+        "records": 100,
+        "sha256": "77b66a67d3f83b8a199b0a4fb9f073046ae43b3361105d4182347a5166d1e455"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART398.json",
+        "records": 100,
+        "sha256": "6cc12e52d6abbedbf64ad69a6d90f86308b6909c2b83b6313edf2b225df272b3"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART399.json",
+        "records": 100,
+        "sha256": "1fa56861285162e681d2638de85ea097186aa31066595084e00926e0e436cc75"
+      },
+      {
+        "path": "research/registry/config_shards_r3/PREDICTION_CONFIGS_R3_PART400.json",
+        "records": 100,
+        "sha256": "6f05d6bd88293d38191efd5d0e79a6785ba4f028e6a9767db51ad1e32811a011"
+      }
+    ],
+    "configuration_count": 40000,
+    "configurations_per_label": {
+      "INTRA_120M_UP_DOWN": 4000,
+      "INTRA_15M_UP_DOWN": 4000,
+      "INTRA_30M_UP_DOWN": 4000,
+      "INTRA_5M_UP_DOWN": 4000,
+      "INTRA_60M_UP_DOWN": 4000,
+      "POS_10D_UP_DOWN": 4000,
+      "POS_1D_UP_DOWN": 4000,
+      "POS_2D_UP_DOWN": 4000,
+      "POS_3D_UP_DOWN": 4000,
+      "POS_5D_UP_DOWN": 4000
+    },
+    "configurations_per_method": 40,
+    "label_count": 10,
+    "labels": [
+      "INTRA_5M_UP_DOWN",
+      "INTRA_15M_UP_DOWN",
+      "INTRA_30M_UP_DOWN",
+      "INTRA_60M_UP_DOWN",
+      "INTRA_120M_UP_DOWN",
+      "POS_1D_UP_DOWN",
+      "POS_2D_UP_DOWN",
+      "POS_3D_UP_DOWN",
+      "POS_5D_UP_DOWN",
+      "POS_10D_UP_DOWN"
+    ],
+    "method_count": 1000,
+    "unique_configurations": 40000,
+    "verified_config_shards": 400
+  },
+  "schema_version": "prediction-r3-prerequisite-audit-v1",
+  "source_pin_verification": {
+    "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json": {
+      "bytes": 19837,
+      "git_blob_sha1": "66683afe7c498a6b52d7863a0da0c4f7a47734c8",
+      "sha256": "ff4b58c45a697e319871c2097df650a8098624e704540ea2a46ea89502121f4c"
+    },
+    "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json": {
+      "bytes": 1069988,
+      "git_blob_sha1": "dbc5907d5a7c159bd8a70d13700f7e2a7128af69",
+      "sha256": "ddce75f70f39e390e3d68fc6662ed31b3b85b9ecbc78d71178eedb7a34b9ae26"
+    },
+    "research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json": {
+      "bytes": 21318,
+      "git_blob_sha1": "494194d8a2c09816d81c85f8011e9af66b55799d",
+      "sha256": "2f59f0800280d2b2fec51d9f1143adadcdfc2408bd385c619f5ae3d4e063c195"
+    },
+    "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json": {
+      "bytes": 2260,
+      "git_blob_sha1": "e5804732cc3d535fbafe451ae484b6b3e86a43d8",
+      "sha256": "77a61219d38e989fcc8ca1be1ace20a5c7a75a1a961b6d71e86f930ba1eaa6c6"
+    },
+    "research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json": {
+      "bytes": 3410,
+      "git_blob_sha1": "f14f9baf0d4c1c29aa5de60dc57c9056d2c96065",
+      "sha256": "42d227a1d2a05a69549b2309acbfc959d911cf44fe827eae9af224dad5ef8397"
+    },
+    "research/registry/METHOD_REGISTRY_V2_R2.json": {
+      "bytes": 1430437,
+      "git_blob_sha1": "59d7c34f620d77bb83e11161a10da4b53c242264",
+      "sha256": "74b0d095ad10ff4d8104ab13156d8f1bb4b656368f032f9f690a62ddd39c3677"
+    },
+    "research/registry/PREDICTION_COMPATIBILITY_MATRIX_V2_R2.json": {
+      "bytes": 1711554,
+      "git_blob_sha1": "267f754f2dffbea53f45e4470d5996bfef785971",
+      "sha256": "a415c2d4197e0eec95c85ad7700b88ab8b2e53a618adf6aae405f9949c77352d"
+    },
+    "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json": {
+      "bytes": 117384,
+      "git_blob_sha1": "258b789a746186f2b83348a715a9da0d160a1baa",
+      "sha256": "c496c5bf6dd0947a41b02d63e97658b975c5e9936d531d9ad610788fdd669ac1"
+    },
+    "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json": {
+      "bytes": 13059,
+      "git_blob_sha1": "ec808129d19c1018d113ef01f9de230bae998b50",
+      "sha256": "2b10d6ebd889da7435fbdfcb39d6db007d76dc7203a03a25a9ce844acaa6a013"
+    },
+    "research/registry/PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json": {
+      "bytes": 133568,
+      "git_blob_sha1": "8b7e1f1967cd51146573e43cde8462d64980e375",
+      "sha256": "d92fe6216e1b09979a13992575fde7723b7941a89245b24dca2561f699cc557b"
+    }
+  },
+  "status": "PASS_DATA_AND_REGISTRY_PREREQUISITES_WITH_SCOPED_BLOCKS"
+}
