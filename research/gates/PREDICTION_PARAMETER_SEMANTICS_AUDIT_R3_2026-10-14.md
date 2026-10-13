@@ -27,3 +27,8 @@ The adapter mapping audit passed file availability and registry accounting, but 
 8. Re-run all family tests and independent review. No empirical fitting or holdout access until this gate is approved.
 
 No market data was loaded, no model was fitted on market data, and the holdout remains sealed.
+
+
+## Follow-up: explicit parameter-binding gate
+- Added `scripts/prediction_parameter_binding_r3.py` and synthetic tests to make known semantic mismatches explicit. Bayesian `coefficient_drift` is mapped to adapter `process_variance`; Markov-switching with three regimes and transition-prior configurations remain blocked; HMM accepts only diagonal covariance and 2/4 states; temporal convolution configurations remain blocked until dropout is implemented.
+- Gate [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed after one test-vocabulary correction. This improves fail-closed behavior but does not resolve the underlying Markov-switching/dropout implementations. Empirical fitting remains unauthorized.
