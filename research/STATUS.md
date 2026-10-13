@@ -1221,3 +1221,11 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 
 
 - Follow-up audit found that successful run 38397356666 generated and validated the 40,000-row manifest only inside the ephemeral runner; the initial workflow did not persist the artifact. This was a workflow completeness defect, not a scientific-data issue. Corrected the workflow to commit the verified manifest to the research branch and upload a retained artifact. New run [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) is pending final verification.
+
+
+## Phase 8P R3 — verified persisted manifest and fold-scope repair (2026-10-13)
+
+- Verified run [38397474080](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397474080) completed successfully, including manifest commit and retained artifact upload. Downloaded artifact audit confirmed 40,000 records, 40,000 unique config IDs, 1,000 method IDs (40 configs each), all empirical-fit flags false; old manifest SHA-256 912b65fa48b68e67dee4839148de73b6ae5870fa9a7e1b26368c3b532e3ed03a.
+- Follow-up logic audit identified a latent flaw: the old builder treated five positional F01 fold-label data blocks as whole-label blocks. No empirical fit used the manifest; the issue could have excluded later folds if a method eventually passed implementation gates.
+- Fixed in [commit 004472bbd8428d144e9355d63f3e28f3138f23b3](https://github.com/vishnuvcr/Naked-option-v1/commit/004472bbd8428d144e9355d63f3e28f3138f23b3): exact Git blob source pins, full ten-label × eight-fold preflight grid validation, per-config supported/blocked folds, and synthetic regression tests for fold-specific scope. Fresh workflow and manifest verification pending.
+- The compatibility gate remains 426 conditional / 574 blocked / 0 empirically eligible. Registry accounting is not prediction evidence; empirical fitting and holdout access remain prohibited. Next: verify the corrected manifest, then complete and gate the PM0001 logistic-family development-only executor before any empirical run.
