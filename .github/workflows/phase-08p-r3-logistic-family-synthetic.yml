@@ -7,6 +7,8 @@ on:
       - phase-08-prediction-developer
     paths:
       - "scripts/prediction_logistic_adapter_r3.py"
+      - "scripts/prediction_logistic_calibration_r3.py"
+      - "scripts/test_prediction_logistic_calibration_r3.py"
       - "scripts/prediction_chronological_calibration_r3.py"
       - "scripts/test_prediction_logistic_adapter_r3.py"
       - "scripts/test_prediction_chronological_calibration_r3.py"
@@ -62,6 +64,7 @@ jobs:
       - name: Run synthetic logistic and chronological calibration tests
         run: |
           python -m unittest discover -s scripts -p "test_prediction_logistic_adapter_r3.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_logistic_calibration_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_chronological_calibration_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_probit_adapter_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_discriminant_adapter_r3.py" -v
@@ -77,7 +80,7 @@ jobs:
           python -m unittest discover -s scripts -p "test_prediction_gam_adapter_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_shallow_mlp_adapter_r3.py" -v
       - name: Compile family modules
-        run: python -m py_compile scripts/prediction_logistic_adapter_r3.py scripts/prediction_chronological_calibration_r3.py scripts/prediction_probit_adapter_r3.py scripts/prediction_discriminant_adapter_r3.py scripts/prediction_hmm_adapter_r3.py scripts/prediction_markov_switching_logit_r3.py scripts/prediction_bayesian_dynamic_logit_r3.py scripts/prediction_change_point_adapter_r3.py scripts/prediction_temporal_convolution_adapter_r3.py scripts/prediction_discriminant_adapters_r3.py scripts/prediction_elastic_net_logistic_adapter_r3.py scripts/prediction_tree_ensemble_adapters_r3.py scripts/prediction_margin_distance_adapters_r3.py scripts/prediction_gam_adapter_r3.py scripts/prediction_shallow_mlp_adapter_r3.py
+        run: python -m py_compile scripts/prediction_logistic_adapter_r3.py scripts/prediction_logistic_calibration_r3.py scripts/prediction_chronological_calibration_r3.py scripts/prediction_probit_adapter_r3.py scripts/prediction_discriminant_adapter_r3.py scripts/prediction_hmm_adapter_r3.py scripts/prediction_markov_switching_logit_r3.py scripts/prediction_bayesian_dynamic_logit_r3.py scripts/prediction_change_point_adapter_r3.py scripts/prediction_temporal_convolution_adapter_r3.py scripts/prediction_discriminant_adapters_r3.py scripts/prediction_elastic_net_logistic_adapter_r3.py scripts/prediction_tree_ensemble_adapters_r3.py scripts/prediction_margin_distance_adapters_r3.py scripts/prediction_gam_adapter_r3.py scripts/prediction_shallow_mlp_adapter_r3.py
       - name: Assert no market data or holdout access in adapter modules
         run: |
           python - <<'PY'
