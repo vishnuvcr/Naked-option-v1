@@ -1,3 +1,11 @@
+## 2026-10-14 — PM0001 synthetic executor regression caught missing calibration result fields
+- Category: implementation / test failure
+- Component: `scripts/prediction_pm0001_executor_r3.py`
+- Symptom: after adding held-out calibration intercept/slope fields to the result dataclass, the constructor did not pass the three newly required fields. Hosted workflow [#38469709631](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38469709631) failed three tests with `TypeError: PM0001FoldResult.__init__() missing 3 required positional arguments: calibration_intercept, calibration_slope, calibration_status`.
+- Root cause: source-edit anchor matched the dataclass declaration but missed the return-constructor argument block; first corrective edit then added calculation but not constructor mapping.
+- Correction: added held-out calibration calculation and explicitly passed intercept, slope, and convergence status into the result object. New hosted verification is pending; do not mark the gate passed until it succeeds.
+- Scope: no market data loaded, no empirical results created, no holdout access.
+
 ## 2026-10-14 — OOF endpoint-in-fold regression verification
 - Category: CI / regression verification
 - Component: `scripts/test_prediction_logistic_calibration_r3.py`, `scripts/prediction_logistic_calibration_r3.py`
