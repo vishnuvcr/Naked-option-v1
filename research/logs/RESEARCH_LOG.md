@@ -849,3 +849,8 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added a deterministic one-hidden-layer NumPy MLP with dropout, Adam updates, and weight decay matching registered family parameters; added synthetic tests for probability bounds, determinism and fail-closed validation.
 - Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 tests across the current family suite. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
 - No market data, empirical fitting or holdout access.
+
+
+## 2026-10-13 — MLP backpropagation numerical audit
+- Exposed the minibatch loss/gradient calculation and added a central finite-difference check over all parameter groups. Workflow [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed the combined 40-test synthetic suite.
+- No market-data fitting or holdout access.
