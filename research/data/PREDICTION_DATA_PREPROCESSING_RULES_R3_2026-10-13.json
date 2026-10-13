@@ -1,0 +1,69 @@
+{
+  "schema_version": "prediction-data-preprocessing-rules-v1",
+  "amendment_id": "PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13",
+  "date": "2026-10-13",
+  "status": "FROZEN_PRE_RESULTS",
+  "purpose": "Define deterministic eligibility for frozen ten-horizon labels. Does not change horizons, label formula, model registry, validation folds, sample minima or metrics.",
+  "source_integrity": {
+    "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
+    "pinned_canonical_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "raw_source_immutable": true,
+    "source_archive_or_rows_may_be_rewritten": false,
+    "temporary_decoded_rows_may_be_used_in_memory": true,
+    "raw_rows_or_plaintext_may_be_uploaded": false
+  },
+  "eligible_spot_observation": {
+    "row_type": "SPOT",
+    "date_must_be_in_pinned_calendar": true,
+    "exchange_session_must_be_open": true,
+    "intraday_label_eligible": true,
+    "positional_label_eligible": true,
+    "regular_hours_compatible": true,
+    "regular_session_open": "09:15:00",
+    "regular_session_close": "15:30:00",
+    "timestamp_must_be_minute_aligned": true,
+    "close_price_must_be_finite_and_positive": true
+  },
+  "quarantine_rules": [
+    {
+      "reason_code": "CLOSED_OR_UNMAPPED_SESSION",
+      "rule": "Quarantine spot rows on weekends, declared full-day holidays, out-of-range or calendar-unmapped dates. Never promote a date because data rows exist."
+    },
+    {
+      "reason_code": "NON_STANDARD_OR_INELIGIBLE_SESSION",
+      "rule": "Quarantine official sessions not compatible with the frozen regular label grid, including Muhurat and BCP/DR sessions unless separately preregistered before performance inspection."
+    },
+    {
+      "reason_code": "OUTSIDE_REGULAR_SESSION",
+      "rule": "Quarantine timestamps before 09:15 or after 15:30 IST; do not use pre-open/post-close rows as regular-grid predictors or endpoints."
+    },
+    {
+      "reason_code": "NON_MINUTE_TIMESTAMP",
+      "rule": "Quarantine timestamps that do not land on a whole-minute bar."
+    },
+    {
+      "reason_code": "INVALID_OR_MISSING_SPOT_CLOSE",
+      "rule": "Quarantine blank, unparsable, non-finite, zero or negative spot closes; never interpolate or forward-fill."
+    }
+  ],
+  "label_pair_handling": {
+    "exact_observed_target_pair_required": true,
+    "intraday_target_must_remain_in_same_regular_session": true,
+    "positional_horizons_count_only_prediction_session_index": true,
+    "missing_target_pair_policy": "Count in frozen denominator and block if missing pairs exceed preregistered 1.0%; enforce frozen row/directional class support per fold.",
+    "forward_fill_interpolation_synthetic_prices": false,
+    "use_quarantined_rows_as_features_or_endpoints": false
+  },
+  "options_feature_gate": {
+    "option_rows_are_not_spot_direction_labels": true,
+    "option_derived_inputs_require_per_feature_availability_and_point_in_time_contract_checks": true,
+    "block_configurations_whose_required_fields_are_unavailable": true,
+    "do_not_impute_contract_fields_from_future_metadata": true
+  },
+  "audit": {
+    "record_count_by_quarantine_reason": true,
+    "report_quarantine_fraction_and_unknown_dates": true,
+    "preserve_full_source_row_count_hash_and_field_missingness": true,
+    "a_row_is_counted_in_exactly_one_quarantine_reason": true
+  }
+}

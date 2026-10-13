@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REG = ROOT / "research" / "registry"
 DATA_MANIFEST = ROOT / "research" / "data" / "DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
 DATA_ARTIFACT_PIN = ROOT / "research" / "data" / "PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
+DATA_PREPROCESSING_RULES = ROOT / "research" / "data" / "PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json"
 SESSION_CALENDAR_SOURCE = ROOT / "research" / "data" / "NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json"
 SESSION_CALENDAR = ROOT / "research" / "data" / "NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json"
 R2_CONFIG_MANIFEST = REG / "PREDICTION_CONFIG_MANIFEST_V2_R2.json"
@@ -416,6 +417,10 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p = json.loads(json.dumps(source_prereg))
     data_pin = load_json(DATA_ARTIFACT_PIN)
     source_data_manifest = load_json(DATA_MANIFEST)
+    data_preprocessing_raw = DATA_PREPROCESSING_RULES.read_bytes()
+    data_preprocessing = json.loads(data_preprocessing_raw.decode("utf-8"))
+    if data_preprocessing.get("status") != "FROZEN_PRE_RESULTS" or data_preprocessing.get("amendment_id") != "PHASE8P_DATA_PREPROCESSING_AMENDMENT_R3_2026-10-13":
+        raise SystemExit("BLOCKED: frozen pre-results data preprocessing policy is missing or mismatched")
     data_manifest_blob = git_blob_sha1(DATA_MANIFEST.read_bytes())
     if data_pin.get("dataset_id") != source_data_manifest.get("dataset_id"):
         raise SystemExit("BLOCKED: R3 encrypted-artifact pin dataset ID mismatch")
@@ -484,6 +489,10 @@ def build_preregistration(label_manifest: dict[str, Any], config_manifest: dict[
     p["scope"]["current_derived_artifact_run_id"] = data_pin["current_derived_artifact"]["workflow_run_id"]
     p["scope"]["current_derived_artifact_archive_sha256"] = data_pin["current_derived_artifact"]["archive_sha256"]
     p["scope"]["current_derived_embedded_manifest_sha256"] = data_pin["current_derived_artifact"]["embedded_manifest_sha256"]
+    p["scope"]["data_preprocessing_rules_path"] = DATA_PREPROCESSING_RULES.relative_to(ROOT).as_posix()
+    p["scope"]["data_preprocessing_rules_git_blob_sha1"] = git_blob_sha1(data_preprocessing_raw)
+    p["scope"]["data_preprocessing_rules_sha256"] = sha256(data_preprocessing_raw)
+    p["scope"]["data_preprocessing_amendment_id"] = data_preprocessing["amendment_id"]
     p["scope"]["label_manifest_path"] = LABEL_OUT.relative_to(ROOT).as_posix()
     p["scope"]["label_manifest_git_blob_sha1"] = git_blob_sha1(json_bytes(label_manifest))
     p["scope"]["config_manifest_path"] = CONFIG_MANIFEST_OUT.relative_to(ROOT).as_posix()
