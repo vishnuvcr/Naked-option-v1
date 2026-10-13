@@ -806,3 +806,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added `scripts/prediction_probit_adapter_r3.py` with train-only standardization and penalized probit likelihood, plus synthetic tests.
 - Combined logistic/calibration/probit gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed 13 tests. Report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - No market data, holdout, or empirical conclusions.
+
+
+## 2026-10-13 — Probit gradient numerical audit
+- Added a central finite-difference test for the analytic gradient of the penalized probit negative log-likelihood.
+- Workflow [38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 synthetic tests. Report: [PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md](../gates/PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- No market data or holdout access; no empirical performance claim.
