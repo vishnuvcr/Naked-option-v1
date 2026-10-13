@@ -1234,3 +1234,8 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 ### 2026-10-13 follow-up — workflow ref interpolation repair
 
 The fold-scope correction commit triggered workflow run [38398836570](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38398836570), which failed at checkout before test execution because an unintended backslash remained before the GitHub commit expression. This is logged as workflow-only failure. Fixed the expression in commit [b8b1eb2c0eaecde206789968f7585f496f9f6e95](https://github.com/vishnuvcr/Naked-option-v1/commit/b8b1eb2c0eaecde206789968f7585f496f9f6e95). Fresh run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) is queued. Do not mark manifest gate complete until this run passes and the persisted corrected manifest is re-read and verified.
+
+
+### 2026-10-13 follow-up — corrected manifest checks passed; persistence repair required
+
+Hosted run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38399063791) passed all eight synthetic fold-scope tests, the full 40,000-config shard/hash build, and explicit checks for 75 supported / five blocked label-fold cells and zero empirically eligible configs. It failed only at persistence because the tracked manifest was modified before git pull --rebase. This is logged in the error log; workflow commit [344a85a2c2906db319d464cfe488195c6b267d54](https://github.com/vishnuvcr/Naked-option-v1/commit/344a85a2c2906db319d464cfe488195c6b267d54) now stashes the built output before branch synchronization. Fresh hosted verification and reading back the persisted manifest remain required.
