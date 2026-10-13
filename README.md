@@ -1,3 +1,17 @@
+## Standing permission applied — no repeated authorization pauses (2026-10-14)
+
+- User instruction: **“No need for Authorization.”** Recorded in [standing research execution permission](research/governance/STANDING_RESEARCH_EXECUTION_PERMISSION_2026-10-14.md).
+- The research will continue autonomously through the frozen prediction-only plan without asking for manual permission at every method/run/phase. This removes the repeated user-authorization bottleneck; it does **not** override method compatibility, actual implementation/tests, dataset/label/fold checks, sample-support blocks, chronological leakage controls, or the sealed holdout.
+- Updated the R3 eligibility builder to distinguish `BLOCKED_IMPLEMENTATION_NOT_READY` from authorization. Each row and the manifest now explicitly state `manual_authorization_required: false`; `empirical_fit_authorized` remains false until real implementation, data and executor gates pass. This avoids confusing standing permission with scientific readiness.
+- Added synthetic tests for the new state fields and updated the automatic/manual eligibility workflow. Hosted verification is pending; no pass is claimed until the exact commit's workflow succeeds.
+- The previous logistic OOF synthetic gate passed in [run #38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354). The additional OOF endpoint-in-fold assertion is in workflow [#38468780406](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468780406), still pending at the last check.
+- No empirical fitting, market-data result generation, strategy research, or holdout access occurred in this step. Next: verify CI; complete implementation readiness and a deterministic, restartable executor; then run every technically eligible registered configuration and preserve all rows/outcomes before one consolidated tester review.
+
+**Developer → Tester:** do not request intermediate review; await the complete frozen result bundle.  
+**Tester → Developer:** after formal handoff, independently audit all results and pinned sources.
+
+---
+
 ## Phase 8P — OOF calibration maturity gate passed (synthetic only, 2026-10-14)
 
 - Hosted workflow [38468518354 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) on exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`.
