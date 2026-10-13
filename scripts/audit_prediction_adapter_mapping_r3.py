@@ -3,6 +3,7 @@
 import hashlib, json
 from collections import Counter, defaultdict
 from pathlib import Path
+from prediction_parameter_binding_r3 import bind_configuration, ParameterBindingError
 
 ROOT=Path(__file__).resolve().parents[1]
 def sha(b): return hashlib.sha256(b).hexdigest()
@@ -33,7 +34,7 @@ FAMILIES = {
 def main():
     cm=read_json("research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json")
     ci=read_json("research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json")
-    methods={}; family_counts=Counter(); decision_counts=Counter(); config_counts=Counter(); param_keys=defaultdict(Counter); param_values=defaultdict(lambda: defaultdict(Counter)); errors=[]
+    methods={}; family_counts=Counter(); decision_counts=Counter(); config_counts=Counter(); param_keys=defaultdict(Counter); param_values=defaultdict(lambda: defaultdict(Counter)); binding_counts=Counter(); binding_by_family=defaultdict(Counter); errors=[]
     for sh in ci["shards"]:
         raw=(ROOT/sh["path"]).read_bytes()
         if len(raw)!=sh["bytes"] or sha(raw)!=sh["sha256"]: errors.append("COMPAT_SHARD_INTEGRITY:"+sh["path"]); continue
@@ -55,6 +56,20 @@ def main():
             if r.get("config_id") in configs: errors.append("DUPLICATE_CONFIG:"+str(r.get("config_id")))
             configs[r.get("config_id")]=r; config_counts[mid]+=1
             family=methods.get(mid,{}).get("algorithm_family","UNKNOWN")
+            try:
+                binding=bind_configuration(cfg,family)
+                if binding.supported:
+                    binding_counts["BOUND"]+=1; binding_by_family[family]["BOUND"]+=1
+                else:
+                    reason=binding.reason or "UNSUPPORTED"
+                    binding_counts["BLOCKED:"+reason]+=1; binding_by_family[family]["BLOCKED:"+reason]+=1
+                    if family!="survival_first_passage":
+                        errors.append("UNEXPECTED_PARAMETER_BINDING_BLOCK:"+str(r.get("config_id"))+":"+reason)
+                    if methods.get(mid,{}).get("compatibility_decision")!="BLOCK":
+                        errors.append("UNIMPLEMENTED_FAMILY_NOT_REGISTRY_BLOCKED:"+str(mid))
+            except (ParameterBindingError,TypeError,ValueError) as exc:
+                binding_counts["ERROR"]+=1; binding_by_family[family]["ERROR"]+=1
+                errors.append("PARAMETER_BINDING:"+str(r.get("config_id"))+":"+str(exc))
             for k,v in cfg.get("model_parameters",{}).items():
                 param_keys[family][k]+=1
                 param_values[family][k][json.dumps(v,sort_keys=True)]+=1
@@ -75,6 +90,9 @@ def main():
         if mid not in methods: errors.append("CONFIG_METHOD_NOT_REGISTERED:"+str(mid))
     if len(methods)!=1000 or len(configs)!=cm["configuration_count"]: errors.append("TOTAL_COUNT_MISMATCH")
     if decision_counts["ALLOW_IN_PRINCIPLE"]!=426 or decision_counts["BLOCK"]!=574: errors.append("DECISION_TOTAL_MISMATCH")
+    if binding_counts["BOUND"]!=38000: errors.append("PARAMETER_BINDING_TOTAL_MISMATCH:"+str(binding_counts["BOUND"]))
+    if binding_counts["BLOCKED:SURVIVAL_EVENT_TIME_CONTRACT_NOT_IMPLEMENTED"]!=2000:
+        errors.append("SURVIVAL_BLOCK_TOTAL_MISMATCH")
     report={
       "schema_version":"prediction-adapter-mapping-audit-r3",
       "status":"PASS_ADAPTER_MAPPING_INVENTORY" if not errors else "FAIL",
@@ -83,6 +101,8 @@ def main():
       "method_config_count_max":max(config_counts.values()) if config_counts else 0,
       "allow_methods_with_adapter_and_test_files":sum(1 for r in methods.values() if r.get("compatibility_decision")=="ALLOW_IN_PRINCIPLE" and r.get("algorithm_family") in FAMILIES and all((ROOT/p).is_file() for p in FAMILIES[r["algorithm_family"]])),
       "family_inventory":{fam:{"methods":family_counts[fam],"allow_in_principle":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="ALLOW_IN_PRINCIPLE"),"blocked":sum(1 for r in methods.values() if r.get("algorithm_family")==fam and r.get("compatibility_decision")=="BLOCK"),"model_parameter_keys":sorted(param_keys[fam]),"parameter_values":{k:dict(param_values[fam][k]) for k in sorted(param_values[fam])}} for fam in sorted(family_counts)},
+      "empirically_eligible_methods":sum(1 for r in methods.values() if r.get("eligible_for_empirical_fitting") is True),
+      "parameter_binding_counts":dict(binding_counts),"parameter_binding_by_family":{k:dict(v) for k,v in sorted(binding_by_family.items())},
       "empirically_eligible_methods":sum(1 for r in methods.values() if r.get("eligible_for_empirical_fitting") is True),
       "empirical_fitting_authorized":False,"market_data_loaded":False,"holdout_accessed":False,
       "errors":errors
