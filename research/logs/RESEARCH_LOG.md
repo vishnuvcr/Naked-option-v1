@@ -895,3 +895,10 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added synthetic tests for missing endpoint metadata and endpoint-before-decision errors; updated the logistic-family CI workflow to include this test module and compile the changed helper.
 - Exact developer HEAD: `4c87f49f82a8c1e5d20f6a04c057ef91fd8a1e14`. Hosted CI outcome is pending verification; this is not yet a passed gate or empirical result.
 - No empirical fitting, performance analysis, strategy selection or holdout access. Next: verify hosted CI, fix any failures, and continue developer-owned eligibility/executor work. Tester review remains post-results only.
+
+
+## 2026-10-14 — OOF calibration maturity/shape gate passed
+
+- Hosted synthetic workflow [38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) passed 62 tests across 16 suites on exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`. Compilation and source-level no-data/no-holdout checks passed.
+- The prior failed attempt [38468327357](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357) caught the estimator output-shape mismatch; correction is covered in [gate report](../gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json) and [error log](../ERROR_LOG.md).
+- No market-data fitting, empirical prediction metrics, or holdout access. Continue to the developer-owned execution/eligibility work; defer tester review until complete results are frozen.
