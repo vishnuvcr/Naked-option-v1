@@ -74,9 +74,9 @@ jobs:
           assert report["families"] == 20, report
           assert report["decision_counts"] == {"ALLOW_IN_PRINCIPLE": 426, "BLOCK": 574}, report
           semantics = report["parameter_semantics_contract"]
-          assert semantics["preregistration_git_blob_sha"] == "b13e0e89308e9b7c9cc133d675804ac9e92b0fa8", semantics
-          assert semantics["contract_git_blob_sha"] == "54bd8d65fc3c5f06afa34e1e1bb6f202a35f3dc5", semantics
-          assert semantics["contract_status"] == "TESTER_REVIEWED_CODE_CONTRACT_ONLY_FINAL_PIN_CONFIRMATION_PENDING_NO_EMPIRICAL_RUNS", semantics
+          assert semantics["preregistration_git_blob_sha"] == "dd4c18c235803a9080f89b9f80bd512756db8a06", semantics
+          assert semantics["contract_git_blob_sha"] == "c0334f7430418b65fa99980f961ecb9245f3b858", semantics
+          assert semantics["contract_status"] == "TESTER_APPROVED_CODE_CONTRACT_ONLY_NO_EMPIRICAL_RUNS", semantics
           assert report["parameter_binding_counts"].get("BOUND") == 38000, report["parameter_binding_counts"]
           assert report["parameter_binding_counts"].get("BLOCKED:SURVIVAL_EVENT_TIME_CONTRACT_NOT_IMPLEMENTED") == 2000, report["parameter_binding_counts"]
           assert "ERROR" not in report["parameter_binding_counts"], report["parameter_binding_counts"]
