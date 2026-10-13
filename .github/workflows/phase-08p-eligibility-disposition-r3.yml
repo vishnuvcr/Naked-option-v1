@@ -58,7 +58,12 @@ jobs:
           assert d["manual_authorization_required"] is False
           assert all(row["manual_authorization_required"] is False for row in d["records"])
           assert all(row["empirical_fit_authorized"] is False for row in d["records"])
-          assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 40\n          pending = [row for row in d["records"] if row["disposition"] == "ELIGIBLE_PENDING_EXECUTOR_GATE"]\n          assert len(pending) == 40\n          assert all(row["method_id"] == "PM0001" for row in pending)\n          assert all(row["empirical_fit_authorized"] is False for row in pending)\n          assert all(row["manual_authorization_required"] is False for row in pending)
+          assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 40
+          pending = [row for row in d["records"] if row["disposition"] == "ELIGIBLE_PENDING_EXECUTOR_GATE"]
+          assert len(pending) == 40
+          assert all(row["method_id"] == "PM0001" for row in pending)
+          assert all(row["empirical_fit_authorized"] is False for row in pending)
+          assert all(row["manual_authorization_required"] is False for row in pending)
           assert sum(d["disposition_counts"].values()) == 40000
           assert d["eligible_fold_label_cell_count"] == 75
           assert d["blocked_fold_label_cell_count"] == 5
