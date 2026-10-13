@@ -1384,3 +1384,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Hosted audit [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed. Result: [PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md](gates/PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md); artifact [11844142858](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994/artifacts/11844142858).
 - All 1,000 methods / 40,000 configurations reconcile. All 426 ALLOW_IN_PRINCIPLE methods map to adapter and synthetic-test files; 574 remain blocked. The combined synthetic family suite [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 tests.
 - This checks file mapping and registry accounting, not semantic support for every parameter or prediction performance. All empirical-fit flags remain false. Next: parameter-level contract audit, independent family code review, and leakage/chronology verification before considering any empirical fit.
+
+
+## Phase 8P R3 — parameter semantics audit opened (2026-10-14)
+
+- File-mapping audit passed, but the follow-up parameter-level review identified unresolved semantic mappings. See [PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md](gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
+- Key blockers: Bayesian coefficient_drift alias; Markov-switching registry permits 3 regimes and transition_prior while current adapter is two-regime; temporal-convolution config includes dropout not implemented by its adapter. HMM covariance must be checked as diag. These are blockers, not permission to ignore config fields.
+- No market data was fitted and holdout remains sealed. Next: parameter-binding layer, tests proving parameters are consumed, then independent review before any empirical fit.
