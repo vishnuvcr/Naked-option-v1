@@ -1020,3 +1020,12 @@ Implemented a bounded first component:
 - `.github/workflows/phase-08p-logistic-adapter-r3.yml`: automatic push trigger for the code/test files plus a manual dispatch button. The workflow is code-only and does not access market data or authorize fitting.
 
 Caught and corrected an incorrect hand-entered log-loss test constant before declaring results. The hosted workflow outcome has not yet been verified. This adapter alone does not satisfy PM0001: inner chronological OOF calibration, full registry dispositions, restartable empirical runner, and explicit authorization remain outstanding. No empirical metrics have been generated and holdout remains untouched.
+
+
+### 2026-10-13 — User continuation: chronological calibration component
+
+Developer continued the code gate without opening market data or holdout. Added `scripts/prediction_logistic_calibration_r3.py` with (a) a Platt calibrator that accepts only supplied inner-OOF probabilities and labels, and (b) a deterministic three-fold expanding chronological OOF helper with session-based purge and minimum row gates. Added synthetic tests and wired them into the automatic/manual code workflow.
+
+A repository re-read caught that the adapter log-loss fixture correction had not persisted: the prior replacement string did not match the source's leading-dot literal. The exact token was corrected and the resulting new blob SHA was verified. This is recorded as a developer/test-fixture mistake; no market data or empirical fitting was involved.
+
+Current scope is still code-only. The OOF caller must independently prove official session ordering, label maturity and exact purge rules. Full registry reconciliation, end-to-end executor, runtime benchmark and authorized empirical execution are still outstanding; hosted workflow status is not verified in this checkpoint.
