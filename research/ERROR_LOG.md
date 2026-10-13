@@ -1510,3 +1510,17 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 
 **Developer → Tester:** ignore run 38461861770 for semantic approval because tests were skipped; inspect the corrected rerun.
 **Tester → Developer:** require a complete synthetic test and full registry audit run before reviewing the semantics.
+
+
+## 2026-10-14 — R4 synthetic suite identified two issues before registry audit
+- Category: calibration protocol compatibility and test assertion.
+- Evidence: corrected workflow run [38461935696](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461935696) reached 107 tests; Markov 2/3-regime fit/predict and transition-prior sensitivity tests passed, but one calibration test errored and one parameter-binding assertion failed. The audit/compile steps were skipped because the workflow correctly stops on failed tests.
+- Finding A: `chronological_inner_oof` indexed every `predict_proba` output as a two-column matrix, but this repository's binary probability adapters return the positive-class probability as a one-dimensional vector. This made the existing calibration test incompatible with a valid adapter output contract.
+- Correction A: normalize either a one-dimensional binary probability vector or a two-column binary probability matrix; reject other shapes explicitly. Added a synthetic test for the two-column case. The existing vector case remains covered.
+- Finding B: the HMM covariance fail-closed test used a case-sensitive lowercase regex against the binder's uppercase `COVARIANCE_UNSUPPORTED_VALUE` message. The implementation was fail-closed; only the test's text match was wrong.
+- Correction B: made that regex case-insensitive.
+- Status: fixes committed to the R4 branch. A complete rerun is required; these corrections are not yet a gate pass. No market data or holdout was accessed.
+- Prevention: use a consistent adapter probability-output contract and exercise both supported shapes; assert semantic error categories without case-fragile wording.
+
+**Developer → Tester:** check the corrected full test run and confirm no output-shape normalization changes probability meaning.
+**Tester → Developer:** reject if vector/matrix handling changes class orientation, if any synthetic test fails, or if registry totals do not reconcile.
