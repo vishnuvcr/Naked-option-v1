@@ -1,0 +1,58 @@
+name: Phase 8P R3 adapter mapping audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase-08-prediction-developer
+    paths:
+      - "scripts/audit_prediction_adapter_mapping_r3.py"
+      - "scripts/prediction_*adapter_r3.py"
+      - "scripts/test_prediction_*adapter_r3.py"
+      - "research/registry/PREDICTION_CONFIG_MANIFEST_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_COMPATIBILITY_SHARD_INDEX_V2_R2.json"
+      - "research/registry/config_shards_r3/**"
+      - "research/registry/compatibility_shards/**"
+      - ".github/workflows/phase-08p-r3-adapter-mapping.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit-mapping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Assert immutable checkout
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Audit every method and configuration mapping
+        run: python scripts/audit_prediction_adapter_mapping_r3.py > "$RUNNER_TEMP/adapter-mapping-report.json"
+      - name: Assert complete pre-fit accounting and no eligibility
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"adapter-mapping-report.json").read_text())
+          assert d["status"] == "PASS_ADAPTER_MAPPING_INVENTORY", d
+          assert d["methods"] == 1000 and d["configurations"] == 40000, d
+          assert d["decision_counts"] == {"ALLOW_IN_PRINCIPLE":426,"BLOCK":574}, d
+          assert d["allow_methods_with_adapter_and_test_files"] == 426, d
+          assert d["empirically_eligible_methods"] == 0 and d["empirical_fitting_authorized"] is False, d
+          assert d["market_data_loaded"] is False and d["holdout_accessed"] is False, d
+          PY
+      - name: Upload adapter mapping audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-adapter-mapping-audit-r3
+          path: ${{ runner.temp }}/adapter-mapping-report.json
+          if-no-files-found: error
+          retention-days: 90
