@@ -40,3 +40,9 @@ Proceed only to method-family implementation and synthetic tests. Do not run emp
 - Reviewed the probit negative log-likelihood and gradient: the signed response formulation uses `-s * phi(s*eta) / Phi(s*eta)` for the linear-predictor derivative and adds the registered quadratic coefficient penalty to slope terms only. A central finite-difference test now checks the analytic gradient.
 - Latest combined synthetic workflow [38421586248](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421586248) passed 14 tests, including the new gradient test. Summary: [probability adapter report](PREDICTION_PROBABILITY_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
 - Tester decision: PASS for logistic/probit adapter mechanics on synthetic data only. NOT APPROVED for market-data fitting; remaining family coverage and method-to-parameter mapping must be implemented and reviewed first.
+
+
+## Additional family review — classical estimators
+- LDA/QDA, elastic-net logistic, random forest, Extra Trees, gradient boosting, and histogram gradient boosting adapters were reviewed against the registered parameter shapes in the configuration shards. The adapters validate inputs and emit bounded probabilities; tree models use fixed seeds and single-thread execution for deterministic synthetic checks.
+- Latest family suite [38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests. Report: [classical adapter result](PREDICTION_CLASSICAL_ADAPTERS_SYNTHETIC_RESULT_R3_2026-10-13.md).
+- Tester decision: PASS for synthetic mechanics only. Native probability outputs from tree ensembles are not automatically considered calibrated; inner chronological OOF calibration remains mandatory where specified. No empirical fitting is approved.
