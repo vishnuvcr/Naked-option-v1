@@ -1133,3 +1133,17 @@ Implement and test the development-fold-only executor with explicit method allow
 Feature-construction contract: PASS. Empirical fitting: BLOCKED. Holdout access: false. Trading/strategy selection: out of scope for the current prediction sub-study.
 
 **Developer → Tester:** wait for the planned frozen results bundle and its formal review request, then independently audit formulas, labels, split chronology, purge/embargo, model/calibration leakage, every config/fold outcome and statistical inference.
+
+
+## 2026-10-13 — User said “Proceed”; chronological gate implemented
+
+### Work performed
+- Implemented scripts/prediction_walkforward_r3.py for chronological split indices, target maturity, per-label purge/embargo, inner quantile descriptors, role-specific sample minima, preflight block lookups and terminal result-row validation. No estimator or market data is called.
+- Added synthetic tests, machine contract research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json, human-readable supplement research/governance/PHASE8P_CHRONOLOGICAL_EXECUTION_SUPPLEMENT_R3_2026-10-13.md, and hosted workflow.
+- First runs found a bad test attribute, an incorrect endpoint-count expectation, and a workflow temp-path/Git-blob hash issue. Each was corrected and entered in research/ERROR_LOG.md.
+- Corrected workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) passed; persisted report blob 67aaea739f777a8857fb43be8e85416b22de3af8.
+
+### Current gate
+Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting authorization: false. Holdout access: false. Predictive conclusions: none yet.
+
+**Developer → Tester:** Do not approve empirical fitting from synthetic gate results. When a complete frozen empirical bundle exists, independently audit every config/fold, maturity/purge/embargo, leakage, arithmetic, missing/blocked rows, inference and correction. Until then, remain in pre-fit validation.
