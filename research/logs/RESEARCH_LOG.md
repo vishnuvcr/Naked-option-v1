@@ -776,3 +776,12 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Exact feature order is L simple returns newest-to-oldest, then L NIFTY close levels newest-to-oldest. L is 20 or 60; vector dimension is 2L. Intraday targets require exact timestamp t+H inside the same official regular session; positional targets use exact 15:30 close after H official sessions. Flat returns at absolute value <= 1e-8 are excluded. Missing values are not filled. Scaling stays train-only.
 - PM0001 remains conditional compatibility only; its fitting flag is false. Options-derived inputs are deferred until an independently frozen PIT availability contract exists. No real market rows were used in synthetic tests and no model fit/holdout access occurred.
 - Next bounded unit: chronological outer/inner fold planner, horizon-specific maturity/purge/embargo logic, sample-minimum gate and complete one-row-per-config/fold result schema. Keep empirical fit disabled until the executor gate explicitly passes.
+
+
+## 2026-10-13 — R3 chronological split/schema gate PASS (synthetic only)
+
+- Added scripts/prediction_walkforward_r3.py and scripts/test_prediction_walkforward_r3.py; frozen contract: research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json; workflow .github/workflows/phase-08p-r3-chronological-splits.yml plus a read-only split/schema gate.
+- Workflow [38406645332](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38406645332) passed; report research/gates/PREDICTION_CHRONOLOGICAL_SPLIT_TEST_REPORT_R3_2026-10-13.json, blob 67aaea739f777a8857fb43be8e85416b22de3af8, pins code/contract/prereg hashes.
+- Tests cover exact eight outer date windows, target maturity, session-index purge/embargo, endpoint containment, deterministic inner fold boundaries, frozen role-specific minima, scoped F01 data blocks, terminal row schema, unique coverage and log-loss improvement sign.
+- Initial synthetic assertion and workflow report-path bugs were corrected and recorded in research/ERROR_LOG.md. The gate proves mechanics only; no market data or model fit, no holdout access, and no predictive conclusion.
+- Next step: full 40,000-config compatibility/accounting preflight and a restartable development-only executor, still gated against all empirical-fit flags.
