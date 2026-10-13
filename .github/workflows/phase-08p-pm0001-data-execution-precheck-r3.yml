@@ -19,7 +19,7 @@ permissions:
 
 concurrency:
   group: phase-08p-pm0001-data-execution-precheck-r3
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   precheck:
