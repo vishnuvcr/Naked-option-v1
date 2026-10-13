@@ -1430,3 +1430,9 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_shallow_mlp_adapter_r3.py`
 - Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed all three MLP tests and the combined 39-test suite. No defect found at this gate.
 - Synthetic only; no empirical market-data fitting.
+
+
+## 2026-10-13 — MLP backpropagation gradient check
+- Category: mathematical validation
+- Component: `scripts/prediction_shallow_mlp_adapter_r3.py`
+- Added central finite-difference verification for weight and bias gradients with dropout disabled in the check. Workflow [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed. No sign/gradient discrepancy detected.
