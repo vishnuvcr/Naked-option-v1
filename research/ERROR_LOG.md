@@ -1483,3 +1483,17 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Finding: the registry includes dropout=0.2/0.4, while the adapter previously ignored dropout. This was a semantic mismatch, not merely a documentation issue.
 - Correction: implemented deterministic training-time inverted dropout on convolution activations and corresponding gradient mask; inference remains dropout-free. Added deterministic/invalid-range tests.
 - Verification: combined synthetic gate [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. No market data or holdout access. Markov-switching regime/prior mismatch remains unresolved.
+
+
+## 2026-10-14 — R3 adapter mapping audit scope gap / R4 remediation
+- Category: audit completeness / model-configuration semantics.
+- Component: `scripts/audit_prediction_adapter_mapping_r3.py` and `scripts/prediction_parameter_binding_r3.py`.
+- Finding: R3's mapping audit verified hash/count integrity for 1,000 method records and 40,000 configurations and checked adapter/test-file presence, but it did not prove constructor-level parameter consumption. Therefore its PASS was an inventory pass, not a semantic binding pass.
+- Impact: configuration fields could be present in the registry but ignored, mapped under the wrong constructor key, or blocked despite having a working adapter (notably TCN dropout); Markov-switching exposed only two regimes and no transition-prior parameter.
+- Correction under R4: define strict per-family parameter-key/value schemas, explicitly bind aliases to constructor names, support registered Markov 2/3-regime settings with an explicit provisional transition-prior definition, keep survival/event-time configs blocked, and make the 40,000-config audit fail on any unexpected blocked family or binding exception.
+- Verification status: R4 commits have been pushed to the isolated `phase-08-prediction-param-audit-developer` branch, but a hosted R4 run has not yet been verified at the time this log entry is written. Do not state that the remediation passed until the workflow artifact/result is checked.
+- Prevention: distinguish file-availability/accounting audits from semantic parameter audits in status/README; make hosted assertion use `set -o pipefail`; audit every registry config, not a small handpicked sample; preserve empirical fitting and holdout flags as false.
+- No market data was loaded or fitted, no holdout was opened, and no strategy or result was promoted.
+
+**Developer → Tester:** independently recalculate registry totals and check exact constructor binding semantics on the pinned R4 snapshot.
+**Tester → Developer:** reject any parameter silently dropped or any unsupported family treated as fit-ready; do not open empirical data pending code approval.
