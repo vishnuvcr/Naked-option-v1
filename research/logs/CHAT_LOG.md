@@ -1231,3 +1231,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented a deterministic shallow MLP with dropout and weight decay, then ran the expanded synthetic family suite.
 - Evidence: [workflow 38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 synthetic tests.
 - Outcome: synthetic QA only; no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: added finite-difference validation for the shallow MLP backpropagation gradients.
+- Evidence: [workflow 38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests.
+- Outcome: mathematical synthetic QA only; no market data, empirical fitting, or holdout access.
