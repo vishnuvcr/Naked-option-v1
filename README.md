@@ -694,3 +694,8 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 
 - Expanded family gate [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests, now including change-point and temporal convolution adapters. [Report](research/gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). A tensor-shape bug was caught and corrected. No empirical fitting or holdout access.
+
+
+### Adapter mapping audit (2026-10-13)
+- **PASS — inventory only:** [workflow 38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994), [report](research/gates/PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md), [artifact](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994/artifacts/11844142858). All 426 conditionally compatible methods map to adapter/test files; all 40,000 configurations reconcile. 574 methods remain blocked.
+- Synthetic implementation gate [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 tests. No empirical fitting or holdout access. Parameter-level contract and independent review remain outstanding.
