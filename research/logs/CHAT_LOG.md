@@ -1281,3 +1281,13 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
   
 **Developer → Tester:** audit the exact R4 commit and full report, especially Markov transition prior/forward-backward math and all constructor parameter mappings.
 **Tester → Developer:** provide hash-pinned pass or exact corrections; do not approve empirical fitting solely on synthetic evidence.
+
+
+### 2026-10-14 — R4 workflow setup failure and self-correction
+- New automatic/manual workflow [`.github/workflows/phase8p-parameter-binding-audit-r4.yml`](../.github/workflows/phase8p-parameter-binding-audit-r4.yml) started as run [38461861770](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38461861770).
+- Outcome: failed in `actions/setup-python` before tests because `cache: pip` could not locate `requirements.txt` or `pyproject.toml`. All install/test/audit steps were skipped. This is an infrastructure error, not a model or registry result.
+- Correction: removed pip-cache auto-detection while keeping exact NumPy/SciPy/scikit-learn version pins. A push-triggered rerun is pending verification.
+- No market data access, empirical fitting, holdout access, P&L or method ranking occurred.
+
+**Developer → Tester:** review the corrected workflow run only; do not infer model correctness from the setup failure.
+**Tester → Developer:** require all tests and the 40,000-configuration audit to complete before issuing a code decision.
