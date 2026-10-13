@@ -1252,3 +1252,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: verified combined synthetic family run and audited every registered configuration's parameter domains.
 - Evidence: [synthetic family run 38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573), [parameter inventory run 38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442), [parameter semantics report](../gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
 - Outcome: 52 synthetic tests passed; adapter mapping inventory passed; parameter semantics are not fully reconciled. Empirical fitting remains unauthorized.
+
+
+### 2026-10-14 — User instruction and action
+- User: “Resume”
+- Action: checked the in-progress family workflow; it completed successfully. Added probit adapter synthetic tests to the combined family gate.
+- Evidence: [run 38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871).
+- Outcome: 13 synthetic tests passed across logistic, chronological calibration, and probit adapters. No market-data load, empirical fit, holdout access, or prediction-performance conclusion.
