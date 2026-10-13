@@ -1,0 +1,56 @@
+{
+  "schema_version": "markov-switching-transition-prior-contract-v1",
+  "contract_id": "MARKOV_SWITCHING_TRANSITION_PRIOR_V1",
+  "status": "DEVELOPER_PROPOSED_TESTER_REVIEW_REQUIRED_NO_EMPIRICAL_RUNS",
+  "created_at": "2026-10-14",
+  "scope": "synthetic/code-contract only; no market-data fitting, untouched holdout access, strategy selection, or P&L",
+  "parent_preregistration": {
+    "path": "research/registry/PREDICTION_PREREGISTRATION_V1.json",
+    "git_blob_sha": "8e1cb2f39066a2ab992774665c8eb0d716cb139f"
+  },
+  "registered_family": "markov_switching_logit",
+  "registered_parameters": {
+    "n_regimes": {
+      "allowed_values": [
+        2,
+        3
+      ],
+      "meaning": "number of latent regimes"
+    },
+    "transition_prior": {
+      "allowed_values": [
+        2,
+        5
+      ],
+      "meaning": "symmetric Dirichlet concentration parameter alpha per destination state for each transition-matrix row",
+      "not_meaning": "not a transition probability, a multiplier on estimated probabilities, a prior on initial-state probabilities, or a regime count"
+    }
+  },
+  "transition_update": {
+    "counts": "N_ij = sum over adjacent training observations t of E[1(S_t=i,S_(t+1)=j) | X_train, y_train, current parameters], as computed by the forward-backward E-step",
+    "prior": "Each row of the K by K transition matrix independently receives Dirichlet(alpha,...,alpha), where alpha equals transition_prior.",
+    "estimator": "P_ij = (N_ij + alpha) / (sum over destinations j of N_ij + K * alpha)",
+    "implementation_correspondence": "Add alpha to every expected transition-count cell, then normalize each row.",
+    "initial_state_prior": "This contract does not apply transition_prior to initial-state probabilities; their update is separate."
+  },
+  "data_boundary": {
+    "training_only": true,
+    "use_validation_labels": false,
+    "use_outer_test_labels": false,
+    "use_untouched_holdout": false,
+    "use_future_observations_for_prediction_state_updates": false
+  },
+  "required_synthetic_proofs": [
+    "accept only n_regimes in {2,3} and transition_prior in {2,5}",
+    "transition rows sum to one for either regime count",
+    "changing alpha on the same deterministic synthetic training fixture changes the fitted transition matrix",
+    "final filtered terminal posterior is recomputed from the final stored parameters",
+    "reported log likelihood equals the final forward recursion terminal log normalizer"
+  ],
+  "review_and_execution_gates": {
+    "independent_tester_approval_required": true,
+    "empirical_fitting_authorized": false,
+    "market_data_loaded": false,
+    "holdout_accessed": false
+  }
+}
