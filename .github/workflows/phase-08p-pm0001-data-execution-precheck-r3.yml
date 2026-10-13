@@ -86,7 +86,7 @@ jobs:
           test -n "$MANIFEST"
           BUNDLE="$(dirname "$MANIFEST")"
           python -m pip install --disable-pip-version-check -r requirements-composite.txt
-          python scripts/validate_phase8_cached_composite_bundle.py --bundle-dir "$BUNDLE" --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json --output "$WORK/encrypted-report.json"
+          python scripts/validate_phase8_cached_composite_bundle.py --bundle-dir "$BUNDLE" --reference-manifest research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json --output research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json
           python scripts/decrypt_nifty_1m_composite.py --input-dir "$BUNDLE" --output-dir "$WORK/plain-parts" --merge-output "$WORK/merged.csv.gz"
           python scripts/preflight_prediction_dataset_r3.py \
             --merged-gzip "$WORK/merged.csv.gz" \
