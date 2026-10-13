@@ -1475,3 +1475,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/prediction_parameter_binding_r3.py`, `scripts/test_prediction_parameter_binding_r3.py`.
 - Initial run [38460088519](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460088519) failed because the test expected the error string to contain `UNSUPPORTED`, while the implementation raised `FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED`. The code's behavior was fail-closed; the vocabulary was inconsistent with the test contract.
 - Correction: renamed the reason to `UNSUPPORTED_FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED`. Rerun [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed tests, compilation and source checks. No market data or holdout access.
+
+
+## 2026-10-14 — Temporal-convolution dropout semantics
+- Category: parameter semantics / model implementation
+- Component: `scripts/prediction_temporal_convolution_adapter_r3.py`.
+- Finding: the registry includes dropout=0.2/0.4, while the adapter previously ignored dropout. This was a semantic mismatch, not merely a documentation issue.
+- Correction: implemented deterministic training-time inverted dropout on convolution activations and corresponding gradient mask; inference remains dropout-free. Added deterministic/invalid-range tests.
+- Verification: combined synthetic gate [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. No market data or holdout access. Markov-switching regime/prior mismatch remains unresolved.
