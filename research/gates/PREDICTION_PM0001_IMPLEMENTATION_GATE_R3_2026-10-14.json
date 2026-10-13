@@ -1,0 +1,41 @@
+{
+  "schema_version": "prediction-method-implementation-gate-r3-v1",
+  "research_date": "2026-10-14",
+  "method_id": "PM0001",
+  "method_name": "L2 logistic regression with calibrated directional probabilities",
+  "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
+  "source_commit": "a7cb4869d25b9b83ff6de1c13ba1c46b7bab477b",
+  "source_blob_pins": {
+    "scripts/prediction_pm0001_executor_r3.py": "4229380465f6dfc63cd255ad06ad5ea176536012",
+    "scripts/test_prediction_pm0001_executor_r3.py": "ded233818362ce36da7f9e2a4d94c9fce27650be",
+    ".github/workflows/phase-08p-r3-pm0001-executor-synthetic.yml": "d5d1cde71f0d22780d18897223bd4c2708d7d99a",
+    "scripts/prediction_logistic_adapter_r3.py": "fcdedf5b0ddfc9dafc44ef1cf61dc981f55a3dc2",
+    "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
+    "scripts/prediction_statistics.py": "669ab408f18acff2f79e47669203a7598077e3cd"
+  },
+  "verification": {
+    "workflow_run_id": 38469972383,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38469972383",
+    "conclusion": "success",
+    "synthetic_tests": 5,
+    "python_compile": "PASS",
+    "source_data_loaded": false,
+    "empirical_model_fit": false,
+    "holdout_accessed": false
+  },
+  "tested_contracts": [
+    "train-only feature scaling",
+    "chronological outer-fold selection",
+    "training target maturity",
+    "validation target endpoint inside fold",
+    "session-index purge and validation embargo",
+    "inner chronological OOF calibration",
+    "final estimator refit on outer training only",
+    "log-loss and Brier/balanced-accuracy/ROC-AUC/AP metrics",
+    "held-out calibration intercept/slope status",
+    "fail-closed invalid C and invalid endpoint checks"
+  ],
+  "manual_authorization_required": false,
+  "empirical_fit_authorized": false,
+  "notes": "Developer synthetic implementation gate only. It does not establish market predictive skill, does not authorize empirical fitting, and does not replace the single consolidated post-results independent tester review. Method may be considered for the next eligibility disposition only after data preflight and executor authorization gates also pass."
+}
