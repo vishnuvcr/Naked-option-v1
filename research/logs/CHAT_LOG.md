@@ -1238,3 +1238,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: added finite-difference validation for the shallow MLP backpropagation gradients.
 - Evidence: [workflow 38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests.
 - Outcome: mathematical synthetic QA only; no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-14 — User instruction and action
+- User: “Resume”
+- Action: verified combined family synthetic gate and added a full registry-to-adapter mapping audit.
+- Evidence: [family synthetic run 38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573); [mapping audit run 38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994).
+- Outcome: 52 synthetic tests passed; 1,000 methods and 40,000 configurations reconciled; 426 conditionally compatible methods map to adapter/test files, 574 remain blocked. No empirical fitting or holdout access. Next: parameter-level mapping and independent tester review.
