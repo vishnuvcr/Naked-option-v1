@@ -1168,3 +1168,12 @@ The previous tester blocker noted that the full compatibility matrix was too lar
 - Corrected the adapter test's expected log-loss constant. The four-observation reference is 0.2604634887; earlier incorrect fixture value is retained in the error log.
 - Hosted workflow outcome remains **UNVERIFIED** in this checkpoint. No empirical market data was loaded and no empirical prediction metrics were produced.
 - Important remaining gate: the OOF utility's caller must provide correctly ordered official session positions and prove label endpoints/purge semantics; this code is not yet a complete registry executor or authorization path. Full 40,000-config dispositions, outer-fold runner, runtime benchmark, empirical fitting authorization and results freeze remain pending.
+
+
+## Phase 8P R3 — chronological calibration implementation (2026-10-13)
+
+- Added `scripts/prediction_chronological_calibration_r3.py`, which fits a Platt/logistic calibration map only to supplied inner-OOF predictions and labels, and rejects unordered/duplicate timestamps, invalid probabilities, small samples and single-class labels.
+- Added synthetic-only tests at `scripts/test_prediction_chronological_calibration_r3.py`; extended the automatic/manual code-gate workflow to run both adapter and calibration suites.
+- Hosted code-gate run [38394817761](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38394817761) is queued/pending at this checkpoint; no pass is claimed yet.
+- This is a calibration component, not a fold generator: the future runner must generate predictions from chronological inner folds with frozen purge/embargo, and the calibrator's input provenance must be established by that runner. No market data or holdout was accessed and no empirical fit was run.
+- Still outstanding: verify CI, independently review calibration mathematics, produce the complete 40,000-row eligibility disposition, and implement a gated/restartable development-fold runner. Empirical fitting remains NOT AUTHORIZED.
