@@ -1311,3 +1311,11 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 
 **Developer → Tester:** independently review the exact current SHA and artifact.
 **Tester → Developer:** issue a new hash-pinned decision and preserve the older report.
+
+
+### 2026-10-14 — R6 independent tester review and final gate result
+- Reviewed current developer snapshot `1bfba987629e793accbd218d87745a8f80cf8dbd`, workflow [38464388094](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094), and artifact [11847692839](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38464388094/artifacts/11847692839).
+- The 111-test synthetic suite and 40,000-config audit passed. Markov terminal posterior/likelihood math and transition-prior formula were independently reviewed. V2 and contract statuses plus their blob pins match the workflow's assertions.
+- Tester decision: PASS for the parameter-binding/code-contract subgate only. No empirical fit, market-data load, or holdout access. Remaining preregistration fields still block model fitting.
+
+**Tester → Developer:** proceed to protocol/data preflight, not empirical fitting. **Developer → Tester:** submit the frozen protocol and provenance checks for independent review.
