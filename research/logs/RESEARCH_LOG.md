@@ -854,3 +854,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 ## 2026-10-13 — MLP backpropagation numerical audit
 - Exposed the minibatch loss/gradient calculation and added a central finite-difference check over all parameter groups. Workflow [38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed the combined 40-test synthetic suite.
 - No market-data fitting or holdout access.
+
+
+## 2026-10-13 — Expanded family gate: temporal convolution and change-point
+- The first two runs exposed a temporal-convolution output slicing bug. The exact destination slice was corrected in commit `f3944e3fba830f120a51de0e295b758b4b80b6cb` after the first textual correction missed the actual expression.
+- Hosted run [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests including the change-point and trainable temporal-convolution adapters. No market data or holdout access.
+- Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](../gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Empirical fitting remains unauthorized.
