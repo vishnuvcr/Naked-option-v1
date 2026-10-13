@@ -1370,3 +1370,10 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Combined workflow [38456989867](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38456989867) passed 47 synthetic tests, including diagonal-Gaussian HMM, Markov-switching logistic and sequential Bayesian dynamic logistic adapters. No market data or holdout access.
 - Updated [family synthetic gate report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md). Change-point segmentation exists but needs combined-gate tests; temporal convolution remains. No empirical fitting authorization.
+
+
+## Phase 8P R3 — change-point and temporal convolution gates passed (2026-10-13)
+
+- Expanded family workflow [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 synthetic tests across the current implemented families, including change-point segmentation and a trainable one-layer temporal convolution adapter. [Updated report](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+- A tensor-shape defect in the temporal convolution adapter was caught by the synthetic suite and corrected; the passing run includes the correction. See `research/ERROR_LOG.md` for both the initial mismatch and missed first patch.
+- No market data or holdout access; zero methods have empirical fitting authorization. Next: reconcile every ALLOW_IN_PRINCIPLE method and config with exact adapter/parameter contracts, then independent review before fitting.
