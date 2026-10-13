@@ -18,6 +18,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: phase-08p-eligibility-disposition-r3
+  cancel-in-progress: false
+
 jobs:
   registry-disposition:
     runs-on: ubuntu-latest
@@ -25,7 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: \${{ github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -34,7 +39,7 @@ jobs:
         run: python -m unittest test_prediction_eligibility_manifest_r3.py -v
       - name: Build and verify all 40,000 registry dispositions
         run: python scripts/build_prediction_eligibility_manifest_r3.py
-      - name: Verify output accounting and fail-closed state
+      - name: Verify fold-level support, accounting, and fail-closed state
         run: |
           python - <<'PY'
           import json
@@ -43,29 +48,37 @@ jobs:
           d = json.loads(p.read_text())
           assert d["record_count"] == 40000
           assert d["unique_config_count"] == 40000
+          assert len(d["records"]) == 40000
           assert d["empirical_fit_authorized"] is False
+          assert all(row["empirical_fit_authorized"] is False for row in d["records"])
           assert d["disposition_counts"].get("ELIGIBLE_PENDING_EXECUTOR_GATE", 0) == 0
           assert sum(d["disposition_counts"].values()) == 40000
-          print("PASS: 40,000 unique configurations accounted for; no empirical fitting authorized")
+          assert d["eligible_fold_label_cell_count"] == 75
+          assert d["blocked_fold_label_cell_count"] == 5
+          assert len(d["blocked_fold_label_cells"]) == 5
+          assert all(cell["fold_id"] == "F01" for cell in d["blocked_fold_label_cells"])
+          assert all(cell["label_id"].startswith("POS_") for cell in d["blocked_fold_label_cells"])
+          assert all(row["blocked_outer_fold_ids"] == ["F01"] for row in d["records"]
+                     if row["label_id"].startswith("POS_"))
+          print("PASS: 40,000 unique configurations; 75 supported / 5 scoped blocked fold-label cells; empirical fitting remains unauthorized")
           PY
-
-      - name: Preserve manifest and commit it to the research branch
+      - name: Commit verified manifest to research branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           manifest="research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
-          cp "$manifest" /tmp/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json
+          cp "$manifest" "$RUNNER_TEMP/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
-          cp /tmp/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json "$manifest"
+          cp "$RUNNER_TEMP/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json" "$manifest"
           git add "$manifest"
           if ! git diff --cached --quiet; then
-            git commit -m "Store verified R3 eligibility disposition manifest"
+            git commit -m "Store fold-scoped R3 eligibility disposition manifest"
             git push origin "HEAD:$GITHUB_REF_NAME"
           fi
-      - name: Upload a copy of the disposition manifest
+      - name: Upload retained copy of the disposition manifest
         uses: actions/upload-artifact@v4
         with:
           name: prediction-eligibility-disposition-r3
