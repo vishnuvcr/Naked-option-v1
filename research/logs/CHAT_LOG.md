@@ -1051,3 +1051,13 @@ This is only a synthetic code-contract pass. No empirical model was fit, no hold
 
 **Developer → Tester (post-results only):** continue waiting for the full acquired, frozen, hash-pinned empirical bundle; do not initiate interim review.
 **Tester → Developer:** once results are frozen, independently audit every disposition and result, including formulas, chronology, leakage, multiplicity, costs, failures, and hashes.
+
+
+### 2026-10-13 — Resume: eligibility manifest implementation
+
+User command: “Resume”. Developer verified the dedicated logistic/calibration code gate passed, then proceeded to the next finite prerequisite: deterministic disposition for the frozen R3 registry. Added a builder that verifies each config and compatibility shard against the registry index, checks unique IDs and method mappings, records one disposition for each config, preserves the five blocked positional label horizons, and never authorizes fitting. Added synthetic tests and a push-triggered plus manual workflow.
+
+The dedicated workflow [38397356666](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38397356666) passed its five synthetic rule tests; the full shard reconciliation was still in progress at the last check. Therefore the 40,000-row artifact and final CI outcome are pending verification. No empirical model has been fitted, no holdout accessed, and no result or strategy claimed.
+
+**Developer → Tester (post-results only):** wait for the complete frozen empirical bundle; do not review intermediate implementation steps.
+**Tester → Developer:** after acquisition, independently audit the frozen config dispositions and all empirical results in one consolidated review.
