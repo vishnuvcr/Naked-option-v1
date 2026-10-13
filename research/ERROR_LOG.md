@@ -1361,3 +1361,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/validate_prediction_family_plan_r3.py` and `.github/workflows/phase-08p-r3-family-plan.yml`
 - Outcome: hosted run [38420997992](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420997992) passed; family totals and compatibility decisions matched the pinned registry. No new defect found.
 - Scope: no fitting or holdout access; this is planning/accounting only.
+
+
+## 2026-10-13 — Probit adapter synthetic gate
+- Category: implementation / synthetic numerical validation
+- Component: `scripts/prediction_probit_adapter_r3.py`
+- Hosted combined gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed all 13 logistic, calibration and probit tests. No error remained at this gate.
+- Scope: synthetic data only; no market-data fitting or holdout access.
