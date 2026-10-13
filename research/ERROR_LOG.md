@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0001 precheck decryption lacked the configured HF token
+- Category: workflow / encrypted data access
+- Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
+- Symptom: workflow [#38472575580](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38472575580) verified the artifact ID, exact archive digest and size, downloaded the archive and passed encrypted-bundle validation, but decryption stopped with `DECRYPT_ERROR EOFError` because the step did not pass `HF_TOKEN`.
+- Correction: added `HF_TOKEN: ${{ secrets.HF_TOKEN }}` to the isolated decryption step, matching the established data-preflight workflow. No plaintext dataset or model output was produced in the failed attempt.
+- Next verification must pass archive hash, encrypted-part checks, full canonical data preflight, and 320 config/fold prechecks before any empirical fitting.
+
 ## 2026-10-14 — PM0001 precheck used a mistyped encrypted archive digest
 - Category: source pin / workflow typo
 - Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
