@@ -1203,3 +1203,10 @@ Chronological split/schema mechanics: PASS (synthetic only). Empirical fitting a
 - Action: implemented tree ensemble adapters (random forest, Extra Trees, gradient boosting, histogram gradient boosting) and expanded the synthetic test suite.
 - Evidence: [workflow 38422568667](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38422568667) passed 26 synthetic tests.
 - Outcome: adapter mechanics only; no market data, empirical fitting, or holdout access.
+
+
+### 2026-10-13 — User instruction and action
+- User: “Proceed”
+- Action: added raw-score adapters for kernel SVM, nearest centroid and KNN plus chronological score calibration; fixed two nearest-centroid API issues after a failed synthetic run.
+- Evidence: failed run [38423018566](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423018566); corrected run [38423098453](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423098453) passed 32 tests.
+- Outcome: synthetic-only. No market data, empirical fitting, or holdout access.
