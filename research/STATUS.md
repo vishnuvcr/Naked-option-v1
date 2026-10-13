@@ -1357,3 +1357,9 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 
 - Latest workflow [38423891261](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38423891261) passed 36 synthetic tests across 13 estimator families plus chronological calibration. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
 - Includes logistic, probit, LDA/QDA, elastic-net logistic, four tree ensembles, SVM, nearest centroid, KNN density ratio, and additive spline logistic. No market data or holdout access. Complex state-space/temporal families remain; no empirical method is authorized.
+
+
+## Phase 8P R3 — shallow MLP synthetic gate passed (2026-10-13)
+
+- Workflow [38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378) passed 39 synthetic tests, adding a deterministic one-hidden-layer MLP with dropout and weight decay. Report: [PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md](gates/PREDICTION_FAMILY_SYNTHETIC_GATE_R3_2026-10-13.md).
+- No market data or holdout access. HMM, Markov-switching logit, Bayesian dynamic logit, change-point and temporal convolution families remain; no empirical fitting is authorized.
