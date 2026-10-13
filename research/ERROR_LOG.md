@@ -1347,3 +1347,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `.github/workflows/phase-08p-r3-terminal-accounting.yml`
 - Added a streaming audit over every compressed JSONL row: preregistered required fields, unique config/fold pair, terminal status, null metrics on blocked rows, and explicit no-fitting/no-holdout flags.
 - Hosted run [38420025140](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420025140) passed all 320,000 rows. No model fitting or holdout access occurred.
+
+## 2026-10-13 — Terminal executor preflight provenance hardening
+- Category: fail-closed authorization / provenance
+- Component: `scripts/prediction_accounting_executor_r3.py`
+- Tester-style source review found the initial accounting executor consumed preflight cells without asserting the preflight's passing status, canonical hash agreement, and no-fit/no-holdout provenance flags. It also used a fixed timestamp in a field named `created_utc`.
+- Correction: fail closed unless `status == PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS`, canonical hashes agree, and provenance flags are false; use actual UTC creation time. Changes in commits `5db2df5c67504ad8a8d661305138a042c5adfa23` and `037a1fd5a2da60cc2971091ef12bb81045eb638a`.
+- Evidence: hardened workflow [38420286467](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38420286467) passed all 320,000 row checks. No fitting or holdout access.
