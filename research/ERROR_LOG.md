@@ -1454,3 +1454,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Component: `scripts/audit_prediction_adapter_mapping_r3.py`, workflow `.github/workflows/phase-08p-r3-adapter-mapping.yml`
 - Outcome: hosted run [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed all registry/config linkage and adapter/test file checks. No new mismatch found.
 - Separate resolved defect: temporal convolution output accumulation had a destination-slice shape mismatch; after a missed first textual patch, the exact slice was corrected and full family workflow [38457613573](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38457613573) passed 52 tests. No empirical fitting or holdout access occurred.
+
+
+## 2026-10-14 — Parameter inventory audit script newline error
+- Category: audit tooling / syntax
+- Component: `scripts/audit_prediction_adapter_mapping_r3.py`
+- Failure: an edit inserted literal `\\n` characters into a Python loop, causing `SyntaxError`; the pipeline initially masked the script exit because it lacked `pipefail`.
+- Correction: replaced literal escape sequences with real newlines and enabled `set -o pipefail` in the workflow. Rerun [38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442) passed registry/accounting checks and exposed the registered parameter value domains.
+- Audit follow-up found unresolved parameter semantics; see [parameter audit](PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md). No empirical fitting or holdout access occurred.
