@@ -63,3 +63,8 @@ Proceed only to method-family implementation and synthetic tests. Do not run emp
 ## Shallow MLP family review
 - MLP implementation matches the registered shallow family parameters (hidden units, dropout and weight decay), uses training-only standardization, deterministic seeds and a bounded sigmoid probability output. Synthetic determinism and validation tests passed in [workflow 38424265378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424265378).
 - Tester decision: PASS for synthetic contract only. The adapter's optimization dynamics still require independent numerical validation before any empirical fitting; this report does not authorize it.
+
+
+## MLP numerical review
+- Added a central finite-difference check for the MLP batch loss gradients across both weight matrices and biases; [workflow 38424574167](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38424574167) passed 40 synthetic tests.
+- Tester decision: PASS for numerical implementation mechanics on synthetic data. This does not establish out-of-sample performance, and no empirical fitting is authorized.
