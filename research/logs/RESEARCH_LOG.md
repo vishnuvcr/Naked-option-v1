@@ -866,3 +866,9 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Added `scripts/audit_prediction_adapter_mapping_r3.py` and `.github/workflows/phase-08p-r3-adapter-mapping.yml` to audit every method/config against adapter and synthetic-test files.
 - Workflow [38458212994](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994) passed; report [PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md](../gates/PREDICTION_ADAPTER_MAPPING_AUDIT_R3_2026-10-13.md), artifact [11844142858](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458212994/artifacts/11844142858).
 - 1,000 methods and 40,000 configurations reconcile; 426 conditionally compatible methods map to adapter/test files, 574 remain blocked. This does not verify every parameter's semantic implementation and does not authorize fitting.
+
+
+## 2026-10-14 — Parameter semantics audit
+- Extended the adapter mapping audit to enumerate exact parameter keys and values across all 40,000 configurations. Hosted run [38458582442](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38458582442) passed registry accounting.
+- Parameter-level review found blockers: Bayesian drift alias; Markov-switching n_regimes/transition_prior mismatch; temporal-convolution dropout missing; HMM covariance assumption needs a frozen-value assertion. Full report: [PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md](../gates/PREDICTION_PARAMETER_SEMANTICS_AUDIT_R3_2026-10-14.md).
+- No market-data fit, no holdout access, and no empirical method is authorized.
