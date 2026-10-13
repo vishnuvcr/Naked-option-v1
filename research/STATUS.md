@@ -1,5 +1,18 @@
 # Research Status
 
+## Phase 8P R3 — feature-construction contract passed (2026-10-13)
+
+- Hosted workflow [38404222506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38404222506) concluded SUCCESS. The aggregate report is [PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json](gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json), Git blob SHA-1 448623986b2773faf34db3ae33437feea0e057f9; all 45 linked contract/provenance checks passed.
+- Frozen feature supplement: [PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13.md](governance/PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13.md) and [machine-readable contract](registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json). It pins a spot-only raw lag stack: L simple returns newest-to-oldest followed by L close levels newest-to-oldest; L=20 or 60, 40 or 120 features. StandardScaler remains training-fold-only.
+- Synthetic tests passed for exact same-session intraday targets, no nearest-timestamp substitution, session-index positional targets, flat-label exclusions, incomplete history, duplicate timestamps, session-date mismatch and checkout-expression regression. No real market rows were used by these tests and no model was fitted.
+- Options rows are not yet included in PM0001 features. Any option or global/contextual feature requires its own pre-result point-in-time availability contract.
+- Research execution remains BLOCKED: all 1,000 methods remain unimplemented/not approved, and every fitting flag remains false. No prediction result or strategy is claimed.
+- Next bounded gate: implement the chronological outer/inner fold planner and result-row accounting; enforce maturity, label-specific purge/embargo and frozen minima before any estimator is allowed to fit. Holdout remains sealed.
+
+The older status entries below are preserved as historical checkpoint records.
+
+---
+
 ## Phase 8P R3 prerequisite audit — PASS with scoped restrictions (2026-10-13)
 
 - Automated hosted audit [38402512031](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402512031) passed after the checkout-expression fix; final regression-covered commit [d98bebbc0547fd536016290e8b54293a55612bd7](https://github.com/vishnuvcr/Naked-option-v1/commit/d98bebbc0547fd536016290e8b54293a55612bd7) ran [38402528507](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38402528507) successfully as well.
