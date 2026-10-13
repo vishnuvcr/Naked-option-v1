@@ -20,6 +20,8 @@ on:
       - "scripts/test_prediction_tree_ensemble_adapters_r3.py"
       - "scripts/prediction_margin_distance_adapters_r3.py"
       - "scripts/test_prediction_margin_distance_adapters_r3.py"
+      - "scripts/prediction_gam_adapter_r3.py"
+      - "scripts/test_prediction_gam_adapter_r3.py"
       - ".github/workflows/phase-08p-r3-logistic-family-synthetic.yml"
 
 permissions:
@@ -52,13 +54,14 @@ jobs:
           python -m unittest discover -s scripts -p "test_prediction_elastic_net_logistic_adapter_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_tree_ensemble_adapters_r3.py" -v
           python -m unittest discover -s scripts -p "test_prediction_margin_distance_adapters_r3.py" -v
+          python -m unittest discover -s scripts -p "test_prediction_gam_adapter_r3.py" -v
       - name: Compile family modules
-        run: python -m py_compile scripts/prediction_logistic_adapter_r3.py scripts/prediction_chronological_calibration_r3.py scripts/prediction_probit_adapter_r3.py scripts/prediction_discriminant_adapters_r3.py scripts/prediction_elastic_net_logistic_adapter_r3.py scripts/prediction_tree_ensemble_adapters_r3.py scripts/prediction_margin_distance_adapters_r3.py
+        run: python -m py_compile scripts/prediction_logistic_adapter_r3.py scripts/prediction_chronological_calibration_r3.py scripts/prediction_probit_adapter_r3.py scripts/prediction_discriminant_adapters_r3.py scripts/prediction_elastic_net_logistic_adapter_r3.py scripts/prediction_tree_ensemble_adapters_r3.py scripts/prediction_margin_distance_adapters_r3.py scripts/prediction_gam_adapter_r3.py
       - name: Assert no market data or holdout access in adapter modules
         run: |
           python - <<'PY'
           from pathlib import Path
-          files = [Path("scripts/prediction_logistic_adapter_r3.py"), Path("scripts/prediction_chronological_calibration_r3.py"), Path("scripts/prediction_probit_adapter_r3.py"), Path("scripts/prediction_discriminant_adapters_r3.py"), Path("scripts/prediction_elastic_net_logistic_adapter_r3.py"), Path("scripts/prediction_tree_ensemble_adapters_r3.py"), Path("scripts/prediction_margin_distance_adapters_r3.py")]
+          files = [Path("scripts/prediction_logistic_adapter_r3.py"), Path("scripts/prediction_chronological_calibration_r3.py"), Path("scripts/prediction_probit_adapter_r3.py"), Path("scripts/prediction_discriminant_adapters_r3.py"), Path("scripts/prediction_elastic_net_logistic_adapter_r3.py"), Path("scripts/prediction_tree_ensemble_adapters_r3.py"), Path("scripts/prediction_margin_distance_adapters_r3.py"), Path("scripts/prediction_gam_adapter_r3.py")]
           for p in files:
               s = p.read_text()
               for forbidden in ("HOLDOUT_ACCESS_TOKEN", "market_data.csv", "holdout.csv"):
