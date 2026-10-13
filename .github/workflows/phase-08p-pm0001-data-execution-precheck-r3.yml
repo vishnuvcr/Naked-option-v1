@@ -74,17 +74,8 @@ jobs:
           assert x["digest"] == "sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b"
           assert x["size_in_bytes"] == 231076122
           PY
-          curl -fsS -D "$WORK/headers.txt" -o /dev/null -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip"
-          URL="$(python - "$WORK/headers.txt" <<'PY'
-          import sys
-          lines=open(sys.argv[1],encoding="latin-1").read().splitlines()
-          v=[x.partition(":")[2].strip() for x in lines if x.lower().startswith("location:")]
-          assert v and v[-1].startswith("https://")
-          print(v[-1])
-          PY
-          )"
-          curl -fL --retry 3 --retry-delay 2 "$URL" -o "$WORK/source.zip"
+          # GitHub CLI follows the API's temporary signed-URL redirect without exposing the token in shell output.
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/11698879857/zip" > "$WORK/source.zip"
           echo "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4c3c6c3e5bb45b  $WORK/source.zip" | sha256sum -c -
           unzip -q "$WORK/source.zip" -d "$WORK/unpacked"
           MANIFEST="$(find "$WORK/unpacked" -type f -name dataset_manifest.json -print -quit)"
