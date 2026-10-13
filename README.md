@@ -640,3 +640,9 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 - The next gate is **developer-side ten-horizon registry QA plus a fail-closed, development-fold-only executor**. The current compatibility matrix still marks 426 methods conditional, 574 blocked and zero empirically eligible; all 1,000 method records retain NOT_IMPLEMENTED_OR_TESTER_APPROVED. Do not bypass this state by flipping eligibility flags manually.
 - The data preflight is scoped: 75/80 label-fold cells pass and five positional F01 cells fail the frozen missing-target-pair rule. Any executor must preserve exact fold-level eligibility, label-specific target maturity, purge/embargo, training-only preprocessing and chronological inner OOF calibration.
 - No outer-fold performance results, best model, trading strategy, or holdout result are claimed. The next durable deliverable is an executable QA/authorization gate with synthetic leakage tests, per-config/fold result rows including blocked/failed attempts, restartable checkpoints, immutable source pins and a manual workflow-dispatch option.
+
+
+### Phase 8P R3 registry accounting gate (2026-10-13)
+- **PASS — read-only integrity/accounting audit:** [workflow run 38418296924](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924), [result report](research/gates/REGISTRY_AUDIT_RESULT_2026-10-13.md), [workflow artifact](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38418296924/artifacts/11824953893).
+- Verified all 400 config shards / 40,000 configurations and all 40 compatibility shards / 1,000 methods, shard byte counts and SHA-256, canonical configuration digests, unique IDs, label counts, and 40 configs per method. Counts: 426 ALLOW_IN_PRINCIPLE, 574 BLOCK; zero empirically eligible.
+- No market data loaded, no model fit, no holdout access. Registry integrity is not prediction-performance evidence or fitting authorization.
