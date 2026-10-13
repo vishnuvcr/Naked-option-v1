@@ -1,0 +1,30 @@
+{
+  "empirical_fit_authorized": false,
+  "generated_utc": "2026-10-13T13:38:55.887807+00:00",
+  "holdout_accessed": false,
+  "market_data_loaded": false,
+  "model_fitting_performed": false,
+  "result_bundle_frozen": false,
+  "schema_version": "prediction-chronological-split-test-report-v1",
+  "source_commit": "48a7699ba969fe13bef5dbb88a9d68bcbffc7910",
+  "source_hashes": {
+    "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json": {
+      "git_blob_sha1": "c91f3c4beefca3a2c4a68f6e6c55f73035e13378",
+      "sha256": "396b477ff05d52c2b00b17be442f4d8097fb4394e6d738a072777bbf5048fa7e"
+    },
+    "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json": {
+      "git_blob_sha1": "1ef2bf467928642aafc675899dd779a76394daab",
+      "sha256": "149d319c15edaec2ecdb0854623b08e373313de93afbfff9d64af9486200f115"
+    },
+    "scripts/prediction_walkforward_r3.py": {
+      "git_blob_sha1": "5c025298172e0046a73805066ae3669b79f401f9",
+      "sha256": "9b2fa46eb0913d3759a5b9ff77d111deab0ff183d7e8c1ac18f8ca890c7fc08d"
+    },
+    "scripts/test_prediction_walkforward_r3.py": {
+      "git_blob_sha1": "ae52c6619f5353914391f7b1d3be4531fc46e9af",
+      "sha256": "48be90c8bf880480b569ddf986f83105ef4d68eef083d96ec9c91ae2195a720e"
+    }
+  },
+  "status": "PASS_SYNTHETIC_CHRONOLOGICAL_CONTRACT_ONLY",
+  "test_suite": "test_prediction_walkforward_r3.py"
+}
