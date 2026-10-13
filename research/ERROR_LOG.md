@@ -1468,3 +1468,10 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Category: synthetic model-family validation
 - Component: `scripts/prediction_probit_adapter_r3.py`
 - Result: combined hosted synthetic gate [38421293871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38421293871) passed all 13 tests across logistic, calibration and probit components. No new defect detected by these tests. No empirical fitting or holdout access.
+
+
+## 2026-10-14 — Parameter binding synthetic gate
+- Category: test assertion / fail-closed contract
+- Component: `scripts/prediction_parameter_binding_r3.py`, `scripts/test_prediction_parameter_binding_r3.py`.
+- Initial run [38460088519](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460088519) failed because the test expected the error string to contain `UNSUPPORTED`, while the implementation raised `FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED`. The code's behavior was fail-closed; the vocabulary was inconsistent with the test contract.
+- Correction: renamed the reason to `UNSUPPORTED_FAMILY_BINDING_NOT_EXPLICITLY_IMPLEMENTED`. Rerun [38460137808](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460137808) passed tests, compilation and source checks. No market data or holdout access.
