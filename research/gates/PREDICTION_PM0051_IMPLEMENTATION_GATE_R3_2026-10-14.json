@@ -15,7 +15,7 @@
     "scripts/prediction_probit_adapter_r3.py": "3f140578224dcee97bde65968e9c4bfee9a2eaa5",
     "scripts/prediction_probit_executor_r3.py": "3a6a1d14790ee5752a85d01961dfcf46375d51e3",
     "scripts/prediction_statistics.py": "669ab408f18acff2f79e47669203a7598077e3cd",
-    "scripts/prediction_walkforward_r3.py": "5c025298172e0046a73805066ae3669b79f401f9",
+    "scripts/prediction_walkforward_r3.py": "d8b2cc0344d3178f067ca1875e95afe66520775f",
     "scripts/publish_pm0051_run_status_r3.py": "081b3d6cb424947168c5fd34991e16a6af2b2179",
     "scripts/run_pm0051_data_execution_precheck_r3.py": "4ed674393c781e1eefaf2c84e36de8f2cc067c84",
     "scripts/run_pm0051_data_execution_precheck_r3a.py": "6e9cd9e170be09e20e580e2894cd94db1f40a0c6",
@@ -34,7 +34,7 @@
     "scripts/test_run_pm0051_data_execution_precheck_r3a.py": "cdcab1bc7896dad9893fc31e571975b30d06cc94",
     "scripts/test_run_pm0051_prediction_sweep_r3.py": "e41e4ff9b1c801a9b94f431ab95f65583ed64c81"
   },
-  "source_commit": "cfebabef93372ab5cb906fd1d9123d0b6da9de74",
+  "source_commit": "db8ce68f48bdb136c794b234b42d04422b1ec575",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
   "verification": {
     "conclusion": "success",
@@ -44,7 +44,7 @@
     "raw_market_rows_emitted": false,
     "source_data_loaded": false,
     "synthetic_test_groups": 13,
-    "workflow_run_id": 38595223390,
-    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595223390"
+    "workflow_run_id": 38632631626,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38632631626"
   }
 }
