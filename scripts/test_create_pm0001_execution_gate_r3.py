@@ -128,13 +128,13 @@ class PM0001ExecutionGateTests(unittest.TestCase):
 
     def test_wrong_pending_method_or_count_fails_closed(self):
         eligibility, preflight, implementation, precheck, args = fixture()
-        eligibility["records"][0]["method_id"] = "PM0002"
+        eligibility["records"][39960]["method_id"] = "PM0002"
         with self.assertRaisesRegex(ValueError, "EXPECTED_EXACTLY_40_PM0001"):
             build_execution_gate(eligibility, preflight, implementation, precheck, **args)
 
     def test_precheck_pair_uniqueness_and_exact_expected_universe(self):
         eligibility, preflight, implementation, precheck, args = fixture()
-        precheck["rows"][1]["config_id"] = precheck["rows"][0]["config_id"]
+        precheck["rows"][8]["config_id"] = precheck["rows"][0]["config_id"]
         with self.assertRaisesRegex(ValueError, "PM0001_DATA_PRECHECK_DUPLICATE_PAIR"):
             build_execution_gate(eligibility, preflight, implementation, precheck, **args)
 
