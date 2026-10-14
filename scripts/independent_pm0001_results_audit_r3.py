@@ -12,6 +12,8 @@ import hashlib
 import json
 import math
 import re
+import random
+import statistics
 from collections import Counter
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -82,6 +84,78 @@ def independent_by_adjustment(p_values: Mapping[str, float], q: float = 0.05) ->
         }
         for i, (name, p) in enumerate(items)
     }
+
+
+def independent_moving_block_bootstrap(
+    fold_deltas: Mapping[str, Sequence[float]],
+    *,
+    block_length: int = 10,
+    replicates: int = 10000,
+    seed: int = 2026101209,
+    confidence_level: float = 0.95,
+) -> dict[str, Any]:
+    """Recompute PM0001 paired-session moving-block inference without developer imports."""
+    if not fold_deltas:
+        raise ValueError("bootstrap input has no folds")
+    ordered_folds: list[list[float]] = []
+    fold_counts: dict[str, int] = {}
+    for fold_id in sorted(fold_deltas):
+        values = [float(x) for x in fold_deltas[fold_id]]
+        if len(values) < block_length or any(not math.isfinite(x) for x in values):
+            raise ValueError(f"invalid bootstrap delta sequence:{fold_id}")
+        ordered_folds.append(values)
+        fold_counts[fold_id] = len(values)
+    flattened = [x for fold in ordered_folds for x in fold]
+    observed = statistics.fmean(flattened)
+    rng = random.Random(seed)
+    estimates: list[float] = []
+    for _ in range(replicates):
+        sampled_all: list[float] = []
+        for fold in ordered_folds:
+            n = len(fold)
+            sampled: list[float] = []
+            while len(sampled) < n:
+                start = rng.randrange(0, n - block_length + 1)
+                sampled.extend(fold[start:start + block_length])
+            sampled_all.extend(sampled[:n])
+        estimates.append(statistics.fmean(sampled_all))
+    estimates.sort()
+    unique = len(set(estimates))
+    result: dict[str, Any] = {
+        "observed_mean_improvement": observed,
+        "replicates": replicates,
+        "seed": seed,
+        "block_length_exchange_sessions": block_length,
+        "fold_session_counts": [len(fold) for fold in ordered_folds],
+        "bootstrap_unique_estimates": unique,
+        "positive_favors_candidate": True,
+    }
+    if unique == 1:
+        result.update({
+            "ci_low": None, "ci_high": None,
+            "raw_p_value": None,
+            "inferential_status": "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING",
+        })
+        return result
+
+    def percentile(values: Sequence[float], probability: float) -> float:
+        position = (len(values) - 1) * probability
+        low = math.floor(position)
+        high = math.ceil(position)
+        if low == high:
+            return float(values[low])
+        weight = position - low
+        return float(values[low] * (1.0 - weight) + values[high] * weight)
+
+    alpha = (1.0 - confidence_level) / 2.0
+    exceedances = sum(abs(value - observed) >= abs(observed) for value in estimates)
+    result.update({
+        "ci_low": percentile(estimates, alpha),
+        "ci_high": percentile(estimates, 1.0 - alpha),
+        "raw_p_value": (1 + exceedances) / (replicates + 1),
+        "inferential_status": "OK",
+    })
+    return result
 
 
 def reconstruct_pm0001_configs(root: Path, issues: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
