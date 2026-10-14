@@ -2,6 +2,22 @@ name: Phase 8P R3 PM0051 Probit prediction execution and frozen results
 
 on:
   workflow_dispatch:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - .github/workflows/phase-08p-r3-pm0051-prediction-execution.yml
+      - .github/workflows/phase-08p-r3-pm0051-executor-synthetic.yml
+      - scripts/prediction_probit_adapter_r3.py
+      - scripts/prediction_probit_executor_r3.py
+      - scripts/prediction_parameter_binding_r3.py
+      - scripts/run_pm0051_data_execution_precheck_r3.py
+      - scripts/run_pm0051_data_execution_precheck_r3a.py
+      - scripts/create_pm0051_execution_gate_r3.py
+      - scripts/run_pm0051_prediction_sweep_r3.py
+      - scripts/freeze_pm0051_result_bundle_r3.py
+      - scripts/build_pm0051_eligibility_disposition_r3.py
+      - research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json
+      - research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json
 
 permissions:
   contents: write
