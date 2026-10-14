@@ -1176,3 +1176,11 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Execution gate: PASS_PM0051_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
 - Runtime error rows: 0; result manifest: research/results/phase8p-pm0051/run-38538173855/freeze_manifest.json.
 
+## 2026-10-14T19:02:09.449173+00:00 — Phase 8P R3A run 38595451340
+
+- Workflow: [run 38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340); source commit 6dafd244ff6b165fe96f9d7ef0696cc3f1757bf5.
+- Result status: BLOCKED_GATE_NO_EMPIRICAL_FITS; empirical fit rows: 0; results_acquired=false.
+- Precheck: {"BLOCKED_DATA": 20, "BLOCKED_SAMPLE_ELIGIBILITY": 38, "PRECHECK_PASS": 262}; terminal result accounting: {"BLOCKED_DATA": 58, "FAILED_TECHNICAL": 262}.
+- Execution gate: PASS_PM0051_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
+- Runtime error rows: 262; result manifest: research/results/phase8p-pm0051/run-38595451340/freeze_manifest.json.
+
