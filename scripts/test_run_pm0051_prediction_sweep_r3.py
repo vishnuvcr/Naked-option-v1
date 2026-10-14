@@ -117,6 +117,42 @@ class PM0051SweepTests(unittest.TestCase):
         ctx=build_daily_regime_context(rows,dates)
         self.assertIsNone(ctx[20]); self.assertIsNotNone(ctx[21]); self.assertIsNone(ctx[25]); self.assertIsNone(ctx[26])
 
+    def test_classification_metrics_include_confusion_and_calibration(self):
+        m = classification_diagnostics([1, 0, 1, 0], [0.9, 0.8, 0.2, 0.1], [0.6, 0.4, 0.6, 0.4])
+        self.assertAlmostEqual(m["accuracy"], 0.5)
+        self.assertAlmostEqual(m["balanced_accuracy_from_confusion"], 0.5)
+        self.assertEqual((m["true_positive"], m["false_positive"], m["true_negative"], m["false_negative"]), (1, 1, 1, 1))
+        self.assertAlmostEqual(m["baseline_accuracy"], 1.0)
+        self.assertEqual(sum(x["count"] for x in m["calibration_bins"]), 4)
+
+    def test_session_accuracy_differences_are_paired(self):
+        r = SimpleNamespace(validation_indices=(0, 1, 2), y_validation=(1, 0, 1),
+            probabilities=(0.9, 0.1, 0.4), baseline_probabilities=(0.5, 0.5, 0.5))
+        samples = [SimpleNamespace(decision_session_index=0), SimpleNamespace(decision_session_index=0),
+                   SimpleNamespace(decision_session_index=1)]
+        positions, deltas, metrics = session_accuracy_deltas(r, samples, ["2026-01-01", "2026-01-02"])
+        self.assertEqual(positions, [0, 1])
+        self.assertAlmostEqual(deltas[0], 0.5)
+        self.assertAlmostEqual(deltas[1], -1.0)
+        self.assertAlmostEqual(metrics["candidate_session_weighted_accuracy"], 0.5)
+        self.assertAlmostEqual(metrics["baseline_session_weighted_accuracy"], 0.75)
+
+    def test_daily_regime_context_never_imputes_missing_close(self):
+        from datetime import date, timedelta
+        dates = [(date(2026, 1, 1) + timedelta(days=i)).isoformat() for i in range(30)]
+        rows, close = [], 20000.0
+        for i, day in enumerate(dates):
+            close *= 1.0 + (0.001 if i % 3 else -0.0015)
+            if i == 24:
+                continue
+            rows.append({"row_type": "SPOT", "session_date": day,
+                         "timestamp_ist": day + "T15:29:00+05:30", "nifty_close": str(close)})
+        context = build_daily_regime_context(rows, dates)
+        self.assertIsNone(context[20])
+        self.assertIsNotNone(context[21])
+        self.assertIsNone(context[25])
+        self.assertIsNone(context[26])
+
     def test_bootstrap_p_value_field_is_normalized_for_result_schema(self):
         normalized = normalize_bootstrap_result({
             "raw_two_sided_p_value_centered_bootstrap": 0.0123,
