@@ -1,7 +1,7 @@
 """Synthetic-only tests for independent R3 PM0001 result auditing."""
 import unittest
 
-from independent_pm0001_results_audit_r3 import independent_by_adjustment, validate_precheck, validate_result_rows
+from independent_pm0001_results_audit_r3 import independent_by_adjustment, independent_moving_block_bootstrap, validate_precheck, validate_result_rows
 
 
 def configs():
@@ -66,6 +66,27 @@ def blocked_rows(config_map):
 
 
 class IndependentPM0001ResultsAuditTests(unittest.TestCase):
+    def test_independent_bootstrap_is_deterministic_and_recomputable(self):
+        deltas = {
+            "F01": [0.02, 0.01, -0.01, 0.03, 0.02, 0.01, -0.005, 0.025, 0.01, 0.015, 0.02, 0.01],
+            "F02": [-0.01, 0.00, 0.01, 0.02, -0.02, 0.01, 0.03, 0.02, 0.00, 0.015, 0.01, 0.02],
+        }
+        a = independent_moving_block_bootstrap(deltas, block_length=10, replicates=200, seed=1234)
+        b = independent_moving_block_bootstrap(deltas, block_length=10, replicates=200, seed=1234)
+        self.assertEqual(a, b)
+        self.assertAlmostEqual(a["observed_mean_improvement"], sum(sum(v) for v in deltas.values()) / sum(len(v) for v in deltas.values()))
+        self.assertGreaterEqual(a["ci_high"], a["ci_low"])
+        self.assertGreaterEqual(a["raw_p_value"], 1/201)
+        self.assertLessEqual(a["raw_p_value"], 1.0)
+
+    def test_independent_bootstrap_fails_closed_on_degenerate_resampling(self):
+        deltas = {"F01": [0.0] * 10, "F02": [0.0] * 11}
+        result = independent_moving_block_bootstrap(deltas, block_length=10, replicates=50, seed=1)
+        self.assertEqual(result["inferential_status"], "NON_IDENTIFIABLE_DEGENERATE_RESAMPLING")
+        self.assertIsNone(result["ci_low"])
+        self.assertIsNone(result["ci_high"])
+        self.assertIsNone(result["raw_p_value"])
+
     def test_by_adjusted_values_and_rejections_are_recomputed_independently(self):
         values = independent_by_adjustment({"A": 0.001, "B": 0.02, "C": 0.8}, q=0.05)
         self.assertEqual(set(values), {"A", "B", "C"})
