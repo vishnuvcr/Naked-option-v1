@@ -1,3 +1,9 @@
+## 2026-10-15 — Confirmed synthetic gate PASS; empirical rerun pending
+
+- Actions run [#38633592098](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38633592098) completed successfully, including PM0051 synthetic contract/regression tests and eligibility-manifest validation.
+- This is synthetic-only validation. The corrected extended diagnostics still need a fresh empirical run. The prior run [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340) remains 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, zero accepted fits.
+- Workflow dispatch is configured, but the connected GitHub tools expose no dispatch operation; a watched-file trigger attempt was blocked. No holdout access or strategy promotion.
+
 ## 2026-10-15 — Follow-up execution attempt and hard blocker
 
 - Rechecked the available GitHub connector actions and repository branches. The connector provides workflow-run inspection and rerun of existing failed jobs, but no workflow-dispatch or repository-workflow-list action.
