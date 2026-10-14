@@ -15,7 +15,6 @@ on:
       - 'research/data/NSE_EQUITY_TRADING_CALENDAR_2021_2026_R3.json'
       - 'research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json'
       - 'research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json'
-      - '.github/workflows/phase-08p-data-preflight-r3.yml'
   workflow_dispatch:
 
 permissions:
@@ -220,20 +219,32 @@ jobs:
           set -euo pipefail
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
+          PUBLISH_DIR="$RUNNER_TEMP/r3-preflight-publish"
+          mkdir -p "$PUBLISH_DIR"
           for p in \
             research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json \
             research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json \
             research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json \
             research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt; do
-            if [ -f "$p" ]; then git add "$p"; fi
+            if [ -f "$p" ]; then
+              mkdir -p "$PUBLISH_DIR/$(dirname "$p")"
+              cp "$p" "$PUBLISH_DIR/$p"
+            fi
+          done
+          # Merge fresh reports onto the latest code snapshot instead of rebasing a commit
+          # that edits the same generated report files and can conflict on every retry.
+          git fetch origin phase-08-prediction-developer
+          git reset --hard FETCH_HEAD
+          for p in \
+            research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_ATTEMPT_R3_2026-10-13.json \
+            research/gates/PREDICTION_DATA_PREFLIGHT_WORKFLOW_LOG_R3_2026-10-13.txt; do
+            if [ -f "$PUBLISH_DIR/$p" ]; then cp "$PUBLISH_DIR/$p" "$p"; git add "$p"; fi
           done
           if git diff --cached --quiet; then
             echo "No aggregate diagnostics to commit."
             exit 0
           fi
           git commit -m "Record R3 encrypted data and aggregate preflight results"
-          # The multi-minute data scan may overlap unrelated branch commits. Rebase only this
-          # report-only commit onto the latest branch; never force-push.
-          git fetch origin phase-08-prediction-developer
-          git rebase origin/phase-08-prediction-developer
           git push origin HEAD:phase-08-prediction-developer
