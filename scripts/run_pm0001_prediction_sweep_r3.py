@@ -290,6 +290,13 @@ def _base_row(
         source_manifest_sha256=source_manifest_sha256,
         metrics=metrics,
     )
+    registered = config["configuration"]
+    row["lookback_bars"] = int(registered["lookback_bars"])
+    row["c"] = float(registered["model_parameters"]["C"])
+    row["config_sha256"] = str(config.get("config_sha256", ""))
+    row["complexity_preset"] = str(registered.get("complexity_preset", ""))
+    row["stratum"] = str(registered.get("stratum", ""))
+    row["horizon"] = str(registered.get("horizon", ""))
     row["precheck_status"] = pr.get("status", "MISSING")
     row["precheck_reason_codes"] = pr.get("reason_codes", [])
     row["label_exclusion_count_status"] = "FOLD_SPECIFIC_COUNT_NOT_EMITTED_BY_FROZEN_FEATURE_BUILDER"
