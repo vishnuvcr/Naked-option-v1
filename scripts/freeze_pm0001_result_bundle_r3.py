@@ -255,6 +255,7 @@ def make_manifest(
     errors_path: Path,
     precheck_path: Path,
     gate_path: Path,
+    preflight_path: Path,
     csv_path: Path,
     report_path: Path,
     source_commit: str,
@@ -267,6 +268,8 @@ def make_manifest(
     # A failed/blocked developer run may legitimately have no execution gate or even
     # no precheck report. Preserve the terminal bundle, but never claim empirical fit.
     artifacts = required_artifacts + [p for p in (precheck_path, gate_path) if p.is_file()]
+    if gate_path.is_file() and preflight_path.is_file():
+        artifacts.append(preflight_path)
     manifest_artifacts = []
     for path in artifacts:
         rel = path.resolve().relative_to(ROOT.resolve()).as_posix()
@@ -287,7 +290,7 @@ def make_manifest(
 def main() -> int:
     ap = argparse.ArgumentParser()
     for option in ("result-bundle", "summary", "errors", "precheck-report", "execution-gate",
-                   "csv", "report-markdown", "manifest"):
+                   "preflight-report", "csv", "report-markdown", "manifest"):
         ap.add_argument(f"--{option}", required=True, type=Path)
     ap.add_argument("--source-commit", required=True)
     ap.add_argument("--workflow-run-id", required=True)
@@ -335,6 +338,11 @@ def main() -> int:
     if args.execution_gate.is_file():
         if sha256_file(args.execution_gate) != result.get("execution_gate_sha256"):
             raise FreezeError("EXECUTION_GATE_FILE_HASH_MISMATCH")
+        if not args.preflight_report.is_file():
+            raise FreezeError("EXECUTION_GATE_REQUIRES_PINNED_PREFLIGHT_REPORT")
+        gate_doc = load_object(args.execution_gate)
+        if gate_doc.get("preflight_report_git_blob_sha1") != git_blob_sha1(args.preflight_report.read_bytes()):
+            raise FreezeError("EXECUTION_GATE_PREFLIGHT_BLOB_PIN_MISMATCH")
     elif contract["results_acquired"]:
         raise FreezeError("EMPIRICAL_RESULTS_REQUIRE_EXECUTION_GATE")
 
@@ -343,7 +351,7 @@ def main() -> int:
     manifest = make_manifest(
         contract=contract, result_path=args.result_bundle, summary_path=args.summary,
         errors_path=args.errors, precheck_path=args.precheck_report, gate_path=args.execution_gate,
-        csv_path=args.csv, report_path=args.report_markdown,
+        preflight_path=args.preflight_report, csv_path=args.csv, report_path=args.report_markdown,
         source_commit=args.source_commit, workflow_run_id=args.workflow_run_id,
     )
     manifest["result_schema_validation"] = validation
