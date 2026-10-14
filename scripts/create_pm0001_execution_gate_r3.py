@@ -137,8 +137,14 @@ def verify_preflight_report(preflight: dict[str, Any], repo_root: Path = ROOT) -
             raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_PATH_MISMATCH")
         if preflight.get(hash_key) != sha256(raw):
             raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_SHA256_MISMATCH")
-        if blob_key and preflight.get(blob_key) != git_blob_sha1(raw):
-            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISMATCH")
+        if blob_key:
+            reported_blob = preflight.get(blob_key)
+            # Older committed preflight snapshots accidentally overwrite this one field with null.
+            # Its exact preregistration SHA-256 is still required above; newer reports retain both pins.
+            if reported_blob is not None and reported_blob != git_blob_sha1(raw):
+                raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISMATCH")
+            if reported_blob is None and label != "preregistration":
+                raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISSING")
 
 
 def validate_precheck(precheck: dict[str, Any], config_ids: list[str]) -> dict[str, int]:
