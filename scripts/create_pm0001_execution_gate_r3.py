@@ -139,6 +139,8 @@ def build_execution_gate(
     feature_report_sha256: str,
     eligibility_blob_sha1: str,
     preflight_blob_sha1: str,
+    preflight_report_path: str,
+    preflight_report_sha256: str,
     implementation_gate_blob_sha1: str,
     prereg_blob_sha1: str,
     precheck_blob_sha1: str,
@@ -206,6 +208,8 @@ def build_execution_gate(
         "source_data_sha256": EXPECTED_DATA_SHA256,
         "eligibility_manifest_git_blob_sha1": eligibility_blob_sha1,
         "preflight_report_git_blob_sha1": preflight_blob_sha1,
+        "preflight_report_path": preflight_report_path,
+        "preflight_report_sha256": preflight_report_sha256,
         "implementation_gate_git_blob_sha1": implementation_gate_blob_sha1,
         "preregistration_git_blob_sha1": prereg_blob_sha1,
         "precheck_report_git_blob_sha1": precheck_blob_sha1,
@@ -257,12 +261,19 @@ def main() -> int:
         raise ValueError("PM0001_RUNNER_MISSING")
     raw_precheck = args.precheck_report.read_bytes()
     raw_feature_report = args.feature_report.read_bytes()
+    raw_preflight = args.preflight.read_bytes()
+    try:
+        preflight_relative_path = args.preflight.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise ValueError("RUN_PREFLIGHT_REPORT_MUST_BE_INSIDE_REPOSITORY_FOR_MANIFESTING") from exc
     gate = build_execution_gate(
         eligibility, preflight, implementation_gate, precheck, feature_report,
         feature_report_blob_sha1=git_blob_sha1(raw_feature_report),
         feature_report_sha256=sha256(raw_feature_report),
         eligibility_blob_sha1=git_blob_sha1(args.eligibility.read_bytes()),
-        preflight_blob_sha1=git_blob_sha1(args.preflight.read_bytes()),
+        preflight_blob_sha1=git_blob_sha1(raw_preflight),
+        preflight_report_path=preflight_relative_path,
+        preflight_report_sha256=sha256(raw_preflight),
         implementation_gate_blob_sha1=git_blob_sha1(args.implementation_gate.read_bytes()),
         prereg_blob_sha1=git_blob_sha1(args.preregistration.read_bytes()),
         precheck_blob_sha1=git_blob_sha1(raw_precheck),
