@@ -40,7 +40,7 @@ def verified_records(index_path:str, shard_key:str, rows_key_options:tuple[str,.
         want=next((item[k] for k in count_keys if k in item),None)
         if want is not None and len(part)!=want: raise ValueError(f"SHARD_COUNT_MISMATCH:{path}")
         for row in part:
-            identity=row.get("method_id") or row.get("config_id")
+            identity=row.get("config_id") or row.get("method_id")
             if not identity or identity in seen: raise ValueError(f"DUPLICATE_OR_EMPTY_ID:{identity}")
             seen.add(identity); rows.append(row)
     return index, rows
