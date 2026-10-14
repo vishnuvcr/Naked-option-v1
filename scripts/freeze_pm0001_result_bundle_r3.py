@@ -268,9 +268,7 @@ def make_manifest(
             raise FreezeError(f"REQUIRED_FROZEN_ARTIFACT_MISSING:{path}")
     # A failed/blocked developer run may legitimately have no execution gate or even
     # no precheck report. Preserve the terminal bundle, but never claim empirical fit.
-    artifacts = required_artifacts + [p for p in (precheck_path, gate_path, feature_report_path) if p.is_file()]
-    if gate_path.is_file() and preflight_path.is_file():
-        artifacts.append(preflight_path)
+    artifacts = required_artifacts + [p for p in (precheck_path, gate_path, preflight_path, feature_report_path) if p.is_file()]
     manifest_artifacts = []
     for path in artifacts:
         rel = path.resolve().relative_to(ROOT.resolve()).as_posix()
@@ -336,6 +334,18 @@ def main() -> int:
             raise FreezeError("PRECHECK_FILE_HASH_MISMATCH")
     elif contract["results_acquired"]:
         raise FreezeError("EMPIRICAL_RESULTS_REQUIRE_PRECHECK_REPORT")
+    if args.preflight_report.is_file():
+        preflight_raw = args.preflight_report.read_bytes()
+        try:
+            preflight_rel = args.preflight_report.resolve().relative_to(ROOT.resolve()).as_posix()
+        except ValueError as exc:
+            raise FreezeError("RUN_PREFLIGHT_REPORT_OUTSIDE_REPOSITORY") from exc
+        if result.get("preflight_report_path") != preflight_rel:
+            raise FreezeError("RESULT_PREFLIGHT_PATH_MISMATCH")
+        if result.get("preflight_report_sha256") != sha256_bytes(preflight_raw):
+            raise FreezeError("RESULT_PREFLIGHT_SHA256_MISMATCH")
+    elif contract["results_acquired"]:
+        raise FreezeError("EMPIRICAL_RESULTS_REQUIRE_PREFLIGHT_REPORT")
     if args.execution_gate.is_file():
         if sha256_file(args.execution_gate) != result.get("execution_gate_sha256"):
             raise FreezeError("EXECUTION_GATE_FILE_HASH_MISMATCH")
