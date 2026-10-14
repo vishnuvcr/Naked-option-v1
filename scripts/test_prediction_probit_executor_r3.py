@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 import numpy as np
 
-from prediction_pm0051_executor_r3 import (
+from prediction_probit_executor_r3 import (
     PM0051ExecutionError, fit_pm0051_outer_fold, _precheck_inner_oof_support,
 )
 
@@ -103,7 +103,7 @@ class PM0051ExecutorTests(unittest.TestCase):
     def test_late_refit_support_failure_blocks_before_any_estimator_fit(self):
         x, y, decision, endpoint = self.fixture()
         y[87:131] = 1
-        with patch("prediction_pm0051_executor_r3.ProbitProbabilityAdapter") as adapter:
+        with patch("prediction_probit_executor_r3.ProbitProbabilityAdapter") as adapter:
             with self.assertRaisesRegex(PM0051ExecutionError, "INNER_OOF_FOLD_1_VALIDATION_CLASS_SUPPORT_FAILED"):
                 fit_pm0051_outer_fold(
                     x, y, decision, endpoint,
