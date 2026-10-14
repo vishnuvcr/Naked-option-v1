@@ -541,15 +541,105 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
             issue(issues, "RESULT_BUNDLE_CONTAINS_TECHNICAL_FAILURES", count=result_counts["FAILED_TECHNICAL"])
         if result_counts.get("BLOCKED_GATE", 0) > 0:
             issue(issues, "RESULT_BUNDLE_CONTAINS_UNEXPECTED_GATE_BLOCKS", count=result_counts["BLOCKED_GATE"])
-        families_for_repro = result.get("multiplicity", {}).get("label_families", {})
-        any_numeric_raw_p = any(
-            isinstance(rec.get("raw_p_value"), (int, float)) and not isinstance(rec.get("raw_p_value"), bool)
-            for fam in families_for_repro.values()
-            for rec in fam.get("configurations", {}).values()
-        )
-        if any_numeric_raw_p and not any("inference_session" in p or "bootstrap_input" in p for p in artifact_hashes):
-            issue(issues, "BOOTSTRAP_INPUTS_NOT_PUBLISHED",
-                  detail="A numerical bootstrap CI/p-value is reported, but the bundle omits the per-session paired loss-delta inputs needed for an independent numeric recomputation.")
+        bootstrap_inputs = result.get("bootstrap_inputs")
+        if not isinstance(bootstrap_inputs, dict) or set(bootstrap_inputs) != set(config_by_id):
+            issue(issues, "BOOTSTRAP_INPUT_CONFIG_UNIVERSE_INVALID",
+                  expected=len(config_by_id), actual=len(bootstrap_inputs) if isinstance(bootstrap_inputs, dict) else None)
+            bootstrap_inputs = {}
+        canonical_inputs = json.dumps(bootstrap_inputs, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+        if summary.get("bootstrap_inputs_sha256") != sha256(canonical_inputs):
+            issue(issues, "BOOTSTRAP_INPUTS_SHA256_MISMATCH")
+        precheck_by_config: dict[str, dict[str, Mapping[str, Any]]] = {}
+        for item in precheck.get("rows", []):
+            if isinstance(item, dict):
+                precheck_by_config.setdefault(str(item.get("config_id")), {})[str(item.get("fold_id"))] = item
+        bootstrap_cfgs_recomputed = 0
+        bootstrap_folds_checked = 0
+        bootstrap_sessions_checked = 0
+        bootstrap_spec = prereg.get("metrics_and_inference", {}).get("bootstrap", {})
+        expected_replicates = int(bootstrap_spec.get("replicates", 10000))
+        expected_seed = int(bootstrap_spec.get("seed", 2026101209))
+        expected_block_length = int(bootstrap_spec.get("block_length_exchange_sessions", 10))
+        expected_confidence = float(bootstrap_spec.get("confidence_level", 0.95))
+        for cid, payload in bootstrap_inputs.items():
+            if cid not in config_by_id or not isinstance(payload, dict):
+                issue(issues, "BOOTSTRAP_INPUT_CONFIG_INVALID", config_id=cid)
+                continue
+            expected_label = config_by_id[cid].get("configuration", {}).get("label_id")
+            if payload.get("label_id") != expected_label:
+                issue(issues, "BOOTSTRAP_INPUT_LABEL_MISMATCH", config_id=cid)
+            folds_obj = payload.get("folds", {})
+            if not isinstance(folds_obj, dict):
+                issue(issues, "BOOTSTRAP_INPUT_FOLDS_INVALID", config_id=cid)
+                continue
+            delta_by_fold: dict[str, list[float]] = {}
+            for fold_id, fold_obj in folds_obj.items():
+                if fold_id not in FOLDS or not isinstance(fold_obj, dict):
+                    issue(issues, "BOOTSTRAP_INPUT_FOLD_INVALID", config_id=cid, fold_id=fold_id)
+                    continue
+                pre_row = precheck_by_config.get(cid, {}).get(fold_id)
+                if not pre_row or pre_row.get("status") != "PRECHECK_PASS":
+                    issue(issues, "BOOTSTRAP_INPUT_FOLD_NOT_PRECHECK_ELIGIBLE", config_id=cid, fold_id=fold_id)
+                positions = fold_obj.get("session_positions")
+                values = fold_obj.get("session_loss_deltas")
+                if not isinstance(positions, list) or not isinstance(values, list) or len(positions) != len(values) or not values:
+                    issue(issues, "BOOTSTRAP_INPUT_SESSION_VECTOR_INVALID", config_id=cid, fold_id=fold_id)
+                    continue
+                valid_positions = all(isinstance(x, int) and not isinstance(x, bool) and x >= 0 for x in positions)
+                finite_values = all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(float(x)) for x in values)
+                if not valid_positions or not finite_values:
+                    issue(issues, "BOOTSTRAP_INPUT_NONFINITE_OR_INVALID_VALUES", config_id=cid, fold_id=fold_id)
+                    continue
+                if positions != sorted(positions) or len(set(positions)) != len(positions):
+                    issue(issues, "BOOTSTRAP_INPUT_SESSION_POSITIONS_UNSORTED_OR_DUPLICATE", config_id=cid, fold_id=fold_id)
+                if positions != list(range(positions[0], positions[-1] + 1)):
+                    issue(issues, "BOOTSTRAP_INPUT_SESSION_POSITIONS_NOT_CONTIGUOUS", config_id=cid, fold_id=fold_id)
+                delta_by_fold[fold_id] = [float(x) for x in values]
+                bootstrap_folds_checked += 1
+                bootstrap_sessions_checked += len(values)
+            inference = inference_map.get(cid, {})
+            infer_status = inference.get("inferential_status", "NO_EMPIRICAL_FIT")
+            rawp = inference.get("raw_p_value")
+            should_recompute = (
+                isinstance(rawp, (int, float)) and not isinstance(rawp, bool)
+            ) or infer_status in {"NON_IDENTIFIABLE_DEGENERATE_RESAMPLING", "OK"}
+            expected_eligible_folds = {
+                fold for fold, item in precheck_by_config.get(cid, {}).items()
+                if item.get("status") == "PRECHECK_PASS"
+            }
+            if should_recompute:
+                if set(delta_by_fold) != expected_eligible_folds:
+                    issue(issues, "BOOTSTRAP_INPUT_ELIGIBLE_FOLD_COVERAGE_MISMATCH", config_id=cid,
+                          expected=sorted(expected_eligible_folds), actual=sorted(delta_by_fold))
+                    continue
+                try:
+                    recomputed_boot = independent_moving_block_bootstrap(
+                        delta_by_fold,
+                        block_length=expected_block_length,
+                        replicates=expected_replicates,
+                        seed=expected_seed,
+                        confidence_level=expected_confidence,
+                    )
+                    bootstrap_cfgs_recomputed += 1
+                except Exception as exc:
+                    issue(issues, "INDEPENDENT_BOOTSTRAP_RECOMPUTATION_FAILED", config_id=cid,
+                          error=f"{type(exc).__name__}:{str(exc)[:220]}")
+                    continue
+                for field in ("ci_low", "ci_high", "raw_p_value", "observed_mean_improvement"):
+                    reported_value = inference.get(field)
+                    recomputed_value = recomputed_boot.get(field)
+                    if reported_value is None and recomputed_value is None:
+                        continue
+                    if not isinstance(reported_value, (int, float)) or not isinstance(recomputed_value, (int, float)) or abs(float(reported_value) - float(recomputed_value)) > 1e-10:
+                        issue(issues, "BOOTSTRAP_NUMERIC_RECOMPUTATION_MISMATCH", config_id=cid, field=field,
+                              reported=reported_value, recomputed=recomputed_value)
+                if inference.get("inferential_status") != recomputed_boot.get("inferential_status"):
+                    issue(issues, "BOOTSTRAP_INFERENTIAL_STATUS_MISMATCH", config_id=cid,
+                          reported=inference.get("inferential_status"), recomputed=recomputed_boot.get("inferential_status"))
+            else:
+                if not set(delta_by_fold).issubset(expected_eligible_folds):
+                    issue(issues, "BOOTSTRAP_NONINFERENTIAL_INPUT_FOLD_NOT_ELIGIBLE", config_id=cid)
+
 
     except Exception as exc:
         issue(issues, "RESULT_AUDIT_EXCEPTION", error=f"{type(exc).__name__}:{str(exc)[:600]}")
@@ -570,6 +660,9 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         "terminal_status_counts_recomputed": dict(sorted(result_counts.items())) if "result_counts" in locals() else {},
         "precheck_status_counts_recomputed": dict(sorted(precheck_counts.items())) if "precheck_counts" in locals() else {},
         "artifact_count_verified": len(artifact_hashes),
+        "bootstrap_configurations_recomputed": locals().get("bootstrap_cfgs_recomputed", 0),
+        "bootstrap_folds_checked": locals().get("bootstrap_folds_checked", 0),
+        "bootstrap_session_deltas_checked": locals().get("bootstrap_sessions_checked", 0),
         "issues": issues,
         "warnings": warnings,
         "holdout_accessed_by_auditor": False,
