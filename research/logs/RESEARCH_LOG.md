@@ -1,3 +1,20 @@
+## 2026-10-14 — PM0051 Probit expansion and synthetic-gate correction log
+
+- PM0051 was added as a separate prediction family, with a dedicated Probit adapter/executor, explicit `prior_scale` binding, 40 registered configurations, run-scoped 320-cell precheck, result freeze schema and manual execution workflow. This is prediction research only; no option-strategy backtest is part of this phase.
+- Synthetic-gate failures and fixes retained:
+  - Missing PM0051-specific imports in the copied executor test and precheck were corrected to import `prediction_probit_executor_r3`.
+  - The registry shard reader was corrected to use `config_id` before the repeated `method_id` when validating uniqueness; configuration shard rows intentionally share method IDs.
+  - The scoped eligibility builder now verifies purge and embargo against the registered horizon: one session for intraday and one-day targets, and matching 2/3/5/10-session windows for corresponding positional horizons. It does not rewrite any registered horizon values.
+  - The synthetic gate's Git blob hash was corrected to use the required NUL separator.
+  - The builder validates the full 40,000-row registry, all 40 PM0051 configuration fingerprints and parameters, and never sets the empirical-fit authorization flag.
+- Corrected synthetic implementation gate [run #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161) passed. Implementation gate and method-scoped eligibility manifest were created with 26 source pins and no fitting/holdout access.
+- Empirical PM0051 run [#38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041) passed synthetic tests, compile checks and implementation/registry hash verification. It is currently in the pinned canonical-data retrieval/decryption step; no data-precheck, model fit or result has been claimed yet.
+- PM0051's independent tester workflow and auditor are being prepared separately from PM0001. The prior PM0001 PASS remains scoped only to PM0001; it does not approve PM0051.
+
+**Developer → Tester:** independently inspect the new Probit code, parameter semantics, horizon-specific purge/embargo enforcement, source/data pins, all 320 terminal outcomes, bootstrap/BY computations and model leakage controls. Do not approve based solely on the PM0001 report or the synthetic gate.
+
+---
+
 ## 2026-10-14 — PM0001 independent results gate PASS; prediction-only research continues
 
 - Original run: [#38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378). Frozen at [PM0001 report](../results/phase8p-pm0001/run-38525772378/PM0001_PREDICTION_RESULTS.md), source execution commit `cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2`, published commit `8b1d845635a0b269a425e46a37ae4fd6f57e944f`, canonical data hash unchanged.
