@@ -177,4 +177,13 @@ New errors must be appended, never overwritten.
 - Five frozen label/fold data-support blocks remain in force because target-pair missingness exceeded 1%. Passing source/hash preflight is not model-performance evidence. No empirical fit, holdout access, or strategy test has occurred in these runs.
 - Next gate: require all 320 precheck cells to be either a valid precheck pass or a preregistered data/sample block (zero technical precheck failures), pass the complete synthetic test suite, then issue a gate pinned to that exact report before any fit.
 
-**Developer → Tester:** defer review until the complete result bundle is acquired, validated, frozen, and hash-pinned.  
+**Developer → Tester:** defer review until the complete result bundle is acquired, validated, frozen, and hash-pinned.
+
+## 2026-10-14 — Synthetic execution harness regression cycle
+
+- [PM0001 sweep implementation tests #38519548689 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519548689): compilation and 46 synthetic tests passed across the execution-gate, sweep guards/statistics, rolling-refit executor, calibration, result-row validator, and precheck unit suites. The workflow is synthetic-only; no market data was loaded and no model was fit.
+- The preceding CI failure [#38519251871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519251871) stopped at setup because pip caching assumed a nonexistent `requirements.txt`/`pyproject.toml`; removed `cache: pip`. Gate test fixtures then exposed two test-data errors: the fixture declared 40,000 rows but supplied only the 40 pending rows, and later mutations targeted a blocked row / a nonduplicate config-fold pair. The synthetic fixture now contains 39,960 blocked records plus the 40 pending records, and tests mutate a true duplicate pair and a pending config.
+- Code review caught the statistics module's actual p-value key (`raw_two_sided_p_value_centered_bootstrap`) differing from the result-schema key (`raw_p_value`). Added a normalization helper and a regression test. Degenerate bootstrap results remain null, and non-identifiable hypotheses are conservatively included as p=1 in BY family accounting.
+- The canonical data precheck [#38519242615](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519242615) is still running on the corrected precheck callsite; its first attempt [#38517968311](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38517968311) had 320 software-error cells due to the wrong config object. No thresholds or source pins changed.
+
+**Developer → Tester:** wait for complete acquired and frozen results; these are developer-side synthetic checks only.  
