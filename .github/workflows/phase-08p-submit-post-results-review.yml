@@ -37,19 +37,26 @@ jobs:
           request = json.loads(request_path.read_text(encoding="utf-8"))
           if request.get("results_acquired") is not True:
               raise SystemExit("Refusing tester submission before results_acquired=true.")
-          source = request.get("tested_source_commit", "")
+          published = request.get("tested_source_commit", "")
+          source = request.get("source_execution_commit", "")
+          if not re.fullmatch(r"[0-9a-f]{40}", published):
+              raise SystemExit("Request must pin the published artifact commit.")
           if not re.fullmatch(r"[0-9a-f]{40}", source):
-              raise SystemExit("Request must pin an exact 40-character source commit.")
+              raise SystemExit("Request must pin the exact execution source commit.")
+          if request.get("result_published_commit") != published:
+              raise SystemExit("result_published_commit must equal tested_source_commit.")
           manifest_path = request.get("result_bundle_manifest_path", "")
           manifest_pin = request.get("result_bundle_manifest_sha256", "")
           if not manifest_path or not re.fullmatch(r"[0-9a-f]{64}", manifest_pin):
               raise SystemExit("Request must pin the result-bundle manifest path and SHA-256.")
-          raw = subprocess.check_output(["git", "show", f"{source}:{manifest_path}"])
+          raw = subprocess.check_output(["git", "show", f"{published}:{manifest_path}"])
           if hashlib.sha256(raw).hexdigest() != manifest_pin:
               raise SystemExit("Result-bundle manifest SHA-256 does not match the request.")
           manifest = json.loads(raw.decode("utf-8"))
           if manifest.get("results_acquired") is not True:
               raise SystemExit("Pinned manifest does not assert results_acquired=true.")
+          if manifest.get("source_commit") != source or str(manifest.get("workflow_run_id")) != str(request.get("source_workflow_run_id")):
+              raise SystemExit("Manifest execution source/run pins do not match request.")
           artifacts = manifest.get("artifacts", [])
           if not artifacts:
               raise SystemExit("Acquired result manifest has no artifacts.")
