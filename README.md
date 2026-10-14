@@ -1,3 +1,11 @@
+## Current research status — 2026-10-15
+
+- Independent tester review requirement waived by user; use developer-led validation, without weakening correctness, reproducibility, or holdout protections.
+- Latest attempt [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340) yielded 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, and zero accepted fits due to an unregistered extended diagnostic metric.
+- The developer branch contains the metric-contract correction and regression test. A fresh CI run and empirical rerun are **not yet verified**. The current connector does not expose workflow dispatch; rerunning the old attempt would not test the corrected commit.
+- Next: run the synthetic suite on the corrected commit, rerun PM0051, reconcile all 320 outcomes, and publish the frozen report. Holdout remains sealed; no strategy is approved.
+- Detailed history: [research status](research/STATUS.md) · [error log](research/ERROR_LOG.md).
+
 ## 2026-10-14T19:02:09.449173+00:00 — Phase 8P R3A run 38595451340
 
 - Workflow: [run 38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340); source commit 6dafd244ff6b165fe96f9d7ef0696cc3f1757bf5.
