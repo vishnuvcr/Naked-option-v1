@@ -41,5 +41,7 @@
     "scripts/test_build_pm0051_eligibility_disposition_r3.py": "1ba394bb3d09136639b49d4a05bd573985037918"
   },
   "review_gate": "CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
-  "holdout_accessed": false
+  "holdout_accessed": false,
+  "submission_attempt": 2,
+  "submission_reason": "Retry after registering the tester review workflow on default branch; no result artifacts or model metrics changed."
 }
