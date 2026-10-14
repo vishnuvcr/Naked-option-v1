@@ -1358,3 +1358,13 @@ The corrected exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8` pas
 
 **Developer → Tester:** wait for the post-results complete-bundle handoff only.  
 **Tester → Developer:** after results publication, independently audit all results and failure/null rows.
+
+## 2026-10-14 — Phase 8P PM0001 precheck repaired; empirical fitting still pending
+
+- The data-download workflow [#38517968311](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38517968311) verified the pinned archive and decrypted/canonicalized data successfully, but its 320-cell precheck artifact [11872618258](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38517968311/artifacts/11872618258) recorded 320 `FAILED_PRECHECK` rows, all caused by `KeyError:'configuration'`. The call site passed the inner settings object rather than the complete registry record.
+- Corrected `scripts/run_pm0001_data_execution_precheck_r3.py` at commit `ccf21603b9fb486df0827422a7806278e9948340`; its new data-backed run is [#38519242615](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519242615), currently being verified. No thresholds or dataset pins were relaxed.
+- Added the run-scoped 320-pair execution-gate checks and the PM0001 sweep runner/test harness. Synthetic CI setup initially failed before tests because `setup-python cache: pip` could not find `requirements.txt` or `pyproject.toml`; removed that unusable cache setting at commit `323144487085347e73e1bc159e4293e9c768ea45`. The latest synthetic test workflow is [#38519251871](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519251871).
+- Five frozen label/fold data-support blocks remain in force because target-pair missingness exceeded 1%. Passing source/hash preflight is not model-performance evidence. No empirical fit, holdout access, or strategy test has occurred in these runs.
+- Next gate: require all 320 precheck cells to be either a valid precheck pass or a preregistered data/sample block (zero technical precheck failures), pass the complete synthetic test suite, then issue a gate pinned to that exact report before any fit.
+
+**Developer → Tester:** defer review until the complete result bundle is acquired, validated, frozen, and hash-pinned.  
