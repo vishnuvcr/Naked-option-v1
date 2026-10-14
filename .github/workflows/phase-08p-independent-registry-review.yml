@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: phase-08-prediction-tester
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ github.token }}
           path: tester
           fetch-depth: 0
       - name: Validate review request and pin result snapshot
