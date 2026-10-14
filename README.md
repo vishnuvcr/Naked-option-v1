@@ -1,3 +1,11 @@
+## 2026-10-14T06:48:02.692724+00:00 — Phase 8P R3A run 38524306506
+
+- Workflow: [run 38524306506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524306506); source commit 2eeb36952b9b236114a10f83286842be61767686.
+- Result status: BLOCKED_GATE_NO_EMPIRICAL_FITS; empirical fit rows: 0; results_acquired=false.
+- Precheck: {}; terminal result accounting: {"BLOCKED_GATE": 320}.
+- Execution gate: MISSING_OR_FAILED; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: research/results/phase8p-pm0001/run-38524306506/freeze_manifest.json.
+
 <!-- pm0001-run:38522693920 -->
 ## 2026-10-14 — Phase 8P PM0001 pipeline outcome
 

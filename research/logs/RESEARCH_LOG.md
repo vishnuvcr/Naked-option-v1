@@ -1021,3 +1021,12 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 **Next:** verify the full-data corrected 320-cell precheck, confirm nonzero positional sample support, require zero technical failures, issue the run-scoped gate only after report/source hashes validate, then fit only `PRECHECK_PASS` cells. Preserve all other cells as blocked.
 
 **Developer → Tester:** defer independent review until the full empirical results bundle is acquired, validated, frozen and hash-pinned.
+
+## 2026-10-14T06:48:02.692724+00:00 — Phase 8P R3A run 38524306506
+
+- Workflow: [run 38524306506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524306506); source commit 2eeb36952b9b236114a10f83286842be61767686.
+- Result status: BLOCKED_GATE_NO_EMPIRICAL_FITS; empirical fit rows: 0; results_acquired=false.
+- Precheck: {}; terminal result accounting: {"BLOCKED_GATE": 320}.
+- Execution gate: MISSING_OR_FAILED; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: research/results/phase8p-pm0001/run-38524306506/freeze_manifest.json.
+

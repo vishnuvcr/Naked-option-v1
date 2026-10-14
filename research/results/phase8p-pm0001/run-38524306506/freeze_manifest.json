@@ -1,0 +1,63 @@
+{
+  "artifacts": [
+    {
+      "path": "research/results/phase8p-pm0001/run-38524306506/result_bundle.json",
+      "sha256": "8331e0655949acff2c46c3b613555b77f4fbf9d363f35bb6516dda4007979cfa",
+      "size_bytes": 764808
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38524306506/summary.json",
+      "sha256": "b3634f193e5615c46beba8beadce56f09bfd4dadfba1551aa79967214583f046",
+      "size_bytes": 19019
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38524306506/errors.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38524306506/config_fold_results.csv",
+      "sha256": "5cf55ba40cb2f0c790e9e59f3ae31ffba75dc4fb6067786a2626b1e0a254788f",
+      "size_bytes": 244468
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38524306506/PM0001_PREDICTION_RESULTS.md",
+      "sha256": "a5b45d38b9acfa9dc11d401efa761fb82db90ddf8bb87e1049fc79ffd8999d98",
+      "size_bytes": 7183
+    },
+    {
+      "path": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
+      "sha256": "6bebe6d85450f4429ddc1b43e38520ed6e388d1c382b84518dc06a431e0b47ca",
+      "size_bytes": 10024
+    }
+  ],
+  "blocked_or_failed_rows": 320,
+  "created_utc": "2026-10-14T06:48:02.426951+00:00",
+  "empirical_fit_rows": 0,
+  "expected_terminal_rows": 320,
+  "holdout_accessed": false,
+  "per_observation_predictions_persisted": false,
+  "raw_market_rows_emitted": false,
+  "result_schema_validation": {
+    "complete_expected_coverage": true,
+    "holdout_accessed_by_validator": false,
+    "metrics_arithmetic_checked": 0,
+    "model_fitting_performed_by_validator": false,
+    "row_count": 320,
+    "terminal_status_counts": {
+      "BLOCKED_GATE": 320
+    },
+    "unique_config_fold_pairs": 320
+  },
+  "results_acquired": false,
+  "schema_version": "pm0001-result-freeze-manifest-r3-v1",
+  "source_commit": "2eeb36952b9b236114a10f83286842be61767686",
+  "source_data_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "status": "COMPLETE_TERMINAL_ACCOUNTING_NO_EMPIRICAL_FIT",
+  "terminal_rows_written": 320,
+  "terminal_status_counts": {
+    "BLOCKED_GATE": 320
+  },
+  "unique_config_fold_pairs": 320,
+  "workflow_run_id": "38524306506"
+}

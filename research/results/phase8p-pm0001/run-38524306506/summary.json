@@ -1,0 +1,502 @@
+{
+  "blocked_or_failed_rows": 320,
+  "bootstrap": {
+    "block_length_exchange_sessions": 10,
+    "confidence_level": 0.95,
+    "method": "paired moving-block bootstrap on mean per-session class-prior-minus-candidate log-loss",
+    "replicates": 10000,
+    "seed": 2026101209
+  },
+  "configuration_count": 40,
+  "empirical_fits_performed": 0,
+  "errors_jsonl_path": "research/results/phase8p-pm0001/run-38524306506/errors.jsonl",
+  "errors_jsonl_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "execution_gate_sha256": null,
+  "expected_terminal_rows": 320,
+  "global_gate_reason": "PRECHECK_REPORT_MISSING",
+  "holdout_accessed": false,
+  "model_fitting_performed": false,
+  "multiplicity": {
+    "family": "PM0001 configurations with the same frozen label stratum; non-identifiable p-values count as 1 for family accounting",
+    "label_families": {
+      "INTRA_120M_UP_DOWN": {
+        "configurations": {
+          "CFG0001_INTRA_120M_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_120M_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_120M_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_120M_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "INTRA_15M_UP_DOWN": {
+        "configurations": {
+          "CFG0001_INTRA_15M_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_15M_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_15M_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_15M_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "INTRA_30M_UP_DOWN": {
+        "configurations": {
+          "CFG0001_INTRA_30M_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_30M_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_30M_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_30M_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "INTRA_5M_UP_DOWN": {
+        "configurations": {
+          "CFG0001_INTRA_5M_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_5M_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_5M_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_5M_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "INTRA_60M_UP_DOWN": {
+        "configurations": {
+          "CFG0001_INTRA_60M_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_60M_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_60M_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_INTRA_60M_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "POS_10D_UP_DOWN": {
+        "configurations": {
+          "CFG0001_POS_10D_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_10D_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_10D_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_10D_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "POS_1D_UP_DOWN": {
+        "configurations": {
+          "CFG0001_POS_1D_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_1D_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_1D_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_1D_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "POS_2D_UP_DOWN": {
+        "configurations": {
+          "CFG0001_POS_2D_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_2D_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_2D_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_2D_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "POS_3D_UP_DOWN": {
+        "configurations": {
+          "CFG0001_POS_3D_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_3D_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_3D_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_3D_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      },
+      "POS_5D_UP_DOWN": {
+        "configurations": {
+          "CFG0001_POS_5D_UP_DOWN_20_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_5D_UP_DOWN_20_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_5D_UP_DOWN_60_FLEXIBLE": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          },
+          "CFG0001_POS_5D_UP_DOWN_60_REGULARIZED": {
+            "by_adjusted_p_value": 1.0,
+            "ci_high": null,
+            "ci_low": null,
+            "inferential_status": "NO_EMPIRICAL_FIT",
+            "observed_mean_session_improvement": null,
+            "raw_p_value": null,
+            "reject_at_q_0_05": false
+          }
+        },
+        "family_size_pm0001_configurations": 4,
+        "p_family_includes_nonidentifiable_as_one": true,
+        "procedure": "Benjamini-Yekutieli within label stratum",
+        "q": 0.05
+      }
+    },
+    "procedure": "Benjamini-Yekutieli FDR",
+    "q": 0.05
+  },
+  "outer_fold_count": 8,
+  "per_observation_predictions_persisted": false,
+  "precheck_report_sha256": null,
+  "preflight_report_path": null,
+  "preflight_report_sha256": null,
+  "previous_sign_baseline": "NOT_COMPUTED: no definition exists in the frozen preregistration; field kept null rather than inventing a comparator",
+  "primary_effect": "class-prior baseline log loss minus PM0001 log loss; positive favors PM0001",
+  "primary_metric": "session-weighted out-of-sample log loss",
+  "raw_market_rows_emitted": false,
+  "research_date": "2026-10-14",
+  "result_file_sha256": "8331e0655949acff2c46c3b613555b77f4fbf9d363f35bb6516dda4007979cfa",
+  "results_acquired": false,
+  "schema_version": "pm0001-result-bundle-r3-v1",
+  "scope": "PM0001 only; 40 preregistered configurations x 8 chronological outer folds; prediction research only",
+  "source_commit": "2eeb36952b9b236114a10f83286842be61767686",
+  "source_data_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "source_manifest_path": "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json",
+  "source_manifest_sha256": "ff4b58c45a697e319871c2097df650a8098624e704540ea2a46ea89502121f4c",
+  "status": "BLOCKED_GATE_NO_EMPIRICAL_FITS",
+  "sweep_gate_passed": false,
+  "terminal_rows_written": 320,
+  "terminal_status_counts": {
+    "BLOCKED_GATE": 320
+  },
+  "validation": {
+    "complete_expected_coverage": true,
+    "holdout_accessed_by_validator": false,
+    "metrics_arithmetic_checked": 0,
+    "model_fitting_performed_by_validator": false,
+    "row_count": 320,
+    "terminal_status_counts": {
+      "BLOCKED_GATE": 320
+    },
+    "unique_config_fold_pairs": 320
+  },
+  "workflow_run_id": "38524306506"
+}
