@@ -1,3 +1,9 @@
+## 2026-10-15 — Workflow dispatch limitation after metric-contract correction
+
+- User waived the independent tester review requirement; developer-led validation remains required.
+- The corrected metric schema and synthetic regression test are committed, but no run on the corrected commit has been verified.
+- Available GitHub connector actions do not include workflow dispatch. Re-running run #38595451340 would validate the old commit, not the fix. No synthetic test pass or fresh empirical result is claimed. Next action is to trigger the configured workflow from the corrected branch using an available GitHub Actions dispatch path, then inspect its logs and frozen result bundle.
+
 ## 2026-10-14 — PM0051 source-pin synchronization
 
 - Run [#38595260177](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595260177) passed all synthetic tests but stopped before data retrieval because the exact checked-out implementation gate had a stale SHA pin for `scripts/freeze_pm0051_result_bundle_r3.py`. It performed zero empirical fits and its result bundle is not accepted.
