@@ -86,8 +86,8 @@ class PM0051ResultFreezeTests(unittest.TestCase):
         validate_extended_prediction_metrics(row,("CFG0001","F01"))
 
     def test_extended_metrics_reject_confusion_count_mismatch(self):
-        row={"feature_rows_scored":3,"true_positive":1,"false_positive":1,"true_negative":1,"false_negative":0,
-             "baseline_true_positive":1,"baseline_false_positive":1,"baseline_true_negative":1,"baseline_false_negative":0}
+        row={"feature_rows_scored":3,"true_positive":1,"false_positive":1,"true_negative":1,"false_negative":1,
+             "baseline_true_positive":1,"baseline_false_positive":1,"baseline_true_negative":1,"baseline_false_negative":1}
         with self.assertRaisesRegex(FreezeError,"CONFUSION_TOTAL_MISMATCH"):
             validate_extended_prediction_metrics(row,("CFG0001","F01"))
 
