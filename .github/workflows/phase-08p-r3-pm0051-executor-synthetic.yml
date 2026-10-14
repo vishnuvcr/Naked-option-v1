@@ -5,6 +5,7 @@ on:
   push:
     branches: [phase-08-prediction-developer]
     paths:
+      - .github/workflows/phase-08p-r3-pm0051-executor-synthetic.yml
       - scripts/prediction_probit_adapter_r3.py
       - scripts/test_prediction_probit_adapter_r3.py
       - scripts/prediction_probit_executor_r3.py
