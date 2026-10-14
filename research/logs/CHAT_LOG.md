@@ -1,3 +1,13 @@
+## 2026-10-14 — R3A run #38525772378 — data verified, precheck running
+
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378
+- Completed successfully: synthetic-only contracts, implementation/config source pins, pinned encrypted-artifact verification, temporary decryption, and a fresh canonical-data preflight.
+- The runner is now executing the 320-cell PM0001 data precheck without fitting a model. Results, blocked cells, and any runtime diagnostics will be recorded from its emitted report; no predictive metrics are claimed at this point.
+- Canonical uncompressed data SHA-256 remains `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. The protected holdout remains unopened.
+- The previous fully published precheck remains 262 PRECHECK_PASS, 38 BLOCKED_SAMPLE_ELIGIBILITY, 20 BLOCKED_DATA; this is historical evidence for run #38522693920, not the current run's count.
+
+**Developer → Tester:** wait for the new run's complete frozen result manifest with `results_acquired=true`; do not review prior gate-blocked result bundles as empirical evidence.
+
 ## 2026-10-14 — Resume and PM0001 retry
 
 Resumed Phase 8P at the recorded PM0001 data/gate boundary. Runs #38524449678 and #38524837518 stopped in workflow download/publication handling, not due to model metrics. The last complete precheck recorded 262 PRECHECK_PASS, 38 BLOCKED_SAMPLE_ELIGIBILITY and 20 BLOCKED_DATA cells out of 320; that run performed no fitting and accessed no holdout. Current retry is [workflow #38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378); synthetic/source-pin gates passed and canonical data retrieval is in progress.
