@@ -55,6 +55,80 @@ def load_object(path: Path) -> dict[str, Any]:
     return value
 
 
+
+def validate_extended_prediction_metrics(row: Mapping[str, Any], pair: tuple[str, str]) -> None:
+    """Validate fold-level classification counts, calibration bins and regime bookkeeping."""
+    import math
+    n=row.get("feature_rows_scored")
+    if isinstance(n,bool) or not isinstance(n,int) or n<1:
+        raise FreezeError(f"CLASSIFICATION_SCORING_COUNT_INVALID:{pair}")
+    keys=("true_positive","false_positive","true_negative","false_negative",
+          "baseline_true_positive","baseline_false_positive","baseline_true_negative","baseline_false_negative")
+    for key in keys:
+        v=row.get(key)
+        if isinstance(v,bool) or not isinstance(v,int) or v<0:
+            raise FreezeError(f"CONFUSION_COUNT_INVALID:{pair}:{key}")
+    if sum(row[k] for k in keys[:4])!=n or sum(row[k] for k in keys[4:])!=n:
+        raise FreezeError(f"CONFUSION_TOTAL_MISMATCH:{pair}")
+    tp,fp,tn,fn=(row[k] for k in keys[:4]); btp,bfp,btn,bfn=(row[k] for k in keys[4:])
+    pos,neg=tp+fn,tn+fp
+    expected={"accuracy":(tp+tn)/n,"precision":tp/(tp+fp) if tp+fp else 0.0,
+        "recall":tp/pos if pos else 0.0,"specificity":tn/neg if neg else 0.0,
+        "f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 0.0,
+        "baseline_accuracy":(btp+btn)/n,"accuracy_improvement":((tp+tn)-(btp+btn))/n,
+        "balanced_accuracy":0.5*((tp/pos if pos else 0.0)+(tn/neg if neg else 0.0))}
+    for key,value in expected.items():
+        actual=row.get(key)
+        if isinstance(actual,bool) or not isinstance(actual,(int,float)) or not math.isfinite(float(actual)) or abs(float(actual)-value)>1e-9:
+            raise FreezeError(f"CLASSIFICATION_METRIC_ARITHMETIC_MISMATCH:{pair}:{key}")
+    required=("session_weighted_accuracy","baseline_session_weighted_accuracy","expected_calibration_error",
+        "maximum_calibration_error","brier_score","roc_auc","average_precision","calibration_intercept","calibration_slope")
+    for key in required:
+        v=row.get(key)
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(float(v)):
+            raise FreezeError(f"EXTENDED_METRIC_INVALID:{pair}:{key}")
+    for key in ("accuracy","precision","recall","specificity","f1","baseline_accuracy","session_weighted_accuracy",
+        "baseline_session_weighted_accuracy","expected_calibration_error","maximum_calibration_error","brier_score",
+        "balanced_accuracy","roc_auc","average_precision"):
+        if not -1e-9<=float(row[key])<=1+1e-9:
+            raise FreezeError(f"EXTENDED_METRIC_OUT_OF_RANGE:{pair}:{key}")
+    bins=row.get("calibration_bins")
+    if not isinstance(bins,list) or len(bins)!=10 or any(not isinstance(x,dict) for x in bins) or [x.get("bin_index") for x in bins]!=list(range(10)):
+        raise FreezeError(f"CALIBRATION_BINS_INVALID:{pair}")
+    total=0; ece=0.0; mce=0.0
+    for b in bins:
+        count,meanp,obs=b.get("count"),b.get("mean_predicted_probability"),b.get("observed_up_rate")
+        if isinstance(count,bool) or not isinstance(count,int) or count<0: raise FreezeError(f"CALIBRATION_BIN_COUNT_INVALID:{pair}")
+        total+=count
+        if count==0:
+            if meanp is not None or obs is not None: raise FreezeError(f"EMPTY_CALIBRATION_BIN_RATES:{pair}")
+            continue
+        if not isinstance(meanp,(int,float)) or not isinstance(obs,(int,float)) or not 0<=float(meanp)<=1 or not 0<=float(obs)<=1:
+            raise FreezeError(f"CALIBRATION_BIN_RATES_INVALID:{pair}")
+        gap=abs(float(meanp)-float(obs)); ece+=count/n*gap; mce=max(mce,gap)
+    if total!=n: raise FreezeError(f"CALIBRATION_BIN_TOTAL_MISMATCH:{pair}")
+    if abs(ece-float(row["expected_calibration_error"]))>1e-8 or abs(mce-float(row["maximum_calibration_error"]))>1e-8:
+        raise FreezeError(f"CALIBRATION_ERROR_ARITHMETIC_MISMATCH:{pair}")
+    regime=row.get("regime_diagnostics")
+    if not isinstance(regime,dict) or regime.get("status") not in {"DESCRIPTIVE_TRAIN_DERIVED_REGIMES","INSUFFICIENT_TRAIN_REGIME_CONTEXT"}:
+        raise FreezeError(f"REGIME_STATUS_INVALID:{pair}")
+    eligible,excluded=regime.get("eligible_observation_count"),regime.get("excluded_for_missing_20_session_context")
+    if not isinstance(eligible,int) or not isinstance(excluded,int) or eligible<0 or excluded<0 or eligible+excluded!=n:
+        raise FreezeError(f"REGIME_SAMPLE_ACCOUNTING_INVALID:{pair}")
+    groups=regime.get("regimes")
+    if not isinstance(groups,list): raise FreezeError(f"REGIME_GROUPS_INVALID:{pair}")
+    if regime["status"]=="DESCRIPTIVE_TRAIN_DERIVED_REGIMES":
+        if len(groups)!=6: raise FreezeError(f"REGIME_GROUP_COUNT_INVALID:{pair}")
+        for axis in ("volatility","trend"):
+            items=[x for x in groups if x.get("axis")==axis]
+            if len(items)!=3 or sum(int(x.get("observation_count",-1)) for x in items)!=eligible:
+                raise FreezeError(f"REGIME_AXIS_TOTAL_INVALID:{pair}:{axis}")
+            for item in items:
+                count,up,down=item.get("observation_count"),item.get("positive_support"),item.get("negative_support")
+                if not all(isinstance(v,int) and v>=0 for v in (count,up,down)) or up+down!=count:
+                    raise FreezeError(f"REGIME_CLASS_SUPPORT_INVALID:{pair}:{axis}")
+
+
 def validate_result_contract(
     result: Mapping[str, Any],
     summary: Mapping[str, Any],
@@ -120,6 +194,7 @@ def validate_result_contract(
             delta = float(row["baseline_log_loss"]) - float(row["candidate_log_loss"])
             if abs(delta - float(row["log_loss_improvement"])) > 1e-10:
                 raise FreezeError(f"LOGLOSS_SIGN_OR_ARITHMETIC_MISMATCH:{pair}")
+            validate_extended_prediction_metrics(row, pair)
         elif any(row.get(k) is not None for k in (
             "baseline_log_loss", "candidate_log_loss", "log_loss_improvement",
             "brier_score", "balanced_accuracy", "roc_auc", "average_precision",
@@ -236,6 +311,78 @@ def write_report_markdown(
             f"{ci} | {num_or_na(inf.get('raw_p_value'))} | {num_or_na(inf.get('by_adjusted_p_value'))} | "
             f"{str(inf.get('reject_at_q_0_05', False)).lower()} |"
         )
+
+    lines += [
+        "",
+        "## Directional accuracy, discrimination, and calibration",
+        "",
+        "Threshold=0.5 and comparator=training-fold class-prior probability thresholded at 0.5. Confusion counts, accuracy and balanced accuracy pool out-of-sample rows. Brier, ROC AUC and average precision are row-weighted means of fold values; AUC/AP are not pooled across folds. Accuracy-difference intervals use paired 10-session moving-block bootstrap with 10,000 replicates, seed 2026101417 and BY q=.05 within label family. Primary confirmatory inference remains log loss.",
+        "",
+        "| Config ID | N | Accuracy | Balanced accuracy | Baseline accuracy | Accuracy Δ | TP / FP / TN / FN | Brier | Fold-weighted ROC AUC | Fold-weighted AP | ECE | MCE | Session-weighted accuracy | Accuracy Δ 95% CI | Accuracy Δ BY p |",
+        "|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|---:|",
+    ]
+    acc_inf = {}
+    for family in result.get("accuracy_multiplicity", {}).values():
+        for cid, value in family.get("configurations", {}).items():
+            acc_inf[str(cid)] = value
+    for cid, group in sorted(by_config.items()):
+        executed = [r for r in group if r.get("terminal_status") in {"EXECUTED_AUDITED", "REJECTED_EMPIRICAL"}]
+        n = sum(int(r.get("feature_rows_scored", 0) or 0) for r in executed)
+        if not executed or n <= 0:
+            lines.append(f"| {cid} | 0 | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA |")
+            continue
+        total = lambda k: sum(int(r.get(k, 0) or 0) for r in executed)
+        tp, fp, tn, fn = (total(k) for k in ("true_positive","false_positive","true_negative","false_negative"))
+        btp, bfp, btn, bfn = (total(k) for k in ("baseline_true_positive","baseline_false_positive","baseline_true_negative","baseline_false_negative"))
+        accuracy=(tp+tn)/n; base_accuracy=(btp+btn)/n; positives=tp+fn; negatives=tn+fp
+        bal=0.5*((tp/positives if positives else 0)+(tn/negatives if negatives else 0))
+        weighted=lambda k: sum(float(r[k])*int(r.get("feature_rows_scored",0) or 0) for r in executed)/n
+        ece=mce=0.0
+        for idx in range(10):
+            bins=[b for r in executed for b in (r.get("calibration_bins") or []) if b.get("bin_index")==idx and int(b.get("count",0) or 0)>0]
+            bn=sum(int(b["count"]) for b in bins)
+            if bn:
+                mp=sum(float(b["mean_predicted_probability"])*int(b["count"]) for b in bins)/bn
+                obs=sum(float(b["observed_up_rate"])*int(b["count"]) for b in bins)/bn
+                gap=abs(mp-obs); ece+=bn/n*gap; mce=max(mce,gap)
+        inf=acc_inf.get(cid,{}); ci="NA"
+        if inf.get("ci_low") is not None and inf.get("ci_high") is not None:
+            ci=f"{float(inf['ci_low']):.6g} to {float(inf['ci_high']):.6g}"
+        lines.append(
+            f"| {cid} | {n} | {accuracy:.6g} | {bal:.6g} | {base_accuracy:.6g} | {accuracy-base_accuracy:.6g} | "
+            f"{tp} / {fp} / {tn} / {fn} | {weighted('brier_score'):.6g} | {weighted('roc_auc'):.6g} | "
+            f"{weighted('average_precision'):.6g} | {ece:.6g} | {mce:.6g} | {weighted('session_weighted_accuracy'):.6g} | "
+            f"{ci} | {num_or_na(inf.get('by_adjusted_p_value'))} |"
+        )
+    lines += [
+        "",
+        "### Regime-stratified validation diagnostics",
+        "",
+        "Volatility and trend tercile thresholds are derived from training sessions only. The context uses prior completed sessions, and missing closes are not imputed. Subgroup results are descriptive and must not drive post-hoc candidate selection.",
+        "",
+        "| Config ID | Label | Axis | Regime | N | Sessions | Up / Down support | Accuracy | Balanced accuracy | Baseline accuracy | Accuracy Δ | Brier | ROC AUC | AP |",
+        "|---|---|---|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for cid, group in sorted(by_config.items()):
+        executed=[r for r in group if r.get("terminal_status") in {"EXECUTED_AUDITED","REJECTED_EMPIRICAL"}]
+        acc={}
+        for r in executed:
+            for item in r.get("regime_diagnostics",{}).get("regimes",[]):
+                key=(str(item.get("axis")),str(item.get("regime")))
+                z=acc.setdefault(key,{"n":0,"sessions":0,"up":0,"down":0,"sums":defaultdict(float),"den":defaultdict(int)})
+                ni=int(item.get("observation_count",0) or 0); z["n"]+=ni; z["sessions"]+=int(item.get("session_count",0) or 0)
+                z["up"]+=int(item.get("positive_support",0) or 0); z["down"]+=int(item.get("negative_support",0) or 0)
+                for met in ("accuracy","balanced_accuracy","baseline_accuracy","accuracy_improvement","brier_score","roc_auc","average_precision"):
+                    if ni and item.get(met) is not None:
+                        z["sums"][met]+=float(item[met])*ni; z["den"][met]+=ni
+        label=str(group[0].get("label_id",""))
+        if not acc: lines.append(f"| {cid} | {label} | NA | NA | 0 | 0 | NA | NA | NA | NA | NA | NA | NA | NA |")
+        for (axis, regime),z in sorted(acc.items()):
+            def fmetric(k): return f"{z['sums'][k]/z['den'][k]:.6g}" if z["den"][k] else "NA"
+            lines.append(f"| {cid} | {label} | {axis} | {regime} | {z['n']} | {z['sessions']} | {z['up']} / {z['down']} | "
+                f"{fmetric('accuracy')} | {fmetric('balanced_accuracy')} | {fmetric('baseline_accuracy')} | {fmetric('accuracy_improvement')} | "
+                f"{fmetric('brier_score')} | {fmetric('roc_auc')} | {fmetric('average_precision')} |")
+
     lines += [
         "",
         "## Interpretation boundary",

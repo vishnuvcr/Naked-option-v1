@@ -24,7 +24,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: phase-08p-research-writer
+  group: phase-08p-pm0051-extended-evaluation-writer
   cancel-in-progress: false
 
 jobs:
