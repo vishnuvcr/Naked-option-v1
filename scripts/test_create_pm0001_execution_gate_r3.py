@@ -155,6 +155,14 @@ class PM0001ExecutionGateTests(unittest.TestCase):
         self.assertEqual(gate["precheck_status_counts"]["BLOCKED_DATA"], 1)
         self.assertFalse(precheck["rows"][0]["empirical_fit_authorized"])
 
+    def test_all_blocked_precheck_cannot_authorize_empirical_fit(self):
+        eligibility, preflight, implementation, precheck, args = fixture()
+        for row in precheck["rows"]:
+            row["status"] = "BLOCKED_DATA"
+        precheck["status_counts"] = {"BLOCKED_DATA": 320}
+        with self.assertRaisesRegex(ValueError, "NO_ELIGIBLE_CONFIG_FOLD_CELLS_FOR_EMPIRICAL_FIT"):
+            build_execution_gate(eligibility, preflight, implementation, precheck, **args)
+
     def test_feature_report_must_pass_and_must_not_claim_fitting(self):
         eligibility, preflight, implementation, precheck, args = fixture()
         args["feature_report"]["status"] = "FAIL_FEATURE_CONTRACT"
