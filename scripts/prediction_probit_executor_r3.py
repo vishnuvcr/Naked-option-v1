@@ -37,7 +37,7 @@ class PM0051FoldResult:
     log_loss_improvement: float
     brier_score: float
     balanced_accuracy: float
-    roc_auprior_scale: float
+    roc_auc: float
     average_precision: float
     calibration_intercept: float | None
     calibration_slope: float | None
