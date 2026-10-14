@@ -1667,3 +1667,15 @@ Next: build developer-side ten-horizon registry QA, then a fail-closed developme
 - Added training-time inverted dropout to `TemporalConvolutionAdapter`; deterministic synthetic tests cover repeatability and invalid dropout rejection.
 - Combined hosted synthetic suite [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites, compilation, and source checks. This is synthetic-only, with no market data or holdout access.
 - Parameter-semantics gate remains open: Markov-switching 3-regime and transition-prior semantics still need implementation or permanent scoped blocking; all family parameter mappings require exhaustive audit and independent review. No empirical fitting authorization.
+
+
+## Phase 8P — PM0051 metric contract regression (2026-10-15)
+
+- Run #38595451340 completed with 58 BLOCKED_DATA and 262 FAILED_TECHNICAL outcomes; zero empirical fits were accepted. This is not evidence about model quality.
+- Root cause: extended classification diagnostics returned `accuracy`, which was not registered in the walk-forward result-row contract. All 262 eligible cells failed closed with `UNREGISTERED_RESULT_METRIC:accuracy`.
+- Developer fix committed: registered extended classification, calibration, session-weighted and regime fields, and added a synthetic regression test. Test fixture arithmetic was corrected before rerun.
+- Current gate: FIX COMMITTED; CI and empirical rerun NOT YET VERIFIED. No new workflow run is visible from the fix commit; do not infer success from source edits alone.
+- Holdout remains sealed. No strategy/P&L work is authorized.
+
+**Developer → Tester:** independently verify metric schema, confusion arithmetic, calibration fields, and all 320 terminal outcomes after a corrected bundle is frozen.
+**Tester → Developer:** keep model promotion and holdout access blocked until clean CI, complete results, and independent review.
