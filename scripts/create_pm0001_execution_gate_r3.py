@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Create an ephemeral PM0001 execution gate after current data preflight.
+"""Create a run-scoped PM0001 execution gate from exact pinned source and data precheck.
 
-The gate authorizes only the 40 registered PM0001 configurations for the exact
-verified dataset, preflight report, implementation gate, eligibility manifest,
-and runner source hashes. It never loads market observations or fits a model.
+The gate authorizes only the 40 registered PM0001 configurations for this exact CI
+snapshot and the complete 320-row configuration/fold precheck. It never fits models.
 """
 from __future__ import annotations
 
@@ -18,6 +17,8 @@ EXPECTED_DATA_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c
 IMPLEMENTATION_GATE_PATH = "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
 ELIGIBILITY_PATH = "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
 PREREG_PATH = "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+FOLD_IDS = tuple(f"F{i:02d}" for i in range(1, 9))
+PRECHECK_TERMINAL = {"PRECHECK_PASS", "BLOCKED_DATA", "BLOCKED_SAMPLE_ELIGIBILITY"}
 
 
 def sha256(raw: bytes) -> str:
@@ -54,15 +55,59 @@ def verify_implementation_gate(gate: dict[str, Any], repo_root: Path = ROOT) -> 
             raise ValueError(f"PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:{rel}")
 
 
+def validate_precheck(precheck: dict[str, Any], config_ids: list[str]) -> dict[str, int]:
+    if precheck.get("schema_version") != "pm0001-data-execution-precheck-r3-v1":
+        raise ValueError("PM0001_DATA_PRECHECK_SCHEMA_INVALID")
+    if precheck.get("status") != "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING":
+        raise ValueError("PM0001_DATA_PRECHECK_NOT_COMPLETE_PASS")
+    if precheck.get("source_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("PM0001_DATA_PRECHECK_DATA_HASH_MISMATCH")
+    if precheck.get("configuration_count") != 40 or precheck.get("outer_fold_count") != 8:
+        raise ValueError("PM0001_DATA_PRECHECK_DIMENSIONS_INVALID")
+    if precheck.get("result_row_count") != 320 or precheck.get("model_fitting_performed") is not False:
+        raise ValueError("PM0001_DATA_PRECHECK_COUNT_OR_FIT_SCOPE_INVALID")
+    if precheck.get("holdout_accessed") is not False or precheck.get("empirical_fit_authorized") is not False:
+        raise ValueError("PM0001_DATA_PRECHECK_PROVENANCE_INVALID")
+    rows = precheck.get("rows")
+    if not isinstance(rows, list) or len(rows) != 320:
+        raise ValueError("PM0001_DATA_PRECHECK_ROWS_MISSING")
+    expected = {(cfg, fold) for cfg in config_ids for fold in FOLD_IDS}
+    seen: set[tuple[str, str]] = set()
+    counts: dict[str, int] = {}
+    for pos, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ValueError(f"PM0001_DATA_PRECHECK_ROW_NOT_OBJECT:{pos}")
+        key = (str(row.get("config_id", "")), str(row.get("fold_id", "")))
+        if key in seen:
+            raise ValueError(f"PM0001_DATA_PRECHECK_DUPLICATE_PAIR:{key}")
+        seen.add(key)
+        if row.get("method_id") != "PM0001":
+            raise ValueError(f"PM0001_DATA_PRECHECK_METHOD_MISMATCH:{key}")
+        if row.get("status") not in PRECHECK_TERMINAL:
+            # FAILED_PRECHECK must not authorize any empirical fit.
+            raise ValueError(f"PM0001_DATA_PRECHECK_TERMINAL_STATUS_INVALID:{key}:{row.get('status')}")
+        if row.get("empirical_fit_authorized") is not False or row.get("model_fitting_performed") is not False:
+            raise ValueError(f"PM0001_DATA_PRECHECK_ROW_AUTHORIZATION_INVALID:{key}")
+        if row.get("holdout_accessed") is not False:
+            raise ValueError(f"PM0001_DATA_PRECHECK_ROW_HOLDOUT_SCOPE_INVALID:{key}")
+        counts[row["status"]] = counts.get(row["status"], 0) + 1
+    if seen != expected:
+        raise ValueError(f"PM0001_DATA_PRECHECK_COVERAGE_MISMATCH:missing={len(expected-seen)}:extra={len(seen-expected)}")
+    return counts
+
+
 def build_execution_gate(
     eligibility: dict[str, Any],
     preflight: dict[str, Any],
     implementation_gate: dict[str, Any],
+    precheck: dict[str, Any],
     *,
     eligibility_blob_sha1: str,
     preflight_blob_sha1: str,
     implementation_gate_blob_sha1: str,
     prereg_blob_sha1: str,
+    precheck_blob_sha1: str,
+    precheck_sha256: str,
     runner_blob_sha1: str,
     source_commit: str,
     workflow_run_id: str,
@@ -103,28 +148,33 @@ def build_execution_gate(
     config_ids = sorted(r["config_id"] for r in pending)
     if len(set(config_ids)) != 40:
         raise ValueError("PM0001_CONFIG_IDS_NOT_UNIQUE")
-
+    precheck_counts = validate_precheck(precheck, config_ids)
     if implementation_gate.get("status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
         raise ValueError("PM0001_IMPLEMENTATION_GATE_STATUS_INVALID")
     return {
-        "schema_version": "pm0001-execution-gate-r3-v1",
+        "schema_version": "pm0001-execution-gate-r3-v2",
         "status": "PASS_PM0001_EXECUTION_PRECHECK",
         "method_id": "PM0001",
         "configuration_count": 40,
         "config_ids": config_ids,
+        "outer_fold_ids": list(FOLD_IDS),
+        "expected_result_rows": 320,
+        "precheck_status_counts": precheck_counts,
         "empirical_fit_authorized": True,
         "manual_authorization_required": False,
-        "scope": "PM0001 registered configurations only; no holdout; exact pinned dataset and source",
+        "scope": "PM0001 registered configurations only; current complete data precheck and exact pinned source; holdout excluded",
         "source_data_sha256": EXPECTED_DATA_SHA256,
         "eligibility_manifest_git_blob_sha1": eligibility_blob_sha1,
         "preflight_report_git_blob_sha1": preflight_blob_sha1,
         "implementation_gate_git_blob_sha1": implementation_gate_blob_sha1,
         "preregistration_git_blob_sha1": prereg_blob_sha1,
+        "precheck_report_git_blob_sha1": precheck_blob_sha1,
+        "precheck_report_sha256": precheck_sha256,
         "runner_git_blob_sha1": runner_blob_sha1,
         "source_commit": source_commit,
         "workflow_run_id": workflow_run_id,
         "holdout_accessed": False,
-        "market_data_loaded_by_precheck": False,
+        "market_data_loaded_by_precheck": True,
         "model_fitting_performed_by_precheck": False,
         "preflight_status": preflight["status"],
         "eligible_fold_label_cells": 75,
@@ -134,46 +184,46 @@ def build_execution_gate(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--preflight", required=True)
-    parser.add_argument("--eligibility", default=str(ROOT / ELIGIBILITY_PATH))
-    parser.add_argument("--implementation-gate", default=str(ROOT / IMPLEMENTATION_GATE_PATH))
-    parser.add_argument("--preregistration", default=str(ROOT / PREREG_PATH))
-    parser.add_argument("--runner", default=str(ROOT / "scripts/run_pm0001_prediction_sweep_r3.py"))
-    parser.add_argument("--output", required=True)
+    parser.add_argument("--preflight", required=True, type=Path)
+    parser.add_argument("--precheck-report", required=True, type=Path)
+    parser.add_argument("--eligibility", default=str(ROOT / ELIGIBILITY_PATH), type=Path)
+    parser.add_argument("--implementation-gate", default=str(ROOT / IMPLEMENTATION_GATE_PATH), type=Path)
+    parser.add_argument("--preregistration", default=str(ROOT / PREREG_PATH), type=Path)
+    parser.add_argument("--runner", default=str(ROOT / "scripts/run_pm0001_prediction_sweep_r3.py"), type=Path)
+    parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--source-commit", default="unknown")
     parser.add_argument("--workflow-run-id", default="unknown")
     args = parser.parse_args()
 
-    preflight_path = Path(args.preflight)
-    eligibility_path = Path(args.eligibility)
-    implementation_path = Path(args.implementation_gate)
-    prereg_path = Path(args.preregistration)
-    runner_path = Path(args.runner)
-    eligibility = read_json(eligibility_path)
-    preflight = read_json(preflight_path)
-    implementation_gate = read_json(implementation_path)
-    prereg = read_json(prereg_path)
+    eligibility = read_json(args.eligibility)
+    preflight = read_json(args.preflight)
+    implementation_gate = read_json(args.implementation_gate)
+    prereg = read_json(args.preregistration)
+    precheck = read_json(args.precheck_report)
     verify_implementation_gate(implementation_gate)
     if prereg.get("date") != "2026-10-13" or len(prereg.get("labels", {})) != 10:
         raise ValueError("FROZEN_PREREGISTRATION_INVALID")
-    if not runner_path.is_file():
+    if not args.runner.is_file():
         raise ValueError("PM0001_RUNNER_MISSING")
+    raw_precheck = args.precheck_report.read_bytes()
     gate = build_execution_gate(
-        eligibility, preflight, implementation_gate,
-        eligibility_blob_sha1=git_blob_sha1(eligibility_path.read_bytes()),
-        preflight_blob_sha1=git_blob_sha1(preflight_path.read_bytes()),
-        implementation_gate_blob_sha1=git_blob_sha1(implementation_path.read_bytes()),
-        prereg_blob_sha1=git_blob_sha1(prereg_path.read_bytes()),
-        runner_blob_sha1=git_blob_sha1(runner_path.read_bytes()),
+        eligibility, preflight, implementation_gate, precheck,
+        eligibility_blob_sha1=git_blob_sha1(args.eligibility.read_bytes()),
+        preflight_blob_sha1=git_blob_sha1(args.preflight.read_bytes()),
+        implementation_gate_blob_sha1=git_blob_sha1(args.implementation_gate.read_bytes()),
+        prereg_blob_sha1=git_blob_sha1(args.preregistration.read_bytes()),
+        precheck_blob_sha1=git_blob_sha1(raw_precheck),
+        precheck_sha256=sha256(raw_precheck),
+        runner_blob_sha1=git_blob_sha1(args.runner.read_bytes()),
         source_commit=args.source_commit,
         workflow_run_id=args.workflow_run_id,
     )
-    out = Path(args.output)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(gate, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(gate, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     print(json.dumps({
         "status": gate["status"], "method_id": gate["method_id"],
         "configuration_count": gate["configuration_count"],
+        "precheck_status_counts": gate["precheck_status_counts"],
         "empirical_fit_authorized": gate["empirical_fit_authorized"],
         "manual_authorization_required": gate["manual_authorization_required"],
         "holdout_accessed": gate["holdout_accessed"],
