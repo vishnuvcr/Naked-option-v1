@@ -17,6 +17,8 @@ EXPECTED_DATA_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c
 IMPLEMENTATION_GATE_PATH = "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
 ELIGIBILITY_PATH = "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
 PREREG_PATH = "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+FEATURE_REPORT_PATH = "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
+FEATURE_CORRECTION_PATH = "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
 FOLD_IDS = tuple(f"F{i:02d}" for i in range(1, 9))
 PRECHECK_TERMINAL = {"PRECHECK_PASS", "BLOCKED_DATA", "BLOCKED_SAMPLE_ELIGIBILITY"}
 
@@ -53,6 +55,36 @@ def verify_implementation_gate(gate: dict[str, Any], repo_root: Path = ROOT) -> 
         path = repo_root / rel
         if not path.is_file() or git_blob_sha1(path.read_bytes()) != expected:
             raise ValueError(f"PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:{rel}")
+
+
+def verify_feature_construction_report(report: dict[str, Any], repo_root: Path = ROOT) -> None:
+    if report.get("status") != "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED":
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_NOT_PASS")
+    if report.get("check_count") != report.get("checks_passed") or not isinstance(report.get("checks_passed"), int):
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_CHECK_COUNTS_INVALID")
+    fitting_gate = report.get("fitting_gate", {})
+    if fitting_gate.get("empirical_fit_authorized") is not False or fitting_gate.get("model_fitting_performed") is not False or fitting_gate.get("holdout_accessed") is not False:
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_SCOPE_INVALID")
+    pins = report.get("verified_source_hashes", {})
+    required = {
+        "contract_git_blob_sha1": "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json",
+        "feature_builder_git_blob_sha1": "scripts/prediction_features_r3.py",
+        "feature_tests_git_blob_sha1": "scripts/test_prediction_features_r3.py",
+        "contract_validator_git_blob_sha1": "scripts/validate_prediction_feature_contract_r3.py",
+        "feature_correction_git_blob_sha1": FEATURE_CORRECTION_PATH,
+        "calendar_git_blob_sha1": "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+        "label_manifest_git_blob_sha1": "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json",
+        "preflight_report_git_blob_sha1": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json",
+        "prerequisite_report_git_blob_sha1": "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json",
+        "preregistration_git_blob_sha1": PREREG_PATH,
+    }
+    for field, rel in required.items():
+        path = repo_root / rel
+        if not path.is_file() or git_blob_sha1(path.read_bytes()) != pins.get(field):
+            raise ValueError(f"FEATURE_CONSTRUCTION_SOURCE_PIN_MISMATCH:{field}")
+    correction_raw = (repo_root / FEATURE_CORRECTION_PATH).read_bytes()
+    if sha256(correction_raw) != pins.get("feature_correction_sha256"):
+        raise ValueError("FEATURE_CONSTRUCTION_CORRECTION_SHA256_MISMATCH")
 
 
 def validate_precheck(precheck: dict[str, Any], config_ids: list[str]) -> dict[str, int]:
@@ -101,7 +133,10 @@ def build_execution_gate(
     preflight: dict[str, Any],
     implementation_gate: dict[str, Any],
     precheck: dict[str, Any],
+    feature_report: dict[str, Any],
     *,
+    feature_report_blob_sha1: str,
+    feature_report_sha256: str,
     eligibility_blob_sha1: str,
     preflight_blob_sha1: str,
     implementation_gate_blob_sha1: str,
@@ -149,6 +184,11 @@ def build_execution_gate(
     if len(set(config_ids)) != 40:
         raise ValueError("PM0001_CONFIG_IDS_NOT_UNIQUE")
     precheck_counts = validate_precheck(precheck, config_ids)
+    if feature_report.get("status") != "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED":
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_NOT_PASS")
+    fg = feature_report.get("fitting_gate", {})
+    if fg.get("empirical_fit_authorized") is not False or fg.get("model_fitting_performed") is not False or fg.get("holdout_accessed") is not False:
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_SCOPE_INVALID")
     if implementation_gate.get("status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
         raise ValueError("PM0001_IMPLEMENTATION_GATE_STATUS_INVALID")
     return {
@@ -170,6 +210,13 @@ def build_execution_gate(
         "preregistration_git_blob_sha1": prereg_blob_sha1,
         "precheck_report_git_blob_sha1": precheck_blob_sha1,
         "precheck_report_sha256": precheck_sha256,
+        "feature_construction_report_git_blob_sha1": feature_report_blob_sha1,
+        "feature_construction_report_sha256": feature_report_sha256,
+        "feature_builder_git_blob_sha1": feature_report["verified_source_hashes"]["feature_builder_git_blob_sha1"],
+        "feature_tests_git_blob_sha1": feature_report["verified_source_hashes"]["feature_tests_git_blob_sha1"],
+        "feature_correction_git_blob_sha1": feature_report["verified_source_hashes"]["feature_correction_git_blob_sha1"],
+        "feature_correction_sha256": feature_report["verified_source_hashes"]["feature_correction_sha256"],
+        "feature_contract_validator_git_blob_sha1": feature_report["verified_source_hashes"]["contract_validator_git_blob_sha1"],
         "runner_git_blob_sha1": runner_blob_sha1,
         "source_commit": source_commit,
         "workflow_run_id": workflow_run_id,
@@ -188,6 +235,7 @@ def main() -> int:
     parser.add_argument("--precheck-report", required=True, type=Path)
     parser.add_argument("--eligibility", default=str(ROOT / ELIGIBILITY_PATH), type=Path)
     parser.add_argument("--implementation-gate", default=str(ROOT / IMPLEMENTATION_GATE_PATH), type=Path)
+    parser.add_argument("--feature-report", default=str(ROOT / FEATURE_REPORT_PATH), type=Path)
     parser.add_argument("--preregistration", default=str(ROOT / PREREG_PATH), type=Path)
     parser.add_argument("--runner", default=str(ROOT / "scripts/run_pm0001_prediction_sweep_r3.py"), type=Path)
     parser.add_argument("--output", required=True, type=Path)
@@ -198,16 +246,21 @@ def main() -> int:
     eligibility = read_json(args.eligibility)
     preflight = read_json(args.preflight)
     implementation_gate = read_json(args.implementation_gate)
+    feature_report = read_json(args.feature_report)
     prereg = read_json(args.preregistration)
     precheck = read_json(args.precheck_report)
     verify_implementation_gate(implementation_gate)
+    verify_feature_construction_report(feature_report)
     if prereg.get("date") != "2026-10-13" or len(prereg.get("labels", {})) != 10:
         raise ValueError("FROZEN_PREREGISTRATION_INVALID")
     if not args.runner.is_file():
         raise ValueError("PM0001_RUNNER_MISSING")
     raw_precheck = args.precheck_report.read_bytes()
+    raw_feature_report = args.feature_report.read_bytes()
     gate = build_execution_gate(
-        eligibility, preflight, implementation_gate, precheck,
+        eligibility, preflight, implementation_gate, precheck, feature_report,
+        feature_report_blob_sha1=git_blob_sha1(raw_feature_report),
+        feature_report_sha256=sha256(raw_feature_report),
         eligibility_blob_sha1=git_blob_sha1(args.eligibility.read_bytes()),
         preflight_blob_sha1=git_blob_sha1(args.preflight.read_bytes()),
         implementation_gate_blob_sha1=git_blob_sha1(args.implementation_gate.read_bytes()),
