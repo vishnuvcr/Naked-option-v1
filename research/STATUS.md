@@ -1,3 +1,11 @@
+## 2026-10-14 — Phase 8P PM0001 status after retry failures
+
+- Latest verified full precheck: `PRECHECK_PASS=262`, `BLOCKED_SAMPLE_ELIGIBILITY=38`, `BLOCKED_DATA=20` across 320 cells; no fitting occurred in that run.
+- Runs #38524449678 and #38524837518 failed during workflow download/publication infrastructure, respectively—not due to model metrics. See [execution run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524449678) and [preflight run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524837518).
+- Current retry: [run #38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378) passed initial synthetic/source-pin gates and is verifying/decrypting the pinned canonical data. Results remain unavailable until the complete terminal result bundle is frozen.
+
+**Developer → Tester:** independent synthetic audit passed; wait for frozen acquired results before mathematical/source/result review.
+
 ## 2026-10-14T06:48:02.692724+00:00 — Phase 8P R3A run 38524306506
 
 - Workflow: [run 38524306506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524306506); source commit 2eeb36952b9b236114a10f83286842be61767686.
