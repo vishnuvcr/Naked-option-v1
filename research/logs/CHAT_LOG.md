@@ -1,3 +1,11 @@
+## 2026-10-14 — Resume and PM0001 retry
+
+Resumed Phase 8P at the recorded PM0001 data/gate boundary. Runs #38524449678 and #38524837518 stopped in workflow download/publication handling, not due to model metrics. The last complete precheck recorded 262 PRECHECK_PASS, 38 BLOCKED_SAMPLE_ELIGIBILITY and 20 BLOCKED_DATA cells out of 320; that run performed no fitting and accessed no holdout. Current retry is [workflow #38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378); synthetic/source-pin gates passed and canonical data retrieval is in progress.
+
+This log records research decisions, user requests, reproducibility links and outcomes rather than private chain-of-thought.
+
+**Developer → Tester:** wait for a complete frozen result bundle with results_acquired=true.
+
 <!-- pm0001-run:38522693920 -->
 ## 2026-10-14 — User: Resume
 
