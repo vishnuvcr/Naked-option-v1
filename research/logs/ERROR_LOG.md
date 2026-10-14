@@ -208,3 +208,7 @@ New errors must be appended, never overwritten.
 - Research disposition: no predictive result; this is a CI/bootstrap failure. Preserve the run as a failure and do not loosen any dataset pins, support thresholds, or fold rules.
 
 **Developer → Tester:** no review yet; wait for a frozen result bundle and then independently audit all 320 config/fold outcomes.
+
+## 2026-10-14 — PM0001 empirical pipeline diagnostics (run 38522569942)
+- Workflow: [run #38522569942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522569942); job status failure; pipeline status failure.
+- Pipeline stopped before a structured runner error was written; retain workflow logs and uploaded attempt artifacts.

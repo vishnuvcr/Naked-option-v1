@@ -1658,3 +1658,7 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 **Next:** verify the full-data corrected 320-cell precheck, confirm nonzero positional sample support, require zero technical failures, issue the run-scoped gate only after report/source hashes validate, then fit only `PRECHECK_PASS` cells. Preserve all other cells as blocked.
 
 **Developer → Tester:** defer independent review until the full empirical results bundle is acquired, validated, frozen and hash-pinned.
+
+## 2026-10-14 — PM0001 empirical pipeline diagnostics (run 38522569942)
+- Workflow: [run #38522569942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522569942); job status failure; pipeline status failure.
+- Pipeline stopped before a structured runner error was written; retain workflow logs and uploaded attempt artifacts.

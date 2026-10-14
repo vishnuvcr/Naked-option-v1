@@ -1,3 +1,18 @@
+<!-- pm0001-run:38522569942 -->
+## 2026-10-14 — Phase 8P PM0001 pipeline outcome
+
+- Workflow: [run #38522569942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522569942); tested source commit: f9aa4f3f0a58892ac810ae02c147b72a020d8ee0.
+- Job status: failure; research status: failure; results acquired: false.
+- Canonical data SHA-256: not verified.
+- Config/fold precheck accounting: {} across 0/320 cells.
+- Empirical terminal accounting: {}; fit rows: 0; blocked/failed rows: not acquired.
+- Holdout accessed: False. This is prediction research only; no option strategy is selected here.
+- Artifacts: No validated result manifest yet; see workflow artifacts and logs.
+- Structured diagnostics: 0 entries in no runner JSONL created.
+- Next: independent review of the frozen result bundle only when results_acquired is true; do not advance to strategy selection before tester report.
+
+Developer to Tester: independently audit exact source/data/result pins, all 320 terminal rows, label timing, sample-support exclusions, purge/embargo, rolling refits, calibration, bootstrap sign/p-value arithmetic, BY multiplicity and technical failures. Return concrete file/line evidence; do not accept claims based solely on the developer summary.
+
 ## 2026-10-14 — PM0001 pipeline bootstrap blocker
 
 - [Workflow #38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) failed before data retrieval because the pre-download synthetic test environment lacked NumPy; the always-run inline status logger also contained a Python syntax error.

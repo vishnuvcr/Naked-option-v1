@@ -1,3 +1,8 @@
+<!-- pm0001-run:38522569942 -->
+## 2026-10-14 — User: Resume
+
+Resumed Phase 8P prediction work from the recorded precheck and synthetic-gate state. The canonical-data precheck and PM0001 run were attempted on source f9aa4f3f0a58892ac810ae02c147b72a020d8ee0; outcome failure; results acquired false. See [workflow #38522569942](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522569942) and the status block in README/STATUS. This log records decisions, outcomes and reproducibility artifacts rather than private chain-of-thought.
+
 ## 2026-10-14 — User: Resume; pipeline bootstrap failure logged
 
 - Workflow [#38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) failed before data retrieval because NumPy was not installed for synthetic tests. The status publisher also failed with a syntax error.
