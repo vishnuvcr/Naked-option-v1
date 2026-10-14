@@ -1,3 +1,11 @@
+## 2026-10-15 — Follow-up execution attempt and hard blocker
+
+- Rechecked the available GitHub connector actions and repository branches. The connector provides workflow-run inspection and rerun of existing failed jobs, but no workflow-dispatch or repository-workflow-list action.
+- Retried a shallow local clone of `phase-08-prediction-developer`; it failed before download with `Could not resolve host: github.com`. Therefore no local test execution is possible in this runtime either.
+- A rerun of old workflow #38595451340 would execute the old source commit and cannot validate the newer metric-contract fix. It was not misrepresented as a valid rerun.
+- Current verified state: metric-contract fix is committed; synthetic tests and fresh empirical evaluation are still unverified; last empirical run remains 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, zero accepted fits. No holdout access and no strategy promotion.
+- Required resolution: an authenticated GitHub Actions `workflow_dispatch` call or a runner with repository checkout/network access. Once available, run the synthetic suite first, then a fresh PM0051 sweep on the corrected commit, reconcile all 320 terminal rows, and update the frozen report.
+
 ## 2026-10-15 — CI trigger attempt did not expose a new run
 
 - After the user waived independent tester review, a draft PR against `main` was created as an initial CI-trigger experiment, then immediately closed because it contained 2,063 commits and 1,084 changed files; it was not merged.
