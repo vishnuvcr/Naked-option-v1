@@ -25,9 +25,9 @@
     "scripts/test_run_pm0001_prediction_sweep_r3.py": "23e631f30569cce17778273f83d37ffd41d6a49b",
     "scripts/validate_prediction_feature_contract_r3.py": "e2557ca232cef73c5609745fd59a968ba2ee4d6e"
   },
-  "handoff_retry": 2,
+  "handoff_retry": 3,
   "holdout_accessed": false,
-  "last_handoff_correction": "2026-10-14: dispatch workflow uses explicit repository context; result artifact hashes validated against published commit",
+  "last_handoff_correction": "2026-10-14: independent audit falsely flagged all configurations because it compared observed_mean_improvement to a published key named observed_mean_session_improvement; auditor mapping regression test added and synthetic audit suite passed in workflow 38534192962",
   "result_bundle_manifest_path": "research/results/phase8p-pm0001/run-38525772378/freeze_manifest.json",
   "result_bundle_manifest_sha256": "c8800662109d2bee53257c1b22d3ab1bca011a99b3f5172d12fa2811e6374da8",
   "result_published_commit": "8b1d845635a0b269a425e46a37ae4fd6f57e944f",
