@@ -113,3 +113,11 @@ Literal “100% certainty” about future market direction is impossible. The sc
 ## Holdout terminology control
 
 The research protocol explicitly distinguishes a final **untouched holdout** from chronological training/validation folds and from the later fresh-forward verification. The final holdout must remain unopened during model selection and tuning.
+
+## Phase 8P R3A pre-results correction — positional close timestamps — 2026-10-14
+
+The full-data precheck found an implementation mismatch before any empirical PM0001 fit: the original R3 feature builder accepted only a 15:30 source timestamp, while the pinned dataset/preflight defines the final-minute OHLC close as either a 15:29 start-of-final-minute bar (its close is available at 15:30) or an explicit 15:30 close. The aggregate preflight recorded 1,150 sessions at 15:29, 72 at 15:30, and 9 at 15:28. The original builder therefore emitted no positional samples for most sessions, and the apparent sample-eligibility blocks were not yet scientifically interpretable.
+
+A strictly pre-results implementation correction is now frozen in [R3A correction JSON](registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json) and [correction note](governance/PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.md). Use the latest observed 15:29 or 15:30 close candidate, preferring 15:30 when both exist; map a 15:29 source timestamp to its 15:30 interval-end timestamp. A 15:28-only session remains missing and is not filled or replaced. The original feature contract and original run outputs remain preserved.
+
+This is limited to the source bar timestamp convention. It does **not** change the canonical data/calendar pins, label definitions, targets, flat tolerance, horizons, lag order, lookbacks, outer/inner folds, purge/embargo, missingness threshold, support minima, baselines, metrics, bootstrap, multiplicity or method universe. Revalidation gates are mandatory before fitting: (1) corrected synthetic feature tests, (2) regenerated source-pinned feature-contract report, (3) full-data 320-cell precheck with published aggregate feature diagnostics, (4) exact run-scoped execution gate pinned to the correction/report/precheck/runner sources, and only then (5) PM0001 fitting for each cell marked `PRECHECK_PASS`. All blocked config/fold cells remain terminally recorded.
