@@ -2088,3 +2088,12 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - fit_pm0051_outer_fold / CFG0051_POS_5D_UP_DOWN_60_REGULARIZED / F06: WalkForwardContractError: UNREGISTERED_RESULT_METRIC:accuracy; traceback SHA256 0c23c14c692fc0c97c78f0d51db83c761ac3148ec30b7954ad94d27b8773a75e.
 - fit_pm0051_outer_fold / CFG0051_POS_5D_UP_DOWN_60_REGULARIZED / F07: WalkForwardContractError: UNREGISTERED_RESULT_METRIC:accuracy; traceback SHA256 0c23c14c692fc0c97c78f0d51db83c761ac3148ec30b7954ad94d27b8773a75e.
 - fit_pm0051_outer_fold / CFG0051_POS_5D_UP_DOWN_60_REGULARIZED / F08: WalkForwardContractError: UNREGISTERED_RESULT_METRIC:accuracy; traceback SHA256 0c23c14c692fc0c97c78f0d51db83c761ac3148ec30b7954ad94d27b8773a75e.
+
+
+## 2026-10-15 — PM0051 R3A run #38595451340 metric-contract failure
+
+- Failure: all 262 eligible config-fold cells returned `UNREGISTERED_RESULT_METRIC:accuracy`; 58 other cells were blocked by data/sample eligibility. Frozen terminal accounting is 58 BLOCKED_DATA + 262 FAILED_TECHNICAL = 320; accepted empirical fits = 0.
+- Traceback SHA256 recorded by runner: `0c23c14c692fc0c97c78f0d51db83c761ac3148ec30b7954ad94d27b8773a75e`.
+- Root cause: extended diagnostics added by the PM0051 sweep were not included in the `prediction_walkforward_r3.py` result contract. Fail-closed validation behaved as intended.
+- Fix: registered the extended diagnostic fields and added a synthetic regression test; the test fixture's classification arithmetic was corrected. This is not yet CI-verified and no empirical rerun is confirmed.
+- No holdout access; no model-quality inference; no trading strategy evaluation.
