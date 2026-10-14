@@ -47,7 +47,7 @@ ELIGIBILITY_PATH = ROOT / "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_
 PREFLIGHT_PATH = ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
 IMPLEMENTATION_PATH = ROOT / "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
 DATA_PIN_PATH = ROOT / "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json"
-SOURCE_MANIFEST_SHA_PATH = DATA_PIN_PATH
+SOURCE_MANIFEST_SHA_PATH = ROOT / "research/data/DERIVED_DATASET_MANIFEST_R2_RUN_38126168547.json"
 EPSILON = 1e-6
 BOOTSTRAP_BLOCK_LENGTH = 10
 BOOTSTRAP_REPLICATES = 10_000
@@ -166,6 +166,13 @@ def validate_run_gate(
         raise SweepError("DATA_ARTIFACT_ID_PIN_MISMATCH")
     if current.get("archive_sha256") != "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b":
         raise SweepError("DATA_ARTIFACT_ARCHIVE_PIN_MISMATCH")
+    source_manifest = pin.get("source_manifest", {})
+    if source_manifest.get("path") != SOURCE_MANIFEST_SHA_PATH.relative_to(ROOT).as_posix():
+        raise SweepError("SOURCE_MANIFEST_PATH_PIN_MISMATCH")
+    if not SOURCE_MANIFEST_SHA_PATH.is_file():
+        raise SweepError("SOURCE_MANIFEST_FILE_MISSING")
+    if source_manifest.get("git_blob_sha1") != git_blob_sha1(SOURCE_MANIFEST_SHA_PATH.read_bytes()):
+        raise SweepError("SOURCE_MANIFEST_GIT_BLOB_PIN_MISMATCH")
     return gate
 
 
@@ -602,9 +609,22 @@ def run_sweep(
         raise SweepError("PREREGISTERED_BOOTSTRAP_SETTINGS_MISMATCH")
     for config in configs:
         cid = str(config["config_id"])
-        folds_deltas = [fold_delta_by_config[cid][f] for f in FOLD_IDS if f in fold_delta_by_config[cid]]
+        fitted_by_fold = fold_delta_by_config.get(cid, {})
+        folds_deltas = [fitted_by_fold[f] for f in FOLD_IDS if f in fitted_by_fold]
+        eligible_folds = {
+            fold_id for fold_id in FOLD_IDS
+            if precheck_map.get((cid, fold_id), {}).get("status") == "PRECHECK_PASS"
+        }
         infer: dict[str, Any] = {"inferential_status": "NO_EMPIRICAL_FIT", "raw_p_value": None, "ci_low": None, "ci_high": None}
-        if folds_deltas:
+        # Never silently omit a precheck-eligible fold from a configuration-level test.
+        if folds_deltas and set(fitted_by_fold) != eligible_folds:
+            infer = {
+                "inferential_status": "INCOMPLETE_ELIGIBLE_FOLD_COVERAGE",
+                "raw_p_value": None, "ci_low": None, "ci_high": None, "replicates": 0,
+                "expected_eligible_folds": sorted(eligible_folds),
+                "fitted_folds": sorted(fitted_by_fold),
+            }
+        elif folds_deltas:
             try:
                 if any(len(d) < BOOTSTRAP_BLOCK_LENGTH for d in folds_deltas):
                     raise SweepError("BOOTSTRAP_FOLD_HAS_FEWER_THAN_TEN_SESSIONS")
@@ -650,6 +670,8 @@ def run_sweep(
         "source_data_sha256": EXPECTED_DATA_SHA256,
         "source_manifest_path": SOURCE_MANIFEST_SHA_PATH.relative_to(ROOT).as_posix(),
         "source_manifest_sha256": dataset_pin_sha256,
+        "sweep_gate_passed": gate is not None and gate_verified,
+        "global_gate_reason": global_gate_reason or None,
         "precheck_report_sha256": sha256_bytes(precheck_path.read_bytes()) if precheck_path.is_file() else None,
         "execution_gate_sha256": sha256_bytes(gate_path.read_bytes()) if gate_path.is_file() else None,
         "configuration_count": 40,
