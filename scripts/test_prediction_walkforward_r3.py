@@ -80,13 +80,13 @@ class WalkForwardR3Tests(unittest.TestCase):
             "configuration": {"label_id": "POS_1D_UP_DOWN", "method_id": "PM0051"},
         }
         metrics = {
-            "accuracy": 0.75, "precision": 0.8, "recall": 0.5, "specificity": 0.9, "f1": 0.6153846153846154,
+            "accuracy": 11 / 14, "precision": 2 / 3, "recall": 0.5, "specificity": 0.9, "f1": 4 / 7,
             "true_positive": 2, "false_positive": 1, "true_negative": 9, "false_negative": 2,
-            "baseline_accuracy": 0.7, "baseline_precision": 0.0, "baseline_recall": 0.0,
+            "baseline_accuracy": 10 / 14, "baseline_precision": 0.0, "baseline_recall": 0.0,
             "baseline_specificity": 1.0, "baseline_f1": 0.0,
             "baseline_true_positive": 0, "baseline_false_positive": 0,
             "baseline_true_negative": 10, "baseline_false_negative": 4,
-            "accuracy_improvement": 0.05, "balanced_accuracy_from_confusion": 0.7,
+            "accuracy_improvement": 1 / 14, "balanced_accuracy_from_confusion": 0.7,
             "expected_calibration_error": 0.1, "maximum_calibration_error": 0.2,
             "calibration_bins": [{"bin_index": 0, "count": 14, "mean_predicted_probability": 0.4, "observed_up_rate": 0.3}],
             "session_weighted_accuracy": 0.72, "baseline_session_weighted_accuracy": 0.68,
