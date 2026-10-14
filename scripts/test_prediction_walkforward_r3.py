@@ -1,4 +1,5 @@
 """Synthetic-only tests of the R3 walk-forward split and result schema contract."""
+# CI retrigger: execute the corrected PM0051 result-metric contract tests.
 from __future__ import annotations
 
 import json
