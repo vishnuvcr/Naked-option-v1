@@ -25,7 +25,7 @@ def fixture():
         "roc_auc": None,
         "average_precision": None,
         "lookback_bars": 20,
-        "c": 1.0,
+        "prior_scale": 2.0,
     } for cid in ids for fold in range(1, 9)]
     summary = {
         "source_data_sha256": EXPECTED_DATA_SHA256,
