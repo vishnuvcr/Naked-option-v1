@@ -73,6 +73,42 @@ def example_config():
 
 
 class WalkForwardR3Tests(unittest.TestCase):
+    def test_extended_pm0051_metrics_are_registered_in_result_contract(self):
+        config = {
+            "config_id": "CFG-SYNTHETIC-001",
+            "method_id": "PM0051",
+            "configuration": {"label_id": "POS_1D_UP_DOWN", "method_id": "PM0051"},
+        }
+        metrics = {
+            "accuracy": 0.75, "precision": 0.8, "recall": 0.5, "specificity": 0.9, "f1": 0.6153846153846154,
+            "true_positive": 2, "false_positive": 1, "true_negative": 9, "false_negative": 2,
+            "baseline_accuracy": 0.7, "baseline_precision": 0.0, "baseline_recall": 0.0,
+            "baseline_specificity": 1.0, "baseline_f1": 0.0,
+            "baseline_true_positive": 0, "baseline_false_positive": 0,
+            "baseline_true_negative": 10, "baseline_false_negative": 4,
+            "accuracy_improvement": 0.05, "balanced_accuracy_from_confusion": 0.7,
+            "expected_calibration_error": 0.1, "maximum_calibration_error": 0.2,
+            "calibration_bins": [{"bin_index": 0, "count": 14, "mean_predicted_probability": 0.4, "observed_up_rate": 0.3}],
+            "session_weighted_accuracy": 0.72, "baseline_session_weighted_accuracy": 0.68,
+            "regime_diagnostics": {"status": "SYNTHETIC_TEST"},
+            "feature_rows_scored": 14, "rolling_refit_count": 2,
+            "rolling_refit_cadence_exchange_sessions": 20, "oof_calibration_rows": 8,
+            "baseline_log_loss": 0.7, "candidate_log_loss": 0.6, "log_loss_improvement": 0.1,
+        }
+        row = terminal_result_row(
+            config=config, fold_id="F01", train_start="2025-01-01", train_end="2025-02-01",
+            validation_start="2025-02-02", validation_end="2025-02-10",
+            status="EXECUTED_AUDITED", failure_reason=None,
+            eligible_train_rows=20, eligible_validation_rows=14,
+            train_positive_support=10, train_negative_support=10,
+            validation_positive_support=4, validation_negative_support=10,
+            purge_sessions=1, embargo_sessions=1, label_exclusion_count=0,
+            feature_missingness=None, label_target_endpoint="synthetic",
+            source_manifest_sha256="a" * 64, metrics=metrics,
+        )
+        for key, value in metrics.items():
+            self.assertEqual(row[key], value, key)
+
     def test_frozen_outer_windows_are_eight_ordered_nonoverlapping_windows(self):
         prereg = json.loads(PREREG_PATH.read_text(encoding="utf-8"))
         windows = validate_outer_windows(prereg["chronological_validation"]["fold_calendar_windows"])
