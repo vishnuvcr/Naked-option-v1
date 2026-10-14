@@ -19,7 +19,7 @@
     "scripts/publish_pm0051_run_status_r3.py": "081b3d6cb424947168c5fd34991e16a6af2b2179",
     "scripts/run_pm0051_data_execution_precheck_r3.py": "4ed674393c781e1eefaf2c84e36de8f2cc067c84",
     "scripts/run_pm0051_data_execution_precheck_r3a.py": "6e9cd9e170be09e20e580e2894cd94db1f40a0c6",
-    "scripts/run_pm0051_prediction_sweep_r3.py": "6cc00e0c740341ddad76704cf12036170b8022e3",
+    "scripts/run_pm0051_prediction_sweep_r3.py": "00f3808fdb5d48c11ecd86582754c18111ffc626",
     "scripts/test_build_pm0051_eligibility_disposition_r3.py": "1ba394bb3d09136639b49d4a05bd573985037918",
     "scripts/test_create_pm0051_execution_gate_r3.py": "743e53ed3407bee8a6fca633787e85236010cc89",
     "scripts/test_freeze_pm0051_result_bundle_r3.py": "fda937eebd1d5a11dca81206c19c1392c67e03d0",
@@ -32,7 +32,7 @@
     "scripts/test_prediction_walkforward_r3.py": "ae52c6619f5353914391f7b1d3be4531fc46e9af",
     "scripts/test_publish_pm0051_run_status_r3.py": "89040d118626e1b7bd87571d7a1e57c66aa56656",
     "scripts/test_run_pm0051_data_execution_precheck_r3a.py": "cdcab1bc7896dad9893fc31e571975b30d06cc94",
-    "scripts/test_run_pm0051_prediction_sweep_r3.py": "8a7841418a311991e25ffcbe2fe3f28c588f2f92"
+    "scripts/test_run_pm0051_prediction_sweep_r3.py": "d9f491739f84146a473c32848eb5836614d392fb"
   },
   "source_commit": "e2d43d4dff254819fe3f07052f001b797f7fa182",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
