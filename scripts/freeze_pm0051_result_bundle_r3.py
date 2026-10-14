@@ -55,6 +55,80 @@ def load_object(path: Path) -> dict[str, Any]:
     return value
 
 
+
+def validate_extended_prediction_metrics(row: Mapping[str, Any], pair: tuple[str, str]) -> None:
+    """Validate fold-level classification counts, calibration bins and regime bookkeeping."""
+    import math
+    n=row.get("feature_rows_scored")
+    if isinstance(n,bool) or not isinstance(n,int) or n<1:
+        raise FreezeError(f"CLASSIFICATION_SCORING_COUNT_INVALID:{pair}")
+    keys=("true_positive","false_positive","true_negative","false_negative",
+          "baseline_true_positive","baseline_false_positive","baseline_true_negative","baseline_false_negative")
+    for key in keys:
+        v=row.get(key)
+        if isinstance(v,bool) or not isinstance(v,int) or v<0:
+            raise FreezeError(f"CONFUSION_COUNT_INVALID:{pair}:{key}")
+    if sum(row[k] for k in keys[:4])!=n or sum(row[k] for k in keys[4:])!=n:
+        raise FreezeError(f"CONFUSION_TOTAL_MISMATCH:{pair}")
+    tp,fp,tn,fn=(row[k] for k in keys[:4]); btp,bfp,btn,bfn=(row[k] for k in keys[4:])
+    pos,neg=tp+fn,tn+fp
+    expected={"accuracy":(tp+tn)/n,"precision":tp/(tp+fp) if tp+fp else 0.0,
+        "recall":tp/pos if pos else 0.0,"specificity":tn/neg if neg else 0.0,
+        "f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 0.0,
+        "baseline_accuracy":(btp+btn)/n,"accuracy_improvement":((tp+tn)-(btp+btn))/n,
+        "balanced_accuracy":0.5*((tp/pos if pos else 0.0)+(tn/neg if neg else 0.0))}
+    for key,value in expected.items():
+        actual=row.get(key)
+        if isinstance(actual,bool) or not isinstance(actual,(int,float)) or not math.isfinite(float(actual)) or abs(float(actual)-value)>1e-9:
+            raise FreezeError(f"CLASSIFICATION_METRIC_ARITHMETIC_MISMATCH:{pair}:{key}")
+    required=("session_weighted_accuracy","baseline_session_weighted_accuracy","expected_calibration_error",
+        "maximum_calibration_error","brier_score","roc_auc","average_precision","calibration_intercept","calibration_slope")
+    for key in required:
+        v=row.get(key)
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(float(v)):
+            raise FreezeError(f"EXTENDED_METRIC_INVALID:{pair}:{key}")
+    for key in ("accuracy","precision","recall","specificity","f1","baseline_accuracy","session_weighted_accuracy",
+        "baseline_session_weighted_accuracy","expected_calibration_error","maximum_calibration_error","brier_score",
+        "balanced_accuracy","roc_auc","average_precision"):
+        if not -1e-9<=float(row[key])<=1+1e-9:
+            raise FreezeError(f"EXTENDED_METRIC_OUT_OF_RANGE:{pair}:{key}")
+    bins=row.get("calibration_bins")
+    if not isinstance(bins,list) or len(bins)!=10 or any(not isinstance(x,dict) for x in bins) or [x.get("bin_index") for x in bins]!=list(range(10)):
+        raise FreezeError(f"CALIBRATION_BINS_INVALID:{pair}")
+    total=0; ece=0.0; mce=0.0
+    for b in bins:
+        count,meanp,obs=b.get("count"),b.get("mean_predicted_probability"),b.get("observed_up_rate")
+        if isinstance(count,bool) or not isinstance(count,int) or count<0: raise FreezeError(f"CALIBRATION_BIN_COUNT_INVALID:{pair}")
+        total+=count
+        if count==0:
+            if meanp is not None or obs is not None: raise FreezeError(f"EMPTY_CALIBRATION_BIN_RATES:{pair}")
+            continue
+        if not isinstance(meanp,(int,float)) or not isinstance(obs,(int,float)) or not 0<=float(meanp)<=1 or not 0<=float(obs)<=1:
+            raise FreezeError(f"CALIBRATION_BIN_RATES_INVALID:{pair}")
+        gap=abs(float(meanp)-float(obs)); ece+=count/n*gap; mce=max(mce,gap)
+    if total!=n: raise FreezeError(f"CALIBRATION_BIN_TOTAL_MISMATCH:{pair}")
+    if abs(ece-float(row["expected_calibration_error"]))>1e-8 or abs(mce-float(row["maximum_calibration_error"]))>1e-8:
+        raise FreezeError(f"CALIBRATION_ERROR_ARITHMETIC_MISMATCH:{pair}")
+    regime=row.get("regime_diagnostics")
+    if not isinstance(regime,dict) or regime.get("status") not in {"DESCRIPTIVE_TRAIN_DERIVED_REGIMES","INSUFFICIENT_TRAIN_REGIME_CONTEXT"}:
+        raise FreezeError(f"REGIME_STATUS_INVALID:{pair}")
+    eligible,excluded=regime.get("eligible_observation_count"),regime.get("excluded_for_missing_20_session_context")
+    if not isinstance(eligible,int) or not isinstance(excluded,int) or eligible<0 or excluded<0 or eligible+excluded!=n:
+        raise FreezeError(f"REGIME_SAMPLE_ACCOUNTING_INVALID:{pair}")
+    groups=regime.get("regimes")
+    if not isinstance(groups,list): raise FreezeError(f"REGIME_GROUPS_INVALID:{pair}")
+    if regime["status"]=="DESCRIPTIVE_TRAIN_DERIVED_REGIMES":
+        if len(groups)!=6: raise FreezeError(f"REGIME_GROUP_COUNT_INVALID:{pair}")
+        for axis in ("volatility","trend"):
+            items=[x for x in groups if x.get("axis")==axis]
+            if len(items)!=3 or sum(int(x.get("observation_count",-1)) for x in items)!=eligible:
+                raise FreezeError(f"REGIME_AXIS_TOTAL_INVALID:{pair}:{axis}")
+            for item in items:
+                count,up,down=item.get("observation_count"),item.get("positive_support"),item.get("negative_support")
+                if not all(isinstance(v,int) and v>=0 for v in (count,up,down)) or up+down!=count:
+                    raise FreezeError(f"REGIME_CLASS_SUPPORT_INVALID:{pair}:{axis}")
+
+
 def validate_result_contract(
     result: Mapping[str, Any],
     summary: Mapping[str, Any],
@@ -120,6 +194,7 @@ def validate_result_contract(
             delta = float(row["baseline_log_loss"]) - float(row["candidate_log_loss"])
             if abs(delta - float(row["log_loss_improvement"])) > 1e-10:
                 raise FreezeError(f"LOGLOSS_SIGN_OR_ARITHMETIC_MISMATCH:{pair}")
+            validate_extended_prediction_metrics(row, pair)
         elif any(row.get(k) is not None for k in (
             "baseline_log_loss", "candidate_log_loss", "log_loss_improvement",
             "brier_score", "balanced_accuracy", "roc_auc", "average_precision",
