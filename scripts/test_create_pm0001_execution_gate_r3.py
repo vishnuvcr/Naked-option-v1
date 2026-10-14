@@ -134,6 +134,12 @@ class PM0001ExecutionGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "DATA_PREFLIGHT_SOURCE_ARTIFACT_PIN_MISMATCH"):
             verify_preflight_report(report)
 
+    def test_preflight_wrong_preregistration_hash_fails_closed(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        report["preregistration_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "DATA_PREFLIGHT_PREREGISTRATION_SHA256_MISMATCH"):
+            verify_preflight_report(report)
+
     def test_gate_requires_complete_320_cell_grid_and_authorizes_only_40_pm0001_configs(self):
         eligibility, preflight, implementation, precheck, args = fixture()
         gate = build_execution_gate(eligibility, preflight, implementation, precheck, **args)
