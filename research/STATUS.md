@@ -1,3 +1,14 @@
+## 2026-10-14 — PM0051 tester harness preparation
+
+- Added a separate independent PM0051 results auditor and dedicated results-review workflow so Probit settings are not audited as logistic C settings. The audit checks source/artifact hashes, the registered 40 configurations, the 320 config/fold grid, prior_scale/lookback/config hashes, leakage flags, metric sign, BY adjustment and bootstrap recomputation.
+- Initial harness test [run #38537818033](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537818033) correctly exposed a synthetic-fixture defect after stronger checks were added: valid result fixtures did not include each registered configuration's lookback, prior_scale and config hash. Added these fields from each fixture's own registered configuration; no production results were edited.
+- Corrected synthetic suite [run #38537875610](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537875610) passed.
+- The PM0051 empirical run [#38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041) is still completing its 320-cell data precheck. No PM0051 model results have yet been independently reviewed or approved.
+
+**Tester → Developer:** provide the hash-pinned PM0051 result request after result freezing. Review only the exact run, verify every terminal outcome and inference independently, and return PASS or REQUEST_CHANGES with evidence.
+
+---
+
 <!-- pm0001-tester-review-r3 -->
 ## 2026-10-14 — Independent Phase 8P PM0001 results review
 
