@@ -300,8 +300,8 @@ def _get_label_minima(prereg: Mapping[str, Any], label_id: str) -> dict[str, int
         "min_outer_validation_rows": int(sample["minimum_validation_rows"][label_id]),
         "min_outer_train_class_support": int(sample["minimum_class_support_each_direction_training"][label_id]),
         "min_outer_validation_class_support": int(sample["minimum_class_support_each_direction_per_validation_fold"][label_id]),
-        "min_inner_train_rows": int(inner["minimum_inner_training_rows"][label_id]),
-        "min_inner_validation_rows": int(inner["minimum_inner_validation_rows"][label_id]),
+        "min_inner_train_rows": int(fcal["minimum_inner_training_rows"][label_id]),
+        "min_inner_validation_rows": int(fcal["minimum_inner_validation_rows"][label_id]),
         "min_inner_class_support": int(inner["class_support_each_direction_minimum"][label_id]),
     }
 
