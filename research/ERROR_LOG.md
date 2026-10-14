@@ -362,3 +362,6 @@
 - {"code": "BOOTSTRAP_NUMERIC_RECOMPUTATION_MISMATCH", "config_id": "CFG0001_POS_5D_UP_DOWN_20_REGULARIZED", "field": "observed_mean_improvement", "recomputed": -0.04034131730753016, "reported": null}
 - {"code": "BOOTSTRAP_NUMERIC_RECOMPUTATION_MISMATCH", "config_id": "CFG0001_POS_5D_UP_DOWN_60_FLEXIBLE", "field": "observed_mean_improvement", "recomputed": -0.0060499138108580305, "reported": null}
 - {"code": "BOOTSTRAP_NUMERIC_RECOMPUTATION_MISMATCH", "config_id": "CFG0001_POS_5D_UP_DOWN_60_REGULARIZED", "field": "observed_mean_improvement", "recomputed": -0.006384750377630389, "reported": null}
+
+## 2026-10-14 — Tester requested changes on PM0051 results
+- {"code": "AUDIT_OUTPUT_MISSING"}
