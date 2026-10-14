@@ -1,3 +1,13 @@
+## 2026-10-14 — R3A run #38525772378 — data verified, precheck running
+
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378
+- Completed successfully: synthetic-only contracts, implementation/config source pins, pinned encrypted-artifact verification, temporary decryption, and a fresh canonical-data preflight.
+- The runner is now executing the 320-cell PM0001 data precheck without fitting a model. Results, blocked cells, and any runtime diagnostics will be recorded from its emitted report; no predictive metrics are claimed at this point.
+- Canonical uncompressed data SHA-256 remains `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`. The protected holdout remains unopened.
+- The previous fully published precheck remains 262 PRECHECK_PASS, 38 BLOCKED_SAMPLE_ELIGIBILITY, 20 BLOCKED_DATA; this is historical evidence for run #38522693920, not the current run's count.
+
+**Developer → Tester:** wait for the new run's complete frozen result manifest with `results_acquired=true`; do not review prior gate-blocked result bundles as empirical evidence.
+
 ## Phase 8P R3A — current execution and prior blockers (2026-10-14)
 
 - Active consolidated run: [#38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378). It has not yet produced a verified empirical result.
