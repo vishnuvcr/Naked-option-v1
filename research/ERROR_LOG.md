@@ -1,3 +1,24 @@
+## 2026-10-14 — Phase 8P acquired-results tester handoff failures and repairs
+
+### Run #38525772378 — missing reviewer token blocked only the final handoff step
+- Evidence: [prediction execution run](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378); fitting, result validation, freeze manifest, artifact upload, and publication all completed. The final independent-review submission step failed because the workflow snapshot still required `secrets.GH_TOKEN`, which was empty.
+- Disposition: no prediction result was lost or invalidated by this failure. Changed the prediction execution workflow to use the workflow-scoped token with explicit `contents: write` and `actions: write` permissions; no secret was added or exposed.
+
+### Run #38533800144 — first tester dispatch had no repository working directory
+- The request was successfully copied to `phase-08-prediction-tester`, but the `gh workflow run` command failed with `fatal: not a git repository` because the workflow had checked both repositories out into subdirectories.
+- Correction: added `--repo "$GITHUB_REPOSITORY"` to the dispatch command.
+
+### Review-request artifact-hash target corrected
+- The result artifacts are published in commit `8b1d845635a0b269a425e46a37ae4fd6f57e944f`; the model was executed from commit `cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2`. Checking the published result files against the execution commit is incorrect because they were created after execution.
+- Correction: the submission workflow now verifies result bytes against the pinned published-result commit and verifies code/source blob pins against the execution commit. The submission workflow's first validation of the corrected request passed all source/result hash checks.
+
+### Current disposition
+- [Tester review workflow #38533906974](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38533906974) started after the two dispatch fixes. It passed request/provenance/hash validation; independent statistical recomputation is running.
+- Research findings remain provisional until the independent tester decision is published. Do not proceed to trading-strategy research before a tester PASS.
+- Developer → Tester: independently audit the frozen prediction run, including metric/sign arithmetic, block-bootstrap inputs and inference, BY adjustment, label/timestamp alignment, leakage controls and all blocked outcomes. Return a hash-pinned PASS or REQUEST CHANGES report.
+
+---
+
 ## 2026-10-14 — PM0001 execution bootstrap and concurrent-publication failures
 
 ### Run #38524449678 — download/authentication and artifact publisher
