@@ -1,3 +1,13 @@
+## Current Phase 8P status — 2026-10-14 (latest handoff update)
+
+- Frozen empirical prediction bundle: [run #38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378) and [run results](research/results/phase8p-pm0001/run-38525772378/PM0001_PREDICTION_RESULTS.md). The manifest accounts for 320/320 config-fold cells: 262 executed and audited, 58 blocked by data/sample eligibility; zero runtime-error rows; protected holdout unopened.
+- Four 5-minute configurations show positive out-of-sample log-loss improvement with reported BY-adjusted p-values below 0.05. This remains a prediction finding, not evidence of positive trading returns.
+- Independent handoff: [tester workflow #38533906974](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38533906974) is running. Result manifest, 24 implementation/protocol source pins, and all frozen artifact hashes passed independent workflow validation; the independent bootstrap/results audit is underway.
+- Handoff repairs made: removed dependency on the absent GH_TOKEN secret in the prediction workflow; corrected the result-hash verifier to hash artifacts in the published-result commit while checking implementation blobs in the execution commit; and made tester dispatch specify the repository explicitly. Full details are recorded in [ERROR_LOG](research/ERROR_LOG.md).
+- Phase status: empirical results acquired and frozen; independent review pending. No strategy selection or protected-holdout use is authorized before the tester report.
+
+---
+
 ## 2026-10-14T07:49:54.987259+00:00 — Phase 8P R3A run 38525772378
 
 - Workflow: [run 38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378); source commit cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2.
