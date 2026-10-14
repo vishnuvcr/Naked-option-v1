@@ -1,3 +1,11 @@
+## 2026-10-14 — PM0051 extended diagnostic implementation (developer branch)
+
+- Resumed prediction-method evaluation after the original PM0051 result bundle passed independent review. The original frozen bundle remains immutable and its PASS covers log-loss inference only.
+- Added a frozen addendum and implementation for thresholded directional accuracy/confusion counts, class-prior baseline comparisons, paired exchange-session accuracy bootstrap, ten-bin calibration/ECE/MCE, and descriptive train-defined volatility/trend regimes. No observation-level predictions are written; final holdout remains closed.
+- Added synthetic tests and updated the implementation-gate source pins. These changes are not yet empirically validated. Next gate: run the full synthetic regression suite, independent code review, then a fresh frozen PM0051 rerun before moving to another model family.
+
+- Coverage correction: original report omitted exact accuracy/confusion metrics and did not expose available Brier/balanced accuracy/AUC/AP/calibration fields. The original bundle cannot be reconstructed without observation-level predictions and remains unchanged.
+- The first implementation attempt was staged on an isolated fix branch; no claim of test or empirical success is made until CI and independent review complete.
 ## 2026-10-14 — PM0051 Probit expansion and synthetic-gate correction log
 
 - PM0051 was added as a separate prediction family, with a dedicated Probit adapter/executor, explicit `prior_scale` binding, 40 registered configurations, run-scoped 320-cell precheck, result freeze schema and manual execution workflow. This is prediction research only; no option-strategy backtest is part of this phase.
