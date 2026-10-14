@@ -485,6 +485,31 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
             issue(issues, "EXECUTION_GATE_DATA_HASH_MISMATCH")
         if gate.get("precheck_report_sha256") != sha256(precheck_path.read_bytes()):
             issue(issues, "EXECUTION_GATE_PRECHECK_SHA256_MISMATCH")
+        precheck_raw = precheck_path.read_bytes()
+        gate_raw = gate_path.read_bytes()
+        preflight_raw = preflight_path.read_bytes()
+        try:
+            preflight_rel = preflight_path.resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            preflight_rel = ""
+            issue(issues, "PREFLIGHT_PATH_OUTSIDE_DEVELOPER_ROOT")
+        if gate.get("preflight_report_path") != preflight_rel or result.get("preflight_report_path") != preflight_rel or precheck.get("preflight_report_path") != preflight_rel:
+            issue(issues, "RUN_PREFLIGHT_PATH_PIN_MISMATCH", expected=preflight_rel,
+                  gate=gate.get("preflight_report_path"), result=result.get("preflight_report_path"),
+                  precheck=precheck.get("preflight_report_path"))
+        if gate.get("preflight_report_git_blob_sha1") != git_blob_sha1(preflight_raw):
+            issue(issues, "GATE_PREFLIGHT_GIT_BLOB_MISMATCH")
+        if gate.get("preflight_report_sha256") != sha256(preflight_raw) or result.get("preflight_report_sha256") != sha256(preflight_raw):
+            issue(issues, "RUN_PREFLIGHT_SHA256_MISMATCH")
+        if precheck.get("preflight_report_git_blob_sha1") != git_blob_sha1(preflight_raw):
+            issue(issues, "PRECHECK_PREFLIGHT_GIT_BLOB_MISMATCH")
+        if precheck.get("preflight_report_sha256") != sha256(preflight_raw):
+            issue(issues, "PRECHECK_PREFLIGHT_SHA256_MISMATCH")
+        if gate.get("precheck_report_git_blob_sha1") != git_blob_sha1(precheck_raw) or gate.get("precheck_report_sha256") != sha256(precheck_raw):
+            issue(issues, "GATE_PRECHECK_PIN_MISMATCH")
+        feature_raw = feature_report_path.read_bytes()
+        if gate.get("feature_construction_report_git_blob_sha1") != git_blob_sha1(feature_raw) or gate.get("feature_construction_report_sha256") != sha256(feature_raw):
+            issue(issues, "GATE_FEATURE_REPORT_PIN_MISMATCH")
         if preflight.get("canonical_hash_matches") is not True or preflight.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
             issue(issues, "DATA_PREFLIGHT_CANONICAL_HASH_NOT_PASS")
         if preflight.get("holdout_accessed") is not False or preflight.get("model_fitting_performed") is not False:
@@ -500,6 +525,13 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
             issue(issues, "PREREGISTERED_HORIZON_SCOPE_MISMATCH")
         if prereg.get("metrics_and_inference", {}).get("bootstrap", {}).get("replicates") != 10000:
             issue(issues, "PREREGISTERED_BOOTSTRAP_REPLICATE_COUNT_MISMATCH")
+        required_row_fields = set(prereg.get("output_and_failure_rules", {}).get("mandatory_fields", []))
+        for row_no, row in enumerate(result.get("rows", [])):
+            if not isinstance(row, dict):
+                continue
+            missing_fields = required_row_fields - set(row)
+            if missing_fields:
+                issue(issues, "RESULT_MANDATORY_FIELDS_MISSING", row=row_no, missing=sorted(missing_fields))
 
         # Recompute BY adjustments independently from the frozen raw p-value family, counting non-identifiable tests as p=1.
         families = result.get("multiplicity", {}).get("label_families", {})
@@ -668,10 +700,13 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         "holdout_accessed_by_auditor": False,
         "market_data_opened_by_auditor": False,
         "model_fitting_performed_by_auditor": False,
+        "tester_to_developer": (
+            "Fix every REQUEST_CHANGES issue before moving to another research phase. Supply exact file/line changes, rerun synthetic tests and the authorized workflow, freeze a new complete 40-config x 8-fold bundle, and resubmit. Do not change labels, folds, support thresholds, sample exclusions, or preregistered statistical methods to make the gate pass."
+        ),
         "audit_limitations": [
-            "No raw observation features or predictions were read or persisted.",
-            "Aggregate metric arithmetic, source pins, config/fold coverage, precheck accounting, and BY adjustments are independently checked.",
-            "Exact candidate prediction scores and bootstrap intervals require supporting aggregate inputs; this version flags unavailable bootstrap inputs rather than asserting numerical reproduction."
+            "No raw observation features or per-observation model predictions were read or persisted.",
+            "The tester independently verifies source and artifact hashes, all 320 config/fold outcomes, arithmetic, BY adjustment, and the numerical moving-block bootstrap from the published per-session paired loss-delta aggregates.",
+            "The output is prediction research only and does not establish net option-trading profitability or include broker slippage/transaction costs."
         ],
     }
 
