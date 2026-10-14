@@ -58,6 +58,12 @@ def fixture():
         "status_counts": {"PRECHECK_PASS": 320}, "rows": rows,
         "model_fitting_performed": False, "holdout_accessed": False,
         "empirical_fit_authorized": False,
+        "source_commit": "b" * 40,
+        "workflow_run_id": "123",
+        "preflight_report_path": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_123.json",
+        "preflight_report_git_blob_sha1": "pre",
+        "preflight_report_sha256": "b" * 64,
+        "precheck_runner_git_blob_sha1": "prerunner",
     }
     feature_report = {
         "status": "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED",
@@ -87,6 +93,7 @@ def fixture():
         "precheck_blob_sha1": "precheckblob",
         "precheck_sha256": "a" * 64,
         "runner_blob_sha1": "runner",
+        "precheck_runner_blob_sha1": "prerunner",
         "source_commit": "b" * 40,
         "workflow_run_id": "123",
     }
