@@ -1,0 +1,37 @@
+{
+  "artifact_count_verified": 9,
+  "audit": "independent-read-only-pm0051-result-bundle-audit",
+  "audit_limitations": [
+    "No raw observation features or per-observation model predictions were read or persisted.",
+    "The tester independently verifies source and artifact hashes, all 320 config/fold outcomes, arithmetic, BY adjustment, and the numerical moving-block bootstrap from the published per-session paired loss-delta aggregates.",
+    "The output is prediction research only and does not establish net option-trading profitability or include broker slippage/transaction costs."
+  ],
+  "bootstrap_configurations_recomputed": 40,
+  "bootstrap_folds_checked": 262,
+  "bootstrap_session_deltas_checked": 29326,
+  "configurations_expected": 40,
+  "decision": "PASS",
+  "expected_data_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "folds_expected": 8,
+  "holdout_accessed_by_auditor": false,
+  "issues": [],
+  "market_data_opened_by_auditor": false,
+  "model_fitting_performed_by_auditor": false,
+  "precheck_status_counts_recomputed": {
+    "BLOCKED_DATA": 20,
+    "BLOCKED_SAMPLE_ELIGIBILITY": 38,
+    "PRECHECK_PASS": 262
+  },
+  "results_acquired": true,
+  "schema_version": "pm0051-independent-results-audit-r3-v1",
+  "source_commit": "7f6e743706940dd2448f4f4e929981614aa4b7cd",
+  "terminal_rows_expected": 320,
+  "terminal_status_counts_recomputed": {
+    "BLOCKED_DATA": 58,
+    "EXECUTED_AUDITED": 262
+  },
+  "tested_source_commit": "5a03736d75dd9c7bd0d7cc1603175a2cc1ecde20",
+  "tester_to_developer": "Fix every REQUEST_CHANGES issue before moving to another research phase. Supply exact file/line changes, rerun synthetic tests and the authorized workflow, freeze a new complete 40-config x 8-fold bundle, and resubmit. Do not change labels, folds, support thresholds, sample exclusions, or preregistered statistical methods to make the gate pass.",
+  "warnings": [],
+  "workflow_run_id": "38537116041"
+}

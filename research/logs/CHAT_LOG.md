@@ -1,3 +1,15 @@
+<!-- pm0051-tester-review-r3 -->
+## 2026-10-14 — Independent Phase 8P PM0051 results review
+
+- Decision: PASS.
+- Source execution commit: 7f6e743706940dd2448f4f4e929981614aa4b7cd; workflow run: 38537116041.
+- Terminal row counts: {"BLOCKED_DATA": 58, "EXECUTED_AUDITED": 262}.
+- Independent bootstrap recomputations: 40 configs, 262 folds, 29326 session deltas.
+- Issues: 0; warnings: 0.
+- Reports: [JSON](research/gates/PREDICTION_PM0051_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json) · [Markdown](research/gates/PREDICTION_PM0051_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).
+
+Tester to Developer: Resolve every issue and resubmit a complete frozen bundle. Do not advance to strategy selection without a clean independent PASS.
+
 ## 2026-10-14 — PM0051 tester harness preparation
 
 - Added a separate independent PM0051 results auditor and dedicated results-review workflow so Probit settings are not audited as logistic C settings. The audit checks source/artifact hashes, the registered 40 configurations, the 320 config/fold grid, prior_scale/lookback/config hashes, leakage flags, metric sign, BY adjustment and bootstrap recomputation.
