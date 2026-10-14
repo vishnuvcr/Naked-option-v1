@@ -786,3 +786,8 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 
 
 - Temporal-convolution dropout is now implemented as deterministic training-time inverted dropout; combined synthetic workflow [38460256113](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38460256113) passed 56 tests across 15 suites. Markov-switching parameter semantics and independent review remain blockers; no empirical fitting authorization.
+
+
+### Current developer run — 2026-10-14
+- PM0001's synthetic executor suite passed in [workflow #38471406903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471406903): 7 synthetic tests; no market data or holdout loaded. Pinned report: [PM0001 implementation gate](research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json).
+- Registry disposition remains blocked: [workflow #38471587415](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471587415) failed because the implementation gate carried a stale source blob pin. The gate report has now been corrected to exact verified CI pins; rerun is pending. No empirical fitting or performance claim.
