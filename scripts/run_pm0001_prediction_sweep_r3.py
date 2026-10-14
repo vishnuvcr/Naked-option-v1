@@ -473,6 +473,7 @@ def run_sweep(
 
     rows: list[dict[str, Any]] = []
     fold_delta_by_config: dict[str, dict[str, list[float]]] = defaultdict(dict)
+    fold_bootstrap_input_by_config: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
     inference_by_config: dict[str, dict[str, Any]] = {}
     feature_cache: dict[tuple[str, int], tuple[Any, list[str], list[dict[str, Any]]]] = {}
     fitting_any = False
@@ -631,6 +632,10 @@ def run_sweep(
                     row["oof_calibration_rows"] = int(result.oof_rows)
                     rows.append(row)
                     fold_delta_by_config[cid][fold_id] = deltas
+                    fold_bootstrap_input_by_config[cid][fold_id] = {
+                        "session_positions": positions,
+                        "session_loss_deltas": deltas,
+                    }
                     fitting_any = True
                 except Exception as exc:
                     tb = traceback.format_exc()
@@ -758,11 +763,23 @@ def run_sweep(
             "label_families": label_inference,
         },
         "validation": validation,
+        "bootstrap_inputs": {
+            str(config["config_id"]): {
+                "label_id": str(config["configuration"]["label_id"]),
+                "folds": {
+                    fold_id: fold_bootstrap_input_by_config[str(config["config_id"])][fold_id]
+                    for fold_id in FOLD_IDS
+                    if fold_id in fold_bootstrap_input_by_config.get(str(config["config_id"]), {})
+                },
+            }
+            for config in configs
+        },
         "errors_jsonl_sha256": sha256_bytes(errors_path.read_bytes()),
         "rows": rows,
     }
     write_json_atomic(output_path, result_doc)
-    summary = {k: v for k, v in result_doc.items() if k != "rows"}
+    summary = {k: v for k, v in result_doc.items() if k not in {"rows", "bootstrap_inputs"}}
+    summary["bootstrap_inputs_sha256"] = sha256_bytes(json.dumps(result_doc["bootstrap_inputs"], sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8"))
     summary["result_file_sha256"] = sha256_bytes(output_path.read_bytes())
     summary["errors_jsonl_path"] = errors_path.relative_to(ROOT).as_posix() if errors_path.is_relative_to(ROOT) else str(errors_path)
     write_json_atomic(summary_path, summary)
