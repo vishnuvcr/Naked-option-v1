@@ -1,12 +1,15 @@
 ## Phase 8P PM0051 Probit expansion — current step status (2026-10-14)
 
-- **Synthetic implementation gate:** PASS — [workflow #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161). Dedicated Probit adapter and chronological fold fitter pass synthetic gradient, probability, standardization, calibration, maturity and chronology tests. Scoped eligibility contains 40 PM0051 configurations in the existing 40,000-config registry; empirical fitting is not authorized by the synthetic gate.
-- **Empirical run:** [workflow #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041) passed compile, synthetic-test and source/registry verification. Current step is pinned-data artifact retrieval and temporary decryption; the data precheck and model fitting have not yet been confirmed complete.
-- **Result gate:** not yet reached. No PM0051 performance metrics or model winner are claimed. No holdout access. Strategy research remains blocked.
-- **Independent tester:** PM0051-specific audit code/workflow prepared on [tester branch](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-tester), checking prior_scale, all 320 config/fold outcomes, artifacts, source pins, bootstrap and BY calculations independently.
-- Gate-failure corrections are logged in [research error log](research/ERROR_LOG.md) and [run history](research/logs/RESEARCH_LOG.md). The previous PM0001 PASS remains specific to logistic regression and does not approve this Probit run.
+- **Synthetic implementation and eligibility gates:** PASS — [workflow #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161). The Probit adapter/executor and calibration/chronology contracts passed synthetic tests; the scoped registry keeps all 40,000 configurations accounted for and makes only 40 PM0051 configs pending. Synthetic success alone does not authorize fitting.
+- **Pinned data retrieval and integrity verification:** PASS in [empirical run #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041). The workflow downloaded the pinned composite artifact, verified its archive digest and bundle, decrypted only to runner-temporary storage, and completed the dataset preflight.
+- **Current live step:** corrected 320-cell data precheck, no model fitting. It must finish and pass the exact scope/data/label eligibility checks before the run-scoped execution gate is created.
+- **Results:** not yet acquired. The model-fit, freeze, and independent-review stages have not been reported as complete. No PM0051 performance metric or winner is claimed. Holdout remains protected and strategy research remains blocked.
+- **Independent tester:** dedicated PM0051 auditor, separate review workflow, and source/artifact-hash handoff are prepared on [tester branch](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-tester). Its synthetic regression suite passed in [run #38538285651](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38538285651).
+- Handoff and synthetic-gate corrections are recorded in [research error log](research/ERROR_LOG.md) and [research run log](research/logs/RESEARCH_LOG.md). The earlier PM0001 independent PASS still applies only to logistic regression.
 
-**Developer → Tester:** audit PM0051 only against its own registered Probit configuration semantics and independent frozen results. Request changes for any hash, arithmetic, leakage, coverage or inferential mismatch; do not advance to trading strategies.
+**Developer → Tester:** audit PM0051 only against the exact Probit config pins and frozen run. Independently check all 320 terminal rows, prior_scale/lookback/config hashes, source/artifact hashes, bootstrap/BY calculations, metrics arithmetic, leakage controls and blocked outcomes before returning PASS or REQUEST_CHANGES.
+
+---
 
 ---
 
