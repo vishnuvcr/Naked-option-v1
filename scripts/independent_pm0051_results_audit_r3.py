@@ -304,6 +304,15 @@ def validate_result_rows(
             conf = config_by_id[cid].get("configuration", {})
             if row.get("method_id") != "PM0051" or row.get("label_id") != conf.get("label_id"):
                 issue(issues, "RESULT_METHOD_OR_LABEL_MISMATCH", pair=pair)
+            if row.get("lookback_bars") != conf.get("lookback_bars"):
+                issue(issues, "RESULT_LOOKBACK_MISMATCH", pair=pair)
+            try:
+                if float(row.get("prior_scale")) != float(conf.get("model_parameters", {}).get("prior_scale")):
+                    issue(issues, "RESULT_PRIOR_SCALE_MISMATCH", pair=pair)
+            except (TypeError, ValueError):
+                issue(issues, "RESULT_PRIOR_SCALE_MISSING", pair=pair)
+            if row.get("config_sha256") != config_by_id[cid].get("config_sha256"):
+                issue(issues, "RESULT_CONFIG_HASH_MISMATCH", pair=pair)
         offending = sorted(BANNED_ROW_FIELDS.intersection(row))
         if offending:
             issue(issues, "RAW_OR_PER_OBSERVATION_FIELDS_PERSISTED", pair=pair, fields=offending)
@@ -436,9 +445,9 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
 
     config_by_id = reconstruct_pm0051_configs(root, issues)
     try:
-        eligibility = read_json(root / "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json")
+        eligibility = read_json(root / "research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json")
         records = eligibility.get("records", [])
-        pending = {str(x.get("config_id")) for x in records if x.get("disposition") == "ELIGIBLE_PENDING_EXECUTOR_GATE" and x.get("method_id") == "PM0051"}
+        pending = {str(x.get("config_id")) for x in records if x.get("disposition") == "ELIGIBLE_PENDING_EXECUTOR_GATE" and (x.get("method_id") == "PM0051" or x.get("active_method_id") == "PM0051")}
         if len(pending) != 40 or pending != set(config_by_id):
             issue(issues, "ELIGIBILITY_PENDING_UNIVERSE_MISMATCH", pending_count=len(pending), config_count=len(config_by_id))
         if eligibility.get("empirical_fit_authorized") is not False:
