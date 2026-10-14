@@ -103,8 +103,8 @@ def validate_result_contract(
             for field in ("label_id", "lookback_bars", "config_sha256"):
                 if row.get(field) != spec.get(field):
                     raise FreezeError(f"RESULT_REGISTERED_CONFIG_FIELD_MISMATCH:{pair}:{field}")
-            if not isinstance(row.get("c"), (int, float)) or abs(float(row["c"]) - float(spec["c"])) > 1e-12:
-                raise FreezeError(f"RESULT_REGISTERED_CONFIG_C_MISMATCH:{pair}")
+            if not isinstance(row.get("prior_scale"), (int, float)) or abs(float(row["prior_scale"]) - float(spec["prior_scale"])) > 1e-12:
+                raise FreezeError(f"RESULT_REGISTERED_CONFIG_PRIOR_SCALE_MISMATCH:{pair}")
         counts[str(row["terminal_status"])] += 1
         status = row["terminal_status"]
         for key in ("baseline_log_loss", "candidate_log_loss", "log_loss_improvement"):
@@ -308,7 +308,7 @@ def main() -> int:
         str(item["config_id"]): {
             "label_id": str(item["configuration"]["label_id"]),
             "lookback_bars": int(item["configuration"]["lookback_bars"]),
-            "c": float(item["configuration"]["model_parameters"]["C"]),
+            "prior_scale": float(item["configuration"]["model_parameters"]["prior_scale"]),
             "config_sha256": str(item["config_sha256"]),
         }
         for item in configs
