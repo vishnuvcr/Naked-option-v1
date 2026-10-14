@@ -37,7 +37,7 @@ jobs:
                   imports.extend(alias.name.split(".")[0] for alias in node.names)
               elif isinstance(node, ast.ImportFrom) and node.module:
                   imports.append(node.module.split(".")[0])
-          allowed={"argparse","csv","hashlib","json","math","re","collections","pathlib","typing"}
+          allowed={"argparse","csv","hashlib","json","math","re","random","statistics","collections","pathlib","typing"}
           bad=sorted(set(imports)-allowed-{"__future__"})
           if bad:
               raise SystemExit(f"Unexpected non-standard or developer imports: {bad}")
