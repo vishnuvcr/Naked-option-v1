@@ -3,7 +3,7 @@
   "manual_authorization_required": false,
   "method_id": "PM0051",
   "method_name": "Probit regression with train-only standardization, chronological inner-OOF Platt calibration, and frozen 0.5 threshold",
-  "notes": "Synthetic contracts and numerical/chronology tests only. Does not authorize fitting. Run-scoped real-data precheck and an exact PM0051 execution gate must pass before any model fitting.",
+  "notes": "Extended diagnostic implementation: accuracy/confusion, calibration bins, paired session-accuracy bootstrap, and descriptive train-derived regime summaries. Synthetic tests only; the empirical gate must be regenerated/pinned and all tests pass before any fit. Does not authorize holdout access.",
   "research_date": "2026-10-14",
   "schema_version": "prediction-method-implementation-gate-r3-v1",
   "source_blob_pins": {
@@ -32,7 +32,7 @@
     "scripts/test_prediction_walkforward_r3.py": "ae52c6619f5353914391f7b1d3be4531fc46e9af",
     "scripts/test_publish_pm0051_run_status_r3.py": "89040d118626e1b7bd87571d7a1e57c66aa56656",
     "scripts/test_run_pm0051_data_execution_precheck_r3a.py": "cdcab1bc7896dad9893fc31e571975b30d06cc94",
-    "scripts/test_run_pm0051_prediction_sweep_r3.py": "d9f491739f84146a473c32848eb5836614d392fb"
+    "scripts/test_run_pm0051_prediction_sweep_r3.py": "e41e4ff9b1c801a9b94f431ab95f65583ed64c81"
   },
   "source_commit": "e2d43d4dff254819fe3f07052f001b797f7fa182",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
