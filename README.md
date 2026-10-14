@@ -1,13 +1,15 @@
 ## Phase 8P PM0051 Probit expansion — current step status (2026-10-14)
 
-- **Synthetic implementation and eligibility gates:** PASS — [workflow #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161). The Probit adapter/executor and calibration/chronology contracts passed synthetic tests; the scoped registry keeps all 40,000 configurations accounted for and makes only 40 PM0051 configs pending. Synthetic success alone does not authorize fitting.
-- **Pinned data retrieval and integrity verification:** PASS in [empirical run #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041). The workflow downloaded the pinned composite artifact, verified its archive digest and bundle, decrypted only to runner-temporary storage, and completed the dataset preflight.
-- **Current live step:** corrected 320-cell data precheck, no model fitting. It must finish and pass the exact scope/data/label eligibility checks before the run-scoped execution gate is created.
-- **Results:** not yet acquired. The model-fit, freeze, and independent-review stages have not been reported as complete. No PM0051 performance metric or winner is claimed. Holdout remains protected and strategy research remains blocked.
-- **Independent tester:** dedicated PM0051 auditor, separate review workflow, and source/artifact-hash handoff are prepared on [tester branch](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-tester). Its synthetic regression suite passed in [run #38538285651](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38538285651).
-- Handoff and synthetic-gate corrections are recorded in [research error log](research/ERROR_LOG.md) and [research run log](research/logs/RESEARCH_LOG.md). The earlier PM0001 independent PASS still applies only to logistic regression.
+- **Synthetic implementation and eligibility gates:** PASS — [workflow #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161). All registered configurations remain accounted for; exactly 40 PM0051 configs are pending for this isolated run.
+- **Pinned-data integrity and preflight:** PASS in [empirical run #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041). The composite archive and canonical dataset pins passed; decrypted data stayed in runner-temporary storage.
+- **320-cell data precheck:** PASS. Every one of the 40 registered Probit configs has a terminal precheck record for each of eight chronological folds. The no-fitting precheck completed without stopping the run.
+- **Run-scoped execution gate:** PASS for this run ID, source commit and precheck report. Fitting is confined to eligible config/fold pairs; blocked folds remain terminal and cannot be fitted.
+- **Current live step:** PM0051 Probit prediction sweep, using train-only scaling, chronological inner-OOF calibration, registered horizon-specific purge/embargo, matured-target filtering and the frozen session-level log-loss inference plan.
+- **Results:** fitting/sweep is in progress. The 320-cell terminal result bundle has not yet been frozen or independently approved; no metric or model winner is claimed. Protected holdout remains unopened. Strategy research remains blocked.
+- **Independent tester:** the separate PM0051 audit harness passed synthetic regression CI in [run #38538285651](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38538285651). The exact source/artifact handoff and independent review will run after a complete bundle is published.
+- Gate/harness fixes are logged in [research error log](research/ERROR_LOG.md) and [run history](research/logs/RESEARCH_LOG.md). The prior PM0001 PASS applies only to logistic regression.
 
-**Developer → Tester:** audit PM0051 only against the exact Probit config pins and frozen run. Independently check all 320 terminal rows, prior_scale/lookback/config hashes, source/artifact hashes, bootstrap/BY calculations, metrics arithmetic, leakage controls and blocked outcomes before returning PASS or REQUEST_CHANGES.
+**Developer → Tester:** independently audit the frozen PM0051 bundle, hashes, 320 terminal outcomes, prior_scale/lookback/config hashes, metric arithmetic, eligibility and leakage controls, paired-session bootstrap, BY adjustment and all blocked outcomes. Return PASS or REQUEST_CHANGES before method comparison or any strategy work.
 
 ---
 
