@@ -29,12 +29,12 @@
     "scripts/test_prediction_probit_adapter_r3.py": "58510263adb0851c956932e3e87dbe2f9a7b7882",
     "scripts/test_prediction_probit_executor_r3.py": "0d04b6fe6df1d38d902941339bef98bb48623432",
     "scripts/test_prediction_statistics.py": "63a4d5befbca3463a72d26fea959b1bf3b7b14f7",
-    "scripts/test_prediction_walkforward_r3.py": "5f4684b234d71b95989c5e63e30292232bc25a02",
+    "scripts/test_prediction_walkforward_r3.py": "a75e353aedaaf219f4b6381ebcb79e167d619808",
     "scripts/test_publish_pm0051_run_status_r3.py": "89040d118626e1b7bd87571d7a1e57c66aa56656",
     "scripts/test_run_pm0051_data_execution_precheck_r3a.py": "cdcab1bc7896dad9893fc31e571975b30d06cc94",
     "scripts/test_run_pm0051_prediction_sweep_r3.py": "e41e4ff9b1c801a9b94f431ab95f65583ed64c81"
   },
-  "source_commit": "d986592f3f58c9b92d964e8ab1385f50d0397c84",
+  "source_commit": "2f498b88be1e596202704599e37a2a02c643ab1e",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
   "verification": {
     "conclusion": "success",
@@ -44,7 +44,7 @@
     "raw_market_rows_emitted": false,
     "source_data_loaded": false,
     "synthetic_test_groups": 13,
-    "workflow_run_id": 38632696540,
-    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38632696540"
+    "workflow_run_id": 38633592098,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38633592098"
   }
 }
