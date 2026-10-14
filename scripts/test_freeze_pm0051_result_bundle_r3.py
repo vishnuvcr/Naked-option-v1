@@ -5,6 +5,7 @@ from freeze_pm0051_result_bundle_r3 import (
     EXPECTED_DATA_SHA256,
     FreezeError,
     validate_result_contract,
+    validate_extended_prediction_metrics,
 )
 
 
@@ -57,6 +58,38 @@ class PM0051ResultFreezeTests(unittest.TestCase):
         self.assertFalse(contract["results_acquired"])
         self.assertEqual(contract["unique_config_fold_pairs"], 320)
         self.assertEqual(contract["terminal_status_counts"], {"BLOCKED_GATE": 320})
+
+
+    def test_extended_metrics_accept_consistent_counts_and_regime_accounting(self):
+        bins=[{"bin_index":i,"count":4 if i==5 else 0,
+               "mean_predicted_probability":0.5 if i==5 else None,
+               "observed_up_rate":0.5 if i==5 else None} for i in range(10)]
+        regimes=[]
+        for axis,labels,main in (("volatility",("low","medium","high"),"low"),("trend",("down","sideways","up"),"down")):
+            for label in labels:
+                n=4 if label==main else 0
+                regimes.append({"axis":axis,"regime":label,"observation_count":n,"session_count":n,
+                    "positive_support":2 if n else 0,"negative_support":2 if n else 0,
+                    "accuracy":0.5 if n else None,"balanced_accuracy":0.5 if n else None,
+                    "baseline_accuracy":0.5 if n else None,"accuracy_improvement":0.0 if n else None,
+                    "brier_score":0.25 if n else None,"roc_auc":0.5 if n else None,"average_precision":0.5 if n else None})
+        row={"feature_rows_scored":4,"true_positive":1,"false_positive":1,"true_negative":1,"false_negative":1,
+            "baseline_true_positive":1,"baseline_false_positive":1,"baseline_true_negative":1,"baseline_false_negative":1,
+            "accuracy":0.5,"precision":0.5,"recall":0.5,"specificity":0.5,"f1":0.5,"baseline_accuracy":0.5,
+            "accuracy_improvement":0.0,"balanced_accuracy":0.5,"session_weighted_accuracy":0.5,
+            "baseline_session_weighted_accuracy":0.5,"expected_calibration_error":0.0,"maximum_calibration_error":0.0,
+            "brier_score":0.25,"roc_auc":0.5,"average_precision":0.5,"calibration_intercept":0.0,"calibration_slope":1.0,
+            "calibration_bins":bins,"regime_diagnostics":{"status":"DESCRIPTIVE_TRAIN_DERIVED_REGIMES",
+            "window_exchange_sessions":20,"training_sessions_with_context":60,"volatility_cutpoints_train_terciles":[0.01,0.02],
+            "trend_cutpoints_train_terciles":[-0.01,0.01],"eligible_observation_count":4,
+            "excluded_for_missing_20_session_context":0,"regimes":regimes}}
+        validate_extended_prediction_metrics(row,("CFG0001","F01"))
+
+    def test_extended_metrics_reject_confusion_count_mismatch(self):
+        row={"feature_rows_scored":3,"true_positive":1,"false_positive":1,"true_negative":1,"false_negative":0,
+             "baseline_true_positive":1,"baseline_false_positive":1,"baseline_true_negative":1,"baseline_false_negative":0}
+        with self.assertRaisesRegex(FreezeError,"CONFUSION_TOTAL_MISMATCH"):
+            validate_extended_prediction_metrics(row,("CFG0001","F01"))
 
     def test_duplicate_config_fold_pair_fails(self):
         ids, result, summary = fixture()
