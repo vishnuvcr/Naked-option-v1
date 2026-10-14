@@ -1,3 +1,11 @@
+## Phase 8P — latest PM0001 retry
+
+- Last full 320-cell precheck: 262 eligible to proceed, 38 blocked by frozen sample eligibility, 20 blocked by data; no model fitting occurred in that run.
+- Previous failures were infrastructure-only: escaped workflow expressions caused HTTP 401/invalid artifact name, and concurrent publication caused a Git rebase conflict. These are documented in [error log](research/ERROR_LOG.md).
+- Current attempt: [workflow #38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378). Synthetic gates passed; canonical data verification/decryption is underway. No prediction skill has been established yet.
+- [Detailed status](research/STATUS.md) · [Research log](research/logs/RESEARCH_LOG.md).
+
+
 ## 2026-10-14T06:48:02.692724+00:00 — Phase 8P R3A run 38524306506
 
 - Workflow: [run 38524306506](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524306506); source commit 2eeb36952b9b236114a10f83286842be61767686.
