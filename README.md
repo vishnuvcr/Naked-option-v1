@@ -1,3 +1,9 @@
+## Phase 8P PM0001 — pipeline setup repair
+
+- [Workflow #38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) failed closed before data retrieval: missing NumPy in the pre-download environment and a syntax error in the inline status logger. No market data retrieval/decryption or model fitting occurred.
+- Fix: install NumPy/scikit-learn explicitly and use a tested publisher script for status and error logging. The next run must pass synthetic checks before downloading data.
+- [Research status](research/STATUS.md) · [Error log](research/ERROR_LOG.md).
+
 ## 2026-10-14 — Positional close timestamp mismatch found and corrected before model fitting
 
 - The full-data precheck [#38519242615](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519242615) initially passed only the precheck code contract but revealed 140 positional config/fold rows with zero train and validation rows. No fitting occurred.
