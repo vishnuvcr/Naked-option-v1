@@ -4,6 +4,7 @@ import unittest
 
 from run_pm0001_prediction_sweep_r3 import (
     _expected_config_ids,
+    normalize_bootstrap_result,
     precheck_to_terminal_status,
     session_loss_deltas,
 )
@@ -88,6 +89,22 @@ class PM0001SweepTests(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ValueError, "BOOTSTRAP_SESSION_SEQUENCE_NOT_CONTIGUOUS"):
             session_loss_deltas(result, samples, ["2026-01-01", "2026-01-02", "2026-01-05", "2026-01-06"])
+
+    def test_bootstrap_p_value_field_is_normalized_for_result_schema(self):
+        normalized = normalize_bootstrap_result({
+            "raw_two_sided_p_value_centered_bootstrap": 0.0123,
+            "ci_low": 0.01,
+            "ci_high": 0.09,
+            "replicates": 10000,
+        })
+        self.assertAlmostEqual(normalized["raw_p_value"], 0.0123)
+        degenerate = normalize_bootstrap_result({
+            "raw_two_sided_p_value_centered_bootstrap": None,
+            "ci_low": None,
+            "ci_high": None,
+            "replicates": 10000,
+        })
+        self.assertIsNone(degenerate["raw_p_value"])
 
     def test_prediction_and_baseline_vector_length_mismatch_is_rejected(self):
         result = SimpleNamespace(
