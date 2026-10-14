@@ -32,16 +32,14 @@
     "scripts/validate_prediction_feature_contract_r3.py": "e2557ca232cef73c5609745fd59a968ba2ee4d6e"
   },
   "holdout_accessed": false,
-  "result_bundle_manifest_path": "research/results/phase8p-pm0051/run-38537116041/freeze_manifest.json",
-  "result_bundle_manifest_sha256": "134c9fd25f45409693086dfe9c0cde3ebebe177650407a7fa1599e2077d74c1e",
-  "result_published_commit": "5a03736d75dd9c7bd0d7cc1603175a2cc1ecde20",
+  "result_bundle_manifest_path": "research/results/phase8p-pm0051/run-38538173855/freeze_manifest.json",
+  "result_bundle_manifest_sha256": "b6ea380c6fbb5fd9f9e3f4396afcf1e0e668cf94a3e4de5fa8c2b81cbd1af4fe",
+  "result_published_commit": "39709c6bb6c6ece3742edaee340bb496d61e5e53",
   "results_acquired": true,
   "review_gate": "CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
-  "run_id": "38537116041",
+  "run_id": "38538173855",
   "schema_version": "prediction-results-acquired-review-request-r3-v1",
-  "source_execution_commit": "7f6e743706940dd2448f4f4e929981614aa4b7cd",
-  "source_workflow_run_id": "38537116041",
-  "submission_attempt": 2,
-  "submission_reason": "Retry after registering the tester review workflow on default branch; no result artifacts or model metrics changed.",
-  "tested_source_commit": "5a03736d75dd9c7bd0d7cc1603175a2cc1ecde20"
+  "source_execution_commit": "d6cbc6213d976bb5f7254d02d0e82d7651ee991c",
+  "source_workflow_run_id": "38538173855",
+  "tested_source_commit": "39709c6bb6c6ece3742edaee340bb496d61e5e53"
 }
