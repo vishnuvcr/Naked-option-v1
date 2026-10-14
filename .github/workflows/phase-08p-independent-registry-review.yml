@@ -4,7 +4,6 @@ on:
     branches: [phase-08-prediction-tester]
     paths:
       - research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json
-      - .github/workflows/phase-08p-independent-registry-review.yml
   workflow_dispatch:
 permissions:
   contents: write
@@ -20,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: phase-08-prediction-tester
-          token: \${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           path: tester
           fetch-depth: 0
       - name: Validate review request and pin result snapshot
@@ -46,15 +45,15 @@ jobs:
       - name: Check out exact published developer snapshot
         uses: actions/checkout@v4
         with:
-          ref: \${{ steps.pins.outputs.published_sha }}
+          ref: ${{ steps.pins.outputs.published_sha }}
           path: developer
           fetch-depth: 0
       - name: Verify commits, changed-source blobs, manifest, and all result hashes
         shell: bash
         env:
-          SOURCE_SHA: \${{ steps.pins.outputs.source_sha }}
-          PUBLISHED_SHA: \${{ steps.pins.outputs.published_sha }}
-          MANIFEST_PATH: \${{ steps.pins.outputs.manifest_path }}
+          SOURCE_SHA: ${{ steps.pins.outputs.source_sha }}
+          PUBLISHED_SHA: ${{ steps.pins.outputs.published_sha }}
+          MANIFEST_PATH: ${{ steps.pins.outputs.manifest_path }}
         run: |
           set -euo pipefail
           test "$(git -C developer rev-parse HEAD)" = "$PUBLISHED_SHA"
