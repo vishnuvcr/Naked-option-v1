@@ -146,6 +146,7 @@ def build_execution_gate(
     precheck_blob_sha1: str,
     precheck_sha256: str,
     runner_blob_sha1: str,
+    precheck_runner_blob_sha1: str,
     source_commit: str,
     workflow_run_id: str,
 ) -> dict[str, Any]:
@@ -186,6 +187,18 @@ def build_execution_gate(
     if len(set(config_ids)) != 40:
         raise ValueError("PM0001_CONFIG_IDS_NOT_UNIQUE")
     precheck_counts = validate_precheck(precheck, config_ids)
+    if str(precheck.get("source_commit")) != str(source_commit):
+        raise ValueError("PM0001_PRECHECK_SOURCE_COMMIT_MISMATCH")
+    if str(precheck.get("workflow_run_id")) != str(workflow_run_id):
+        raise ValueError("PM0001_PRECHECK_WORKFLOW_RUN_ID_MISMATCH")
+    if precheck.get("preflight_report_path") != preflight_report_path:
+        raise ValueError("PM0001_PRECHECK_PREFLIGHT_PATH_MISMATCH")
+    if precheck.get("preflight_report_git_blob_sha1") != preflight_blob_sha1:
+        raise ValueError("PM0001_PRECHECK_PREFLIGHT_BLOB_MISMATCH")
+    if precheck.get("preflight_report_sha256") != preflight_report_sha256:
+        raise ValueError("PM0001_PRECHECK_PREFLIGHT_SHA256_MISMATCH")
+    if precheck.get("precheck_runner_git_blob_sha1") != precheck_runner_blob_sha1:
+        raise ValueError("PM0001_PRECHECK_RUNNER_BLOB_MISMATCH")
     if feature_report.get("status") != "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED":
         raise ValueError("FEATURE_CONSTRUCTION_REPORT_NOT_PASS")
     fg = feature_report.get("fitting_gate", {})
@@ -222,6 +235,7 @@ def build_execution_gate(
         "feature_correction_sha256": feature_report["verified_source_hashes"]["feature_correction_sha256"],
         "feature_contract_validator_git_blob_sha1": feature_report["verified_source_hashes"]["contract_validator_git_blob_sha1"],
         "runner_git_blob_sha1": runner_blob_sha1,
+        "precheck_runner_git_blob_sha1": precheck_runner_blob_sha1,
         "source_commit": source_commit,
         "workflow_run_id": workflow_run_id,
         "holdout_accessed": False,
@@ -242,6 +256,7 @@ def main() -> int:
     parser.add_argument("--feature-report", default=str(ROOT / FEATURE_REPORT_PATH), type=Path)
     parser.add_argument("--preregistration", default=str(ROOT / PREREG_PATH), type=Path)
     parser.add_argument("--runner", default=str(ROOT / "scripts/run_pm0001_prediction_sweep_r3.py"), type=Path)
+    parser.add_argument("--precheck-runner", default=str(ROOT / "scripts/run_pm0001_data_execution_precheck_r3a.py"), type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--source-commit", default="unknown")
     parser.add_argument("--workflow-run-id", default="unknown")
@@ -279,6 +294,7 @@ def main() -> int:
         precheck_blob_sha1=git_blob_sha1(raw_precheck),
         precheck_sha256=sha256(raw_precheck),
         runner_blob_sha1=git_blob_sha1(args.runner.read_bytes()),
+        precheck_runner_blob_sha1=git_blob_sha1(args.precheck_runner.read_bytes()),
         source_commit=args.source_commit,
         workflow_run_id=args.workflow_run_id,
     )
