@@ -1,3 +1,15 @@
+## 2026-10-14 — PM0051 data precheck and run-scoped gate PASS
+
+- [Empirical run #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041) completed pinned archive validation, decryption in temporary storage and canonical dataset preflight.
+- The full 40 configuration × 8 chronological fold precheck passed, producing a run-specific precheck report without model fitting or holdout access.
+- The run-specific PM0051 execution gate passed. The sweep is now executing only eligible config/fold pairs; blocked outcomes must remain visible in the final 320-row terminal accounting.
+- No metric has been accepted yet. Freeze, source/artifact hash validation and independent tester review remain mandatory.
+- Independent PM0051 auditor synthetic CI passed at [#38538285651](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38538285651).
+
+**Developer → Tester:** audit every result cell and independently reproduce session-bootstrap/BY statistics from the frozen bundle. Do not advance until the dedicated PM0051 review publishes a clean decision.
+
+---
+
 ## 2026-10-14 — PM0051 Probit expansion and synthetic-gate correction log
 
 - PM0051 was added as a separate prediction family, with a dedicated Probit adapter/executor, explicit `prior_scale` binding, 40 registered configurations, run-scoped 320-cell precheck, result freeze schema and manual execution workflow. This is prediction research only; no option-strategy backtest is part of this phase.
