@@ -2124,3 +2124,12 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Root cause: extended diagnostics added by the PM0051 sweep were not included in the `prediction_walkforward_r3.py` result contract. Fail-closed validation behaved as intended.
 - Fix: registered the extended diagnostic fields and added a synthetic regression test; the test fixture's classification arithmetic was corrected. This is not yet CI-verified and no empirical rerun is confirmed.
 - No holdout access; no model-quality inference; no trading strategy evaluation.
+
+## 2026-10-14T21:12:06.992662+00:00 — Phase 8P R3A run 38632631510
+
+- Workflow: [run 38632631510](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38632631510); source commit db8ce68f48bdb136c794b234b42d04422b1ec575.
+- Result status: COMPLETE_EMPIRICAL_RESULTS; empirical fit rows: 262; results_acquired=true.
+- Precheck: {"BLOCKED_DATA": 20, "BLOCKED_SAMPLE_ELIGIBILITY": 38, "PRECHECK_PASS": 262}; terminal result accounting: {"BLOCKED_DATA": 58, "EXECUTED_AUDITED": 262}.
+- Execution gate: PASS_PM0001_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: research/results/phase8p-pm0001/run-38632631510/freeze_manifest.json.
+

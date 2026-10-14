@@ -1,0 +1,80 @@
+{
+  "artifacts": [
+    {
+      "path": "research/results/phase8p-pm0001/run-38632631510/result_bundle.json",
+      "sha256": "8f1a3b247c5207ae6c3c054b530598b4e76a4fa757ab070efd1c4791c9821ffd",
+      "size_bytes": 2822265
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38632631510/summary.json",
+      "sha256": "638a10776e1809c3f7bdf7f608f4f23985babe3186a65501f3fc1de70cd4869b",
+      "size_bytes": 21845
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38632631510/errors.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38632631510/config_fold_results.csv",
+      "sha256": "d1b41ce2c0f1298d54c16ab20f24741c81dcd01d8a0114918bc3604bb67c8b6f",
+      "size_bytes": 412920
+    },
+    {
+      "path": "research/results/phase8p-pm0001/run-38632631510/PM0001_PREDICTION_RESULTS.md",
+      "sha256": "901e9bf9f536e579d9472a9db80ca91ae2433bf9f0fbdee1a569883903503511",
+      "size_bytes": 8935
+    },
+    {
+      "path": "research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_RUN_38632631510.json",
+      "sha256": "a20e054a7d5f25d239b08aa738e6dd04c8da5c15ea50ad918424b6cfd275e884",
+      "size_bytes": 242633
+    },
+    {
+      "path": "research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_RUN_38632631510.json",
+      "sha256": "83235a7a979d31d4a28c46ebaae9ef279eca6db19d9033855850b5d8a13e9a58",
+      "size_bytes": 3945
+    },
+    {
+      "path": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_38632631510.json",
+      "sha256": "dae42c72c4d82dcdc99dbb7e2c0bb9f88e64ee327abd0fcf8abf0ad6ddb238eb",
+      "size_bytes": 48679
+    },
+    {
+      "path": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
+      "sha256": "6bebe6d85450f4429ddc1b43e38520ed6e388d1c382b84518dc06a431e0b47ca",
+      "size_bytes": 10024
+    }
+  ],
+  "blocked_or_failed_rows": 58,
+  "created_utc": "2026-10-14T21:12:02.980506+00:00",
+  "empirical_fit_rows": 262,
+  "expected_terminal_rows": 320,
+  "holdout_accessed": false,
+  "per_observation_predictions_persisted": false,
+  "raw_market_rows_emitted": false,
+  "result_schema_validation": {
+    "complete_expected_coverage": true,
+    "holdout_accessed_by_validator": false,
+    "metrics_arithmetic_checked": 262,
+    "model_fitting_performed_by_validator": false,
+    "row_count": 320,
+    "terminal_status_counts": {
+      "BLOCKED_DATA": 58,
+      "EXECUTED_AUDITED": 262
+    },
+    "unique_config_fold_pairs": 320
+  },
+  "results_acquired": true,
+  "schema_version": "pm0001-result-freeze-manifest-r3-v1",
+  "source_commit": "db8ce68f48bdb136c794b234b42d04422b1ec575",
+  "source_data_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "status": "PASS_COMPLETE_EMPIRICAL_RESULTS_FROZEN",
+  "terminal_rows_written": 320,
+  "terminal_status_counts": {
+    "BLOCKED_DATA": 58,
+    "EXECUTED_AUDITED": 262
+  },
+  "unique_config_fold_pairs": 320,
+  "workflow_run_id": "38632631510"
+}
