@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from prediction_features_r3 import (  # noqa: E402
     build_feature_batch, load_eligible_session_dates, verify_source_pins,
 )
-from prediction_pm0051_executor_r3 import (  # noqa: E402
+from prediction_probit_executor_r3 import (  # noqa: E402
     PM0051ExecutionError, _precheck_inner_oof_support,
 )
 
