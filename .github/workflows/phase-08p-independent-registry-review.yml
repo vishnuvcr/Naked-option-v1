@@ -133,18 +133,20 @@ jobs:
           d=json.loads(Path("independent-audit.json").read_text())
           marker="<!-- pm0001-tester-review-r3 -->"
           decision=d.get("decision","REQUEST_CHANGES")
-          block=f"""{marker}
-## 2026-10-14 — Independent Phase 8P PM0001 results review
-
-- Decision: {decision}.
-- Source execution commit: {d.get('source_commit','unknown')}; workflow run: {d.get('workflow_run_id','unknown')}.
-- Terminal row counts: {json.dumps(d.get('terminal_status_counts_recomputed',{}),sort_keys=True)}.
-- Independent bootstrap recomputations: {d.get('bootstrap_configurations_recomputed',0)} configs, {d.get('bootstrap_folds_checked',0)} folds, {d.get('bootstrap_session_deltas_checked',0)} session deltas.
-- Issues: {len(d.get('issues',[]))}; warnings: {len(d.get('warnings',[]))}.
-- Reports: [JSON](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json) · [Markdown](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).
-
-Tester to Developer: Resolve every issue and resubmit a complete frozen bundle. Do not advance to strategy selection without a clean independent PASS.
-"""
+          block="\n".join([
+              marker,
+              "## 2026-10-14 — Independent Phase 8P PM0001 results review",
+              "",
+              f"- Decision: {decision}.",
+              f"- Source execution commit: {d.get('source_commit','unknown')}; workflow run: {d.get('workflow_run_id','unknown')}.",
+              f"- Terminal row counts: {json.dumps(d.get('terminal_status_counts_recomputed',{}),sort_keys=True)}.",
+              f"- Independent bootstrap recomputations: {d.get('bootstrap_configurations_recomputed',0)} configs, {d.get('bootstrap_folds_checked',0)} folds, {d.get('bootstrap_session_deltas_checked',0)} session deltas.",
+              f"- Issues: {len(d.get('issues',[]))}; warnings: {len(d.get('warnings',[]))}.",
+              "- Reports: [JSON](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json) · [Markdown](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).",
+              "",
+              "Tester to Developer: Resolve every issue and resubmit a complete frozen bundle. Do not advance to strategy selection without a clean independent PASS.",
+              ""
+          ])
           for rel in ("README.md","research/STATUS.md","research/logs/RESEARCH_LOG.md","research/logs/CHAT_LOG.md"):
               p=Path("tester")/rel; old=p.read_text() if p.is_file() else ""
               if marker not in old: p.parent.mkdir(parents=True,exist_ok=True); p.write_text(block+"\n"+old)
