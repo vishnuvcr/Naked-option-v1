@@ -167,6 +167,23 @@ jobs:
           out.write_text(json.dumps(report,sort_keys=True,indent=2)+"\\n",encoding="utf-8")
           print(json.dumps({k:v for k,v in report.items() if k!="source_blob_pins"} | {"pinned_sources":len(pins)},sort_keys=True))
           PY
+      - name: Build and validate scoped PM0051 eligibility manifest
+        if: success()
+        run: |
+          set -euo pipefail
+          python scripts/build_pm0051_eligibility_disposition_r3.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json")
+          x=json.loads(p.read_text())
+          assert x["record_count"]==40000 and x["unique_config_count"]==40000
+          assert x["pending_method_config_count"]==40
+          pending=[r for r in x["records"] if r.get("disposition")=="ELIGIBLE_PENDING_EXECUTOR_GATE"]
+          assert len(pending)==40 and all(r.get("method_id")=="PM0051" for r in pending)
+          assert all(r.get("empirical_fit_authorized") is False for r in pending)
+          print(json.dumps({"status":"PASS_PM0051_SCOPED_ELIGIBILITY","rows":len(x["records"]),"pending":len(pending),"fit_authorized":False},sort_keys=True))
+          PY
       - name: Commit implementation gate with retry on branch-tip races
         if: success()
         env:
@@ -175,6 +192,8 @@ jobs:
           set -euo pipefail
           GATE="research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json"
           cp "$GATE" "$RUNNER_TEMP/pm0051-implementation-gate.json"
+          ELIGIBILITY="research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json"
+          cp "$ELIGIBILITY" "$RUNNER_TEMP/pm0051-eligibility.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           persisted=false
@@ -182,7 +201,8 @@ jobs:
             git fetch origin "+refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
             git reset --hard "origin/$GITHUB_REF_NAME"
             cp "$RUNNER_TEMP/pm0051-implementation-gate.json" "$GATE"
-            git add "$GATE"
+            cp "$RUNNER_TEMP/pm0051-eligibility.json" "$ELIGIBILITY"
+            git add "$GATE" "$ELIGIBILITY"
             if git diff --cached --quiet; then persisted=true; break; fi
             git commit -m "Record PM0051 synthetic implementation gate"
             if git push origin "HEAD:$GITHUB_REF_NAME"; then persisted=true; break; fi
