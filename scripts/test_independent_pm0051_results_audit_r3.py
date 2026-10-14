@@ -9,6 +9,7 @@ def configs():
         f"CFG{i:04d}": {
             "config_id": f"CFG{i:04d}",
             "method_id": "PM0051",
+            "config_sha256": f"cfgsha{i:04d}",
             "configuration": {
                 "label_id": f"L{i//4:02d}",
                 "lookback_bars": 20 + 20*(i % 4),
