@@ -2,30 +2,6 @@ name: Phase 8P R3 PM0001 data execution precheck
 
 on:
   workflow_dispatch:
-  push:
-    branches: [phase-08-prediction-developer]
-    paths:
-      - "scripts/run_pm0001_data_execution_precheck_r3.py"
-      - "scripts/test_pm0001_data_execution_precheck_r3.py"
-      - "scripts/prediction_pm0001_executor_r3.py"
-      - "scripts/prediction_features_r3.py"
-      - "scripts/test_prediction_features_r3.py"
-      - "scripts/create_pm0001_execution_gate_r3.py"
-      - "scripts/test_create_pm0001_execution_gate_r3.py"
-      - "scripts/run_pm0001_prediction_sweep_r3.py"
-      - "scripts/test_run_pm0001_prediction_sweep_r3.py"
-      - "scripts/freeze_pm0001_result_bundle_r3.py"
-      - "scripts/test_freeze_pm0001_result_bundle_r3.py"
-      - "scripts/publish_pm0001_run_status_r3.py"
-      - "scripts/test_publish_pm0001_run_status_r3.py"
-      - "scripts/prediction_statistics.py"
-      - "scripts/prediction_walkforward_r3.py"
-      - "scripts/validate_prediction_feature_contract_r3.py"
-      - "research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json"
-      - "research/gates/PREDICTION_ELIGIBILITY_DISPOSITION_R3_2026-10-13.json"
-      - "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
-      - "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
-      - ".github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml"
 
 permissions:
   contents: write
