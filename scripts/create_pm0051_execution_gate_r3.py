@@ -1,0 +1,378 @@
+#!/usr/bin/env python3
+"""Create a run-scoped PM0051 execution gate from exact pinned source and data precheck.
+
+The gate authorizes only the 40 registered PM0051 configurations for this exact CI
+snapshot and the complete 320-row configuration/fold precheck. It never fits models.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_DATA_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
+IMPLEMENTATION_GATE_PATH = "research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json"
+ELIGIBILITY_PATH = "research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json"
+PREREG_PATH = "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json"
+FEATURE_REPORT_PATH = "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
+FEATURE_CORRECTION_PATH = "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
+FOLD_IDS = tuple(f"F{i:02d}" for i in range(1, 9))
+PRECHECK_TERMINAL = {"PRECHECK_PASS", "BLOCKED_DATA", "BLOCKED_SAMPLE_ELIGIBILITY"}
+
+
+def sha256(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def git_blob_sha1(raw: bytes) -> str:
+    return hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError(f"JSON_TOP_LEVEL_NOT_OBJECT:{path}")
+    return value
+
+
+def verify_implementation_gate(gate: dict[str, Any], repo_root: Path = ROOT) -> None:
+    if gate.get("method_id") != "PM0051" or gate.get("status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
+        raise ValueError("PM0051_IMPLEMENTATION_GATE_NOT_PASSED")
+    v = gate.get("verification", {})
+    if v.get("conclusion") != "success" or v.get("source_data_loaded") is not False:
+        raise ValueError("PM0051_IMPLEMENTATION_CI_OR_SCOPE_INVALID")
+    if v.get("empirical_model_fit") is not False or v.get("holdout_accessed") is not False:
+        raise ValueError("PM0051_IMPLEMENTATION_GATE_SCOPE_INVALID")
+    if gate.get("empirical_fit_authorized") is not False or gate.get("manual_authorization_required") is not False:
+        raise ValueError("PM0051_IMPLEMENTATION_AUTHORIZATION_FLAGS_INVALID")
+    pins = gate.get("source_blob_pins")
+    if not isinstance(pins, dict) or not pins:
+        raise ValueError("PM0051_IMPLEMENTATION_SOURCE_PINS_MISSING")
+    for rel, expected in pins.items():
+        path = repo_root / rel
+        if not path.is_file() or git_blob_sha1(path.read_bytes()) != expected:
+            raise ValueError(f"PM0051_IMPLEMENTATION_SOURCE_PIN_MISMATCH:{rel}")
+
+
+def verify_feature_construction_report(report: dict[str, Any], repo_root: Path = ROOT) -> None:
+    if report.get("status") != "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED":
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_NOT_PASS")
+    if report.get("check_count") != report.get("checks_passed") or not isinstance(report.get("checks_passed"), int):
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_CHECK_COUNTS_INVALID")
+    fitting_gate = report.get("fitting_gate", {})
+    if fitting_gate.get("empirical_fit_authorized") is not False or fitting_gate.get("model_fitting_performed") is not False or fitting_gate.get("holdout_accessed") is not False:
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_SCOPE_INVALID")
+    pins = report.get("verified_source_hashes", {})
+    required = {
+        "contract_git_blob_sha1": "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json",
+        "feature_builder_git_blob_sha1": "scripts/prediction_features_r3.py",
+        "feature_tests_git_blob_sha1": "scripts/test_prediction_features_r3.py",
+        "contract_validator_git_blob_sha1": "scripts/validate_prediction_feature_contract_r3.py",
+        "feature_correction_git_blob_sha1": FEATURE_CORRECTION_PATH,
+        "calendar_git_blob_sha1": "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+        "label_manifest_git_blob_sha1": "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json",
+        # Preflight is a run-specific generated artifact, not a stable source file.
+        # Its merged_gzip_sha256 may vary while the canonical uncompressed CSV SHA256 is unchanged.
+        "prerequisite_report_git_blob_sha1": "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json",
+        "preregistration_git_blob_sha1": PREREG_PATH,
+    }
+    for field, rel in required.items():
+        path = repo_root / rel
+        if not path.is_file() or git_blob_sha1(path.read_bytes()) != pins.get(field):
+            raise ValueError(f"FEATURE_CONSTRUCTION_SOURCE_PIN_MISMATCH:{field}")
+    correction_raw = (repo_root / FEATURE_CORRECTION_PATH).read_bytes()
+    if sha256(correction_raw) != pins.get("feature_correction_sha256"):
+        raise ValueError("FEATURE_CONSTRUCTION_CORRECTION_SHA256_MISMATCH")
+
+
+def verify_preflight_report(preflight: dict[str, Any], repo_root: Path = ROOT) -> None:
+    """Validate current data-preflight evidence semantically; pin its bytes in the run gate."""
+    if preflight.get("canonical_hash_matches") is not True:
+        raise ValueError("DATA_PREFLIGHT_CANONICAL_HASH_NOT_VERIFIED")
+    if preflight.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("DATA_PREFLIGHT_DATASET_HASH_MISMATCH")
+    if preflight.get("expected_canonical_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("DATA_PREFLIGHT_EXPECTED_DATASET_PIN_MISMATCH")
+    if preflight.get("source_artifact_id") != 11698879857 or preflight.get("source_artifact_run_id") != 38131641336:
+        raise ValueError("DATA_PREFLIGHT_SOURCE_ARTIFACT_PIN_MISMATCH")
+    if preflight.get("status") != "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS":
+        raise ValueError("DATA_PREFLIGHT_STATUS_NOT_ACCEPTABLE")
+    if preflight.get("blockers") != []:
+        raise ValueError("DATA_PREFLIGHT_HAS_GLOBAL_BLOCKERS")
+    if preflight.get("holdout_accessed") is not False or preflight.get("model_fitting_performed") is not False:
+        raise ValueError("DATA_PREFLIGHT_PROVENANCE_FLAGS_UNSAFE")
+    if preflight.get("eligible_fold_label_cells") != 75 or preflight.get("blocked_fold_label_cells") != 5:
+        raise ValueError("DATA_PREFLIGHT_FOLD_CELL_COUNTS_CHANGED")
+    if preflight.get("all_sample_ineligible_fold_label_cells_explicitly_blocked") is not True:
+        raise ValueError("DATA_PREFLIGHT_BLOCKED_CELLS_NOT_EXPLICIT")
+    expected_files = {
+        "preprocessing_rules": (
+            "research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json",
+            "preprocessing_rules_path",
+            "preprocessing_rules_git_blob_sha1",
+            "preprocessing_rules_sha256",
+        ),
+        "preregistration": (
+            PREREG_PATH,
+            "preregistration_path",
+            "preregistration_git_blob_sha1",
+            "preregistration_sha256",
+        ),
+        "session_calendar": (
+            "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+            "calendar_path",
+            None,
+            "session_calendar_sha256",
+        ),
+    }
+    for label, (relative_path, path_key, blob_key, hash_key) in expected_files.items():
+        path = repo_root / relative_path
+        if not path.is_file():
+            raise ValueError(f"DATA_PREFLIGHT_PINNED_{label.upper()}_FILE_MISSING")
+        raw = path.read_bytes()
+        if preflight.get(path_key) != relative_path:
+            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_PATH_MISMATCH")
+        if preflight.get(hash_key) != sha256(raw):
+            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_SHA256_MISMATCH")
+        if blob_key:
+            reported_blob = preflight.get(blob_key)
+            # Older committed preflight snapshots accidentally overwrite this one field with null.
+            # Its exact preregistration SHA-256 is still required above; newer reports retain both pins.
+            if reported_blob is not None and reported_blob != git_blob_sha1(raw):
+                raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISMATCH")
+            if reported_blob is None and label != "preregistration":
+                raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISSING")
+
+
+def validate_precheck(precheck: dict[str, Any], config_ids: list[str]) -> dict[str, int]:
+    if precheck.get("schema_version") != "pm0051-data-execution-precheck-r3-v1":
+        raise ValueError("PM0051_DATA_PRECHECK_SCHEMA_INVALID")
+    if precheck.get("status") != "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING":
+        raise ValueError("PM0051_DATA_PRECHECK_NOT_COMPLETE_PASS")
+    if precheck.get("source_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("PM0051_DATA_PRECHECK_DATA_HASH_MISMATCH")
+    if precheck.get("configuration_count") != 40 or precheck.get("outer_fold_count") != 8:
+        raise ValueError("PM0051_DATA_PRECHECK_DIMENSIONS_INVALID")
+    if precheck.get("result_row_count") != 320 or precheck.get("model_fitting_performed") is not False:
+        raise ValueError("PM0051_DATA_PRECHECK_COUNT_OR_FIT_SCOPE_INVALID")
+    if precheck.get("holdout_accessed") is not False or precheck.get("empirical_fit_authorized") is not False:
+        raise ValueError("PM0051_DATA_PRECHECK_PROVENANCE_INVALID")
+    rows = precheck.get("rows")
+    if not isinstance(rows, list) or len(rows) != 320:
+        raise ValueError("PM0051_DATA_PRECHECK_ROWS_MISSING")
+    expected = {(cfg, fold) for cfg in config_ids for fold in FOLD_IDS}
+    seen: set[tuple[str, str]] = set()
+    counts: dict[str, int] = {}
+    for pos, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ValueError(f"PM0051_DATA_PRECHECK_ROW_NOT_OBJECT:{pos}")
+        key = (str(row.get("config_id", "")), str(row.get("fold_id", "")))
+        if key in seen:
+            raise ValueError(f"PM0051_DATA_PRECHECK_DUPLICATE_PAIR:{key}")
+        seen.add(key)
+        if row.get("method_id") != "PM0051":
+            raise ValueError(f"PM0051_DATA_PRECHECK_METHOD_MISMATCH:{key}")
+        if row.get("status") not in PRECHECK_TERMINAL:
+            # FAILED_PRECHECK must not authorize any empirical fit.
+            raise ValueError(f"PM0051_DATA_PRECHECK_TERMINAL_STATUS_INVALID:{key}:{row.get('status')}")
+        if row.get("empirical_fit_authorized") is not False or row.get("model_fitting_performed") is not False:
+            raise ValueError(f"PM0051_DATA_PRECHECK_ROW_AUTHORIZATION_INVALID:{key}")
+        if row.get("holdout_accessed") is not False:
+            raise ValueError(f"PM0051_DATA_PRECHECK_ROW_HOLDOUT_SCOPE_INVALID:{key}")
+        counts[row["status"]] = counts.get(row["status"], 0) + 1
+    if seen != expected:
+        raise ValueError(f"PM0051_DATA_PRECHECK_COVERAGE_MISMATCH:missing={len(expected-seen)}:extra={len(seen-expected)}")
+    return counts
+
+
+def build_execution_gate(
+    eligibility: dict[str, Any],
+    preflight: dict[str, Any],
+    implementation_gate: dict[str, Any],
+    precheck: dict[str, Any],
+    feature_report: dict[str, Any],
+    *,
+    feature_report_blob_sha1: str,
+    feature_report_sha256: str,
+    eligibility_blob_sha1: str,
+    preflight_blob_sha1: str,
+    preflight_report_path: str,
+    preflight_report_sha256: str,
+    implementation_gate_blob_sha1: str,
+    prereg_blob_sha1: str,
+    precheck_blob_sha1: str,
+    precheck_sha256: str,
+    runner_blob_sha1: str,
+    precheck_runner_blob_sha1: str,
+    source_commit: str,
+    workflow_run_id: str,
+) -> dict[str, Any]:
+    if preflight.get("canonical_hash_matches") is not True:
+        raise ValueError("DATA_PREFLIGHT_CANONICAL_HASH_NOT_VERIFIED")
+    if preflight.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("DATA_PREFLIGHT_DATASET_HASH_MISMATCH")
+    if preflight.get("status") not in {"PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS", "BLOCKED_SAMPLE_ELIGIBILITY"}:
+        raise ValueError("DATA_PREFLIGHT_STATUS_NOT_ACCEPTABLE")
+    if preflight.get("blockers") != []:
+        raise ValueError("DATA_PREFLIGHT_HAS_GLOBAL_BLOCKERS")
+    if preflight.get("holdout_accessed") is not False or preflight.get("model_fitting_performed") is not False:
+        raise ValueError("DATA_PREFLIGHT_PROVENANCE_FLAGS_UNSAFE")
+    if preflight.get("eligible_fold_label_cells") != 75 or preflight.get("blocked_fold_label_cells") != 5:
+        raise ValueError("DATA_PREFLIGHT_FOLD_CELL_COUNTS_CHANGED")
+
+    if eligibility.get("record_count") != 40000 or eligibility.get("unique_config_count") != 40000:
+        raise ValueError("ELIGIBILITY_REGISTRY_TOTALS_INVALID")
+    if eligibility.get("manual_authorization_required") is not False or eligibility.get("empirical_fit_authorized") is not False:
+        raise ValueError("ELIGIBILITY_GATE_FLAGS_INVALID")
+    if eligibility.get("implementation_gate_status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
+        raise ValueError("ELIGIBILITY_IMPLEMENTATION_GATE_STATUS_INVALID")
+    source_pins = eligibility.get("source_pins", {})
+    if source_pins.get("implementation_gate_git_blob_sha1") != implementation_gate_blob_sha1:
+        raise ValueError("ELIGIBILITY_IMPLEMENTATION_GATE_PIN_MISMATCH")
+    if source_pins.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("ELIGIBILITY_DATASET_PIN_MISMATCH")
+
+    records = eligibility.get("records")
+    if not isinstance(records, list) or len(records) != 40000:
+        raise ValueError("ELIGIBILITY_RECORDS_MISSING")
+    pending = [r for r in records if r.get("disposition") == "ELIGIBLE_PENDING_EXECUTOR_GATE"]
+    if len(pending) != 40 or any(r.get("method_id") != "PM0051" for r in pending):
+        raise ValueError("EXPECTED_EXACTLY_40_PM0051_CONFIGS_PENDING_EXECUTOR_GATE")
+    if any(r.get("empirical_fit_authorized") is not False or r.get("manual_authorization_required") is not False for r in pending):
+        raise ValueError("PENDING_CONFIG_FLAGS_INVALID")
+    config_ids = sorted(r["config_id"] for r in pending)
+    if len(set(config_ids)) != 40:
+        raise ValueError("PM0051_CONFIG_IDS_NOT_UNIQUE")
+    precheck_counts = validate_precheck(precheck, config_ids)
+    if precheck_counts.get("PRECHECK_PASS", 0) < 1:
+        raise ValueError("NO_ELIGIBLE_CONFIG_FOLD_CELLS_FOR_EMPIRICAL_FIT")
+    if str(precheck.get("source_commit")) != str(source_commit):
+        raise ValueError("PM0051_PRECHECK_SOURCE_COMMIT_MISMATCH")
+    if str(precheck.get("workflow_run_id")) != str(workflow_run_id):
+        raise ValueError("PM0051_PRECHECK_WORKFLOW_RUN_ID_MISMATCH")
+    if precheck.get("preflight_report_path") != preflight_report_path:
+        raise ValueError("PM0051_PRECHECK_PREFLIGHT_PATH_MISMATCH")
+    if precheck.get("preflight_report_git_blob_sha1") != preflight_blob_sha1:
+        raise ValueError("PM0051_PRECHECK_PREFLIGHT_BLOB_MISMATCH")
+    if precheck.get("preflight_report_sha256") != preflight_report_sha256:
+        raise ValueError("PM0051_PRECHECK_PREFLIGHT_SHA256_MISMATCH")
+    if precheck.get("precheck_runner_git_blob_sha1") != precheck_runner_blob_sha1:
+        raise ValueError("PM0051_PRECHECK_RUNNER_BLOB_MISMATCH")
+    if feature_report.get("status") != "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED":
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_NOT_PASS")
+    fg = feature_report.get("fitting_gate", {})
+    if fg.get("empirical_fit_authorized") is not False or fg.get("model_fitting_performed") is not False or fg.get("holdout_accessed") is not False:
+        raise ValueError("FEATURE_CONSTRUCTION_REPORT_SCOPE_INVALID")
+    if implementation_gate.get("status") != "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY":
+        raise ValueError("PM0051_IMPLEMENTATION_GATE_STATUS_INVALID")
+    return {
+        "schema_version": "pm0051-execution-gate-r3-v2",
+        "status": "PASS_PM0051_EXECUTION_PRECHECK",
+        "method_id": "PM0051",
+        "configuration_count": 40,
+        "config_ids": config_ids,
+        "outer_fold_ids": list(FOLD_IDS),
+        "expected_result_rows": 320,
+        "precheck_status_counts": precheck_counts,
+        "empirical_fit_authorized": True,
+        "manual_authorization_required": False,
+        "scope": "PM0051 registered configurations only; current complete data precheck and exact pinned source; holdout excluded",
+        "source_data_sha256": EXPECTED_DATA_SHA256,
+        "eligibility_manifest_git_blob_sha1": eligibility_blob_sha1,
+        "preflight_report_git_blob_sha1": preflight_blob_sha1,
+        "preflight_report_path": preflight_report_path,
+        "preflight_report_sha256": preflight_report_sha256,
+        "implementation_gate_git_blob_sha1": implementation_gate_blob_sha1,
+        "preregistration_git_blob_sha1": prereg_blob_sha1,
+        "precheck_report_git_blob_sha1": precheck_blob_sha1,
+        "precheck_report_sha256": precheck_sha256,
+        "feature_construction_report_git_blob_sha1": feature_report_blob_sha1,
+        "feature_construction_report_sha256": feature_report_sha256,
+        "feature_builder_git_blob_sha1": feature_report["verified_source_hashes"]["feature_builder_git_blob_sha1"],
+        "feature_tests_git_blob_sha1": feature_report["verified_source_hashes"]["feature_tests_git_blob_sha1"],
+        "feature_correction_git_blob_sha1": feature_report["verified_source_hashes"]["feature_correction_git_blob_sha1"],
+        "feature_correction_sha256": feature_report["verified_source_hashes"]["feature_correction_sha256"],
+        "feature_contract_validator_git_blob_sha1": feature_report["verified_source_hashes"]["contract_validator_git_blob_sha1"],
+        "runner_git_blob_sha1": runner_blob_sha1,
+        "precheck_runner_git_blob_sha1": precheck_runner_blob_sha1,
+        "source_commit": source_commit,
+        "workflow_run_id": workflow_run_id,
+        "holdout_accessed": False,
+        "market_data_loaded_by_precheck": True,
+        "model_fitting_performed_by_precheck": False,
+        "preflight_status": preflight["status"],
+        "eligible_fold_label_cells": 75,
+        "blocked_fold_label_cells": 5,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--preflight", required=True, type=Path)
+    parser.add_argument("--precheck-report", required=True, type=Path)
+    parser.add_argument("--eligibility", default=str(ROOT / ELIGIBILITY_PATH), type=Path)
+    parser.add_argument("--implementation-gate", default=str(ROOT / IMPLEMENTATION_GATE_PATH), type=Path)
+    parser.add_argument("--feature-report", default=str(ROOT / FEATURE_REPORT_PATH), type=Path)
+    parser.add_argument("--preregistration", default=str(ROOT / PREREG_PATH), type=Path)
+    parser.add_argument("--runner", default=str(ROOT / "scripts/run_pm0051_prediction_sweep_r3.py"), type=Path)
+    parser.add_argument("--precheck-runner", default=str(ROOT / "scripts/run_pm0051_data_execution_precheck_r3a.py"), type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--source-commit", default="unknown")
+    parser.add_argument("--workflow-run-id", default="unknown")
+    args = parser.parse_args()
+
+    eligibility = read_json(args.eligibility)
+    preflight = read_json(args.preflight)
+    implementation_gate = read_json(args.implementation_gate)
+    feature_report = read_json(args.feature_report)
+    prereg = read_json(args.preregistration)
+    precheck = read_json(args.precheck_report)
+    verify_implementation_gate(implementation_gate)
+    verify_feature_construction_report(feature_report)
+    verify_preflight_report(preflight)
+    if prereg.get("date") != "2026-10-13" or len(prereg.get("labels", {})) != 10:
+        raise ValueError("FROZEN_PREREGISTRATION_INVALID")
+    if not args.runner.is_file():
+        raise ValueError("PM0051_RUNNER_MISSING")
+    raw_precheck = args.precheck_report.read_bytes()
+    raw_feature_report = args.feature_report.read_bytes()
+    raw_preflight = args.preflight.read_bytes()
+    try:
+        preflight_relative_path = args.preflight.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise ValueError("RUN_PREFLIGHT_REPORT_MUST_BE_INSIDE_REPOSITORY_FOR_MANIFESTING") from exc
+    gate = build_execution_gate(
+        eligibility, preflight, implementation_gate, precheck, feature_report,
+        feature_report_blob_sha1=git_blob_sha1(raw_feature_report),
+        feature_report_sha256=sha256(raw_feature_report),
+        eligibility_blob_sha1=git_blob_sha1(args.eligibility.read_bytes()),
+        preflight_blob_sha1=git_blob_sha1(raw_preflight),
+        preflight_report_path=preflight_relative_path,
+        preflight_report_sha256=sha256(raw_preflight),
+        implementation_gate_blob_sha1=git_blob_sha1(args.implementation_gate.read_bytes()),
+        prereg_blob_sha1=git_blob_sha1(args.preregistration.read_bytes()),
+        precheck_blob_sha1=git_blob_sha1(raw_precheck),
+        precheck_sha256=sha256(raw_precheck),
+        runner_blob_sha1=git_blob_sha1(args.runner.read_bytes()),
+        precheck_runner_blob_sha1=git_blob_sha1(args.precheck_runner.read_bytes()),
+        source_commit=args.source_commit,
+        workflow_run_id=args.workflow_run_id,
+    )
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(gate, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(json.dumps({
+        "status": gate["status"], "method_id": gate["method_id"],
+        "configuration_count": gate["configuration_count"],
+        "precheck_status_counts": gate["precheck_status_counts"],
+        "empirical_fit_authorized": gate["empirical_fit_authorized"],
+        "manual_authorization_required": gate["manual_authorization_required"],
+        "holdout_accessed": gate["holdout_accessed"],
+    }, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
