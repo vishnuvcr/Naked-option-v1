@@ -12,7 +12,12 @@
     "source_artifact_id": 11698879857,
     "canonical_uncompressed_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
     "diagnostic": "The existing data preflight defines the final minute bar as either 15:29 (start-of-final-minute convention) or an explicit 15:30 close. The full-data preflight observed last-eligible-SPOT-bar times: 15:28=9 sessions, 15:29=1150 sessions, 15:30=72 sessions. The original feature builder only selected exactly 15:30, resulting in an empty positional sample batch for most sessions and zero train/validation rows.",
-    "source_preflight_rule_path": "scripts/preflight_prediction_dataset_r3.py"
+    "source_preflight_rule_path": "scripts/preflight_prediction_dataset_r3.py",
+    "session_close_time_frequency": {
+      "15:28": 9,
+      "15:29": 1150,
+      "15:30": 72
+    }
   },
   "corrected_rule": {
     "positional_close_candidate_source_times_ist": [
