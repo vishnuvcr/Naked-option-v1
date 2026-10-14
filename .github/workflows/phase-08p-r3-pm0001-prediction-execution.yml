@@ -8,7 +8,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: phase-08p-r3a-pm0001-prediction-execution
+  group: phase-08p-research-writer
   cancel-in-progress: false
 
 jobs:
@@ -279,6 +279,9 @@ jobs:
           PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
+          # Refresh tracked logs/status before editing; keep unique run outputs (untracked) intact.
+          git fetch origin phase-08-prediction-developer
+          git reset --hard FETCH_HEAD
           python - "$RUN_PRECHECK" "$RUN_GATE" "$RUN_RESULT" "$RUN_SUMMARY" "$RUN_ERRORS" "$RUN_MANIFEST" "$GITHUB_RUN_ID" "$GITHUB_SHA" <<'PY'
           import json,os,sys
           from datetime import datetime,timezone
@@ -346,7 +349,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$REVIEW_PUSH_TOKEN" || { echo "GH_TOKEN secret required for tester submission." >&2; exit 1; }
-          tested_commit="$(git rev-parse HEAD)"
+          tested_commit="$GITHUB_SHA"
           manifest="$RUN_MANIFEST"
           manifest_sha="$(sha256sum "$manifest" | awk '{print $1}')"
           python - "$tested_commit" "$manifest" "$manifest_sha" "$GITHUB_RUN_ID" <<'PY'
