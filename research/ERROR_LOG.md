@@ -1,3 +1,10 @@
+## 2026-10-14 — PM0051 extended-evaluation CI regression and fix
+
+- Run [#38593646854](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38593646854) was **not accepted**: its synthetic regression suite failed before data retrieval because the confusion-count mismatch fixture summed to the declared observation count, so the validator correctly raised a metric-arithmetic error rather than the expected total-mismatch error.
+- Corrected the fixture so its confusion counts genuinely mismatch the declared scored-row count.
+- Also corrected a workflow-gating flaw: precheck and sweep steps used unconditional/always conditions and could execute despite synthetic-test failure. They are now gated on synthetic tests, successful data preflight, successful precheck, and a successful exact execution gate.
+- No result from run #38593646854 is accepted; it recorded zero empirical fits and `results_acquired=false`. The new run must pass CI and then the independent tester audit before the next prediction family begins.
+
 ## 2026-10-14 — PM0051 extended diagnostic implementation (developer branch)
 
 - Resumed prediction-method evaluation after the original PM0051 result bundle passed independent review. The original frozen bundle remains immutable and its PASS covers log-loss inference only.
