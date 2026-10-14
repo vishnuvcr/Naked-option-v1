@@ -21,7 +21,8 @@ CALENDAR_PATH = ROOT / "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_202
 PREFLIGHT_PATH = ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
 PREREQUISITE_AUDIT_PATH = ROOT / "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json"
 METHOD_SHARD_PATH = ROOT / "research/registry/compatibility_shards/PREDICTION_COMPATIBILITY_PART001.json"
-REPORT_PATH = ROOT / "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json"
+CORRECTION_PATH = ROOT / "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
+REPORT_PATH = ROOT / "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
 
 INTRADAY_MINUTES = {
     "INTRA_5M_UP_DOWN": 5,
@@ -80,8 +81,10 @@ def validate_contract_objects(
     preflight: dict[str, Any],
     prerequisite_audit: dict[str, Any],
     method_record: dict[str, Any],
+    correction: dict[str, Any],
+    contract_sha256: str,
     *,
-    calendar_id: str,
+    calendar_id,
     calendar_sha256: str,
     source_csv_sha256: str,
 ) -> list[dict[str, Any]]:
@@ -94,6 +97,16 @@ def validate_contract_objects(
 
     check("CONTRACT_STATUS", contract.get("status") == "FROZEN_PRE_RESULTS_IMPLEMENTATION_SUPPLEMENT", str(contract.get("status")))
     check("CONTRACT_ID", contract.get("amendment_id") == "PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13", str(contract.get("amendment_id")))
+    check("POSITIONAL_CLOSE_CORRECTION_STATUS", correction.get("status") == "FROZEN_PRE_RESULTS_IMPLEMENTATION_CORRECTION", str(correction.get("status")))
+    check("POSITIONAL_CLOSE_CORRECTION_ID", correction.get("amendment_id") == "PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14", str(correction.get("amendment_id")))
+    check("POSITIONAL_CLOSE_CORRECTION_CONTRACT_PIN", correction.get("supersedes_contract_sha256") == contract_sha256, str(correction.get("supersedes_contract_sha256")))
+    close_rule = correction.get("corrected_rule", {})
+    check("POSITIONAL_CLOSE_SOURCE_TIMES", close_rule.get("positional_close_candidate_source_times_ist") == ["15:29:00", "15:30:00"], str(close_rule.get("positional_close_candidate_source_times_ist")))
+    check("POSITIONAL_CLOSE_EFFECTIVE_TIMESTAMP", close_rule.get("effective_decision_and_target_timestamp_ist", "").startswith("Normalize a selected 15:29 source row to its interval-end instant, 15:30"), str(close_rule.get("effective_decision_and_target_timestamp_ist")))
+    check("POSITIONAL_1528_IS_MISSING_NOT_SUBSTITUTED", close_rule.get("missing_close", "").startswith("If neither 15:29 nor 15:30 exists"), str(close_rule.get("missing_close")))
+    correction_evidence = correction.get("evidence", {})
+    time_frequency = correction_evidence.get("session_close_time_frequency", {})
+    check("CORRECTION_SUPPORTED_BY_PREFLIGHT_DIAGNOSTIC", time_frequency == {"15:28": 9, "15:29": 1150, "15:30": 72}, str(time_frequency))
     scope = contract.get("scope", {})
     check("CANONICAL_SOURCE_HASH", scope.get("canonical_csv_sha256") == EXPECTED_SOURCE_SHA256 == source_csv_sha256, str(source_csv_sha256))
     check("CALENDAR_PIN", calendar_id == EXPECTED_CALENDAR_ID and calendar_sha256 == EXPECTED_CALENDAR_SHA256, f"{calendar_id}:{calendar_sha256}")
@@ -142,6 +155,7 @@ def validate_contract_objects(
 
 def audit(report_path: Path = REPORT_PATH) -> dict[str, Any]:
     contract, contract_raw = load(CONTRACT_PATH)
+    correction, correction_raw = load(CORRECTION_PATH)
     label, label_raw = load(LABEL_PATH)
     preflight, preflight_raw = load(PREFLIGHT_PATH)
     prereq, prereq_raw = load(PREREQUISITE_AUDIT_PATH)
@@ -152,7 +166,8 @@ def audit(report_path: Path = REPORT_PATH) -> dict[str, Any]:
     if method is None:
         raise ContractValidationError("PM0001_METHOD_RECORD_MISSING")
     checks = validate_contract_objects(
-        contract, label, preflight, prereq, method,
+        contract, label, preflight, prereq, method, correction,
+        contract_sha256=sha256(contract_raw),
         calendar_id=calendar.get("calendar_id", calendar.get("session_calendar_id", EXPECTED_CALENDAR_ID)),
         calendar_sha256=sha256(calendar_raw),
         source_csv_sha256=preflight.get("canonical_uncompressed_csv_sha256", ""),
@@ -167,6 +182,9 @@ def audit(report_path: Path = REPORT_PATH) -> dict[str, Any]:
         "preregistration_git_blob_sha1": git_blob_sha1(prereg_raw),
         "contract_git_blob_sha1": git_blob_sha1(contract_raw),
         "contract_sha256": sha256(contract_raw),
+        "feature_correction_git_blob_sha1": git_blob_sha1(correction_raw),
+        "feature_correction_sha256": sha256(correction_raw),
+        "feature_correction_note_sha256": sha256((ROOT / "research/governance/PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.md").read_bytes()),
         "label_manifest_sha256": sha256(label_raw),
         "calendar_sha256": sha256(calendar_raw),
         "feature_builder_git_blob_sha1": git_blob_sha1((ROOT / "scripts/prediction_features_r3.py").read_bytes()),
