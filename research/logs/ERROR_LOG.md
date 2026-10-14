@@ -199,3 +199,12 @@ New errors must be appended, never overwritten.
 **Next:** verify the full-data corrected 320-cell precheck, confirm nonzero positional sample support, require zero technical failures, issue the run-scoped gate only after report/source hashes validate, then fit only `PRECHECK_PASS` cells. Preserve all other cells as blocked.
 
 **Developer → Tester:** defer independent review until the full empirical results bundle is acquired, validated, frozen and hash-pinned.
+
+## 2026-10-14 — PM0001 pipeline bootstrap failed closed before data retrieval (run #38522300355)
+
+- Evidence: [workflow #38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) stopped at the new pre-download synthetic suite. The runner-test module could not import NumPy because the updated setup installed requirements-composite.txt but omitted numpy/scikit-learn as explicit dependencies. No market dataset was downloaded or decrypted and no model was fit.
+- A second error occurred in the always-run status publisher embedded in the workflow: a missing closing parenthesis caused a SyntaxError while preparing README/status/error updates. The output artifact step still ran; plaintext cleanup ran.
+- Correction: move status/error publication into standard-library-only scripts/publish_pm0001_run_status_r3.py, add synthetic regression tests, explicitly install numpy and scikit-learn before the gates, and test the publisher with the complete synthetic suite. Replace the inline Python block with the tested script.
+- Research disposition: no predictive result; this is a CI/bootstrap failure. Preserve the run as a failure and do not loosen any dataset pins, support thresholds, or fold rules.
+
+**Developer → Tester:** no review yet; wait for a frozen result bundle and then independently audit all 320 config/fold outcomes.
