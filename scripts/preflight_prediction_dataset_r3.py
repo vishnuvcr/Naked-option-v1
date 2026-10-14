@@ -227,7 +227,6 @@ def run_preflight(merged_gzip:Path, calendar_path:Path, prereg_path:Path, prepro
       "expected_row_type_counts":EXPECTED_ROW_COUNTS,
       "session_calendar_sha256":sha256_file(calendar_path),
       "session_calendar_source_sha256":cal.get("source_calendar_sha256"),
-      "preregistration_git_blob_sha1":None,
       "market_rows_examined":True
     })
     if canonical_sha!=EXPECTED_CANONICAL_CSV_SHA256:
