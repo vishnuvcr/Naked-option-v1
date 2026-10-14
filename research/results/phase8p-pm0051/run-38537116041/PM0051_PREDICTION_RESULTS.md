@@ -1,0 +1,70 @@
+# PM0051 NIFTY 50 Prediction Results — R3
+
+- Bundle status: \`PASS_COMPLETE_EMPIRICAL_RESULTS_FROZEN\`
+- Results acquired: \`true\`
+- Source data SHA-256: \`cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204\`
+- Execution source commit: \`7f6e743706940dd2448f4f4e929981614aa4b7cd\`
+- Workflow run ID: \`38537116041\`
+- Scope: 40 preregistered PM0051 configurations × 8 chronological outer folds.
+- Primary metric: session-weighted out-of-sample log loss; improvement = class-prior baseline minus PM0051.
+- Statistical inference: paired 10-session moving-block bootstrap (10,000 replicates), Benjamini–Yekutieli q=0.05 within each label stratum.
+- The prior-sign baseline remains null because no definition is frozen in the preregistration; no comparator was invented.
+- No untouched holdout was accessed. No raw market rows or per-observation predictions are published.
+
+## Terminal accounting
+
+| Terminal status | Count |
+|---|---:|
+| BLOCKED_DATA | 58 |
+| EXECUTED_AUDITED | 262 |
+
+## All registered PM0051 configurations
+
+Each config is shown; this is not a performance-based model selection or trading-strategy evaluation.
+
+| Config ID | Label | Lookback | Prior scale | Executed folds | Blocked/failed folds | Mean fold log loss | Mean fold improvement | Inference status | Mean session improvement | 95% bootstrap CI | Raw p | BY-adjusted p | BY q=.05 reject |
+|---|---|---:|---:|---:|---:|---:|---:|---|---:|---|---:|---:|---|
+| CFG0051_INTRA_120M_UP_DOWN_20_FLEXIBLE | INTRA_120M_UP_DOWN | 20 | 2.0 | 8 | 0 | 0.695 | -0.00103073 | OK | -0.00106576 | -0.00259454 to 0.000292334 | 0.145485 | 0.682432 | false |
+| CFG0051_INTRA_120M_UP_DOWN_20_REGULARIZED | INTRA_120M_UP_DOWN | 20 | 0.5 | 8 | 0 | 0.694944 | -0.000975213 | OK | -0.00101695 | -0.00253557 to 0.000339669 | 0.163784 | 0.682432 | false |
+| CFG0051_INTRA_120M_UP_DOWN_60_FLEXIBLE | INTRA_120M_UP_DOWN | 60 | 2.0 | 8 | 0 | 0.694114 | 0.000263821 | OK | 0.000115426 | -0.00110177 to 0.00103832 | 0.839416 | 1 | false |
+| CFG0051_INTRA_120M_UP_DOWN_60_REGULARIZED | INTRA_120M_UP_DOWN | 60 | 0.5 | 8 | 0 | 0.694303 | 7.48473e-05 | OK | -8.09367e-05 | -0.00152547 to 0.00103584 | 0.907609 | 1 | false |
+| CFG0051_INTRA_15M_UP_DOWN_20_FLEXIBLE | INTRA_15M_UP_DOWN | 20 | 2.0 | 8 | 0 | 0.693083 | 7.20829e-05 | OK | 1.56818e-05 | -0.000137148 to 0.000132801 | 0.826317 | 1 | false |
+| CFG0051_INTRA_15M_UP_DOWN_20_REGULARIZED | INTRA_15M_UP_DOWN | 20 | 0.5 | 8 | 0 | 0.693135 | 2.07976e-05 | OK | -2.1827e-05 | -0.000146665 to 8.34168e-05 | 0.723528 | 1 | false |
+| CFG0051_INTRA_15M_UP_DOWN_60_FLEXIBLE | INTRA_15M_UP_DOWN | 60 | 2.0 | 8 | 0 | 0.693265 | -4.96238e-05 | OK | -0.000114402 | -0.000293185 to 4.31268e-05 | 0.181282 | 1 | false |
+| CFG0051_INTRA_15M_UP_DOWN_60_REGULARIZED | INTRA_15M_UP_DOWN | 60 | 0.5 | 8 | 0 | 0.693082 | 0.000133806 | OK | 6.71412e-05 | -9.18926e-05 to 0.000170893 | 0.353865 | 1 | false |
+| CFG0051_INTRA_30M_UP_DOWN_20_FLEXIBLE | INTRA_30M_UP_DOWN | 20 | 2.0 | 8 | 0 | 0.693363 | -0.000126843 | OK | -0.000186617 | -0.000499854 to 3.76213e-05 | 0.185981 | 0.774923 | false |
+| CFG0051_INTRA_30M_UP_DOWN_20_REGULARIZED | INTRA_30M_UP_DOWN | 20 | 0.5 | 8 | 0 | 0.693369 | -0.000132335 | OK | -0.000188845 | -0.000487921 to 2.74205e-05 | 0.162384 | 0.774923 | false |
+| CFG0051_INTRA_30M_UP_DOWN_60_FLEXIBLE | INTRA_30M_UP_DOWN | 60 | 2.0 | 8 | 0 | 0.693228 | 0.000161497 | OK | 3.91059e-05 | -0.000286322 to 0.000305014 | 0.79802 | 1 | false |
+| CFG0051_INTRA_30M_UP_DOWN_60_REGULARIZED | INTRA_30M_UP_DOWN | 60 | 0.5 | 8 | 0 | 0.693186 | 0.000203074 | OK | 7.18898e-05 | -0.000353104 to 0.00039312 | 0.712229 | 1 | false |
+| CFG0051_INTRA_5M_UP_DOWN_20_FLEXIBLE | INTRA_5M_UP_DOWN | 20 | 2.0 | 8 | 0 | 0.69296 | 0.000188866 | OK | 0.000166166 | 5.83802e-05 to 0.000243708 | 0.00149985 | 0.00312469 | true |
+| CFG0051_INTRA_5M_UP_DOWN_20_REGULARIZED | INTRA_5M_UP_DOWN | 20 | 0.5 | 8 | 0 | 0.692978 | 0.000171082 | OK | 0.000147179 | 6.00302e-05 to 0.00020992 | 0.00039996 | 0.001111 | true |
+| CFG0051_INTRA_5M_UP_DOWN_60_FLEXIBLE | INTRA_5M_UP_DOWN | 60 | 2.0 | 8 | 0 | 0.692987 | 0.000178329 | OK | 0.000156472 | 7.76882e-05 to 0.000211787 | 9.999e-05 | 0.000416625 | true |
+| CFG0051_INTRA_5M_UP_DOWN_60_REGULARIZED | INTRA_5M_UP_DOWN | 60 | 0.5 | 8 | 0 | 0.692929 | 0.000236194 | OK | 0.000209936 | 0.000108195 to 0.000280095 | 9.999e-05 | 0.000416625 | true |
+| CFG0051_INTRA_60M_UP_DOWN_20_FLEXIBLE | INTRA_60M_UP_DOWN | 20 | 2.0 | 8 | 0 | 0.69373 | -0.000356412 | OK | -0.000404171 | -0.000911089 to 1.24088e-05 | 0.0850915 | 0.380795 | false |
+| CFG0051_INTRA_60M_UP_DOWN_20_REGULARIZED | INTRA_60M_UP_DOWN | 20 | 0.5 | 8 | 0 | 0.693716 | -0.000342529 | OK | -0.000394845 | -0.00089833 to 1.87999e-05 | 0.0913909 | 0.380795 | false |
+| CFG0051_INTRA_60M_UP_DOWN_60_FLEXIBLE | INTRA_60M_UP_DOWN | 60 | 2.0 | 8 | 0 | 0.693803 | -0.000179861 | OK | -0.000303164 | -0.000882213 to 0.000109512 | 0.257874 | 0.716317 | false |
+| CFG0051_INTRA_60M_UP_DOWN_60_REGULARIZED | INTRA_60M_UP_DOWN | 60 | 0.5 | 8 | 0 | 0.693657 | -3.38489e-05 | OK | -0.000179531 | -0.00083232 to 0.00025322 | 0.551645 | 1 | false |
+| CFG0051_POS_10D_UP_DOWN_20_FLEXIBLE | POS_10D_UP_DOWN | 20 | 2.0 | 4 | 4 | 0.760101 | -0.055596 | OK | -0.056978 | -0.125561 to 0.00676788 | 0.0925907 | 0.385795 | false |
+| CFG0051_POS_10D_UP_DOWN_20_REGULARIZED | POS_10D_UP_DOWN | 20 | 0.5 | 4 | 4 | 0.764297 | -0.0597913 | OK | -0.0611415 | -0.13556 to 0.0039548 | 0.0862914 | 0.385795 | false |
+| CFG0051_POS_10D_UP_DOWN_60_FLEXIBLE | POS_10D_UP_DOWN | 60 | 2.0 | 3 | 5 | 0.68339 | 0.0117284 | OK | 0.0114941 | -0.0136093 to 0.0388678 | 0.39636 | 1 | false |
+| CFG0051_POS_10D_UP_DOWN_60_REGULARIZED | POS_10D_UP_DOWN | 60 | 0.5 | 3 | 5 | 0.684947 | 0.0101712 | OK | 0.00991632 | -0.0196048 to 0.0387967 | 0.508449 | 1 | false |
+| CFG0051_POS_1D_UP_DOWN_20_FLEXIBLE | POS_1D_UP_DOWN | 20 | 2.0 | 6 | 2 | 0.698019 | -0.0031589 | OK | -0.0037228 | -0.010569 to 0.00144818 | 0.246875 | 0.676182 | false |
+| CFG0051_POS_1D_UP_DOWN_20_REGULARIZED | POS_1D_UP_DOWN | 20 | 0.5 | 6 | 2 | 0.698743 | -0.00388254 | OK | -0.00450943 | -0.0115824 to 0.00102816 | 0.174183 | 0.676182 | false |
+| CFG0051_POS_1D_UP_DOWN_60_FLEXIBLE | POS_1D_UP_DOWN | 60 | 2.0 | 5 | 3 | 0.699731 | -0.00442873 | OK | -0.00520151 | -0.0153263 to 0.00306983 | 0.29747 | 0.676182 | false |
+| CFG0051_POS_1D_UP_DOWN_60_REGULARIZED | POS_1D_UP_DOWN | 60 | 0.5 | 5 | 3 | 0.699688 | -0.00438509 | OK | -0.00502569 | -0.0152822 to 0.00332581 | 0.324568 | 0.676182 | false |
+| CFG0051_POS_2D_UP_DOWN_20_FLEXIBLE | POS_2D_UP_DOWN | 20 | 2.0 | 6 | 2 | 0.703816 | -0.0036903 | OK | -0.00602717 | -0.0176386 to 0.00295845 | 0.253875 | 1 | false |
+| CFG0051_POS_2D_UP_DOWN_20_REGULARIZED | POS_2D_UP_DOWN | 20 | 0.5 | 6 | 2 | 0.702767 | -0.00264173 | OK | -0.00502728 | -0.0163296 to 0.0037427 | 0.331567 | 1 | false |
+| CFG0051_POS_2D_UP_DOWN_60_FLEXIBLE | POS_2D_UP_DOWN | 60 | 2.0 | 5 | 3 | 0.706141 | 0.000382462 | OK | -0.00143524 | -0.0078295 to 0.004308 | 0.645235 | 1 | false |
+| CFG0051_POS_2D_UP_DOWN_60_REGULARIZED | POS_2D_UP_DOWN | 60 | 0.5 | 5 | 3 | 0.704479 | 0.00204432 | OK | 0.000188618 | -0.00602111 to 0.00557564 | 0.948205 | 1 | false |
+| CFG0051_POS_3D_UP_DOWN_20_FLEXIBLE | POS_3D_UP_DOWN | 20 | 2.0 | 6 | 2 | 0.708378 | -0.00916424 | OK | -0.0104793 | -0.0253932 to 0.00133548 | 0.125387 | 0.47523 | false |
+| CFG0051_POS_3D_UP_DOWN_20_REGULARIZED | POS_3D_UP_DOWN | 20 | 0.5 | 6 | 2 | 0.709995 | -0.0107815 | OK | -0.0118467 | -0.0278567 to 0.000828043 | 0.108489 | 0.47523 | false |
+| CFG0051_POS_3D_UP_DOWN_60_FLEXIBLE | POS_3D_UP_DOWN | 60 | 2.0 | 5 | 3 | 0.707625 | -0.00609628 | OK | -0.00696269 | -0.0173814 to 0.00556794 | 0.232677 | 0.484743 | false |
+| CFG0051_POS_3D_UP_DOWN_60_REGULARIZED | POS_3D_UP_DOWN | 60 | 0.5 | 5 | 3 | 0.708002 | -0.00647365 | OK | -0.0075055 | -0.0177615 to 0.00409473 | 0.171083 | 0.47523 | false |
+| CFG0051_POS_5D_UP_DOWN_20_FLEXIBLE | POS_5D_UP_DOWN | 20 | 2.0 | 6 | 2 | 0.730293 | -0.0305732 | OK | -0.0348348 | -0.0698812 to -0.00263123 | 0.0422958 | 0.176232 | false |
+| CFG0051_POS_5D_UP_DOWN_20_REGULARIZED | POS_5D_UP_DOWN | 20 | 0.5 | 6 | 2 | 0.73272 | -0.0330001 | OK | -0.0373921 | -0.074912 to -0.00358969 | 0.0411959 | 0.176232 | false |
+| CFG0051_POS_5D_UP_DOWN_60_FLEXIBLE | POS_5D_UP_DOWN | 60 | 2.0 | 5 | 3 | 0.708676 | -0.00589176 | OK | -0.00832977 | -0.0303953 to 0.0124377 | 0.457354 | 1 | false |
+| CFG0051_POS_5D_UP_DOWN_60_REGULARIZED | POS_5D_UP_DOWN | 60 | 0.5 | 5 | 3 | 0.705913 | -0.0031283 | OK | -0.00558107 | -0.0236151 to 0.013799 | 0.570143 | 1 | false |
+
+## Interpretation boundary
+
+A positive primary effect means lower log loss than the training-fold prevalence baseline. It does not, by itself, establish a tradable edge or an option strategy. Any model conclusions require complete fold coverage, paired uncertainty intervals, multiplicity-aware inference and independent review.

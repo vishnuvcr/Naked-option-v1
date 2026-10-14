@@ -1766,3 +1766,11 @@ A review of method shard examples found generic nearest-neighbor prose that did 
 - Execution gate: PASS_PM0001_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
 - Runtime error rows: 0; result manifest: research/results/phase8p-pm0001/run-38525772378/freeze_manifest.json.
 
+## 2026-10-14T13:39:35.032353+00:00 — Phase 8P R3A run 38537116041
+
+- Workflow: [run 38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041); source commit 7f6e743706940dd2448f4f4e929981614aa4b7cd.
+- Result status: COMPLETE_EMPIRICAL_RESULTS; empirical fit rows: 262; results_acquired=true.
+- Precheck: {"BLOCKED_DATA": 20, "BLOCKED_SAMPLE_ELIGIBILITY": 38, "PRECHECK_PASS": 262}; terminal result accounting: {"BLOCKED_DATA": 58, "EXECUTED_AUDITED": 262}.
+- Execution gate: PASS_PM0051_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: research/results/phase8p-pm0051/run-38537116041/freeze_manifest.json.
+

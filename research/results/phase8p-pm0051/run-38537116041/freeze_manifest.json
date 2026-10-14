@@ -1,0 +1,80 @@
+{
+  "artifacts": [
+    {
+      "path": "research/results/phase8p-pm0051/run-38537116041/result_bundle.json",
+      "sha256": "7f46f17c2c8310411c4543a445b7cd55181411c1b49930d1036392f86c4246f6",
+      "size_bytes": 2537147
+    },
+    {
+      "path": "research/results/phase8p-pm0051/run-38537116041/summary.json",
+      "sha256": "b5989bca212421d7547f4e315cd307008d12f615e4e6dea2a4f0bf7f7e2074ad",
+      "size_bytes": 21839
+    },
+    {
+      "path": "research/results/phase8p-pm0051/run-38537116041/errors.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "research/results/phase8p-pm0051/run-38537116041/config_fold_results.csv",
+      "sha256": "64d589959e7f3f3044724cda1ee157ec8e780827220a7eda9deaa5deb94176c4",
+      "size_bytes": 403997
+    },
+    {
+      "path": "research/results/phase8p-pm0051/run-38537116041/PM0051_PREDICTION_RESULTS.md",
+      "sha256": "ae04768e50a658827636f60b44122d18c383e913383133265ff9c085f7fb5976",
+      "size_bytes": 8920
+    },
+    {
+      "path": "research/gates/PREDICTION_PM0051_DATA_EXECUTION_PRECHECK_R3_RUN_38537116041.json",
+      "sha256": "c3bdf53cdde2ac01de432833bb770ec7a61a05ad7b92f603c37d5c0340fef53a",
+      "size_bytes": 245833
+    },
+    {
+      "path": "research/gates/PREDICTION_PM0051_EXECUTION_GATE_R3_RUN_38537116041.json",
+      "sha256": "c721e3cd30b275f4548ca36003ed94e49c473ed95becd58a028e5b2520468900",
+      "size_bytes": 3945
+    },
+    {
+      "path": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_38537116041.json",
+      "sha256": "e7ebcd5ccea10fb89ba50c6c30337f0c025c21fa58a6d89d122f897577d01bd7",
+      "size_bytes": 48679
+    },
+    {
+      "path": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
+      "sha256": "6bebe6d85450f4429ddc1b43e38520ed6e388d1c382b84518dc06a431e0b47ca",
+      "size_bytes": 10024
+    }
+  ],
+  "blocked_or_failed_rows": 58,
+  "created_utc": "2026-10-14T13:39:32.079401+00:00",
+  "empirical_fit_rows": 262,
+  "expected_terminal_rows": 320,
+  "holdout_accessed": false,
+  "per_observation_predictions_persisted": false,
+  "raw_market_rows_emitted": false,
+  "result_schema_validation": {
+    "complete_expected_coverage": true,
+    "holdout_accessed_by_validator": false,
+    "metrics_arithmetic_checked": 262,
+    "model_fitting_performed_by_validator": false,
+    "row_count": 320,
+    "terminal_status_counts": {
+      "BLOCKED_DATA": 58,
+      "EXECUTED_AUDITED": 262
+    },
+    "unique_config_fold_pairs": 320
+  },
+  "results_acquired": true,
+  "schema_version": "pm0051-result-freeze-manifest-r3-v1",
+  "source_commit": "7f6e743706940dd2448f4f4e929981614aa4b7cd",
+  "source_data_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+  "status": "PASS_COMPLETE_EMPIRICAL_RESULTS_FROZEN",
+  "terminal_rows_written": 320,
+  "terminal_status_counts": {
+    "BLOCKED_DATA": 58,
+    "EXECUTED_AUDITED": 262
+  },
+  "unique_config_fold_pairs": 320,
+  "workflow_run_id": "38537116041"
+}
