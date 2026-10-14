@@ -15,6 +15,7 @@ on:
       - scripts/create_pm0051_execution_gate_r3.py
       - scripts/run_pm0051_prediction_sweep_r3.py
       - scripts/freeze_pm0051_result_bundle_r3.py
+      - scripts/test_freeze_pm0051_result_bundle_r3.py
       - scripts/build_pm0051_eligibility_disposition_r3.py
       - research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json
       - research/gates/PREDICTION_PM0051_ELIGIBILITY_DISPOSITION_R3_2026-10-14.json
@@ -182,7 +183,7 @@ jobs:
 
       - name: Run corrected 320-cell data precheck (no model fitting)
         id: precheck
-        if: always() && steps.data.outcome == 'success'
+        if: steps.synthetic-tests.outcome == 'success' && steps.data.outcome == 'success'
         shell: bash
         run: |
           set -uo pipefail
@@ -208,7 +209,7 @@ jobs:
 
       - name: Create exact execution gate for this report
         id: gate
-        if: steps.precheck.outputs.exit_code == '0'
+        if: steps.synthetic-tests.outcome == 'success' && steps.precheck.outputs.exit_code == '0'
         continue-on-error: true
         shell: bash
         run: |
@@ -223,7 +224,7 @@ jobs:
 
       - name: Run prediction sweep through the validated gate
         id: sweep
-        if: always()
+        if: steps.synthetic-tests.outcome == 'success' && steps.data.outcome == 'success' && steps.precheck.outputs.exit_code == '0' && steps.gate.outcome == 'success'
         continue-on-error: true
         shell: bash
         run: |
