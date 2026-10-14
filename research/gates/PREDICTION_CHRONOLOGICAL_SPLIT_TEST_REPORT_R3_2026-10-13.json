@@ -1,12 +1,12 @@
 {
   "empirical_fit_authorized": false,
-  "generated_utc": "2026-10-14T20:30:27.893811+00:00",
+  "generated_utc": "2026-10-14T20:30:42.353832+00:00",
   "holdout_accessed": false,
   "market_data_loaded": false,
   "model_fitting_performed": false,
   "result_bundle_frozen": false,
   "schema_version": "prediction-chronological-split-test-report-v1",
-  "source_commit": "db8ce68f48bdb136c794b234b42d04422b1ec575",
+  "source_commit": "bf3363d9314a11c7a4ffa8de5ca786d62b552641",
   "source_hashes": {
     "research/registry/PREDICTION_CHRONOLOGICAL_EXECUTION_CONTRACT_R3_2026-10-13.json": {
       "git_blob_sha1": "c91f3c4beefca3a2c4a68f6e6c55f73035e13378",
@@ -21,8 +21,8 @@
       "sha256": "f175fb6243cae48389e8383e3240f57b397bdf22cf8062f21b8b74998305bc2a"
     },
     "scripts/test_prediction_walkforward_r3.py": {
-      "git_blob_sha1": "ae52c6619f5353914391f7b1d3be4531fc46e9af",
-      "sha256": "48be90c8bf880480b569ddf986f83105ef4d68eef083d96ec9c91ae2195a720e"
+      "git_blob_sha1": "637853e60065e484192dea3ed1adbdf2f670cc13",
+      "sha256": "36d8c12d82d86e2ffffbe432585bfeed454474d9bbf124b7e08464c10605b87f"
     }
   },
   "status": "PASS_SYNTHETIC_CHRONOLOGICAL_CONTRACT_ONLY",
