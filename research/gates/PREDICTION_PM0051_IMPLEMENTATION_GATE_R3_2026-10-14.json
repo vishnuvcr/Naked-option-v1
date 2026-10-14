@@ -3,13 +3,13 @@
   "manual_authorization_required": false,
   "method_id": "PM0051",
   "method_name": "Probit regression with train-only standardization, chronological inner-OOF Platt calibration, and frozen 0.5 threshold",
-  "notes": "Extended diagnostic implementation: accuracy/confusion, calibration bins, paired session-accuracy bootstrap, and descriptive train-derived regime summaries. Synthetic tests only; the empirical gate must be regenerated/pinned and all tests pass before any fit. Does not authorize holdout access.",
+  "notes": "Synthetic contracts and numerical/chronology tests only. Does not authorize fitting. Run-scoped real-data precheck and an exact PM0051 execution gate must pass before any model fitting.",
   "research_date": "2026-10-14",
   "schema_version": "prediction-method-implementation-gate-r3-v1",
   "source_blob_pins": {
     "scripts/build_pm0051_eligibility_disposition_r3.py": "371eadfdabd18e1934c75c1e588a162527ab7849",
     "scripts/create_pm0051_execution_gate_r3.py": "c1e6a13ecdb4d3193950552d05eee841703b886f",
-    "scripts/freeze_pm0051_result_bundle_r3.py": "1790d934f622842cfbda7d543526d37f2780a1cf",
+    "scripts/freeze_pm0051_result_bundle_r3.py": "35c0a55b25b744f94be3761d83bd34355a3dc967",
     "scripts/prediction_logistic_calibration_r3.py": "5512b6c72f400165c4eaa425b4ab4c803b6c9cd2",
     "scripts/prediction_parameter_binding_r3.py": "44d0c6694fef694de74f951f1ec5f541685db78d",
     "scripts/prediction_probit_adapter_r3.py": "3f140578224dcee97bde65968e9c4bfee9a2eaa5",
@@ -22,7 +22,7 @@
     "scripts/run_pm0051_prediction_sweep_r3.py": "00f3808fdb5d48c11ecd86582754c18111ffc626",
     "scripts/test_build_pm0051_eligibility_disposition_r3.py": "1ba394bb3d09136639b49d4a05bd573985037918",
     "scripts/test_create_pm0051_execution_gate_r3.py": "743e53ed3407bee8a6fca633787e85236010cc89",
-    "scripts/test_freeze_pm0051_result_bundle_r3.py": "fda937eebd1d5a11dca81206c19c1392c67e03d0",
+    "scripts/test_freeze_pm0051_result_bundle_r3.py": "da5cbc351a067bf1047138e57b0062719a0fee99",
     "scripts/test_pm0051_data_execution_precheck_r3.py": "c2f819e8fad8be78df2d63ef32c5cb3032529436",
     "scripts/test_prediction_logistic_calibration_r3.py": "0b6bb33a0a3a9d8d135c85a12bb62dba96ac1eb1",
     "scripts/test_prediction_parameter_binding_r3.py": "85215ab61f39c879e1346a7a5c0af08121641be7",
@@ -34,7 +34,7 @@
     "scripts/test_run_pm0051_data_execution_precheck_r3a.py": "cdcab1bc7896dad9893fc31e571975b30d06cc94",
     "scripts/test_run_pm0051_prediction_sweep_r3.py": "e41e4ff9b1c801a9b94f431ab95f65583ed64c81"
   },
-  "source_commit": "e2d43d4dff254819fe3f07052f001b797f7fa182",
+  "source_commit": "cfebabef93372ab5cb906fd1d9123d0b6da9de74",
   "status": "PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
   "verification": {
     "conclusion": "success",
@@ -44,7 +44,7 @@
     "raw_market_rows_emitted": false,
     "source_data_loaded": false,
     "synthetic_test_groups": 13,
-    "workflow_run_id": 38536855161,
-    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161"
+    "workflow_run_id": 38595223390,
+    "workflow_run_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595223390"
   }
 }
