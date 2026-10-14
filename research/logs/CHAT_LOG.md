@@ -1506,3 +1506,11 @@ The corrected exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8` pas
 - Execution gate: PASS_PM0051_EXECUTION_PRECHECK; precheck fitting false and holdout access false.
 - Runtime error rows: 0; result manifest: research/results/phase8p-pm0051/run-38537116041/freeze_manifest.json.
 
+## 2026-10-14T15:56:27.293250+00:00 — Phase 8P R3A run 38593646854
+
+- Workflow: [run 38593646854](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38593646854); source commit 2b28bbaba3155cd450e4e8a913a83655548a2ffe.
+- Result status: BLOCKED_GATE_NO_EMPIRICAL_FITS; empirical fit rows: 0; results_acquired=false.
+- Precheck: {}; terminal result accounting: {"BLOCKED_GATE": 320}.
+- Execution gate: MISSING_OR_FAILED; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: research/results/phase8p-pm0051/run-38593646854/freeze_manifest.json.
+
