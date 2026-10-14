@@ -1,3 +1,10 @@
+## Research status — 2026-10-15
+
+- PM0051 synthetic implementation gate passed in [Actions run #38633592098](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38633592098). This covers synthetic regression tests and eligibility validation only.
+- Fresh empirical PM0051 rerun remains pending. The last run [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340) produced 58 data-blocked outcomes, 262 technical failures, and zero accepted fits.
+- The available GitHub connection does not expose workflow dispatch. Do not treat synthetic PASS as empirical success. Holdout remains sealed; no strategy is approved.
+- See [research status](research/STATUS.md) and [error log](research/ERROR_LOG.md).
+
 ## 2026-10-15 — Follow-up execution attempt and hard blocker
 
 - Rechecked the available GitHub connector actions and repository branches. The connector provides workflow-run inspection and rerun of existing failed jobs, but no workflow-dispatch or repository-workflow-list action.
