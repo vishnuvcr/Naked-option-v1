@@ -1,5 +1,5 @@
 {
-  "schema_version": "prediction-method-implementation-gate-r3-v1",
+  "schema_version": "prediction-method-implementation-gate-r3-v2",
   "research_date": "2026-10-14",
   "method_id": "PM0001",
   "method_name": "L2 logistic regression with calibrated directional probabilities",
@@ -23,28 +23,7 @@
     "empirical_model_fit": false,
     "holdout_accessed": false
   },
-  "tested_contracts": [
-    "train-only feature scaling",
-    "chronological outer-fold selection",
-    "training target maturity",
-    "validation target endpoint inside fold",
-    "session-index purge and validation embargo",
-    "inner chronological OOF calibration",
-    "final estimator refit on outer training only",
-    "log-loss and Brier/balanced-accuracy/ROC-AUC/AP metrics",
-    "held-out calibration intercept/slope status",
-    "fail-closed invalid C and invalid endpoint checks",
-    "20-exchange-session rolling refit cadence",
-    "later refits admit earlier validation rows only after target maturity",
-    "training-target maturity and purge enforced at every refit cutoff",
-    "outer-fold class-support minima checked before fitting",
-    "inner-fold row and per-class support checked before any estimator is fit",
-    "20-session refit schedule preserves exact validation-row coverage",
-    "outer-fold class-support minima checked before fitting",
-    "inner-fold row and per-class support checked before any estimator is fit",
-    "explicit regression tests prove insufficient outer/inner class support blocks before fitting"
-  ],
   "manual_authorization_required": false,
   "empirical_fit_authorized": false,
-  "notes": "Developer synthetic implementation gate only. The implementation now checks frozen row/class-support minima before fitting, uses the registered 20-session rolling refit cadence, and recalculates train-only scaling and chronological OOF calibration at every cutoff. It does not establish market predictive skill, does not authorize empirical fitting, and does not replace the single consolidated post-results independent tester review."
+  "notes": "This developer gate proves synthetic contract behaviour only. It does not establish empirical predictive skill or authorize fitting. The eligibility-disposition gate must independently pass and is currently failing due to a stale implementation source pin; no empirical fitting has occurred."
 }
