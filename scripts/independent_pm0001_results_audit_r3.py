@@ -158,6 +158,19 @@ def independent_moving_block_bootstrap(
     return result
 
 
+def reported_bootstrap_value(inference: Mapping[str, Any], field: str) -> Any:
+    """Map normalized bootstrap fields to the frozen published inference schema.
+
+    The independent bootstrap helper calls the effect observed_mean_improvement;
+    the persisted summary uses observed_mean_session_improvement. Both refer to
+    the same session-weighted baseline-minus-candidate log-loss difference.
+    """
+    published_key = {
+        "observed_mean_improvement": "observed_mean_session_improvement",
+    }.get(field, field)
+    return inference.get(published_key)
+
+
 def reconstruct_pm0001_configs(root: Path, issues: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     reg = root / "research/registry"
     index_path = reg / "PREDICTION_REGISTRY_SHARD_INDEX_R3_2026-10-13.json"
@@ -658,7 +671,7 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
                           error=f"{type(exc).__name__}:{str(exc)[:220]}")
                     continue
                 for field in ("ci_low", "ci_high", "raw_p_value", "observed_mean_improvement"):
-                    reported_value = inference.get(field)
+                    reported_value = reported_bootstrap_value(inference, field)
                     recomputed_value = recomputed_boot.get(field)
                     if reported_value is None and recomputed_value is None:
                         continue
