@@ -1,3 +1,15 @@
+## Phase 8P PM0051 Probit expansion — current step status (2026-10-14)
+
+- **Synthetic implementation gate:** PASS — [workflow #38536855161](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38536855161). Dedicated Probit adapter and chronological fold fitter pass synthetic gradient, probability, standardization, calibration, maturity and chronology tests. Scoped eligibility contains 40 PM0051 configurations in the existing 40,000-config registry; empirical fitting is not authorized by the synthetic gate.
+- **Empirical run:** [workflow #38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041) passed compile, synthetic-test and source/registry verification. Current step is pinned-data artifact retrieval and temporary decryption; the data precheck and model fitting have not yet been confirmed complete.
+- **Result gate:** not yet reached. No PM0051 performance metrics or model winner are claimed. No holdout access. Strategy research remains blocked.
+- **Independent tester:** PM0051-specific audit code/workflow prepared on [tester branch](https://github.com/vishnuvcr/Naked-option-v1/tree/phase-08-prediction-tester), checking prior_scale, all 320 config/fold outcomes, artifacts, source pins, bootstrap and BY calculations independently.
+- Gate-failure corrections are logged in [research error log](research/ERROR_LOG.md) and [run history](research/logs/RESEARCH_LOG.md). The previous PM0001 PASS remains specific to logistic regression and does not approve this Probit run.
+
+**Developer → Tester:** audit PM0051 only against its own registered Probit configuration semantics and independent frozen results. Request changes for any hash, arithmetic, leakage, coverage or inferential mismatch; do not advance to trading strategies.
+
+---
+
 ## Phase 8P current status — independently audited PM0001 results (2026-10-14)
 
 - **Independent tester decision: PASS.** [Tester workflow #38534260948](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38534260948) completed successfully. The hash-pinned review report is on the tester branch at [independent review report](https://github.com/vishnuvcr/Naked-option-v1/blob/phase-08-prediction-tester/research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).
