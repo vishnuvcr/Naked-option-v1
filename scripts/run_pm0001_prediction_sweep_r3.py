@@ -710,6 +710,8 @@ def run_sweep(
         "sweep_gate_passed": gate is not None and gate_verified,
         "global_gate_reason": global_gate_reason or None,
         "precheck_report_sha256": sha256_bytes(precheck_path.read_bytes()) if precheck_path.is_file() else None,
+        "preflight_report_path": preflight_path.resolve().relative_to(ROOT.resolve()).as_posix() if preflight_path.is_file() and preflight_path.resolve().is_relative_to(ROOT.resolve()) else None,
+        "preflight_report_sha256": sha256_bytes(preflight_path.read_bytes()) if preflight_path.is_file() else None,
         "execution_gate_sha256": sha256_bytes(gate_path.read_bytes()) if gate_path.is_file() else None,
         "configuration_count": 40,
         "outer_fold_count": 8,
