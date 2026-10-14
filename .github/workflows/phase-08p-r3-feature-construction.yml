@@ -7,6 +7,8 @@ on:
       - phase-08-prediction-developer
     paths:
       - "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json"
+      - "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
+      - "research/governance/PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.md"
       - "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"
       - "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
       - "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json"
@@ -47,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase-08p-r3-feature-construction-contract
-          path: research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json
+          path: research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json
           if-no-files-found: warn
           retention-days: 90
       - name: Persist aggregate-only report
@@ -55,7 +57,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          report="research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3_2026-10-13.json"
+          report="research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
           cp "$report" "$RUNNER_TEMP/feature-contract-report.json"
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
