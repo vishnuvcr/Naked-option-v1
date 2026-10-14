@@ -115,8 +115,8 @@ jobs:
         if: steps.synthetic-tests.outcome == 'success'
         shell: bash
         env:
-          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-          HF_TOKEN: \${{ secrets.HF_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           set -euo pipefail
           WORK="$RUNNER_TEMP/r3a-pm0001-run-$GITHUB_RUN_ID"
@@ -247,19 +247,19 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase8p-pm0001-results-run-\${{ github.run_id }}
+          name: phase8p-pm0001-results-run-${{ github.run_id }}
           if-no-files-found: warn
           path: |
-            research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_RUN_\${{ github.run_id }}.json
-            research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_\${{ github.run_id }}.json
-            research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_RUN_\${{ github.run_id }}.json
-            research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_RUN_\${{ github.run_id }}.json
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/result_bundle.json
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/summary.json
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/errors.jsonl
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/config_fold_results.csv
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/PM0001_PREDICTION_RESULTS.md
-            research/results/phase8p-pm0001/run-\${{ github.run_id }}/freeze_manifest.json
+            research/gates/PREDICTION_ENCRYPTED_BUNDLE_PREFLIGHT_R3_RUN_${{ github.run_id }}.json
+            research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_${{ github.run_id }}.json
+            research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_RUN_${{ github.run_id }}.json
+            research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_RUN_${{ github.run_id }}.json
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/result_bundle.json
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/summary.json
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/errors.jsonl
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/config_fold_results.csv
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/PM0001_PREDICTION_RESULTS.md
+            research/results/phase8p-pm0001/run-${{ github.run_id }}/freeze_manifest.json
             research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json
 
       - name: Remove temporary decrypted data
@@ -276,7 +276,7 @@ jobs:
         continue-on-error: true
         shell: bash
         env:
-          PUSH_TOKEN: \${{ secrets.GH_TOKEN }}
+          PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
           python - "$RUN_PRECHECK" "$RUN_GATE" "$RUN_RESULT" "$RUN_SUMMARY" "$RUN_ERRORS" "$RUN_MANIFEST" "$GITHUB_RUN_ID" "$GITHUB_SHA" <<'PY'
@@ -342,7 +342,7 @@ jobs:
         if: steps.publish.outcome == 'success' && steps.publish.outputs.results_acquired == 'true' && steps.freeze.outcome == 'success'
         shell: bash
         env:
-          REVIEW_PUSH_TOKEN: \${{ secrets.GH_TOKEN }}
+          REVIEW_PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           set -euo pipefail
           test -n "$REVIEW_PUSH_TOKEN" || { echo "GH_TOKEN secret required for tester submission." >&2; exit 1; }
