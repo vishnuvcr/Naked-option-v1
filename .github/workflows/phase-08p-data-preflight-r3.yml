@@ -23,8 +23,8 @@ permissions:
   actions: read
 
 concurrency:
-  group: phase-08p-r3-data-preflight
-  cancel-in-progress: true
+  group: phase-08p-research-writer
+  cancel-in-progress: false
 
 jobs:
   encrypted-source-and-data-preflight:
