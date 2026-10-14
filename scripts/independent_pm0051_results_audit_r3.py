@@ -461,6 +461,10 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         assert result_path and summary_path and errors_path and precheck_path and gate_path and preflight_path and feature_report_path
         result = read_json(result_path)
         summary = read_json(summary_path)
+        if result.get("schema_version") != "pm0051-result-bundle-r3-v1":
+            issue(issues, "RESULT_BUNDLE_SCHEMA_INVALID", value=result.get("schema_version"))
+        if summary.get("schema_version") != "pm0051-result-bundle-r3-v1":
+            issue(issues, "SUMMARY_SCHEMA_INVALID", value=summary.get("schema_version"))
         precheck = read_json(precheck_path)
         gate = read_json(gate_path)
         preflight = read_json(preflight_path)
