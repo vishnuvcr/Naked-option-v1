@@ -1,3 +1,15 @@
+## 2026-10-14 — Frozen PM0001 results and independent handoff resumed
+
+- Run #38525772378 completed empirical fitting and froze the result bundle at [run output](../results/phase8p-pm0001/run-38525772378/PM0001_PREDICTION_RESULTS.md). Complete terminal accounting: 320 cells, 262 executed/audited, 58 blocked, zero runtime-error rows, holdout not accessed.
+- The report finds four statistically significant 5-minute model configurations versus the class-prior baseline after BY correction; this is not trading-profit evidence.
+- Fixed and logged three review-handoff faults: absent GH_TOKEN secret in the original workflow snapshot; result hashes were initially checked against execution rather than result-publication commit; tester CLI dispatch lacked explicit --repo context.
+- Formal acquired-results request is pinned to execution commit cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2, published snapshot 8b1d845635a0b269a425e46a37ae4fd6f57e944f, and manifest SHA-256 c8800662109d2bee53257c1b22d3ab1bca011a99b3f5172d12fa2811e6374da8.
+- Tester workflow [#38533906974](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38533906974) has passed hash/provenance checks and is independently recomputing the metrics/bootstrap. No strategy research until its decision.
+
+**Developer → Tester:** complete the independent audit with file-level evidence; publish PASS or REQUEST CHANGES and the reasons. Do not accept only the developer narrative.
+
+---
+
 ## 2026-10-14 — R3A run #38525772378 — data verified, precheck running
 
 - Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378
