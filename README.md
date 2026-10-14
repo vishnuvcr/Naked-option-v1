@@ -1,3 +1,10 @@
+## Phase 8P R3A — current execution and prior blockers (2026-10-14)
+
+- Active consolidated run: [#38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378). It has not yet produced a verified empirical result.
+- Latest completed data-backed precheck: 262 of 320 config/fold cells passed precheck; 38 are sample-blocked and 20 data-blocked. No fitting occurred in that precheck.
+- Recent failures and fixes are recorded in [research status](research/STATUS.md), [error log](research/ERROR_LOG.md), and [research log](research/logs/RESEARCH_LOG.md). No thresholds or protocol rules were changed.
+- Tester suite: synthetic audit tests passed in [#38525539469](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525539469); the independent result workflow is repaired and awaiting the real acquired-results request.
+
 ## Phase 8P — latest PM0001 retry
 
 - Last full 320-cell precheck: 262 eligible to proceed, 38 blocked by frozen sample eligibility, 20 blocked by data; no model fitting occurred in that run.
