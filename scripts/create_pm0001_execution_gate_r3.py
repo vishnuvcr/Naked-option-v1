@@ -187,6 +187,8 @@ def build_execution_gate(
     if len(set(config_ids)) != 40:
         raise ValueError("PM0001_CONFIG_IDS_NOT_UNIQUE")
     precheck_counts = validate_precheck(precheck, config_ids)
+    if precheck_counts.get("PRECHECK_PASS", 0) < 1:
+        raise ValueError("NO_ELIGIBLE_CONFIG_FOLD_CELLS_FOR_EMPIRICAL_FIT")
     if str(precheck.get("source_commit")) != str(source_commit):
         raise ValueError("PM0001_PRECHECK_SOURCE_COMMIT_MISMATCH")
     if str(precheck.get("workflow_run_id")) != str(workflow_run_id):
