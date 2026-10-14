@@ -1,0 +1,190 @@
+name: Phase 8P PM0051 Probit implementation gate (synthetic only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - scripts/prediction_probit_adapter_r3.py
+      - scripts/test_prediction_probit_adapter_r3.py
+      - scripts/prediction_probit_executor_r3.py
+      - scripts/test_prediction_probit_executor_r3.py
+      - scripts/prediction_parameter_binding_r3.py
+      - scripts/test_prediction_parameter_binding_r3.py
+      - scripts/run_pm0051_data_execution_precheck_r3.py
+      - scripts/test_pm0051_data_execution_precheck_r3.py
+      - scripts/run_pm0051_data_execution_precheck_r3a.py
+      - scripts/test_run_pm0051_data_execution_precheck_r3a.py
+      - scripts/create_pm0051_execution_gate_r3.py
+      - scripts/test_create_pm0051_execution_gate_r3.py
+      - scripts/run_pm0051_prediction_sweep_r3.py
+      - scripts/test_run_pm0051_prediction_sweep_r3.py
+      - scripts/freeze_pm0051_result_bundle_r3.py
+      - scripts/test_freeze_pm0051_result_bundle_r3.py
+      - scripts/publish_pm0051_run_status_r3.py
+      - scripts/test_publish_pm0051_run_status_r3.py
+      - scripts/build_pm0051_eligibility_disposition_r3.py
+      - scripts/test_build_pm0051_eligibility_disposition_r3.py
+      - scripts/prediction_logistic_calibration_r3.py
+      - scripts/test_prediction_logistic_calibration_r3.py
+      - scripts/prediction_statistics.py
+      - scripts/test_prediction_statistics.py
+      - scripts/prediction_walkforward_r3.py
+      - scripts/test_prediction_walkforward_r3.py
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-08p-pm0051-synthetic-gate
+  cancel-in-progress: false
+
+jobs:
+  synthetic-implementation-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact source snapshot
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install bounded numerical dependencies
+        run: python -m pip install --disable-pip-version-check numpy scipy scikit-learn pandas
+      - name: Compile PM0051 components
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/prediction_probit_adapter_r3.py \
+            scripts/prediction_probit_executor_r3.py \
+            scripts/prediction_parameter_binding_r3.py \
+            scripts/run_pm0051_data_execution_precheck_r3.py \
+            scripts/run_pm0051_data_execution_precheck_r3a.py \
+            scripts/create_pm0051_execution_gate_r3.py \
+            scripts/run_pm0051_prediction_sweep_r3.py \
+            scripts/freeze_pm0051_result_bundle_r3.py \
+            scripts/publish_pm0051_run_status_r3.py \
+            scripts/build_pm0051_eligibility_disposition_r3.py
+      - name: Run PM0051 synthetic contract and regression suite
+        id: tests
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s scripts -p 'test_prediction_probit_adapter_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_prediction_probit_executor_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_prediction_parameter_binding_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_pm0051_data_execution_precheck_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_run_pm0051_data_execution_precheck_r3a.py' -v
+          python -m unittest discover -s scripts -p 'test_create_pm0051_execution_gate_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_run_pm0051_prediction_sweep_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_freeze_pm0051_result_bundle_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_publish_pm0051_run_status_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_prediction_logistic_calibration_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_prediction_statistics.py' -v
+          python -m unittest discover -s scripts -p 'test_prediction_walkforward_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_build_pm0051_eligibility_disposition_r3.py' -v
+          python - <<'PY'
+          import json
+          print(json.dumps({
+            "status":"PASS_SYNTHETIC_TESTS_ONLY",
+            "method_id":"PM0051",
+            "market_data_loaded":False,
+            "empirical_model_fit":False,
+            "holdout_accessed":False,
+            "raw_market_rows_emitted":False,
+          }, sort_keys=True))
+          PY
+      - name: Build immutable PM0051 implementation gate
+        if: success()
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          paths = [
+            "scripts/prediction_probit_adapter_r3.py",
+            "scripts/test_prediction_probit_adapter_r3.py",
+            "scripts/prediction_probit_executor_r3.py",
+            "scripts/test_prediction_probit_executor_r3.py",
+            "scripts/prediction_parameter_binding_r3.py",
+            "scripts/test_prediction_parameter_binding_r3.py",
+            "scripts/prediction_logistic_calibration_r3.py",
+            "scripts/test_prediction_logistic_calibration_r3.py",
+            "scripts/prediction_statistics.py",
+            "scripts/test_prediction_statistics.py",
+            "scripts/prediction_walkforward_r3.py",
+            "scripts/test_prediction_walkforward_r3.py",
+            "scripts/run_pm0051_data_execution_precheck_r3.py",
+            "scripts/test_pm0051_data_execution_precheck_r3.py",
+            "scripts/run_pm0051_data_execution_precheck_r3a.py",
+            "scripts/test_run_pm0051_data_execution_precheck_r3a.py",
+            "scripts/create_pm0051_execution_gate_r3.py",
+            "scripts/test_create_pm0051_execution_gate_r3.py",
+            "scripts/run_pm0051_prediction_sweep_r3.py",
+            "scripts/test_run_pm0051_prediction_sweep_r3.py",
+            "scripts/freeze_pm0051_result_bundle_r3.py",
+            "scripts/test_freeze_pm0051_result_bundle_r3.py",
+            "scripts/publish_pm0051_run_status_r3.py",
+            "scripts/test_publish_pm0051_run_status_r3.py",
+            "scripts/build_pm0051_eligibility_disposition_r3.py",
+            "scripts/test_build_pm0051_eligibility_disposition_r3.py",
+          ]
+          def blob_sha1(path):
+              raw=Path(path).read_bytes()
+              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+          pins={p:blob_sha1(p) for p in paths}
+          report={
+            "schema_version":"prediction-method-implementation-gate-r3-v1",
+            "research_date":"2026-10-14",
+            "method_id":"PM0051",
+            "method_name":"Probit regression with train-only standardization, chronological inner-OOF Platt calibration, and frozen 0.5 threshold",
+            "status":"PASS_SYNTHETIC_DEVELOPER_TESTED_ONLY",
+            "source_commit":os.environ["GITHUB_SHA"],
+            "source_blob_pins":pins,
+            "verification":{
+              "workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_url":os.environ["GITHUB_RUN_URL"],
+              "conclusion":"success",
+              "synthetic_test_groups":13,
+              "python_compile":"PASS",
+              "source_data_loaded":False,
+              "empirical_model_fit":False,
+              "holdout_accessed":False,
+              "raw_market_rows_emitted":False
+            },
+            "manual_authorization_required":False,
+            "empirical_fit_authorized":False,
+            "notes":"Synthetic contracts and numerical/chronology tests only. Does not authorize fitting. Run-scoped real-data precheck and an exact PM0051 execution gate must pass before any model fitting."
+          }
+          out=Path("research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json")
+          out.parent.mkdir(parents=True,exist_ok=True)
+          out.write_text(json.dumps(report,sort_keys=True,indent=2)+"\\n",encoding="utf-8")
+          print(json.dumps({k:v for k,v in report.items() if k!="source_blob_pins"} | {"pinned_sources":len(pins)},sort_keys=True))
+          PY
+      - name: Commit implementation gate with retry on branch-tip races
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          GATE="research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json"
+          cp "$GATE" "$RUNNER_TEMP/pm0051-implementation-gate.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          persisted=false
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "+refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
+            git reset --hard "origin/$GITHUB_REF_NAME"
+            cp "$RUNNER_TEMP/pm0051-implementation-gate.json" "$GATE"
+            git add "$GATE"
+            if git diff --cached --quiet; then persisted=true; break; fi
+            git commit -m "Record PM0051 synthetic implementation gate"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then persisted=true; break; fi
+            sleep 2
+          done
+          test "$persisted" = true
