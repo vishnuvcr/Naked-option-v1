@@ -16,6 +16,8 @@ on:
       - "scripts/test_run_pm0001_prediction_sweep_r3.py"
       - "scripts/freeze_pm0001_result_bundle_r3.py"
       - "scripts/test_freeze_pm0001_result_bundle_r3.py"
+      - "scripts/publish_pm0001_run_status_r3.py"
+      - "scripts/test_publish_pm0001_run_status_r3.py"
       - "scripts/prediction_statistics.py"
       - "scripts/prediction_walkforward_r3.py"
       - "scripts/validate_prediction_feature_contract_r3.py"
@@ -46,12 +48,12 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install pinned project dependencies
-        run: python -m pip install --disable-pip-version-check -r requirements-composite.txt
+        run: python -m pip install --disable-pip-version-check numpy scikit-learn -r requirements-composite.txt
       - name: Compile and run all synthetic gates before data retrieval
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/run_pm0001_data_execution_precheck_r3.py scripts/create_pm0001_execution_gate_r3.py scripts/run_pm0001_prediction_sweep_r3.py scripts/freeze_pm0001_result_bundle_r3.py scripts/prediction_features_r3.py scripts/prediction_pm0001_executor_r3.py scripts/prediction_logistic_adapter_r3.py scripts/prediction_logistic_calibration_r3.py scripts/prediction_statistics.py scripts/prediction_walkforward_r3.py scripts/validate_prediction_feature_contract_r3.py
+          python -m py_compile scripts/run_pm0001_data_execution_precheck_r3.py scripts/create_pm0001_execution_gate_r3.py scripts/run_pm0001_prediction_sweep_r3.py scripts/freeze_pm0001_result_bundle_r3.py scripts/prediction_features_r3.py scripts/prediction_pm0001_executor_r3.py scripts/prediction_logistic_adapter_r3.py scripts/prediction_logistic_calibration_r3.py scripts/prediction_statistics.py scripts/prediction_walkforward_r3.py scripts/validate_prediction_feature_contract_r3.py scripts/publish_pm0001_run_status_r3.py
           python -m unittest discover -s scripts -p 'test_prediction_features_r3.py' -v
           python -m unittest discover -s scripts -p 'test_create_pm0001_execution_gate_r3.py' -v
           python -m unittest discover -s scripts -p 'test_run_pm0001_prediction_sweep_r3.py' -v
@@ -60,6 +62,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_prediction_logistic_calibration_r3.py' -v
           python -m unittest discover -s scripts -p 'test_prediction_walkforward_r3.py' -v
           python -m unittest discover -s scripts -p 'test_pm0001_data_execution_precheck_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_publish_pm0001_run_status_r3.py' -v
       - name: Verify PM0001 implementation gate and eligibility pins
         run: |
           python - <<'PY'
@@ -133,7 +136,7 @@ jobs:
             --workflow-run-id "$GITHUB_RUN_ID"
       - name: Run authorized PM0001 prediction sweep
         env:
-          MERGED_GZIP: \${{ env.MERGED_GZIP }}
+          MERGED_GZIP: ${{ env.MERGED_GZIP }}
         run: |
           set -euo pipefail
           mkdir -p research/results
@@ -182,84 +185,11 @@ jobs:
       - name: Commit aggregate results, status, and diagnostics
         if: always()
         env:
-          JOB_STATUS: \${{ job.status }}
+          JOB_STATUS: ${{ job.status }}
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json, os, shutil
-          from pathlib import Path
-          root=Path(".")
-          run_id=os.environ["GITHUB_RUN_ID"]
-          repo=os.environ["GITHUB_REPOSITORY"]
-          run_url=f"https://github.com/{repo}/actions/runs/{run_id}"
-          marker=f"<!-- pm0001-run:{run_id} -->"
-          result_path=root/"research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.json"
-          summary_path=root/"research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.summary.json"
-          errors_path=root/"research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.errors.jsonl"
-          manifest_path=root/"research/results/PM0001_PREDICTION_RESULT_MANIFEST_R3_2026-10-14.json"
-          precheck_path=root/"research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json"
-          precheck=json.loads(precheck_path.read_text()) if precheck_path.is_file() else {}
-          summary=json.loads(summary_path.read_text()) if summary_path.is_file() else {}
-          result=json.loads(result_path.read_text()) if result_path.is_file() else {}
-          manifest=json.loads(manifest_path.read_text()) if manifest_path.is_file() else {}
-          error_rows=[]
-          if errors_path.is_file():
-              for line in errors_path.read_text().splitlines():
-                  try: error_rows.append(json.loads(line))
-                  except json.JSONDecodeError: error_rows.append({"step":"parse_error_log","exception_message":"invalid JSONL line"})
-          status=summary.get("status", result.get("status", precheck.get("status", os.environ.get("JOB_STATUS","UNKNOWN")))
-          acquired=bool(summary.get("results_acquired", result.get("results_acquired", False)))
-          terminal=summary.get("terminal_status_counts", {})
-          pcounts=precheck.get("status_counts", {})
-          manifest_link="[frozen manifest](research/results/PM0001_PREDICTION_RESULT_MANIFEST_R3_2026-10-14.json)" if manifest_path.is_file() else "not frozen"
-          links=("[results report](research/results/PM0001_PREDICTION_RESULTS_R3_2026-10-14.md) · [CSV](research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.csv) · "+manifest_link if manifest_path.is_file() else "No validated result manifest yet; see workflow artifacts and logs.")
-          block=f"""{marker}
-          ## 2026-10-14 — Phase 8P PM0001 pipeline outcome
-
-          - Workflow: [run #{run_id}]({run_url}); tested source commit: {os.environ['GITHUB_SHA']}.
-          - Job status: {os.environ.get('JOB_STATUS','unknown')}; research status: {status}; results acquired: {str(acquired).lower()}.
-          - Canonical data SHA-256: {precheck.get('source_csv_sha256', result.get('source_data_sha256','not verified'))}.
-          - Config/fold precheck accounting: {json.dumps(pcounts,sort_keys=True)} across {precheck.get('result_row_count',0)}/320 cells.
-          - Empirical terminal accounting: {json.dumps(terminal,sort_keys=True)}; fit rows: {summary.get('empirical_fits_performed',0)}; blocked/failed rows: {summary.get('blocked_or_failed_rows','not acquired')}.
-          - Holdout accessed: {result.get('holdout_accessed', manifest.get('holdout_accessed', False))}. This is prediction research only; no option strategy is selected here.
-          - Artifacts: {links}
-          - Structured diagnostics: {len(error_rows)} entries in {errors_path.as_posix() if errors_path.is_file() else 'no runner JSONL created'}.
-          - Next: independent review of the frozen result bundle only when results_acquired is true; do not advance to strategy selection before tester report.
-
-          Developer to Tester: independently audit exact source/data/result pins, all 320 terminal rows, label timing, sample-support exclusions, purge/embargo, rolling refits, calibration, bootstrap sign/p-value arithmetic, BY multiplicity and technical failures. Return concrete file/line evidence; do not accept claims based solely on the developer summary.
-          """
-          for path in (root/"README.md",root/"research/STATUS.md",root/"research/logs/RESEARCH_LOG.md"):
-              old=path.read_text() if path.is_file() else ""
-              if marker not in old: path.write_text(block.rstrip()+"\n\n"+old,encoding="utf-8")
-          chat_file=root/"research/logs/CHAT_LOG.md"
-          chat=chat_file.read_text() if chat_file.is_file() else ""
-          chat_entry=f"""{marker}
-          ## 2026-10-14 — User: Resume
-
-          Resumed Phase 8P prediction work from the recorded precheck and synthetic-gate state. The canonical-data precheck and PM0001 run were attempted on source {os.environ['GITHUB_SHA']}; outcome {status}; results acquired {str(acquired).lower()}. See [workflow #{run_id}]({run_url}) and the status block in README/STATUS. This log records decisions, outcomes and reproducibility artifacts rather than private chain-of-thought.
-          """
-          if marker not in chat: chat_file.write_text(chat_entry.rstrip()+"\n\n"+chat,encoding="utf-8")
-          if error_rows or os.environ.get("JOB_STATUS")!="success":
-              errmarker=f"## 2026-10-14 — PM0001 empirical pipeline diagnostics (run {run_id})"
-              for path in (root/"research/ERROR_LOG.md",root/"research/logs/ERROR_LOG.md"):
-                  old=path.read_text() if path.is_file() else ""
-                  if errmarker in old: continue
-                  lines=[errmarker,f"- Workflow: [run #{run_id}]({run_url}); job status {os.environ.get('JOB_STATUS')}; pipeline status {status}."]
-                  if not error_rows: lines.append("- Pipeline stopped before a structured runner error was written; retain workflow logs and uploaded attempt artifacts.")
-                  for e in error_rows:
-                      lines.append("- Step {}; config {}; fold {}; {}: {}; traceback SHA-256 {}.".format(
-                          e.get("step","unknown"),e.get("config_id") or "global",e.get("fold_id") or "global",
-                          e.get("exception_type","Error"),str(e.get("exception_message",""))[:500],e.get("traceback_sha256","not recorded")))
-                  lines.append("")
-                  path.write_text(old.rstrip()+"\n\n"+"\n".join(lines)+"\n",encoding="utf-8")
-          if result_path.is_file() and not manifest_path.is_file():
-              attempts=root/"research/gates/attempts"
-              attempts.mkdir(parents=True,exist_ok=True)
-              suffix="partial" if result.get("partial") else "unfrozen"
-              target=attempts/f"PM0001_PREDICTION_SWEEP_R3_RUN_{run_id}_{suffix}.json"
-              if not target.exists(): shutil.move(str(result_path),str(target))
-          PY
+          python scripts/publish_pm0001_run_status_r3.py --job-status "$JOB_STATUS"
           git config user.name "Naked Option Research Automation"
           git config user.email "research-automation@users.noreply.github.com"
           for p in \
