@@ -1,4 +1,5 @@
 name: Phase 8P R3 PM0051 Probit prediction execution and frozen results
+# Rerun after implementation-gate source pins were regenerated; all fitting remains gated on synthetic and data checks.
 
 on:
   workflow_dispatch:
