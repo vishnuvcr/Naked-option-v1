@@ -212,7 +212,7 @@ def write_report_markdown(
         "",
         "Each config is shown; this is not a performance-based model selection or trading-strategy evaluation.",
         "",
-        "| Config ID | Label | Lookback | C | Executed folds | Blocked/failed folds | Mean fold log loss | Mean fold improvement | Inference status | Mean session improvement | 95% bootstrap CI | Raw p | BY-adjusted p | BY q=.05 reject |",
+        "| Config ID | Label | Lookback | Prior scale | Executed folds | Blocked/failed folds | Mean fold log loss | Mean fold improvement | Inference status | Mean session improvement | 95% bootstrap CI | Raw p | BY-adjusted p | BY q=.05 reject |",
         "|---|---|---:|---:|---:|---:|---:|---:|---|---:|---|---:|---:|---|",
     ]
     for cid, group in sorted(by_config.items()):
@@ -220,7 +220,7 @@ def write_report_markdown(
         blocked = len(group) - len(executed)
         label = str(group[0].get("label_id", ""))
         lookback = group[0].get("lookback_bars", "")
-        cval = group[0].get("c", "")
+        cval = group[0].get("prior_scale", "")
         ll = [float(row["candidate_log_loss"]) for row in executed]
         imp = [float(row["log_loss_improvement"]) for row in executed]
         inf = inference_by_id.get(cid, {})
