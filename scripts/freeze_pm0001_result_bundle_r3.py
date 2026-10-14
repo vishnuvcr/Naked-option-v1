@@ -260,7 +260,13 @@ def make_manifest(
     source_commit: str,
     workflow_run_id: str,
 ) -> dict[str, Any]:
-    artifacts = [result_path, summary_path, errors_path, precheck_path, gate_path, csv_path, report_path]
+    required_artifacts = [result_path, summary_path, errors_path, csv_path, report_path]
+    for path in required_artifacts:
+        if not path.is_file():
+            raise FreezeError(f"REQUIRED_FROZEN_ARTIFACT_MISSING:{path}")
+    # A failed/blocked developer run may legitimately have no execution gate or even
+    # no precheck report. Preserve the terminal bundle, but never claim empirical fit.
+    artifacts = required_artifacts + [p for p in (precheck_path, gate_path) if p.is_file()]
     manifest_artifacts = []
     for path in artifacts:
         rel = path.resolve().relative_to(ROOT.resolve()).as_posix()
@@ -321,10 +327,16 @@ def main() -> int:
     validation = validate_result_rows(result["rows"], [(cid, fold) for cid in config_ids for fold in FOLD_IDS])
     if validation.get("complete_expected_coverage") is not True:
         raise FreezeError("CANONICAL_RESULT_SCHEMA_VALIDATION_FAILED")
-    if sha256_file(args.precheck_report) != result.get("precheck_report_sha256"):
-        raise FreezeError("PRECHECK_FILE_HASH_MISMATCH")
-    if sha256_file(args.execution_gate) != result.get("execution_gate_sha256"):
-        raise FreezeError("EXECUTION_GATE_FILE_HASH_MISMATCH")
+    if args.precheck_report.is_file():
+        if sha256_file(args.precheck_report) != result.get("precheck_report_sha256"):
+            raise FreezeError("PRECHECK_FILE_HASH_MISMATCH")
+    elif contract["results_acquired"]:
+        raise FreezeError("EMPIRICAL_RESULTS_REQUIRE_PRECHECK_REPORT")
+    if args.execution_gate.is_file():
+        if sha256_file(args.execution_gate) != result.get("execution_gate_sha256"):
+            raise FreezeError("EXECUTION_GATE_FILE_HASH_MISMATCH")
+    elif contract["results_acquired"]:
+        raise FreezeError("EMPIRICAL_RESULTS_REQUIRE_EXECUTION_GATE")
 
     write_rows_csv(args.csv, result["rows"])
     write_report_markdown(args.report_markdown, result, contract)
