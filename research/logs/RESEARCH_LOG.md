@@ -1,3 +1,12 @@
+## 2026-10-14 — PM0001 pipeline bootstrap failed closed before data retrieval (run #38522300355)
+
+- Evidence: [workflow #38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) stopped at the new pre-download synthetic suite. The runner-test module could not import NumPy because the updated setup installed requirements-composite.txt but omitted numpy/scikit-learn as explicit dependencies. No market dataset was downloaded or decrypted and no model was fit.
+- A second error occurred in the always-run status publisher embedded in the workflow: a missing closing parenthesis caused a SyntaxError while preparing README/status/error updates. The output artifact step still ran; plaintext cleanup ran.
+- Correction: move status/error publication into standard-library-only scripts/publish_pm0001_run_status_r3.py, add synthetic regression tests, explicitly install numpy and scikit-learn before the gates, and test the publisher with the complete synthetic suite. Replace the inline Python block with the tested script.
+- Research disposition: no predictive result; this is a CI/bootstrap failure. Preserve the run as a failure and do not loosen any dataset pins, support thresholds, or fold rules.
+
+**Developer → Tester:** no review yet; wait for a frozen result bundle and then independently audit all 320 config/fold outcomes.
+
 ## 2026-10-14 — Synthetic execution harness regression cycle
 
 - [PM0001 sweep implementation tests #38519548689 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519548689): compilation and 46 synthetic tests passed across the execution-gate, sweep guards/statistics, rolling-refit executor, calibration, result-row validator, and precheck unit suites. The workflow is synthetic-only; no market data was loaded and no model was fit.
