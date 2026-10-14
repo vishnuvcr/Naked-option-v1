@@ -1,3 +1,9 @@
+## 2026-10-14 — PM0051 extended diagnostic implementation (developer branch)
+
+- Resumed prediction-method evaluation after the original PM0051 result bundle passed independent review. The original frozen bundle remains immutable and its PASS covers log-loss inference only.
+- Added a frozen addendum and implementation for thresholded directional accuracy/confusion counts, class-prior baseline comparisons, paired exchange-session accuracy bootstrap, ten-bin calibration/ECE/MCE, and descriptive train-defined volatility/trend regimes. No observation-level predictions are written; final holdout remains closed.
+- Added synthetic tests and updated the implementation-gate source pins. These changes are not yet empirically validated. Next gate: run the full synthetic regression suite, independent code review, then a fresh frozen PM0051 rerun before moving to another model family.
+- Current phase: PM0051 extended diagnostics; status IMPLEMENTATION_STAGED / NOT YET TESTED. No model is selected, and the next prediction family is blocked pending CI plus tester approval.
 ## 2026-10-14T13:39:35.032353+00:00 — Phase 8P R3A run 38537116041
 
 - Workflow: [run 38537116041](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537116041); source commit 7f6e743706940dd2448f4f4e929981614aa4b7cd.
