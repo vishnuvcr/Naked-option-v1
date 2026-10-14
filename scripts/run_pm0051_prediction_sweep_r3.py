@@ -30,7 +30,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from create_pm0051_execution_gate_r3 import (  # noqa: E402
     FOLD_IDS, EXPECTED_DATA_SHA256, git_blob_sha1, read_json, validate_precheck,
 )
-from prediction_features_r3 import build_feature_batch, load_eligible_session_dates, verify_source_pins  # noqa: E402
+from prediction_features_r3 import build_feature_batch, load_eligible_session_dates, verify_source_pins, parse_timestamp  # noqa: E402
 from prediction_probit_executor_r3 import fit_pm0051_outer_fold  # noqa: E402
 from prediction_statistics import (  # noqa: E402
     balanced_accuracy, benjamini_yekutieli, binary_log_loss, brier_score,
@@ -52,6 +52,7 @@ EPSILON = 1e-6
 BOOTSTRAP_BLOCK_LENGTH = 10
 BOOTSTRAP_REPLICATES = 10_000
 BOOTSTRAP_SEED = 2026101209
+ACCURACY_BOOTSTRAP_SEED = 2026101417
 VALID_PRECHECK_STATES = {"PRECHECK_PASS", "BLOCKED_DATA", "BLOCKED_SAMPLE_ELIGIBILITY", "FAILED_PRECHECK"}
 RESULT_TERMINAL_STATES = {"EXECUTED_AUDITED", "BLOCKED_DATA", "BLOCKED_GATE", "FAILED_TECHNICAL"}
 
@@ -87,6 +88,120 @@ def append_error(path: Path, *, config_id: str | None, fold_id: str | None,
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(row, sort_keys=True) + "\n")
     return row
+
+
+
+def classification_diagnostics(y_true: Sequence[int], probabilities: Sequence[float], baseline_probabilities: Sequence[float],
+                               *, include_calibration_bins: bool = True) -> dict[str, Any]:
+    """Aggregate threshold metrics/confusion counts and ten-bin reliability summaries; never persist predictions."""
+    y=[int(v) for v in y_true]; p=[min(1-EPSILON,max(EPSILON,float(v))) for v in probabilities]
+    b=[min(1-EPSILON,max(EPSILON,float(v))) for v in baseline_probabilities]
+    if not y or len(y)!=len(p) or len(y)!=len(b) or any(v not in (0,1) for v in y):
+        raise SweepError("CLASSIFICATION_DIAGNOSTIC_INPUT_INVALID")
+    def score(probs):
+        pred=[int(v>=0.5) for v in probs]
+        tp=sum(a==1 and z==1 for a,z in zip(y,pred)); fp=sum(a==0 and z==1 for a,z in zip(y,pred))
+        tn=sum(a==0 and z==0 for a,z in zip(y,pred)); fn=sum(a==1 and z==0 for a,z in zip(y,pred))
+        pr=tp/(tp+fp) if tp+fp else 0.; re=tp/(tp+fn) if tp+fn else 0.; sp=tn/(tn+fp) if tn+fp else 0.
+        f1=2*pr*re/(pr+re) if pr+re else 0.
+        return {"accuracy":(tp+tn)/len(y),"precision":pr,"recall":re,"specificity":sp,"f1":f1,
+                "true_positive":tp,"false_positive":fp,"true_negative":tn,"false_negative":fn,
+                "balanced_accuracy_from_confusion":(re+sp)/2}
+    cand=score(p); base=score(b); bins=[]; ece=mce=0.
+    for k in range(10):
+        ix=[j for j,v in enumerate(p) if min(9,int(v*10))==k]
+        if ix:
+            mp=statistics.fmean(p[j] for j in ix); obs=statistics.fmean(y[j] for j in ix); gap=abs(mp-obs)
+            ece+=len(ix)/len(y)*gap; mce=max(mce,gap)
+            bins.append({"bin_index":k,"count":len(ix),"mean_predicted_probability":mp,"observed_up_rate":obs})
+        else: bins.append({"bin_index":k,"count":0,"mean_predicted_probability":None,"observed_up_rate":None})
+    return {**cand,"baseline_accuracy":base["accuracy"],"baseline_precision":base["precision"],"baseline_recall":base["recall"],
+      "baseline_specificity":base["specificity"],"baseline_f1":base["f1"],"baseline_true_positive":base["true_positive"],
+      "baseline_false_positive":base["false_positive"],"baseline_true_negative":base["true_negative"],"baseline_false_negative":base["false_negative"],
+      "accuracy_improvement":cand["accuracy"]-base["accuracy"],"expected_calibration_error":ece,"maximum_calibration_error":mce,
+      "calibration_bins":bins if include_calibration_bins else []}
+
+
+def build_daily_regime_context(records: Sequence[Mapping[str, Any]], session_dates: Sequence[str]) -> list[dict[str,float] | None]:
+    """Trailing 20-completed-session volatility/trend; missing daily closes invalidate context, never impute."""
+    allowed=set(session_dates); closes_by_day={}
+    for row in records:
+        if str(row.get("row_type","")).strip().upper()!="SPOT": continue
+        try:
+            st=parse_timestamp(row.get("timestamp_ist")); day=st.date().isoformat(); clock=st.strftime("%H:%M"); close=float(row.get("nifty_close"))
+        except Exception: continue
+        if row.get("session_date")!=day or day not in allowed or clock not in {"15:29","15:30"} or not math.isfinite(close) or close<=0: continue
+        rank=2 if clock=="15:30" else 1
+        if day not in closes_by_day or rank>closes_by_day[day][0]: closes_by_day[day]=(rank,close)
+    closes=[closes_by_day.get(day,(0,None))[1] for day in session_dates]; returns=[None]*len(session_dates)
+    for i in range(1,len(session_dates)):
+        if closes[i-1] is not None and closes[i] is not None: returns[i]=math.log(float(closes[i])/float(closes[i-1]))
+    out=[None]*len(session_dates)
+    for i in range(21,len(session_dates)):
+        window=returns[i-20:i]
+        if len(window)!=20 or any(v is None for v in window): continue
+        old,last=closes[i-21],closes[i-1]
+        if old is None or last is None: continue
+        out[i]={"volatility_20_completed_sessions":statistics.pstdev(float(v) for v in window),
+                "trend_20_completed_sessions":float(last)/float(old)-1}
+    return out
+
+
+def regime_diagnostics_for_fold(result: Any, samples: Sequence[Any], context: Sequence[dict[str,float] | None]) -> dict[str,Any]:
+    """Descriptive validation regime stats; tercile cuts are derived from training sessions only."""
+    train=sorted({int(samples[int(i)].decision_session_index) for i in result.final_train_indices
+      if 0<=int(samples[int(i)].decision_session_index)<len(context) and context[int(samples[int(i)].decision_session_index)] is not None})
+    if len(train)<60:
+        return {"status":"INSUFFICIENT_TRAIN_REGIME_CONTEXT","window_exchange_sessions":20,"training_sessions_with_context":len(train),
+                "eligible_observation_count":0,"excluded_for_missing_20_session_context":len(result.validation_indices),"regimes":[]}
+    vc=[float(v) for v in np.quantile([context[i]["volatility_20_completed_sessions"] for i in train],[1/3,2/3])]
+    tc=[float(v) for v in np.quantile([context[i]["trend_20_completed_sessions"] for i in train],[1/3,2/3])]
+    groups={(axis,lab):{"y":[],"p":[],"b":[],"sessions":[]} for axis,labs in
+      (("volatility",("low","medium","high")),("trend",("down","sideways","up"))) for lab in labs}
+    excluded=0
+    for ix,y,p,b in zip(result.validation_indices,result.y_validation,result.probabilities,result.baseline_probabilities):
+        si=int(samples[int(ix)].decision_session_index); ctx=context[si] if 0<=si<len(context) else None
+        if ctx is None: excluded+=1; continue
+        v=float(ctx["volatility_20_completed_sessions"]); t=float(ctx["trend_20_completed_sessions"])
+        vl="low" if v<=vc[0] else ("medium" if v<=vc[1] else "high")
+        tl="down" if t<=tc[0] else ("sideways" if t<=tc[1] else "up")
+        for axis,lab in (("volatility",vl),("trend",tl)):
+            g=groups[(axis,lab)]; g["y"].append(int(y)); g["p"].append(float(p)); g["b"].append(float(b)); g["sessions"].append(si)
+    out=[]
+    for (axis,lab),g in sorted(groups.items()):
+        ys,ps,bs=g["y"],g["p"],g["b"]
+        if not ys:
+            out.append({"axis":axis,"regime":lab,"observation_count":0,"session_count":0,"positive_support":0,"negative_support":0,
+                "accuracy":None,"balanced_accuracy":None,"baseline_accuracy":None,"accuracy_improvement":None,
+                "brier_score":None,"roc_auc":None,"average_precision":None}); continue
+        d=classification_diagnostics(ys,ps,bs,include_calibration_bins=False); classes=set(ys)
+        out.append({"axis":axis,"regime":lab,"observation_count":len(ys),"session_count":len(set(g["sessions"])),
+            "positive_support":sum(v==1 for v in ys),"negative_support":sum(v==0 for v in ys),"accuracy":d["accuracy"],
+            "balanced_accuracy":d["balanced_accuracy_from_confusion"],"baseline_accuracy":d["baseline_accuracy"],
+            "accuracy_improvement":d["accuracy_improvement"],"brier_score":brier_score(ys,ps),
+            "roc_auc":float(roc_auc_score(ys,ps)) if len(classes)==2 else None,
+            "average_precision":float(average_precision_score(ys,ps)) if len(classes)==2 else None})
+    return {"status":"DESCRIPTIVE_TRAIN_DERIVED_REGIMES","window_exchange_sessions":20,"training_sessions_with_context":len(train),
+      "volatility_cutpoints_train_terciles":vc,"trend_cutpoints_train_terciles":tc,"eligible_observation_count":len(result.validation_indices)-excluded,
+      "excluded_for_missing_20_session_context":excluded,"regimes":out}
+
+
+def session_accuracy_deltas(result: Any, samples: Sequence[Any], session_dates: Sequence[str]) -> tuple[list[int],list[float],dict[str,float]]:
+    """Paired per-session accuracy difference against thresholded training-fold class-prior baseline."""
+    buckets=defaultdict(list); cand=defaultdict(list); base=defaultdict(list)
+    if not(len(result.validation_indices)==len(result.y_validation)==len(result.probabilities)==len(result.baseline_probabilities)):
+        raise SweepError("ACCURACY_DIAGNOSTIC_VECTOR_LENGTH_MISMATCH")
+    for ix,y,p,b in zip(result.validation_indices,result.y_validation,result.probabilities,result.baseline_probabilities):
+        pos=int(samples[int(ix)].decision_session_index)
+        if pos<0 or pos>=len(session_dates): raise SweepError("ACCURACY_DECISION_SESSION_INDEX_OUT_OF_RANGE")
+        cp=float(int(float(p)>=0.5)==int(y)); bp=float(int(float(b)>=0.5)==int(y))
+        buckets[pos].append(cp-bp); cand[pos].append(cp); base[pos].append(bp)
+    positions=sorted(buckets)
+    if not positions: raise SweepError("NO_SCORABLE_ACCURACY_SESSIONS")
+    if positions!=list(range(positions[0],positions[-1]+1)): raise SweepError("ACCURACY_BOOTSTRAP_SESSION_SEQUENCE_NOT_CONTIGUOUS")
+    return positions,[statistics.fmean(buckets[k]) for k in positions],{
+      "candidate_session_weighted_accuracy":statistics.fmean(statistics.fmean(cand[k]) for k in positions),
+      "baseline_session_weighted_accuracy":statistics.fmean(statistics.fmean(base[k]) for k in positions)}
 
 
 def _expected_config_ids(configs: Sequence[Mapping[str, Any]]) -> list[str]:
@@ -346,6 +461,37 @@ def _base_row(
     return row
 
 
+
+def _add_accuracy_bootstrap_to_rows(rows: list[dict[str, Any]], configs: Sequence[Mapping[str, Any]],
+                                    inference: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
+    fam: dict[str,list[Mapping[str,Any]]] = defaultdict(list)
+    for cfg in configs: fam[str(cfg["configuration"]["label_id"])].append(cfg)
+    out={}
+    for label,items in sorted(fam.items()):
+        pvals={}
+        for cfg in items:
+            cid=str(cfg["config_id"]); p=inference.get(cid,{}).get("raw_p_value")
+            pvals[cid]=float(p) if isinstance(p,(int,float)) and math.isfinite(float(p)) else 1.0
+        adj=benjamini_yekutieli(pvals,q=0.05)
+        for row in rows:
+            cid=str(row["config_id"]); inf=inference.get(cid,{})
+            if row["label_id"]!=label or row["terminal_status"] not in {"EXECUTED_AUDITED","REJECTED_EMPIRICAL"}: continue
+            row["accuracy_delta_ci_lower"]=inf.get("ci_low"); row["accuracy_delta_ci_upper"]=inf.get("ci_high")
+            row["accuracy_delta_raw_p_value"]=inf.get("raw_p_value"); row["accuracy_delta_by_adjusted_p_value"]=adj[cid]["by_adjusted_p_value"]
+            row["accuracy_delta_reject_at_q_0_05"]=adj[cid]["reject_at_q"] if inf.get("raw_p_value") is not None else False
+            row["accuracy_delta_inference_status"]=inf.get("inferential_status","NO_EMPIRICAL_FIT")
+        out[label]={"family_size_pm0051_configurations":len(items),"q":0.05,
+          "procedure":"Benjamini-Yekutieli within label stratum; secondary accuracy outcome","p_family_includes_nonidentifiable_as_one":True,
+          "configurations":{str(cfg["config_id"]):{
+            "observed_mean_accuracy_improvement":inference.get(str(cfg["config_id"]),{}).get("observed_mean_improvement"),
+            "ci_low":inference.get(str(cfg["config_id"]),{}).get("ci_low"),"ci_high":inference.get(str(cfg["config_id"]),{}).get("ci_high"),
+            "raw_p_value":inference.get(str(cfg["config_id"]),{}).get("raw_p_value"),
+            "by_adjusted_p_value":adj[str(cfg["config_id"])]["by_adjusted_p_value"],
+            "reject_at_q_0_05":adj[str(cfg["config_id"])]["reject_at_q"],
+            "inferential_status":inference.get(str(cfg["config_id"]),{}).get("inferential_status","NO_EMPIRICAL_FIT")} for cfg in items}}
+    return out
+
+
 def _get_label_minima(prereg: Mapping[str, Any], label_id: str) -> dict[str, int]:
     sample = prereg["sample_eligibility"]
     inner = prereg["chronological_validation"]["inner_validation"]
@@ -474,6 +620,9 @@ def run_sweep(
     rows: list[dict[str, Any]] = []
     fold_delta_by_config: dict[str, dict[str, list[float]]] = defaultdict(dict)
     fold_bootstrap_input_by_config: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
+    fold_accuracy_delta_by_config: dict[str, dict[str, list[float]]] = defaultdict(dict)
+    fold_accuracy_input_by_config: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
+    regime_context_cache: dict[str, list[dict[str, float] | None]] = {}
     inference_by_config: dict[str, dict[str, Any]] = {}
     feature_cache: dict[tuple[str, int], tuple[Any, list[str], list[dict[str, Any]]]] = {}
     fitting_any = False
@@ -502,6 +651,7 @@ def run_sweep(
         label_id, lookback = cache_key
         batch = None
         session_dates: list[str] = []
+        regime_context: list[dict[str, float] | None] = []
         folds: list[dict[str, Any]] = []
         X = y = decision = endpoint = None
         if gate_verified and records is not None and calendar is not None:
@@ -509,6 +659,9 @@ def run_sweep(
                 session_dates = load_eligible_session_dates(calendar, label_id)
                 batch = build_feature_batch(records, calendar, label_id, lookback,
                                             source_csv_sha256=EXPECTED_DATA_SHA256)
+                if label_id not in regime_context_cache:
+                    regime_context_cache[label_id] = build_daily_regime_context(records, session_dates)
+                regime_context = regime_context_cache[label_id]
                 folds = fold_positions(session_dates, windows)
                 X = np.asarray([s.features for s in batch.samples], dtype=float)
                 y = np.asarray([s.y for s in batch.samples], dtype=int)
@@ -584,6 +737,9 @@ def run_sweep(
                         refit_cadence_sessions=20,
                     )
                     positions, deltas, session_metrics = session_loss_deltas(result, batch.samples, session_dates)
+                    acc_positions, acc_deltas, acc_session_metrics = session_accuracy_deltas(result, batch.samples, session_dates)
+                    if acc_positions != positions:
+                        raise SweepError("LOSS_AND_ACCURACY_SESSION_ALIGNMENT_MISMATCH")
                     y_true = list(map(int, result.y_validation))
                     candidate_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.probabilities]
                     baseline_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.baseline_probabilities]
@@ -594,7 +750,13 @@ def run_sweep(
                         raise SweepError("NONFINITE_OR_NONPOSITIVE_LOGLOSS")
                     if abs(improvement - statistics.fmean(deltas)) > 1e-10:
                         raise SweepError("SESSION_LOSS_IMPROVEMENT_ARITHMETIC_MISMATCH")
+                    class_diag = classification_diagnostics(y_true, candidate_probabilities, baseline_probabilities)
+                    regime_diag = regime_diagnostics_for_fold(result, batch.samples, regime_context)
                     metrics = {
+                        **class_diag,
+                        "session_weighted_accuracy": float(acc_session_metrics["candidate_session_weighted_accuracy"]),
+                        "baseline_session_weighted_accuracy": float(acc_session_metrics["baseline_session_weighted_accuracy"]),
+                        "regime_diagnostics": regime_diag,
                         "baseline_log_loss": baseline_ll,
                         "candidate_log_loss": candidate_ll,
                         "log_loss_improvement": improvement,
@@ -632,10 +794,9 @@ def run_sweep(
                     row["oof_calibration_rows"] = int(result.oof_rows)
                     rows.append(row)
                     fold_delta_by_config[cid][fold_id] = deltas
-                    fold_bootstrap_input_by_config[cid][fold_id] = {
-                        "session_positions": positions,
-                        "session_loss_deltas": deltas,
-                    }
+                    fold_bootstrap_input_by_config[cid][fold_id] = {"session_positions": positions, "session_loss_deltas": deltas}
+                    fold_accuracy_delta_by_config[cid][fold_id] = acc_deltas
+                    fold_accuracy_input_by_config[cid][fold_id] = {"session_positions": acc_positions, "session_accuracy_deltas": acc_deltas}
                     fitting_any = True
                 except Exception as exc:
                     tb = traceback.format_exc()
@@ -704,7 +865,26 @@ def run_sweep(
                 }
         inference_by_config[cid] = infer
 
+    accuracy_inference={}
+    for config in configs:
+        cid=str(config["config_id"]); fitted=fold_accuracy_delta_by_config.get(cid,{})
+        delta_folds=[fitted[f] for f in FOLD_IDS if f in fitted]
+        eligible={f for f in FOLD_IDS if precheck_map.get((cid,f),{}).get("status")=="PRECHECK_PASS"}
+        inf={"inferential_status":"NO_EMPIRICAL_FIT","raw_p_value":None,"ci_low":None,"ci_high":None,"replicates":0}
+        if delta_folds and set(fitted)!=eligible:
+            inf={"inferential_status":"INCOMPLETE_ELIGIBLE_FOLD_COVERAGE","raw_p_value":None,"ci_low":None,"ci_high":None,"replicates":0}
+        elif delta_folds:
+            try:
+                if any(len(d)<BOOTSTRAP_BLOCK_LENGTH for d in delta_folds): raise SweepError("ACCURACY_BOOTSTRAP_FOLD_HAS_FEWER_THAN_TEN_SESSIONS")
+                boot=paired_moving_block_bootstrap(delta_folds,block_length=BOOTSTRAP_BLOCK_LENGTH,replicates=BOOTSTRAP_REPLICATES,
+                    seed=ACCURACY_BOOTSTRAP_SEED,confidence_level=float(prereg_boot["confidence_level"]))
+                inf=normalize_bootstrap_result(boot)
+            except Exception as exc:
+                append_error(errors_path,config_id=cid,fold_id=None,step="accuracy_moving_block_bootstrap",error=exc)
+                inf={"inferential_status":f"INFERENCE_UNAVAILABLE:{type(exc).__name__}:{str(exc)[:160]}","raw_p_value":None,"ci_low":None,"ci_high":None,"replicates":0}
+        accuracy_inference[cid]=inf
     label_inference = _add_bootstrap_to_rows(rows, configs, inference_by_config)
+    accuracy_label_inference = _add_accuracy_bootstrap_to_rows(rows, configs, accuracy_inference)
     validation = validate_result_rows(rows, expected_pair_list(config_ids))
     terminal_counts = Counter(str(row["terminal_status"]) for row in rows)
     executed_count = terminal_counts.get("EXECUTED_AUDITED", 0)
@@ -756,6 +936,10 @@ def run_sweep(
             "seed": BOOTSTRAP_SEED,
             "confidence_level": float(prereg_boot["confidence_level"]),
         },
+        "accuracy_multiplicity": accuracy_label_inference,
+        "accuracy_bootstrap_seed": ACCURACY_BOOTSTRAP_SEED,
+        "accuracy_bootstrap_inputs": {str(config["config_id"]):{"label_id":str(config["configuration"]["label_id"]),
+          "folds":dict(fold_accuracy_input_by_config.get(str(config["config_id"]),{}))} for config in configs},
         "multiplicity": {
             "procedure": "Benjamini-Yekutieli FDR",
             "q": 0.05,
@@ -778,8 +962,9 @@ def run_sweep(
         "rows": rows,
     }
     write_json_atomic(output_path, result_doc)
-    summary = {k: v for k, v in result_doc.items() if k not in {"rows", "bootstrap_inputs"}}
+    summary = {k: v for k, v in result_doc.items() if k not in {"rows", "bootstrap_inputs", "accuracy_bootstrap_inputs"}}
     summary["bootstrap_inputs_sha256"] = sha256_bytes(json.dumps(result_doc["bootstrap_inputs"], sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8"))
+    summary["accuracy_bootstrap_inputs_sha256"] = sha256_bytes(json.dumps(result_doc["accuracy_bootstrap_inputs"], sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8"))
     summary["result_file_sha256"] = sha256_bytes(output_path.read_bytes())
     summary["errors_jsonl_path"] = errors_path.relative_to(ROOT).as_posix() if errors_path.is_relative_to(ROOT) else str(errors_path)
     write_json_atomic(summary_path, summary)
