@@ -1,8 +1,8 @@
-source_commit=c662ee29b4df9ea090301551e0d2e19516b69211
+source_commit=a3b12377dc6894b4d5f4b9fa658dfa15b8ec10dd
 {"created_at": "2026-10-11T10:33:30Z", "digest": "sha256:40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b", "expired": false, "expires_at": "2027-01-09T10:21:09Z", "id": 11698879857, "name": "nifty-1m-derived-repaired-r2-38126168547", "size_in_bytes": 231076122}
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  6  220M    6 13.5M    0     0  48.2M      0  0:00:04 --:--:--  0:00:04 48.1M 76  220M   76  169M    0     0   131M      0  0:00:01  0:00:01 --:--:--  131M100  220M  100  220M    0     0   145M      0  0:00:01  0:00:01 --:--:--  145M
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0  220M    0  766k    0     0  1161k      0  0:03:14 --:--:--  0:03:14 1160k  9  220M    9 20.0M    0     0  12.1M      0  0:00:18  0:00:01  0:00:17 12.1M 23  220M   23 52.0M    0     0  19.5M      0  0:00:11  0:00:02  0:00:09 19.5M 39  220M   39 86.1M    0     0  23.7M      0  0:00:09  0:00:03  0:00:06 23.7M 55  220M   55  121M    0     0  26.1M      0  0:00:08  0:00:04  0:00:04 26.1M 64  220M   64  142M    0     0  25.4M      0  0:00:08  0:00:05  0:00:03 28.6M 70  220M   70  156M    0     0  23.5M      0  0:00:09  0:00:06  0:00:03 27.2M 76  220M   76  169M    0     0  22.1M      0  0:00:09  0:00:07  0:00:02 23.5M 82  220M   82  182M    0     0  21.0M      0  0:00:10  0:00:08  0:00:02 19.0M 88  220M   88  195M    0     0  20.2M      0  0:00:10  0:00:09  0:00:01 14.6M 94  220M   94  207M    0     0  19.5M      0  0:00:11  0:00:10  0:00:01 12.9M100  220M  100  220M    0     0  19.2M      0  0:00:11  0:00:11 --:--:-- 13.3M
 archive_sha256=40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b
 embedded_manifest_sha256=da077dd8fe2619c49fd22af1183262926f3ef81ce6bfe7f770162d6dc3025d5f
 {
@@ -25,11 +25,11 @@ Collecting cffi>=1.14 (from cryptography==45.0.7->-r requirements-composite.txt 
 Collecting pycparser (from cffi>=1.14->cryptography==45.0.7->-r requirements-composite.txt (line 1))
   Downloading pycparser-3.11-py3-none-any.whl.metadata (8.2 kB)
 Downloading cryptography-45.0.7-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 111.3 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 12.4 MB/s eta 0:00:00
 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 73.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.8/221.8 kB 799.5 kB/s eta 0:00:00
 Downloading pycparser-3.11-py3-none-any.whl (51 kB)
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 22.1 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.2/51.2 kB 253.9 kB/s eta 0:00:00
 Installing collected packages: pycparser, cffi, cryptography
 Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
 {"decrypted_parts": 61, "merged_data_rows": 8999865, "merged_output": "/home/runner/work/_temp/r3-prediction-preflight/merged.csv.gz", "output_dir": "/home/runner/work/_temp/r3-prediction-preflight/plain-parts", "source_artifact_plaintext_rows_were_never_published": true}
@@ -133,7 +133,7 @@ Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
   },
   "malformed_timestamps": 0,
   "market_rows_examined": true,
-  "merged_gzip_sha256": "0f57373c5a8d32c169c359100c58cadb3fb0f2815b2e0ada4ea8c21682224cf2",
+  "merged_gzip_sha256": "d0c788bbfc469b3471d22d1f8d542be6e75c1076793de88df585c343429747e6",
   "missing_regular_spot_session_dates_count": 0,
   "missing_regular_spot_session_dates_sample": [],
   "model_fitting_performed": false,
@@ -162,7 +162,7 @@ Successfully installed cffi-2.1.1 cryptography-45.0.7 pycparser-3.11
   "preprocessing_rules_git_blob_sha1": "f14f9baf0d4c1c29aa5de60dc57c9056d2c96065",
   "preprocessing_rules_path": "research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json",
   "preprocessing_rules_sha256": "42d227a1d2a05a69549b2309acbfc959d911cf44fe827eae9af224dad5ef8397",
-  "preregistration_git_blob_sha1": null,
+  "preregistration_git_blob_sha1": "1ef2bf467928642aafc675899dd779a76394daab",
   "preregistration_path": "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json",
   "preregistration_sha256": "149d319c15edaec2ecdb0854623b08e373313de93afbfff9d64af9486200f115",
   "quarantined_spot_row_count": 47537,
