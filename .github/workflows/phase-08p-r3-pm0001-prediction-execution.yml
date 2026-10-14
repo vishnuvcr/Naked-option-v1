@@ -2,6 +2,29 @@ name: Phase 8P R3A PM0001 prediction execution and frozen results
 
 on:
   workflow_dispatch:
+  push:
+    branches: [phase-08-prediction-developer]
+    paths:
+      - scripts/create_pm0001_execution_gate_r3.py
+      - scripts/test_create_pm0001_execution_gate_r3.py
+      - scripts/preflight_prediction_dataset_r3.py
+      - scripts/run_pm0001_data_execution_precheck_r3a.py
+      - scripts/test_run_pm0001_data_execution_precheck_r3a.py
+      - scripts/run_pm0001_prediction_sweep_r3.py
+      - scripts/test_run_pm0001_prediction_sweep_r3.py
+      - scripts/freeze_pm0001_result_bundle_r3.py
+      - scripts/test_freeze_pm0001_result_bundle_r3.py
+      - scripts/publish_pm0001_run_status_r3.py
+      - scripts/test_publish_pm0001_run_status_r3.py
+      - scripts/prediction_features_r3.py
+      - scripts/prediction_pm0001_executor_r3.py
+      - scripts/prediction_statistics.py
+      - scripts/prediction_walkforward_r3.py
+      - scripts/validate_prediction_feature_contract_r3.py
+      - research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json
+      - research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json
+      - research/gates/PREDICTION_PRECHECK_DYNAMIC_HASH_CORRECTION_R3B_2026-10-14.json
+      - .github/workflows/phase-08p-r3-pm0001-prediction-execution.yml
 
 permissions:
   contents: write
@@ -350,18 +373,26 @@ jobs:
           set -euo pipefail
           test -n "$REVIEW_PUSH_TOKEN" || { echo "GH_TOKEN secret required for tester submission." >&2; exit 1; }
           tested_commit="$GITHUB_SHA"
+          published_commit="$(git rev-parse HEAD)"
           manifest="$RUN_MANIFEST"
           manifest_sha="$(sha256sum "$manifest" | awk '{print $1}')"
-          python - "$tested_commit" "$manifest" "$manifest_sha" "$GITHUB_RUN_ID" <<'PY'
+          python - "$tested_commit" "$published_commit" "$manifest" "$manifest_sha" "$GITHUB_RUN_ID" <<'PY'
           import json,subprocess,sys
           from pathlib import Path
-          tested_commit,manifest_path,manifest_sha,runid=sys.argv[1:]
+          tested_commit,published_commit,manifest_path,manifest_sha,runid=sys.argv[1:]
           sources=[
             "scripts/create_pm0001_execution_gate_r3.py",
+            "scripts/test_create_pm0001_execution_gate_r3.py",
+            "scripts/preflight_prediction_dataset_r3.py",
             "scripts/run_pm0001_data_execution_precheck_r3.py",
             "scripts/run_pm0001_data_execution_precheck_r3a.py",
+            "scripts/test_run_pm0001_data_execution_precheck_r3a.py",
             "scripts/run_pm0001_prediction_sweep_r3.py",
+            "scripts/test_run_pm0001_prediction_sweep_r3.py",
             "scripts/freeze_pm0001_result_bundle_r3.py",
+            "scripts/test_freeze_pm0001_result_bundle_r3.py",
+            "scripts/publish_pm0001_run_status_r3.py",
+            "scripts/test_publish_pm0001_run_status_r3.py",
             "scripts/prediction_features_r3.py",
             "scripts/validate_prediction_feature_contract_r3.py",
             "scripts/prediction_pm0001_executor_r3.py",
@@ -369,11 +400,26 @@ jobs:
             "scripts/prediction_logistic_calibration_r3.py",
             "scripts/prediction_statistics.py",
             "scripts/prediction_walkforward_r3.py",
-            "scripts/test_run_pm0001_data_execution_precheck_r3a.py",
             "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json",
-            "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"]
+            "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
+            "research/gates/PREDICTION_PRECHECK_DYNAMIC_HASH_CORRECTION_R3B_2026-10-14.json",
+            "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json",
+            "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json"]
           blobs={p:subprocess.check_output(["git","rev-parse",f"{tested_commit}:{p}"],text=True).strip() for p in sources}
-          obj={"schema_version":"prediction-results-acquired-review-request-r3-v1","run_id":str(runid),"tested_source_commit":tested_commit,"result_bundle_manifest_path":manifest_path,"result_bundle_manifest_sha256":manifest_sha,"results_acquired":True,"changed_source_blobs":blobs,"review_gate":"CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY","holdout_accessed":False}
+          obj={
+            "schema_version":"prediction-results-acquired-review-request-r3-v1",
+            "run_id":str(runid),
+            "tested_source_commit":tested_commit,
+            "source_execution_commit":tested_commit,
+            "source_workflow_run_id":str(runid),
+            "result_published_commit":published_commit,
+            "result_bundle_manifest_path":manifest_path,
+            "result_bundle_manifest_sha256":manifest_sha,
+            "results_acquired":True,
+            "changed_source_blobs":blobs,
+            "review_gate":"CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
+            "holdout_accessed":False
+          }
           Path("research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json").write_text(json.dumps(obj,sort_keys=True,indent=2)+"\n",encoding="utf-8")
           PY
           git config user.name "Naked Option Research Automation"
