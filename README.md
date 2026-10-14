@@ -1,5 +1,13 @@
 ## Current research status — 2026-10-15
 
+- Independent tester review requirement waived by user; developer-led validation remains required.
+- Metric-contract fix and regression test are committed. Latest empirical run [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340) had 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, and zero accepted fits.
+- A minimal CI-trigger change was merged as [commit `2f498b8`](https://github.com/vishnuvcr/Naked-option-v1/commit/2f498b88be1e596202704599e37a2a02c643ab1e), but no workflow run or status check is visible for it through the current GitHub connection. Tests and the empirical rerun remain unverified; no new predictive conclusion is available.
+- Next: execute the synthetic suite and fresh PM0051 sweep on the corrected source, reconcile all 320 terminal outcomes, and publish the frozen report. Holdout remains sealed; no strategy is approved.
+- Details: [research status](research/STATUS.md) · [error log](research/ERROR_LOG.md).
+
+## Current research status — 2026-10-15
+
 - Independent tester review requirement waived by user; use developer-led validation, without weakening correctness, reproducibility, or holdout protections.
 - Latest attempt [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340) yielded 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, and zero accepted fits due to an unregistered extended diagnostic metric.
 - The developer branch contains the metric-contract correction and regression test. A fresh CI run and empirical rerun are **not yet verified**. The current connector does not expose workflow dispatch; rerunning the old attempt would not test the corrected commit.
