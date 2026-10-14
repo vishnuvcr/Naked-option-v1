@@ -1,3 +1,11 @@
+## 2026-10-14 — PM0001 synthetic executor validation and eligibility integration
+
+PM0001's synthetic executor workflow passed [#38471406903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471406903), with 7 tests and compilation. The eligibility disposition workflow then failed on a stale implementation source pin after its 9 unit tests passed. The implementation gate was corrected to the exact tested source blobs; eligibility rerun is the next gate. No empirical prediction result exists yet.
+
+**Developer → Tester:** wait for formal complete-bundle review only.
+
+---
+
 ## 2026-10-14 — Eligibility gate verified and artifact acquired
 
 - Workflow [#38471769553 — SUCCESS](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471769553) passed the disposition checks and uploaded the 40,000-row artifact (ID `11852526147`, SHA-256 `ac76327b23e9e9e159e60d1f184b4d776e15187bb947fc007c53a1c250e01259`).
