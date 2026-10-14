@@ -104,7 +104,16 @@ def build(output:str=OUT)->dict:
             raise ValueError(f"PM0051_TRAIN_ONLY_NORMALIZATION_INVALID:{row['config_id']}")
         if spec.get("probability_calibration")!="inner_chronological_training_fold_only":
             raise ValueError(f"PM0051_CALIBRATION_PROTOCOL_INVALID:{row['config_id']}")
-        if spec.get("purge_exchange_sessions")!=1 or spec.get("embargo_exchange_sessions")!=1:
+        label_id=str(spec.get("label_id",""))
+        if label_id.startswith("POS_"):
+            pieces=label_id.split("_")
+            if len(pieces)<2 or not pieces[1].endswith("D") or not pieces[1][:-1].isdigit():
+                raise ValueError(f"PM0051_HORIZON_LABEL_INVALID:{row['config_id']}")
+            expected_purge=int(pieces[1][:-1])
+        else:
+            expected_purge=1
+        if (spec.get("purge_exchange_sessions")!=expected_purge or
+                spec.get("embargo_exchange_sessions")!=expected_purge):
             raise ValueError(f"PM0051_PURGE_OR_EMBARGO_INVALID:{row['config_id']}")
         if spec.get("refit_cadence")!="every_20_trading_sessions" or spec.get("score_only_matured_targets") is not True:
             raise ValueError(f"PM0051_MATURITY_OR_REFIT_CONTRACT_INVALID:{row['config_id']}")
