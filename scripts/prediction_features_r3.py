@@ -16,6 +16,8 @@ from typing import Any, Iterable, Mapping, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "research" / "registry" / "PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json"
+CORRECTION_PATH = ROOT / "research" / "registry" / "PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
+EXPECTED_CORRECTION_ID = "PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14"
 CALENDAR_PATH = ROOT / "research" / "data" / "NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json"
 EXPECTED_DATA_SHA256 = "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204"
 EXPECTED_CALENDAR_SHA256 = "ddce75f70f39e390e3d68fc6662ed31b3b85b9ecbc78d71178eedb7a34b9ae26"
@@ -72,6 +74,32 @@ def sha256_bytes(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def read_frozen_correction(contract_sha256: str) -> tuple[dict[str, Any], str]:
+    if not CORRECTION_PATH.is_file():
+        raise FeatureBuildError("FEATURE_CONSTRUCTION_CORRECTION_FILE_MISSING")
+    raw = CORRECTION_PATH.read_bytes()
+    try:
+        correction = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise FeatureBuildError("FEATURE_CONSTRUCTION_CORRECTION_INVALID_JSON") from exc
+    if correction.get("status") != "FROZEN_PRE_RESULTS_IMPLEMENTATION_CORRECTION":
+        raise FeatureBuildError("FEATURE_CONSTRUCTION_CORRECTION_NOT_FROZEN_PRE_RESULTS")
+    if correction.get("amendment_id") != EXPECTED_CORRECTION_ID:
+        raise FeatureBuildError("FEATURE_CONSTRUCTION_CORRECTION_ID_MISMATCH")
+    if correction.get("supersedes_contract_sha256") != contract_sha256:
+        raise FeatureBuildError("FEATURE_CONSTRUCTION_CORRECTION_CONTRACT_PIN_MISMATCH")
+    rule = correction.get("corrected_rule", {})
+    if rule.get("positional_close_candidate_source_times_ist") != ["15:29:00", "15:30:00"]:
+        raise FeatureBuildError("POSITIONAL_CLOSE_CORRECTION_CANDIDATE_TIMES_INVALID")
+    if rule.get("effective_decision_and_target_timestamp_ist") != "Normalize a selected 15:29 source row to its interval-end instant, 15:30, for decision/target endpoint timestamps. A source row timestamped 15:30 remains 15:30.":
+        raise FeatureBuildError("POSITIONAL_CLOSE_CORRECTION_NORMALIZATION_RULE_INVALID")
+    if not str(rule.get("missing_close", "")).startswith("If neither 15:29 nor 15:30 exists"):
+        raise FeatureBuildError("POSITIONAL_CLOSE_CORRECTION_MISSING_RULE_INVALID")
+    if correction.get("verification", {}).get("holdout_accessed") is not False or correction.get("verification", {}).get("model_fitting_performed") is not False:
+        raise FeatureBuildError("POSITIONAL_CLOSE_CORRECTION_SCOPE_FLAGS_INVALID")
+    return correction, hashlib.sha256(raw).hexdigest()
+
+
 def read_frozen_contract(path: Path = CONTRACT_PATH) -> tuple[dict[str, Any], str]:
     if not path.is_file():
         raise FeatureBuildError("FEATURE_CONTRACT_FILE_MISSING")
@@ -84,7 +112,9 @@ def read_frozen_contract(path: Path = CONTRACT_PATH) -> tuple[dict[str, Any], st
         raise FeatureBuildError("FEATURE_CONTRACT_NOT_FROZEN_PRE_RESULTS")
     if contract.get("amendment_id") != "PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13":
         raise FeatureBuildError("FEATURE_CONTRACT_ID_MISMATCH")
-    return contract, sha256_bytes(raw)
+    contract_sha = sha256_bytes(raw)
+    read_frozen_correction(contract_sha)
+    return contract, contract_sha
 
 
 def verify_source_pins(source_csv_sha256: str, calendar_path: Path = CALENDAR_PATH,
@@ -103,10 +133,15 @@ def verify_source_pins(source_csv_sha256: str, calendar_path: Path = CALENDAR_PA
         raise FeatureBuildError("FROZEN_CALENDAR_ID_MISMATCH")
     if contract["scope"]["calendar_path"] != calendar_path.relative_to(ROOT).as_posix():
         raise FeatureBuildError("FEATURE_CONTRACT_CALENDAR_PATH_MISMATCH")
+    _, correction_sha = read_frozen_correction(contract_sha)
     return {
         "source_csv_sha256": source_csv_sha256,
         "calendar_sha256": calendar_hash,
         "contract_sha256": contract_sha,
+        "feature_correction_sha256": correction_sha,
+        "feature_correction_git_blob_sha1": hashlib.sha1(
+            b"blob " + str(CORRECTION_PATH.stat().st_size).encode("ascii") + b"\0" + CORRECTION_PATH.read_bytes()
+        ).hexdigest(),
     }
 
 
@@ -239,14 +274,28 @@ def ordered_lagged_returns_and_levels(closes: Sequence[float], lookback_bars: in
 
 
 def _session_close_map(bars_by_day: Mapping[str, Sequence[SpotBar]]) -> dict[str, SpotBar]:
-    out = {}
+    """Select the latest documented final-minute close source, never a nearest bar."""
+    candidate_times = {time(15, 29), CLOSE}
+    out: dict[str, SpotBar] = {}
     for day, bars in bars_by_day.items():
-        exact = [bar for bar in bars if bar.timestamp.timetz().replace(tzinfo=None) == CLOSE]
-        if len(exact) > 1:
-            raise FeatureBuildError(f"MULTIPLE_EXACT_SESSION_CLOSE_ROWS:{day}")
-        if exact:
-            out[day] = exact[0]
+        candidates = [
+            bar for bar in bars
+            if bar.timestamp.timetz().replace(tzinfo=None) in candidate_times
+        ]
+        if candidates:
+            # Duplicate timestamps are already rejected by collect_eligible_spot_bars.
+            # If both final-minute and explicit-close rows exist, explicit 15:30 wins.
+            out[day] = max(candidates, key=lambda bar: bar.timestamp)
     return out
+
+
+def _effective_session_close_timestamp(bar: SpotBar) -> datetime:
+    source_time = bar.timestamp.timetz().replace(tzinfo=None)
+    if source_time == time(15, 29):
+        return bar.timestamp + timedelta(minutes=1)
+    if source_time == CLOSE:
+        return bar.timestamp
+    raise FeatureBuildError("SESSION_CLOSE_SOURCE_TIMESTAMP_NOT_ALLOWED")
 
 
 def build_feature_batch(
@@ -370,8 +419,8 @@ def build_feature_batch(
                 continue
             emitted.append(FeatureSample(
                 label_id=label_id,
-                decision_timestamp=decision.timestamp.isoformat(),
-                target_endpoint_timestamp=target.timestamp.isoformat(),
+                decision_timestamp=_effective_session_close_timestamp(decision).isoformat(),
+                target_endpoint_timestamp=_effective_session_close_timestamp(target).isoformat(),
                 decision_session_index=i,
                 target_endpoint_session_index=target_index,
                 y=1 if simple_return > FLAT_TOLERANCE else 0,
@@ -379,12 +428,21 @@ def build_feature_batch(
             ))
 
     diagnostics["samples_emitted"] = len(emitted)
+    diagnostics["session_close_source_time_1529_count"] = sum(
+        1 for bar in session_close.values() if bar.timestamp.timetz().replace(tzinfo=None) == time(15, 29)
+    )
+    diagnostics["session_close_source_time_1530_count"] = sum(
+        1 for bar in session_close.values() if bar.timestamp.timetz().replace(tzinfo=None) == CLOSE
+    )
+    diagnostics["missing_session_close_count"] = len(eligible_sessions) - len(session_close)
     denominator = int(diagnostics["target_pairs_possible"])
     diagnostics["target_pair_missing_fraction"] = (diagnostics["target_pairs_missing"] / denominator) if denominator else None
     diagnostics["feature_dimension"] = 2 * lookback_bars
     diagnostics["source_csv_sha256"] = source_csv_sha256
     diagnostics["calendar_sha256"] = calendar_sha
     diagnostics["contract_sha256"] = actual_contract_hash
+    _, correction_sha = read_frozen_correction(actual_contract_hash)
+    diagnostics["feature_correction_sha256"] = correction_sha
     report = {k: int(v) if isinstance(v, (int,)) else v for k, v in diagnostics.items()}
     report["label_id"] = label_id
     report["lookback_bars"] = lookback_bars
