@@ -164,7 +164,7 @@ jobs:
           }
           out=Path("research/gates/PREDICTION_PM0051_IMPLEMENTATION_GATE_R3_2026-10-14.json")
           out.parent.mkdir(parents=True,exist_ok=True)
-          out.write_text(json.dumps(report,sort_keys=True,indent=2)+"\\n",encoding="utf-8")
+          out.write_text(json.dumps(report,sort_keys=True,indent=2)+"\n",encoding="utf-8")
           print(json.dumps({k:v for k,v in report.items() if k!="source_blob_pins"} | {"pinned_sources":len(pins)},sort_keys=True))
           PY
       - name: Build and validate scoped PM0051 eligibility manifest
