@@ -1,3 +1,15 @@
+## Conversation checkpoint — 2026-10-14
+
+User instruction: “Ok proceed”.
+
+Assistant action summary: resumed the Phase 8P prediction research from the frozen run #38525772378; verified the freeze manifest and per-run accounting; identified and repaired the independent-review handoff. The initial prediction workflow used an absent GH_TOKEN secret; the review dispatcher also lacked an explicit repository argument and its hash verifier used the execution commit for artifacts stored in the later published commit. Corrections were committed to the developer branch. The acquired-results request was validated and the independent tester workflow #38533906974 was launched. Hash/provenance validation passed; independent statistical audit is in progress.
+
+User-visible interpretation: four 5-minute configurations show reported statistical improvement over the class-prior log-loss baseline; this is not proof of prediction accuracy gains in percentage terms, option-strategy profitability or net returns. No holdout access or strategy selection is allowed pending independent review.
+
+This project log records the user-visible task and action outcomes. It does not reproduce private internal reasoning.
+
+---
+
 ## 2026-10-14 — R3A run #38525772378 — data verified, precheck running
 
 - Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378
