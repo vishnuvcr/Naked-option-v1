@@ -1,3 +1,15 @@
+<!-- pm0001-tester-review-r3 -->
+## 2026-10-14 — Independent Phase 8P PM0001 results review
+
+- Decision: REQUEST_CHANGES.
+- Source execution commit: cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2; workflow run: 38525772378.
+- Terminal row counts: {"BLOCKED_DATA": 58, "EXECUTED_AUDITED": 262}.
+- Independent bootstrap recomputations: 40 configs, 262 folds, 29326 session deltas.
+- Issues: 40; warnings: 0.
+- Reports: [JSON](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json) · [Markdown](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).
+
+Tester to Developer: Resolve every issue and resubmit a complete frozen bundle. Do not advance to strategy selection without a clean independent PASS.
+
 # Research Status
 
 ## Phase 8P R2 review state — deferred until acquired results (2026-10-13)
