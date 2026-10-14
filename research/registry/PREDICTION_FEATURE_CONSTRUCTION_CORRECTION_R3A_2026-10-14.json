@@ -1,0 +1,45 @@
+{
+  "schema_version": "prediction-feature-construction-correction-v1",
+  "date": "2026-10-14",
+  "amendment_id": "PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14",
+  "status": "FROZEN_PRE_RESULTS_IMPLEMENTATION_CORRECTION",
+  "issue": "POSITIONAL_CLOSE_TIMESTAMP_CONVENTION_MISMATCH",
+  "supersedes_contract_path": "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CONTRACT_R3_2026-10-13.json",
+  "supersedes_contract_sha256": "7d0d6974b62c9ef030e1cf6e97acdd402e6090253e2702388791227b6410153e",
+  "evidence": {
+    "workflow_run_id": 38519242615,
+    "workflow_url": "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519242615",
+    "source_artifact_id": 11698879857,
+    "canonical_uncompressed_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+    "diagnostic": "The existing data preflight defines the final minute bar as either 15:29 (start-of-final-minute convention) or an explicit 15:30 close. The full-data preflight observed last-eligible-SPOT-bar times: 15:28=9 sessions, 15:29=1150 sessions, 15:30=72 sessions. The original feature builder only selected exactly 15:30, resulting in an empty positional sample batch for most sessions and zero train/validation rows.",
+    "source_preflight_rule_path": "scripts/preflight_prediction_dataset_r3.py"
+  },
+  "corrected_rule": {
+    "positional_close_candidate_source_times_ist": [
+      "15:29:00",
+      "15:30:00"
+    ],
+    "source_timestamp_semantics": {
+      "15:29:00": "Start of the final one-minute interval; the row's nifty_close is the interval close available at 15:30 IST.",
+      "15:30:00": "Explicit session-close observation; use as the session close if present."
+    },
+    "selection": "For each eligible official session, use the latest available candidate timestamp in the allowlist: prefer 15:30 when both exist; otherwise use 15:29. Do not accept 15:28 or any other timestamp as the session close.",
+    "effective_decision_and_target_timestamp_ist": "Normalize a selected 15:29 source row to its interval-end instant, 15:30, for decision/target endpoint timestamps. A source row timestamped 15:30 remains 15:30.",
+    "missing_close": "If neither 15:29 nor 15:30 exists, treat the close as missing; exclude every affected feature history or target pair and count it. Do not forward-fill, interpolate, or substitute a nearest timestamp.",
+    "non_changes": [
+      "No change to the canonical dataset, calendar, labels, return threshold, horizon units, feature order, lookbacks, chronological fold boundaries, purge/embargo, sample-support minima, missingness threshold, baseline, metrics, bootstrap, multiplicity, method universe or selection scope.",
+      "The nine sessions whose final available eligible bar is 15:28 remain excluded as missing session closes under the frozen 1% missingness rule.",
+      "This amendment is made before empirical model fitting and before predictive results are observed."
+    ]
+  },
+  "verification": {
+    "synthetic_tests_required": [
+      "15:29 source close maps to effective 15:30",
+      "15:30 explicit close takes precedence over 15:29",
+      "15:28-only session remains missing and is not forward-filled",
+      "positional horizon remains a session-index offset"
+    ],
+    "holdout_accessed": false,
+    "model_fitting_performed": false
+  }
+}
