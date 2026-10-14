@@ -146,6 +146,22 @@ def validate_run_gate(
         raise SweepError("EXECUTION_GATE_PRECHECK_BLOB_PIN_MISMATCH")
     if gate.get("precheck_report_sha256") != sha256_bytes(precheck_raw):
         raise SweepError("EXECUTION_GATE_PRECHECK_SHA256_MISMATCH")
+    if str(precheck.get("source_commit")) != str(source_commit):
+        raise SweepError("PRECHECK_SOURCE_COMMIT_MISMATCH")
+    if str(precheck.get("workflow_run_id")) != str(workflow_run_id):
+        raise SweepError("PRECHECK_WORKFLOW_RUN_ID_MISMATCH")
+    try:
+        preflight_rel = preflight_path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise SweepError("RUN_PREFLIGHT_REPORT_OUTSIDE_REPOSITORY") from exc
+    if precheck.get("preflight_report_path") != preflight_rel:
+        raise SweepError("PRECHECK_PREFLIGHT_PATH_MISMATCH")
+    if precheck.get("preflight_report_git_blob_sha1") != git_blob_sha1(preflight_path.read_bytes()):
+        raise SweepError("PRECHECK_PREFLIGHT_BLOB_PIN_MISMATCH")
+    if precheck.get("preflight_report_sha256") != sha256_bytes(preflight_path.read_bytes()):
+        raise SweepError("PRECHECK_PREFLIGHT_SHA256_MISMATCH")
+    if gate.get("precheck_runner_git_blob_sha1") != git_blob_sha1((ROOT / "scripts/run_pm0001_data_execution_precheck_r3a.py").read_bytes()):
+        raise SweepError("EXECUTION_GATE_PRECHECK_RUNNER_BLOB_PIN_MISMATCH")
     if gate.get("precheck_status_counts") != precheck.get("status_counts"):
         raise SweepError("EXECUTION_GATE_PRECHECK_COUNTS_MISMATCH")
     if not preflight_path.is_file():
@@ -165,6 +181,7 @@ def validate_run_gate(
         "eligibility_manifest_git_blob_sha1": ELIGIBILITY_PATH,
         "implementation_gate_git_blob_sha1": IMPLEMENTATION_PATH,
         "preregistration_git_blob_sha1": PREREG_PATH,
+        "precheck_runner_git_blob_sha1": "scripts/run_pm0001_data_execution_precheck_r3a.py",
         "feature_construction_report_git_blob_sha1": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
         "feature_builder_git_blob_sha1": "scripts/prediction_features_r3.py",
         "feature_tests_git_blob_sha1": "scripts/test_prediction_features_r3.py",
