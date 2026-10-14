@@ -101,7 +101,7 @@ class IndependentPM0001ResultsAuditTests(unittest.TestCase):
     def test_duplicate_pair_and_loss_sign_error_are_detected(self):
         cmap = configs()
         rows = blocked_rows(cmap)
-        rows[1]["config_id"] = rows[0]["config_id"]
+        rows[8]["config_id"] = rows[0]["config_id"]
         rows[0].update({
             "terminal_status": "EXECUTED_AUDITED",
             "failure_reason": None,
