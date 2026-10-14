@@ -1,105 +1,176 @@
-name: Phase 8P independent registry review
-
+name: Phase 8P independent PM0001 results review
 on:
   push:
     branches: [phase-08-prediction-tester]
     paths:
-      - 'research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json'
+      - research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json
+      - .github/workflows/phase-08p-independent-registry-review.yml
   workflow_dispatch:
-
 permissions:
-  contents: read
-
+  contents: write
+concurrency:
+  group: phase-08p-tester-review-writer
+  cancel-in-progress: false
 jobs:
-  independent-read-only-audit:
+  independent-results-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - name: Check out tester branch
         uses: actions/checkout@v4
         with:
+          ref: phase-08-prediction-tester
+          token: \${{ secrets.GH_TOKEN }}
           path: tester
-      - name: Read exact developer source pin from tester-owned request snapshot
-        id: source_pin
+          fetch-depth: 0
+      - name: Validate review request and pin result snapshot
+        id: pins
         shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
+          import json,re
           from pathlib import Path
-          request = json.loads(Path("tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json").read_text(encoding="utf-8"))
-          if request.get("results_acquired") is not True:
-              raise SystemExit("Tester review is deferred until results_acquired=true.")
-          manifest = request.get("result_bundle_manifest_path", "")
-          if not manifest:
-              raise SystemExit("Missing result_bundle_manifest_path.")
-          sha = request.get("tested_source_commit", "")
-          if len(sha) != 40 or any(ch not in "0123456789abcdef" for ch in sha):
-              raise SystemExit(f"invalid pinned developer source commit: {sha!r}")
-          print(f"sha={sha}")
-          print(f"result_manifest={manifest}")
+          q=json.loads(Path("tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json").read_text())
+          if q.get("results_acquired") is not True: raise SystemExit("results_acquired must be true.")
+          for key in ("tested_source_commit","source_execution_commit","result_published_commit"):
+              if not re.fullmatch(r"[0-9a-f]{40}",str(q.get(key,""))): raise SystemExit(f"Invalid {key}.")
+          if not str(q.get("source_workflow_run_id","")).isdigit(): raise SystemExit("Invalid source_workflow_run_id.")
+          if not re.fullmatch(r"[0-9a-f]{64}",str(q.get("result_bundle_manifest_sha256",""))): raise SystemExit("Invalid manifest SHA256.")
+          m=q.get("result_bundle_manifest_path","")
+          if not m or m.startswith("/") or ".." in Path(m).parts: raise SystemExit("Invalid manifest path.")
+          print(f"source_sha={q['source_execution_commit']}")
+          print(f"published_sha={q['result_published_commit']}")
+          print(f"manifest_path={m}")
           PY
-      - name: Check out exact pinned developer source snapshot
+      - name: Check out exact published developer snapshot
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.source_pin.outputs.sha }}
+          ref: \${{ steps.pins.outputs.published_sha }}
           path: developer
-      - name: Verify exact commit and source blob pins
+          fetch-depth: 0
+      - name: Verify commits, changed-source blobs, manifest, and all result hashes
         shell: bash
+        env:
+          SOURCE_SHA: \${{ steps.pins.outputs.source_sha }}
+          PUBLISHED_SHA: \${{ steps.pins.outputs.published_sha }}
+          MANIFEST_PATH: \${{ steps.pins.outputs.manifest_path }}
         run: |
-          test "$(git -C developer rev-parse HEAD)" = "${{ steps.source_pin.outputs.sha }}"
+          set -euo pipefail
+          test "$(git -C developer rev-parse HEAD)" = "$PUBLISHED_SHA"
+          git -C developer merge-base --is-ancestor "$SOURCE_SHA" "$PUBLISHED_SHA"
           python - <<'PY'
-          import json, subprocess
+          import hashlib,json,os,re,subprocess
           from pathlib import Path
-          request = json.loads(Path("tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json").read_text(encoding="utf-8"))
-          for path, expected in request.get("changed_source_blobs", {}).items():
-              actual = subprocess.check_output(["git", "-C", "developer", "rev-parse", f"HEAD:{path}"], text=True).strip()
-              if actual != expected:
-                  raise SystemExit(f"source blob pin mismatch for {path}: expected={expected}, actual={actual}")
-          print("Exact developer commit and changed-source blob pins: PASS")
-          PY
-      - name: Verify acquired result-bundle manifest and hashes
-        shell: bash
-        run: |
-          python - <<'PY'
-          import hashlib, json, subprocess
-          from pathlib import Path
-          request_path = Path("tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json")
-          request = json.loads(request_path.read_text(encoding="utf-8"))
-          manifest_path = request["result_bundle_manifest_path"]
-          raw = subprocess.check_output(["git", "-C", "developer", "show", f"HEAD:{manifest_path}"])
-          manifest_sha = request.get("result_bundle_manifest_sha256", "")
-          actual_manifest_sha = hashlib.sha256(raw).hexdigest()
-          if len(manifest_sha) != 64 or actual_manifest_sha != manifest_sha:
-              raise SystemExit(f"Result-bundle manifest hash mismatch: expected={manifest_sha}, actual={actual_manifest_sha}")
-          manifest = json.loads(raw.decode("utf-8"))
-          if manifest.get("results_acquired") is not True:
-              raise SystemExit("Result-bundle manifest does not assert results_acquired=true")
-          artifacts = manifest.get("artifacts", [])
-          if not artifacts:
-              raise SystemExit("Result-bundle manifest contains no artifacts")
-          verified = []
-          for item in artifacts:
-              path = item.get("path", "")
-              expected = item.get("sha256", "")
-              if not path or len(expected) != 64:
-                  raise SystemExit(f"Invalid artifact pin: {item!r}")
-              data = subprocess.check_output(["git", "-C", "developer", "show", f"HEAD:{path}"])
-              actual = hashlib.sha256(data).hexdigest()
-              if actual != expected:
-                  raise SystemExit(f"Result artifact hash mismatch: {path} expected={expected} actual={actual}")
-              verified.append(path)
-          print(f"Verified {len(verified)} acquired-result artifacts against SHA-256 pins.")
+          q=json.loads(Path("tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json").read_text())
+          src=os.environ["SOURCE_SHA"]; pub=os.environ["PUBLISHED_SHA"]
+          raw=subprocess.check_output(["git","-C","developer","show",f"{pub}:{os.environ['MANIFEST_PATH']}"])
+          if hashlib.sha256(raw).hexdigest()!=q["result_bundle_manifest_sha256"]: raise SystemExit("Manifest SHA256 mismatch.")
+          m=json.loads(raw.decode())
+          if m.get("schema_version")!="pm0001-result-freeze-manifest-r3-v1" or m.get("results_acquired") is not True: raise SystemExit("Manifest does not prove a frozen acquired-results bundle.")
+          if m.get("source_commit")!=src or str(m.get("workflow_run_id"))!=str(q["source_workflow_run_id"]): raise SystemExit("Manifest source/run pins mismatch.")
+          for path,expected in q.get("changed_source_blobs",{}).items():
+              if not re.fullmatch(r"[0-9a-f]{40}",expected): raise SystemExit(f"Invalid blob pin: {path}")
+              actual=subprocess.check_output(["git","-C","developer","rev-parse",f"{src}:{path}"],text=True).strip()
+              if actual!=expected: raise SystemExit(f"Source blob mismatch: {path}")
+          artifacts=m.get("artifacts",[])
+          if not artifacts: raise SystemExit("Manifest has no artifact pins.")
+          for a in artifacts:
+              path=a.get("path",""); data=subprocess.check_output(["git","-C","developer","show",f"{pub}:{path}"])
+              if hashlib.sha256(data).hexdigest()!=a.get("sha256"): raise SystemExit(f"Artifact SHA256 mismatch: {path}")
+              if len(data)!=a.get("size_bytes"): raise SystemExit(f"Artifact size mismatch: {path}")
+          print(f"Verified {len(q.get('changed_source_blobs',{}))} source pins and {len(artifacts)} result artifact hashes.")
           PY
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Run independent read-only audit
-        run: python tester/scripts/independent_prediction_registry_audit_r2.py --developer-root developer --output prediction-registry-independent-audit.json
-      - name: Upload machine-readable audit
+          python-version: "3.11"
+      - name: Run independent result and bootstrap audit
+        run: |
+          python tester/scripts/independent_pm0001_results_audit_r3.py \
+            --developer-root developer \
+            --request tester/research/gates/PREDICTION_RESULTS_ACQUIRED_REVIEW_REQUEST.json \
+            --output independent-audit.json
+      - name: Create review narrative
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase-08p-independent-registry-audit
-          path: prediction-registry-independent-audit.json
-          if-no-files-found: warn
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("independent-audit.json")
+          if not p.is_file(): p.write_text(json.dumps({"decision":"REQUEST_CHANGES","issues":[{"code":"AUDIT_OUTPUT_MISSING"}],"warnings":[]},indent=2))
+          d=json.loads(p.read_text())
+          lines=["# Independent PM0001 Prediction Results Review — Phase 8P R3","",
+            f"Decision: {d.get('decision','REQUEST_CHANGES')}",
+            f"Source execution commit: {d.get('source_commit','unknown')}",
+            f"Published result run: {d.get('workflow_run_id','unknown')}",
+            f"Canonical data SHA256: {d.get('expected_data_sha256','unknown')}",
+            f"Result artifacts verified: {d.get('artifact_count_verified',0)}",
+            f"Bootstrap configs independently recomputed: {d.get('bootstrap_configurations_recomputed',0)}",
+            f"Bootstrap fold sequences checked: {d.get('bootstrap_folds_checked',0)}",
+            f"Session loss deltas checked: {d.get('bootstrap_session_deltas_checked',0)}","",
+            "## Terminal accounting","",
+            "| Status | Count |","|---|---:|"]
+          for k,v in sorted(d.get("terminal_status_counts_recomputed",{}).items()): lines.append(f"| {k} | {v} |")
+          lines += ["","## Issues",""]
+          lines += [f"- {json.dumps(x,sort_keys=True)}" for x in d.get("issues",[])] or ["- None."]
+          lines += ["","## Warnings",""]
+          lines += [f"- {json.dumps(x,sort_keys=True)}" for x in d.get("warnings",[])] or ["- None."]
+          lines += ["","Tester to Developer: Fix every reported issue with concrete file and line evidence. Preserve preregistered labels, folds, thresholds, purging, embargo, model settings and statistical methods. Rerun the gates, freeze a new complete bundle, and resubmit. Do not advance to strategy selection before an independent PASS."]
+          Path("independent-audit.md").write_text("\n".join(lines)+"\n")
+          PY
+      - name: Save independent audit report to tester branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tester/research/gates
+          cp independent-audit.json tester/research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json
+          cp independent-audit.md tester/research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("independent-audit.json").read_text())
+          marker="<!-- pm0001-tester-review-r3 -->"
+          decision=d.get("decision","REQUEST_CHANGES")
+          block=f"""{marker}
+## 2026-10-14 — Independent Phase 8P PM0001 results review
+
+- Decision: {decision}.
+- Source execution commit: {d.get('source_commit','unknown')}; workflow run: {d.get('workflow_run_id','unknown')}.
+- Terminal row counts: {json.dumps(d.get('terminal_status_counts_recomputed',{}),sort_keys=True)}.
+- Independent bootstrap recomputations: {d.get('bootstrap_configurations_recomputed',0)} configs, {d.get('bootstrap_folds_checked',0)} folds, {d.get('bootstrap_session_deltas_checked',0)} session deltas.
+- Issues: {len(d.get('issues',[]))}; warnings: {len(d.get('warnings',[]))}.
+- Reports: [JSON](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json) · [Markdown](research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md).
+
+Tester to Developer: Resolve every issue and resubmit a complete frozen bundle. Do not advance to strategy selection without a clean independent PASS.
+"""
+          for rel in ("README.md","research/STATUS.md","research/logs/RESEARCH_LOG.md","research/logs/CHAT_LOG.md"):
+              p=Path("tester")/rel; old=p.read_text() if p.is_file() else ""
+              if marker not in old: p.parent.mkdir(parents=True,exist_ok=True); p.write_text(block+"\n"+old)
+          if decision!="PASS":
+              p=Path("tester/research/ERROR_LOG.md"); old=p.read_text() if p.is_file() else ""
+              marker2="## 2026-10-14 — Tester requested changes on PM0001 results"
+              details="\n".join("- "+json.dumps(x,sort_keys=True) for x in d.get("issues",[]))
+              if marker2 not in old: p.parent.mkdir(parents=True,exist_ok=True); p.write_text(old+"\n"+marker2+"\n"+details+"\n")
+          PY
+          git -C tester config user.name "Naked Option Independent Tester"
+          git -C tester config user.email "research-tester@users.noreply.github.com"
+          git -C tester add research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.json research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_2026-10-14.md README.md research/STATUS.md research/logs/RESEARCH_LOG.md research/logs/CHAT_LOG.md research/ERROR_LOG.md
+          if ! git -C tester diff --cached --quiet; then
+            git -C tester commit -m "Publish independent PM0001 prediction results review"
+            git -C tester push origin HEAD:phase-08-prediction-tester
+          fi
+      - name: Enforce tester PASS gate
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("independent-audit.json")
+          if not p.is_file(): raise SystemExit("Independent audit output missing.")
+          decision=json.loads(p.read_text()).get("decision")
+          print(f"Tester decision: {decision}")
+          if decision!="PASS": raise SystemExit("Tester gate closed; developer correction and resubmission required.")
+          PY
