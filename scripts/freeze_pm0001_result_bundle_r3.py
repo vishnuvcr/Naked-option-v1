@@ -60,6 +60,7 @@ def validate_result_contract(
     summary: Mapping[str, Any],
     *,
     expected_config_ids: Sequence[str],
+    expected_config_specs: Mapping[str, Mapping[str, Any]] | None = None,
     expected_data_sha256: str = EXPECTED_DATA_SHA256,
 ) -> dict[str, Any]:
     expected_ids = sorted(map(str, expected_config_ids))
@@ -95,6 +96,15 @@ def validate_result_contract(
             raise FreezeError(f"INVALID_TERMINAL_STATUS:{pair}:{row.get('terminal_status')}")
         if pair[0] not in expected_ids or pair[1] not in FOLD_IDS:
             raise FreezeError(f"UNREGISTERED_RESULT_PAIR:{pair}")
+        if expected_config_specs is not None:
+            spec = expected_config_specs.get(pair[0])
+            if spec is None:
+                raise FreezeError(f"REGISTERED_CONFIG_SPEC_MISSING:{pair[0]}")
+            for field in ("label_id", "lookback_bars", "config_sha256"):
+                if row.get(field) != spec.get(field):
+                    raise FreezeError(f"RESULT_REGISTERED_CONFIG_FIELD_MISMATCH:{pair}:{field}")
+            if not isinstance(row.get("c"), (int, float)) or abs(float(row["c"]) - float(spec["c"])) > 1e-12:
+                raise FreezeError(f"RESULT_REGISTERED_CONFIG_C_MISMATCH:{pair}")
         counts[str(row["terminal_status"])] += 1
         status = row["terminal_status"]
         for key in ("baseline_log_loss", "candidate_log_loss", "log_loss_improvement"):
@@ -286,6 +296,15 @@ def main() -> int:
     from run_pm0001_data_execution_precheck_r3 import config_rows
     configs = config_rows()
     config_ids = sorted(str(row["config_id"]) for row in configs)
+    config_specs = {
+        str(item["config_id"]): {
+            "label_id": str(item["configuration"]["label_id"]),
+            "lookback_bars": int(item["configuration"]["lookback_bars"]),
+            "c": float(item["configuration"]["model_parameters"]["C"]),
+            "config_sha256": str(item["config_sha256"]),
+        }
+        for item in configs
+    }
     if result.get("source_commit") != args.source_commit:
         raise FreezeError("RESULT_SOURCE_COMMIT_DOES_NOT_MATCH_EXECUTION")
     if str(result.get("workflow_run_id")) != str(args.workflow_run_id):
@@ -296,7 +315,7 @@ def main() -> int:
         raise FreezeError("SUMMARY_RESULT_FILE_SHA256_MISMATCH")
     if summary.get("errors_jsonl_sha256") != sha256_file(args.errors):
         raise FreezeError("SUMMARY_ERROR_LOG_SHA256_MISMATCH")
-    contract = validate_result_contract(result, summary, expected_config_ids=config_ids)
+    contract = validate_result_contract(result, summary, expected_config_ids=config_ids, expected_config_specs=config_specs)
 
     from prediction_walkforward_r3 import validate_result_rows
     validation = validate_result_rows(result["rows"], [(cid, fold) for cid in config_ids for fold in FOLD_IDS])
