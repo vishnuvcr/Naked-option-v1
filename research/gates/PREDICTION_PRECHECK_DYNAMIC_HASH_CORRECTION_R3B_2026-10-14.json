@@ -1,0 +1,48 @@
+{
+  "schema_version": "phase8p-pm0001-precheck-dynamic-hash-correction-r3b-v1",
+  "date": "2026-10-14",
+  "status": "FROZEN_PRE_RESULTS_IMPLEMENTATION_CORRECTION",
+  "phase": "Phase 8P R3A — PM0001 directional prediction",
+  "issue": {
+    "code": "RUN_SPECIFIC_PREFLIGHT_REPORT_BLOB_PIN_MISMATCH",
+    "description": "The R3A feature-construction report carried the git blob SHA-1 of a historical data-preflight JSON file as though that generated report were a stable source file. Each new preflight report also contains merged_gzip_sha256, which can change with gzip-container metadata while the canonical uncompressed CSV SHA-256 remains identical.",
+    "evidence": {
+      "failed_workflow_run_id": 38522693920,
+      "failed_execution_run_id": 38524449678,
+      "canonical_uncompressed_csv_sha256": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+      "pinned_encrypted_artifact_id": 11698879857,
+      "pinned_encrypted_archive_sha256": "40f3e54472d47cd8e6c4eb17d3a6b302fcf3059a0ab395695d4d3c6c3e5bb45b"
+    }
+  },
+  "correction": {
+    "feature_report_source_pins": "Do not require a static blob pin for a generated run-specific preflight JSON; continue validating static source pins and the preregistered feature contract.",
+    "preflight_verification": "Validate canonical decoded CSV hash, artifact ID/run lineage, global-blocker status, frozen 75/5 eligible/blocked cell accounting, no fitting/holdout flags, exact preprocessing/preregistration/calendar content hashes, and frozen paths.",
+    "execution_gate": "Record both Git blob SHA-1 and SHA-256 of the exact run-specific preflight report. The empirical runner must compare the supplied report path and bytes against these run-scoped pins before fitting.",
+    "preflight_report_builder": "Retain the true preregistration Git blob SHA-1; do not overwrite it with null in report.update."
+  },
+  "unchanged": {
+    "dataset_pin": true,
+    "canonical_dataset_hash": true,
+    "labels": true,
+    "outer_fold_boundaries": true,
+    "purge_embargo_rules": true,
+    "sample_support_minima": true,
+    "missingness_limit": true,
+    "model_family_and_registered_configurations": true,
+    "statistical_method_and_multiplicity": true,
+    "untouched_holdout_accessed": false
+  },
+  "regression_tests": [
+    "Fresh run-specific preflight with current canonical and source hashes is accepted.",
+    "Wrong canonical hash, preprocessing hash, preregistration hash, or pinned source artifact ID is rejected.",
+    "A stale historical preflight-report blob in the feature report does not override a fresh semantically valid report."
+  ],
+  "evidence": [
+    "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522693920",
+    "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524449678",
+    "https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524455708"
+  ],
+  "results_acquired": false,
+  "model_fitting_performed": false,
+  "developer_to_tester": "After complete results are acquired and frozen, independently verify current run-specific preflight hashes, all 320 config/fold terminal rows, feature timing, purge/embargo, model metrics, bootstrap numerical reproducibility, BY multiplicity, and all blocked or failed outcomes."
+}
