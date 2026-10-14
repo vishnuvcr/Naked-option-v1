@@ -395,17 +395,31 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         except Exception as exc:
             issue(issues, "MANIFEST_ARTIFACT_READ_FAILED", path=rel, error=f"{type(exc).__name__}:{str(exc)[:200]}")
 
-    required_artifacts = {
-        "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.json",
-        "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.summary.json",
-        "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.errors.jsonl",
-        "research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json",
-        "research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_2026-10-14.json",
-        "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.csv",
-        "research/results/PM0001_PREDICTION_RESULTS_R3_2026-10-14.md",
+    def find_artifact(role: str, predicate) -> Path | None:
+        matches = [rel for rel in artifact_hashes if predicate(rel)]
+        if len(matches) != 1:
+            issue(issues, "MANIFEST_ARTIFACT_ROLE_MISSING_OR_AMBIGUOUS", role=role, matches=matches)
+            return None
+        return root / matches[0]
+
+    result_path = find_artifact("result_bundle", lambda p: Path(p).name == "result_bundle.json")
+    summary_path = find_artifact("summary", lambda p: Path(p).name == "summary.json")
+    errors_path = find_artifact("errors", lambda p: Path(p).name == "errors.jsonl")
+    precheck_path = find_artifact("precheck_report", lambda p: Path(p).name.startswith("PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_RUN_"))
+    gate_path = find_artifact("execution_gate", lambda p: Path(p).name.startswith("PREDICTION_PM0001_EXECUTION_GATE_R3_RUN_"))
+    preflight_path = find_artifact("preflight_report", lambda p: Path(p).name.startswith("PREDICTION_DATA_PREFLIGHT_R3_RUN_"))
+    csv_path = find_artifact("config_fold_results_csv", lambda p: Path(p).name == "config_fold_results.csv")
+    report_path = find_artifact("results_report", lambda p: Path(p).name == "PM0001_PREDICTION_RESULTS.md")
+    feature_report_path = find_artifact("feature_construction_report", lambda p: Path(p).name == "PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json")
+    required_roles = {
+        "result_bundle": result_path, "summary": summary_path, "errors": errors_path,
+        "precheck_report": precheck_path, "execution_gate": gate_path,
+        "preflight_report": preflight_path, "config_fold_results_csv": csv_path,
+        "results_report": report_path, "feature_construction_report": feature_report_path,
     }
-    if not required_artifacts.issubset(artifact_hashes):
-        issue(issues, "REQUIRED_RESULT_ARTIFACTS_MISSING", missing=sorted(required_artifacts-artifact_hashes.keys()))
+    missing_roles = sorted(name for name, value in required_roles.items() if value is None)
+    if missing_roles:
+        issue(issues, "REQUIRED_RESULT_ARTIFACT_ROLES_MISSING", missing=missing_roles)
 
     config_by_id = reconstruct_pm0001_configs(root, issues)
     try:
@@ -420,25 +434,29 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         issue(issues, "ELIGIBILITY_MANIFEST_READ_FAILED", error=f"{type(exc).__name__}:{str(exc)[:300]}")
 
     try:
-        result = read_json(root / "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.json")
-        summary = read_json(root / "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.summary.json")
-        precheck = read_json(root / "research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json")
-        gate = read_json(root / "research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_2026-10-14.json")
-        preflight = read_json(root / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        if any(value is None for value in required_roles.values()):
+            raise ValueError("REQUIRED_RESULT_ARTIFACT_ROLE_MISSING")
+        assert result_path and summary_path and errors_path and precheck_path and gate_path and preflight_path and feature_report_path
+        result = read_json(result_path)
+        summary = read_json(summary_path)
+        precheck = read_json(precheck_path)
+        gate = read_json(gate_path)
+        preflight = read_json(preflight_path)
         pin = read_json(root / "research/data/PREDICTION_DATA_ARTIFACT_PIN_R3_2026-10-13.json")
-        feature_report = read_json(root / "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json")
+        feature_report = read_json(feature_report_path)
         correction = read_json(root / "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json")
         prereg = read_json(root / "research/registry/PREDICTION_PREREGISTRATION_R3_2026-10-13.json")
-        errors_raw = (root / "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.errors.jsonl").read_bytes()
-        if summary.get("result_file_sha256") != sha256((root / "research/results/PM0001_PREDICTION_SWEEP_R3_2026-10-14.json").read_bytes()):
+        result_raw = result_path.read_bytes()
+        errors_raw = errors_path.read_bytes()
+        if summary.get("result_file_sha256") != sha256(result_raw):
             issue(issues, "SUMMARY_RESULT_SHA256_MISMATCH")
         if summary.get("errors_jsonl_sha256") != sha256(errors_raw):
             issue(issues, "SUMMARY_ERRORS_SHA256_MISMATCH")
         if summary.get("source_data_sha256") != EXPECTED_DATA_SHA256 or result.get("source_data_sha256") != EXPECTED_DATA_SHA256:
             issue(issues, "RESULT_DATA_HASH_MISMATCH")
-        if result.get("precheck_report_sha256") != sha256((root / "research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json").read_bytes()):
+        if result.get("precheck_report_sha256") != sha256(precheck_path.read_bytes()):
             issue(issues, "RESULT_PRECHECK_SHA256_MISMATCH")
-        if result.get("execution_gate_sha256") != sha256((root / "research/gates/PREDICTION_PM0001_EXECUTION_GATE_R3_2026-10-14.json").read_bytes()):
+        if result.get("execution_gate_sha256") != sha256(gate_path.read_bytes()):
             issue(issues, "RESULT_EXECUTION_GATE_SHA256_MISMATCH")
         for name, obj in (("result", result), ("summary", summary), ("manifest", manifest)):
             if obj.get("source_commit") != request.get("source_execution_commit") and name != "manifest":
@@ -465,7 +483,7 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
             issue(issues, "EXECUTION_GATE_UNIVERSE_MISMATCH")
         if gate.get("source_data_sha256") != EXPECTED_DATA_SHA256:
             issue(issues, "EXECUTION_GATE_DATA_HASH_MISMATCH")
-        if gate.get("precheck_report_sha256") != sha256((root / "research/gates/PREDICTION_PM0001_DATA_EXECUTION_PRECHECK_R3_2026-10-14.json").read_bytes()):
+        if gate.get("precheck_report_sha256") != sha256(precheck_path.read_bytes()):
             issue(issues, "EXECUTION_GATE_PRECHECK_SHA256_MISMATCH")
         if preflight.get("canonical_hash_matches") is not True or preflight.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
             issue(issues, "DATA_PREFLIGHT_CANONICAL_HASH_NOT_PASS")
