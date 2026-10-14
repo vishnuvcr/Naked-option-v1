@@ -228,7 +228,7 @@ def run_precheck(merged_gzip: Path, output_path: Path) -> dict[str, Any]:
         for fold in folds:
             support = support_map.get((label_id, fold["fold_id"]), {})
             try:
-                result = precheck_fold(samples, fold, c, minima, support)
+                result = precheck_fold(samples, fold, config, minima, support)
             except Exception as exc:
                 result = {"status": "FAILED_PRECHECK", "reason_codes": [f"{type(exc).__name__}:{str(exc)[:180]}"]}
             row = {
