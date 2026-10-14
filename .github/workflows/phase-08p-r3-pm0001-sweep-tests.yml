@@ -57,7 +57,7 @@ jobs:
           import json, pathlib
           p = pathlib.Path("scripts/run_pm0001_prediction_sweep_r3.py").read_text()
           assert "validate_run_gate" in p
-          assert "holdout_accessed": False
+          assert 'holdout_accessed' in p
           print(json.dumps({
               "status": "PASS_SYNTHETIC_TESTS_ONLY",
               "market_data_loaded": False,
