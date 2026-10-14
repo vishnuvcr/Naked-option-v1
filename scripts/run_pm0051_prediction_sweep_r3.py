@@ -31,7 +31,7 @@ from create_pm0051_execution_gate_r3 import (  # noqa: E402
     FOLD_IDS, EXPECTED_DATA_SHA256, git_blob_sha1, read_json, validate_precheck,
 )
 from prediction_features_r3 import build_feature_batch, load_eligible_session_dates, verify_source_pins  # noqa: E402
-from prediction_probit_executor_r3 import fit_probit_outer_fold  # noqa: E402
+from prediction_probit_executor_r3 import fit_pm0051_outer_fold  # noqa: E402
 from prediction_statistics import (  # noqa: E402
     balanced_accuracy, benjamini_yekutieli, binary_log_loss, brier_score,
     paired_moving_block_bootstrap,
@@ -566,7 +566,7 @@ def run_sweep(
                     assert batch is not None and X is not None and y is not None
                     assert decision is not None and endpoint is not None
                     start_pos, end_pos = int(fold["start"]), int(fold["end_exclusive"])
-                    result = fit_probit_outer_fold(
+                    result = fit_pm0051_outer_fold(
                         X, y, decision, endpoint,
                         fold_id=fold_id,
                         validation_start_session=start_pos,
