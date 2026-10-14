@@ -27,6 +27,10 @@ METRIC_FIELDS = (
     "class_prior_baseline_log_loss", "previous_sign_baseline_log_loss",
     "brier_score", "balanced_accuracy", "roc_auc", "average_precision",
     "calibration_intercept", "calibration_slope",
+    "accuracy", "precision", "recall", "specificity", "f1", "true_positive", "false_positive", "true_negative", "false_negative",
+    "baseline_accuracy", "baseline_true_positive", "baseline_false_positive", "baseline_true_negative", "baseline_false_negative",
+    "accuracy_improvement", "session_weighted_accuracy", "baseline_session_weighted_accuracy", "expected_calibration_error", "maximum_calibration_error", "calibration_bins", "regime_diagnostics",
+    "accuracy_delta_ci_lower", "accuracy_delta_ci_upper", "accuracy_delta_raw_p_value", "accuracy_delta_by_adjusted_p_value",
 )
 BANNED_ROW_FIELDS = {
     "raw_market_rows", "raw_features", "samples", "y_validation", "probabilities",
@@ -271,6 +275,88 @@ def validate_precheck(
     return counts
 
 
+
+def validate_extended_metrics_independently(row: Mapping[str, Any], pair: tuple[str,str],
+                                             issues: list[dict[str,Any]]) -> None:
+    """Independent arithmetic validation for aggregate classification/calibration/regime data."""
+    n=row.get("feature_rows_scored")
+    if isinstance(n,bool) or not isinstance(n,int) or n<1:
+        issue(issues,"EXTENDED_SCORING_COUNT_INVALID",pair=pair); return
+    keys=("true_positive","false_positive","true_negative","false_negative",
+          "baseline_true_positive","baseline_false_positive","baseline_true_negative","baseline_false_negative")
+    counts=[]
+    for k in keys:
+        v=row.get(k)
+        if isinstance(v,bool) or not isinstance(v,int) or v<0:
+            issue(issues,"EXTENDED_CONFUSION_COUNT_INVALID",pair=pair,field=k,value=v); return
+        counts.append(v)
+    if sum(counts[:4])!=n or sum(counts[4:])!=n:
+        issue(issues,"EXTENDED_CONFUSION_TOTAL_MISMATCH",pair=pair,n=n,counts=counts); return
+    tp,fp,tn,fn=counts[:4]; btp,bfp,btn,bfn=counts[4:]; pos=tp+fn; neg=tn+fp
+    expected={"accuracy":(tp+tn)/n,"precision":tp/(tp+fp) if tp+fp else 0.0,
+        "recall":tp/pos if pos else 0.0,"specificity":tn/neg if neg else 0.0,
+        "f1":2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 0.0,
+        "baseline_accuracy":(btp+btn)/n,"accuracy_improvement":((tp+tn)-(btp+btn))/n,
+        "balanced_accuracy":0.5*((tp/pos if pos else 0.0)+(tn/neg if neg else 0.0))}
+    for k,v in expected.items():
+        actual=row.get(k)
+        if isinstance(actual,bool) or not isinstance(actual,(int,float)) or not math.isfinite(float(actual)) or abs(float(actual)-v)>1e-9:
+            issue(issues,"EXTENDED_METRIC_ARITHMETIC_MISMATCH",pair=pair,field=k,expected=v,actual=actual)
+    for k in ("session_weighted_accuracy","baseline_session_weighted_accuracy","expected_calibration_error","maximum_calibration_error",
+              "brier_score","roc_auc","average_precision","calibration_intercept","calibration_slope"):
+        v=row.get(k)
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(float(v)):
+            issue(issues,"EXTENDED_METRIC_MISSING_OR_NONFINITE",pair=pair,field=k,value=v)
+    for k in ("accuracy","precision","recall","specificity","f1","baseline_accuracy","session_weighted_accuracy",
+              "baseline_session_weighted_accuracy","expected_calibration_error","maximum_calibration_error","brier_score",
+              "balanced_accuracy","roc_auc","average_precision"):
+        v=row.get(k)
+        if isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(float(v)) and not -1e-9<=float(v)<=1+1e-9:
+            issue(issues,"EXTENDED_METRIC_OUT_OF_RANGE",pair=pair,field=k,value=v)
+    bins=row.get("calibration_bins")
+    if not isinstance(bins,list) or len(bins)!=10 or any(not isinstance(x,dict) for x in bins):
+        issue(issues,"EXTENDED_CALIBRATION_BINS_INVALID",pair=pair)
+    else:
+        if [x.get("bin_index") for x in bins]!=list(range(10)):
+            issue(issues,"EXTENDED_CALIBRATION_BIN_INDEX_INVALID",pair=pair)
+        total=0; ece=0.0; mce=0.0; invalid=False
+        for b in bins:
+            count,mp,obs=b.get("count"),b.get("mean_predicted_probability"),b.get("observed_up_rate")
+            if isinstance(count,bool) or not isinstance(count,int) or count<0:
+                issue(issues,"EXTENDED_CALIBRATION_BIN_COUNT_INVALID",pair=pair); invalid=True; continue
+            total+=count
+            if count==0:
+                if mp is not None or obs is not None:
+                    issue(issues,"EXTENDED_EMPTY_CALIBRATION_BIN_RATES",pair=pair); invalid=True
+                continue
+            if not isinstance(mp,(int,float)) or not isinstance(obs,(int,float)) or not 0<=float(mp)<=1 or not 0<=float(obs)<=1:
+                issue(issues,"EXTENDED_CALIBRATION_BIN_RATE_INVALID",pair=pair); invalid=True; continue
+            gap=abs(float(mp)-float(obs)); ece+=count/n*gap; mce=max(mce,gap)
+        if total!=n: issue(issues,"EXTENDED_CALIBRATION_BIN_TOTAL_MISMATCH",pair=pair,total=total,n=n)
+        if not invalid and (abs(ece-float(row.get("expected_calibration_error",float("nan"))))>1e-8 or
+                            abs(mce-float(row.get("maximum_calibration_error",float("nan")))>1e-8):
+            issue(issues,"EXTENDED_CALIBRATION_ERROR_ARITHMETIC_MISMATCH",pair=pair,expected_ece=ece,actual_ece=row.get("expected_calibration_error"))
+    reg=row.get("regime_diagnostics")
+    if not isinstance(reg,dict) or reg.get("status") not in {"DESCRIPTIVE_TRAIN_DERIVED_REGIMES","INSUFFICIENT_TRAIN_REGIME_CONTEXT"}:
+        issue(issues,"EXTENDED_REGIME_STATUS_INVALID",pair=pair); return
+    eligible,excluded=reg.get("eligible_observation_count"),reg.get("excluded_for_missing_20_session_context")
+    if not isinstance(eligible,int) or not isinstance(excluded,int) or eligible<0 or excluded<0 or eligible+excluded!=n:
+        issue(issues,"EXTENDED_REGIME_SAMPLE_ACCOUNTING_MISMATCH",pair=pair,n=n,eligible=eligible,excluded=excluded); return
+    groups=reg.get("regimes")
+    if not isinstance(groups,list):
+        issue(issues,"EXTENDED_REGIME_GROUPS_INVALID",pair=pair); return
+    if reg.get("status")=="DESCRIPTIVE_TRAIN_DERIVED_REGIMES":
+        if len(groups)!=6: issue(issues,"EXTENDED_REGIME_GROUP_COUNT_INVALID",pair=pair)
+        for axis in ("volatility","trend"):
+            axis_rows=[x for x in groups if x.get("axis")==axis]
+            if len(axis_rows)!=3 or sum(int(x.get("observation_count",-1)) for x in axis_rows)!=eligible:
+                issue(issues,"EXTENDED_REGIME_AXIS_TOTAL_INVALID",pair=pair,axis=axis)
+            for x in axis_rows:
+                cnt,up,down=x.get("observation_count"),x.get("positive_support"),x.get("negative_support")
+                if not all(isinstance(v,int) and v>=0 for v in (cnt,up,down)) or up+down!=cnt:
+                    issue(issues,"EXTENDED_REGIME_CLASS_SUPPORT_INVALID",pair=pair,axis=axis,regime=x.get("regime"))
+
+
 def validate_result_rows(
     result: Mapping[str, Any],
     config_by_id: Mapping[str, Mapping[str, Any]],
@@ -285,6 +371,7 @@ def validate_result_rows(
     counts: Counter[str] = Counter()
     numeric_ll = ("baseline_log_loss", "candidate_log_loss", "log_loss_improvement")
     bounded = ("brier_score", "balanced_accuracy", "roc_auc", "average_precision")
+    extended_enabled = isinstance(result.get("accuracy_bootstrap_inputs"), dict)
     for pos, row in enumerate(rows):
         if not isinstance(row, dict):
             issue(issues, "RESULT_ROW_NOT_OBJECT", row=pos)
@@ -327,6 +414,8 @@ def validate_result_rows(
                     issue(issues, "LOGLOSS_NONPOSITIVE", pair=pair, baseline=base, candidate=cand)
                 if abs((base - cand) - improvement) > 1e-10:
                     issue(issues, "LOGLOSS_SIGN_OR_ARITHMETIC_ERROR", pair=pair, baseline=base, candidate=cand, improvement=improvement)
+            if extended_enabled:
+                validate_extended_metrics_independently(row, pair, issues)
             for key in bounded:
                 value = row.get(key)
                 if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)) or not 0 <= float(value) <= 1:
