@@ -422,7 +422,7 @@ jobs:
           manifest= json.loads(Path(manifest_path).read_text(encoding="utf-8"))
           if manifest.get("results_acquired") is not True or manifest.get("source_commit") != source:
               raise SystemExit("PM0051 result manifest does not prove acquired results for the exact execution source.")
-          Path("research/gates/PREDICTION_PM0051_RESULTS_ACQUIRED_REVIEW_REQUEST.json").write_text(json.dumps(request,sort_keys=True,indent=2)+"\\n",encoding="utf-8")
+          Path("research/gates/PREDICTION_PM0051_RESULTS_ACQUIRED_REVIEW_REQUEST.json").write_text(json.dumps(request,sort_keys=True,indent=2)+"\n",encoding="utf-8")
           print(json.dumps({"run_id":run_id,"source":source,"published":published,"manifest_sha256":manifest_sha,"source_pin_count":len(blobs)},sort_keys=True))
           PY
           git add research/gates/PREDICTION_PM0051_RESULTS_ACQUIRED_REVIEW_REQUEST.json
