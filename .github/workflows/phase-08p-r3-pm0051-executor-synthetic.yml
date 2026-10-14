@@ -137,7 +137,7 @@ jobs:
           ]
           def blob_sha1(path):
               raw=Path(path).read_bytes()
-              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\\0"+raw).hexdigest()
+              return hashlib.sha1(b"blob "+str(len(raw)).encode("ascii")+b"\0"+raw).hexdigest()
           pins={p:blob_sha1(p) for p in paths}
           report={
             "schema_version":"prediction-method-implementation-gate-r3-v1",
