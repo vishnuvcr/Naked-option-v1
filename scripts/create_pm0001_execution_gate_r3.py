@@ -74,7 +74,8 @@ def verify_feature_construction_report(report: dict[str, Any], repo_root: Path =
         "feature_correction_git_blob_sha1": FEATURE_CORRECTION_PATH,
         "calendar_git_blob_sha1": "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
         "label_manifest_git_blob_sha1": "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json",
-        "preflight_report_git_blob_sha1": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json",
+        # Preflight is a run-specific generated artifact, not a stable source file.
+        # Its merged_gzip_sha256 may vary while the canonical uncompressed CSV SHA256 is unchanged.
         "prerequisite_report_git_blob_sha1": "research/gates/PREDICTION_R3_PREREQUISITE_AUDIT_2026-10-13.json",
         "preregistration_git_blob_sha1": PREREG_PATH,
     }
@@ -85,6 +86,59 @@ def verify_feature_construction_report(report: dict[str, Any], repo_root: Path =
     correction_raw = (repo_root / FEATURE_CORRECTION_PATH).read_bytes()
     if sha256(correction_raw) != pins.get("feature_correction_sha256"):
         raise ValueError("FEATURE_CONSTRUCTION_CORRECTION_SHA256_MISMATCH")
+
+
+def verify_preflight_report(preflight: dict[str, Any], repo_root: Path = ROOT) -> None:
+    """Validate current data-preflight evidence semantically; pin its bytes in the run gate."""
+    if preflight.get("canonical_hash_matches") is not True:
+        raise ValueError("DATA_PREFLIGHT_CANONICAL_HASH_NOT_VERIFIED")
+    if preflight.get("canonical_uncompressed_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("DATA_PREFLIGHT_DATASET_HASH_MISMATCH")
+    if preflight.get("expected_canonical_csv_sha256") != EXPECTED_DATA_SHA256:
+        raise ValueError("DATA_PREFLIGHT_EXPECTED_DATASET_PIN_MISMATCH")
+    if preflight.get("source_artifact_id") != 11698879857 or preflight.get("source_artifact_run_id") != 38131641336:
+        raise ValueError("DATA_PREFLIGHT_SOURCE_ARTIFACT_PIN_MISMATCH")
+    if preflight.get("status") != "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS":
+        raise ValueError("DATA_PREFLIGHT_STATUS_NOT_ACCEPTABLE")
+    if preflight.get("blockers") != []:
+        raise ValueError("DATA_PREFLIGHT_HAS_GLOBAL_BLOCKERS")
+    if preflight.get("holdout_accessed") is not False or preflight.get("model_fitting_performed") is not False:
+        raise ValueError("DATA_PREFLIGHT_PROVENANCE_FLAGS_UNSAFE")
+    if preflight.get("eligible_fold_label_cells") != 75 or preflight.get("blocked_fold_label_cells") != 5:
+        raise ValueError("DATA_PREFLIGHT_FOLD_CELL_COUNTS_CHANGED")
+    if preflight.get("all_sample_ineligible_fold_label_cells_explicitly_blocked") is not True:
+        raise ValueError("DATA_PREFLIGHT_BLOCKED_CELLS_NOT_EXPLICIT")
+    expected_files = {
+        "preprocessing_rules": (
+            "research/data/PREDICTION_DATA_PREPROCESSING_RULES_R3_2026-10-13.json",
+            "preprocessing_rules_path",
+            "preprocessing_rules_git_blob_sha1",
+            "preprocessing_rules_sha256",
+        ),
+        "preregistration": (
+            PREREG_PATH,
+            "preregistration_path",
+            "preregistration_git_blob_sha1",
+            "preregistration_sha256",
+        ),
+        "session_calendar": (
+            "research/data/NSE_CAPITAL_MARKET_SESSION_CALENDAR_R3_2026-10-13.json",
+            "calendar_path",
+            None,
+            "session_calendar_sha256",
+        ),
+    }
+    for label, (relative_path, path_key, blob_key, hash_key) in expected_files.items():
+        path = repo_root / relative_path
+        if not path.is_file():
+            raise ValueError(f"DATA_PREFLIGHT_PINNED_{label.upper()}_FILE_MISSING")
+        raw = path.read_bytes()
+        if preflight.get(path_key) != relative_path:
+            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_PATH_MISMATCH")
+        if preflight.get(hash_key) != sha256(raw):
+            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_SHA256_MISMATCH")
+        if blob_key and preflight.get(blob_key) != git_blob_sha1(raw):
+            raise ValueError(f"DATA_PREFLIGHT_{label.upper()}_GIT_BLOB_MISMATCH")
 
 
 def validate_precheck(precheck: dict[str, Any], config_ids: list[str]) -> dict[str, int]:
@@ -272,6 +326,7 @@ def main() -> int:
     precheck = read_json(args.precheck_report)
     verify_implementation_gate(implementation_gate)
     verify_feature_construction_report(feature_report)
+    verify_preflight_report(preflight)
     if prereg.get("date") != "2026-10-13" or len(prereg.get("labels", {})) != 10:
         raise ValueError("FROZEN_PREREGISTRATION_INVALID")
     if not args.runner.is_file():
