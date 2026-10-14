@@ -1,0 +1,298 @@
+{
+  "check_count": 52,
+  "checks": [
+    {
+      "check": "CONTRACT_STATUS",
+      "detail": "FROZEN_PRE_RESULTS_IMPLEMENTATION_SUPPLEMENT",
+      "passed": true
+    },
+    {
+      "check": "CONTRACT_ID",
+      "detail": "PHASE8P_FEATURE_CONSTRUCTION_SUPPLEMENT_R3_2026-10-13",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_CLOSE_CORRECTION_STATUS",
+      "detail": "FROZEN_PRE_RESULTS_IMPLEMENTATION_CORRECTION",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_CLOSE_CORRECTION_ID",
+      "detail": "PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_CLOSE_CORRECTION_CONTRACT_PIN",
+      "detail": "7d0d6974b62c9ef030e1cf6e97acdd402e6090253e2702388791227b6410153e",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_CLOSE_SOURCE_TIMES",
+      "detail": "['15:29:00', '15:30:00']",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_CLOSE_EFFECTIVE_TIMESTAMP",
+      "detail": "Normalize a selected 15:29 source row to its interval-end instant, 15:30, for decision/target endpoint timestamps. A source row timestamped 15:30 remains 15:30.",
+      "passed": true
+    },
+    {
+      "check": "POSITIONAL_1528_IS_MISSING_NOT_SUBSTITUTED",
+      "detail": "If neither 15:29 nor 15:30 exists, treat the close as missing; exclude every affected feature history or target pair and count it. Do not forward-fill, interpolate, or substitute a nearest timestamp.",
+      "passed": true
+    },
+    {
+      "check": "CORRECTION_SUPPORTED_BY_PREFLIGHT_DIAGNOSTIC",
+      "detail": "{'15:28': 9, '15:29': 1150, '15:30': 72}",
+      "passed": true
+    },
+    {
+      "check": "CANONICAL_SOURCE_HASH",
+      "detail": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+      "passed": true
+    },
+    {
+      "check": "CALENDAR_PIN",
+      "detail": "NSE_CAPITAL_MARKET_EQUITIES_2021_2026_R3:ddce75f70f39e390e3d68fc6662ed31b3b85b9ecbc78d71178eedb7a34b9ae26",
+      "passed": true
+    },
+    {
+      "check": "FEATURE_PRICE_SOURCE",
+      "detail": "SPOT:nifty_close",
+      "passed": true
+    },
+    {
+      "check": "FROZEN_LOOKBACKS",
+      "detail": "[20, 60]",
+      "passed": true
+    },
+    {
+      "check": "FEATURE_DIMENSION",
+      "detail": "2 * lookback_bars",
+      "passed": true
+    },
+    {
+      "check": "FEATURE_ORDER",
+      "detail": "['simple_returns_newest_to_oldest', 'spot_close_levels_newest_to_oldest']",
+      "passed": true
+    },
+    {
+      "check": "TRAINING_ONLY_SCALING",
+      "detail": "transformations are frozen",
+      "passed": true
+    },
+    {
+      "check": "OPTION_FEATURES_DEFERRED",
+      "detail": "spot-only PM0001; no proxy substitution",
+      "passed": true
+    },
+    {
+      "check": "HOLDOUT_CLOSED",
+      "detail": "holdout stays sealed",
+      "passed": true
+    },
+    {
+      "check": "TEN_LABELS",
+      "detail": "n=10",
+      "passed": true
+    },
+    {
+      "check": "FLAT_TOLERANCE",
+      "detail": "1e-08",
+      "passed": true
+    },
+    {
+      "check": "INTRA_5M_UP_DOWN_HORIZON",
+      "detail": "registered=5, contract=5",
+      "passed": true
+    },
+    {
+      "check": "INTRA_5M_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "INTRA_15M_UP_DOWN_HORIZON",
+      "detail": "registered=15, contract=15",
+      "passed": true
+    },
+    {
+      "check": "INTRA_15M_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "INTRA_30M_UP_DOWN_HORIZON",
+      "detail": "registered=30, contract=30",
+      "passed": true
+    },
+    {
+      "check": "INTRA_30M_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "INTRA_60M_UP_DOWN_HORIZON",
+      "detail": "registered=60, contract=60",
+      "passed": true
+    },
+    {
+      "check": "INTRA_60M_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "INTRA_120M_UP_DOWN_HORIZON",
+      "detail": "registered=120, contract=120",
+      "passed": true
+    },
+    {
+      "check": "INTRA_120M_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "POS_1D_UP_DOWN_HORIZON",
+      "detail": "registered=1, contract=1",
+      "passed": true
+    },
+    {
+      "check": "POS_1D_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=1, embargo=1",
+      "passed": true
+    },
+    {
+      "check": "POS_2D_UP_DOWN_HORIZON",
+      "detail": "registered=2, contract=2",
+      "passed": true
+    },
+    {
+      "check": "POS_2D_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=2, embargo=2",
+      "passed": true
+    },
+    {
+      "check": "POS_3D_UP_DOWN_HORIZON",
+      "detail": "registered=3, contract=3",
+      "passed": true
+    },
+    {
+      "check": "POS_3D_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=3, embargo=3",
+      "passed": true
+    },
+    {
+      "check": "POS_5D_UP_DOWN_HORIZON",
+      "detail": "registered=5, contract=5",
+      "passed": true
+    },
+    {
+      "check": "POS_5D_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=5, embargo=5",
+      "passed": true
+    },
+    {
+      "check": "POS_10D_UP_DOWN_HORIZON",
+      "detail": "registered=10, contract=10",
+      "passed": true
+    },
+    {
+      "check": "POS_10D_UP_DOWN_PURGE_EMBARGO",
+      "detail": "purge=10, embargo=10",
+      "passed": true
+    },
+    {
+      "check": "ALL_TARGETS_USE_RETURN_FORMULA",
+      "detail": "return formulas agree with the frozen label manifest",
+      "passed": true
+    },
+    {
+      "check": "SOURCE_PREFLIGHT_PASSED",
+      "detail": "PASS_DATA_PREFLIGHT_WITH_SCOPED_BLOCKS",
+      "passed": true
+    },
+    {
+      "check": "SOURCE_PREFLIGHT_HASH",
+      "detail": "cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204",
+      "passed": true
+    },
+    {
+      "check": "SPOT_PRICE_COLUMN_PRESENT",
+      "detail": "nifty_close is present in the 47-column schema",
+      "passed": true
+    },
+    {
+      "check": "PREFLIGHT_CELL_COUNTS",
+      "detail": "cells=80",
+      "passed": true
+    },
+    {
+      "check": "SCOPED_F01_BLOCKS",
+      "detail": "[('POS_10D_UP_DOWN', 'F01'), ('POS_1D_UP_DOWN', 'F01'), ('POS_2D_UP_DOWN', 'F01'), ('POS_3D_UP_DOWN', 'F01'), ('POS_5D_UP_DOWN', 'F01')]",
+      "passed": true
+    },
+    {
+      "check": "PREFLIGHT_COUNTS",
+      "detail": "75 pass / 5 blocked",
+      "passed": true
+    },
+    {
+      "check": "PREREQUISITE_AUDIT_PASSED",
+      "detail": "PASS_DATA_AND_REGISTRY_PREREQUISITES_WITH_SCOPED_BLOCKS",
+      "passed": true
+    },
+    {
+      "check": "NO_FIT_AUTHORIZATION",
+      "detail": "{'detail': 'All 1,000 compatibility records remain NOT_IMPLEMENTED_OR_TESTER_APPROVED and all method/config fit flags remain false. Complete and test the development-fold executor and method implementations before authorizing a fit.', 'empirical_fit_authorized': False, 'holdout_accessed': False, 'next_gate': 'IMPLEMENT_AND_TEST_DEVELOPMENT_FOLD_EXECUTOR_WITH_EXPLICIT_METHOD_ALLOWLIST', 'reason_code': 'BLOCKED_ALL_METHODS_UNIMPLEMENTED_OR_NOT_APPROVED', 'strategy_selection_authorized': False}",
+      "passed": true
+    },
+    {
+      "check": "PM0001_SEMANTICS",
+      "detail": "{'method_id': 'PM0001', 'algorithm_family': 'logistic_regression', 'input_representation': 'raw_lag_stack', 'feature_construction': 'ordered_lagged_returns_and_levels', 'compatibility_decision': 'ALLOW_IN_PRINCIPLE'}",
+      "passed": true
+    },
+    {
+      "check": "PM0001_NOT_YET_AUTHORIZED",
+      "detail": "{'eligible_for_empirical_fitting': False, 'implementation_status': 'NOT_IMPLEMENTED_OR_TESTER_APPROVED'}",
+      "passed": true
+    },
+    {
+      "check": "FEATURE_BUILDER_HAS_NO_FIT_FUNCTION",
+      "detail": "feature builder constructs samples only",
+      "passed": true
+    }
+  ],
+  "checks_passed": 52,
+  "feature_samples_persisted": false,
+  "fitting_gate": {
+    "empirical_fit_authorized": false,
+    "holdout_accessed": false,
+    "method_allowlist_authorized": [],
+    "model_fitting_performed": false,
+    "next_gate": "IMPLEMENT_AND_TEST_CHRONOLOGICAL_DEVELOPMENT_FOLD_EXECUTOR"
+  },
+  "generated_utc": "2026-10-14T06:14:31.529564+00:00",
+  "raw_market_rows_in_report": false,
+  "schema_version": "prediction-feature-construction-test-report-v1",
+  "status": "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED",
+  "verified_source_hashes": {
+    "calendar_git_blob_sha1": "dbc5907d5a7c159bd8a70d13700f7e2a7128af69",
+    "calendar_sha256": "ddce75f70f39e390e3d68fc6662ed31b3b85b9ecbc78d71178eedb7a34b9ae26",
+    "contract_git_blob_sha1": "11a3b3daa72490f1dd8535b560c4f30b6c5594a9",
+    "contract_sha256": "7d0d6974b62c9ef030e1cf6e97acdd402e6090253e2702388791227b6410153e",
+    "contract_validator_git_blob_sha1": "e2557ca232cef73c5609745fd59a968ba2ee4d6e",
+    "contract_validator_sha256": "2ef06dfd5cde4f53657467e5d8cf1443e86ada8c9e9957957dc1304e275afa2d",
+    "feature_builder_git_blob_sha1": "373c9d0867d3a50e3a43459d0cc609265a6f6ec4",
+    "feature_builder_sha256": "2109c280586f8bdacc22bdbc0d335b9cdedb0788da2e873b0fa8b01103301386",
+    "feature_correction_git_blob_sha1": "21b0362f106ae077a732942d7cfc1f4e46ceaa10",
+    "feature_correction_note_sha256": "b5139cce1decd4af4caf2d1cd3bd4bbf04b5d8904b0892bf763043d83c630984",
+    "feature_correction_sha256": "aa8969dabb9946d17806cc2b144ea5f6bc3d1ab6a8a885cc697bcc26429f9d41",
+    "feature_tests_git_blob_sha1": "5e72a7b3341c32a3cce5762dcce824481a883da5",
+    "feature_tests_sha256": "6da37b556eb9719de8c6f307bc4622a4877c94e69dfd786e40b82d48ad436739",
+    "label_manifest_git_blob_sha1": "ec808129d19c1018d113ef01f9de230bae998b50",
+    "label_manifest_sha256": "2b10d6ebd889da7435fbdfcb39d6db007d76dc7203a03a25a9ce844acaa6a013",
+    "preflight_report_git_blob_sha1": "9da9692d67b5fda6271e021c77e429d1b9f32b3c",
+    "preregistration_git_blob_sha1": "1ef2bf467928642aafc675899dd779a76394daab",
+    "prerequisite_report_git_blob_sha1": "23c760694440b570dc85a56cf58989718ab6f499"
+  }
+}
