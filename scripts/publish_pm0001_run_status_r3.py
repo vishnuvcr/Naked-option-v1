@@ -99,7 +99,7 @@ Developer to Tester: independently audit exact source/data/result pins, all 320 
     chat_block = f"""{marker}
 ## 2026-10-14 — User: Resume
 
-Resumed Phase 8P prediction work from the recorded precheck and synthetic-gate state. The canonical-data precheck and PM0001 run were attempted on source {source_commit}; outcome {status}; results acquired {str(acquired).lower()}. See [workflow #{run_id}]({run_url}) and the status block in README/STATUS. This log records decisions, outcomes and reproducibility artifacts rather than private chain-of-thought.
+Resumed Phase 8P prediction work from the recorded precheck and synthetic-gate state. The canonical-data precheck and PM0001 run were attempted on source {source_commit}; outcome {status}; results acquired: {str(acquired).lower()}. See [workflow #{run_id}]({run_url}) and the status block in README/STATUS. This log records decisions, outcomes and reproducibility artifacts rather than private chain-of-thought.
 """
     if marker not in chat_old:
         chat_path.write_text(chat_block.rstrip() + "\n\n" + chat_old, encoding="utf-8")
