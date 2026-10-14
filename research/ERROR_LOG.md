@@ -1,3 +1,12 @@
+## 2026-10-14 — PM0051 independent-auditor synthetic-fixture correction
+
+- Initial test CI [#38537818033](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537818033) failed one synthetic test because the stricter result validator checked lookback, prior_scale and config_sha256 while the generated blocked-row fixtures omitted those registered values.
+- Correction: fixtures now copy lookback, prior_scale and config_sha256 from each synthetic configuration record. No empirical data, model fit, or real PM0051 result was modified.
+- Corrected synthetic CI [#38537875610](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38537875610) passed.
+- Dedicated PM0051 reviewer remains gated until the PM0051 result bundle is frozen and its exact request is submitted.
+
+---
+
 # Error Log
 
 ## 2026-10-07 — Phase 6 Run 37668947725
