@@ -1,3 +1,10 @@
+## 2026-10-15 — Research gate update: independent tester review waived
+
+- User instruction: independent tester review is no longer required. Continue with developer-led validation; this changes the workflow requirement only, not the evidence standard.
+- Latest empirical attempt remains run [#38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340): 58 `BLOCKED_DATA`, 262 `FAILED_TECHNICAL`, zero accepted fits. The metric-contract fix is committed, but a fresh run has not been verified.
+- Next: execute synthetic regression tests against the corrected source, then run a fresh PM0051 empirical sweep; freeze and reconcile all 320 terminal outcomes, validate the metrics and hashes, and publish a corrected report. No holdout access or strategy promotion.
+- Execution limitation: the available GitHub connector exposes workflow-run inspection and reruns but no workflow-dispatch operation. Re-running the old failed workflow would use its original commit and would not validate the correction. Do not report the fix as tested until a run on the corrected commit is observed.
+
 ## 2026-10-14T19:02:09.449173+00:00 — Phase 8P R3A run 38595451340
 
 - Workflow: [run 38595451340](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595451340); source commit 6dafd244ff6b165fe96f9d7ef0696cc3f1757bf5.
