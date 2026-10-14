@@ -1,7 +1,7 @@
 """Synthetic-only tests for independent R3 PM0001 result auditing."""
 import unittest
 
-from independent_pm0001_results_audit_r3 import independent_by_adjustment, independent_moving_block_bootstrap, validate_precheck, validate_result_rows
+from independent_pm0001_results_audit_r3 import independent_by_adjustment, independent_moving_block_bootstrap, reported_bootstrap_value, validate_precheck, validate_result_rows
 
 
 def configs():
@@ -66,6 +66,12 @@ def blocked_rows(config_map):
 
 
 class IndependentPM0001ResultsAuditTests(unittest.TestCase):
+    def test_bootstrap_effect_field_maps_to_persisted_summary_key(self):
+        published = {"observed_mean_session_improvement": 0.00021, "ci_low": 0.0001}
+        self.assertEqual(reported_bootstrap_value(published, "observed_mean_improvement"), 0.00021)
+        self.assertEqual(reported_bootstrap_value(published, "ci_low"), 0.0001)
+        self.assertIsNone(reported_bootstrap_value(published, "ci_high"))
+
     def test_independent_bootstrap_is_deterministic_and_recomputable(self):
         deltas = {
             "F01": [0.02, 0.01, -0.01, 0.03, 0.02, 0.01, -0.005, 0.025, 0.01, 0.015, 0.02, 0.01],
