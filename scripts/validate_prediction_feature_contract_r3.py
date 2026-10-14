@@ -84,7 +84,7 @@ def validate_contract_objects(
     correction: dict[str, Any],
     contract_sha256: str,
     *,
-    calendar_id,
+    calendar_id: str,
     calendar_sha256: str,
     source_csv_sha256: str,
 ) -> list[dict[str, Any]]:
