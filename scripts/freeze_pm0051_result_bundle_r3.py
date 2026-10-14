@@ -311,6 +311,78 @@ def write_report_markdown(
             f"{ci} | {num_or_na(inf.get('raw_p_value'))} | {num_or_na(inf.get('by_adjusted_p_value'))} | "
             f"{str(inf.get('reject_at_q_0_05', False)).lower()} |"
         )
+
+    lines += [
+        "",
+        "## Directional accuracy, discrimination, and calibration",
+        "",
+        "Threshold=0.5 and comparator=training-fold class-prior probability thresholded at 0.5. Confusion counts, accuracy and balanced accuracy pool out-of-sample rows. Brier, ROC AUC and average precision are row-weighted means of fold values; AUC/AP are not pooled across folds. Accuracy-difference intervals use paired 10-session moving-block bootstrap with 10,000 replicates, seed 2026101417 and BY q=.05 within label family. Primary confirmatory inference remains log loss.",
+        "",
+        "| Config ID | N | Accuracy | Balanced accuracy | Baseline accuracy | Accuracy Δ | TP / FP / TN / FN | Brier | Fold-weighted ROC AUC | Fold-weighted AP | ECE | MCE | Session-weighted accuracy | Accuracy Δ 95% CI | Accuracy Δ BY p |",
+        "|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---|---:|",
+    ]
+    acc_inf = {}
+    for family in result.get("accuracy_multiplicity", {}).values():
+        for cid, value in family.get("configurations", {}).items():
+            acc_inf[str(cid)] = value
+    for cid, group in sorted(by_config.items()):
+        executed = [r for r in group if r.get("terminal_status") in {"EXECUTED_AUDITED", "REJECTED_EMPIRICAL"}]
+        n = sum(int(r.get("feature_rows_scored", 0) or 0) for r in executed)
+        if not executed or n <= 0:
+            lines.append(f"| {cid} | 0 | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA |")
+            continue
+        total = lambda k: sum(int(r.get(k, 0) or 0) for r in executed)
+        tp, fp, tn, fn = (total(k) for k in ("true_positive","false_positive","true_negative","false_negative"))
+        btp, bfp, btn, bfn = (total(k) for k in ("baseline_true_positive","baseline_false_positive","baseline_true_negative","baseline_false_negative"))
+        accuracy=(tp+tn)/n; base_accuracy=(btp+btn)/n; positives=tp+fn; negatives=tn+fp
+        bal=0.5*((tp/positives if positives else 0)+(tn/negatives if negatives else 0))
+        weighted=lambda k: sum(float(r[k])*int(r.get("feature_rows_scored",0) or 0) for r in executed)/n
+        ece=mce=0.0
+        for idx in range(10):
+            bins=[b for r in executed for b in (r.get("calibration_bins") or []) if b.get("bin_index")==idx and int(b.get("count",0) or 0)>0]
+            bn=sum(int(b["count"]) for b in bins)
+            if bn:
+                mp=sum(float(b["mean_predicted_probability"])*int(b["count"]) for b in bins)/bn
+                obs=sum(float(b["observed_up_rate"])*int(b["count"]) for b in bins)/bn
+                gap=abs(mp-obs); ece+=bn/n*gap; mce=max(mce,gap)
+        inf=acc_inf.get(cid,{}); ci="NA"
+        if inf.get("ci_low") is not None and inf.get("ci_high") is not None:
+            ci=f"{float(inf['ci_low']):.6g} to {float(inf['ci_high']):.6g}"
+        lines.append(
+            f"| {cid} | {n} | {accuracy:.6g} | {bal:.6g} | {base_accuracy:.6g} | {accuracy-base_accuracy:.6g} | "
+            f"{tp} / {fp} / {tn} / {fn} | {weighted('brier_score'):.6g} | {weighted('roc_auc'):.6g} | "
+            f"{weighted('average_precision'):.6g} | {ece:.6g} | {mce:.6g} | {weighted('session_weighted_accuracy'):.6g} | "
+            f"{ci} | {num_or_na(inf.get('by_adjusted_p_value'))} |"
+        )
+    lines += [
+        "",
+        "### Regime-stratified validation diagnostics",
+        "",
+        "Volatility and trend tercile thresholds are derived from training sessions only. The context uses prior completed sessions, and missing closes are not imputed. Subgroup results are descriptive and must not drive post-hoc candidate selection.",
+        "",
+        "| Config ID | Label | Axis | Regime | N | Sessions | Up / Down support | Accuracy | Balanced accuracy | Baseline accuracy | Accuracy Δ | Brier | ROC AUC | AP |",
+        "|---|---|---|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for cid, group in sorted(by_config.items()):
+        executed=[r for r in group if r.get("terminal_status") in {"EXECUTED_AUDITED","REJECTED_EMPIRICAL"}]
+        acc={}
+        for r in executed:
+            for item in r.get("regime_diagnostics",{}).get("regimes",[]):
+                key=(str(item.get("axis")),str(item.get("regime")))
+                z=acc.setdefault(key,{"n":0,"sessions":0,"up":0,"down":0,"sums":defaultdict(float),"den":defaultdict(int)})
+                ni=int(item.get("observation_count",0) or 0); z["n"]+=ni; z["sessions"]+=int(item.get("session_count",0) or 0)
+                z["up"]+=int(item.get("positive_support",0) or 0); z["down"]+=int(item.get("negative_support",0) or 0)
+                for met in ("accuracy","balanced_accuracy","baseline_accuracy","accuracy_improvement","brier_score","roc_auc","average_precision"):
+                    if ni and item.get(met) is not None:
+                        z["sums"][met]+=float(item[met])*ni; z["den"][met]+=ni
+        label=str(group[0].get("label_id",""))
+        if not acc: lines.append(f"| {cid} | {label} | NA | NA | 0 | 0 | NA | NA | NA | NA | NA | NA | NA | NA |")
+        for (axis, regime),z in sorted(acc.items()):
+            def fmetric(k): return f"{z['sums'][k]/z['den'][k]:.6g}" if z["den"][k] else "NA"
+            lines.append(f"| {cid} | {label} | {axis} | {regime} | {z['n']} | {z['sessions']} | {z['up']} / {z['down']} | "
+                f"{fmetric('accuracy')} | {fmetric('balanced_accuracy')} | {fmetric('baseline_accuracy')} | {fmetric('accuracy_improvement')} | "
+                f"{fmetric('brier_score')} | {fmetric('roc_auc')} | {fmetric('average_precision')} |")
+
     lines += [
         "",
         "## Interpretation boundary",
