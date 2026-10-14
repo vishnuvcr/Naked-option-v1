@@ -1,3 +1,24 @@
+## 2026-10-14 — Tester false-positive schema mapping corrected; independent review now PASS
+
+### Initial independent review #38533906974 — REQUEST_CHANGES was an audit-harness field-mapping defect
+- The first report checked `observed_mean_improvement` against a key that does not exist in the published `summary.json`; the frozen summary uses `observed_mean_session_improvement`. The recomputed numeric values exactly matched the published values, but all 40 comparisons were reported as null on the expected side.
+- The frozen result bundle, source commit and 9 artifact hashes did not change.
+- Archived the original report at [initial review JSON](../research/gates/PREDICTION_PM0001_RESULTS_INDEPENDENT_TESTER_REVIEW_R3_INITIAL_REQUEST_CHANGES_2026-10-14.json) and its companion Markdown on the tester branch.
+
+### Correction and verification
+- Added explicit field normalization in `scripts/independent_pm0001_results_audit_r3.py` and a regression test in `scripts/test_independent_pm0001_results_audit_r3.py`; no statistical algorithm or research data was changed.
+- Synthetic independent-audit suite passed: [workflow #38534192962](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38534192962) and [#38534198359](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38534198359).
+- Corrected independent review: [workflow #38534260948](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38534260948) — **PASS**. All 9 artifacts, all 24 source pins, 320 terminal rows, 40 bootstrap configurations, 262 eligible fold sequences and 29,326 session deltas verified; no issues/warnings; holdout untouched.
+- This was a tester-harness defect, not a model result defect. The initial REQUEST_CHANGES remains archived for auditability.
+
+### Research disposition
+- PM0001 R3 results are independently approved at the stated scope. This does not authorize long-option strategy development and does not imply all registered prediction methods have been tested.
+- Next: broaden prediction-family coverage only after exact parameter semantics, adapter tests and fold-execution gates pass. Preserve frozen labels, data pins, horizon scopes, purge/embargo, support rules and statistical protocol.
+
+**Developer → Tester:** continue to apply the corrected field mapping on future result bundles. Audit every added prediction family independently at the consolidated results gate; reject ignored parameters or incompatible configurations.
+
+---
+
 ## 2026-10-14 — Phase 8P acquired-results tester handoff failures and repairs
 
 ### Run #38525772378 — missing reviewer token blocked only the final handoff step
