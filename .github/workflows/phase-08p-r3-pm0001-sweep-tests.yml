@@ -7,6 +7,10 @@ on:
     paths:
       - scripts/create_pm0001_execution_gate_r3.py
       - scripts/test_create_pm0001_execution_gate_r3.py
+      - scripts/prediction_features_r3.py
+      - scripts/test_prediction_features_r3.py
+      - scripts/validate_prediction_feature_contract_r3.py
+      - research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json
       - scripts/run_pm0001_prediction_sweep_r3.py
       - scripts/test_run_pm0001_prediction_sweep_r3.py
       - scripts/freeze_pm0001_result_bundle_r3.py
@@ -37,6 +41,8 @@ jobs:
         run: |
           python -m py_compile \
             scripts/create_pm0001_execution_gate_r3.py \
+            scripts/validate_prediction_feature_contract_r3.py \
+            scripts/prediction_features_r3.py \
             scripts/run_pm0001_data_execution_precheck_r3.py \
             scripts/run_pm0001_prediction_sweep_r3.py \
             scripts/freeze_pm0001_result_bundle_r3.py \
@@ -48,6 +54,7 @@ jobs:
             scripts/prediction_walkforward_r3.py
       - name: Run synthetic-only gate and sweep tests
         run: |
+          python -m unittest discover -s scripts -p 'test_prediction_features_r3.py' -v
           python -m unittest discover -s scripts -p 'test_create_pm0001_execution_gate_r3.py' -v
           python -m unittest discover -s scripts -p 'test_run_pm0001_prediction_sweep_r3.py' -v
           python -m unittest discover -s scripts -p 'test_freeze_pm0001_result_bundle_r3.py' -v
