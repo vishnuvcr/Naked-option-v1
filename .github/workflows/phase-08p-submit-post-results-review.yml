@@ -64,7 +64,7 @@ jobs:
               path, expected = item.get("path", ""), item.get("sha256", "")
               if not path or not re.fullmatch(r"[0-9a-f]{64}", expected):
                   raise SystemExit(f"Invalid result artifact pin: {item!r}")
-              data = subprocess.check_output(["git", "show", f"{source}:{path}"])
+              data = subprocess.check_output(["git", "show", f"{published}:{path}"])
               if hashlib.sha256(data).hexdigest() != expected:
                   raise SystemExit(f"Result artifact SHA-256 mismatch: {path}")
           for path, expected in request.get("changed_source_blobs", {}).items():
