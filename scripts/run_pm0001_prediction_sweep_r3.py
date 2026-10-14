@@ -116,6 +116,7 @@ def validate_run_gate(
     gate_path: Path,
     precheck_path: Path,
     precheck: Mapping[str, Any],
+    preflight_path: Path,
     configs: Sequence[Mapping[str, Any]],
     source_commit: str,
     workflow_run_id: str,
@@ -147,9 +148,21 @@ def validate_run_gate(
         raise SweepError("EXECUTION_GATE_PRECHECK_SHA256_MISMATCH")
     if gate.get("precheck_status_counts") != precheck.get("status_counts"):
         raise SweepError("EXECUTION_GATE_PRECHECK_COUNTS_MISMATCH")
+    if not preflight_path.is_file():
+        raise SweepError("RUN_PREFLIGHT_REPORT_MISSING")
+    try:
+        preflight_rel = preflight_path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise SweepError("RUN_PREFLIGHT_REPORT_OUTSIDE_REPOSITORY") from exc
+    preflight_raw = preflight_path.read_bytes()
+    if gate.get("preflight_report_path") != preflight_rel:
+        raise SweepError("EXECUTION_GATE_PREFLIGHT_PATH_MISMATCH")
+    if gate.get("preflight_report_git_blob_sha1") != git_blob_sha1(preflight_raw):
+        raise SweepError("EXECUTION_GATE_PREFLIGHT_BLOB_PIN_MISMATCH")
+    if gate.get("preflight_report_sha256") != sha256_bytes(preflight_raw):
+        raise SweepError("EXECUTION_GATE_PREFLIGHT_SHA256_MISMATCH")
     expected_pins = {
         "eligibility_manifest_git_blob_sha1": ELIGIBILITY_PATH,
-        "preflight_report_git_blob_sha1": PREFLIGHT_PATH,
         "implementation_gate_git_blob_sha1": IMPLEMENTATION_PATH,
         "preregistration_git_blob_sha1": PREREG_PATH,
         "feature_construction_report_git_blob_sha1": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
@@ -389,7 +402,7 @@ def _add_bootstrap_to_rows(
 
 
 def run_sweep(
-    *, merged_gzip: Path | None, precheck_path: Path, gate_path: Path,
+    *, merged_gzip: Path | None, precheck_path: Path, preflight_path: Path, gate_path: Path,
     output_path: Path, summary_path: Path, errors_path: Path,
     source_commit: str, workflow_run_id: str,
 ) -> dict[str, Any]:
@@ -430,7 +443,7 @@ def run_sweep(
     gate_verified = False
     if not global_gate_reason and precheck is not None and merged_gzip is not None and merged_gzip.is_file():
         try:
-            gate = validate_run_gate(gate_path, precheck_path, precheck, configs, source_commit, workflow_run_id)
+            gate = validate_run_gate(gate_path, precheck_path, precheck, preflight_path, configs, source_commit, workflow_run_id)
             if precheck.get("status") != "PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING":
                 raise SweepError("PRECHECK_REPORT_STATUS_NOT_FITTING_AUTHORIZED")
             verify_source_pins(EXPECTED_DATA_SHA256)
@@ -741,6 +754,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--merged-gzip", type=Path, default=None)
     ap.add_argument("--precheck-report", type=Path, required=True)
+    ap.add_argument("--preflight-report", type=Path, required=True)
     ap.add_argument("--execution-gate", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--summary", type=Path, required=True)
@@ -752,6 +766,7 @@ def main() -> int:
         result = run_sweep(
             merged_gzip=args.merged_gzip,
             precheck_path=args.precheck_report,
+            preflight_path=args.preflight_report,
             gate_path=args.execution_gate,
             output_path=args.output,
             summary_path=args.summary,
