@@ -36,6 +36,6 @@
   },
   "review_gate": "CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
   "holdout_accessed": false,
-  "handoff_retry": 2,
-  "last_handoff_correction": "2026-10-14: dispatch workflow uses explicit repository context; result artifact hashes validated against published commit"
+  "handoff_retry": 3,
+  "last_handoff_correction": "2026-10-14: independent audit falsely flagged all configurations because it compared observed_mean_improvement to a published key named observed_mean_session_improvement; auditor mapping regression test added and synthetic audit suite passed in workflow 38534192962"
 }
