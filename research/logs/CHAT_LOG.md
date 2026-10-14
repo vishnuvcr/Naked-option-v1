@@ -1,3 +1,19 @@
+## Conversation checkpoint — 2026-10-14 — independent PASS and continuation
+
+User instruction: “Ok proceed”.
+
+User-visible continuation summary: resumed frozen prediction run #38525772378; fixed the submission workflow and successfully handed the bundle to independent tester. The first review's REQUEST_CHANGES was traced to a tester code bug: a mismatch between `observed_mean_improvement` (auditor helper name) and `observed_mean_session_improvement` (published summary schema). The original report was archived, a schema mapping and regression test were added, and the tester's synthetic suite passed. The repeated audit #38534260948 returned PASS with zero issues or warnings.
+
+Accepted scope: PM0001 only; 40 preregistered configurations × 8 chronological outer folds; 320 terminal pairs (262 executed/audited, 58 blocked); all nine result artifacts and 24 source pins verified; 40 bootstraps / 262 eligible fold sequences / 29,326 session deltas independently checked; protected holdout unopened.
+
+Interpretation: four 5-minute logistic configurations improve slightly on the registered class-prevalence log-loss baseline after BY correction. This is not percentage accuracy, net returns, or proof of a profitable options strategy. User's research preference remains prediction first; do not pivot to strategies.
+
+Next: broaden prediction-family coverage within the finite research plan. Resolve parameter semantics, family-specific implementation and generic fold-execution gates before fitting further registered compatible methods. Maintain all branch gates, provenance and blocked records; update logs on every step. This log records user-visible decisions/actions rather than private chain-of-thought.
+
+**Developer → Tester:** apply the corrected bootstrap field mapping and audit all eligible methods/configuration-fold rows independently after the next frozen result bundle is acquired.
+
+---
+
 ## Conversation checkpoint — 2026-10-14
 
 User instruction: “Ok proceed”.
