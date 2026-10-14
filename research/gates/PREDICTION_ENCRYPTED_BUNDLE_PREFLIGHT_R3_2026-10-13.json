@@ -4,7 +4,7 @@
   "dataset_id": "NIFTY_1M_DHAN_ROLLING_OPTIONS_COMPOSITE_2021-10-11_2026-10-10_SPOT_GAPFILL_DERIVED_REPAIR_V1",
   "encrypted_part_count": 61,
   "expected_data_rows": 8999865,
-  "manifest_path": "/home/runner/work/_temp/r3-prediction-preflight/unpacked/_temp/repair-derived-encrypted/dataset_manifest.json",
+  "manifest_path": "/home/runner/work/_temp/r3-pm0001-precheck/unpacked/_temp/repair-derived-encrypted/dataset_manifest.json",
   "market_rows_read": false,
   "part_hashes": [
     {

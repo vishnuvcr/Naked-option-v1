@@ -1,3 +1,18 @@
+<!-- pm0001-run:38522693920 -->
+## 2026-10-14 — Phase 8P PM0001 pipeline outcome
+
+- Workflow: [run #38522693920](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522693920); tested source commit: c91f40cbf388d1943a578713af2ae6211e05ae0d.
+- Job status: failure; research status: PASS_PRECHECK_COMPLETE_NO_MODEL_FITTING; results acquired: false.
+- Canonical data SHA-256: cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204.
+- Config/fold precheck accounting: {"BLOCKED_DATA": 20, "BLOCKED_SAMPLE_ELIGIBILITY": 38, "PRECHECK_PASS": 262} across 320/320 cells.
+- Empirical terminal accounting: {}; fit rows: 0; blocked/failed rows: not acquired.
+- Holdout accessed: False. This is prediction research only; no option strategy is selected here.
+- Artifacts: No validated result manifest yet; see workflow artifacts and logs.
+- Structured diagnostics: 0 entries in no runner JSONL created.
+- Next: independent review of the frozen result bundle only when results_acquired is true; do not advance to strategy selection before tester report.
+
+Developer to Tester: independently audit exact source/data/result pins, all 320 terminal rows, label timing, sample-support exclusions, purge/embargo, rolling refits, calibration, bootstrap sign/p-value arithmetic, BY multiplicity and technical failures. Return concrete file/line evidence; do not accept claims based solely on the developer summary.
+
 <!-- pm0001-run:38522569942 -->
 ## 2026-10-14 — Phase 8P PM0001 pipeline outcome
 

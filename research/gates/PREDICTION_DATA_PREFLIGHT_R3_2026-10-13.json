@@ -1439,7 +1439,7 @@
   },
   "malformed_timestamps": 0,
   "market_rows_examined": true,
-  "merged_gzip_sha256": "0f57373c5a8d32c169c359100c58cadb3fb0f2815b2e0ada4ea8c21682224cf2",
+  "merged_gzip_sha256": "31561fd6dd26c80b5cb15f76686bd3e54c08e87c93d5fae9414dc7c0c81be05b",
   "missing_regular_spot_session_dates_count": 0,
   "missing_regular_spot_session_dates_sample": [],
   "model_fitting_performed": false,
