@@ -152,6 +152,11 @@ def validate_run_gate(
         "preflight_report_git_blob_sha1": PREFLIGHT_PATH,
         "implementation_gate_git_blob_sha1": IMPLEMENTATION_PATH,
         "preregistration_git_blob_sha1": PREREG_PATH,
+        "feature_construction_report_git_blob_sha1": "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json",
+        "feature_builder_git_blob_sha1": "scripts/prediction_features_r3.py",
+        "feature_tests_git_blob_sha1": "scripts/test_prediction_features_r3.py",
+        "feature_correction_git_blob_sha1": "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json",
+        "feature_contract_validator_git_blob_sha1": "scripts/validate_prediction_feature_contract_r3.py",
         "runner_git_blob_sha1": Path(__file__).resolve().relative_to(ROOT).as_posix(),
     }
     for field, rel in expected_pins.items():
@@ -160,6 +165,12 @@ def validate_run_gate(
             raise SweepError(f"EXECUTION_GATE_SOURCE_PIN_MISMATCH:{field}")
     if gate.get("eligibility_manifest_git_blob_sha1") != git_blob_sha1(ELIGIBILITY_PATH.read_bytes()):
         raise SweepError("EXECUTION_GATE_ELIGIBILITY_PIN_MISMATCH")
+    correction_path = ROOT / "research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json"
+    if gate.get("feature_correction_sha256") != sha256_bytes(correction_path.read_bytes()):
+        raise SweepError("EXECUTION_GATE_FEATURE_CORRECTION_SHA256_MISMATCH")
+    feature_report_path = ROOT / "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json"
+    if gate.get("feature_construction_report_sha256") != sha256_bytes(feature_report_path.read_bytes()):
+        raise SweepError("EXECUTION_GATE_FEATURE_REPORT_SHA256_MISMATCH")
     pin = read_json(DATA_PIN_PATH)
     current = pin.get("current_derived_artifact", {})
     if current.get("artifact_id") != 11698879857:
