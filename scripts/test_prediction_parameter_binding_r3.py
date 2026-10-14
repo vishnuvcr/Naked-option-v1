@@ -30,6 +30,15 @@ class ParameterBindingTests(unittest.TestCase):
         b=bind_configuration({"model_parameters":{"dropout":0.4,"channels":16,"kernel_size":3}},"temporal_convolution_network")
         self.assertFalse(b.supported); self.assertEqual(b.reason,"DROPOUT_NOT_IMPLEMENTED")
 
+    def test_probit_prior_scale_is_explicit_and_frozen(self):
+        for scale in (0.5, 2.0):
+            b=bind_configuration({"model_parameters":{"prior_scale":scale}},"probit_regression")
+            self.assertTrue(b.supported)
+            self.assertEqual(b.parameters,{"prior_scale":float(scale)})
+        self.assertFalse(bind_configuration({"model_parameters":{"prior_scale":1.0}},"probit_regression").supported)
+        self.assertFalse(bind_configuration({"model_parameters":{}},"probit_regression").supported)
+        self.assertFalse(bind_configuration({"model_parameters":{"prior_scale":2.0,"C":1.0}},"probit_regression").supported)
+
     def test_unknown_family_fails_closed(self):
         with self.assertRaisesRegex(ParameterBindingError,"UNSUPPORTED"):
             require_supported({"model_parameters":{}},"unknown_family")
