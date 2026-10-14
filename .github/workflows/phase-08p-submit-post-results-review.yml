@@ -121,4 +121,4 @@ jobs:
             git -C tester commit -m "Submit acquired prediction results for consolidated independent review"
             git -C tester push origin HEAD:phase-08-prediction-tester
           fi
-          gh workflow run phase-08p-independent-registry-review.yml --ref phase-08-prediction-tester
+          gh workflow run phase-08p-independent-registry-review.yml --repo "$GITHUB_REPOSITORY" --ref phase-08-prediction-tester
