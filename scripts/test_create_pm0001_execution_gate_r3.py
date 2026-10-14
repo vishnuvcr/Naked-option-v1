@@ -21,6 +21,13 @@ def fixture():
         "empirical_fit_authorized": False,
         "manual_authorization_required": False,
     } for cfg in ids]
+    blocked = [{
+        "config_id": f"OTHER{i:05d}",
+        "method_id": "PM0002",
+        "disposition": "BLOCKED_METHOD_COMPATIBILITY",
+        "empirical_fit_authorized": False,
+        "manual_authorization_required": False,
+    } for i in range(39960)]
     eligibility = {
         "record_count": 40000, "unique_config_count": 40000,
         "manual_authorization_required": False, "empirical_fit_authorized": False,
@@ -29,7 +36,7 @@ def fixture():
             "implementation_gate_git_blob_sha1": "implsha",
             "canonical_uncompressed_csv_sha256": EXPECTED_DATA_SHA256,
         },
-        "records": pending,
+        "records": blocked + pending,
     }
     preflight = {
         "canonical_hash_matches": True,
