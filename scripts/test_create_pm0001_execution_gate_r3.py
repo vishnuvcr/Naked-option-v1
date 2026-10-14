@@ -59,7 +59,25 @@ def fixture():
         "model_fitting_performed": False, "holdout_accessed": False,
         "empirical_fit_authorized": False,
     }
+    feature_report = {
+        "status": "PASS_FEATURE_CONTRACT_WITH_FITTING_BLOCKED",
+        "fitting_gate": {
+            "empirical_fit_authorized": False,
+            "model_fitting_performed": False,
+            "holdout_accessed": False,
+        },
+        "verified_source_hashes": {
+            "feature_builder_git_blob_sha1": "feature-builder",
+            "feature_tests_git_blob_sha1": "feature-tests",
+            "feature_correction_git_blob_sha1": "feature-correction",
+            "feature_correction_sha256": "c" * 64,
+            "contract_validator_git_blob_sha1": "validator",
+        },
+    }
     args = {
+        "feature_report": feature_report,
+        "feature_report_blob_sha1": "feature-report-blob",
+        "feature_report_sha256": "d" * 64,
         "eligibility_blob_sha1": "el",
         "preflight_blob_sha1": "pre",
         "implementation_gate_blob_sha1": "implsha",
@@ -125,6 +143,16 @@ class PM0001ExecutionGateTests(unittest.TestCase):
         self.assertTrue(gate["empirical_fit_authorized"])
         self.assertEqual(gate["precheck_status_counts"]["BLOCKED_DATA"], 1)
         self.assertFalse(precheck["rows"][0]["empirical_fit_authorized"])
+
+    def test_feature_report_must_pass_and_must_not_claim_fitting(self):
+        eligibility, preflight, implementation, precheck, args = fixture()
+        args["feature_report"]["status"] = "FAIL_FEATURE_CONTRACT"
+        with self.assertRaisesRegex(ValueError, "FEATURE_CONSTRUCTION_REPORT_NOT_PASS"):
+            build_execution_gate(eligibility, preflight, implementation, precheck, **args)
+        eligibility, preflight, implementation, precheck, args = fixture()
+        args["feature_report"]["fitting_gate"]["model_fitting_performed"] = True
+        with self.assertRaisesRegex(ValueError, "FEATURE_CONSTRUCTION_REPORT_SCOPE_INVALID"):
+            build_execution_gate(eligibility, preflight, implementation, precheck, **args)
 
     def test_wrong_pending_method_or_count_fails_closed(self):
         eligibility, preflight, implementation, precheck, args = fixture()
