@@ -976,3 +976,10 @@ Run [38399063791](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/3839
 ### Current developer run — 2026-10-14
 - PM0001's synthetic executor suite passed in [workflow #38471406903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471406903): 7 synthetic tests; no market data or holdout loaded. Pinned report: [PM0001 implementation gate](research/gates/PREDICTION_PM0001_IMPLEMENTATION_GATE_R3_2026-10-14.json).
 - Registry disposition remains blocked: [workflow #38471587415](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471587415) failed because the implementation gate carried a stale source blob pin. The gate report has now been corrected to exact verified CI pins; rerun is pending. No empirical fitting or performance claim.
+
+
+### PM0051 metric-contract correction — 2026-10-15
+- Run #38595451340 ended with 58 BLOCKED_DATA and 262 FAILED_TECHNICAL outcomes; zero empirical fits were accepted.
+- Root cause: extended classification diagnostics included `accuracy`, which was not registered in the walk-forward result contract. Fail-closed validation prevented invalid results from being accepted.
+- The developer branch now registers extended diagnostic fields and includes a synthetic regression test. CI and a fresh empirical rerun remain unverified; no new predictive conclusion is available.
+- Research status and error log record the issue. Holdout remains sealed; no trading strategy is approved.
