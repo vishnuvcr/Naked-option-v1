@@ -1,3 +1,11 @@
+## 2026-10-14T16:07:18.516636+00:00 — Phase 8P R3A run 38595260177
+
+- Workflow: [run 38595260177](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38595260177); source commit cebeab232df3d27c1e7d73746e06c1d320bb0948.
+- Result status: NO_COMPLETE_RESULT_BUNDLE; empirical fit rows: 0; results_acquired=false.
+- Precheck: {}; terminal result accounting: {}.
+- Execution gate: MISSING_OR_FAILED; precheck fitting false and holdout access false.
+- Runtime error rows: 0; result manifest: NOT_CREATED.
+
 ## 2026-10-14T15:56:27.293250+00:00 — Phase 8P R3A run 38593646854
 
 - Workflow: [run 38593646854](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38593646854); source commit 2b28bbaba3155cd450e4e8a913a83655548a2ffe.
