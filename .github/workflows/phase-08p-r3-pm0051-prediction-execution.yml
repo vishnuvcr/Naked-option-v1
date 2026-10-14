@@ -363,3 +363,69 @@ jobs:
           echo "results_acquired=$acquired" >> "$GITHUB_OUTPUT"
           echo "artifact_commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Submit PM0051 acquired bundle to independent tester
+        if: steps.publish.outputs.results_acquired == 'true' && steps.freeze.outcome == 'success'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          published_commit="$(git rev-parse HEAD)"
+          test -f "$RUN_MANIFEST"
+          manifest_sha="$(sha256sum "$RUN_MANIFEST" | awk '{print $1}')"
+          python - "$GITHUB_SHA" "$published_commit" "$RUN_MANIFEST" "$manifest_sha" "$GITHUB_RUN_ID" <<'PY'
+          import json,subprocess,sys
+          from pathlib import Path
+          source,published,manifest_path,manifest_sha,run_id=sys.argv[1:]
+          sources=[
+            "scripts/create_pm0051_execution_gate_r3.py",
+            "scripts/test_create_pm0051_execution_gate_r3.py",
+            "scripts/preflight_prediction_dataset_r3.py",
+            "scripts/run_pm0051_data_execution_precheck_r3.py",
+            "scripts/run_pm0051_data_execution_precheck_r3a.py",
+            "scripts/test_run_pm0051_data_execution_precheck_r3a.py",
+            "scripts/run_pm0051_prediction_sweep_r3.py",
+            "scripts/test_run_pm0051_prediction_sweep_r3.py",
+            "scripts/freeze_pm0051_result_bundle_r3.py",
+            "scripts/test_freeze_pm0051_result_bundle_r3.py",
+            "scripts/publish_pm0051_run_status_r3.py",
+            "scripts/test_publish_pm0051_run_status_r3.py",
+            "scripts/prediction_features_r3.py",
+            "scripts/validate_prediction_feature_contract_r3.py",
+            "scripts/prediction_probit_executor_r3.py",
+            "scripts/test_prediction_probit_executor_r3.py",
+            "scripts/prediction_probit_adapter_r3.py",
+            "scripts/test_prediction_probit_adapter_r3.py",
+            "scripts/prediction_logistic_calibration_r3.py",
+            "scripts/prediction_statistics.py",
+            "scripts/prediction_walkforward_r3.py",
+            "scripts/prediction_parameter_binding_r3.py",
+            "scripts/test_prediction_parameter_binding_r3.py",
+            "scripts/build_pm0051_eligibility_disposition_r3.py",
+            "scripts/test_build_pm0051_eligibility_disposition_r3.py",
+          ]
+          blobs={p:subprocess.check_output(["git","rev-parse",f"{source}:{p}"],text=True).strip() for p in sources}
+          request={
+            "schema_version":"prediction-results-acquired-review-request-r3-v1",
+            "run_id":str(run_id),
+            "tested_source_commit":published,
+            "source_execution_commit":source,
+            "source_workflow_run_id":str(run_id),
+            "result_published_commit":published,
+            "result_bundle_manifest_path":manifest_path,
+            "result_bundle_manifest_sha256":manifest_sha,
+            "results_acquired":True,
+            "changed_source_blobs":blobs,
+            "review_gate":"CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
+            "holdout_accessed":False
+          }
+          manifest= json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+          if manifest.get("results_acquired") is not True or manifest.get("source_commit") != source:
+              raise SystemExit("PM0051 result manifest does not prove acquired results for the exact execution source.")
+          Path("research/gates/PREDICTION_PM0051_RESULTS_ACQUIRED_REVIEW_REQUEST.json").write_text(json.dumps(request,sort_keys=True,indent=2)+"\\n",encoding="utf-8")
+          print(json.dumps({"run_id":run_id,"source":source,"published":published,"manifest_sha256":manifest_sha,"source_pin_count":len(blobs)},sort_keys=True))
+          PY
+          git add research/gates/PREDICTION_PM0051_RESULTS_ACQUIRED_REVIEW_REQUEST.json
+          git commit -m "Submit Phase 8P PM0051 acquired results for independent review"
+          git push origin HEAD:phase-08-prediction-developer
+          gh workflow run phase-08p-pm0051-submit-post-results-review.yml --repo "$GITHUB_REPOSITORY" --ref phase-08-prediction-developer
