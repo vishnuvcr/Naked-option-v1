@@ -429,154 +429,168 @@ def run_sweep(
             global_gate_reason = f"DATASET_READ_FAILED:{type(exc).__name__}:{str(exc)[:220]}"
             append_error(errors_path, config_id=None, fold_id=None, step="read_verified_data", error=exc)
 
-    for config in configs:
-        cid = str(config["config_id"])
-        c = config["configuration"]
-        label_id = str(c["label_id"])
-        lookback = int(c["lookback_bars"])
-        purge = int(c["purge_exchange_sessions"])
-        embargo = int(c["embargo_exchange_sessions"])
-        minima = _get_label_minima(prereg, label_id)
-        target_definition = label_targets.get(label_id, label_id)
-        cache_key = (label_id, lookback)
-        for fold_id in FOLD_IDS:
-            all_config_fold_rows += 1
-            pre_row = precheck_map.get((cid, fold_id))
-            if cache_key not in feature_cache and gate_verified and records is not None and calendar is not None:
-                try:
-                    session_dates = load_eligible_session_dates(calendar, label_id)
-                    batch = build_feature_batch(records, calendar, label_id, lookback,
-                                                source_csv_sha256=EXPECTED_DATA_SHA256)
-                    positions = fold_positions(session_dates, windows)
-                    feature_cache[cache_key] = (batch, session_dates, positions)
-                except Exception as exc:
-                    gate_verified = False
-                    global_gate_reason = f"FEATURE_BUILD_FAILED:{type(exc).__name__}:{str(exc)[:220]}"
-                    append_error(errors_path, config_id=cid, fold_id=fold_id, step="build_feature_batch", error=exc)
-            if cache_key in feature_cache:
-                batch, session_dates, folds = feature_cache[cache_key]
-                fold = next(x for x in folds if x["fold_id"] == fold_id)
-                bounds = _session_bounds(label_id, fold, session_dates)
-                feature_missingness = _diagnostic_feature_missingness(batch)
-            else:
-                session_dates = label_manifest.get("common_rules", {}).get("eligible_timestamp_range", [])
-                bounds = (
-                    str(prereg.get("scope", {}).get("calendar_range", ["2021-10-11"])[0]),
-                    "NOT_AVAILABLE",
-                    str(windows_by_id[fold_id]["start"]),
-                    str(windows_by_id[fold_id]["end_inclusive"]),
-                )
-                feature_missingness = None
-                fold = {"fold_id": fold_id, "start": None, "end_exclusive": None}
-            status, reason = precheck_to_terminal_status(pre_row, gate_verified)
-            if global_gate_reason and pre_row is not None and pre_row.get("status") == "PRECHECK_PASS":
-                status, reason = "BLOCKED_GATE", global_gate_reason
-            if status != "EXECUTED_AUDITED":
-                row = _base_row(
-                    config=config, fold_id=fold_id, bounds=bounds, status=status,
-                    reason=reason or None, precheck_row=pre_row,
-                    label_target=target_definition, purge=purge, embargo=embargo,
-                    source_manifest_sha256=dataset_pin_sha256,
-                    feature_missingness=feature_missingness,
-                )
-                rows.append(row)
-                write_json_atomic(output_path, {"schema_version": "pm0001-result-bundle-r3-v1", "partial": True, "rows": rows})
-                continue
-
+    grouped: dict[tuple[str, int], list[dict[str, Any]]] = defaultdict(list)
+    for item in configs:
+        spec = item["configuration"]
+        grouped[(str(spec["label_id"]), int(spec["lookback_bars"]))].append(item)
+    # Process one label/lookback representation at a time. Retaining all feature batches
+    # would duplicate the 40/120-column lag matrices and risk exhausting the hosted runner.
+    ordered_groups = sorted(grouped.items(), key=lambda kv: min(str(x["config_id"]) for x in kv[1]))
+    for cache_key, group_configs in ordered_groups:
+        label_id, lookback = cache_key
+        batch = None
+        session_dates: list[str] = []
+        folds: list[dict[str, Any]] = []
+        X = y = decision = endpoint = None
+        if gate_verified and records is not None and calendar is not None:
             try:
-                samples = batch.samples
-                X = np.asarray([s.features for s in samples], dtype=float)
-                y = np.asarray([s.y for s in samples], dtype=int)
-                decision = np.asarray([s.decision_session_index for s in samples], dtype=int)
-                endpoint = np.asarray([s.target_endpoint_session_index for s in samples], dtype=int)
-                start, end = int(fold["start"]), int(fold["end_exclusive"])
-                # Use only the frozen refit cadence / feature / label settings from the registered config.
-                result = fit_pm0001_outer_fold(
-                    X, y, decision, endpoint,
-                    fold_id=fold_id,
-                    validation_start_session=start,
-                    validation_end_session_exclusive=end,
-                    purge_sessions=purge,
-                    embargo_sessions=embargo,
-                    c=float(c["model_parameters"]["C"]),
-                    min_outer_train_rows=minima["min_outer_train_rows"],
-                    min_outer_validation_rows=minima["min_outer_validation_rows"],
-                    min_inner_train_rows=minima["min_inner_train_rows"],
-                    min_inner_validation_rows=minima["min_inner_validation_rows"],
-                    min_outer_train_class_support=minima["min_outer_train_class_support"],
-                    min_outer_validation_class_support=minima["min_outer_validation_class_support"],
-                    min_inner_class_support=minima["min_inner_class_support"],
-                    refit_cadence_sessions=20,
-                )
-                positions, deltas, session_metrics = session_loss_deltas(result, samples, session_dates)
-                y_true = list(map(int, result.y_validation))
-                candidate_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.probabilities]
-                baseline_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.baseline_probabilities]
-                baseline_ll = float(session_metrics["baseline_log_loss"])
-                candidate_ll = float(session_metrics["candidate_log_loss"])
-                improvement = baseline_ll - candidate_ll
-                if not (math.isfinite(baseline_ll) and math.isfinite(candidate_ll) and baseline_ll > 0 and candidate_ll > 0):
-                    raise SweepError("NONFINITE_OR_NONPOSITIVE_LOGLOSS")
-                if abs(improvement - statistics.fmean(deltas)) > 1e-10:
-                    raise SweepError("SESSION_LOSS_IMPROVEMENT_ARITHMETIC_MISMATCH")
-                metrics = {
-                    "baseline_log_loss": baseline_ll,
-                    "candidate_log_loss": candidate_ll,
-                    "log_loss_improvement": improvement,
-                    "class_prior_baseline_log_loss": baseline_ll,
-                    "previous_sign_baseline_log_loss": None,
-                    "brier_score": float(brier_score(y_true, candidate_probabilities)),
-                    "balanced_accuracy": float(balanced_accuracy(y_true, candidate_probabilities)),
-                    "roc_auc": float(roc_auc_score(y_true, candidate_probabilities)),
-                    "average_precision": float(average_precision_score(y_true, candidate_probabilities)),
-                    "calibration_intercept": result.calibration_intercept,
-                    "calibration_slope": result.calibration_slope,
-                    "observed_session_count": len(positions),
-                    "bootstrap_status": "PENDING_CONFIGURATION_INFERENCE",
-                    "bootstrap_replicates": 0,
-                }
-                # Use the final rolling-refit training set for row-level train support accounting.
-                train_rows = len(result.final_train_indices)
-                final_train_y = y[np.asarray(result.final_train_indices, dtype=int)]
-                row_pre = dict(pre_row or {})
-                row_pre["train_rows"] = train_rows
-                row_pre["train_positive"] = int(np.sum(final_train_y == 1))
-                row_pre["train_negative"] = int(np.sum(final_train_y == 0))
-                row_pre["validation_rows"] = len(result.validation_indices)
-                row_pre["validation_positive"] = int(np.sum(np.asarray(y_true) == 1))
-                row_pre["validation_negative"] = int(np.sum(np.asarray(y_true) == 0))
-                row = _base_row(
-                    config=config, fold_id=fold_id, bounds=bounds, status="EXECUTED_AUDITED",
-                    reason=None, precheck_row=row_pre, label_target=target_definition,
-                    purge=purge, embargo=embargo, source_manifest_sha256=dataset_pin_sha256,
-                    feature_missingness=feature_missingness, metrics=metrics,
-                )
-                row["precheck_status"] = "PRECHECK_PASS"
-                row["feature_rows_scored"] = len(result.validation_indices)
-                row["rolling_refit_count"] = int(result.refit_count)
-                row["rolling_refit_cadence_exchange_sessions"] = 20
-                row["oof_calibration_rows"] = int(result.oof_rows)
-                row["label_exclusion_count_status"] = "FOLD_SPECIFIC_COUNT_NOT_EMITTED_BY_FROZEN_FEATURE_BUILDER"
-                row["previous_sign_baseline_status"] = "NOT_DEFINED_IN_FROZEN_PREREGISTRATION"
-                row["inference_scope"] = "configuration-level paired moving-block bootstrap across available outer validation sessions"
-                rows.append(row)
-                fold_delta_by_config[cid][fold_id] = deltas
-                fitting_any = True
+                session_dates = load_eligible_session_dates(calendar, label_id)
+                batch = build_feature_batch(records, calendar, label_id, lookback,
+                                            source_csv_sha256=EXPECTED_DATA_SHA256)
+                folds = fold_positions(session_dates, windows)
+                X = np.asarray([s.features for s in batch.samples], dtype=float)
+                y = np.asarray([s.y for s in batch.samples], dtype=int)
+                decision = np.asarray([s.decision_session_index for s in batch.samples], dtype=int)
+                endpoint = np.asarray([s.target_endpoint_session_index for s in batch.samples], dtype=int)
             except Exception as exc:
-                tb = traceback.format_exc()
-                append_error(errors_path, config_id=cid, fold_id=fold_id, step="fit_pm0001_outer_fold", error=exc, tb=tb)
-                row = _base_row(
-                    config=config, fold_id=fold_id, bounds=bounds, status="FAILED_TECHNICAL",
-                    reason=f"FIT_OR_METRIC_FAILURE:{type(exc).__name__}:{str(exc)[:200]}",
-                    precheck_row=pre_row, label_target=target_definition,
-                    purge=purge, embargo=embargo, source_manifest_sha256=dataset_pin_sha256,
-                    feature_missingness=feature_missingness,
-                )
-                row["failure_traceback_sha256"] = sha256_bytes(tb.encode("utf-8"))
-                rows.append(row)
-            # Persist progress after every configuration/fold so interruptions leave an auditable partial bundle.
-            write_json_atomic(output_path, {"schema_version": "pm0001-result-bundle-r3-v1", "partial": True, "rows": rows})
+                gate_verified = False
+                global_gate_reason = f"FEATURE_BUILD_FAILED:{type(exc).__name__}:{str(exc)[:220]}"
+                append_error(errors_path, config_id=str(group_configs[0]["config_id"]), fold_id=None,
+                             step="build_feature_batch", error=exc)
+                batch = None
+                X = y = decision = endpoint = None
 
+        group_configs = sorted(group_configs, key=lambda x: str(x["config_id"]))
+        for config in group_configs:
+            cid = str(config["config_id"])
+            spec = config["configuration"]
+            label_id = str(spec["label_id"])
+            purge = int(spec["purge_exchange_sessions"])
+            embargo = int(spec["embargo_exchange_sessions"])
+            minima = _get_label_minima(prereg, label_id)
+            target_definition = label_targets.get(label_id, label_id)
+            for fold_id in FOLD_IDS:
+                all_config_fold_rows += 1
+                pre_row = precheck_map.get((cid, fold_id))
+                if batch is not None:
+                    fold = next(x for x in folds if x["fold_id"] == fold_id)
+                    bounds = _session_bounds(label_id, fold, session_dates)
+                    feature_missingness = _diagnostic_feature_missingness(batch)
+                else:
+                    bounds = (
+                        str(prereg.get("scope", {}).get("calendar_range", ["2021-10-11"])[0]),
+                        "NOT_AVAILABLE",
+                        str(windows_by_id[fold_id]["start"]),
+                        str(windows_by_id[fold_id]["end_inclusive"]),
+                    )
+                    feature_missingness = None
+                    fold = {"fold_id": fold_id, "start": None, "end_exclusive": None}
+                status, reason = precheck_to_terminal_status(pre_row, gate_verified)
+                if global_gate_reason and pre_row is not None and pre_row.get("status") == "PRECHECK_PASS":
+                    status, reason = "BLOCKED_GATE", global_gate_reason
+                if status != "EXECUTED_AUDITED":
+                    row = _base_row(
+                        config=config, fold_id=fold_id, bounds=bounds, status=status,
+                        reason=reason or None, precheck_row=pre_row,
+                        label_target=target_definition, purge=purge, embargo=embargo,
+                        source_manifest_sha256=dataset_pin_sha256,
+                        feature_missingness=feature_missingness,
+                    )
+                    rows.append(row)
+                    write_json_atomic(output_path, {"schema_version": "pm0001-result-bundle-r3-v1", "partial": True, "rows": rows})
+                    continue
+
+                try:
+                    assert batch is not None and X is not None and y is not None
+                    assert decision is not None and endpoint is not None
+                    start_pos, end_pos = int(fold["start"]), int(fold["end_exclusive"])
+                    result = fit_pm0001_outer_fold(
+                        X, y, decision, endpoint,
+                        fold_id=fold_id,
+                        validation_start_session=start_pos,
+                        validation_end_session_exclusive=end_pos,
+                        purge_sessions=purge,
+                        embargo_sessions=embargo,
+                        c=float(spec["model_parameters"]["C"]),
+                        min_outer_train_rows=minima["min_outer_train_rows"],
+                        min_outer_validation_rows=minima["min_outer_validation_rows"],
+                        min_inner_train_rows=minima["min_inner_train_rows"],
+                        min_inner_validation_rows=minima["min_inner_validation_rows"],
+                        min_outer_train_class_support=minima["min_outer_train_class_support"],
+                        min_outer_validation_class_support=minima["min_outer_validation_class_support"],
+                        min_inner_class_support=minima["min_inner_class_support"],
+                        refit_cadence_sessions=20,
+                    )
+                    positions, deltas, session_metrics = session_loss_deltas(result, batch.samples, session_dates)
+                    y_true = list(map(int, result.y_validation))
+                    candidate_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.probabilities]
+                    baseline_probabilities = [min(1.0 - EPSILON, max(EPSILON, float(p))) for p in result.baseline_probabilities]
+                    baseline_ll = float(session_metrics["baseline_log_loss"])
+                    candidate_ll = float(session_metrics["candidate_log_loss"])
+                    improvement = baseline_ll - candidate_ll
+                    if not (math.isfinite(baseline_ll) and math.isfinite(candidate_ll) and baseline_ll > 0 and candidate_ll > 0):
+                        raise SweepError("NONFINITE_OR_NONPOSITIVE_LOGLOSS")
+                    if abs(improvement - statistics.fmean(deltas)) > 1e-10:
+                        raise SweepError("SESSION_LOSS_IMPROVEMENT_ARITHMETIC_MISMATCH")
+                    metrics = {
+                        "baseline_log_loss": baseline_ll,
+                        "candidate_log_loss": candidate_ll,
+                        "log_loss_improvement": improvement,
+                        "class_prior_baseline_log_loss": baseline_ll,
+                        "previous_sign_baseline_log_loss": None,
+                        "brier_score": float(brier_score(y_true, candidate_probabilities)),
+                        "balanced_accuracy": float(balanced_accuracy(y_true, candidate_probabilities)),
+                        "roc_auc": float(roc_auc_score(y_true, candidate_probabilities)),
+                        "average_precision": float(average_precision_score(y_true, candidate_probabilities)),
+                        "calibration_intercept": result.calibration_intercept,
+                        "calibration_slope": result.calibration_slope,
+                        "observed_session_count": len(positions),
+                        "bootstrap_status": "PENDING_CONFIGURATION_INFERENCE",
+                        "bootstrap_replicates": 0,
+                    }
+                    train_rows = len(result.final_train_indices)
+                    final_train_y = y[np.asarray(result.final_train_indices, dtype=int)]
+                    row_pre = dict(pre_row or {})
+                    row_pre["train_rows"] = train_rows
+                    row_pre["train_positive"] = int(np.sum(final_train_y == 1))
+                    row_pre["train_negative"] = int(np.sum(final_train_y == 0))
+                    row_pre["validation_rows"] = len(result.validation_indices)
+                    row_pre["validation_positive"] = int(np.sum(np.asarray(y_true) == 1))
+                    row_pre["validation_negative"] = int(np.sum(np.asarray(y_true) == 0))
+                    row = _base_row(
+                        config=config, fold_id=fold_id, bounds=bounds, status="EXECUTED_AUDITED",
+                        reason=None, precheck_row=row_pre, label_target=target_definition,
+                        purge=purge, embargo=embargo, source_manifest_sha256=dataset_pin_sha256,
+                        feature_missingness=feature_missingness, metrics=metrics,
+                    )
+                    row["precheck_status"] = "PRECHECK_PASS"
+                    row["feature_rows_scored"] = len(result.validation_indices)
+                    row["rolling_refit_count"] = int(result.refit_count)
+                    row["rolling_refit_cadence_exchange_sessions"] = 20
+                    row["oof_calibration_rows"] = int(result.oof_rows)
+                    rows.append(row)
+                    fold_delta_by_config[cid][fold_id] = deltas
+                    fitting_any = True
+                except Exception as exc:
+                    tb = traceback.format_exc()
+                    append_error(errors_path, config_id=cid, fold_id=fold_id,
+                                 step="fit_pm0001_outer_fold", error=exc, tb=tb)
+                    row = _base_row(
+                        config=config, fold_id=fold_id, bounds=bounds, status="FAILED_TECHNICAL",
+                        reason=f"FIT_OR_METRIC_FAILURE:{type(exc).__name__}:{str(exc)[:200]}",
+                        precheck_row=pre_row, label_target=target_definition,
+                        purge=purge, embargo=embargo, source_manifest_sha256=dataset_pin_sha256,
+                        feature_missingness=feature_missingness,
+                    )
+                    row["failure_traceback_sha256"] = sha256_bytes(tb.encode("utf-8"))
+                    rows.append(row)
+                write_json_atomic(output_path, {"schema_version": "pm0001-result-bundle-r3-v1", "partial": True, "rows": rows})
+        # Release feature objects before constructing the next representation.
+        del batch, X, y, decision, endpoint, session_dates, folds
+        import gc
+        gc.collect()
+
+    rows.sort(key=lambda r: (str(r["config_id"]), str(r["fold_id"])))
     if all_config_fold_rows != 320 or len(rows) != 320:
         exc = SweepError(f"RESULT_TERMINAL_ROW_ACCOUNTING_FAILED:attempted={all_config_fold_rows}:rows={len(rows)}")
         append_error(errors_path, config_id=None, fold_id=None, step="terminal_accounting", error=exc)
