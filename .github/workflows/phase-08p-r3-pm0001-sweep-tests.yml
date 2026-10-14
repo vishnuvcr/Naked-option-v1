@@ -17,6 +17,8 @@ on:
       - scripts/test_run_pm0001_prediction_sweep_r3.py
       - scripts/freeze_pm0001_result_bundle_r3.py
       - scripts/test_freeze_pm0001_result_bundle_r3.py
+      - scripts/publish_pm0001_run_status_r3.py
+      - scripts/test_publish_pm0001_run_status_r3.py
       - scripts/prediction_pm0001_executor_r3.py
       - scripts/prediction_logistic_adapter_r3.py
       - scripts/prediction_logistic_calibration_r3.py
@@ -51,6 +53,8 @@ jobs:
             scripts/run_pm0001_prediction_sweep_r3.py \
             scripts/freeze_pm0001_result_bundle_r3.py \
             scripts/test_freeze_pm0001_result_bundle_r3.py \
+            scripts/publish_pm0001_run_status_r3.py \
+            scripts/test_publish_pm0001_run_status_r3.py \
             scripts/prediction_pm0001_executor_r3.py \
             scripts/prediction_logistic_adapter_r3.py \
             scripts/prediction_logistic_calibration_r3.py \
@@ -63,6 +67,7 @@ jobs:
           python -m unittest discover -s scripts -p 'test_create_pm0001_execution_gate_r3.py' -v
           python -m unittest discover -s scripts -p 'test_run_pm0001_prediction_sweep_r3.py' -v
           python -m unittest discover -s scripts -p 'test_freeze_pm0001_result_bundle_r3.py' -v
+          python -m unittest discover -s scripts -p 'test_publish_pm0001_run_status_r3.py' -v
           python -m unittest discover -s scripts -p 'test_prediction_pm0001_executor_r3.py' -v
           python -m unittest discover -s scripts -p 'test_prediction_logistic_calibration_r3.py' -v
           python -m unittest discover -s scripts -p 'test_prediction_walkforward_r3.py' -v
