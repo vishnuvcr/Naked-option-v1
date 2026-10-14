@@ -445,11 +445,20 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         successful_tests = sum(1 for r in result.get("rows", []) if r.get("terminal_status") in {"EXECUTED_AUDITED", "REJECTED_EMPIRICAL"})
         if successful_tests <= 0:
             issue(issues, "NO_EMPIRICAL_METRIC_ROWS_IN_ACQUIRED_BUNDLE")
-        if successful_tests > 0 and not any("inference_session" in p or "bootstrap_input" in p for p in artifact_hashes):
-            warnings.append({
-                "code": "RAW_BOOTSTRAP_INPUTS_NOT_PUBLISHED",
-                "detail": "The published bundle provides aggregate CIs/p-values and code, but not the per-session paired loss-delta sequences needed to independently rerun the bootstrap numerically. This reviewer independently recomputed BY adjustment and arithmetic/ranges but cannot independently reproduce each bootstrap CI/raw p-value from persisted inputs."
-            })
+        if result_counts.get("FAILED_TECHNICAL", 0) > 0:
+            issue(issues, "RESULT_BUNDLE_CONTAINS_TECHNICAL_FAILURES", count=result_counts["FAILED_TECHNICAL"])
+        if result_counts.get("BLOCKED_GATE", 0) > 0:
+            issue(issues, "RESULT_BUNDLE_CONTAINS_UNEXPECTED_GATE_BLOCKS", count=result_counts["BLOCKED_GATE"])
+        families_for_repro = result.get("multiplicity", {}).get("label_families", {})
+        any_numeric_raw_p = any(
+            isinstance(rec.get("raw_p_value"), (int, float)) and not isinstance(rec.get("raw_p_value"), bool)
+            for fam in families_for_repro.values()
+            for rec in fam.get("configurations", {}).values()
+        )
+        if any_numeric_raw_p and not any("inference_session" in p or "bootstrap_input" in p for p in artifact_hashes):
+            issue(issues, "BOOTSTRAP_INPUTS_NOT_PUBLISHED",
+                  detail="A numerical bootstrap CI/p-value is reported, but the bundle omits the per-session paired loss-delta inputs needed for an independent numeric recomputation.")
+
     except Exception as exc:
         issue(issues, "RESULT_AUDIT_EXCEPTION", error=f"{type(exc).__name__}:{str(exc)[:600]}")
 
@@ -458,7 +467,7 @@ def audit_bundle(root: Path, request_path: Path) -> dict[str, Any]:
         "schema_version": "pm0001-independent-results-audit-r3-v1",
         "audit": "independent-read-only-pm0001-result-bundle-audit",
         "decision": decision,
-        "results_acquired": True,
+        "results_acquired": request.get("results_acquired") is True,
         "source_commit": request.get("source_execution_commit"),
         "tested_source_commit": request.get("tested_source_commit"),
         "workflow_run_id": request.get("source_workflow_run_id"),
