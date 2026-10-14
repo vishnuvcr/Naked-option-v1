@@ -345,8 +345,17 @@ def main() -> int:
         if not args.feature_report.is_file():
             raise FreezeError("EXECUTION_GATE_REQUIRES_FEATURE_CONSTRUCTION_REPORT")
         feature_raw = args.feature_report.read_bytes()
-        if gate_doc.get("preflight_report_git_blob_sha1") != git_blob_sha1(args.preflight_report.read_bytes()):
+        preflight_raw = args.preflight_report.read_bytes()
+        try:
+            preflight_rel = args.preflight_report.resolve().relative_to(ROOT.resolve()).as_posix()
+        except ValueError as exc:
+            raise FreezeError("RUN_PREFLIGHT_REPORT_OUTSIDE_REPOSITORY") from exc
+        if gate_doc.get("preflight_report_path") != preflight_rel or result.get("preflight_report_path") != preflight_rel:
+            raise FreezeError("EXECUTION_GATE_PREFLIGHT_PATH_MISMATCH")
+        if gate_doc.get("preflight_report_git_blob_sha1") != git_blob_sha1(preflight_raw):
             raise FreezeError("EXECUTION_GATE_PREFLIGHT_BLOB_PIN_MISMATCH")
+        if gate_doc.get("preflight_report_sha256") != sha256_bytes(preflight_raw) or result.get("preflight_report_sha256") != sha256_bytes(preflight_raw):
+            raise FreezeError("EXECUTION_GATE_PREFLIGHT_SHA256_MISMATCH")
         if gate_doc.get("feature_construction_report_git_blob_sha1") != git_blob_sha1(feature_raw):
             raise FreezeError("EXECUTION_GATE_FEATURE_REPORT_BLOB_PIN_MISMATCH")
         if gate_doc.get("feature_construction_report_sha256") != sha256_bytes(feature_raw):
