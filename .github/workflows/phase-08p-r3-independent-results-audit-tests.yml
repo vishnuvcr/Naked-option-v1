@@ -1,0 +1,45 @@
+name: Phase 8P R3 independent PM0001 result-audit tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [phase-08-prediction-tester]
+    paths:
+      - scripts/independent_pm0001_results_audit_r3.py
+      - scripts/test_independent_pm0001_results_audit_r3.py
+      - .github/workflows/phase-08p-r3-independent-results-audit-tests.yml
+permissions:
+  contents: read
+concurrency:
+  group: phase-08p-r3-independent-results-audit-tests
+  cancel-in-progress: false
+jobs:
+  independent-synthetic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile independent auditor without developer imports
+        run: python -m py_compile scripts/independent_pm0001_results_audit_r3.py scripts/test_independent_pm0001_results_audit_r3.py
+      - name: Run independent synthetic result-contract tests
+        run: python -m unittest discover -s scripts -p "test_independent_pm0001_results_audit_r3.py" -v
+      - name: Assert standard-library-only execution
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          tree=ast.parse(Path("scripts/independent_pm0001_results_audit_r3.py").read_text())
+          imports=[]
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  imports.extend(alias.name.split(".")[0] for alias in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  imports.append(node.module.split(".")[0])
+          allowed={"argparse","csv","hashlib","json","math","re","collections","pathlib","typing"}
+          bad=sorted(set(imports)-allowed-{"__future__"})
+          if bad:
+              raise SystemExit(f"Unexpected non-standard or developer imports: {bad}")
+          print("Independent audit dependencies are standard-library-only.")
+          PY
