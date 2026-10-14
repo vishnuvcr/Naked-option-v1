@@ -1,3 +1,11 @@
+## 2026-10-14 — Phase 8P PM0001 independent review PASS
+
+- First review REQUEST_CHANGES was traced to a tester schema-field mismatch, not a model-data mismatch. The auditor helper expected `observed_mean_improvement`; the persisted summary field is `observed_mean_session_improvement`.
+- Added mapping + regression test; synthetic tester CI passed (#38534192962, #38534198359). Corrected independent audit #38534260948 passed all artifact/source hashes, 320 terminal rows, 40 bootstrap configurations, 262 fold sequences and 29,326 session delta checks with zero issues/warnings. The original report is archived on the tester branch.
+- See the detailed [research error log](../ERROR_LOG.md). Strategy work remains blocked; next scope is broader prediction-family execution after configuration semantics and implementation gates pass.
+
+---
+
 ## 2026-10-14 — PM0001 execution bootstrap and concurrent-publication failures
 
 ### Run #38524449678 — download/authentication and artifact publisher
