@@ -29,7 +29,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
       - name: Install bounded modeling dependencies
         run: python -m pip install --disable-pip-version-check numpy scikit-learn
       - name: Compile the gated prediction execution path
