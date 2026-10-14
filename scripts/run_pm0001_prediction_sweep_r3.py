@@ -181,6 +181,13 @@ def _loss(y: int, p: float) -> float:
     return -(int(y) * math.log(pp) + (1 - int(y)) * math.log1p(-pp))
 
 
+def normalize_bootstrap_result(result: Mapping[str, Any]) -> dict[str, Any]:
+    """Map the statistics module's preregistered field names to result-schema names."""
+    out = dict(result)
+    out["raw_p_value"] = out.get("raw_two_sided_p_value_centered_bootstrap")
+    return out
+
+
 def session_loss_deltas(
     result: Any,
     samples: Sequence[Any],
@@ -334,10 +341,9 @@ def _add_bootstrap_to_rows(
             row["bootstrap_ci_lower"] = infer.get("ci_low")
             row["bootstrap_ci_upper"] = infer.get("ci_high")
             row["raw_p_value"] = infer.get("raw_p_value")
-            row["by_adjusted_p_value"] = (
-                adjusted[cid]["by_adjusted_p_value"]
-                if infer.get("raw_p_value") is not None else None
-            )
+            # Non-identifiable p-values enter BY as p=1 by preregistration; preserve
+            # that conservative adjusted value while leaving the raw p-value null.
+            row["by_adjusted_p_value"] = adjusted[cid]["by_adjusted_p_value"]
             row["bootstrap_status"] = infer.get("inferential_status", "NOT_IDENTIFIABLE")
             row["bootstrap_replicates"] = int(infer.get("replicates", 0))
             row["by_family_size"] = len(label_configs)
@@ -635,7 +641,7 @@ def run_sweep(
                     seed=BOOTSTRAP_SEED,
                     confidence_level=float(prereg_boot["confidence_level"]),
                 )
-                infer = dict(result)
+                infer = normalize_bootstrap_result(result)
             except Exception as exc:
                 append_error(errors_path, config_id=cid, fold_id=None, step="paired_moving_block_bootstrap", error=exc)
                 infer = {
