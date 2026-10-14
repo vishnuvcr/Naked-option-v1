@@ -1,3 +1,9 @@
+## 2026-10-14 — Eligibility gate blocked by stale PM0001 source pin
+- Category: provenance / gate integration
+- Evidence: [workflow #38471587415](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471587415) ran 9 eligibility unit tests successfully, then failed during manifest generation with `PM0001_IMPLEMENTATION_SOURCE_PIN_MISMATCH:scripts/prediction_pm0001_executor_r3.py`.
+- Cause: implementation gate report had stale blob pins after executor/test corrections. The executor synthetic suite subsequently passed in [workflow #38471406903](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38471406903), 7 tests. Gate report corrected to verified source pins at commit `db33e36d4a78637982f44c3e5a7c64fdb03b1e2c`.
+- Disposition: rerun the eligibility workflow and verify output before any empirical fit. No market data loaded, no empirical results, no holdout access.
+
 ## 2026-10-14 — PM0001 precheck decryption lacked the configured HF token
 - Category: workflow / encrypted data access
 - Component: `.github/workflows/phase-08p-pm0001-data-execution-precheck-r3.yml`
