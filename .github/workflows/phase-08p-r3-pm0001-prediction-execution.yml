@@ -24,7 +24,6 @@ on:
       - research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json
       - research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json
       - research/gates/PREDICTION_PRECHECK_DYNAMIC_HASH_CORRECTION_R3B_2026-10-14.json
-      - .github/workflows/phase-08p-r3-pm0001-prediction-execution.yml
 
 permissions:
   contents: write
@@ -299,7 +298,7 @@ jobs:
         continue-on-error: true
         shell: bash
         env:
-          PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
+          PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           # Refresh tracked logs/status before editing; keep unique run outputs (untracked) intact.
@@ -352,6 +351,7 @@ jobs:
           git commit -m "Publish Phase 8P R3A run $GITHUB_RUN_ID artifacts and outcomes"
           if test -n "$PUSH_TOKEN"; then git remote set-url origin "https://x-access-token:$PUSH_TOKEN@github.com/$GITHUB_REPOSITORY.git"; fi
           git push origin HEAD:phase-08-prediction-developer
+          gh workflow run phase-08p-submit-post-results-review.yml --ref phase-08-prediction-developer
           acquired=false
           if test -f "$RUN_MANIFEST"; then
             acquired="$(python - "$RUN_MANIFEST" <<'PY'
@@ -368,7 +368,8 @@ jobs:
         if: steps.publish.outcome == 'success' && steps.publish.outputs.results_acquired == 'true' && steps.freeze.outcome == 'success'
         shell: bash
         env:
-          REVIEW_PUSH_TOKEN: ${{ secrets.GH_TOKEN }}
+          REVIEW_PUSH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           test -n "$REVIEW_PUSH_TOKEN" || { echo "GH_TOKEN secret required for tester submission." >&2; exit 1; }
@@ -409,7 +410,7 @@ jobs:
           obj={
             "schema_version":"prediction-results-acquired-review-request-r3-v1",
             "run_id":str(runid),
-            "tested_source_commit":tested_commit,
+            "tested_source_commit":published_commit,
             "source_execution_commit":tested_commit,
             "source_workflow_run_id":str(runid),
             "result_published_commit":published_commit,
