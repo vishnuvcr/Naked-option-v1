@@ -8,7 +8,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: phase-08p-pm0001-data-execution-precheck-r3
+  group: phase-08p-research-writer
   cancel-in-progress: false
 
 jobs:
