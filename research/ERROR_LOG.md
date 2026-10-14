@@ -1,3 +1,27 @@
+## 2026-10-14 — PM0001 execution bootstrap and concurrent-publication failures
+
+### Run #38524449678 — download/authentication and artifact publisher
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524449678
+- The download step returned HTTP 401 because the workflow revision then in effect escaped the GitHub Actions expression in the token environment. The artifact uploader rejected the artifact name because the run-ID expression was also escaped and left a literal backslash.
+- The always-run publisher created a local commit but could not push because a concurrent encrypted-data preflight commit had advanced the developer branch.
+- Disposition: this run did not decrypt the dataset and performed zero fits. Later workflow revisions corrected the token/run-ID expressions and refresh branch files before publication.
+
+### Run #38524837518 — data-preflight publication race
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38524837518
+- The full encrypted-data preflight completed, but publication failed while rebasing its report-only commit because both the canonical preflight report and workflow log had changed remotely.
+- Disposition: report publication failed; this is not a prediction result. The canonical data hash remains `cbd3c51bcaecef0572b1f072b7b82ccc4f8f624469a256a6a440327c83b03204`.
+
+### Last complete 320-cell PM0001 precheck
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522693920
+- Counts: `PRECHECK_PASS=262`, `BLOCKED_SAMPLE_ELIGIBILITY=38`, `BLOCKED_DATA=20`; all 320 configuration/fold cells were represented.
+- It performed no fits and did not access the holdout. No empirical predictive metrics or strategy conclusions exist from that run.
+
+### Current retry
+- Workflow: https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378
+- Synthetic gates/source pins passed. It is currently in the canonical-data download/decryption step; no empirical fitting has been confirmed at this time.
+
+**Developer → Tester:** defer consolidated review until a complete frozen bundle states `results_acquired=true`; the independent tester's synthetic audit tests are passing, but no acquired empirical result is ready for review.
+
 ## 2026-10-14 — PM0001 pipeline bootstrap failed closed before data retrieval (run #38522300355)
 
 - Evidence: [workflow #38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) stopped at the new pre-download synthetic suite. The runner-test module could not import NumPy because the updated setup installed requirements-composite.txt but omitted numpy/scikit-learn as explicit dependencies. No market dataset was downloaded or decrypted and no model was fit.
