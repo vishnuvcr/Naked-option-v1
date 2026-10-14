@@ -80,6 +80,8 @@ def fixture():
         "feature_report_sha256": "d" * 64,
         "eligibility_blob_sha1": "el",
         "preflight_blob_sha1": "pre",
+        "preflight_report_path": "research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_123.json",
+        "preflight_report_sha256": "b" * 64,
         "implementation_gate_blob_sha1": "implsha",
         "prereg_blob_sha1": "pr",
         "precheck_blob_sha1": "precheckblob",
@@ -104,6 +106,8 @@ class PM0001ExecutionGateTests(unittest.TestCase):
         self.assertFalse(gate["manual_authorization_required"])
         self.assertFalse(gate["holdout_accessed"])
         self.assertEqual(gate["precheck_report_sha256"], "a" * 64)
+        self.assertEqual(gate["preflight_report_path"], "research/gates/PREDICTION_DATA_PREFLIGHT_R3_RUN_123.json")
+        self.assertEqual(gate["preflight_report_sha256"], "b" * 64)
 
     def test_wrong_dataset_hash_fails_closed(self):
         eligibility, preflight, implementation, precheck, args = fixture()
