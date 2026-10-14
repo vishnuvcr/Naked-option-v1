@@ -1,3 +1,16 @@
+## 2026-10-14 — PM0001 independent results gate PASS; prediction-only research continues
+
+- Original run: [#38525772378](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38525772378). Frozen at [PM0001 report](../results/phase8p-pm0001/run-38525772378/PM0001_PREDICTION_RESULTS.md), source execution commit `cd4ae144b8eff3ca1ed20bd2091ed212c42b41c2`, published commit `8b1d845635a0b269a425e46a37ae4fd6f57e944f`, canonical data hash unchanged.
+- Corrected independent audit [#38534260948](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38534260948) returned PASS: 9 frozen artifacts, 320 config/fold outcomes, 262 executed/audited, 58 blocked; 40 bootstraps recomputed over 262 eligible fold sequences / 29,326 session deltas; BY and arithmetic checks passed; zero issues/warnings; holdout unopened.
+- The first reviewer REQUEST_CHANGES had a tester script mapping defect, comparing the normalized field `observed_mean_improvement` against a report field persisted as `observed_mean_session_improvement`. Preserved original report; added a schema-mapping helper and regression test; independent synthetic CI passed before resubmission.
+- Result: small but statistically significant log-loss improvement for the 5-minute horizon in four nearly identical PM0001 configs. This is a prediction finding only, not percent accuracy or net tradable edge.
+- Next bounded phase: extend prediction models beyond PM0001 by resolving exact config-to-adapter parameter binding and executing further compatible families under the same frozen ten-horizon protocol. 1,000 methods/20 families exist in the registry, with 426 only conditionally compatible and 574 compatibility-blocked in the frozen inventory. No status flags may be flipped to bypass implementation proof.
+- Strategy evaluation and untouched holdout access remain out of scope until prediction-method research and its robustness gates complete.
+
+**Developer → Tester:** use the corrected schema mapping; independently audit the next acquired prediction bundle. Preserve all blocked/null outcomes and never approve method-family expansion based only on synthetic tests.
+
+---
+
 ## 2026-10-14 — Frozen PM0001 results and independent handoff resumed
 
 - Run #38525772378 completed empirical fitting and froze the result bundle at [run output](../results/phase8p-pm0001/run-38525772378/PM0001_PREDICTION_RESULTS.md). Complete terminal accounting: 320 cells, 262 executed/audited, 58 blocked, zero runtime-error rows, holdout not accessed.
