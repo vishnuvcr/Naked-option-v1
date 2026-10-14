@@ -213,6 +213,7 @@ def run_precheck(merged_gzip: Path, output_path: Path) -> dict[str, Any]:
     by_key = {}
     rows = []
     status_counts = Counter()
+    feature_batch_diagnostics = {}
     for config in configs:
         c = config["configuration"]
         label_id, lookback = c["label_id"], int(c["lookback_bars"])
@@ -222,6 +223,8 @@ def run_precheck(merged_gzip: Path, output_path: Path) -> dict[str, Any]:
             batch = build_feature_batch(records, calendar, label_id, lookback,
                                         source_csv_sha256=DATA_SHA256)
             by_key[key] = (batch, fold_positions(session_dates, windows))
+            # Aggregate feature-builder diagnostics only; never persist rows, features or sample objects.
+            feature_batch_diagnostics[f"{label_id}|L{lookback}"] = dict(batch.diagnostics)
         batch, folds = by_key[key]
         samples = batch.samples
         minima = support_minima(prereg, label_id)
@@ -248,6 +251,7 @@ def run_precheck(merged_gzip: Path, output_path: Path) -> dict[str, Any]:
         "source_csv_sha256": DATA_SHA256,
         "configuration_count": 40, "outer_fold_count": 8, "result_row_count": len(rows),
         "status_counts": dict(status_counts), "rows": rows,
+        "feature_batch_diagnostics": feature_batch_diagnostics,
         "raw_rows_retained": False, "raw_rows_emitted": False, "samples_persisted": False,
         "model_fitting_performed": False, "holdout_accessed": False,
         "empirical_fit_authorized": False,
