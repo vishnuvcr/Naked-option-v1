@@ -166,6 +166,62 @@ class FeatureConstructionR3Tests(unittest.TestCase):
         self.assertEqual(calendar_gap, timedelta(days=3))  # Friday to Monday is one exchange session, not one calendar day.
         self.assertEqual(len(batch.samples[0].features), 40)
 
+    def test_positional_final_minute_1529_bar_is_normalized_to_effective_1530(self):
+        days = sequential_dates("2025-01-02", 25)
+        rows = positional_rows(days)
+        for row in rows:
+            row["timestamp_ist"] = iso(row["session_date"], 15, 29)
+        batch = build_feature_batch(
+            rows, calendar_for(days), "POS_1D_UP_DOWN", 20,
+            source_csv_sha256=EXPECTED_DATA_SHA256,
+            calendar_sha256=EXPECTED_CALENDAR_SHA256,
+        )
+        self.assertEqual(batch.diagnostics["samples_emitted"], 4)
+        self.assertEqual(batch.diagnostics["session_close_source_time_1529_count"], 25)
+        self.assertEqual(batch.diagnostics["session_close_source_time_1530_count"], 0)
+        sample = next(row for row in batch.samples if row.decision_session_index == 20)
+        self.assertEqual(sample.decision_timestamp, iso(days[20], 15, 30))
+        self.assertEqual(sample.target_endpoint_timestamp, iso(days[21], 15, 30))
+
+    def test_explicit_1530_close_takes_precedence_over_1529_final_minute_bar(self):
+        days = sequential_dates("2025-01-02", 25)
+        rows = positional_rows(days)
+        for row in rows:
+            row["timestamp_ist"] = iso(row["session_date"], 15, 29)
+        rows.append({
+            "row_type": "SPOT",
+            "session_date": days[20],
+            "timestamp_ist": iso(days[20], 15, 30),
+            "nifty_close": "999.0",
+        })
+        batch = build_feature_batch(
+            rows, calendar_for(days), "POS_1D_UP_DOWN", 20,
+            source_csv_sha256=EXPECTED_DATA_SHA256,
+            calendar_sha256=EXPECTED_CALENDAR_SHA256,
+        )
+        sample = next(row for row in batch.samples if row.decision_session_index == 20)
+        self.assertEqual(sample.features[20], 999.0)
+        self.assertEqual(sample.decision_timestamp, iso(days[20], 15, 30))
+        self.assertEqual(batch.diagnostics["session_close_source_time_1530_count"], 1)
+
+    def test_1528_only_session_close_remains_missing_and_is_not_substituted(self):
+        days = sequential_dates("2025-01-02", 27)
+        rows = positional_rows(days)
+        missing_day = days[22]
+        for row in rows:
+            if row["session_date"] == missing_day:
+                row["timestamp_ist"] = iso(missing_day, 15, 28)
+        batch = build_feature_batch(
+            rows, calendar_for(days), "POS_1D_UP_DOWN", 20,
+            source_csv_sha256=EXPECTED_DATA_SHA256,
+            calendar_sha256=EXPECTED_CALENDAR_SHA256,
+        )
+        self.assertEqual(batch.diagnostics["missing_decision_close_sessions"], 1)
+        self.assertEqual(batch.diagnostics["missing_session_close_count"], 1)
+        self.assertFalse(any(sample.decision_session_index == 22 for sample in batch.samples))
+        self.assertGreater(batch.diagnostics["feature_history_excluded"], 0)
+        self.assertEqual(batch.diagnostics["session_close_source_time_1529_count"], 0)
+
     def test_missing_official_session_close_is_never_forward_filled(self):
         days = sequential_dates("2025-01-02", 27)
         missing_day = days[22]
