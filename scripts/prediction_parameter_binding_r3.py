@@ -47,6 +47,16 @@ def bind_configuration(config: dict[str, Any], family: str) -> Binding:
         dropout=p.get("dropout")
         if dropout not in {0.2,0.4}: return Binding(family,p,False,"DROPOUT_VALUE_MISSING_OR_UNSUPPORTED")
         return Binding(family,p,False,"DROPOUT_NOT_IMPLEMENTED")
+    if family=="probit_regression":
+        if set(p) != {"prior_scale"}:
+            return Binding(family,p,False,"PROBIT_PARAMETER_SET_MISMATCH")
+        scale=p.get("prior_scale")
+        if isinstance(scale,bool) or not isinstance(scale,(int,float)) or not 0<float(scale):
+            return Binding(family,p,False,"PROBIT_PRIOR_SCALE_INVALID")
+        if float(scale) not in {0.5,2.0}:
+            return Binding(family,p,False,"PROBIT_PRIOR_SCALE_OUTSIDE_FROZEN_REGISTRY")
+        p["prior_scale"]=float(scale)
+        return Binding(family,p,True)
     if family=="logistic_regression":
         if p.get("penalty")!="l2" or p.get("solver")!="lbfgs" or "C" not in p:
             return Binding(family,p,False,"LOGISTIC_PARAMETER_CONTRACT_UNSUPPORTED")
