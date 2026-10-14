@@ -35,5 +35,7 @@
     "research/registry/PREDICTION_LABEL_MANIFEST_R3_2026-10-13.json": "ec808129d19c1018d113ef01f9de230bae998b50"
   },
   "review_gate": "CONSOLIDATED_POST_RESULTS_INDEPENDENT_REVIEW_ONLY",
-  "holdout_accessed": false
+  "holdout_accessed": false,
+  "handoff_retry": 2,
+  "last_handoff_correction": "2026-10-14: dispatch workflow uses explicit repository context; result artifact hashes validated against published commit"
 }
