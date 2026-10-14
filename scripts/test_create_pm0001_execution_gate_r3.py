@@ -1,7 +1,11 @@
 """Synthetic-only tests for the run-scoped PM0001 execution gate."""
 import unittest
+from copy import deepcopy
 
-from create_pm0001_execution_gate_r3 import EXPECTED_DATA_SHA256, build_execution_gate, validate_precheck
+from create_pm0001_execution_gate_r3 import (
+    EXPECTED_DATA_SHA256, ROOT, build_execution_gate, git_blob_sha1, read_json,
+    validate_precheck, verify_feature_construction_report, verify_preflight_report,
+)
 
 
 FOLDS = [f"F{i:02d}" for i in range(1, 9)]
@@ -101,6 +105,35 @@ def fixture():
 
 
 class PM0001ExecutionGateTests(unittest.TestCase):
+    def test_feature_report_accepts_fresh_preflight_blob_when_semantic_sources_match(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_FEATURE_CONSTRUCTION_TEST_REPORT_R3A_2026-10-14.json")
+        preflight_path = ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json"
+        current_blob = git_blob_sha1(preflight_path.read_bytes())
+        self.assertNotEqual(report["verified_source_hashes"]["preflight_report_git_blob_sha1"], current_blob)
+        verify_feature_construction_report(report)
+
+    def test_current_preflight_passes_semantic_and_source_hash_checks(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        verify_preflight_report(report)
+
+    def test_preflight_wrong_canonical_hash_fails_closed(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        report["canonical_uncompressed_csv_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "DATA_PREFLIGHT_DATASET_HASH_MISMATCH"):
+            verify_preflight_report(report)
+
+    def test_preflight_wrong_preprocessing_hash_fails_closed(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        report["preprocessing_rules_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "DATA_PREFLIGHT_PREPROCESSING_RULES_SHA256_MISMATCH"):
+            verify_preflight_report(report)
+
+    def test_preflight_wrong_source_artifact_fails_closed(self):
+        report = read_json(ROOT / "research/gates/PREDICTION_DATA_PREFLIGHT_R3_2026-10-13.json")
+        report["source_artifact_id"] = 999
+        with self.assertRaisesRegex(ValueError, "DATA_PREFLIGHT_SOURCE_ARTIFACT_PIN_MISMATCH"):
+            verify_preflight_report(report)
+
     def test_gate_requires_complete_320_cell_grid_and_authorizes_only_40_pm0001_configs(self):
         eligibility, preflight, implementation, precheck, args = fixture()
         gate = build_execution_gate(eligibility, preflight, implementation, precheck, **args)
