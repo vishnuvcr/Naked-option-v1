@@ -970,3 +970,15 @@ Developer decision: PASS the prerequisite audit only; do not mark empirical pred
 - Hosted synthetic workflow [38468518354](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468518354) passed 62 tests across 16 suites on exact source commit `faa89942b26bfc874ed5604848db2f3a9d0a2bb8`. Compilation and source-level no-data/no-holdout checks passed.
 - The prior failed attempt [38468327357](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38468327357) caught the estimator output-shape mismatch; correction is covered in [gate report](../gates/PREDICTION_OOF_CALIBRATION_MATURITY_GATE_R3_2026-10-14.json) and [error log](../ERROR_LOG.md).
 - No market-data fitting, empirical prediction metrics, or holdout access. Continue to the developer-owned execution/eligibility work; defer tester review until complete results are frozen.
+
+## 2026-10-14 — Positional close timestamp mismatch found and corrected before model fitting
+
+- The full-data precheck [#38519242615](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38519242615) initially passed only the precheck code contract but revealed 140 positional config/fold rows with zero train and validation rows. No fitting occurred.
+- Aggregate source diagnostics in that run showed last eligible spot bar times `15:28=9`, `15:29=1150`, `15:30=72`. The source preflight explicitly recognizes 15:29 as the start of the final one-minute bar (its close is available at 15:30) or an explicit 15:30 close, while the original R3 feature builder accepted only an exact 15:30 source timestamp.
+- Created the strictly pre-results correction [R3A JSON](research/registry/PREDICTION_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.json) and [R3A note](research/governance/PHASE8P_FEATURE_CONSTRUCTION_CORRECTION_R3A_2026-10-14.md); added it to [research plan](research/RESEARCH_PLAN.md). The builder now accepts 15:29/15:30 only, prefers explicit 15:30 when both exist, normalizes 15:29 interval-end times to 15:30, and leaves 15:28-only sessions missing. No target, fold, threshold, or support minimum was changed.
+- Corrected feature tests and contract/source-pin audit passed in [workflow #38521046204](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38521046204), all 52 feature-contract checks passed, and empirical fitting remains disabled pending the new full-data precheck and exact run-scoped execution gate.
+- The execution gate, runner and result-freeze validator now require hashes for the R3A feature report and its exact code/correction inputs. A new precheck report field stores only aggregate feature diagnostics; no raw market rows or per-observation prediction data are to be published.
+
+**Next:** verify the full-data corrected 320-cell precheck, confirm nonzero positional sample support, require zero technical failures, issue the run-scoped gate only after report/source hashes validate, then fit only `PRECHECK_PASS` cells. Preserve all other cells as blocked.
+
+**Developer → Tester:** defer independent review until the full empirical results bundle is acquired, validated, frozen and hash-pinned.
