@@ -1,3 +1,10 @@
+## 2026-10-14 — User: Resume; pipeline bootstrap failure logged
+
+- Workflow [#38522300355](https://github.com/vishnuvcr/Naked-option-v1/actions/runs/38522300355) failed before data retrieval because NumPy was not installed for synthetic tests. The status publisher also failed with a syntax error.
+- No market rows were decrypted in this run and no model was fit. The next revision uses explicit dependencies and a tested publisher script.
+
+**Developer → Tester:** wait for the complete frozen results bundle.
+
 ## 2026-10-14 — User said “Proceed”; continued developer execution
 
 - Rechecked latest hosted runs and logs.
